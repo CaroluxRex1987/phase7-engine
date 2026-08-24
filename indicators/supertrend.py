@@ -24,7 +24,7 @@ def supertrend(df, length=10, multiplier=3.0):
             raise ValueError(f"Missing required column: {col}")
         # Clean input data
         df[col] = df[col].replace([np.inf, -np.inf], np.nan)
-        df[col] = df[col].fillna(method='ffill').fillna(method='bfill')
+        df[col] = df[col].ffill().bfill()
 
     high = df["high"]
     low = df["low"]
@@ -52,7 +52,7 @@ def supertrend(df, length=10, multiplier=3.0):
     
     # Validate TR series
     if tr.isna().any():
-        tr = tr.fillna(method='ffill').fillna(method='bfill').fillna(close * 0.01)
+        tr = tr.ffill().bfill().fillna(close * 0.01)
 
     # ATR (RMA) with validation
     try:
@@ -67,7 +67,7 @@ def supertrend(df, length=10, multiplier=3.0):
     
     # Final ATR validation
     if atr.isna().any():
-        atr = atr.fillna(method='ffill').fillna(method='bfill').fillna(close * 0.02)
+        atr = atr.ffill().bfill().fillna(close * 0.02)
 
     # ============================================================
     # BASIC BANDS

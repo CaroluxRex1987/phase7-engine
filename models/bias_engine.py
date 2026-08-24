@@ -46,7 +46,7 @@ def calculate_dynamic_bias(
             if col in df.columns and df[col].isna().any():
                 if col == "close":
                     # Forward fill close prices
-                    df[col] = df[col].fillna(method='ffill').fillna(method='bfill')
+                    df[col] = df[col].ffill().bfill()
                 else:
                     # For indicators, use close price as fallback
                     df[col] = df[col].fillna(df["close"])

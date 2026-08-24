@@ -30,7 +30,7 @@ def clean_series(series: pd.Series, method: str = "forward_fill", fallback_value
     
     # Apply cleaning method
     if method == "forward_fill":
-        series = series.fillna(method='ffill').fillna(method='bfill')
+        series = series.ffill().bfill()
     elif method == "interpolate":
         series = series.interpolate(method='linear', limit_direction='both')
     elif method == "fill_value" and fallback_value is not None:
