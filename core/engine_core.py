@@ -40,6 +40,9 @@ class Phase7Engine:
     def __init__(self) -> None:
         self.bias_state_machine = BiasStateMachine()
         self.risk_model = RiskModel()
+        # Performance optimization: cache for expensive calculations
+        self._indicator_cache = {}
+        self._structure_cache = {}
 
     def _validate_dataframe(self, df: pd.DataFrame, required_columns: list, context: str = "") -> bool:
         """
@@ -110,6 +113,9 @@ class Phase7Engine:
                     render_panel(decision_object)
                 return decision_object
 
+            # Performance optimization: Create cache key for this dataset
+            cache_key = f"{symbol}_{timeframe}_{len(df)}_{df['close'].iloc[-1]}"
+
             # 1b. FETCH MACRO DATA (Multi-Timeframe Confluence)
             df_macro = data_fetcher.get_tf(symbol, macro_tf, limit=100)
             macro_bias = "NEUTRAL"
@@ -129,9 +135,20 @@ class Phase7Engine:
                     logger.warning(f"Failed to process macro timeframe data: {e}")
                     macro_bias = "NEUTRAL"
 
-            # 2. INDICATORS
+            # 2. INDICATORS (with caching)
             try:
-                df = add_technical_indicators(df)
+                # Check cache first to avoid recalculating indicators
+                if cache_key in self._indicator_cache:
+                    logger.debug("Using cached indicators")
+                    df = self._indicator_cache[cache_key]
+                else:
+                    df = add_technical_indicators(df)
+                    # Cache the result (limit cache size to prevent memory issues)
+                    if len(self._indicator_cache) > 10:
+                        # Remove oldest entry
+                        oldest_key = next(iter(self._indicator_cache))
+                        del self._indicator_cache[oldest_key]
+                    self._indicator_cache[cache_key] = df.copy()
                 
                 # Validate required indicators were added
                 required_indicators = ["EMA_20", "EMA_50", "RSI", "ATR", "ADX"]
@@ -149,12 +166,26 @@ class Phase7Engine:
                     render_panel(decision_object)
                 return decision_object
 
-            # 3. STRUCTURE ENGINE
+            # 3. STRUCTURE ENGINE (with caching and in-place operations)
             try:
-                structure_obj = calculate_structure(df)
-                if not isinstance(structure_obj, dict):
-                    raise ValueError("Structure engine returned invalid format")
+                # Check structure cache
+                struct_cache_key = f"struct_{cache_key}"
+                if struct_cache_key in self._structure_cache:
+                    logger.debug("Using cached structure analysis")
+                    structure_obj = self._structure_cache[struct_cache_key]
+                    df_struct = df  # Use original df to avoid copy
+                else:
+                    # Pass copy=False to avoid unnecessary DataFrame copying in structure analysis
+                    structure_obj = calculate_structure(df, copy_df=False)
+                    if not isinstance(structure_obj, dict):
+                        raise ValueError("Structure engine returned invalid format")
                     
+                    # Cache structure results (limit cache size)
+                    if len(self._structure_cache) > 10:
+                        oldest_key = next(iter(self._structure_cache))
+                        del self._structure_cache[oldest_key]
+                    self._structure_cache[struct_cache_key] = structure_obj
+                
                 df_struct = structure_obj.get("df", df)
                 
                 # Validate structure output

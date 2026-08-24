@@ -64,34 +64,44 @@ def pct_slope(series: pd.Series) -> pd.Series:
     return clean_series(slope, method="forward_fill")
 
 
-def add_technical_indicators(df: pd.DataFrame) -> pd.DataFrame:
+def add_technical_indicators(df: pd.DataFrame, inplace: bool = False) -> pd.DataFrame:
     """
     Add all core technical indicators required by the Phase‑7 engine with comprehensive NaN handling.
+    Optimized for performance with minimal DataFrame copying.
     """
 
-    df = df.copy()
+    if not inplace:
+        df = df.copy()
     
-    # Validate and clean input data
+    # Validate and clean input data (vectorized operations)
     required_cols = ["open", "high", "low", "close", "volume"]
+    
+    # Batch clean all columns at once to reduce overhead
     for col in required_cols:
         if col in df.columns:
-            df[col] = clean_series(df[col], method="forward_fill")
+            # Use in-place operations where possible
+            df[col] = df[col].replace([np.inf, -np.inf], np.nan)
+            df[col] = df[col].ffill().bfill()
 
     # ============================================================
-    # CORE INDICATORS WITH NaN PROTECTION
+    # CORE INDICATORS WITH NaN PROTECTION (Optimized)
     # ============================================================
 
+    # Pre-extract close prices to avoid repeated column access
+    close_prices = df["close"]
+    
+    # Calculate EMAs with optimized fallback
     try:
-        df["EMA_20"] = clean_series(ta.ema(df["close"], length=20), method="forward_fill")
+        ema_20 = ta.ema(close_prices, length=20)
+        df["EMA_20"] = ema_20.ffill().bfill() if ema_20.isna().any() else ema_20
     except Exception:
-        df["EMA_20"] = df["close"].ewm(span=20).mean()
-        df["EMA_20"] = clean_series(df["EMA_20"], method="forward_fill")
+        df["EMA_20"] = close_prices.ewm(span=20, adjust=False).mean()
 
     try:
-        df["EMA_50"] = clean_series(ta.ema(df["close"], length=50), method="forward_fill")
+        ema_50 = ta.ema(close_prices, length=50)
+        df["EMA_50"] = ema_50.ffill().bfill() if ema_50.isna().any() else ema_50
     except Exception:
-        df["EMA_50"] = df["close"].ewm(span=50).mean()
-        df["EMA_50"] = clean_series(df["EMA_50"], method="forward_fill")
+        df["EMA_50"] = close_prices.ewm(span=50, adjust=False).mean()
 
     try:
         df["RSI"] = clean_series(ta.rsi(df["close"], length=14), method="forward_fill", fallback_value=50.0)
@@ -172,30 +182,38 @@ def add_technical_indicators(df: pd.DataFrame) -> pd.DataFrame:
         # Fallback to EMA if KAMA fails
         df["KAMA"] = clean_series(df["close"].ewm(span=10).mean(), method="forward_fill")
 
-    # VWMA with comprehensive NaN and zero volume protection
+    # VWMA with optimized calculation (avoid intermediate Series creation)
     try:
-        volume_clean = clean_series(df["volume"], method="forward_fill", fallback_value=1.0)
-        volume_sum = volume_clean.rolling(window=20).sum()
-        price_volume_sum = (df["close"] * volume_clean).rolling(window=20).sum()
+        volume_col = df["volume"]
+        # Use rolling operations directly without creating intermediate cleaned series
+        volume_sum = volume_col.rolling(window=20).sum()
+        price_volume_sum = (close_prices * volume_col).rolling(window=20).sum()
         
-        # Prevent division by zero and handle NaN
-        vwma_raw = np.where(
-            (volume_sum > 0) & np.isfinite(volume_sum) & np.isfinite(price_volume_sum),
-            price_volume_sum / volume_sum,
-            df["close"]
-        )
-        df["VWMA"] = clean_series(pd.Series(vwma_raw, index=df.index), method="forward_fill")
+        # Vectorized calculation with safe division
+        valid_mask = (volume_sum > 0) & np.isfinite(volume_sum) & np.isfinite(price_volume_sum)
+        df["VWMA"] = np.where(valid_mask, price_volume_sum / volume_sum, close_prices)
+        
+        # Fill any remaining NaN values
+        if df["VWMA"].isna().any():
+            df["VWMA"] = df["VWMA"].ffill().bfill().fillna(close_prices)
     except Exception:
-        df["VWMA"] = clean_series(df["close"], method="forward_fill")
+        df["VWMA"] = close_prices
 
     # ============================================================
-    # SLOPES WITH NaN PROTECTION
+    # SLOPES WITH OPTIMIZED CALCULATION
     # ============================================================
 
-    df["EMA20_Slope"] = pct_slope(df["EMA_20"])
-    df["EMA50_Slope"] = pct_slope(df["EMA_50"])
-    df["VWMA_Slope"] = pct_slope(df["VWMA"])
-    df["KAMA_Slope"] = pct_slope(df["KAMA"])
+    # Batch calculate slopes to reduce function call overhead
+    slope_columns = ["EMA_20", "EMA_50", "VWMA", "KAMA"]
+    slope_names = ["EMA20_Slope", "EMA50_Slope", "VWMA_Slope", "KAMA_Slope"]
+    
+    for col, slope_name in zip(slope_columns, slope_names):
+        if col in df.columns:
+            # Optimized slope calculation without function call overhead
+            series = df[col]
+            prev_values = series.shift(1)
+            slope = ((series - prev_values) / prev_values * 100).replace([np.inf, -np.inf], 0.0)
+            df[slope_name] = slope.ffill().bfill().fillna(0.0)
 
     # Final validation: ensure no critical indicators have all NaN values
     critical_indicators = ["EMA_20", "EMA_50", "RSI", "ATR", "ADX"]

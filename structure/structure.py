@@ -47,10 +47,15 @@ class StructureEngine:
         return "NONE"
 
     def _detect_hvn_lvn(self, df):
-        # Default fallback values or basic percentile estimations if empty
+        # Optimized HVN/LVN detection using numpy for better performance
         if df is not None and not df.empty:
-            hvn = float(df['high'].max())
-            lvn = float(df['low'].min())
+            # Use numpy operations directly on values for speed
+            high_values = df['high'].values
+            low_values = df['low'].values
+            
+            # Use numpy functions which are faster than pandas
+            hvn = np.max(high_values)
+            lvn = np.min(low_values)
             return hvn, lvn
         return 0.0, 0.0
 
@@ -65,24 +70,29 @@ class StructureEngine:
         """
         Simple & Clean Volume Sentiment Classification.
         Uses VWMA slope + volume trend vs price trend.
+        Optimized for performance with vectorized operations.
         """
 
         if df is None or len(df) < 20:
             return "NEUTRAL VOLUME"
 
-        closes = df["close"].values
-        volumes = df["volume"].values
+        # Use numpy arrays directly for better performance
+        closes = df["close"].iloc[-10:].values  # Only get what we need
+        volumes = df["volume"].iloc[-10:].values
 
-        # VWMA slope (compare last 5 bars)
-        vwma_recent = np.average(closes[-5:], weights=volumes[-5:])
-        vwma_prev = np.average(closes[-10:-5], weights=volumes[-10:-5])
+        # Optimized VWMA calculation using numpy
+        try:
+            vwma_recent = np.average(closes[-5:], weights=volumes[-5:])
+            vwma_prev = np.average(closes[-10:-5], weights=volumes[-10:-5])
+        except ZeroDivisionError:
+            # Handle case where all volumes are zero
+            vwma_recent = np.mean(closes[-5:])
+            vwma_prev = np.mean(closes[-10:-5])
 
         vwma_slope = vwma_recent - vwma_prev
 
-        # Price trend (last 5 bars)
+        # Vectorized trend calculations
         price_slope = closes[-1] - closes[-5]
-
-        # Volume trend (last 5 bars)
         vol_slope = volumes[-1] - volumes[-5]
 
         # --------------------------------------------------------
@@ -116,11 +126,16 @@ class StructureEngine:
 # ENGINE COMPATIBILITY WRAPPER
 # ============================================================
 
-def calculate_structure(df, lookback=8):
+def calculate_structure(df, lookback=8, copy_df=True):
     """
     Compatibility wrapper function expected by engine_core.py.
     Provides structural analysis and injects required DataFrame columns
     (including 'STRUCTURE', 'HVN', and 'LVN') to support downstream modules.
+    
+    Args:
+        df: Input DataFrame
+        lookback: Lookback period for structure analysis
+        copy_df: Whether to copy DataFrame (set False for performance)
     """
     if df is None or df.empty:
         return {
@@ -133,18 +148,27 @@ def calculate_structure(df, lookback=8):
             "df": df
         }
 
-    current_price = float(df['close'].iloc[-1])
+    # Performance optimization: avoid DataFrame copy when not needed
+    current_price = df['close'].iloc[-1]  # Remove unnecessary float conversion
     engine = StructureEngine()
     result = engine.analyze(df, current_price)
     
-    # Create a copy of the DataFrame to prevent SettingWithCopy warnings
-    df_copy = df.copy()
+    # Conditionally copy DataFrame based on copy_df parameter
+    if copy_df:
+        df_result = df.copy()
+    else:
+        df_result = df
     
     # Inject columns required by engine_core and trend_health modules
-    df_copy["STRUCTURE"] = result.get("regime", "NEUTRAL STRUCTURE")
-    df_copy["HVN"] = result.get("hvn", 0.0)
-    df_copy["LVN"] = result.get("lvn", 0.0)
+    # Use vectorized assignment for better performance
+    regime_value = result.get("regime", "NEUTRAL STRUCTURE")
+    hvn_value = result.get("hvn", 0.0)
+    lvn_value = result.get("lvn", 0.0)
     
-    result["df"] = df_copy
+    df_result["STRUCTURE"] = regime_value
+    df_result["HVN"] = hvn_value
+    df_result["LVN"] = lvn_value
+    
+    result["df"] = df_result
         
     return result
