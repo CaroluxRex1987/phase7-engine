@@ -55,6 +55,13 @@ class RiskModel:
             if current_price <= 0 or atr_val <= 0:
                 logger.error(f"Invalid price inputs: price={current_price}, atr={atr_val}")
                 raise ValueError("Invalid price or ATR values")
+                
+            effective_bias = detailed_bias
+        except Exception as e:
+            logger.error(f"Stop targets calculation failed: {e}")
+            # Return safe defaults
+            return current_price * 0.99, current_price * 1.01, current_price * 1.02, current_price * 1.03
+            
         effective_bias = detailed_bias
         if effective_bias not in ["LONG", "SHORT"]:
             effective_bias = "LONG" if bias_score >= 0 else "SHORT"

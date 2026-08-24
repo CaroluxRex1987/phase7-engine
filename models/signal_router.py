@@ -221,87 +221,95 @@ class SignalRouter:
             final_action = self._determine_final_action(bias, trend, entry, risk, macro_bias)
 
             return {
-            "symbol": symbol,
-            "timeframe": timeframe,
-            "macro_bias": macro_bias,
+                "symbol": symbol,
+                "timeframe": timeframe,
+                "macro_bias": macro_bias,
 
-            # -------------------------
-            # Bias & Trend
-            # -------------------------
-            "bias": {
-                "raw": bias.get("raw", "NEUTRAL"),
-                "detailed": bias.get("detailed", "NEUTRAL"),
-                "score": bias.get("score", 0),
-                "regime": bias.get("regime", "NEUTRAL STRUCTURE"),
-                "volatility": bias.get("volatility", "NORMAL")
-            },
+                # -------------------------
+                # Bias & Trend
+                # -------------------------
+                "bias": {
+                    "raw": bias.get("raw", "NEUTRAL"),
+                    "detailed": bias.get("detailed", "NEUTRAL"),
+                    "score": bias.get("score", 0),
+                    "regime": bias.get("regime", "NEUTRAL STRUCTURE"),
+                    "volatility": bias.get("volatility", "NORMAL")
+                },
 
-            "trend": {
-                "health": trend.get("trend_health", 0),
-                "failure": trend.get("trend_failure", 0),
-                "exhaustion": trend.get("trend_exhaustion", 0),
-                "momentum": trend.get("momentum_mode", "HEALTHY"),
-                "momentum_mode": trend.get("momentum_mode", "HEALTHY"),
-                "momentum_divergence": trend.get("momentum_divergence", False)
-            },
+                "trend": {
+                    "health": trend.get("trend_health", 0),
+                    "failure": trend.get("trend_failure", 0),
+                    "exhaustion": trend.get("trend_exhaustion", 0),
+                    "momentum": trend.get("momentum_mode", "HEALTHY"),
+                    "momentum_mode": trend.get("momentum_mode", "HEALTHY"),
+                    "momentum_divergence": trend.get("momentum_divergence", False)
+                },
 
-            # -------------------------
-            # Structure
-            # -------------------------
-            "structure": {
-                "regime": structure.get("regime", "NEUTRAL"),
-                "sequence": structure.get("sequence", "NONE"),
-                "hvn": structure.get("hvn", 0.0),
-                "lvn": structure.get("lvn", 0.0),
-                "swing_struct": structure.get("swing_struct", exit_data.get("current_price", 0.0))
-            },
+                # -------------------------
+                # Structure
+                # -------------------------
+                "structure": {
+                    "regime": structure.get("regime", "NEUTRAL"),
+                    "sequence": structure.get("sequence", "NONE"),
+                    "hvn": structure.get("hvn", 0.0),
+                    "lvn": structure.get("lvn", 0.0),
+                    "swing_struct": structure.get("swing_struct", exit_data.get("current_price", 0.0))
+                },
 
-            # -------------------------
-            # Entry
-            # -------------------------
-            "entry": {
-                "zone_lower": entry.get("zone_lower", 0.0),
-                "zone_upper": entry.get("zone_upper", 0.0),
-                "long_signal": entry.get("long_signal", False),
-                "short_signal": entry.get("short_signal", False),
-                "score": entry.get("score", 0),
-                "distance_from_zone": entry.get("distance_from_zone", 0.0),
-                "entry_status": entry.get("entry_status", "ACTIVE ENTRY ZONE"),
-                "ema_pos_pts": entry.get("ema_pos_pts", 0),
-                "atr_dist_pts": entry.get("atr_dist_pts", 0),
-                "vwma_pts": entry.get("vwma_pts", 0),
-                "rsi_pts": entry.get("rsi_pts", 0),
-                "struct_pts": entry.get("struct_pts", 0)
-            },
+                # -------------------------
+                # Entry
+                # -------------------------
+                "entry": {
+                    "zone_lower": entry.get("zone_lower", 0.0),
+                    "zone_upper": entry.get("zone_upper", 0.0),
+                    "long_signal": entry.get("long_signal", False),
+                    "short_signal": entry.get("short_signal", False),
+                    "score": entry.get("score", 0),
+                    "distance_from_zone": entry.get("distance_from_zone", 0.0),
+                    "entry_status": entry.get("entry_status", "ACTIVE ENTRY ZONE"),
+                    "ema_pos_pts": entry.get("ema_pos_pts", 0),
+                    "atr_dist_pts": entry.get("atr_dist_pts", 0),
+                    "vwma_pts": entry.get("vwma_pts", 0),
+                    "rsi_pts": entry.get("rsi_pts", 0),
+                    "struct_pts": entry.get("struct_pts", 0)
+                },
 
-            # -------------------------
-            # Risk
-            # -------------------------
-            "risk": {
-                "atr_stop": risk.get("atr_stop", 0.0),
-                "targets": risk.get("targets", (0.0, 0.0, 0.0)),
-                "risk_valid": risk.get("risk_valid", True),
-                "risk_reason": risk.get("risk_reason", "OK"),
-                "risk_score": risk.get("risk_score", 0),
-                "confidence_score": risk.get("confidence_score", bias.get("score", 0)),
-                "signal_strength": risk.get("signal_strength", bias.get("score", 0)),
-                "trade_quality_current": risk.get("trade_quality_current", 0),
-                "trade_quality_proposed": risk.get("trade_quality_proposed", 0),
-                "validation_state": risk.get("validation_state", "NEUTRAL"),
-                "validation_score": risk.get("validation_score", 50.0),
-                "validation_note": risk.get("validation_note", "Standard validation review.")
-            },
+                # -------------------------
+                # Risk
+                # -------------------------
+                "risk": {
+                    "atr_stop": risk.get("atr_stop", 0.0),
+                    "targets": risk.get("targets", (0.0, 0.0, 0.0)),
+                    "risk_valid": risk.get("risk_valid", True),
+                    "risk_reason": risk.get("risk_reason", "OK"),
+                    "risk_score": risk.get("risk_score", 0),
+                    "confidence_score": risk.get("confidence_score", bias.get("score", 0)),
+                    "signal_strength": risk.get("signal_strength", bias.get("score", 0)),
+                    "trade_quality_current": risk.get("trade_quality_current", 0),
+                    "trade_quality_proposed": risk.get("trade_quality_proposed", 0),
+                    "validation_state": risk.get("validation_state", "NEUTRAL"),
+                    "validation_score": risk.get("validation_score", 50.0),
+                    "validation_note": risk.get("validation_note", "Standard validation review.")
+                },
 
-            # -------------------------
-            # Exit & Decision Action
-            # -------------------------
-            "exit": {
-                "action": final_action,
-                "current_price": exit_data.get("current_price", 0.0)
-            },
+                # -------------------------
+                # Exit & Decision Action
+                # -------------------------
+                "exit": {
+                    "action": final_action,
+                    "current_price": exit_data.get("current_price", 0.0)
+                },
 
-            # -------------------------
-            # Chart
-            # -------------------------
-            "chart_path": chart_path
-        }
+                # -------------------------
+                # Chart
+                # -------------------------
+                "chart_path": chart_path
+            }
+            
+        except Exception as e:
+            logger.error(f"Failed to build decision object: {e}")
+            return {
+                "symbol": symbol,
+                "timeframe": timeframe,
+                "error": f"Decision object construction failed: {str(e)}"
+            }
