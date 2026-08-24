@@ -4,7 +4,7 @@ import numpy as np
 def calculate_entry_quality(df, zone_lower, zone_upper, macro_bias="NEUTRAL", trade_direction="LONG"):
     """
     Calculates real, quantitative sub-scores and total score for entry quality,
-    fully integrated with Macro Trend Confluence.
+    fully integrated with Macro Trend Confluence and comprehensive NaN handling.
     Max points: 100
     - EMA Zone Position : 30 pts
     - ATR Distance      : 25 pts
@@ -25,7 +25,23 @@ def calculate_entry_quality(df, zone_lower, zone_upper, macro_bias="NEUTRAL", tr
             "distance_from_zone": 0.0
         }
 
-    close = df["close"].iloc[-1]
+    # Validate and clean inputs
+    def safe_float(value, fallback):
+        """Safely extract float value with fallback."""
+        try:
+            if value is None or not np.isfinite(value):
+                return fallback
+            return float(value)
+        except (ValueError, TypeError):
+            return fallback
+
+    close = safe_float(df["close"].iloc[-1] if "close" in df.columns and not df["close"].empty else None, 1.0)
+    zone_lower = safe_float(zone_lower, close * 0.99)
+    zone_upper = safe_float(zone_upper, close * 1.01)
+    
+    # Ensure zone bounds are logical
+    if zone_lower > zone_upper:
+        zone_lower, zone_upper = zone_upper, zone_lower
     
     # 1. EMA Zone Position Scoring (Max 30)
     zone_mid = (zone_lower + zone_upper) / 2.0
@@ -52,39 +68,48 @@ def calculate_entry_quality(df, zone_lower, zone_upper, macro_bias="NEUTRAL", tr
         
     distance_from_zone = (dist_to_mid / close) * 100.0
 
-    # 2. ATR Distance Scoring (Max 25)
-    atr = df["ATR"].iloc[-1] if "ATR" in df.columns else (close * 0.02)
-    # Fix: Handle zero/negative ATR and use smooth decay function
-    if atr > 0 and np.isfinite(atr):
-        atr_ratio = dist_to_mid / atr
-        # Smooth exponential decay instead of hard thresholds
-        atr_dist_pts = 25 * np.exp(-atr_ratio * 0.5)
-        atr_dist_pts = max(5, min(25, atr_dist_pts))  # Bounded between 5-25
+    # 2. ATR Distance Scoring (Max 25) with enhanced NaN handling
+    atr = safe_float(df["ATR"].iloc[-1] if "ATR" in df.columns and not df["ATR"].empty else None, close * 0.02)
+    
+    if atr > 0:
+        try:
+            atr_ratio = dist_to_mid / atr
+            if np.isfinite(atr_ratio):
+                # Smooth exponential decay instead of hard thresholds
+                atr_dist_pts = 25 * np.exp(-atr_ratio * 0.5)
+                atr_dist_pts = max(5, min(25, atr_dist_pts))  # Bounded between 5-25
+            else:
+                atr_dist_pts = 15
+        except (ZeroDivisionError, OverflowError):
+            atr_dist_pts = 15
     else:
         atr_dist_pts = 15
 
-    # 3. VWMA Distance Scoring (Max 20)
-    vwma_pts = 20
-    if "VWMA" in df.columns:
-        vwma = df["VWMA"].iloc[-1]
-        # Fix: Handle NaN VWMA and prevent division by zero
-        if np.isfinite(vwma) and close > 0:
-            vwma_diff = abs(close - vwma) / close
-            if vwma_diff < 0.01:
-                vwma_pts = 20
-            elif vwma_diff < 0.025:
+    # 3. VWMA Distance Scoring (Max 20) with comprehensive validation
+    vwma_pts = 15  # Default score
+    if "VWMA" in df.columns and not df["VWMA"].empty:
+        vwma = safe_float(df["VWMA"].iloc[-1], close)
+        
+        if close > 0:
+            try:
+                vwma_diff = abs(close - vwma) / close
+                if np.isfinite(vwma_diff):
+                    if vwma_diff < 0.01:
+                        vwma_pts = 20
+                    elif vwma_diff < 0.025:
+                        vwma_pts = 15
+                    elif vwma_diff < 0.05:
+                        vwma_pts = 10
+                    else:
+                        vwma_pts = 5
+            except (ZeroDivisionError, OverflowError):
                 vwma_pts = 15
-            elif vwma_diff < 0.05:
-                vwma_pts = 10
-            else:
-                vwma_pts = 5
-        else:
-            vwma_pts = 15  # Default score for invalid VWMA
 
-    # 4. RSI Extension Scoring (Max 15)
-    rsi_pts = 15
-    if "RSI" in df.columns:
-        rsi = df["RSI"].iloc[-1]
+    # 4. RSI Extension Scoring (Max 15) with validation
+    rsi_pts = 10  # Default score
+    if "RSI" in df.columns and not df["RSI"].empty:
+        rsi = safe_float(df["RSI"].iloc[-1], 50.0)
+        
         if 40 <= rsi <= 60:
             rsi_pts = 15
         elif 30 <= rsi < 40 or 60 < rsi <= 70:
@@ -92,21 +117,23 @@ def calculate_entry_quality(df, zone_lower, zone_upper, macro_bias="NEUTRAL", tr
         else:
             rsi_pts = 5
 
-    # 5. Structure Proximity Scoring (Max 12)
-    struct_pts = 12
-    if "HVN" in df.columns:
-        hvn = df["HVN"].iloc[-1]
-        # Fix: Handle NaN HVN and prevent division by zero
-        if np.isfinite(hvn) and close > 0:
-            hvn_dist = abs(close - hvn) / close
-            if hvn_dist < 0.015:
-                struct_pts = 12
-            elif hvn_dist < 0.03:
-                struct_pts = 8
-            else:
-                struct_pts = 4
-        else:
-            struct_pts = 6  # Default score for invalid HVN
+    # 5. Structure Proximity Scoring (Max 12) with enhanced validation
+    struct_pts = 6  # Default score
+    if "HVN" in df.columns and not df["HVN"].empty:
+        hvn = safe_float(df["HVN"].iloc[-1], close)
+        
+        if close > 0:
+            try:
+                hvn_dist = abs(close - hvn) / close
+                if np.isfinite(hvn_dist):
+                    if hvn_dist < 0.015:
+                        struct_pts = 12
+                    elif hvn_dist < 0.03:
+                        struct_pts = 8
+                    else:
+                        struct_pts = 4
+            except (ZeroDivisionError, OverflowError):
+                struct_pts = 6
 
     base_score = float(ema_pos_pts + atr_dist_pts + vwma_pts + rsi_pts + struct_pts)
 

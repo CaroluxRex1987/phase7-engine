@@ -21,12 +21,35 @@ def calculate_dynamic_bias(
         bias_score (float)
     """
 
-    # Normalize None values to safe defaults and handle NaN
-    trend_health = trend_health if trend_health is not None and np.isfinite(trend_health) else 0.0
-    trend_failure = trend_failure if trend_failure is not None and np.isfinite(trend_failure) else 0.0
-    trend_exhaustion = trend_exhaustion if trend_exhaustion is not None and np.isfinite(trend_exhaustion) else 0.0
-    reversal_strength = reversal_strength if reversal_strength is not None and np.isfinite(reversal_strength) else 0.0
-    continuation_strength = continuation_strength if continuation_strength is not None and np.isfinite(continuation_strength) else 0.0
+    # Comprehensive input validation and NaN handling
+    def safe_float(value, default=0.0):
+        """Safely convert value to float, handling None and NaN."""
+        if value is None:
+            return default
+        try:
+            float_val = float(value)
+            return float_val if np.isfinite(float_val) else default
+        except (ValueError, TypeError):
+            return default
+
+    trend_health = safe_float(trend_health, 0.0)
+    trend_failure = safe_float(trend_failure, 0.0)
+    trend_exhaustion = safe_float(trend_exhaustion, 0.0)
+    reversal_strength = safe_float(reversal_strength, 0.0)
+    continuation_strength = safe_float(continuation_strength, 0.0)
+    
+    # Validate DataFrame inputs
+    if df is not None and not df.empty:
+        # Check for critical indicators and clean them if needed
+        critical_cols = ["close", "EMA_20", "EMA_50", "RSI"]
+        for col in critical_cols:
+            if col in df.columns and df[col].isna().any():
+                if col == "close":
+                    # Forward fill close prices
+                    df[col] = df[col].fillna(method='ffill').fillna(method='bfill')
+                else:
+                    # For indicators, use close price as fallback
+                    df[col] = df[col].fillna(df["close"])
 
     # Basic bias logic
     if trend_health > 0.6 and continuation_strength > 0:
