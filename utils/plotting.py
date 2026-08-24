@@ -1,6 +1,5 @@
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
-import pandas as pd
 
 def plot_engine_chart(df, entry_data, risk_data, save_path="chart_output.png"):
     """

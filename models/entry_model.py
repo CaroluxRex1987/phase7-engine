@@ -1,4 +1,3 @@
-import pandas as pd
 import numpy as np
 
 def calculate_entry_quality(df, zone_lower, zone_upper, macro_bias="NEUTRAL", trade_direction="LONG"):
