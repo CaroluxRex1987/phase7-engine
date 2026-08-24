@@ -18,12 +18,18 @@ def supertrend(df, length=10, multiplier=3.0):
     low = df["low"]
     close = df["close"]
 
-    # True Range
+    # True Range with NaN handling
     tr1 = high - low
     tr2 = (high - close.shift(1)).abs()
     tr3 = (low - close.shift(1)).abs()
 
-    tr = pd.concat([tr1, tr2, tr3], axis=1).max(axis=1)
+    # Fix: Handle NaN values in True Range calculation
+    tr_df = pd.concat([tr1, tr2, tr3], axis=1)
+    tr = tr_df.max(axis=1, skipna=True)
+    
+    # Fix: Ensure minimum TR to prevent zero ATR
+    min_tr = (high + low + close) / 3 * 0.0001  # 0.01% of typical price
+    tr = tr.fillna(min_tr).clip(lower=min_tr)
 
     # ATR (RMA)
     atr = tr.ewm(alpha=1/length, adjust=False).mean()

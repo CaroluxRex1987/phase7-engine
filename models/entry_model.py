@@ -49,16 +49,12 @@ def calculate_entry_quality(df, zone_lower, zone_upper, macro_bias="NEUTRAL", tr
 
     # 2. ATR Distance Scoring (Max 25)
     atr = df["ATR"].iloc[-1] if "ATR" in df.columns else (close * 0.02)
-    if atr > 0:
+    # Fix: Handle zero/negative ATR and use smooth decay function
+    if atr > 0 and np.isfinite(atr):
         atr_ratio = dist_to_mid / atr
-        if atr_ratio <= 1.0:
-            atr_dist_pts = 25
-        elif atr_ratio <= 2.0:
-            atr_dist_pts = 18
-        elif atr_ratio <= 3.5:
-            atr_dist_pts = 10
-        else:
-            atr_dist_pts = 5
+        # Smooth exponential decay instead of hard thresholds
+        atr_dist_pts = 25 * np.exp(-atr_ratio * 0.5)
+        atr_dist_pts = max(5, min(25, atr_dist_pts))  # Bounded between 5-25
     else:
         atr_dist_pts = 15
 

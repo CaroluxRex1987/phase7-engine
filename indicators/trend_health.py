@@ -40,15 +40,25 @@ def compute_trend_health(df: pd.DataFrame):
     # ============================================================
     # 2. TREND HEALTH SCORE (0–100)
     # ============================================================
-    slope_strength = min(abs(trend_slope) * 400, 45)
-    adx_strength = min(adx_val * 1.2, 40)
+    # Fix: Normalize slope strength to prevent scale dominance
+    normalized_slope = np.tanh(abs(trend_slope) * 100) * 45  # Bounded sigmoid scaling
+    slope_strength = min(normalized_slope, 45)
     
-    if 50 <= rsi_val <= 70:
-        rsi_strength = 15
-    elif 30 <= rsi_val <= 50:
-        rsi_strength = 10
+    # Fix: Cap ADX contribution and handle NaN values
+    adx_strength = min(max(adx_val, 0) * 1.2, 40) if np.isfinite(adx_val) else 20
+    
+    # Fix: More granular RSI scoring to avoid cliff effects
+    if np.isfinite(rsi_val):
+        if 45 <= rsi_val <= 65:
+            rsi_strength = 15
+        elif 35 <= rsi_val < 45 or 65 < rsi_val <= 75:
+            rsi_strength = 12
+        elif 25 <= rsi_val < 35 or 75 < rsi_val <= 85:
+            rsi_strength = 8
+        else:
+            rsi_strength = 5
     else:
-        rsi_strength = 5
+        rsi_strength = 10  # Default for missing RSI
 
     trend_health = float(slope_strength + adx_strength + rsi_strength)
     trend_health = max(0.0, min(100.0, trend_health))

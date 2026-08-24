@@ -57,9 +57,21 @@ def compute_volume_profile(df: pd.DataFrame, num_bins: int = 50):
         if not np.isfinite(low) or not np.isfinite(high) or high < low:
             continue
 
-        # Candle range
+        # Candle range with minimum threshold to prevent division issues
         candle_range = high - low
-        if candle_range <= 0:
+        min_range = (high + low) * 0.5 * 1e-6  # Minimum range as fraction of price
+        if candle_range <= min_range:
+            # For doji/near-doji candles, distribute volume to closest bin
+            mid_price = (high + low) * 0.5
+            closest_bin = None
+            min_distance = float('inf')
+            for interval in bins:
+                distance = min(abs(mid_price - interval.left), abs(mid_price - interval.right))
+                if distance < min_distance:
+                    min_distance = distance
+                    closest_bin = interval
+            if closest_bin is not None:
+                profile.loc[closest_bin] += volume
             continue
 
         # For each bin, compute overlap proportion

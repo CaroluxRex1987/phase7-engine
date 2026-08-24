@@ -35,13 +35,22 @@ def calculate_dynamic_bias(
     else:
         raw_bias = "NEUTRAL"
 
-    # Score calculation
+    # Score calculation with normalization and bounds checking
+    # Fix: Ensure all inputs are finite and normalize to prevent scale issues
+    trend_component = np.clip(trend_health, -100, 100) * 0.5
+    continuation_component = np.clip(continuation_strength, -50, 50) * 0.3
+    failure_component = np.clip(trend_failure, 0, 10) * -0.2
+    reversal_component = np.clip(reversal_strength, -20, 20) * 0.1
+    
     bias_score = float(
-        trend_health * 0.5 +
-        continuation_strength * 0.3 -
-        trend_failure * 0.2 +
-        reversal_strength * 0.1
+        trend_component +
+        continuation_component +
+        failure_component +
+        reversal_component
     )
+    
+    # Final bounds check to prevent extreme values
+    bias_score = np.clip(bias_score, -100, 100)
 
     return raw_bias, bias_score
 

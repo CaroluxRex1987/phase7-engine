@@ -93,10 +93,17 @@ class RiskModel:
         risk_amount = account_balance * (risk_percent / 100.0)
         stop_distance = abs(current_price - atr_stop)
 
-        if stop_distance == 0:
+        # Critical fix: Prevent division by zero and extremely small stops
+        min_stop_distance = current_price * 0.001  # 0.1% minimum stop distance
+        if stop_distance < min_stop_distance:
             return 0.0
 
         position_size = risk_amount / stop_distance
+        
+        # Critical fix: Cap maximum position size to prevent excessive leverage
+        max_position_value = account_balance * 10.0  # 10x max leverage
+        max_position_size = max_position_value / current_price
+        position_size = min(position_size, max_position_size)
         
         # Apply volatility adjustment scale to size if necessary
         if volatility_state == "EXTREME VOLATILITY":
