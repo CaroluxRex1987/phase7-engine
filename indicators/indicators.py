@@ -48,10 +48,15 @@ def add_technical_indicators(df: pd.DataFrame) -> pd.DataFrame:
     df["ATR"] = ta.atr(df["high"], df["low"], df["close"], length=14)
     df["KAMA"] = ta.kama(df["close"], length=10)
 
-    # VWMA (Volume‑Weighted Moving Average)
-    df["VWMA"] = (
-        (df["close"] * df["volume"]).rolling(window=20).sum()
-        / df["volume"].rolling(window=20).sum()
+    # VWMA (Volume‑Weighted Moving Average) with zero volume protection
+    volume_sum = df["volume"].rolling(window=20).sum()
+    price_volume_sum = (df["close"] * df["volume"]).rolling(window=20).sum()
+    
+    # Fix: Prevent division by zero in VWMA calculation
+    df["VWMA"] = np.where(
+        volume_sum > 0,
+        price_volume_sum / volume_sum,
+        df["close"]  # Fallback to close price when volume is zero
     )
 
     # ============================================================

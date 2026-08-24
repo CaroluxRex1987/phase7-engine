@@ -18,12 +18,17 @@ def compute_trend_health(df: pd.DataFrame):
             "trend_regime": "NEUTRAL"
         }
 
-    # Extract required values safely
-        # Extract required values safely
+    # Extract required values safely with NaN handling
     ema20_slope = df["EMA20_Slope"].iloc[-1] if "EMA20_Slope" in df.columns else 0.0
     ema50_slope = df["EMA50_Slope"].iloc[-1] if "EMA50_Slope" in df.columns else 0.0
     adx_val = df["ADX"].iloc[-1] if "ADX" in df.columns else 25.0
     rsi_val = df["RSI"].iloc[-1] if "RSI" in df.columns else 50.0
+
+    # Fix: Handle NaN values in extracted data
+    ema20_slope = 0.0 if not np.isfinite(ema20_slope) else ema20_slope
+    ema50_slope = 0.0 if not np.isfinite(ema50_slope) else ema50_slope
+    adx_val = 25.0 if not np.isfinite(adx_val) else adx_val
+    rsi_val = 50.0 if not np.isfinite(rsi_val) else rsi_val
 
     # ============================================================
     # 1. TREND SLOPE & ACCELERATION
@@ -33,7 +38,11 @@ def compute_trend_health(df: pd.DataFrame):
     # Calculate acceleration (change in slope over the last 3 periods)
     if "EMA20_Slope" in df.columns and len(df) >= 4:
         prev_slope = df["EMA20_Slope"].iloc[-4]
-        trend_acceleration = float(ema20_slope - prev_slope)
+        # Fix: Handle NaN in previous slope calculation
+        if np.isfinite(prev_slope):
+            trend_acceleration = float(ema20_slope - prev_slope)
+        else:
+            trend_acceleration = 0.0
     else:
         trend_acceleration = 0.0
 

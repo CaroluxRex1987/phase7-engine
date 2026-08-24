@@ -29,7 +29,12 @@ def calculate_entry_quality(df, zone_lower, zone_upper, macro_bias="NEUTRAL", tr
     
     # 1. EMA Zone Position Scoring (Max 30)
     zone_mid = (zone_lower + zone_upper) / 2.0
-    zone_width = max(abs(zone_upper - zone_lower), 1e-6)
+    zone_width = abs(zone_upper - zone_lower)
+    
+    # Fix: Prevent division by zero in zone width calculations
+    if zone_width <= 1e-8 or not np.isfinite(zone_width):
+        zone_width = close * 0.01  # Default to 1% of current price
+    
     dist_to_mid = abs(close - zone_mid)
     
     if dist_to_mid <= zone_width:
@@ -62,15 +67,19 @@ def calculate_entry_quality(df, zone_lower, zone_upper, macro_bias="NEUTRAL", tr
     vwma_pts = 20
     if "VWMA" in df.columns:
         vwma = df["VWMA"].iloc[-1]
-        vwma_diff = abs(close - vwma) / close
-        if vwma_diff < 0.01:
-            vwma_pts = 20
-        elif vwma_diff < 0.025:
-            vwma_pts = 15
-        elif vwma_diff < 0.05:
-            vwma_pts = 10
+        # Fix: Handle NaN VWMA and prevent division by zero
+        if np.isfinite(vwma) and close > 0:
+            vwma_diff = abs(close - vwma) / close
+            if vwma_diff < 0.01:
+                vwma_pts = 20
+            elif vwma_diff < 0.025:
+                vwma_pts = 15
+            elif vwma_diff < 0.05:
+                vwma_pts = 10
+            else:
+                vwma_pts = 5
         else:
-            vwma_pts = 5
+            vwma_pts = 15  # Default score for invalid VWMA
 
     # 4. RSI Extension Scoring (Max 15)
     rsi_pts = 15
@@ -87,13 +96,17 @@ def calculate_entry_quality(df, zone_lower, zone_upper, macro_bias="NEUTRAL", tr
     struct_pts = 12
     if "HVN" in df.columns:
         hvn = df["HVN"].iloc[-1]
-        hvn_dist = abs(close - hvn) / close
-        if hvn_dist < 0.015:
-            struct_pts = 12
-        elif hvn_dist < 0.03:
-            struct_pts = 8
+        # Fix: Handle NaN HVN and prevent division by zero
+        if np.isfinite(hvn) and close > 0:
+            hvn_dist = abs(close - hvn) / close
+            if hvn_dist < 0.015:
+                struct_pts = 12
+            elif hvn_dist < 0.03:
+                struct_pts = 8
+            else:
+                struct_pts = 4
         else:
-            struct_pts = 4
+            struct_pts = 6  # Default score for invalid HVN
 
     base_score = float(ema_pos_pts + atr_dist_pts + vwma_pts + rsi_pts + struct_pts)
 

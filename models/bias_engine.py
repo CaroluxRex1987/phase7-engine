@@ -21,12 +21,12 @@ def calculate_dynamic_bias(
         bias_score (float)
     """
 
-    # Normalize None values to safe defaults
-    trend_health = trend_health if trend_health is not None else 0.0
-    trend_failure = trend_failure if trend_failure is not None else 0.0
-    trend_exhaustion = trend_exhaustion if trend_exhaustion is not None else 0.0
-    reversal_strength = reversal_strength if reversal_strength is not None else 0.0
-    continuation_strength = continuation_strength if continuation_strength is not None else 0.0
+    # Normalize None values to safe defaults and handle NaN
+    trend_health = trend_health if trend_health is not None and np.isfinite(trend_health) else 0.0
+    trend_failure = trend_failure if trend_failure is not None and np.isfinite(trend_failure) else 0.0
+    trend_exhaustion = trend_exhaustion if trend_exhaustion is not None and np.isfinite(trend_exhaustion) else 0.0
+    reversal_strength = reversal_strength if reversal_strength is not None and np.isfinite(reversal_strength) else 0.0
+    continuation_strength = continuation_strength if continuation_strength is not None and np.isfinite(continuation_strength) else 0.0
 
     # Basic bias logic
     if trend_health > 0.6 and continuation_strength > 0:
@@ -70,12 +70,16 @@ def calculate_dynamic_regime(df):
     if df is None or df.empty:
         return "UNKNOWN", "UNKNOWN"
 
-    # Volatility detection
+    # Volatility detection with NaN handling
     if "ATR" in df.columns:
         atr = df["ATR"].iloc[-1]
         price = df["close"].iloc[-1]
 
-        vol_ratio = atr / price if price != 0 else 0
+        # Fix: Handle NaN values and prevent division by zero
+        if np.isfinite(atr) and np.isfinite(price) and price > 0:
+            vol_ratio = atr / price
+        else:
+            vol_ratio = 0.01  # Default to medium volatility
 
         if vol_ratio > 0.02:
             volatility_mode = "HIGH VOLATILITY"

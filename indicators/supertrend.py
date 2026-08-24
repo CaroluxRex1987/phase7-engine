@@ -33,6 +33,11 @@ def supertrend(df, length=10, multiplier=3.0):
 
     # ATR (RMA)
     atr = tr.ewm(alpha=1/length, adjust=False).mean()
+    
+    # Fix: Cap extreme ATR values to prevent unstable bands
+    typical_price = (high + low + close) / 3
+    max_atr = typical_price * 0.1  # Cap ATR at 10% of typical price
+    atr = atr.clip(upper=max_atr)
 
     # ============================================================
     # BASIC BANDS
