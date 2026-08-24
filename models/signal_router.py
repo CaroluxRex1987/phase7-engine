@@ -1,119 +1,226 @@
 import os
+from typing import Dict, Any, Optional
+import logging
+
+logger = logging.getLogger(__name__)
 
 class SignalRouter:
     """
     Routes raw engine data into unified decision objects and handles panel rendering.
     """
 
-    def __init__(self, engine_core=None):
+    def __init__(self, engine_core=None) -> None:
         if engine_core is None:
             from core.engine_core import Phase7Engine
             self.engine_core = Phase7Engine()
         else:
             self.engine_core = engine_core
 
-    def route_and_execute(self, symbol, timeframe):
+    def _validate_engine_output(self, raw_output: Dict[str, Any]) -> bool:
+        """
+        Validate that engine output contains required sections.
+        
+        Args:
+            raw_output: Raw engine output dictionary
+            
+        Returns:
+            bool: True if valid, False otherwise
+        """
+        if not isinstance(raw_output, dict):
+            logger.error("Engine output is not a dictionary")
+            return False
+            
+        if "error" in raw_output:
+            return True  # Error states are valid
+            
+        required_sections = ["bias", "trend", "structure", "entry", "risk"]
+        missing_sections = [section for section in required_sections if section not in raw_output]
+        
+        if missing_sections:
+            logger.error(f"Engine output missing required sections: {missing_sections}")
+            return False
+            
+        return True
+
+    def route_and_execute(self, symbol: str, timeframe: str) -> Dict[str, Any]:
         """
         Executes the engine core workflow, builds the decision object, 
         and renders the output panel.
+        
+        Args:
+            symbol: Trading symbol
+            timeframe: Analysis timeframe
+            
+        Returns:
+            Dict containing unified decision object
         """
-        os.makedirs("Logs/Charts", exist_ok=True)
-        os.makedirs("Logs", exist_ok=True)
+        try:
+            # Validate inputs
+            if not symbol or not isinstance(symbol, str):
+                return {"error": "Invalid symbol parameter"}
+            if not timeframe or not isinstance(timeframe, str):
+                return {"error": "Invalid timeframe parameter"}
+                
+            os.makedirs("Logs/Charts", exist_ok=True)
+            os.makedirs("Logs", exist_ok=True)
 
-        # Run the core engine calculations
-        raw_output = self.engine_core.run(symbol, timeframe)
+            # Run the core engine calculations
+            raw_output = self.engine_core.run(symbol, timeframe)
 
-        if "error" in raw_output:
-            return raw_output
+            # Validate engine output
+            if not self._validate_engine_output(raw_output):
+                return {"error": "Engine produced invalid output format"}
 
-        # Build unified decision dictionary with dynamic decision logic
-        decision = self._build_decision_object(
-            symbol=symbol,
-            timeframe=timeframe,
-            bias=raw_output.get("bias", {}),
-            trend=raw_output.get("trend", {}),
-            structure=raw_output.get("structure", {}),
-            entry=raw_output.get("entry", {}),
-            risk=raw_output.get("risk", {}),
-            exit_data=raw_output.get("exit", {}),
-            macro_bias=raw_output.get("macro_bias", "NEUTRAL"),
-            chart_path=raw_output.get("chart_path", f"Logs/Charts/chart_{symbol}_{timeframe}.png")
-        )
+            if "error" in raw_output:
+                return raw_output
 
-        return decision
+            # Build unified decision dictionary with dynamic decision logic
+            try:
+                decision = self._build_decision_object(
+                    symbol=symbol,
+                    timeframe=timeframe,
+                    bias=raw_output.get("bias", {}),
+                    trend=raw_output.get("trend", {}),
+                    structure=raw_output.get("structure", {}),
+                    entry=raw_output.get("entry", {}),
+                    risk=raw_output.get("risk", {}),
+                    exit_data=raw_output.get("exit", {}),
+                    macro_bias=raw_output.get("macro_bias", "NEUTRAL"),
+                    chart_path=raw_output.get("chart_path", f"Logs/Charts/chart_{symbol}_{timeframe}.png")
+                )
+                
+                return decision
+                
+            except Exception as e:
+                logger.error(f"Failed to build decision object: {e}")
+                return {"error": f"Decision object construction failed: {str(e)}"}
+                
+        except Exception as e:
+            logger.error(f"Router execution failed: {e}")
+            return {"error": f"Router execution failed: {str(e)}"}
 
-    def route(self, symbol, timeframe):
+    def route(self, symbol: str, timeframe: str) -> Dict[str, Any]:
         """
         Alias for route_and_execute to match main.py calls.
+        
+        Args:
+            symbol: Trading symbol
+            timeframe: Analysis timeframe
+            
+        Returns:
+            Dict containing unified decision object
         """
         return self.route_and_execute(symbol, timeframe)
 
-    def _determine_final_action(self, bias, trend, entry, risk, macro_bias):
+    def _determine_final_action(
+        self, 
+        bias: Dict[str, Any], 
+        trend: Dict[str, Any], 
+        entry: Dict[str, Any], 
+        risk: Dict[str, Any], 
+        macro_bias: str
+    ) -> str:
         """
         Multi-factor decision engine mapping quantitative states to final trade actions:
         - LONG / CONSERVATIVE LONG / AGGRESSIVE LONG
         - SHORT / CONSERVATIVE SHORT / AGGRESSIVE SHORT
         - WAIT
         - NO-TRADE (RISK TOO HIGH)
+        
+        Args:
+            bias: Bias analysis results
+            trend: Trend analysis results
+            entry: Entry analysis results
+            risk: Risk analysis results
+            macro_bias: Macro timeframe bias
+            
+        Returns:
+            str: Final trading action
         """
-        risk_valid = risk.get("risk_valid", True)
-        if not risk_valid:
-            return "NO-TRADE (RISK TOO HIGH)"
+        try:
+            # Validate input dictionaries
+            if not all(isinstance(d, dict) for d in [bias, trend, entry, risk]):
+                logger.warning("Invalid input types for decision engine, defaulting to WAIT")
+                return "WAIT"
+                
+            risk_valid = risk.get("risk_valid", True)
+            if not risk_valid:
+                return "NO-TRADE (RISK TOO HIGH)"
 
-        validation_state = risk.get("validation_state", "NEUTRAL")
-        trend_health = trend.get("health", 50.0)
-        entry_score = entry.get("score", 0.0)
-        entry_status = entry.get("entry_status", "")
-        divergence = trend.get("momentum_divergence", False)
+            validation_state = risk.get("validation_state", "NEUTRAL")
+            trend_health = float(trend.get("health", trend.get("trend_health", 50.0)))
+            entry_score = float(entry.get("score", 0.0))
+            entry_status = str(entry.get("entry_status", ""))
+            divergence = bool(trend.get("momentum_divergence", False))
 
-        long_signal = entry.get("long_signal", False)
-        short_signal = entry.get("short_signal", False)
-        raw_bias = bias.get("raw", "NEUTRAL")
+            long_signal = bool(entry.get("long_signal", False))
+            short_signal = bool(entry.get("short_signal", False))
+            raw_bias = str(bias.get("raw", "NEUTRAL"))
 
-        # If risk or validation state is extremely weak, hold or wait
-        if validation_state == "WEAK" and trend_health < 40:
+            # If risk or validation state is extremely weak, hold or wait
+            if validation_state == "WEAK" and trend_health < 40:
+                return "WAIT"
+
+            # Bullish Evaluation Branch
+            if raw_bias == "BULLISH" or long_signal or macro_bias == "BULLISH":
+                if trend_health >= 75 and entry_score >= 70 and not divergence:
+                    if "ACTIVE" in entry_status.upper():
+                        return "AGGRESSIVE LONG"
+                    return "LONG"
+                elif trend_health >= 50 and macro_bias == "BULLISH":
+                    return "CONSERVATIVE LONG"
+
+            # Bearish Evaluation Branch
+            if raw_bias == "BEARISH" or short_signal or macro_bias == "BEARISH":
+                if trend_health >= 75 and entry_score >= 70 and not divergence:
+                    if "ACTIVE" in entry_status.upper():
+                        return "AGGRESSIVE SHORT"
+                    return "SHORT"
+                elif trend_health >= 50 and macro_bias == "BEARISH":
+                    return "CONSERVATIVE SHORT"
+
+            # Default fallback
             return "WAIT"
-
-        # Bullish Evaluation Branch
-        if raw_bias == "BULLISH" or long_signal or macro_bias == "BULLISH":
-            if trend_health >= 75 and entry_score >= 70 and not divergence:
-                if "ACTIVE" in entry_status.upper():
-                    return "AGGRESSIVE LONG"
-                return "LONG"
-            elif trend_health >= 50 and macro_bias == "BULLISH":
-                return "CONSERVATIVE LONG"
-
-        # Bearish Evaluation Branch
-        if raw_bias == "BEARISH" or short_signal or macro_bias == "BEARISH":
-            if trend_health >= 75 and entry_score >= 70 and not divergence:
-                if "ACTIVE" in entry_status.upper():
-                    return "AGGRESSIVE SHORT"
-                return "SHORT"
-            elif trend_health >= 50 and macro_bias == "BEARISH":
-                return "CONSERVATIVE SHORT"
-
-        # Default fallback
-        return "WAIT"
+            
+        except Exception as e:
+            logger.error(f"Decision engine failed: {e}")
+            return "WAIT"
 
     def _build_decision_object(
         self,
-        symbol,
-        timeframe,
-        bias,
-        trend,
-        structure,
-        entry,
-        risk,
-        exit_data,
-        macro_bias,
-        chart_path
-    ):
+        symbol: str,
+        timeframe: str,
+        bias: Dict[str, Any],
+        trend: Dict[str, Any],
+        structure: Dict[str, Any],
+        entry: Dict[str, Any],
+        risk: Dict[str, Any],
+        exit_data: Dict[str, Any],
+        macro_bias: str,
+        chart_path: str
+    ) -> Dict[str, Any]:
         """
         Convert engine output into a unified trade decision object.
+        
+        Args:
+            symbol: Trading symbol
+            timeframe: Analysis timeframe
+            bias: Bias analysis results
+            trend: Trend analysis results
+            structure: Structure analysis results
+            entry: Entry analysis results
+            risk: Risk analysis results
+            exit_data: Exit analysis results
+            macro_bias: Macro timeframe bias
+            chart_path: Path to generated chart
+            
+        Returns:
+            Dict containing unified decision object
         """
-        final_action = self._determine_final_action(bias, trend, entry, risk, macro_bias)
+        try:
+            final_action = self._determine_final_action(bias, trend, entry, risk, macro_bias)
 
-        return {
+            return {
             "symbol": symbol,
             "timeframe": timeframe,
             "macro_bias": macro_bias,

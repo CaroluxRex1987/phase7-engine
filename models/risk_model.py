@@ -1,3 +1,8 @@
+from typing import Tuple, Union
+import logging
+
+logger = logging.getLogger(__name__)
+
 class RiskModel:
     """
     Core institutional risk engine for Phase-7.
@@ -8,7 +13,7 @@ class RiskModel:
         - Risk regime classification & advanced validation
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         # Tunable multipliers
         self.atr_stop_mult = 1.2        # Base ATR multiplier for stop
         self.target1_mult = 1.0         # Conservative target
@@ -21,18 +26,35 @@ class RiskModel:
 
     def calculate_stop_targets(
         self,
-        detailed_bias,
-        trend_health,
-        current_price,
-        atr_val,
-        structural_level,
-        bias_score,
-        volatility_state="NORMAL"
-    ):
+        detailed_bias: str,
+        trend_health: float,
+        current_price: float,
+        atr_val: float,
+        structural_level: Union[float, None],
+        bias_score: float,
+        volatility_state: str = "NORMAL"
+    ) -> Tuple[float, float, float, float]:
         """
         Compute volatility-adjusted ATR stop + tiered targets, forcing directional fallback 
         if bias is neutral so targets never collapse to current price.
+        
+        Args:
+            detailed_bias: Trading bias direction
+            trend_health: Trend health score (0-100)
+            current_price: Current market price
+            atr_val: Average True Range value
+            structural_level: Key structural price level
+            bias_score: Bias strength score
+            volatility_state: Current volatility regime
+            
+        Returns:
+            Tuple of (atr_stop, target1, target2, target3)
         """
+        try:
+            # Input validation
+            if current_price <= 0 or atr_val <= 0:
+                logger.error(f"Invalid price inputs: price={current_price}, atr={atr_val}")
+                raise ValueError("Invalid price or ATR values")
         effective_bias = detailed_bias
         if effective_bias not in ["LONG", "SHORT"]:
             effective_bias = "LONG" if bias_score >= 0 else "SHORT"
@@ -128,23 +150,43 @@ class RiskModel:
         else:
             return "NORMAL RISK"
 
-    def validate_risk_parameters(self, current_price, atr_stop, volatility_state="NORMAL", **kwargs):
+    def validate_risk_parameters(
+        self, 
+        current_price: float, 
+        atr_stop: float, 
+        volatility_state: str = "NORMAL", 
+        **kwargs
+    ) -> Tuple[bool, str]:
         """
         Validates whether risk parameters are within safe trading thresholds,
         accepting any extra keyword arguments (like reference_price) from engine_core.
+        
+        Args:
+            current_price: Current market price
+            atr_stop: Calculated ATR stop level
+            volatility_state: Current volatility regime
+            **kwargs: Additional parameters (for compatibility)
+            
+        Returns:
+            Tuple of (is_valid, reason_message)
         """
-        if current_price <= 0 or atr_stop <= 0:
-            return False, "Invalid price or stop levels."
+        try:
+            if current_price <= 0 or atr_stop <= 0:
+                return False, "Invalid price or stop levels."
 
-        stop_dist_pct = (abs(current_price - atr_stop) / current_price) * 100.0
+            stop_dist_pct = (abs(current_price - atr_stop) / current_price) * 100.0
 
-        if stop_dist_pct > 15.0:
-            return False, "Stop distance exceeds maximum allowable threshold (15%)."
-        if stop_dist_pct < 0.2:
-            return False, "Stop distance too tight (risk of noise execution)."
+            if stop_dist_pct > 15.0:
+                return False, "Stop distance exceeds maximum allowable threshold (15%)."
+            if stop_dist_pct < 0.2:
+                return False, "Stop distance too tight (risk of noise execution)."
 
-        risk_regime = self.classify_risk_regime(volatility_state, stop_dist_pct, trend_health=50.0)
-        if risk_regime == "EXTREME RISK":
-            return False, "Risk regime classified as EXTREME RISK."
+            risk_regime = self.classify_risk_regime(volatility_state, stop_dist_pct, trend_health=50.0)
+            if risk_regime == "EXTREME RISK":
+                return False, "Risk regime classified as EXTREME RISK."
 
-        return True, "OK"
+            return True, "OK"
+            
+        except Exception as e:
+            logger.error(f"Risk validation failed: {e}")
+            return False, f"Risk validation error: {str(e)}"

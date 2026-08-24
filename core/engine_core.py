@@ -1,4 +1,6 @@
 import pandas as pd
+from typing import Dict, Any, Optional, Tuple, Union
+import logging
 
 from . import config
 from data.data_fetcher import data_fetcher
@@ -15,6 +17,8 @@ from models.entry_model import generate_entry_signals, calculate_entry_quality
 from models.exit_model import compute_exit
 from utils.plotting import plot_engine_chart
 from core.panel_render import render_panel
+
+logger = logging.getLogger(__name__)
 
 
 class Phase7Engine:
@@ -33,13 +37,57 @@ class Phase7Engine:
         - Multi-Timeframe Confluence (MTF)
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.bias_state_machine = BiasStateMachine()
         self.risk_model = RiskModel()
 
-    def run(self, symbol=None, timeframe=None, limit=450, save_chart=True, render=True):
+    def _validate_dataframe(self, df: pd.DataFrame, required_columns: list, context: str = "") -> bool:
+        """
+        Validate DataFrame has required columns and sufficient data.
+        
+        Args:
+            df: DataFrame to validate
+            required_columns: List of required column names
+            context: Context string for error messages
+            
+        Returns:
+            bool: True if valid, False otherwise
+        """
+        if df is None or df.empty:
+            logger.error(f"DataFrame validation failed - empty or None DataFrame in {context}")
+            return False
+            
+        if len(df) < 20:
+            logger.error(f"DataFrame validation failed - insufficient data ({len(df)} rows) in {context}")
+            return False
+            
+        missing_cols = [col for col in required_columns if col not in df.columns]
+        if missing_cols:
+            logger.error(f"DataFrame validation failed - missing columns {missing_cols} in {context}")
+            return False
+            
+        return True
+
+    def run(
+        self, 
+        symbol: Optional[str] = None, 
+        timeframe: Optional[str] = None, 
+        limit: int = 450, 
+        save_chart: bool = True, 
+        render: bool = True
+    ) -> Dict[str, Any]:
         """
         Execute full engine pipeline with Multi-Timeframe Confluence.
+        
+        Args:
+            symbol: Trading symbol (defaults to config.SYMBOL)
+            timeframe: Timeframe for analysis (defaults to config.TIMEFRAME)
+            limit: Number of candles to fetch
+            save_chart: Whether to save chart output
+            render: Whether to render panel output
+            
+        Returns:
+            Dict containing decision object with analysis results or error information
         """
 
         symbol = symbol or config.SYMBOL
@@ -50,11 +98,13 @@ class Phase7Engine:
             # 1. FETCH EXECUTION DATA
             df = data_fetcher.get_tf(symbol, timeframe, limit=limit)
 
-            if df is None or df.empty or len(df) < 50:
+            # Enhanced DataFrame validation
+            required_base_cols = ["open", "high", "low", "close", "volume"]
+            if not self._validate_dataframe(df, required_base_cols, "base market data"):
                 decision_object = {
                     "symbol": symbol,
                     "timeframe": timeframe,
-                    "error": "Insufficient data",
+                    "error": "Invalid or insufficient market data",
                 }
                 if render:
                     render_panel(decision_object)
@@ -64,29 +114,83 @@ class Phase7Engine:
             df_macro = data_fetcher.get_tf(symbol, macro_tf, limit=100)
             macro_bias = "NEUTRAL"
             
-            if df_macro is not None and not df_macro.empty and len(df_macro) >= 30:
-                df_macro = add_technical_indicators(df_macro)
-                macro_close = df_macro["close"].iloc[-1]
-                macro_ema50 = df_macro["EMA_50"].iloc[-1] if "EMA_50" in df_macro.columns else macro_close
-                
-                if macro_close > macro_ema50:
-                    macro_bias = "BULLISH"
-                elif macro_close < macro_ema50:
-                    macro_bias = "BEARISH"
+            if self._validate_dataframe(df_macro, required_base_cols, "macro timeframe data"):
+                try:
+                    df_macro = add_technical_indicators(df_macro)
+                    if "EMA_50" in df_macro.columns:
+                        macro_close = df_macro["close"].iloc[-1]
+                        macro_ema50 = df_macro["EMA_50"].iloc[-1]
+                        
+                        if macro_close > macro_ema50:
+                            macro_bias = "BULLISH"
+                        elif macro_close < macro_ema50:
+                            macro_bias = "BEARISH"
+                except Exception as e:
+                    logger.warning(f"Failed to process macro timeframe data: {e}")
+                    macro_bias = "NEUTRAL"
 
             # 2. INDICATORS
-            df = add_technical_indicators(df)
+            try:
+                df = add_technical_indicators(df)
+                
+                # Validate required indicators were added
+                required_indicators = ["EMA_20", "EMA_50", "RSI", "ATR", "ADX"]
+                if not self._validate_dataframe(df, required_indicators, "technical indicators"):
+                    raise ValueError("Failed to generate required technical indicators")
+                    
+            except Exception as e:
+                logger.error(f"Failed to add technical indicators: {e}")
+                decision_object = {
+                    "symbol": symbol,
+                    "timeframe": timeframe,
+                    "error": f"Technical indicator calculation failed: {str(e)}",
+                }
+                if render:
+                    render_panel(decision_object)
+                return decision_object
 
             # 3. STRUCTURE ENGINE
-            structure_obj = calculate_structure(df)
-            df_struct = structure_obj.get("df", df)
+            try:
+                structure_obj = calculate_structure(df)
+                if not isinstance(structure_obj, dict):
+                    raise ValueError("Structure engine returned invalid format")
+                    
+                df_struct = structure_obj.get("df", df)
+                
+                # Validate structure output
+                if not self._validate_dataframe(df_struct, required_indicators, "structure analysis"):
+                    raise ValueError("Structure analysis produced invalid DataFrame")
 
-            structure_regime = structure_obj.get("regime", "NEUTRAL STRUCTURE")
-            trend_sequence = structure_obj.get("sequence", "NONE")
-            volume_sentiment = structure_obj.get("volume_sentiment", "NEUTRAL VOLUME")
+                structure_regime = structure_obj.get("regime", "NEUTRAL STRUCTURE")
+                trend_sequence = structure_obj.get("sequence", "NONE")
+                volume_sentiment = structure_obj.get("volume_sentiment", "NEUTRAL VOLUME")
+                
+            except Exception as e:
+                logger.error(f"Structure analysis failed: {e}")
+                decision_object = {
+                    "symbol": symbol,
+                    "timeframe": timeframe,
+                    "error": f"Structure analysis failed: {str(e)}",
+                }
+                if render:
+                    render_panel(decision_object)
+                return decision_object
 
             # 4. TREND HEALTH ENGINE
-            trend = compute_trend_health(df_struct)
+            try:
+                trend = compute_trend_health(df_struct)
+                if not isinstance(trend, dict) or "trend_health" not in trend:
+                    raise ValueError("Trend health engine returned invalid format")
+            except Exception as e:
+                logger.error(f"Trend health analysis failed: {e}")
+                # Use safe defaults
+                trend = {
+                    "trend_health": 50.0,
+                    "trend_failure": False,
+                    "trend_exhaustion": False,
+                    "momentum_mode": "NEUTRAL",
+                    "momentum_divergence": False
+                }
 
             # 5. BIAS ENGINE
             raw_bias, bias_score = calculate_dynamic_bias(
