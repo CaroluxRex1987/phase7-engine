@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 def supertrend(df, length=10, multiplier=3.0):
     """
