@@ -1,0 +1,51 @@
+# ============================
+# PYTHON BUILD / CACHE FILES
+# ============================
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+# ============================
+# VIRTUAL ENVIRONMENTS
+# ============================
+aider-env/
+venv/
+env/
+# ============================
+# AIDER INTERNAL FILES
+# ============================
+.aider*
+!.gitignore
+# ============================
+# LOGS & OUTPUT
+# ============================
+logs/
+logs/**
+# Backtest results
+*.csv
+# Live simulation logs
+*.json
+# ============================
+# CHARTS & IMAGES
+# ============================
+*.png
+*.jpg
+*.jpeg
+# ============================
+# BACKUP FOLDERS
+# ============================
+Backup/
+Backup/**
+# ============================
+# SYSTEM FILES
+# ============================
+.DS_Store
+Thumbs.db
+desktop.ini
+# ============================
+# API KEYS / SECRETS
+# ============================
+API KEY FROM OPEN CODE.txt
+*.key
+*.secret
+*.token

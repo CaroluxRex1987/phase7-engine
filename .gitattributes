@@ -1,0 +1,13 @@
+# Force line-ending normalization to never touch binary files, regardless
+# of what Git's own binary-detection heuristic guesses. Without this, a
+# Windows checkout with core.autocrlf=true can attempt LF/CRLF conversion
+# on files like PDFs — which corrupts them, since the conversion has no
+# concept of a compressed binary stream.
+
+* text=auto
+
+*.pdf binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.ico binary

@@ -1,6 +1,38 @@
 import logging
+import textwrap
 
 logger = logging.getLogger(__name__)
+
+# Viktor's terminal window can't comfortably show a line longer than this,
+# and long lines were also triggering a display bug when he resized the
+# window (that section of the panel disappearing). Every bulleted panel
+# section (Decision Reasoning, Exit Watch, etc.) is wrapped to this width
+# instead of ever printing one long line.
+MAX_LINE_WIDTH = 125
+
+
+def _wrap_bullets(items, empty_message):
+    """
+    Turns a list of strings into ' - ...' bulleted panel lines, wrapping
+    any line that would exceed MAX_LINE_WIDTH onto multiple lines (indented
+    so the wrapped text still reads as one bullet, not a new one).
+    """
+    if not items:
+        items = [empty_message]
+
+    out_lines = []
+    for item in items:
+        wrapped = textwrap.wrap(
+            str(item),
+            width=MAX_LINE_WIDTH,
+            initial_indent=" - ",
+            subsequent_indent="   ",
+            break_long_words=False,
+            break_on_hyphens=False,
+        )
+        out_lines.extend(wrapped if wrapped else [" - "])
+
+    return "\n".join(out_lines) + "\n"
 
 # Safe colorama import with fallback
 try:
@@ -18,19 +50,19 @@ except ImportError:
     Fore = DummyColor()
     Style = DummyColor()
 
+
 def render_panel(decision):
     """
     Renders a Phase7 decision object into an advanced, color-coded
     structured text terminal panel with comprehensive error handling.
     """
-
     try:
         # Validate input
         if not isinstance(decision, dict):
             error_msg = f"Invalid decision object type: {type(decision)}"
             logger.error(error_msg)
             print(f"\n[ERROR] {error_msg}")
-            return
+            return None
 
         # Handle error state
         if "error" in decision:
@@ -39,12 +71,12 @@ def render_panel(decision):
                 print(f"\n{Fore.RED}[ERROR] {error_msg}{Style.RESET_ALL}")
             else:
                 print(f"\n[ERROR] {error_msg}")
-            return
+            return None
 
     except Exception as e:
         logger.error(f"Failed to validate decision object: {e}")
         print(f"\n[ERROR] Failed to process decision object: {e}")
-        return
+        return None
 
     try:
         # Basic metadata with safe extraction
@@ -53,30 +85,12 @@ def render_panel(decision):
         macro_bias = str(decision.get("macro_bias", "NEUTRAL"))
 
         # Extract sections with safe defaults
-        bias = decision.get("bias", {})
-        trend = decision.get("trend", {})
-        structure = decision.get("structure", {})
-        entry = decision.get("entry", {})
-        risk = decision.get("risk", {})
-        exit_data = decision.get("exit", {})
-
-        # Ensure all sections are dictionaries
-        for section_name, section_data in [("bias", bias), ("trend", trend), ("structure", structure), 
-                                         ("entry", entry), ("risk", risk), ("exit", exit_data)]:
-            if not isinstance(section_data, dict):
-                logger.warning(f"Section '{section_name}' is not a dictionary, using empty dict")
-                if section_name == "bias":
-                    bias = {}
-                elif section_name == "trend":
-                    trend = {}
-                elif section_name == "structure":
-                    structure = {}
-                elif section_name == "entry":
-                    entry = {}
-                elif section_name == "risk":
-                    risk = {}
-                elif section_name == "exit":
-                    exit_data = {}
+        bias = decision.get("bias", {}) if isinstance(decision.get("bias"), dict) else {}
+        trend = decision.get("trend", {}) if isinstance(decision.get("trend"), dict) else {}
+        structure = decision.get("structure", {}) if isinstance(decision.get("structure"), dict) else {}
+        entry = decision.get("entry", {}) if isinstance(decision.get("entry"), dict) else {}
+        risk = decision.get("risk", {}) if isinstance(decision.get("risk"), dict) else {}
+        exit_data = decision.get("exit", {}) if isinstance(decision.get("exit"), dict) else {}
 
         # Safe numeric extraction with error handling
         def safe_float(value, default=0.0):
@@ -106,17 +120,35 @@ def render_panel(decision):
             rr_t1 = rr_t2 = rr_t3 = 0.0
 
         # Formatted scores with safe conversion
+        # BUG FIX (found during A3/A4/A5 pass, not in original plan): the
+        # VALIDATION line below was displaying risk_score (which is set to
+        # bias_score in engine_core.py) next to the validation_state label,
+        # instead of the actual validation_score that validation_state was
+        # derived from. The STRONG/NEUTRAL/WEAK label was always correct;
+        # only the number beside it was wrong. Before B1 existed, bias_score
+        # happened to sit close to validation_score by coincidence, which is
+        # why this went unnoticed. validation_score is now used for the
+        # VALIDATION line; risk_score stays for CONFIDENCE below, which was
+        # already reading the right field.
         risk_score = safe_float(risk.get('risk_score', 0))
+        validation_score = safe_float(risk.get('validation_score', 0))
         entry_score = safe_float(entry.get('score', 0))
         confidence_score = safe_float(risk.get('confidence_score', 0))
         tq_current = safe_float(risk.get('trade_quality_current', 0))
         tq_proposed = safe_float(risk.get('trade_quality_proposed', 0))
         trend_health_score = safe_float(trend.get('trend_health', 0))
 
+        # C4 BUILD: position size and the standalone EV line were both
+        # dropped from the panel per Viktor's request -- the underlying
+        # numbers (including EV, which still appears inside Decision
+        # Reasoning below) are still computed upstream in
+        # engine_core.py/decision_model.py in case they're useful again
+        # later, just no longer read/shown here as their own line.
+
     except Exception as e:
         logger.error(f"Failed to extract panel data: {e}")
         print(f"\n[ERROR] Failed to extract panel data: {e}")
-        return
+        return None
 
     try:
         # Helper for color-coding text values with fallback
@@ -125,7 +157,7 @@ def render_panel(decision):
                 val_str = str(val).upper()
                 if not COLORAMA_AVAILABLE:
                     return str(val)
-                    
+
                 if "BULLISH" in val_str or "LONG" in val_str or "HEALTHY" in val_str or "STRONG" in val_str:
                     return f"{Fore.GREEN}{val}{Style.RESET_ALL}"
                 elif "BEARISH" in val_str or "SHORT" in val_str or "WEAK" in val_str:
@@ -136,135 +168,159 @@ def render_panel(decision):
             except Exception:
                 return str(val)
 
-        action_val = str(exit_data.get('action', 'WAIT'))
-        
+        action_val = str(exit_data.get('action', exit_data.get('final_action', 'WAIT')))
+
+        # C1: Decision Reasoning trail. Built from decision["explanation"]["reasons"],
+        # which comes from the exact same evaluation path signal_router.py used to
+        # produce the DECISION shown above -- so this can never disagree with it.
+        # Wrapped to MAX_LINE_WIDTH (see _wrap_bullets) so a long reason never
+        # produces one unbroken line too wide for the terminal.
+        explanation = decision.get("explanation", {}) if isinstance(decision.get("explanation"), dict) else {}
+        explanation_reasons = explanation.get("reasons", [])
+        reasoning_lines = _wrap_bullets(
+            explanation_reasons if isinstance(explanation_reasons, list) else [],
+            "No explanation available for this decision.",
+        )
+
+        # C3: Exit Watch advisory flags. Passed straight through from
+        # signal_router.py / exit_model.py's build_exit_watch() -- see
+        # that function's docstring for what feeds into this list. Same
+        # line-wrapping treatment as Decision Reasoning above.
+        exit_watch = decision.get("exit_watch", [])
+        exit_watch_lines = _wrap_bullets(
+            exit_watch if isinstance(exit_watch, list) else [],
+            "No exit-watch flags are active right now.",
+        )
+
+        # BTC MARKET CONTEXT (new feature, V1): informational only, never
+        # changes BIAS/DECISION/CONFIDENCE above. Falls back to a plain
+        # one-line note if unavailable (e.g. BTC fetch failed this run, or
+        # this run WAS analyzing BTCUSDT itself) -- that never affects the
+        # rest of the panel.
+        btc = decision.get("btc_context", {}) if isinstance(decision.get("btc_context"), dict) else {}
+        btc_available = bool(btc.get("available", False))
+
         if COLORAMA_AVAILABLE:
-            if action_val == "LONG":
+            if action_val in ["LONG", "TARGET 1 HIT", "TARGET 2 HIT", "TARGET 3 HIT"]:
                 colored_action = f"{Fore.GREEN}{action_val}{Style.RESET_ALL}"
-            elif action_val == "SHORT":
+            elif action_val in ["SHORT", "STOP LOSS HIT"]:
                 colored_action = f"{Fore.RED}{action_val}{Style.RESET_ALL}"
             else:
                 colored_action = f"{Fore.YELLOW}{action_val}{Style.RESET_ALL}"
             # ANSI code for Orange text
             ORANGE = "\033[38;5;214m"
+            c_cyan = Fore.CYAN
+            c_magenta = Fore.MAGENTA
+            c_green = Fore.GREEN
+            c_red = Fore.RED
+            dim = Style.DIM
+            reset = Style.RESET_ALL
         else:
             colored_action = action_val
             ORANGE = ""
+            c_cyan = ""
+            c_magenta = ""
+            c_green = ""
+            c_red = ""
+            dim = ""
+            reset = ""
 
-    except Exception as e:
-        logger.error(f"Failed to setup color formatting: {e}")
-        # Fallback to plain text
-        def colorize_val(val):
-            return str(val)
-        colored_action = str(exit_data.get('action', 'WAIT'))
-        ORANGE = ""
+        # Constructing layout strings cleanly
+        header_banner = f"\n{c_cyan}Connecting to MEXC API for {symbol} ({timeframe}) - Phase-7.3 Structural Quant Engine...{reset}\n\n" if COLORAMA_AVAILABLE else f"\nConnecting to MEXC API for {symbol} ({timeframe}) - Phase-7.3 Structural Quant Engine...\n\n"
 
-    try:
-        # Build panel with error handling and color fallback
-        if COLORAMA_AVAILABLE:
-            panel = (
-                f"\n{Fore.CYAN}Connecting to MEXC API for {symbol} ({timeframe}) - Phase-7.3 Structural Quant Engine...{Style.RESET_ALL}\n\n"
-                f"{Fore.MAGENTA}=========================================================================\n"
-                f"    PHASE-7 STRUCTURAL DYNAMIC ENTRY QUALITY ENGINE\n"
-                f"========================================================================={Style.RESET_ALL}\n\n"
-                f"BIAS       : {colorize_val(bias.get('detailed', bias.get('raw', 'NEUTRAL')))}\n"
-                f"REGIME     : {colorize_val(bias.get('regime', 'NEUTRAL STRUCTURE'))}\n"
-                f"STRUCTURE  : {colorize_val(structure.get('regime', 'NEUTRAL'))} | Vol: {colorize_val(bias.get('volatility', 'NORMAL'))}\n"
-                f"TREND      : {colorize_val(trend.get('momentum_mode', 'HEALTHY'))} (Score: {trend_health_score:.2f})\n"
-                f"MOMENTUM   : {colorize_val(trend.get('momentum_mode', 'HEALTHY'))} ({trend_health_score:.2f})\n"
-                f"VOLUME     : {colorize_val(structure.get('volume_sentiment', 'WEAK OR CONTRARY VOLUME'))}\n"
-                f"VALIDATION : {colorize_val(risk.get('validation_state', 'WEAK'))} (Score: {risk_score:.2f})\n"
-                f"VOLATILITY : {colorize_val(bias.get('volatility', 'LOW'))}\n"
-                f"MACRO TREND: {colorize_val(macro_bias)}\n\n"
-                f"{Style.DIM}-------------------------------------------------------------------------{Style.RESET_ALL}\n"
-                f"CURRENT PRICE : {ORANGE}${current_price:.4f}{Style.RESET_ALL}\n"
-                f"ENTRY ZONE    : {Fore.CYAN}${safe_float(entry.get('zone_lower', 0)):.4f} - ${safe_float(entry.get('zone_upper', 0)):.4f}{Style.RESET_ALL}\n"
-                f"ZONE DISTANCE : {safe_float(entry.get('distance_from_zone', 0.0)):.2f}% away from zone\n"
-                f"STATUS        : {colorize_val(entry.get('entry_status', 'ACTIVE ENTRY ZONE'))}\n"
-                f"SWING STRUCT  : ${safe_float(structure.get('swing_struct', current_price)):.4f} (Lookback 8)\n"
-                f"STOP LOSS     : {Fore.RED}${stop_loss:.4f}{Style.RESET_ALL}\n"
-                f"TARGET 1 (Cons): {Fore.GREEN}${t1:.4f}{Style.RESET_ALL} | R:R 1 : {rr_t1:.2f}\n"
-                f"TARGET 2 (Norm): {Fore.GREEN}${t2:.4f}{Style.RESET_ALL} | R:R 1 : {rr_t2:.2f}\n"
-                f"TARGET 3 (Aggr): {Fore.GREEN}${t3:.4f}{Style.RESET_ALL} | R:R 1 : {rr_t3:.2f}\n\n"
-                f"{Style.DIM}-------------------------------------------------------------------------{Style.RESET_ALL}\n"
-                f"ENTRY QUALITY : {entry_score:.2f}/100\n"
-                f"    |-- EMA Zone Position : {safe_float(entry.get('ema_pos_pts', 22)):.0f}/30\n"
-                f"    |-- ATR Distance      : {safe_float(entry.get('atr_dist_pts', 10)):.0f}/25\n"
-                f"    |-- VWMA Distance     : {safe_float(entry.get('vwma_pts', 20)):.0f}/20\n"
-                f"    |-- RSI Extension     : {safe_float(entry.get('rsi_pts', 15)):.0f}/15\n"
-                f"    |-- Structure         : {safe_float(entry.get('struct_pts', 2)):.0f}/12\n\n"
-                f"{Style.DIM}-------------------------------------------------------------------------{Style.RESET_ALL}\n"
-                f"CONFIDENCE    : {confidence_score:.2f}/100\n"
-                f"TRADE QUALITY :\n"
-                f"    |-- Current Market    : {tq_current:.2f}/100\n"
-                f"    |-- Proposed Entry    : {tq_proposed:.2f}/100\n\n"
-                f"{Fore.MAGENTA}=========================================================================\n"
-                f"DECISION      : {colored_action}\n\n"
-                f"-------------------------------------------------------------------------\n"
-                f"Validation Notes:\n"
-                f" - {risk.get('validation_note', 'VWMA volume trend is pointing down.')}\n"
-                f"========================================================================={Style.RESET_ALL}\n\n"
-                f"Trade logged to Logs/phase7_trade_log_{symbol.lower()}.csv\n"
-                f"AI Risk chart saved to {decision.get('chart_path', 'Logs/Charts/chart.png')}\n"
+        box_top = f"{c_magenta}=========================================================================\n" if COLORAMA_AVAILABLE else "=========================================================================\n"
+        title_line = f"    PHASE-7 STRUCTURAL DYNAMIC ENTRY QUALITY ENGINE\n"
+        box_mid = f"========================================================================={reset}\n\n" if COLORAMA_AVAILABLE else "=========================================================================\n\n"
+        divider = f"{dim}-------------------------------------------------------------------------{reset}\n" if COLORAMA_AVAILABLE else "-------------------------------------------------------------------------\n"
+
+        # BTC MARKET CONTEXT (new feature, V1) -- built as its own block
+        # here so the conditional (available vs. not) stays readable,
+        # rather than trying to branch inside the big f-string below.
+        # Informational only: never changes BIAS/DECISION/CONFIDENCE above.
+        if btc_available:
+            btc_reasoning_lines = _wrap_bullets(
+                btc.get("reasons", []) if isinstance(btc.get("reasons"), list) else [],
+                "No additional notes.",
+            )
+            btc_section = (
+                f"{divider}"
+                f"BTC Market Context (informational only -- does not change BIAS or DECISION above):\n"
+                f"BTC BIAS      : {colorize_val(btc.get('detailed', 'NEUTRAL'))}\n"
+                f"BTC REGIME    : {colorize_val(btc.get('regime', 'NEUTRAL STRUCTURE'))} | "
+                f"Vol: {colorize_val(btc.get('volatility', 'NORMAL'))}\n"
+                f"CORRELATION   : {colorize_val(btc.get('correlation_label', 'WEAK / NO CLEAR RELATIONSHIP'))} "
+                f"({safe_float(btc.get('correlation', 0.0)):+.2f}) over last {int(btc.get('n_observations', 0))} candles\n"
+                f"BTC SENSITIVITY (beta): {safe_float(btc.get('beta', 0.0)):.2f}x\n"
+                f"BROAD MARKET STRESS: {colorize_val('YES' if btc.get('broad_market_stress') else 'No')}\n"
+                f"BTC-ADJUSTED CONFIDENCE: {safe_float(btc.get('btc_adjusted_confidence', 0.0)):.2f}/100 "
+                f"(vs {confidence_score:.2f}/100 unadjusted)\n"
+                f"{btc_reasoning_lines}\n"
             )
         else:
-            # Plain text fallback
-            panel = (
-                f"\nConnecting to MEXC API for {symbol} ({timeframe}) - Phase-7.3 Structural Quant Engine...\n\n"
-                f"=========================================================================\n"
-                f"    PHASE-7 STRUCTURAL DYNAMIC ENTRY QUALITY ENGINE\n"
-                f"=========================================================================\n\n"
-                f"BIAS       : {bias.get('detailed', bias.get('raw', 'NEUTRAL'))}\n"
-                f"REGIME     : {bias.get('regime', 'NEUTRAL STRUCTURE')}\n"
-                f"STRUCTURE  : {structure.get('regime', 'NEUTRAL')} | Vol: {bias.get('volatility', 'NORMAL')}\n"
-                f"TREND      : {trend.get('momentum_mode', 'HEALTHY')} (Score: {trend_health_score:.2f})\n"
-                f"MOMENTUM   : {trend.get('momentum_mode', 'HEALTHY')} ({trend_health_score:.2f})\n"
-                f"VOLUME     : {structure.get('volume_sentiment', 'WEAK OR CONTRARY VOLUME')}\n"
-                f"VALIDATION : {risk.get('validation_state', 'WEAK')} (Score: {risk_score:.2f})\n"
-                f"VOLATILITY : {bias.get('volatility', 'LOW')}\n"
-                f"MACRO TREND: {macro_bias}\n\n"
-                f"-------------------------------------------------------------------------\n"
-                f"CURRENT PRICE : ${current_price:.4f}\n"
-                f"ENTRY ZONE    : ${safe_float(entry.get('zone_lower', 0)):.4f} - ${safe_float(entry.get('zone_upper', 0)):.4f}\n"
-                f"ZONE DISTANCE : {safe_float(entry.get('distance_from_zone', 0.0)):.2f}% away from zone\n"
-                f"STATUS        : {entry.get('entry_status', 'ACTIVE ENTRY ZONE')}\n"
-                f"SWING STRUCT  : ${safe_float(structure.get('swing_struct', current_price)):.4f} (Lookback 8)\n"
-                f"STOP LOSS     : ${stop_loss:.4f}\n"
-                f"TARGET 1 (Cons): ${t1:.4f} | R:R 1 : {rr_t1:.2f}\n"
-                f"TARGET 2 (Norm): ${t2:.4f} | R:R 1 : {rr_t2:.2f}\n"
-                f"TARGET 3 (Aggr): ${t3:.4f} | R:R 1 : {rr_t3:.2f}\n\n"
-                f"-------------------------------------------------------------------------\n"
-                f"ENTRY QUALITY : {entry_score:.2f}/100\n"
-                f"    |-- EMA Zone Position : {safe_float(entry.get('ema_pos_pts', 22)):.0f}/30\n"
-                f"    |-- ATR Distance      : {safe_float(entry.get('atr_dist_pts', 10)):.0f}/25\n"
-                f"    |-- VWMA Distance     : {safe_float(entry.get('vwma_pts', 20)):.0f}/20\n"
-                f"    |-- RSI Extension     : {safe_float(entry.get('rsi_pts', 15)):.0f}/15\n"
-                f"    |-- Structure         : {safe_float(entry.get('struct_pts', 2)):.0f}/12\n\n"
-                f"-------------------------------------------------------------------------\n"
-                f"CONFIDENCE    : {confidence_score:.2f}/100\n"
-                f"TRADE QUALITY :\n"
-                f"    |-- Current Market    : {tq_current:.2f}/100\n"
-                f"    |-- Proposed Entry    : {tq_proposed:.2f}/100\n\n"
-                f"=========================================================================\n"
-                f"DECISION      : {colored_action}\n\n"
-                f"-------------------------------------------------------------------------\n"
-                f"Validation Notes:\n"
-                f" - {risk.get('validation_note', 'VWMA volume trend is pointing down.')}\n"
-                f"=========================================================================\n\n"
-                f"Trade logged to Logs/phase7_trade_log_{symbol.lower()}.csv\n"
-                f"AI Risk chart saved to {decision.get('chart_path', 'Logs/Charts/chart.png')}\n"
+            btc_section = (
+                f"{divider}"
+                f"BTC Market Context (informational only): unavailable this run -- AERO analysis above is unaffected.\n\n"
             )
+
+        panel = (
+            f"{header_banner}"
+            f"{box_top}{title_line}{box_mid}"
+            f"BIAS       : {colorize_val(bias.get('detailed', bias.get('raw', 'NEUTRAL')))}\n"
+            f"REGIME     : {colorize_val(bias.get('regime', 'NEUTRAL STRUCTURE'))}\n"
+            f"STRUCTURE  : {colorize_val(structure.get('regime', 'NEUTRAL'))} | Vol: {colorize_val(bias.get('volatility', 'NORMAL'))}\n"
+            f"SEQUENCE   : {colorize_val(structure.get('sequence', 'NONE'))}\n"
+            f"TREND      : {colorize_val(trend.get('trend_direction', 'NEUTRAL'))} / {colorize_val(trend.get('momentum_mode', 'HEALTHY'))} (Score: {trend_health_score:.2f})\n"
+            f"MOMENTUM   : {colorize_val(trend.get('momentum_mode', 'HEALTHY'))} ({trend_health_score:.2f})\n"
+            f"VOLUME     : {colorize_val(structure.get('volume_sentiment', 'WEAK OR CONTRARY VOLUME'))}\n"
+            f"VALIDATION : {colorize_val(risk.get('validation_state', 'WEAK'))} (Score: {validation_score:.2f})\n"
+            f"VOLATILITY : {colorize_val(bias.get('volatility', 'LOW'))}\n"
+            f"MACRO TREND: {colorize_val(macro_bias)}\n\n"
+            f"{divider}"
+            f"CURRENT PRICE : {ORANGE}${current_price:.4f}{reset}\n"
+            f"ENTRY ZONE    : {c_cyan}${safe_float(entry.get('zone_lower', 0)):.4f} - ${safe_float(entry.get('zone_upper', 0)):.4f}{reset}\n"
+            f"ZONE DISTANCE : {safe_float(entry.get('distance_from_zone', 0.0)):.2f}% away from zone\n"
+            f"STATUS        : {colorize_val(entry.get('entry_status', 'ACTIVE ENTRY ZONE'))}\n"
+            f"SWING STRUCT  : ${safe_float(structure.get('swing_struct', current_price)):.4f} (Lookback 8)\n"
+            f"STOP LOSS     : {c_red}${stop_loss:.4f}{reset}\n"
+            f"TARGET 1 (Cons): {c_green}${t1:.4f}{reset} | R:R 1 : {rr_t1:.2f}\n"
+            f"TARGET 2 (Norm): {c_green}${t2:.4f}{reset} | R:R 1 : {rr_t2:.2f}\n"
+            f"TARGET 3 (Aggr): {c_green}${t3:.4f}{reset} | R:R 1 : {rr_t3:.2f}\n\n"
+            f"{divider}"
+            f"ENTRY QUALITY : {entry_score:.2f}/100\n"
+            f"    |-- EMA Zone Position : {safe_float(entry.get('ema_pos_pts', 22)):.0f}/30\n"
+            f"    |-- ATR Distance      : {safe_float(entry.get('atr_dist_pts', 10)):.0f}/25\n"
+            f"    |-- VWMA Distance     : {safe_float(entry.get('vwma_pts', 20)):.0f}/20\n"
+            f"    |-- RSI Extension     : {safe_float(entry.get('rsi_pts', 15)):.0f}/15\n"
+            f"    |-- Structure         : {safe_float(entry.get('struct_pts', 2)):.0f}/12\n\n"
+            f"{divider}"
+            f"CONFIDENCE (decision): {confidence_score:.2f}/100\n"
+            f"TRADE QUALITY :\n"
+            f"    |-- Current Market    : {tq_current:.2f}/100\n"
+            f"    |-- Proposed Entry    : {tq_proposed:.2f}/100\n\n"
+            f"{box_top}"
+            f"DECISION      : {colored_action}\n\n"
+            f"{divider}"
+            f"Decision Reasoning:\n"
+            f"{reasoning_lines}\n"
+            f"{divider}"
+            f"Exit Watch (advisory only -- not automatic):\n"
+            f"{exit_watch_lines}\n"
+            f"{divider}"
+            f"Validation Notes:\n"
+            f" - {risk.get('validation_note', 'VWMA volume trend is pointing down.')}\n"
+            f"{btc_section}"
+            f"{box_top}\n"
+            f"Trade logged to Logs/phase7_trade_log_{symbol.lower()}.csv\n"
+            f"AI Risk chart saved to {decision.get('chart_path', 'Logs/Charts/chart.png')}\n"
+        )
 
         print(panel)
         return panel
-        
+
     except Exception as e:
         logger.error(f"Failed to build or print panel: {e}")
-        # Minimal fallback output
         try:
             print(f"\n[ERROR] Panel rendering failed: {e}")
-            print(f"Symbol: {symbol}, Timeframe: {timeframe}")
-            print(f"Decision: {exit_data.get('action', 'UNKNOWN')}")
         except Exception:
             print("\n[ERROR] Critical panel rendering failure")
         return None

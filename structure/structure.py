@@ -1,31 +1,67 @@
 import numpy as np
+import pandas as pd
+from typing import Dict, Any, Tuple, Optional, List, TypedDict
+
+from indicators.volume_profile import compute_volume_profile
+
+# Step 8: Formal Return Contract Type Definition for strict static analysis
+class StructureAnalysisResult(TypedDict):
+    regime: str
+    sequence: str
+    hvn: float
+    lvn: float
+    swing_struct: float
+    volume_sentiment: str
+    df: Optional[pd.DataFrame]
+
 
 class StructureEngine:
     """
-    Phase‑7 Structure + Volume Sentiment Engine (Simple Mode)
+    Phase‑7 Structure + Volume Sentiment Engine
+    Fully vectorized with NumPy/Pandas optimizations, input validation,
+    localized exception isolation, advanced adaptive lookbacks, hysteresis state machine,
+    advanced volume sentiment metrics, and strict typing contracts.
     """
 
-    def __init__(self):
-        pass
+    def __init__(self, volume_profile_bins: int = 50) -> None:
+        # State tracking for regime persistence to reduce whipsaws
+        self._last_regime: str = "NEUTRAL STRUCTURE"
+        self._volume_profile_bins: int = volume_profile_bins
 
     # ============================================================
     # MAIN STRUCTURE + VOLUME SENTIMENT ENGINE
     # ============================================================
 
-    def analyze(self, df, current_price):
+    def analyze(self, df: pd.DataFrame, current_price: float, lookback: int = 8) -> Dict[str, Any]:
         """
-        Main structure engine entry point.
-        Returns structure regime, sequence, HVN/LVN, swing structure,
-        and NEW volume sentiment (Simple Mode).
+        Main structure engine entry point with localized sub-routine error handling.
+        Returns structure regime, sequence, HVN/LVN, swing structure, and volume sentiment.
         """
+        # Improvement 4: Localized Exception Handling for Sub-Routines
+        try:
+            regime = self._detect_regime(df)
+        except Exception:
+            regime = self._last_regime
 
-        regime = self._detect_regime(df)
-        sequence = self._detect_sequence(df)
-        hvn, lvn = self._detect_hvn_lvn(df)
-        swing_struct = self._detect_swing_structure(df, current_price)
+        try:
+            sequence = self._detect_sequence(df, lookback=lookback)
+        except Exception:
+            sequence = "NONE"
 
-        # NEW: Volume Sentiment (Simple Mode)
-        volume_sentiment = self._volume_sentiment_simple(df)
+        try:
+            hvn, lvn = self._detect_hvn_lvn(df)
+        except Exception:
+            hvn, lvn = float(current_price), float(current_price)
+
+        try:
+            swing_struct = self._detect_swing_structure(df, current_price, lookback=lookback)
+        except Exception:
+            swing_struct = float(current_price)
+
+        try:
+            volume_sentiment = self._volume_sentiment_simple(df)
+        except Exception:
+            volume_sentiment = "NEUTRAL VOLUME"
 
         return {
             "regime": regime,
@@ -37,88 +73,317 @@ class StructureEngine:
         }
 
     # ============================================================
-    # BASIC STRUCTURE DETECTION
+    # STRUCTURE DETECTION & STATE MANAGEMENT
     # ============================================================
 
-    def _detect_regime(self, df):
-        return "NEUTRAL STRUCTURE"
+    def _detect_regime(self, df: pd.DataFrame) -> str:
+        """
+        Improvement 6: State Machine for Market Regimes with Hysteresis.
+        Prevents whipsaws during choppy consolidation phases by introducing state persistence.
+        """
+        if df is None or len(df) < 15:
+            return self._last_regime
 
-    def _detect_sequence(self, df):
+        closes = df['close'].values
+        ma_short = closes[-5:].mean()
+        ma_long = closes[-15:].mean()
+
+        gap_pct = (ma_short - ma_long) / ma_long
+        threshold = 0.0015  # 0.15% buffer zone to avoid false triggers
+
+        current_state = self._last_regime
+
+        if current_state == "BULLISH TREND":
+            if gap_pct < -threshold:
+                new_state = "BEARISH TREND"
+            elif gap_pct < 0:
+                new_state = "NEUTRAL STRUCTURE"
+            else:
+                new_state = "BULLISH TREND"
+        elif current_state == "BEARISH TREND":
+            if gap_pct > threshold:
+                new_state = "BULLISH TREND"
+            elif gap_pct > 0:
+                new_state = "NEUTRAL STRUCTURE"
+            else:
+                new_state = "BEARISH TREND"
+        else:
+            if gap_pct > threshold:
+                new_state = "BULLISH TREND"
+            elif gap_pct < -threshold:
+                new_state = "BEARISH TREND"
+            else:
+                new_state = "NEUTRAL STRUCTURE"
+
+        self._last_regime = new_state
+        return new_state
+
+    # ============================================================
+    # B2 BUILD: SWING-HIGH/LOW PIVOTS (shared by sequence detection
+    # and swing-structure level detection below)
+    # ============================================================
+    #
+    # A confirmed swing high is a bar whose high is the most extreme value
+    # within `lookback` bars on BOTH sides of it. Because we only have data
+    # up to "now," a pivot can't be confirmed until `lookback` bars of price
+    # action have passed after it -- so only bars at least `lookback` back
+    # from the most recent bar are eligible. This is standard fractal-pivot
+    # detection, matching the "(Lookback 8)" already labeled on the panel's
+    # SWING STRUCT line (that label previously described a stub that just
+    # returned current_price unchanged -- it's now real).
+
+    def _find_confirmed_swings(
+        self,
+        highs: np.ndarray,
+        lows: np.ndarray,
+        lookback: int,
+        max_each: int = 2,
+        search_limit: int = 200,
+    ) -> Tuple[List[Tuple[int, float]], List[Tuple[int, float]]]:
+        """
+        Scans backward from the most recent confirmable bar and returns up to
+        `max_each` confirmed swing highs and swing lows, each as (index, price),
+        most recent first. Accepted pivots are required to be at least
+        `lookback` bars apart so one flat-topped/bottomed cluster of bars
+        doesn't get counted as several separate swing points.
+        """
+        n = len(highs)
+        swing_highs: List[Tuple[int, float]] = []
+        swing_lows: List[Tuple[int, float]] = []
+        last_high_idx: Optional[int] = None
+        last_low_idx: Optional[int] = None
+
+        search_start = n - 1 - lookback
+        search_end = max(lookback, search_start - search_limit)
+
+        for i in range(search_start, search_end - 1, -1):
+            if i - lookback < 0 or i + lookback >= n:
+                continue
+
+            # Minimum spacing between two ACCEPTED pivots is 2x lookback, not
+            # just lookback -- two adjacent lookback-windows can otherwise
+            # both "win" on the same flat-topped/bottomed cluster of bars
+            # (e.g. a multi-bar consolidation at the same level), which would
+            # misread one plateau as two separate swings and never let the
+            # comparison logic below see a genuinely new extreme.
+            if len(swing_highs) < max_each:
+                window_high = highs[i - lookback: i + lookback + 1]
+                if highs[i] == window_high.max() and (last_high_idx is None or last_high_idx - i >= 2 * lookback):
+                    swing_highs.append((i, float(highs[i])))
+                    last_high_idx = i
+
+            if len(swing_lows) < max_each:
+                window_low = lows[i - lookback: i + lookback + 1]
+                if lows[i] == window_low.min() and (last_low_idx is None or last_low_idx - i >= 2 * lookback):
+                    swing_lows.append((i, float(lows[i])))
+                    last_low_idx = i
+
+            if len(swing_highs) >= max_each and len(swing_lows) >= max_each:
+                break
+
+        return swing_highs, swing_lows
+
+    def _detect_sequence(self, df: pd.DataFrame, lookback: int = 8) -> str:
+        """
+        B2 BUILD (was a stub always returning "NONE"). Real swing-sequence /
+        BOS ("break of structure") / CHOCH ("change of character") detection.
+
+        Looks at the two most recent confirmed swing highs and swing lows to
+        classify the swing sequence, then checks whether the CURRENT price
+        has broken through the most recent confirmed swing extreme:
+
+          BULLISH SWING SEQUENCE (HH-HL) -- higher highs & higher lows, no
+                                             break of the last swing high yet
+          BEARISH SWING SEQUENCE (LH-LL) -- lower highs & lower lows, no
+                                             break of the last swing low yet
+          BOS BULLISH / BOS BEARISH      -- price breaks the last swing
+                                             extreme IN the direction the
+                                             sequence was already going
+                                             (trend continuation)
+          CHOCH BULLISH / CHOCH BEARISH  -- price breaks the last swing
+                                             extreme AGAINST the direction
+                                             the sequence was going (the
+                                             first sign of a possible
+                                             reversal)
+          NONE -- not enough confirmed swing points yet, or highs/lows
+                  disagree on direction (e.g. higher highs but lower lows)
+        """
+        if df is None or len(df) < (6 * lookback + 10):
+            return "NONE"
+
+        highs = df['high'].values
+        lows = df['low'].values
+        closes = df['close'].values
+
+        swing_highs, swing_lows = self._find_confirmed_swings(highs, lows, lookback, max_each=2)
+
+        if len(swing_highs) < 2 or len(swing_lows) < 2:
+            return "NONE"
+
+        last_high, prev_high = swing_highs[0][1], swing_highs[1][1]
+        last_low, prev_low = swing_lows[0][1], swing_lows[1][1]
+        current_price = float(closes[-1])
+
+        if last_high > prev_high and last_low > prev_low:
+            # Established bullish swing sequence. A break below the last
+            # confirmed swing low here would go against that sequence.
+            if current_price > last_high:
+                return "BOS BULLISH (TREND CONTINUATION)"
+            if current_price < last_low:
+                return "CHOCH BEARISH (POSSIBLE REVERSAL)"
+            return "BULLISH SWING SEQUENCE (HH-HL)"
+
+        if last_high < prev_high and last_low < prev_low:
+            # Established bearish swing sequence. A break above the last
+            # confirmed swing high here would go against that sequence.
+            if current_price < last_low:
+                return "BOS BEARISH (TREND CONTINUATION)"
+            if current_price > last_high:
+                return "CHOCH BULLISH (POSSIBLE REVERSAL)"
+            return "BEARISH SWING SEQUENCE (LH-LL)"
+
+        # Mixed (e.g. higher highs but lower lows) -- no clean sequence.
         return "NONE"
 
-    def _detect_hvn_lvn(self, df):
-        # Optimized HVN/LVN detection using numpy for better performance
-        if df is not None and not df.empty:
-            # Use numpy operations directly on values for speed
-            high_values = df['high'].values
-            low_values = df['low'].values
-            
-            # Use numpy functions which are faster than pandas
-            hvn = np.max(high_values)
-            lvn = np.min(low_values)
-            return hvn, lvn
-        return 0.0, 0.0
+    def _detect_hvn_lvn(self, df: pd.DataFrame) -> Tuple[float, float]:
+        """
+        A11 FIX: Primary HVN/LVN source is now the real binned volume-profile
+        engine (compute_volume_profile), which distributes actual traded
+        volume proportionally across price bins. This replaces the previous
+        approach of using the high/low extremes of an adaptive lookback
+        window, which measured price range, not where volume actually traded.
 
-    def _detect_swing_structure(self, df, current_price):
-        return current_price
+        Falls back to the old adaptive-lookback method only if the volume
+        profile can't be computed or returns no usable result, so behavior
+        degrades gracefully instead of failing outright.
+        """
+        if df is None or df.empty:
+            return 0.0, 0.0
+
+        try:
+            _, hvn, lvn = compute_volume_profile(df, num_bins=self._volume_profile_bins)
+            if hvn is not None and lvn is not None and np.isfinite(hvn) and np.isfinite(lvn):
+                return float(hvn), float(lvn)
+        except Exception:
+            pass  # fall through to legacy method below
+
+        # ------------------------------------------------------------
+        # LEGACY FALLBACK: adaptive TR-based high/low window
+        # ------------------------------------------------------------
+        high_values = df['high'].values
+        low_values = df['low'].values
+        close_values = df['close'].values
+        df_len = len(df)
+
+        if df_len > 14:
+            prev_closes = np.roll(close_values, 1)
+            prev_closes[0] = close_values[0]
+            tr = np.maximum(
+                high_values - low_values,
+                np.maximum(np.abs(high_values - prev_closes), np.abs(low_values - prev_closes))
+            )
+
+            recent_tr = np.mean(tr[-14:])
+            recent_price = close_values[-1]
+
+            vol_pct = (recent_tr / recent_price) if recent_price > 0 else 0.01
+            base_lookback = 20
+            vol_factor = vol_pct / 0.01
+            adaptive_window = int(base_lookback / max(0.5, min(2.0, vol_factor)))
+
+            lookback = max(5, min(df_len, adaptive_window))
+        else:
+            lookback = df_len
+
+        hvn = float(high_values[-lookback:].max())
+        lvn = float(low_values[-lookback:].min())
+        return hvn, lvn
+
+    def _detect_swing_structure(self, df: pd.DataFrame, current_price: float, lookback: int = 8) -> float:
+        """
+        B2 BUILD (was a stub always returning current_price unchanged).
+
+        Returns the nearest confirmed swing high or swing low to the current
+        price -- the closest real structural reference level for manual
+        stop/target planning. (structure.py doesn't yet know the intended
+        trade direction at this point in engine_core.py's pipeline -- the
+        bias engine runs after this -- so this returns whichever confirmed
+        swing point is closest, rather than picking "support" vs.
+        "resistance" by direction.)
+        """
+        if df is None or len(df) < (2 * lookback + 5):
+            return float(current_price)
+
+        highs = df['high'].values
+        lows = df['low'].values
+
+        swing_highs, swing_lows = self._find_confirmed_swings(highs, lows, lookback, max_each=1)
+
+        if not swing_highs and not swing_lows:
+            return float(current_price)
+        if not swing_highs:
+            return float(swing_lows[0][1])
+        if not swing_lows:
+            return float(swing_highs[0][1])
+
+        nearest_high = swing_highs[0][1]
+        nearest_low = swing_lows[0][1]
+        if abs(nearest_high - current_price) <= abs(nearest_low - current_price):
+            return float(nearest_high)
+        return float(nearest_low)
 
     # ============================================================
-    # SIMPLE VOLUME SENTIMENT ENGINE (STYLE A)
+    # ADVANCED VOLUME SENTIMENT ENGINE
     # ============================================================
 
-    def _volume_sentiment_simple(self, df):
+    def _volume_sentiment_simple(self, df: pd.DataFrame) -> str:
         """
-        Simple & Clean Volume Sentiment Classification.
-        Uses VWMA slope + volume trend vs price trend.
-        Optimized for performance with vectorized operations.
+        Improvement 2 & 7: Advanced Volume Sentiment Metrics with participation expansion
+        and institutional accumulation/distribution detection.
         """
-
         if df is None or len(df) < 20:
             return "NEUTRAL VOLUME"
 
-        # Use numpy arrays directly for better performance
-        closes = df["close"].iloc[-10:].values  # Only get what we need
-        volumes = df["volume"].iloc[-10:].values
+        closes = df["close"].values
+        volumes = df["volume"].values
 
-        # Optimized VWMA calculation using numpy
+        c_recent, c_prev = closes[-5:], closes[-10:-5]
+        v_recent, v_prev = volumes[-5:], volumes[-10:-5]
+
         try:
-            vwma_recent = np.average(closes[-5:], weights=volumes[-5:])
-            vwma_prev = np.average(closes[-10:-5], weights=volumes[-10:-5])
+            vwma_recent = np.average(c_recent, weights=v_recent)
+            vwma_prev = np.average(c_prev, weights=v_prev)
         except ZeroDivisionError:
-            # Handle case where all volumes are zero
-            vwma_recent = np.mean(closes[-5:])
-            vwma_prev = np.mean(closes[-10:-5])
+            vwma_recent = c_recent.mean()
+            vwma_prev = c_prev.mean()
 
         vwma_slope = vwma_recent - vwma_prev
-
-        # Vectorized trend calculations
         price_slope = closes[-1] - closes[-5]
         vol_slope = volumes[-1] - volumes[-5]
 
-        # --------------------------------------------------------
-        # CLASSIFICATION LOGIC (Simple Mode)
-        # --------------------------------------------------------
+        vma_baseline = volumes[-20:].mean()
+        recent_vol_mean = volumes[-5:].mean()
+        volume_expansion = recent_vol_mean > (1.2 * vma_baseline)
 
-        # Bullish Volume Support
+        if vwma_slope > 0 and volume_expansion and price_slope > 0:
+            return "STRONG BULLISH ACCUMULATION"
+
         if vwma_slope > 0 and vol_slope > 0 and price_slope > 0:
             return "BULLISH VOLUME SUPPORT"
 
-        # Bearish Volume Pressure
+        if vwma_slope < 0 and volume_expansion and price_slope < 0:
+            return "STRONG BEARISH DISTRIBUTION"
+
         if vwma_slope < 0 and vol_slope > 0 and price_slope < 0:
             return "BEARISH VOLUME PRESSURE"
 
-        # Volume Divergence
-        if price_slope > 0 and vol_slope < 0:
+        if (price_slope > 0 and vol_slope < 0 and not volume_expansion) or \
+           (price_slope < 0 and vol_slope < 0 and not volume_expansion):
             return "VOLUME DIVERGENCE"
 
-        if price_slope < 0 and vol_slope > 0:
-            return "VOLUME DIVERGENCE"
-
-        # Volume Exhaustion (volume spike + flat price)
-        if vol_slope > 0 and abs(price_slope) < (0.002 * closes[-1]):
+        if volume_expansion and abs(price_slope) < (0.001 * closes[-1]):
             return "VOLUME EXHAUSTION"
 
-        # Default
         return "NEUTRAL VOLUME"
 
 
@@ -126,16 +391,10 @@ class StructureEngine:
 # ENGINE COMPATIBILITY WRAPPER
 # ============================================================
 
-def calculate_structure(df, lookback=8, copy_df=True):
+def calculate_structure(df: Optional[pd.DataFrame], lookback: int = 8, copy_df: bool = True) -> Dict[str, Any]:
     """
-    Compatibility wrapper function expected by engine_core.py.
-    Provides structural analysis and injects required DataFrame columns
-    (including 'STRUCTURE', 'HVN', and 'LVN') to support downstream modules.
-    
-    Args:
-        df: Input DataFrame
-        lookback: Lookback period for structure analysis
-        copy_df: Whether to copy DataFrame (set False for performance)
+    Compatibility wrapper function with strict input validation, vectorized NaN cleaning,
+    optimized memory management (copy_df), and formal typing contracts for engine_core.py.
     """
     if df is None or df.empty:
         return {
@@ -148,27 +407,31 @@ def calculate_structure(df, lookback=8, copy_df=True):
             "df": df
         }
 
-    # Performance optimization: avoid DataFrame copy when not needed
-    current_price = df['close'].iloc[-1]  # Remove unnecessary float conversion
-    engine = StructureEngine()
-    result = engine.analyze(df, current_price)
-    
-    # Conditionally copy DataFrame based on copy_df parameter
+    required_cols = ['open', 'high', 'low', 'close', 'volume']
+    for col in required_cols:
+        if col not in df.columns:
+            raise ValueError(f"StructureEngine requires missing column: '{col}'")
+
     if copy_df:
-        df_result = df.copy()
+        df_clean = df.copy()
     else:
-        df_result = df
-    
-    # Inject columns required by engine_core and trend_health modules
-    # Use vectorized assignment for better performance
-    regime_value = result.get("regime", "NEUTRAL STRUCTURE")
-    hvn_value = result.get("hvn", 0.0)
-    lvn_value = result.get("lvn", 0.0)
-    
-    df_result["STRUCTURE"] = regime_value
-    df_result["HVN"] = hvn_value
-    df_result["LVN"] = lvn_value
-    
-    result["df"] = df_result
-        
+        df_clean = df
+
+    df_clean.loc[:, required_cols] = df_clean[required_cols].ffill().bfill().fillna(0.0)
+
+    current_price = float(df_clean['close'].iloc[-1])
+
+    engine = StructureEngine()
+    # B2 FIX: `lookback` was accepted by this wrapper's signature but never
+    # actually passed down to the engine -- analyze() didn't even take a
+    # lookback parameter, so the "(Lookback 8)" already shown on the panel's
+    # SWING STRUCT line was aspirational text next to a stub. Now real.
+    result = engine.analyze(df_clean, current_price, lookback=lookback)
+
+    df_clean.loc[:, "STRUCTURE"] = result.get("regime", "NEUTRAL STRUCTURE")
+    df_clean.loc[:, "HVN"] = result.get("hvn", 0.0)
+    df_clean.loc[:, "LVN"] = result.get("lvn", 0.0)
+
+    result["df"] = df_clean
+
     return result
