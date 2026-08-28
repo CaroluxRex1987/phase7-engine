@@ -10,7 +10,7 @@ than agree with it. That document is in [`docs/`](docs/) and is the main reason 
 repository is public.
 
 **All of the work in this repository — three builds and the constitution — was done
-over six days.**
+by one person, with heavy AI assistance.**
 
 ---
 
