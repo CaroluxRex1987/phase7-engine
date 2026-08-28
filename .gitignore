@@ -49,3 +49,8 @@ API KEY FROM OPEN CODE.txt
 *.key
 *.secret
 *.token
+# Test fixtures are inputs to the suite, not engine output.
+# The pinned dataset and the golden snapshot must be in the repo or the
+# tests cannot run on a clone.
+!tests/fixtures/*.csv
+!tests/fixtures/*.json

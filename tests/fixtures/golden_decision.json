@@ -1,0 +1,103 @@
+{
+  "bias": {
+    "detailed": "BULLISH CONFIRMED",
+    "raw": "BULLISH",
+    "regime": "BULLISH TREND",
+    "score": 82.51117367,
+    "volatility": "MEDIUM VOLATILITY"
+  },
+  "btc_context": {
+    "available": true,
+    "beta": -0.04925435,
+    "broad_market_stress": false,
+    "btc_adjusted_confidence": 89.26457702,
+    "correlation": -0.0426301,
+    "correlation_label": "WEAK / NO CLEAR RELATIONSHIP",
+    "detailed": "BEARISH CONFIRMED",
+    "n_observations": 30,
+    "raw": "BEARISH",
+    "reasons": [
+      "BTC-adjusted confidence: 89/100 (vs 90/100 unadjusted, never replacing it). AERO and BTC have a weak / no clear relationship relationship (correlation -0.04 over the last 30 candles), and BTC is bearish confirmed, disagreeing with AERO's own bias."
+    ],
+    "regime": "BEARISH TREND",
+    "trend_health": 97.0,
+    "volatility": "MEDIUM VOLATILITY"
+  },
+  "entry": {
+    "atr_dist_pts": 5.0,
+    "distance_from_zone": 4.22162838,
+    "ema_pos_pts": 10.0,
+    "entry_status": "APPROACHING ZONE",
+    "long_signal": true,
+    "rsi_pts": 10.0,
+    "score": 45.18175716,
+    "short_signal": false,
+    "struct_pts": 4.0,
+    "vwma_pts": 10.0,
+    "zone_lower": 0.77559759,
+    "zone_upper": 0.76017364
+  },
+  "exit": {
+    "action": "NO-TRADE (RISK TOO HIGH)",
+    "current_price": 0.80173175
+  },
+  "exit_watch": [
+    "If you're already in this trade, a common approach is moving your stop to breakeven once price reaches Target 1 ($0.9613)."
+  ],
+  "explanation": {
+    "reasons": [
+      "Risk check failed (Stop distance exceeds maximum allowable threshold (15%).), so no trade is allowed right now.",
+      "Confidence is 90/100 \u2014 bias strength is 83/100, trend health is 95/100, structure agrees with the bullish bias, and validation is strong. This reflects how the picture lines up, not a green light \u2014 the risk check above is what's blocking the trade.",
+      "Trade quality: the overall market backdrop scores 95/100 while this specific entry scores 45/100 \u2014 this entry looks noticeably weaker than the market backdrop overall.",
+      "Expected value (illustrative, not backtested): treating the 90/100 confidence score as a rough win rate against the standard 2:1 average reward, this setup works out to about +1.70R per trade \u2014 positive -- worth taking on average if that win rate holds up (this is hypothetical, since no trade is actually being suggested right now)."
+    ],
+    "summary": "NO-TRADE (RISK TOO HIGH) \u2014 Expected value (illustrative, not backtested): treating the 90/100 confidence score as a rough win rate against the standard 2:1 average reward, this setup works out to about +1.70R per trade \u2014 positive -- worth taking on average if that win rate holds up (this is hypothetical, since no trade is actually being suggested right now)."
+  },
+  "macro_bias": "BULLISH",
+  "risk": {
+    "account_balance": 10000.0,
+    "assumed_win_rate": 89.8598621,
+    "atr_stop": 0.6421571,
+    "avg_reward_r": 2.0,
+    "confidence_score": 89.8598621,
+    "ev_r": 1.69579586,
+    "position_size": 626.66594795,
+    "position_value": 502.41798711,
+    "risk_amount": 100.0,
+    "risk_percent": 1.0,
+    "risk_reason": "Stop distance exceeds maximum allowable threshold (15%).",
+    "risk_score": 82.51117367,
+    "risk_valid": false,
+    "signal_strength": 82.51117367,
+    "targets": [
+      0.9613064,
+      1.12088105,
+      1.2804557
+    ],
+    "trade_quality_current": 95.34758422,
+    "trade_quality_proposed": 45.18175716,
+    "validation_note": "Volume divergence or weakness detected. | Trend health is robust.",
+    "validation_score": 85.34758422,
+    "validation_state": "STRONG"
+  },
+  "structure": {
+    "hvn": 0.6421571,
+    "lvn": 0.52223143,
+    "regime": "BULLISH TREND",
+    "sequence": "BOS BULLISH (TREND CONTINUATION)",
+    "swing_struct": 0.79131063,
+    "volume_sentiment": "VOLUME DIVERGENCE"
+  },
+  "symbol": "TESTUSDT",
+  "timeframe": "4h",
+  "trend": {
+    "exhaustion": false,
+    "failure": false,
+    "health": 95.34758422,
+    "momentum": "STRONG",
+    "momentum_divergence": false,
+    "momentum_mode": "STRONG",
+    "trend_direction": "BULLISH",
+    "trend_health": 95.34758422
+  }
+}
