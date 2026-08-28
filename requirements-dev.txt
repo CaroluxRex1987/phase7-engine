@@ -1,0 +1,5 @@
+# Test dependencies. Install alongside requirements.txt:
+#     pip install -r requirements.txt -r requirements-dev.txt
+#
+# The suite also runs with no pytest at all, via `python run_tests.py`.
+pytest>=8.0
