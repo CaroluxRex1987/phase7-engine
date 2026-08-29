@@ -111,7 +111,7 @@ story = []
 # ============================================================
 story.append(P("Phase-7 Structural Quant Engine", "ReportSubtitle"))
 story.append(P("Roadmap", "ReportTitle"))
-story.append(P("Revision 2 — August 29, 2026. Supersedes the August 28 edition.", "MetaLine"))
+story.append(P("Revision 3 — August 29, 2026. Supersedes Revision 2 of the same day.", "MetaLine"))
 story.append(P("Status: <b>working document.</b> Changes no rule, records no finding.", "MetaLine"))
 story.append(Spacer(1, 12))
 story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#c7cfda")))
@@ -134,6 +134,19 @@ story.extend(box([
       "Machine learning has been put <b>on ice</b> by decision, with written conditions for "
       "revisiting. The earlier edition's dateline was wrong and is corrected here.", "Body"),
 ], border_color=GREEN))
+
+story.extend(box([
+    P("<b>What changed in Revision 3, and why it exists.</b>", "Body"),
+    P("<b>Sequence items 1 and 2 are complete</b> — the audited state is tagged, and the "
+      "repository now starts from a fresh clone. The test suite moved from 5 passing to 8.", "Body"),
+    P("<b>A correction.</b> Revision 2's open-decisions table listed five rulings and one of "
+      "them was not the reviewer's. Claude's summary of Step 5 dropped the position-sizing "
+      "question — which Step 5 names explicitly in its own opening paragraph — and substituted "
+      "the halt-or-degrade question, which Step 5 raises elsewhere. Both are real; there are "
+      "five, and the missing one is now restored below. Anyone reading Revision 2 to make these "
+      "rulings would have made four and never learned of the fifth. Recorded here rather than "
+      "quietly corrected, per this project's practice.", "Body"),
+], border_color=MAROON))
 
 # ============================================================
 # WHERE WE ARE
@@ -266,21 +279,32 @@ seq = [
         "<b>Depends on</b> nothing. <b>Unblocks</b> stable positions for items 12 and 13, and "
         "the minimum gate-opening set. <b>Effort</b> small.",
     ]),
-    ("1", "T3-7 — a known-good checkpoint", "FLOOR", GREEN, [
-        "One git tag on the audited commit. The repository has 23 commits and zero tags, so "
-        "there is currently no return point, and re-audit diffs have nothing to compare against.",
-        "<b>Risk of not doing it:</b> the first bad change becomes archaeology. <b>Effort</b> "
-        "small — a tag is metadata.",
+    ("1", "T3-7 — a known-good checkpoint", "DONE — 29 AUG", GREEN, [
+        "One git tag on the audited commit. The repository had 23 commits and zero tags, so "
+        "there was no return point at all, and re-audit diffs had nothing to compare against.",
+        "<b>Done.</b> Tag <font face=\"Courier\">audited-2026-08-27</font> points at "
+        "<font face=\"Courier\">19516e1</font> — the last commit before any engine source "
+        "change. The tag is exact rather than approximate: nothing committed between the audit "
+        "closing and that point touched engine source.",
     ]),
-    ("2", "T2-6 — controlled dependencies, and the clone failure", "FLOOR", GREEN, [
-        "Two mechanisms, one outcome. requirements.txt omits <font face=\"Courier\">requests</font> "
-        "(which data_fetcher imports, so the first import fails) and "
-        "<font face=\"Courier\">colorama</font>; it declares <font face=\"Courier\">ccxt</font>, "
-        "which appears nowhere else in the codebase and is execution-capable. Separately, the "
-        "log handler is built before the directory exists.",
-        "<b>Position:</b> second, because nothing downstream is verifiable from a clean "
-        "environment until the engine runs. <b>Effort</b> small. The harness's clone test becomes "
-        "the regression guard.",
+    ("2", "T2-6 — controlled dependencies, and the clone failure", "DONE — 29 AUG", GREEN, [
+        "Two mechanisms, one outcome. requirements.txt omitted <font face=\"Courier\">requests</font> "
+        "(which data_fetcher imports, so the first import failed) and "
+        "<font face=\"Courier\">colorama</font>; it declared <font face=\"Courier\">ccxt</font>, "
+        "which appeared nowhere else in the codebase and is execution-capable. Separately, the "
+        "log handler was built before the directory existed.",
+        "<b>Done</b> in <font face=\"Courier\">cc7f8ff</font>. The "
+        "<font face=\"Courier\">makedirs</font> sits above the model imports rather than "
+        "immediately above <font face=\"Courier\">basicConfig</font>, because "
+        "<font face=\"Courier\">live_trading</font> instantiates its simulator at module scope "
+        "and that constructor also touches the filesystem. The failure and the fix were "
+        "reproduced in isolation before the edit was written.",
+        "<b>Three tests flipped green</b> — both clean-checkout tests and the module-import "
+        "check. A fourth, the dependency check, broke and was repaired in the same commit: the "
+        "previous commit had added reportlab build scripts to a repository whose test walker "
+        "scans every Python file, so the harness reported reportlab as an undeclared engine "
+        "dependency. <i>The harness caught a defect introduced one commit earlier — which is "
+        "the argument for building it first, demonstrated rather than asserted.</i>",
     ]),
     ("3", "Pinned-data path and archived datasets", "APPARATUS", STEEL, [
         "<font face=\"Courier\">load_csv</font> exists but nothing wires it in — "
@@ -465,10 +489,15 @@ story.append(PageBreak())
 # ============================================================
 # OPEN DECISIONS
 # ============================================================
-story.append(P("Open decisions — all Viktor's", "H1"))
+story.append(P("Open decisions — five, all Viktor's", "H1"))
 story.append(P(
     "Two of these change the ordering, which is why Step 5 puts them at position zero rather "
     "than leaving them to be settled along the way.", "Body"))
+story.append(P(
+    "<b>Revision 2 of this document listed the wrong five.</b> It dropped the position-sizing "
+    "question — which Step 5 names in its own opening paragraph, and which Run B's Required "
+    "action states outright — and substituted the halt-or-degrade question, which Step 5 raises "
+    "at item 9 rather than at position zero. Both are genuine. The full set is below.", "Body"))
 
 dec_rows = [
     ["Decision", "The disagreement", "What it changes"],
@@ -477,6 +506,16 @@ dec_rows = [
      "logged to a file that no code writes, on every run.",
      "<b>Ordering.</b> Swaps items 12 and 13, and changes the minimum set that opens the "
      "release gate."],
+    ["<b>Position sizing</b><br/><i>constitutional, not code</i>",
+     "engine_core computes position_size, position_value and risk_amount from a hardcoded "
+     "$10,000 balance at 1% risk. The panel no longer shows it — that line was removed at "
+     "Viktor's request — but the values stay in the returned decision object, readable by any "
+     "consumer. Item 14's Rev-5 rationale says how many dollars a risk percentage represents "
+     "“stays the trader's decision alone,” and risk_amount = balance × risk% is exactly that "
+     "figure. Run B rated it Non-compliant, Major (contained).",
+     "<b>Three options.</b> Remove the computation; keep it as computed-but-not-displayed; or "
+     "amend Item 14's rationale to permit it — and amending is Tier 1, so it needs a reviewer "
+     "who is not Claude."],
     ["<b>Item 13 — halt or degrade</b>",
      "When an indicator fails: stop and emit an error, or keep computing while marked degraded "
      "with confidence cut? Step 5 declined to choose and flagged its own preference as "
@@ -512,11 +551,11 @@ story.append(Spacer(1, 10))
 
 story.extend(box([
     P("<b>The smallest set that opens the release gate.</b>", "Body"),
-    P("The clone fix (item 2); the thin apparatus slice — pinned dataset, corrupted fixtures, "
-      "fault injection, one golden baseline; Item 3; Item 13; Item 11; Item 6 under the "
-      "conservative reading — <i>or</i> a Major ruling, which removes it at zero code cost, "
-      "making the adjudication itself part of the minimal path. Then a scoped independent "
-      "re-audit, because “resolved” is not self-declared.", "Body"),
+    P("The clone fix (item 2 — <b>done</b>); the thin apparatus slice — pinned dataset, "
+      "corrupted fixtures, fault injection, one golden baseline; Item 3; Item 13; Item 11; "
+      "Item 6 under the conservative reading — <i>or</i> a Major ruling, which removes it at "
+      "zero code cost, making the adjudication itself part of the minimal path. Then a scoped "
+      "independent re-audit, because “resolved” is not self-declared.", "Body"),
     P("<b>One honesty caveat:</b> the phantom “Trade logged” line is a one-line deletion whose "
       "exclusion would leave the panel lying on the very first run anyone relies on. Include it "
       "regardless of what the minimal set technically requires.", "Body"),
