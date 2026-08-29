@@ -80,11 +80,15 @@ class SignalRouter:
             os.makedirs("Logs/Charts", exist_ok=True)
             os.makedirs("Logs", exist_ok=True)
 
-            # engine_core.run() is called with render=False -- THIS router
-            # owns rendering exclusively (see class docstring / C1 fix),
-            # using the one complete decision object as the single source
+            # THIS router owns rendering exclusively (see class docstring / C1
+            # fix), using the one complete decision object as the single source
             # of truth for the panel.
-            raw_output = self.engine_core.run(symbol, timeframe, render=False)
+            #
+            # SEQUENCE ITEM 5b: the call used to pass render=False. That
+            # parameter is gone -- engine_core no longer renders at all, so the
+            # exclusivity this comment asserts is now enforced by the code
+            # rather than by every caller remembering to ask for it.
+            raw_output = self.engine_core.run(symbol, timeframe)
 
             # Validate engine output format
             if not self._validate_engine_output(raw_output):

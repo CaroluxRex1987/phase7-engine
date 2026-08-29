@@ -1,122 +1,40 @@
-import pandas as pd
-import numpy as np
+"""
+Exit-side logic for the Phase-7 engine.
+
+SEQUENCE ITEM 5b removed `compute_exit` from this file. What it was, why it
+went, and what replaced it:
+
+It took the price frame, the entry signals and the risk block, and returned six
+keys — final_action, exit_reason, stop_loss, target_hit, exit_status and
+current_price. It read as the engine's exit-management brain: stop-loss
+evaluated before targets, three target tiers, PARTIAL EXIT versus EXITED
+status.
+
+Five of those six keys reached nothing. signal_router.py:265 assembles the
+decision object's "exit" entry itself, as {"action": <DecisionModel's
+final_action>, "current_price": ...}, so everything else was dropped one call
+later. The panel does print a stop loss, but reads risk["atr_stop"]. The panel
+does print a DECISION, but that is DecisionModel's verdict, not this one — the
+key names collided, which is how this survived earlier reads of the file
+including mine.
+
+The sixth key, current_price, was float(price_data["close"].iloc[-1]) computed
+from the same frame on which engine_core had already evaluated exactly that
+expression. It is now passed straight through from there.
+
+So the deletion is output-invariant, and what looked like an exit-management
+system was a stop/target ladder whose verdicts were computed every run and
+thrown away. Nothing in the engine ever acted on "STOP LOSS HIT". Nothing
+could — Item 18 forbids execution, and the engine holds no positions to exit.
+
+The real exit-side feature is build_exit_watch below, which is advisory by
+design and is consumed. It stays.
+"""
+
+# SEQUENCE ITEM 5b: pandas and numpy were imported for compute_exit's frame
+# access and its isfinite check. build_exit_watch uses neither, so both imports
+# go with it.
 from typing import Dict, Any, Optional, List
-
-def compute_exit(
-    price_data: Optional[pd.DataFrame],
-    entry_data: Optional[Dict[str, Any]],
-    risk_data: Optional[Dict[str, Any]]
-) -> Dict[str, Any]:
-    """
-    Phase-7 Exit Logic Wrapper
-    Institutional-grade version featuring prioritized stop evaluation,
-    safe unpacking, and comprehensive error containment.
-    """
-    # ============================================================
-    # VALIDATION
-    # ============================================================
-    if price_data is None or not hasattr(price_data, "__getitem__") or getattr(price_data, "empty", True):
-        return {"error": "Invalid or empty price_data"}
-
-    if entry_data is None or not isinstance(entry_data, dict):
-        return {"error": "Invalid entry_data dictionary"}
-
-    if risk_data is None or not isinstance(risk_data, dict):
-        return {"error": "Invalid risk_data dictionary"}
-
-    # ============================================================
-    # UNPACK INPUTS SAFELY
-    # ============================================================
-    try:
-        current_price = float(price_data["close"].iloc[-1])
-        if not np.isfinite(current_price):
-            return {"error": "Current price is non-finite"}
-    except Exception:
-        return {"error": "Invalid price_data structure or missing close column"}
-
-    try:
-        atr_stop = float(risk_data["atr_stop"])
-        targets = risk_data.get("targets", [])
-        if len(targets) < 3:
-            # Fallback unpacking if targets are structured individually or passed differently
-            target_t1 = float(risk_data.get("target_t1", current_price * 1.01))
-            target_t2 = float(risk_data.get("target_t2", current_price * 1.02))
-            target_t3 = float(risk_data.get("target_t3", current_price * 1.03))
-        else:
-            target_t1, target_t2, target_t3 = float(targets[0]), float(targets[1]), float(targets[2])
-    except Exception:
-        return {"error": "Invalid risk_data structure or missing targets"}
-
-    try:
-        long_signal = bool(entry_data.get("long_signal", False))
-        short_signal = bool(entry_data.get("short_signal", False))
-    except Exception:
-        return {"error": "Invalid entry_data signal structure"}
-
-    # ============================================================
-    # EXIT CONDITIONS (PRIORITIZING STOP LOSS FIRST)
-    # ============================================================
-    exit_signal = "HOLD"
-    exit_reason = "No exit conditions met"
-    target_hit = None
-    exit_status = "ACTIVE"
-
-    if long_signal:
-        if current_price <= atr_stop:
-            exit_signal = "STOP LOSS HIT"
-            exit_reason = "Price reached or breached ATR stop"
-            target_hit = None
-            exit_status = "EXITED"
-        elif current_price >= target_t3:
-            exit_signal = "TARGET 3 HIT"
-            exit_reason = "Final target reached"
-            target_hit = "T3"
-            exit_status = "EXITED"
-        elif current_price >= target_t2:
-            exit_signal = "TARGET 2 HIT"
-            exit_reason = "Intermediate target reached"
-            target_hit = "T2"
-            exit_status = "PARTIAL EXIT"
-        elif current_price >= target_t1:
-            exit_signal = "TARGET 1 HIT"
-            exit_reason = "First target reached"
-            target_hit = "T1"
-            exit_status = "PARTIAL EXIT"
-
-    elif short_signal:
-        if current_price >= atr_stop:
-            exit_signal = "STOP LOSS HIT"
-            exit_reason = "Price reached or breached ATR stop"
-            target_hit = None
-            exit_status = "EXITED"
-        elif current_price <= target_t3:
-            exit_signal = "TARGET 3 HIT"
-            exit_reason = "Final target reached"
-            target_hit = "T3"
-            exit_status = "EXITED"
-        elif current_price <= target_t2:
-            exit_signal = "TARGET 2 HIT"
-            exit_reason = "Intermediate target reached"
-            target_hit = "T2"
-            exit_status = "PARTIAL EXIT"
-        elif current_price <= target_t1:
-            exit_signal = "TARGET 1 HIT"
-            exit_reason = "First target reached"
-            target_hit = "T1"
-            exit_status = "PARTIAL EXIT"
-
-    # ============================================================
-    # RETURN EXIT DATA TELEMETRY
-    # ============================================================
-    return {
-        "final_action": str(exit_signal),
-        "exit_reason": str(exit_reason),
-        "stop_loss": float(atr_stop),
-        "target_hit": target_hit,
-        "exit_status": str(exit_status),
-        "current_price": float(current_price),
-    }
-
 
 # ============================================================
 # C3 BUILD: EXIT WATCH -- advisory-only flags, never automatic actions

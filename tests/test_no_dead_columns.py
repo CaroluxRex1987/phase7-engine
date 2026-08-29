@@ -19,14 +19,18 @@ tests do instead is the durable half: assert the columns stay gone, and assert
 the ones that survived are still produced.
 
 WHAT WAS NOT DONE HERE. Step 5's item 5 also listed `compute_exit` for
-deletion. It was excluded: `compute_exit` is called at engine_core.py:889 and
-its output feeds at least eight sites across four files — `current_price` is
-read in five places and `action` in three, including live_trading's simulated
-order. It is not unconsumed code, so removing it is a refactor that changes
-behaviour by definition, and it cannot inherit the output-invariance proof that
-covers everything in this file. Bundling the two would have let a real
-behaviour change hide inside a cleanup that is provably safe. Tracked
-separately as 5b.
+deletion. It was excluded and handled as 5b, so that a refactor could not ride
+inside a cleanup on borrowed proof.
+
+CORRECTION, 30 August 2026. This docstring originally justified that exclusion
+by saying compute_exit "is called at engine_core.py:889 and its output feeds at
+least eight sites across four files — current_price is read in five places and
+action in three, including live_trading's simulated order." The line was 529,
+and the rest traced names rather than data: signal_router.py:265 builds its own
+"exit" dict, so the `action` those sites read is DecisionModel's, not
+compute_exit's. Two dicts shared a key name and I conflated them. The decision
+to split was still right; the reason given for it was not. See
+test_exit_model_removal.py for the corrected trace.
 """
 
 import os

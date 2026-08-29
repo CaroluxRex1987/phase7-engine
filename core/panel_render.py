@@ -168,7 +168,16 @@ def render_panel(decision):
             except Exception:
                 return str(val)
 
-        action_val = str(exit_data.get('action', exit_data.get('final_action', 'WAIT')))
+        # SEQUENCE ITEM 5b: this read used to be
+        #     exit_data.get('action', exit_data.get('final_action', 'WAIT'))
+        # The 'final_action' fallback existed for the raw engine object, whose
+        # "exit" block was compute_exit's. engine_core no longer renders and
+        # compute_exit is gone, so the only caller is signal_router, which
+        # always supplies 'action'. A fallback that cannot fire is worse than
+        # none: it implies the DECISION line has a second source when it has
+        # one, and the one it named printed an exit verdict under a decision
+        # heading.
+        action_val = str(exit_data.get('action', 'WAIT'))
 
         # C1: Decision Reasoning trail. Built from decision["explanation"]["reasons"],
         # which comes from the exact same evaluation path signal_router.py used to
@@ -201,9 +210,22 @@ def render_panel(decision):
         btc_available = bool(btc.get("available", False))
 
         if COLORAMA_AVAILABLE:
-            if action_val in ["LONG", "TARGET 1 HIT", "TARGET 2 HIT", "TARGET 3 HIT"]:
+            # SEQUENCE ITEM 5b: the green list also held "TARGET 1 HIT",
+            # "TARGET 2 HIT" and "TARGET 3 HIT", and the red list held
+            # "STOP LOSS HIT". Those four strings were only ever produced by
+            # compute_exit, which the router discarded before the panel saw it,
+            # so the comparisons could not match. action_val comes from
+            # DecisionModel, whose full output is WAIT, NO-TRADE (RISK TOO
+            # HIGH), LONG, AGGRESSIVE LONG, CONSERVATIVE LONG and the three
+            # short equivalents.
+            #
+            # Note that bare "LONG" and "SHORT" are live — DecisionModel does
+            # emit them (decision_model.py:150 and :172), alongside the
+            # AGGRESSIVE/CONSERVATIVE variants which fall through to yellow.
+            # Only the four HIT literals were dead; the conditions stay.
+            if action_val in ["LONG"]:
                 colored_action = f"{Fore.GREEN}{action_val}{Style.RESET_ALL}"
-            elif action_val in ["SHORT", "STOP LOSS HIT"]:
+            elif action_val in ["SHORT"]:
                 colored_action = f"{Fore.RED}{action_val}{Style.RESET_ALL}"
             else:
                 colored_action = f"{Fore.YELLOW}{action_val}{Style.RESET_ALL}"

@@ -17,10 +17,9 @@ from models.bias_engine import (
 )
 from models.risk_model import RiskModel
 from models.entry_model import generate_entry_signals, calculate_entry_quality
-from models.exit_model import compute_exit, build_exit_watch
+from models.exit_model import build_exit_watch
 from models.btc_context import compute_correlation_beta, classify_correlation, classify_stress
 from utils.plotting import plot_engine_chart
-from core.panel_render import render_panel
 
 logger = logging.getLogger(__name__)
 
@@ -34,8 +33,15 @@ class Phase7Engine:
         - Structure & Volume Sentiment
         - Trend Health & Bias
         - Entry Quality, Risk & Exit
-        - Charting & Panel Rendering
+        - Charting
         - BTC Market Context (informational only)
+
+    SEQUENCE ITEM 5b: this class no longer renders. It returns a decision
+    object; SignalRouter assembles the final one and renders it. That was
+    already the intent — signal_router.py:83 says so in a comment, and it was
+    the only caller — but engine_core kept a render path that no entry point
+    reached. See the run() docstring for why leaving it in place became
+    actively wrong once compute_exit was removed.
     """
 
     def __init__(self) -> None:
@@ -120,10 +126,31 @@ class Phase7Engine:
         timeframe: Optional[str] = None,
         limit: int = 450,
         save_chart: bool = True,
-        render: bool = True
     ) -> Dict[str, Any]:
         """
-        Execute full engine pipeline with Multi-Timeframe Confluence and safe error containment.
+        Execute full engine pipeline with Multi-Timeframe Confluence and safe
+        error containment. Returns a decision object; rendering is the router's.
+
+        SEQUENCE ITEM 5b removed the `render` parameter and the five
+        `render_panel` calls it guarded.
+
+        The parameter defaulted to True, but the only caller in the codebase —
+        signal_router.py:87 — passed render=False, so no entry point ever
+        printed this panel. It was reachable only by calling run() by hand.
+
+        Removing compute_exit turned that from unused into misleading. The
+        panel reads its DECISION line from decision["exit"]["action"], which is
+        assembled by the router from DecisionModel. The raw object this method
+        returns has never carried that key — before 5b the panel fell through
+        to compute_exit's "final_action" and printed an exit verdict ("HOLD",
+        "TARGET 1 HIT") in the slot labelled DECISION; after 5b it would have
+        fallen through again to the literal default and printed "WAIT" on every
+        run regardless of analysis.
+
+        Either way it is the panel asserting a decision nothing computed, which
+        is the Item 6 defect family. Deleting the path is Item 16 (unconsumed
+        complexity) and closes the Item 6 exposure in one move. Ruled by Viktor,
+        30 August 2026.
         """
         symbol = symbol or config.SYMBOL
         timeframe = timeframe or config.TIMEFRAME
@@ -154,8 +181,6 @@ class Phase7Engine:
                     "timeframe": timeframe,
                     "error": error_message,
                 }
-                if render:
-                    render_panel(decision_object)
                 return decision_object
 
             cache_key = f"{symbol}_{timeframe}_{len(df)}_{df['close'].iloc[-1]}"
@@ -199,8 +224,6 @@ class Phase7Engine:
                     "timeframe": timeframe,
                     "error": f"Technical indicator calculation failed: {str(e)}",
                 }
-                if render:
-                    render_panel(decision_object)
                 return decision_object
 
             # 3. STRUCTURE ENGINE (leveraging structure.py optimizations)
@@ -236,8 +259,6 @@ class Phase7Engine:
                     "timeframe": timeframe,
                     "error": f"Structure analysis failed: {str(e)}",
                 }
-                if render:
-                    render_panel(decision_object)
                 return decision_object
 
             # 4. TREND HEALTH ENGINE
@@ -526,11 +547,24 @@ class Phase7Engine:
             }
 
             # 9. EXIT MODEL
-            exit_data = compute_exit(
-                price_data=df_struct,
-                entry_data=entry,
-                risk_data=risk,
-            )
+            #
+            # SEQUENCE ITEM 5b: compute_exit was called here and its six-key
+            # result placed at decision_object["exit"]. Five of those keys —
+            # final_action, exit_reason, stop_loss, target_hit, exit_status —
+            # were computed on every run and discarded: signal_router.py:265
+            # builds its own two-key "exit" dict from DecisionModel's action
+            # and this current_price, and nothing downstream ever saw the rest.
+            # The panel prints a stop loss, but reads risk["atr_stop"], not the
+            # one compute_exit returned.
+            #
+            # The sixth key, current_price, was float(df_struct["close"]
+            # .iloc[-1]) — the identical expression already evaluated above at
+            # the top of section 8, on the same frame. df_struct is assigned
+            # once, in section 3, and never reassigned, so the two values were
+            # equal by construction rather than by coincidence.
+            #
+            # exit_model.build_exit_watch stays. It is the advisory-flag
+            # function, it is consumed, and it is unrelated.
 
             # C3 BUILD: Exit Watch -- advisory-only flags (see exit_model.py's
             # build_exit_watch docstring). Uses prior_state (loaded at the top
@@ -579,14 +613,13 @@ class Phase7Engine:
                 "structure": structure,
                 "entry": entry,
                 "risk": risk,
-                "exit": exit_data,
+                # SEQUENCE ITEM 5b: was compute_exit's six-key dict; the router
+                # consumed exactly this one value out of it.
+                "exit": {"current_price": current_price},
                 "exit_watch": exit_watch,
                 "btc_context": btc_context,
                 "chart_path": chart_path,
             }
-
-            if render:
-                render_panel(decision_object)
 
             return decision_object
 
@@ -598,6 +631,4 @@ class Phase7Engine:
                 "timeframe": timeframe,
                 "error": str(e),
             }
-            if render:
-                render_panel(decision_object)
             return decision_object
