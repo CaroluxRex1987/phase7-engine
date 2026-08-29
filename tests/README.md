@@ -25,23 +25,29 @@ The fallback runner exists because the suite has to work on a clean machine
 before `pip install` has succeeded — which is exactly the situation the
 dependency test is about.
 
-## Current state: 4 pass, 12 fail
+## Current state: 8 pass, 10 fail
 
-**The failures are correct.** They are the seventeen Non-compliances, written
-as executable acceptance criteria. Each one should go green as its fix lands,
-and stay green afterwards.
+**The failures are correct.** They are Non-compliances written as executable
+acceptance criteria. Each goes green as its fix lands, and stays green afterwards.
 
 | Test | Status | Why |
 |---|---|---|
 | `test_every_file_compiles` | pass | no syntax errors today |
+| `test_every_module_imports` | pass | green since the clone fix |
+| `test_declared_dependencies_cover_actual_imports` | pass | fixed 29 Aug — sequence item 2 |
+| `test_main_imports_without_a_logs_directory` | pass | fixed 29 Aug — sequence item 2 |
+| `test_main_runs_without_a_logs_directory` | pass | same fix |
+| `test_decision_object_matches_snapshot` | pass | live since `pandas_ta` became available |
+| `test_engine_is_deterministic_on_identical_input` | pass | two runs on pinned data agree exactly |
 | `test_accepts_clean_data` | pass | control — a validator that rejects everything is not a validator |
-| `test_decision_object_matches_snapshot` | skip | needs `pandas_ta` |
-| `test_engine_is_deterministic_on_identical_input` | skip | needs `pandas_ta` |
-| `test_main_imports_without_a_logs_directory` | **fail** | the repository does not run from a fresh clone |
-| `test_main_runs_without_a_logs_directory` | **fail** | same cause |
-| `test_declared_dependencies_cover_actual_imports` | **fail** | Tier 2 item 6 |
-| `test_every_module_imports` | fail here only | `pandas_ta` absent in the authoring sandbox; passes where it is installed |
-| the eight `test_rejects_*` | **fail** | Item 3, Critical |
+| the eight `test_rejects_*` | **fail** | Item 3, Critical — nothing validates input yet |
+| `test_explanation_does_not_name_a_hardcoded_symbol` | **fail** | `AERO` hardcoded in user-facing text |
+| `test_correlation_phrase_is_not_doubled` | **fail** | "relationship relationship" |
+
+**Revision history for this file, because the counts matter.** First written claiming
+4 pass / 12 fail — a prediction, not an observation, and wrong: the first real run gave
+5 / 13. Updated 29 August to 8 / 10 after sequence item 2 landed. Counts in this file
+should be observed output, never expected output.
 
 ## What the import check is for
 
@@ -63,9 +69,12 @@ suite caught every one. None of them needed market data, a network, or any
 knowledge of trading — which is the argument for running this on every change
 rather than at intervals.
 
-## The clean-checkout failure
+## The clean-checkout failure — FIXED 29 August, sequence item 2
 
-`main.py` builds its log handler at module scope:
+*Kept here because the reasoning is the useful part, and because the two tests below
+are now the regression guard against it coming back.*
+
+`main.py` built its log handler at module scope:
 
 ```python
 logging.basicConfig(handlers=[logging.FileHandler('Logs/phase7_engine.log'), ...])   # line 16
@@ -81,17 +90,22 @@ os.makedirs('Logs', exist_ok=True)                                              
 `FileNotFoundError` during import — before `main()` runs, so the `try/except`
 inside `main()` cannot catch it.
 
-This never appears on the machine the engine was built on, because `Logs/`
-has existed there since the first run. It appears for anyone cloning the
-public repository. **As published, the repository does not start.**
+This never appeared on the machine the engine was built on, because `Logs/`
+has existed there since the first run. It appeared for anyone cloning the
+public repository. **As published, the repository did not start.**
 
 Run 1's blind review found the ordering but described it as soft: "the
 logging machinery catches it and prints to stderr, so early log lines
 silently miss the file." That is not what happens. The finding was real and
 its severity was understated by one full category.
 
-Fix: `os.makedirs('Logs', exist_ok=True)` above `basicConfig`, or
-`FileHandler(..., delay=True)`.
+**The fix**, in commit `cc7f8ff`: `os.makedirs('Logs', exist_ok=True)` placed at import
+scope — above the model imports, not merely above `basicConfig`. The tighter placement
+would have worked today and been fragile tomorrow: `live_trading.py` instantiates its
+simulator at module scope and that constructor also touches the filesystem, so
+filesystem work can happen anywhere in the import chain.
+
+Both tests above now pass, and they are what stops this returning.
 
 ## The pinned dataset
 

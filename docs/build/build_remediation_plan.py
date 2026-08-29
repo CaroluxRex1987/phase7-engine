@@ -156,9 +156,16 @@ story.extend(box([
               "were checked against real engine source and what those checks found. The plan "
               "is not summarised or reordered.", styles["Bodyx"]),
     Paragraph("It is a <b>plan</b>, not a finding. It changes no rule and grades no item. The "
-              "four adjudications it opens with are Viktor's, per Roles &amp; Authority, and "
-              "two of them change the ordering — which is why they sit at position zero rather "
-              "than being settled along the way.", styles["Bodyx"]),
+              "adjudications it opens with are Viktor's, per Roles &amp; Authority, and two of "
+              "them change the ordering — which is why they sit at position zero rather than "
+              "being settled along the way.", styles["Bodyx"]),
+    Paragraph("<b>There are five, not four.</b> Step 5's own Step 0 names four — Item 6's "
+              "severity, Item 2's Compliant strength, Items 4/12, and the position-sizing "
+              "question — and raises a fifth at item 9, the choice between halting and "
+              "degrading on indicator failure. An earlier summary of this document by Claude "
+              "listed four and dropped the position-sizing one, which propagated into Roadmap "
+              "Revision 2. Corrected here and in Roadmap Revision 3. <i>The verbatim plan below "
+              "was always right; the summary of it was not.</i>", styles["Bodyx"]),
 ]))
 
 story.extend(box([

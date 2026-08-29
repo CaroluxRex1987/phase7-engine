@@ -18,13 +18,30 @@ by one person, with heavy AI assistance.**
 
 | | |
 |---|---|
-| Constitution | Ratified 26 August 2026. Rules frozen at 21 / 7 / 10 / 6 = 44. |
-| Engine code | **Unverified.** No independent audit has been run against it yet. |
-| Backtesting | Not rebuilt. Deliberately blocked until the audit has run. |
+| Constitution | Ratified 26 August 2026. Rules frozen at 21 / 7 / 10 / 6 = 44. Scope freeze lifted 27 August. |
+| Independent audit | **Complete.** Four runs, all 44 rules graded: 21 Compliant, 17 Non-compliant, 6 Unknown. Three findings rated Critical. |
+| Engine code | **Non-compliant on 17 rules, three of them Critical.** Remediation has started: 2 of 16 sequence items done. |
+| Tests | 18 tests. **8 pass, 10 fail.** The failures are the Non-compliances written as executable acceptance criteria. |
+| Backtesting | Not rebuilt. Blocked by the release gate until Items 2, 3, 6 and 18 are Compliant. |
 | Live trading | Read-only market access only. The engine cannot place orders. |
 
+**A release gate is now in force.** No output of this engine may be relied on for a
+real trading decision while any Critical Tier 1 finding stands unresolved. Running it
+to look at is fine. Acting on it is not.
+
+The three Criticals, stated plainly:
+
+- **Item 3 — Data Integrity.** Nothing detects missing candles, duplicates, impossible
+  prices, bad timestamp ordering, stale data or abnormal volume. Defects are silently
+  filled in by `ffill`/`bfill` rather than caught.
+- **Item 11 — No Circular Reasoning.** One quantity (`trend_health`) is counted at
+  least four times and presented on the panel as four agreeing signals.
+- **Item 13 — Fail Safely.** When an indicator fails, the engine substitutes
+  confident-looking constants with no marker. A failed SuperTrend silently adds a
+  permanent bullish vote to the bias score.
+
 The engine has **not** been shown to predict anything. One component
-(BTC-Adjusted AERO Prediction) is correctness-validated — it computes what it was
+(BTC-Adjusted Prediction) is correctness-validated — it computes what it was
 designed to compute — but empirically unvalidated. Under Tier 1, Item 7 of the
 constitution that status has to be stated plainly rather than implied away, so it is
 stated here.
@@ -36,11 +53,12 @@ artifact, not as a tool that works.
 
 ## What's actually interesting here
 
-Probably not the engine. The constitution is the part worth reading.
+Probably not the engine. The constitution is the part worth reading, and the audit
+record after it.
 
-It is a register of 44 rules across four tiers, written specifically to constrain
-AI-assisted development — to stop both the assistant and me from quietly lowering the
-bar when a result looked good. A few of the load-bearing ones:
+The constitution is a register of 44 rules across four tiers, written specifically to
+constrain AI-assisted development — to stop both the assistant and me from quietly
+lowering the bar when a result looked good. A few of the load-bearing ones:
 
 - **Item 18 — Read-Only Market Access.** The engine must never hold credentials with
   trade-execution permissions. Not as a default setting; as the only permitted state.
@@ -64,6 +82,34 @@ still in there on purpose.
 
 ---
 
+## The audit, and what it found
+
+Four independent runs through OpenRouter, roughly a dollar each, on models with no
+prior involvement in the build:
+
+| Run | Auditor | Scope |
+|---|---|---|
+| 1 | DeepSeek V4 Pro | Blind — source only, no constitution, no register |
+| A | Kimi K3 | The Minimum Viable Audit gate: Items 2, 3, 6, 18 |
+| B | Kimi K3 | The remaining 17 Tier 1 invariants |
+| C | Kimi K3 | Tiers 2, 3 and 4 — 23 items |
+
+All raw auditor output is published verbatim in
+[`docs/Phase7_Audit_Findings_Complete.pdf`](docs/), unedited — including the places
+where an auditor was later shown to be wrong, and the places where one caught me being
+wrong.
+
+**The most useful finding did not come from any of them.** After the audit closed I
+built a test harness and ran the engine. It found three things four audit passes across
+three models had all missed — including that, as published, the repository did not
+start from a fresh clone. None of the audits ran the code; they read it. A different
+*method* beat a different *model*.
+
+The remediation sequence is in [`docs/Phase7_Roadmap.pdf`](docs/), and the reasoning
+behind its ordering in [`docs/Phase7_Remediation_Plan.pdf`](docs/).
+
+---
+
 ## How this was built
 
 Drafted with Claude (Anthropic) under my direction. The rules, the judgment calls, and
@@ -71,10 +117,41 @@ the corrections are mine; most of the prose in the documents is not. I have trie
 exact about that distinction throughout, because the whole point of the constitution is
 that nobody — including me — gets to overstate what they did.
 
-Four models were used across the project: Claude, ChatGPT, Copilot and Gemini reviewed
-the constitution at different stages. The independent audit of the *code* is intended
-for Grok, from xAI — a different model family from the assistant that helped write it,
-which is the point. It has not happened yet.
+Nine models have now seen the constitution at various stages: Claude, Copilot, Gemini,
+ChatGPT, a second Claude instance in a dedicated reviewer role, Grok, Kimi K3, GPT-5.6
+Luna Pro, and GLM 5.3. Four have graded the engine source: Claude, Kimi K3, DeepSeek V4
+Pro and GLM 5.3.
+
+One caveat I have to state rather than bury: three models touched this codebase during
+the build itself via Aider — Claude Sonnet 4, DeepSeek V3 and DeepSeek R1. That means
+DeepSeek's lineage had prior exposure to the code it later reviewed blind, so Run 1's
+independence is weaker than it first appears. Independence is tracked at the lab level,
+not the model-version level, because treating a version bump as a reset would make the
+safeguard ceremonial.
+
+---
+
+## Running the tests
+
+```
+pip install -r requirements.txt -r requirements-dev.txt
+pytest
+```
+
+Or with nothing but a Python interpreter:
+
+```
+python run_tests.py            # everything
+python run_tests.py imports    # one file
+python run_tests.py -q         # summary only
+```
+
+The dependency-free runner exists because the suite has to work on a clean machine
+before `pip install` has succeeded — which is exactly the situation the dependency test
+is about.
+
+**Ten failures are expected.** They are acceptance criteria for fixes that have not
+landed yet, and each one names a file and a line.
 
 ---
 
@@ -85,6 +162,7 @@ phase7_engine/
 ├── main.py             entry point
 ├── live_trading.py     read-only live market access (Item 18)
 ├── test_live.py
+├── run_tests.py        dependency-free test runner
 ├── core/               config, engine_core, panel_render
 ├── data/               data_fetcher
 ├── indicators/         indicators, trend_health, volume_profile
@@ -92,8 +170,10 @@ phase7_engine/
 │                       entry_model, exit_model, risk_model, signal_router
 ├── structure/          structure
 ├── utils/              plotting
-├── logs/               not tracked — see .gitignore
-└── docs/               the constitution, engineering log, and companions
+├── tests/              the suite, plus pinned fixtures
+├── Logs/               not tracked — see .gitignore
+└── docs/               the constitution, audit record, engineering log
+    └── build/          and the reportlab scripts that generate them
 ```
 
 Sixteen files across `core/`, `data/`, `indicators/`, `models/`, `structure/`
@@ -101,7 +181,11 @@ and `utils/` — the module count Step 2a of the constitution refers to.
 `main.py`, `live_trading.py` and `test_live.py` are entry points, not
 modules, and sit outside that count. There is no `backtesting/` in the tree:
 an earlier version was removed during development, and per the Status table
-above it is deliberately not being rebuilt until the audit has run.
+above it is deliberately not being rebuilt until the release gate opens.
+
+`docs/build/` holds the scripts that generate every PDF in `docs/`. They are committed
+so the documents are reproducible from source rather than existing only as rendered
+output — the constitution's own reproducibility rule applies to its own documents too.
 
 ---
 

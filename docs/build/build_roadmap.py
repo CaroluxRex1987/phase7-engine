@@ -274,7 +274,9 @@ story.extend(box([
 
 seq = [
     ("0", "Adjudications and registrations", "PROCESS — VIKTOR", MAROON, [
-        "Four rulings, two of which change the ordering. The two unrated harness findings enter "
+        "<b>Five</b> rulings, two of which change the ordering — see the full table later in "
+        "this document. (Revision 2 said four here and listed the wrong set; corrected in "
+        "Revision 3.) The two unrated harness findings enter "
         "the formal record here or get lost the way soft-rated defects already were.",
         "<b>Depends on</b> nothing. <b>Unblocks</b> stable positions for items 12 and 13, and "
         "the minimum gate-opening set. <b>Effort</b> small.",
