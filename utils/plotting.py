@@ -12,7 +12,6 @@ def plot_engine_chart(df, entry_data, risk_data, save_path="chart_output.png"):
     Draws:
         - Candles
         - EMA20 / EMA50
-        - VWAP
         - Entry zone shading
         - ATR stop
         - Targets T1 / T2 / T3
@@ -112,8 +111,19 @@ def plot_engine_chart(df, entry_data, risk_data, save_path="chart_output.png"):
 
     try:
         # ============================================================
-        # EMA & VWAP WITH ERROR HANDLING
+        # EMA OVERLAYS WITH ERROR HANDLING
         # ============================================================
+        #
+        # SEQUENCE ITEM 5a: the VWAP branch that used to sit below was
+        # unreachable. Nothing in the engine ever assigns df["VWAP"] —
+        # verified by searching every module for an assignment — so
+        # `if "VWAP" in df.columns` was always False and the plot call inside
+        # it had never executed. It read as a feature and was a no-op.
+        #
+        # This is the same shape as the dead gates recorded elsewhere in the
+        # project: a guard testing for something no producer emits. Worth
+        # noticing that a reader of this file would reasonably have believed
+        # the chart could show VWAP.
 
         if "EMA_20" in df.columns and not df["EMA_20"].isna().all():
             try:
@@ -127,12 +137,6 @@ def plot_engine_chart(df, entry_data, risk_data, save_path="chart_output.png"):
             except Exception as e:
                 logger.warning(f"Failed to plot EMA_50: {e}")
 
-        if "VWAP" in df.columns and not df["VWAP"].isna().all():
-            try:
-                ax.plot(df.index, df["VWAP"], label="VWAP", color="#00ffff", linewidth=1.2)
-            except Exception as e:
-                logger.warning(f"Failed to plot VWAP: {e}")
-                
     except Exception as e:
         logger.error(f"Failed to plot indicators: {e}")
 

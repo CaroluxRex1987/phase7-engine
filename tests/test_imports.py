@@ -59,15 +59,90 @@ def test_every_module_imports():
     This is the check that fails today on a clean checkout. See
     test_clean_checkout.py for why, and for the isolated case.
     """
+    def _affected():
+        return [m for m in list(sys.modules)
+                if any(m == e or m.startswith(e + ".") for e in ENGINE_MODULES)]
+
+    # Snapshot the real module objects before disturbing anything.
+    #
+    # WHY THIS MATTERS — a bug this test caused, 29 August 2026.
+    #
+    # Deleting modules from sys.modules and re-importing them creates NEW
+    # module objects. ENGINE_MODULES lists core.engine_core before
+    # data.data_fetcher, so engine_core is re-imported first and binds the
+    # data_fetcher singleton that exists at that moment; data.data_fetcher is
+    # then deleted and re-imported, producing a *second* singleton.
+    #
+    # From then on, `from data.data_fetcher import data_fetcher` gives one
+    # object and engine_core holds another. Anything that patches module-level
+    # state afterwards — a pinned data source, a base_url override, a
+    # monkeypatched method — patches the copy the engine is not using, silently.
+    #
+    # test_smoke.py did exactly that. It set base_url to a dead port and
+    # activated the pinned source, and the engine went to the live MEXC API
+    # anyway. The tests still passed, for the wrong reasons: one of them was
+    # asserting that a bad symbol produces an error, and it got a real 400 from
+    # a real server instead of the refusal it was written to check.
+    #
+    # It only appeared in a full-suite run. Running `run_tests.py smoke` alone
+    # worked correctly, because this test had not run first. That is the worst
+    # shape of bug — invisible in isolation, wrong in aggregate.
+    saved = {m: sys.modules[m] for m in _affected()}
+
     failures = []
-    for mod in ENGINE_MODULES:
-        for cached in [m for m in sys.modules if m == mod or m.startswith(mod + ".")]:
-            del sys.modules[cached]
-        try:
-            importlib.import_module(mod)
-        except Exception as e:
-            failures.append(f"{mod}: {type(e).__name__}: {e}")
+    try:
+        for mod in ENGINE_MODULES:
+            for cached in [m for m in sys.modules if m == mod or m.startswith(mod + ".")]:
+                del sys.modules[cached]
+            try:
+                importlib.import_module(mod)
+            except Exception as e:
+                failures.append(f"{mod}: {type(e).__name__}: {e}")
+    finally:
+        # Put the original module objects back, so every later test sees one
+        # consistent set of modules rather than a mixture.
+        #
+        # Restoring sys.modules alone is NOT enough, and the first attempt at
+        # this fix was wrong for exactly that reason. Importing a submodule
+        # also sets it as an attribute on its parent package, so after the
+        # re-import above `data.data_fetcher` resolves through sys.modules to
+        # the restored module but through attribute access on the `data`
+        # package to the new one. Both halves have to be put back.
+        for m in _affected():
+            del sys.modules[m]
+        for name, module in saved.items():
+            sys.modules[name] = module
+            if "." in name:
+                parent, child = name.rsplit(".", 1)
+                if parent in sys.modules:
+                    setattr(sys.modules[parent], child, module)
+
     assert not failures, "modules failed to import:\n  " + "\n  ".join(failures)
+
+
+def test_the_engine_and_the_fetcher_module_share_one_singleton():
+    """
+    The guard against the bug the test above used to cause.
+
+    engine_core imports the module-scope `data_fetcher` singleton. If that ever
+    stops being the same object the fetcher module exposes, then patching the
+    fetcher — for pinned data, for a dead base_url, for a monkeypatched method
+    — silently patches something the engine is not using, and any test relying
+    on that patch passes while proving nothing.
+
+    Cheap to check, and it fails loudly the moment the module table is left
+    inconsistent by anything.
+    """
+    import core.engine_core as engine_core
+    import data.data_fetcher as fetcher_module
+
+    assert engine_core.data_fetcher is fetcher_module.data_fetcher, (
+        "core.engine_core and data.data_fetcher are holding different "
+        "DataFetcher singletons.\n"
+        "Something has deleted and re-imported modules without restoring "
+        "sys.modules. Every test that patches fetcher state after that point "
+        "is patching an object the engine does not use."
+    )
 
 
 def test_declared_dependencies_cover_actual_imports():

@@ -115,37 +115,38 @@ def add_technical_indicators(df: pd.DataFrame, inplace: bool = False) -> pd.Data
         rs = gain / loss.replace(0, np.nan)
         df["RSI"] = clean_series(100 - (100 / (1 + rs)), method="fill_value", fallback_value=50.0)
 
-    # Bollinger Bands with error handling
-    try:
-        bb = ta.bbands(df["close"], length=20, std=2.0)
-        if bb is not None and not bb.empty:
-            df["BB_lower"] = clean_series(bb.iloc[:, 0], method="forward_fill")
-            df["BB_middle"] = clean_series(bb.iloc[:, 1], method="forward_fill")
-            df["BB_upper"] = clean_series(bb.iloc[:, 2], method="forward_fill")
-        else:
-            raise ValueError("Bollinger Bands calculation failed")
-    except Exception:
-        # Fallback Bollinger Bands
-        sma = df["close"].rolling(window=20).mean()
-        std = df["close"].rolling(window=20).std()
-        df["BB_middle"] = clean_series(sma, method="forward_fill")
-        df["BB_upper"] = clean_series(sma + (std * 2), method="forward_fill")
-        df["BB_lower"] = clean_series(sma - (std * 2), method="forward_fill")
+    # SEQUENCE ITEM 5a: Bollinger Bands removed. BB_lower, BB_middle and
+    # BB_upper were written on both the success and fallback paths and read
+    # nowhere in the engine — verified by scanning every module for a read.
+    # Item 16 (no unconsumed complexity): computing three columns per run that
+    # nothing consumes is cost without benefit, and every fallback that writes
+    # a fabricated value is one more path Item 13 would otherwise have to give
+    # honest semantics to.
+    #
+    # config.BB_LENGTH and config.BB_STD are now unused. They stay for
+    # sequence item 14 (explicit configuration) to remove alongside the other
+    # declared-but-unread constants, rather than being deleted here — this
+    # step is scoped to code the engine computes, not to config hygiene.
 
     # ADX / DI with error handling
     try:
         adx_df = ta.adx(df["high"], df["low"], df["close"], length=14)
         if adx_df is not None and not adx_df.empty:
+            # SEQUENCE ITEM 5a: DIP and DIM (the directional indicators at
+            # columns 1 and 2) were written here and read nowhere. ADX itself
+            # is consumed — trend_health and bias both read it — so the call
+            # stays and only the two unread columns go.
+            #
+            # Note for anyone deleting by name: `DIM` is also colorama's
+            # dim-text style, used at panel_render.py:1181 as `dim =
+            # Style.DIM`. That is unrelated to this dataframe column and
+            # removing it breaks the panel's formatting.
             df["ADX"] = clean_series(adx_df.iloc[:, 0], method="forward_fill", fallback_value=25.0)
-            df["DIP"] = clean_series(adx_df.iloc[:, 1], method="forward_fill", fallback_value=25.0)
-            df["DIM"] = clean_series(adx_df.iloc[:, 2], method="forward_fill", fallback_value=25.0)
         else:
             raise ValueError("ADX calculation failed")
     except Exception:
-        # Fallback ADX values
+        # Fallback ADX value
         df["ADX"] = pd.Series(25.0, index=df.index)
-        df["DIP"] = pd.Series(25.0, index=df.index)
-        df["DIM"] = pd.Series(25.0, index=df.index)
 
     # SuperTrend with error handling
     # A9 FIX: This is now the single, canonical SuperTrend implementation for the
@@ -173,8 +174,9 @@ def add_technical_indicators(df: pd.DataFrame, inplace: bool = False) -> pd.Data
         df["SuperTrend"] = df["close"]
         df["ST_Direction"] = pd.Series(1.0, index=df.index)
 
-    # Typical Price with NaN protection
-    df["Typical_Price"] = clean_series((df["high"] + df["low"] + df["close"]) / 3.0, method="forward_fill")
+    # SEQUENCE ITEM 5a: Typical_Price removed — written once, read nowhere.
+    # It is the classic (H+L+C)/3 input to VWAP and CCI, neither of which this
+    # engine calculates.
 
     # ============================================================
     # SECONDARY INDICATORS WITH NaN PROTECTION
@@ -191,11 +193,12 @@ def add_technical_indicators(df: pd.DataFrame, inplace: bool = False) -> pd.Data
         tr = pd.concat([tr1, tr2, tr3], axis=1).max(axis=1, skipna=True)
         df["ATR"] = clean_series(tr.rolling(window=14).mean(), method="forward_fill")
 
-    try:
-        df["KAMA"] = clean_series(ta.kama(df["close"], length=10), method="forward_fill")
-    except Exception:
-        # Fallback to EMA if KAMA fails
-        df["KAMA"] = clean_series(df["close"].ewm(span=10).mean(), method="forward_fill")
+    # SEQUENCE ITEM 5a: KAMA removed. The column itself was read by exactly
+    # one thing — the slope loop below, which produced KAMA_Slope, which
+    # nothing read. A dead chain two links long: the only consumer of KAMA
+    # existed to feed a consumer that did not exist.
+    #
+    # config.KAMA_LENGTH is now unused; left for sequence item 14, as above.
 
     # VWMA with optimized calculation (avoid intermediate Series creation)
     try:
@@ -219,8 +222,16 @@ def add_technical_indicators(df: pd.DataFrame, inplace: bool = False) -> pd.Data
     # ============================================================
 
     # Batch calculate slopes to reduce function call overhead
-    slope_columns = ["EMA_20", "EMA_50", "VWMA", "KAMA"]
-    slope_names = ["EMA20_Slope", "EMA50_Slope", "VWMA_Slope", "KAMA_Slope"]
+    #
+    # SEQUENCE ITEM 5a: was four columns; VWMA_Slope and KAMA_Slope were
+    # produced here and read nowhere, and KAMA itself is now gone. The two
+    # that remain are genuinely consumed — trend_health.py reads EMA20_Slope
+    # at three places and EMA50_Slope at one, so this loop stays.
+    #
+    # VWMA is NOT removed: entry_model consumes it for distance scoring. Only
+    # its slope was dead.
+    slope_columns = ["EMA_20", "EMA_50"]
+    slope_names = ["EMA20_Slope", "EMA50_Slope"]
 
     for col, slope_name in zip(slope_columns, slope_names):
         if col in df.columns:
