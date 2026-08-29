@@ -51,10 +51,8 @@ class Phase7Engine:
         # with their own history of confirmations.
         self.btc_bias_state_machine = BiasStateMachine()
         self.risk_model = RiskModel()
-        # Bounded cache sizes to prevent memory leaks over long sessions
-        self._indicator_cache: Dict[str, pd.DataFrame] = {}
-        self._structure_cache: Dict[str, Dict[str, Any]] = {}
-        self._max_cache_size: int = 15
+        # SEQUENCE ITEM 6: _indicator_cache, _structure_cache and
+        # _max_cache_size lived here. See the run() docstring for why they went.
 
     def _validate_dataframe(self, df: Optional[pd.DataFrame], required_columns: List[str], context: str = "") -> bool:
         """
@@ -75,12 +73,9 @@ class Phase7Engine:
 
         return True
 
-    def _manage_cache(self, cache_dict: dict, key: str, value: Any) -> None:
-        """Enforces bounded cache size limit using FIFO eviction."""
-        if len(cache_dict) >= self._max_cache_size:
-            oldest_key = next(iter(cache_dict))
-            del cache_dict[oldest_key]
-        cache_dict[key] = value
+    # SEQUENCE ITEM 6: _manage_cache (FIFO eviction at 15 entries) was here.
+    # It was correct code serving two caches that never returned a hit in any
+    # production path.
 
     # ============================================================
     # C3 BUILD: cross-run state persistence
@@ -151,6 +146,29 @@ class Phase7Engine:
         is the Item 6 defect family. Deleting the path is Item 16 (unconsumed
         complexity) and closes the Item 6 exposure in one move. Ruled by Viktor,
         30 August 2026.
+
+        SEQUENCE ITEM 6 removed the indicator and structure caches.
+
+        They never returned a hit in any production path. main.py builds one
+        SignalRouter, calls route once and exits; live_trading.run_once does the
+        same. Each process began with both caches empty and ended without a
+        single hit. The key embedded the last close, so even a long-running
+        process would miss on every new bar.
+
+        They were not merely useless. On the one reachable hit path they were a
+        corruption hazard: the miss path stored a copy (df.copy()), but the hit
+        path returned the cached object itself, and calculate_structure was
+        called with copy_df=False and wrote STRUCTURE, HVN and LVN into it plus
+        an ffill/bfill/fillna(0.0) across the OHLCV columns. The two caches
+        shared a key and normally moved together, which hid this — but if
+        structure analysis raised after the indicator cache had been written,
+        the next run with that key took a hit on one and a miss on the other,
+        and mutated the cached frame.
+
+        Deletion rather than repair of the key: recomputation at 450 bars is
+        trivial, and this removes the stale-serving hazard rather than
+        rescheduling it. This is what dissolves the Items 4/12 dispute — both
+        readings become true once the cache is gone.
         """
         symbol = symbol or config.SYMBOL
         timeframe = timeframe or config.TIMEFRAME
@@ -183,8 +201,6 @@ class Phase7Engine:
                 }
                 return decision_object
 
-            cache_key = f"{symbol}_{timeframe}_{len(df)}_{df['close'].iloc[-1]}"
-
             # 1b. FETCH MACRO DATA (Multi-Timeframe Confluence)
             df_macro = data_fetcher.get_tf(symbol, macro_tf, limit=100)
             macro_bias = "NEUTRAL"
@@ -204,14 +220,9 @@ class Phase7Engine:
                     logger.warning(f"Failed to process macro timeframe data: {e}")
                     macro_bias = "NEUTRAL"
 
-            # 2. INDICATORS (with bounded caching)
+            # 2. INDICATORS
             try:
-                if cache_key in self._indicator_cache:
-                    logger.debug("Using cached indicators")
-                    df = self._indicator_cache[cache_key]
-                else:
-                    df = add_technical_indicators(df)
-                    self._manage_cache(self._indicator_cache, cache_key, df.copy())
+                df = add_technical_indicators(df)
 
                 required_indicators = ["EMA_20", "EMA_50", "RSI", "ATR", "ADX"]
                 if not self._validate_dataframe(df, required_indicators, "technical indicators"):
@@ -226,19 +237,13 @@ class Phase7Engine:
                 }
                 return decision_object
 
-            # 3. STRUCTURE ENGINE (leveraging structure.py optimizations)
+            # 3. STRUCTURE ENGINE
             try:
-                struct_cache_key = f"struct_{cache_key}"
-                if struct_cache_key in self._structure_cache:
-                    logger.debug("Using cached structure analysis")
-                    structure_obj = self._structure_cache[struct_cache_key]
-                else:
-                    structure_obj = calculate_structure(
-                        df, lookback=getattr(config, "STRUCT_LOOKBACK", 8), copy_df=False
-                    )
-                    if not isinstance(structure_obj, dict):
-                        raise ValueError("Structure engine returned invalid format")
-                    self._manage_cache(self._structure_cache, struct_cache_key, structure_obj)
+                structure_obj = calculate_structure(
+                    df, lookback=getattr(config, "STRUCT_LOOKBACK", 8)
+                )
+                if not isinstance(structure_obj, dict):
+                    raise ValueError("Structure engine returned invalid format")
 
                 df_struct = structure_obj.get("df", df)
 
@@ -283,8 +288,9 @@ class Phase7Engine:
             # (all computed above), plus SuperTrend direction (extracted here).
             supertrend_direction = float(df_struct["ST_Direction"].iloc[-1]) if "ST_Direction" in df_struct.columns else 0.0
 
+            # SEQUENCE ITEM 6: the df=df_struct argument is gone. See
+            # bias_engine.calculate_dynamic_bias — it never read the frame.
             raw_bias, bias_score = calculate_dynamic_bias(
-                df=df_struct,
                 trend_sequence=trend_sequence,
                 trend_health=trend["trend_health"],
                 trend_failure=trend["trend_failure"],
@@ -344,7 +350,7 @@ class Phase7Engine:
                     if self._validate_dataframe(df_btc, required_base_cols, "BTC context data"):
                         df_btc = add_technical_indicators(df_btc)
                         btc_structure_obj = calculate_structure(
-                            df_btc, lookback=getattr(config, "STRUCT_LOOKBACK", 8), copy_df=False
+                            df_btc, lookback=getattr(config, "STRUCT_LOOKBACK", 8)
                         )
                         df_btc_struct = btc_structure_obj.get("df", df_btc)
                         btc_trend = compute_trend_health(df_btc_struct)
@@ -354,7 +360,6 @@ class Phase7Engine:
                             if "ST_Direction" in df_btc_struct.columns else 0.0
                         )
                         btc_raw_bias, btc_bias_score = calculate_dynamic_bias(
-                            df=df_btc_struct,
                             trend_sequence=btc_structure_obj.get("sequence", "NONE"),
                             trend_health=btc_trend["trend_health"],
                             trend_failure=btc_trend["trend_failure"],

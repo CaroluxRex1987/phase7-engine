@@ -44,7 +44,6 @@ _VOLUME_SENTIMENT_SCORES = {
 
 
 def calculate_dynamic_bias(
-    df,
     trend_sequence,
     trend_health,
     trend_failure,
@@ -61,6 +60,43 @@ def calculate_dynamic_bias(
     Returns:
         raw_bias (str)
         bias_score (float, -100..100)
+
+    SEQUENCE ITEM 6: this function used to take `df` as its first parameter.
+
+    It never read a value out of it. Every factor in the score below comes from
+    the scalar arguments — trend health, structure regime, volume sentiment,
+    SuperTrend direction, macro bias. The frame's entire role was this, at the
+    top of the body:
+
+        critical_cols = ["close", "EMA_20", "EMA_50", "RSI"]
+        for col in critical_cols:
+            if col in df.columns and df[col].isna().any():
+                if col == "close":
+                    df[col] = df[col].ffill().bfill()
+                else:
+                    df[col] = df[col].fillna(df["close"])
+
+    A write-only parameter: it filled NaNs in four columns of the caller's
+    frame, three of which this function does not read, and then computed the
+    bias from arguments that have nothing to do with any of them. Whatever it
+    repaired, it repaired for somebody else, silently, as a side effect of
+    being asked an unrelated question. That is the T2-1 violation the Step 5
+    plan names by this function's name.
+
+    Because it was write-only, the fix is deletion rather than "operate on a
+    copy" — copying would have preserved a computation whose only output was
+    the mutation, turning it into a genuine no-op.
+
+    NOT FIXED HERE, AND DELIBERATELY: the fallback above is also a fabrication
+    path, and the RSI branch is the worst kind. RSI is a 0-100 oscillator and
+    `df["close"]` is a price, so a missing RSI was replaced by whatever the
+    asset happened to cost — about 0.80 for AERO, which reads as maximally
+    oversold, and five figures for BTC, which is off the scale entirely. It
+    could not fire on clean data (add_technical_indicators cleans RSI with a
+    fallback of 50.0 before this is reached), so it is latent rather than live.
+    Recorded as a rider on sequence item 9, where the fabricated fallbacks are
+    given honest semantics. Item 6's job is to stop the writes reaching a frame
+    this function does not own; making the fallbacks honest is item 9's.
     """
 
     # Comprehensive input validation and NaN handling
@@ -86,18 +122,8 @@ def calculate_dynamic_bias(
     macro_bias = str(macro_bias).upper() if macro_bias else "NEUTRAL"
     trend_sequence = str(trend_sequence) if trend_sequence else "NONE"
 
-    # Validate DataFrame inputs
-    if df is not None and not df.empty:
-        # Check for critical indicators and clean them if needed
-        critical_cols = ["close", "EMA_20", "EMA_50", "RSI"]
-        for col in critical_cols:
-            if col in df.columns and df[col].isna().any():
-                if col == "close":
-                    # Forward fill close prices
-                    df[col] = df[col].ffill().bfill()
-                else:
-                    # For indicators, use close price as fallback
-                    df[col] = df[col].fillna(df["close"])
+    # SEQUENCE ITEM 6: the caller-frame cleaning block was here. See the
+    # docstring above for what it did and why deleting it was the fix.
 
     # Trend direction proxy: continuation_strength's sign is B1's dedicated
     # signed-direction signal, so it's used here to sign trend_health (an

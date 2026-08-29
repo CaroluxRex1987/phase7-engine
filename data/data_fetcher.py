@@ -49,9 +49,15 @@ class DataFetcher:
 
     2. Nothing is cached between calls. Reading a 450-row CSV three times per
        run costs nothing, and handing the same DataFrame object to multiple
-       callers is unsafe in this codebase specifically: calculate_dynamic_bias
-       rewrites its caller's columns in place (T2-1, open). A fresh copy per
-       call means that bug cannot corrupt the pinned dataset mid-run.
+       callers was unsafe in this codebase specifically: four modules rewrote
+       their caller's columns in place (T2-1). Closed at sequence item 6 —
+       calculate_dynamic_bias no longer takes a frame at all, and
+       calculate_structure, compute_volume_profile and plot_engine_chart each
+       work on their own copy.
+
+       The fresh copy per call stays regardless. It is the guarantee this class
+       makes on its own terms rather than a workaround for someone else's bug,
+       and it is what test_each_fetch_returns_an_independent_copy asserts.
 
     Precedence: an explicit set_pinned_source() call beats the environment
     variable, which beats the live API.

@@ -58,6 +58,13 @@ def plot_engine_chart(df, entry_data, risk_data, save_path="chart_output.png"):
         # ============================================================
 
         # Validate price data
+        #
+        # SEQUENCE ITEM 6: this loop used to fill NaNs directly in the caller's
+        # frame. engine_core passes df_struct here, so a chart renderer was
+        # silently editing the frame the analysis had just been computed from.
+        # Harmless in practice only because plotting runs last — which is a
+        # statement about the current call order, not about the code.
+        df = df.copy()
         price_cols = ["open", "high", "low", "close"]
         for col in price_cols:
             if df[col].isna().any():

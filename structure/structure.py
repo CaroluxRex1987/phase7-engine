@@ -391,10 +391,26 @@ class StructureEngine:
 # ENGINE COMPATIBILITY WRAPPER
 # ============================================================
 
-def calculate_structure(df: Optional[pd.DataFrame], lookback: int = 8, copy_df: bool = True) -> Dict[str, Any]:
+def calculate_structure(df: Optional[pd.DataFrame], lookback: int = 8) -> Dict[str, Any]:
     """
-    Compatibility wrapper function with strict input validation, vectorized NaN cleaning,
-    optimized memory management (copy_df), and formal typing contracts for engine_core.py.
+    Compatibility wrapper function with strict input validation, vectorized NaN
+    cleaning, and formal typing contracts for engine_core.py.
+
+    SEQUENCE ITEM 6: the `copy_df` parameter is gone. This function always works
+    on its own copy now.
+
+    It defaulted to True, and both call sites in engine_core passed False — so
+    the safe default was documented and never taken. Under it, `df_clean = df`
+    and this function then wrote STRUCTURE, HVN and LVN into the caller's frame
+    and ffill/bfill/fillna(0.0)'d its OHLCV columns. The caller's `df` and the
+    `df` returned in this dict were one object under two names.
+
+    The parameter is removed rather than merely left at its default, because a
+    knob whose unsafe setting is the one everybody chooses is not a safeguard.
+    Nothing outside engine_core called this, so there is no compatibility cost.
+
+    Cost of always copying: one 450-row frame per call, twice per run. Measured
+    against the class of bug it removes, that is not a trade worth making.
     """
     if df is None or df.empty:
         return {
@@ -412,10 +428,7 @@ def calculate_structure(df: Optional[pd.DataFrame], lookback: int = 8, copy_df: 
         if col not in df.columns:
             raise ValueError(f"StructureEngine requires missing column: '{col}'")
 
-    if copy_df:
-        df_clean = df.copy()
-    else:
-        df_clean = df
+    df_clean = df.copy()
 
     df_clean.loc[:, required_cols] = df_clean[required_cols].ffill().bfill().fillna(0.0)
 

@@ -13,6 +13,21 @@ def compute_volume_profile(df: pd.DataFrame, num_bins: int = 50):
         profile (pd.Series): Volume per price bin
         hvn (float): High Volume Node (bin midpoint)
         lvn (float): Low Volume Node (bin midpoint)
+
+    SEQUENCE ITEM 6: this function used to clean `low`, `high` and `volume`
+    directly on the caller's frame — and the inf-replacement on the second line
+    of that block ran on every call, not only when something was wrong. A
+    function asked to compute a read-only summary was writing to its input every
+    time it was invoked. It now works on its own copy.
+
+    Not named in the Step 5 plan; found while fixing the two that were. Same
+    class: modules mutating frames they don't own.
+
+    NOT FIXED HERE: `fillna(0)` on `low` and `high` substitutes a price of zero
+    for a missing one, which would put a fabricated candle at the bottom of the
+    volume profile and drag HVN/LVN toward it. Latent — it cannot fire on data
+    that has been through add_technical_indicators. Rider on sequence item 9
+    with the other fabricated fallbacks.
     """
 
     try:
@@ -39,6 +54,8 @@ def compute_volume_profile(df: pd.DataFrame, num_bins: int = 50):
             num_bins = 50
 
         try:
+            # SEQUENCE ITEM 6: was writing these back into the caller's frame.
+            df = df.copy()
             for col in ["low", "high", "volume"]:
                 if df[col].isna().any():
                     logger.warning(f"NaN values found in {col}, cleaning data")

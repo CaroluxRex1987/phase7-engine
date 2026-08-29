@@ -135,13 +135,17 @@ def test_two_fetches_return_equal_data():
 
 def test_each_fetch_returns_an_independent_copy():
     """
-    T2-1 is open: calculate_dynamic_bias rewrites its caller's columns in
-    place. If the pinned source handed the same object to every caller, that
-    bug would corrupt the dataset mid-run and the second and third series
-    would see mutated data.
+    When this was written, T2-1 was open: four modules rewrote their caller's
+    columns in place. If the pinned source had handed the same object to every
+    caller, those writes would have corrupted the dataset mid-run and the second
+    and third series would have seen mutated data.
 
-    This is the test that stops a future "optimisation" from caching the
-    loaded frame and reintroducing the hazard.
+    Sequence item 6 closed T2-1, so this is no longer load-bearing against that
+    specific hazard — and it stays anyway, for two reasons. It is the guarantee
+    this class makes on its own terms: a caller who receives a frame owns it.
+    And it is what stops a future "optimisation" from caching the loaded frame,
+    which would make the ownership claim false again without touching any of the
+    modules item 6 fixed.
     """
     DataFetcher = _fetcher()
     fetcher = _unreachable(DataFetcher())
