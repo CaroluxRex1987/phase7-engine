@@ -72,14 +72,21 @@ def test_every_module_imports():
 
 def test_declared_dependencies_cover_actual_imports():
     """
-    Constitution Tier 2, item 6 (controlled dependencies) — Non-compliant.
+    Constitution Tier 2, item 6 (controlled dependencies).
 
-    requirements.txt names pandas, numpy, matplotlib, ccxt and pandas_ta.
-    The code also imports requests and colorama, neither declared; and
-    nothing anywhere imports ccxt, which is declared.
+    Originally: requirements.txt named pandas, numpy, matplotlib, ccxt and
+    pandas_ta. The code also imported requests and colorama, neither declared;
+    and nothing anywhere imported ccxt, which was declared. A fresh
+    `pip install -r requirements.txt` therefore produced an environment in
+    which the engine could not start. Fixed 29 August 2026, sequence item 2.
 
-    A fresh `pip install -r requirements.txt` therefore produces an
-    environment in which the engine cannot start.
+    Scope note, added the same day: this test walks engine code only. The
+    reportlab scripts under docs/build/ generate the project's PDFs and are
+    documentation tooling, not engine code. Counting their imports here would
+    demand reportlab in requirements.txt, and a fresh install would then pull
+    a PDF library the engine never touches — which is the same defect this
+    test exists to catch, pointed the other way. docs/build/ has its own
+    install line in its README.
     """
     req_path = os.path.join(REPO_ROOT, "requirements.txt")
     declared = set()
@@ -95,7 +102,7 @@ def test_declared_dependencies_cover_actual_imports():
     local = {"core", "data", "indicators", "models", "structure", "utils",
              "main", "live_trading", "conftest"}
     import ast
-    for rel in all_python_files():
+    for rel in all_python_files(include_doc_tooling=False):
         with open(os.path.join(REPO_ROOT, rel), encoding="utf-8") as f:
             try:
                 tree = ast.parse(f.read())

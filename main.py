@@ -5,6 +5,18 @@ import logging
 # Ensure project root is in path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
+# Log directories must exist before anything opens a file inside them.
+# logging.FileHandler opens its file at construction, not at first write, so
+# the basicConfig call below raises FileNotFoundError during import on any
+# machine where Logs/ does not already exist — before main() runs, and so
+# outside the reach of the try/except inside it. This never appeared on the
+# development machine, where Logs/ has existed since the first run; it appears
+# for anyone cloning the repository.
+#
+# Placed here rather than immediately above basicConfig because module-scope
+# code in the import chain can also touch the filesystem.
+os.makedirs('Logs', exist_ok=True)
+
 from models.signal_router import SignalRouter
 from core import config
 

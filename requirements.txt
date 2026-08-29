@@ -1,5 +1,6 @@
 pandas
 numpy
 matplotlib
-ccxt
 pandas_ta
+requests
+colorama
