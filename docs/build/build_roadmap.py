@@ -111,7 +111,7 @@ story = []
 # ============================================================
 story.append(P("Phase-7 Structural Quant Engine", "ReportSubtitle"))
 story.append(P("Roadmap", "ReportTitle"))
-story.append(P("Revision 3 — August 29, 2026. Supersedes Revision 2 of the same day.", "MetaLine"))
+story.append(P("Revision 4 — August 29, 2026. All five adjudications ruled.", "MetaLine"))
 story.append(P("Status: <b>working document.</b> Changes no rule, records no finding.", "MetaLine"))
 story.append(Spacer(1, 12))
 story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#c7cfda")))
@@ -125,6 +125,32 @@ story.extend(box([
       "on-ramp and an independent re-audit. Severity decides which items belong to the gate "
       "sets. It does not decide their position.", "Body"),
 ]))
+
+story.extend(box([
+    P("<b>What changed in Revision 4 — the adjudications are closed.</b>", "H2"),
+    P("Viktor ruled on all five open questions on 29 August. The decisions table later in "
+      "this document now records outcomes rather than open disputes. Three consequences "
+      "matter more than the rest:", "Body"),
+    P("<b>There are now four Critical findings, not three.</b> Item 6 was raised from Major "
+      "on the principle that severity reflects consequence, not implementation effort. The "
+      "release gate blocks on four.", "Body"),
+    P("<b>The execution order changed.</b> Ruling <i>degrade</i> rather than <i>halt</i> means "
+      "sequence item 9 must add fields to the decision object, so the contract that guards "
+      "field changes has to precede it. Sequence item 10 moves to immediately after "
+      "sequence item 7. New order: <b>7 → 10 → 8 → 9 → 11 → 12 → 13 → 14 → 15 → 16.</b> The "
+      "item numbers are unchanged — they are citations in four documents.", "Body"),
+    P("<b>Position sizing is removed from the engine</b> rather than kept or permitted by "
+      "amendment. Monetary sizing belongs to a portfolio layer; the engine supplies "
+      "market-derived risk parameters only.", "Body"),
+], border_color=GREEN))
+
+story.extend(box([
+    P("<b>Two numbering systems, and they collide.</b>", "Body"),
+    P("<b>Item N</b> is a rule in the 44-rule register — Item 6 is Traceability, Item 13 is "
+      "Fail Safely. <b>Sequence item N</b> is a step in the sixteen-item roadmap below. They "
+      "are not the same, and both appear throughout. Where this document means the roadmap "
+      "it says <i>sequence item</i>.", "Body"),
+], border_color=STEEL))
 
 story.extend(box([
     P("<b>What changed since Revision 1.</b>", "Body"),
@@ -182,12 +208,22 @@ t.setStyle(TableStyle([
 story.append(t)
 story.append(Spacer(1, 10))
 
-story.append(P("The three Critical findings", "H2"))
+story.append(P("The four Critical findings", "H2"))
+story.append(P(
+    "<i>Three came from the audit. Item 6 was raised from Major to Critical by Viktor's "
+    "ruling of 29 August — on the principle that severity reflects consequence, not "
+    "implementation effort. The fix is one line; the consequence is that the panel asserts "
+    "a safety action which did not occur, on every run.</i>", "Callout"))
 crit = [
     ("Item 3 — Data Integrity",
      "Nothing detects missing candles, duplicates, impossible prices, bad timestamp ordering, "
      "stale data or abnormal volume. Defects are silently filled in by ffill/bfill rather than "
      "caught, so the engine cannot tell “no defect found” from “defect fabricated away.”"),
+    ("Item 6 — Traceability &nbsp;<font size=8 color='#8a2f2f'>[RAISED TO CRITICAL 29 AUG]</font>",
+     "The panel prints “Trade logged to Logs/phase7_trade_log_&lt;symbol&gt;.csv” on every run "
+     "and no code anywhere writes that file. The engine reports an audit action as having "
+     "happened when it did not — and “why did it decide that?” is unanswerable once the "
+     "process exits."),
     ("Item 11 — No Circular Reasoning",
      "trend_health is counted at least four times: 30% of bias_score, again directly in "
      "confidence, again as the whole base of validation_score, and again as Current Market. "
@@ -202,10 +238,13 @@ for title, body in crit:
 
 story.append(Spacer(1, 6))
 story.extend(box([
-    P("<b>The release gate now in force.</b>", "Body"),
+    P("<b>The release gate now in force — and it blocks on four.</b>", "Body"),
     P("No output of this engine may be relied on for a real trading decision while any Critical "
       "Tier 1 finding stands unresolved, and backtesting does not begin until Items 2, 3, 6 and "
       "18 are all Compliant. Running the engine to look at is fine. Acting on it is not.", "Body"),
+    P("Item 6's promotion moves it from optional to mandatory in the minimum gate-opening "
+      "set. It was already required for the <i>backtest</i> gate; it now blocks the release "
+      "gate too.", "Body"),
 ], border_color=MAROON))
 
 story.append(PageBreak())
@@ -491,56 +530,51 @@ story.append(PageBreak())
 # ============================================================
 # OPEN DECISIONS
 # ============================================================
-story.append(P("Open decisions — five, all Viktor's", "H1"))
+story.append(P("The adjudications — RULED, 29 August", "H1"))
 story.append(P(
-    "Two of these change the ordering, which is why Step 5 puts them at position zero rather "
-    "than leaving them to be settled along the way.", "Body"))
-story.append(P(
-    "<b>Revision 2 of this document listed the wrong five.</b> It dropped the position-sizing "
-    "question — which Step 5 names in its own opening paragraph, and which Run B's Required "
-    "action states outright — and substituted the halt-or-degrade question, which Step 5 raises "
-    "at item 9 rather than at position zero. Both are genuine. The full set is below.", "Body"))
+    "All five closed by Viktor on 29 August. Under Roles &amp; Authority these were his "
+    "alone; Claude's job was to lay out the disagreement and the consequences, not to "
+    "choose. Recorded here as outcomes rather than open questions.", "Body"))
 
 dec_rows = [
-    ["Decision", "The disagreement", "What it changes"],
+    ["Question", "Ruling", "What it changed"],
     ["<b>Item 6 severity</b>",
-     "Claude says Critical, the auditor says Major. The panel tells the operator a trade was "
-     "logged to a file that no code writes, on every run.",
-     "<b>Ordering.</b> Swaps items 12 and 13, and changes the minimum set that opens the "
-     "release gate."],
+     "<b>CRITICAL.</b> “The remediation is small, but severity reflects consequence, not "
+     "implementation effort.”",
+     "<b>Four Criticals now, not three.</b> Item 6 becomes mandatory in the minimum "
+     "gate-opening set. No reordering — the sequence was already built under the stricter "
+     "reading."],
     ["<b>Position sizing</b><br/><i>constitutional, not code</i>",
-     "engine_core computes position_size, position_value and risk_amount from a hardcoded "
-     "$10,000 balance at 1% risk. The panel no longer shows it — that line was removed at "
-     "Viktor's request — but the values stay in the returned decision object, readable by any "
-     "consumer. Item 14's Rev-5 rationale says how many dollars a risk percentage represents "
-     "“stays the trader's decision alone,” and risk_amount = balance × risk% is exactly that "
-     "figure. Run B rated it Non-compliant, Major (contained).",
-     "<b>Three options.</b> Remove the computation; keep it as computed-but-not-displayed; or "
-     "amend Item 14's rationale to permit it — and amending is Tier 1, so it needs a reviewer "
-     "who is not Claude."],
+     "<b>REMOVE FROM THE ENGINE.</b> “Monetary position sizing belongs outside the "
+     "Structural Quant Engine, in the portfolio/execution layer. The engine may provide "
+     "market-derived risk parameters such as entry, stop, and volatility, but it should not "
+     "decide how many dollars to allocate.”",
+     "Five fields leave the decision object and calculate_position_size is deleted. <b>No "
+     "Constitution amendment needed</b> — removal aligns the engine with Item 14's existing "
+     "rationale rather than changing it. Lands at sequence item 13."],
     ["<b>Item 13 — halt or degrade</b>",
-     "When an indicator fails: stop and emit an error, or keep computing while marked degraded "
-     "with confidence cut? Step 5 declined to choose and flagged its own preference as "
-     "correlated with the model family that built the engine.",
-     "<b>Scope of item 9.</b> Halting adds no machinery; degrading is the richer repair and the "
-     "auditor's stated Required action."],
-    ["<b>Item 2 reasoning</b>",
-     "Compliant stands either way. But “backward fill cannot affect the decision” is too strong "
-     "— input-side bfill reaches the final bar through recursive indicators.",
-     "Force, not order. Upholding it makes item 15 mandatory for the backtest gate rather than "
-     "advisory."],
+     "<b>DEGRADE.</b> “It must not fabricate replacement values. The failure must be "
+     "recorded in the decision output, and confidence and trade quality must be reduced "
+     "accordingly. A degraded result does not by itself authorize trading.”",
+     "<b>Changed the execution order</b> — see the box below. Also enlarges sequence item 9: "
+     "it now needs a degraded-state field, a record of which indicators failed, and a gate "
+     "preventing a degraded run from authorising a trade."],
+    ["<b>Item 2 strength</b>",
+     "<b>COMPLIANT, rationale amended.</b> “Input-side backward fill can propagate through "
+     "recursive indicators and may affect the final decision.”",
+     "Sequence item 15 goes from advisory to <b>mandatory</b> for the backtest gate. No "
+     "reordering. Amends a finding's reasoning, not a rule — no amendment-control process."],
     ["<b>Items 4 and 12</b>",
-     "Auditor says Compliant, Claude says Non-compliant, over a cache key that includes the last "
-     "close but not the bar's high, low or volume.",
-     "<b>Possibly nothing.</b> Deleting the cache at item 6 makes both readings true. The "
-     "dispute dissolves by repair and spends none of the adjudication budget."],
+     "<b>DISSOLVED BY REMEDIATION.</b> Resolved by deleting the caches at sequence item 6.",
+     "No separate repair, no adjudication spent. Repair rather than argument makes both "
+     "readings true."],
     ["<b>Item 20 amendment</b>",
-     "Item 20 does not name crash-reporter capture of the process environment.",
-     "Blocked on a reviewer who is not Claude — the amendment-control rule adopted on August 27 "
-     "applies to the party that wrote it."],
+     "<b>STILL OPEN.</b> The only remaining one.",
+     "Blocked on a reviewer who is not Claude. Complicated by Gemini and Copilot both "
+     "refusing to ingest the Constitution PDF — a content-classification false positive."],
 ]
 data = [[cell(c, header=(i == 0)) for c in r] for i, r in enumerate(dec_rows)]
-t = Table(data, colWidths=[1.3 * inch, 2.8 * inch, 2.4 * inch], repeatRows=1)
+t = Table(data, colWidths=[1.2 * inch, 2.5 * inch, 2.8 * inch], repeatRows=1)
 t.setStyle(TableStyle([
     ("BACKGROUND", (0, 0), (-1, 0), NAVY),
     ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor("#c7cfda")),
@@ -552,15 +586,56 @@ story.append(t)
 story.append(Spacer(1, 10))
 
 story.extend(box([
+    P("<b>The ordering consequence of ruling “degrade”.</b>", "H2"),
+    P("Step 5 placed sequence item 10 — the decision-object contract — <i>after</i> the "
+      "Criticals, and gave a specific reason: “Between the shape-neutral Criticals (8/9 use "
+      "the existing error path; no new fields) and the reshaping clusters (11–13 add, remove, "
+      "and rename fields).”", "Body"),
+    P("<b>That premise held only under “halt”.</b> Degrading requires new fields, so sequence "
+      "item 9 is no longer shape-neutral, and under the original order it would reshape the "
+      "decision object before the contract guarding field changes exists — in a codebase whose "
+      "own record shows a rename once broke fourteen modules at once.", "Body"),
+    P("<b>Sequence item 10 therefore moves to immediately after sequence item 7.</b> It "
+      "depends only on item 7, so nothing is violated, and placing it ahead of item 8 as well "
+      "is free — the data-integrity validator will likely need to report <i>why</i> it "
+      "rejected input, which is also a field.", "Body"),
+    P("<b>New execution order: 7 → 10 → 8 → 9 → 11 → 12 → 13 → 14 → 15 → 16.</b> The item "
+      "numbers themselves do not change; they are citations across four documents.", "Body"),
+    P("<i>Splitting item 9 was considered and rejected. The split would delete the fabrication "
+      "constants first — shape-neutral — and add degraded-state plumbing later. But deleting "
+      "the constants requires something to catch the resulting failures, and before the "
+      "degraded path exists the only mechanism available is the old error path, which halts. "
+      "The split would ship, however briefly, exactly the behaviour that was ruled against.</i>",
+      "Body"),
+], border_color=AMBER))
+
+story.append(Spacer(1, 8))
+story.extend(box([
+    P("<b>A trap in the position-sizing removal — verified in source.</b>", "H2"),
+    P("<font face=\"Courier\">risk_amount</font> names two unrelated things. In "
+      "<font face=\"Courier\">engine_core.py:827</font> it is money — "
+      "<font face=\"Courier\">account_balance × risk_percent</font> — and that is what gets "
+      "deleted. In <font face=\"Courier\">panel_render.py:1078</font> it is a price distance, "
+      "<font face=\"Courier\">abs(current_price − stop_loss)</font>, and it is the denominator "
+      "for all three R:R ratios on the panel.", "Body"),
+    P("A find-and-replace on the name will turn “TARGET 1 | R:R 1 : 1.00” into zero, silently. "
+      "The removal is five fields from signal_router, three computations in engine_core, and "
+      "calculate_position_size from risk_model — nothing else consumes them.", "Body"),
+], border_color=MAROON))
+
+story.append(Spacer(1, 10))
+
+story.extend(box([
     P("<b>The smallest set that opens the release gate.</b>", "Body"),
-    P("The clone fix (item 2 — <b>done</b>); the thin apparatus slice — pinned dataset, "
-      "corrupted fixtures, fault injection, one golden baseline; Item 3; Item 13; Item 11; "
-      "Item 6 under the conservative reading — <i>or</i> a Major ruling, which removes it at "
-      "zero code cost, making the adjudication itself part of the minimal path. Then a scoped "
-      "independent re-audit, because “resolved” is not self-declared.", "Body"),
-    P("<b>One honesty caveat:</b> the phantom “Trade logged” line is a one-line deletion whose "
-      "exclusion would leave the panel lying on the very first run anyone relies on. Include it "
-      "regardless of what the minimal set technically requires.", "Body"),
+    P("The clone fix (sequence item 2 — <b>done</b>); the thin apparatus slice — pinned "
+      "dataset, corrupted fixtures, fault injection, one golden baseline; the decision-object "
+      "contract, now moved ahead of the Criticals; then Items 3, 13, 11 <b>and 6</b>. Then a "
+      "scoped independent re-audit, because “resolved” is not self-declared.", "Body"),
+    P("<b>Item 6 is no longer optional in this set.</b> Revision 3 listed it as conditional on "
+      "the severity ruling, with a Major finding removing it at zero cost. The ruling came back "
+      "Critical, so it is required. The honesty caveat that used to sit here — include the "
+      "one-line fix regardless, because the panel otherwise lies on the first run anyone relies "
+      "on — is now the rule rather than an exception to it.", "Body"),
 ], border_color=GREEN))
 
 story.append(PageBreak())

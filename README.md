@@ -19,8 +19,8 @@ by one person, with heavy AI assistance.**
 | | |
 |---|---|
 | Constitution | Ratified 26 August 2026. Rules frozen at 21 / 7 / 10 / 6 = 44. Scope freeze lifted 27 August. |
-| Independent audit | **Complete.** Four runs, all 44 rules graded: 21 Compliant, 17 Non-compliant, 6 Unknown. Three findings rated Critical. |
-| Engine code | **Non-compliant on 17 rules, three of them Critical.** Remediation has started: 2 of 16 sequence items done. |
+| Independent audit | **Complete.** Four runs, all 44 rules graded: 21 Compliant, 17 Non-compliant, 6 Unknown. Four findings rated Critical. |
+| Engine code | **Non-compliant on 17 rules, four of them Critical.** Remediation has started: 2 of 16 sequence items done. |
 | Tests | 18 tests. **8 pass, 10 fail.** The failures are the Non-compliances written as executable acceptance criteria. |
 | Backtesting | Not rebuilt. Blocked by the release gate until Items 2, 3, 6 and 18 are Compliant. |
 | Live trading | Read-only market access only. The engine cannot place orders. |
@@ -29,16 +29,24 @@ by one person, with heavy AI assistance.**
 real trading decision while any Critical Tier 1 finding stands unresolved. Running it
 to look at is fine. Acting on it is not.
 
-The three Criticals, stated plainly:
+The four Criticals, stated plainly:
 
 - **Item 3 — Data Integrity.** Nothing detects missing candles, duplicates, impossible
   prices, bad timestamp ordering, stale data or abnormal volume. Defects are silently
   filled in by `ffill`/`bfill` rather than caught.
+- **Item 6 — Traceability.** The panel prints "Trade logged to
+  `Logs/phase7_trade_log_<symbol>.csv`" on every run, and no code anywhere writes that
+  file. The engine reports an audit action as having happened when it did not.
 - **Item 11 — No Circular Reasoning.** One quantity (`trend_health`) is counted at
   least four times and presented on the panel as four agreeing signals.
 - **Item 13 — Fail Safely.** When an indicator fails, the engine substitutes
   confident-looking constants with no marker. A failed SuperTrend silently adds a
   permanent bullish vote to the bias score.
+
+Three of those came from the audit. Item 6 was raised from Major to Critical after the
+fact, on the principle that severity reflects consequence rather than how much work the
+fix takes — the repair is one line, and the consequence is that the tool asserts a
+safety action which never occurred.
 
 The engine has **not** been shown to predict anything. One component
 (BTC-Adjusted Prediction) is correctness-validated — it computes what it was
