@@ -52,5 +52,12 @@ API KEY FROM OPEN CODE.txt
 # Test fixtures are inputs to the suite, not engine output.
 # The pinned dataset and the golden snapshot must be in the repo or the
 # tests cannot run on a clone.
+#
+# Note the ** rather than *. A single asterisk does not cross a directory
+# separator, so `!tests/fixtures/*.csv` re-includes ohlcv_clean_4h.csv but NOT
+# tests/fixtures/pinned/AEROUSDT_4h.csv. That is the same silent exclusion that
+# nearly shipped the original fixtures missing; ** covers the subdirectories.
+!tests/fixtures/**/*.csv
+!tests/fixtures/**/*.json
 !tests/fixtures/*.csv
 !tests/fixtures/*.json

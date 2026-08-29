@@ -25,7 +25,11 @@ The fallback runner exists because the suite has to work on a clean machine
 before `pip install` has succeeded — which is exactly the situation the
 dependency test is about.
 
-## Current state: 8 pass, 10 fail
+## Current state: 17 pass, 10 fail
+
+Nine tests were added by sequence item 3 (`test_pinned_source.py`), all passing.
+They cover the pinned data path — the mechanism that lets the engine be run twice
+on the same input, which is what makes every later fix verifiable at all.
 
 **The failures are correct.** They are Non-compliances written as executable
 acceptance criteria. Each goes green as its fix lands, and stays green afterwards.
@@ -40,6 +44,7 @@ acceptance criteria. Each goes green as its fix lands, and stays green afterward
 | `test_decision_object_matches_snapshot` | pass | live since `pandas_ta` became available |
 | `test_engine_is_deterministic_on_identical_input` | pass | two runs on pinned data agree exactly |
 | `test_accepts_clean_data` | pass | control — a validator that rejects everything is not a validator |
+| the nine `test_pinned_source.py` tests | pass | added by sequence item 3, 29 Aug |
 | the eight `test_rejects_*` | **fail** | Item 3, Critical — nothing validates input yet |
 | `test_explanation_does_not_name_a_hardcoded_symbol` | **fail** | `AERO` hardcoded in user-facing text |
 | `test_correlation_phrase_is_not_doubled` | **fail** | "relationship relationship" |
