@@ -192,6 +192,69 @@ def test_plot_engine_chart_does_not_touch_the_callers_frame():
     )
 
 
+def test_plotting_does_not_swallow_a_broken_repair_path():
+    """
+    The companion to the test above, which passed VACUOUSLY on its first run.
+
+    plot_engine_chart's NaN repair called fillna(method='ffill') — an API
+    pandas has since removed. It raised TypeError, the function's own
+    try/except caught it and logged "Failed to plot candlesticks", and the
+    chart rendered with EMAs, entry zone, stop and targets but no price
+    candles. The ownership test above still passed, because a frame that was
+    never touched is trivially unmodified.
+
+    That is the shape to watch for: a guard satisfied by the failure it exists
+    to detect.
+
+    This test watches the log instead of the frame. plot_engine_chart contains
+    nine separate try/excepts that downgrade errors to log lines, so a silent
+    failure inside it cannot be seen from the return value — it returns the
+    save path whether or not the candles were drawn.
+    """
+    if not _engine_available():
+        print("SKIP: pandas_ta not installed")
+        return
+
+    import logging
+
+    try:
+        import matplotlib
+        matplotlib.use("Agg")
+    except Exception:
+        pass
+    from utils.plotting import plot_engine_chart
+
+    records = []
+
+    class _Collect(logging.Handler):
+        def emit(self, record):
+            records.append(record)
+
+    plotting_logger = logging.getLogger("utils.plotting")
+    handler = _Collect()
+    plotting_logger.addHandler(handler)
+    try:
+        plot_engine_chart(
+            df=_dirty_frame(),
+            entry_data={"entry_zone_lower": 0.75, "entry_zone_upper": 0.78},
+            risk_data={"atr_stop": 0.64, "targets": (0.96, 1.12, 1.28)},
+            save_path=os.path.join(REPO_ROOT, "Logs", "Charts", "_repair_test.png"),
+        )
+    finally:
+        plotting_logger.removeHandler(handler)
+
+    problems = [r.getMessage() for r in records if r.levelno >= logging.ERROR]
+
+    assert not problems, (
+        "plot_engine_chart logged an error while rendering a frame with NaNs:\n  "
+        + "\n  ".join(problems) +
+        "\nEvery drawing step in that function is wrapped in a try/except that "
+        "downgrades failures to log lines, so the chart is still written and "
+        "still returned — just missing whatever failed. A chart with no price "
+        "candles looks like a chart."
+    )
+
+
 def test_calculate_dynamic_bias_takes_no_frame():
     """
     Signature-level. The frame parameter was write-only: the function filled

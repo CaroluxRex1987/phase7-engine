@@ -69,7 +69,23 @@ def plot_engine_chart(df, entry_data, risk_data, save_path="chart_output.png"):
         for col in price_cols:
             if df[col].isna().any():
                 logger.warning(f"NaN values found in {col}, filling with forward fill")
-                df[col] = df[col].fillna(method='ffill').fillna(method='bfill')
+                # Was fillna(method='ffill').fillna(method='bfill'). The
+                # `method` keyword was deprecated in pandas 2.1 and removed
+                # since; on the installed version this line raised TypeError:
+                # "NDFrame.fillna() got an unexpected keyword argument
+                # 'method'". The outer try caught it, logged "Failed to plot
+                # candlesticks", and the chart rendered with EMAs, entry zone,
+                # stop and targets but NO PRICE CANDLES.
+                #
+                # It had never been observed because the branch only runs when
+                # a NaN reaches the plotter, and nothing NaN-shaped survives
+                # add_technical_indicators. Found 30 August by the test-runner
+                # change, which stopped discarding the output of passing tests.
+                #
+                # Same class as the dead gates recorded elsewhere in this
+                # project: a repair path that has never been exercised and does
+                # not work.
+                df[col] = df[col].ffill().bfill()
 
         up = df[df["close"] >= df["open"]]
         down = df[df["close"] < df["open"]]
