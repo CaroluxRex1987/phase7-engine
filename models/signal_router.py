@@ -256,7 +256,6 @@ class SignalRouter:
                     # panel_render.py needs no changes to consume them.
                     "confidence_score": float(confidence),
                     "signal_strength": float(risk.get("signal_strength", bias.get("score", 0.0))),
-                    "trade_quality_current": float(trade_quality["current_market"]),
                     "trade_quality_proposed": float(trade_quality["proposed_entry"]),
                     "validation_state": str(risk.get("validation_state", "NEUTRAL")),
                     "validation_score": float(risk.get("validation_score", 50.0)),

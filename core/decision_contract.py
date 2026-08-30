@@ -140,7 +140,6 @@ class RiskBlock(TypedDict):
     risk_score: float
     confidence_score: float
     signal_strength: float
-    trade_quality_current: float
     trade_quality_proposed: float
     validation_state: str
     validation_score: float

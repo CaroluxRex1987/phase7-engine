@@ -134,7 +134,6 @@ def render_panel(decision):
         validation_score = safe_float(risk.get('validation_score', 0))
         entry_score = safe_float(entry.get('score', 0))
         confidence_score = safe_float(risk.get('confidence_score', 0))
-        tq_current = safe_float(risk.get('trade_quality_current', 0))
         tq_proposed = safe_float(risk.get('trade_quality_proposed', 0))
         trend_health_score = safe_float(trend.get('trend_health', 0))
 
@@ -292,7 +291,11 @@ def render_panel(decision):
             f"STRUCTURE  : {colorize_val(structure.get('regime', 'NEUTRAL'))} | Vol: {colorize_val(bias.get('volatility', 'NORMAL'))}\n"
             f"SEQUENCE   : {colorize_val(structure.get('sequence', 'NONE'))}\n"
             f"TREND      : {colorize_val(trend.get('trend_direction', 'NEUTRAL'))} / {colorize_val(trend.get('momentum_mode', 'HEALTHY'))} (Score: {trend_health_score:.2f})\n"
-            f"MOMENTUM   : {colorize_val(trend.get('momentum_mode', 'HEALTHY'))} ({trend_health_score:.2f})\n"
+            # SEQUENCE ITEM 11: the number after the label was
+            # trend_health_score — the same value the TREND line above already
+            # shows. The LABEL (STRONG / BUILDING / EXTENDED) is momentum_mode,
+            # a genuinely separate reading, so it stays.
+            f"MOMENTUM   : {colorize_val(trend.get('momentum_mode', 'HEALTHY'))}\n"
             f"VOLUME     : {colorize_val(structure.get('volume_sentiment', 'WEAK OR CONTRARY VOLUME'))}\n"
             f"VALIDATION : {colorize_val(risk.get('validation_state', 'WEAK'))} (Score: {validation_score:.2f})\n"
             f"VOLATILITY : {colorize_val(bias.get('volatility', 'LOW'))}\n"
@@ -317,7 +320,7 @@ def render_panel(decision):
             f"{divider}"
             f"CONFIDENCE (decision): {confidence_score:.2f}/100\n"
             f"TRADE QUALITY :\n"
-            f"    |-- Current Market    : {tq_current:.2f}/100\n"
+
             f"    |-- Proposed Entry    : {tq_proposed:.2f}/100\n\n"
             f"{box_top}"
             f"DECISION      : {colored_action}\n\n"

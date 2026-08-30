@@ -143,8 +143,6 @@ class DecisionModel:
 
         capped_confidence = min(confidence, self.DEGRADED_CONFIDENCE_CEILING)
         capped_quality = {
-            "current_market": min(trade_quality.get("current_market", 0.0),
-                                  self.DEGRADED_CONFIDENCE_CEILING),
             "proposed_entry": min(trade_quality.get("proposed_entry", 0.0),
                                   self.DEGRADED_CONFIDENCE_CEILING),
         }
@@ -290,8 +288,9 @@ class DecisionModel:
         Confidence = how much the overall picture agrees with itself, not
         just "how strong is the trend." Built from:
           - bias_strength (0-100): magnitude of bias_score, i.e. how
-            decisively the bias engine committed to a direction
-          - trend_health (0-100): as before, trend strength/quality
+            decisively the bias engine committed to a direction. Trend health
+            is INSIDE this at weight 0.30 and must not be added again --
+            see sequence item 11 below.
           - structure_alignment: bonus if structure regime agrees with
             bias direction, penalty if they actively disagree
           - validation_adj: bonus/penalty from risk.validation_state
@@ -300,7 +299,19 @@ class DecisionModel:
         own explicit inputs) will feed a richer version of this later.
         """
         bias_strength = min(100.0, abs(_safe_float(bias.get("score"), 0.0)))
-        trend_health = _safe_float(trend.get("trend_health", trend.get("health")), 50.0)
+
+        # SEQUENCE ITEM 11: `trend_health * 0.3` was a term here. It is
+        # removed. bias_score already carries trend health at WEIGHT_TREND_HEALTH
+        # = 0.30 (bias_engine.py), so adding it again counted one measurement
+        # twice and presented the agreement of a number with itself as
+        # corroboration.
+        #
+        # bias_strength moves 0.5 -> 0.8 so the score still spans 0-100. Without
+        # that the ceiling would be 70, and confidence is consumed by
+        # _compute_ev as a rough win rate — a percentage that cannot reach its
+        # own maximum understates every expected value computed from it.
+        #
+        # 80 + 10 (structure) + 10 (validation) = 100 exactly.
 
         raw_bias = str(bias.get("raw", "NEUTRAL"))
         structure_regime = str(structure.get("regime", "NEUTRAL"))
@@ -335,7 +346,7 @@ class DecisionModel:
         else:
             validation_phrase = "validation is neutral"
 
-        confidence = (bias_strength * 0.5) + (trend_health * 0.3) + structure_alignment + validation_adj
+        confidence = (bias_strength * 0.8) + structure_alignment + validation_adj
         confidence = max(0.0, min(100.0, confidence))
 
         # When the risk-regime gate has already blocked the trade, make clear this
@@ -347,9 +358,14 @@ class DecisionModel:
             else ""
         )
 
+        # SEQUENCE ITEM 11, coupling rule: this sentence changed in the same
+        # commit as the formula. Prose describing a calculation that no longer
+        # runs is an Item 8 regression the moment the number moves — and it
+        # named trend health as an input, which is exactly what was removed.
         reasons.append(
-            f"Confidence is {confidence:.0f}/100 — bias strength is {bias_strength:.0f}/100, trend health is "
-            f"{trend_health:.0f}/100, {alignment_phrase}, and {validation_phrase}.{qualifier}"
+            f"Confidence is {confidence:.0f}/100 — bias strength is {bias_strength:.0f}/100 "
+            f"(which already carries trend health), {alignment_phrase}, and "
+            f"{validation_phrase}.{qualifier}"
         )
         return float(confidence)
 
@@ -366,24 +382,33 @@ class DecisionModel:
         final_action: str,
         reasons: List[str],
     ) -> Dict[str, float]:
-        current_market = _safe_float(trend.get("trend_health", trend.get("health")), 50.0)
+        # SEQUENCE ITEM 11: `current_market` was
+        #     _safe_float(trend.get("trend_health", ...))
+        # — trend health verbatim, under a third name. The panel printed it as
+        # TREND, again as MOMENTUM's number, and again here as Current Market,
+        # then this sentence compared the entry against it as though that were
+        # an independent yardstick. It is the same measurement three times.
+        #
+        # Removed rather than replaced with an invented metric: a reader has
+        # TREND and ENTRY QUALITY on the panel already and can compare them.
+        # Inventing a distinct "market backdrop" score would be new-feature
+        # work, and Step 5's own guidance sides with removal.
         proposed_entry = _safe_float(entry.get("score"), 0.0)
 
-        gap = proposed_entry - current_market
-        if gap >= 15:
-            quality_phrase = "this entry looks noticeably better than the market backdrop overall"
-        elif gap <= -15:
-            quality_phrase = "this entry looks noticeably weaker than the market backdrop overall"
+        if proposed_entry >= 70:
+            quality_phrase = "a high-quality entry on its own terms"
+        elif proposed_entry >= 50:
+            quality_phrase = "a workable entry"
         else:
-            quality_phrase = "this entry is roughly in line with the market backdrop overall"
+            quality_phrase = "a weak entry"
 
         reasons.append(
-            f"Trade quality: the overall market backdrop scores {current_market:.0f}/100 while this specific "
-            f"entry scores {proposed_entry:.0f}/100 — {quality_phrase}."
+            f"Entry quality is {proposed_entry:.0f}/100 — {quality_phrase}. "
+            f"Compare it against the TREND line rather than against a restatement "
+            f"of it."
         )
 
         return {
-            "current_market": float(current_market),
             "proposed_entry": float(proposed_entry),
         }
 

@@ -540,31 +540,59 @@ class Phase7Engine:
             risk_amount = account_balance * (risk_percent / 100.0)
             position_value = position_size * current_price
 
-            # Validation Engine Metrics
-            trend_health = float(trend.get("trend_health", 50.0))
-            val_score = trend_health
+            # ============================================================
+            # VALIDATION — SEQUENCE ITEM 11 (Item 11, No Circular Reasoning)
+            # ============================================================
+            #
+            # This block used to open with `val_score = trend_health` and then
+            # nudge it by ±5 and +10/−15. Validation was therefore trend health
+            # wearing a second name, and it reached confidence a third time
+            # through validation_adj — after arriving directly and again inside
+            # bias_score.
+            #
+            # A validation signal must be INDEPENDENT of the thing it
+            # validates, or it is a restatement. It now starts neutral and
+            # moves only on evidence trend health does not already contain:
+            # volume behaviour, and whether the higher timeframe agrees.
+            #
+            # The macro test also used to be direction-blind: `-= 5` for any
+            # bearish macro, even when the engine's own bias was bearish and
+            # macro therefore AGREED. Validation measures agreement, not
+            # direction.
+            #
+            # Weights are a judgment, and stated as one: disconfirming evidence
+            # weighs more than confirming, and STRONG requires BOTH signals
+            # (50+15+10=75) rather than either alone (65 or 60, both NEUTRAL).
+            # A gate that opens on one input is not a gate.
+            val_score = 50.0
             val_notes = []
 
-            if "BULLISH" in macro_bias.upper():
-                val_score += 5
-            elif "BEARISH" in macro_bias.upper():
-                val_score -= 5
+            macro_up = "BULLISH" in macro_bias.upper()
+            macro_down = "BEARISH" in macro_bias.upper()
+            bias_up = raw_bias == "BULLISH"
+            bias_down = raw_bias == "BEARISH"
+
+            if (macro_up and bias_up) or (macro_down and bias_down):
+                val_score += 10
+                val_notes.append("The higher timeframe agrees with this bias.")
+            elif (macro_up and bias_down) or (macro_down and bias_up):
+                val_score -= 20
+                val_notes.append("The higher timeframe disagrees with this bias.")
+            else:
+                val_notes.append("The higher timeframe is neutral.")
 
             if "STRONG" in volume_sentiment.upper() or "EXPANSION" in volume_sentiment.upper():
-                val_score += 10
+                val_score += 15
                 val_notes.append("Volume sentiment is supportive of current momentum.")
             elif "DIVERGENCE" in volume_sentiment.upper() or "WEAK" in volume_sentiment.upper():
-                val_score -= 15
+                val_score -= 25
                 val_notes.append("Volume divergence or weakness detected.")
             else:
                 val_notes.append("Volume sentiment is neutral.")
 
-            if trend_health >= 75:
-                val_notes.append("Trend health is robust.")
-            elif trend_health < 50:
-                val_notes.append("Trend health is degrading.")
-            else:
-                val_notes.append("Trend health is moderate.")
+            # The three "Trend health is robust / moderate / degrading" notes
+            # that used to live here are gone with the rest: they restated the
+            # TREND line verbatim in a section headed Validation Notes.
 
             val_score = max(0.0, min(100.0, val_score))
 
