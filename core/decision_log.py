@@ -58,6 +58,20 @@ LOG_FILENAME = "phase7_decision_log_{symbol}.jsonl"
 # The knobs that change what the engine computes. Not every constant in
 # config — CHART_* and the directory paths do not affect a decision, and a
 # snapshot that logs them invites the reader to diff noise.
+#
+# SEQUENCE ITEM 14 owns a correction to this list, and it is the sharpest
+# finding of that item. When this file was written at item 12, SEVEN of the
+# names below — VOLUME_PROFILE_BINS, EMA_FAST, EMA_SLOW, RSI_LENGTH,
+# ADX_LENGTH, ATR_LENGTH, VWMA_LENGTH — were read by nothing. The indicators
+# hardcoded their own lengths and config's copies sat unused, so the log
+# recorded seven settings as "the knobs that change the numbers" when changing
+# any of them changed nothing.
+#
+# That is the same defect item 12 was written to close, in the record item 12
+# created: an audit trail asserting something that is not true. It is fixed by
+# making the claim true — item 14 wired every one of these to its calculation —
+# rather than by shortening the list, because a run's identity really does
+# depend on them. tests/test_explicit_configuration.py holds it true.
 FINGERPRINTED_CONFIG = [
     "SYMBOL", "TIMEFRAME", "MACRO_TIMEFRAME",
     "STRUCT_LOOKBACK", "VOLUME_PROFILE_BINS",
@@ -71,10 +85,19 @@ FINGERPRINTED_CONFIG = [
 ]
 
 
+MISSING = "<not defined in config>"
+
+
 def config_snapshot(config):
-    """The subset of config that can change a decision."""
-    return {name: getattr(config, name) for name in FINGERPRINTED_CONFIG
-            if hasattr(config, name)}
+    """
+    The subset of config that can change a decision.
+
+    A name this list declares but config does not define is RECORDED as absent
+    rather than omitted. Skipping it would leave a record that looks complete
+    and is not — the reader has no way to tell a knob that was missing from one
+    that was never fingerprinted.
+    """
+    return {name: getattr(config, name, MISSING) for name in FINGERPRINTED_CONFIG}
 
 
 def log_path(log_dir, symbol):
@@ -92,13 +115,17 @@ def write(decision, config, log_dir=None):
     """
     try:
         symbol = str(decision.get("symbol", "unknown"))
-        log_dir = log_dir if log_dir is not None else getattr(config, "LOG_DIR", "Logs/")
+        # SEQUENCE ITEM 14: the else branch was
+        # getattr(config, "LOG_DIR", "Logs/"). The explicit log_dir argument
+        # stays — tests pass an unwritable path through it deliberately — but
+        # the config read no longer carries a shadow default.
+        log_dir = log_dir if log_dir is not None else config.LOG_DIR
         os.makedirs(log_dir, exist_ok=True)
         path = log_path(log_dir, symbol)
 
         record = {
             "logged_at": datetime.now(timezone.utc).isoformat(),
-            "engine_version": getattr(config, "engine_version", "unknown"),
+            "engine_version": config.engine_version,
             "config": config_snapshot(config),
             "decision": decision,
         }

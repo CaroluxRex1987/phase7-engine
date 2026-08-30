@@ -23,7 +23,7 @@
     "trend_health": 97.0,
     "volatility": "MEDIUM VOLATILITY"
   },
-  "decision_log_path": "Logs/phase7_decision_log_testusdt.jsonl",
+  "decision_log_path": "logs/phase7_decision_log_testusdt.jsonl",
   "degradation": {
     "degraded": false,
     "missing_inputs": [],

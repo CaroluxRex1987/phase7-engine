@@ -90,7 +90,12 @@ class Phase7Engine:
     # just means "nothing to compare against yet," never a crash.
 
     def _state_path(self, symbol: str, timeframe: str) -> str:
-        log_dir = getattr(config, "LOG_DIR", "Logs/")
+        # SEQUENCE ITEM 14: was getattr(config, "LOG_DIR", "Logs/"). A
+        # fallback for a name config always defines is a second, undeclared
+        # setting that only takes effect when the first goes missing — so a
+        # deleted or misspelled config entry relocates the engine's output
+        # silently instead of failing where it can be seen.
+        log_dir = config.LOG_DIR
         return os.path.join(log_dir, f"phase7_state_{symbol}_{timeframe}.json")
 
     def _load_state(self, symbol: str, timeframe: str) -> Dict[str, Any]:
@@ -107,7 +112,7 @@ class Phase7Engine:
 
     def _save_state(self, symbol: str, timeframe: str, state: Dict[str, Any]) -> None:
         try:
-            log_dir = getattr(config, "LOG_DIR", "Logs/")
+            log_dir = config.LOG_DIR
             os.makedirs(log_dir, exist_ok=True)
             path = self._state_path(symbol, timeframe)
             with open(path, "w") as f:
@@ -172,7 +177,7 @@ class Phase7Engine:
         """
         symbol = symbol or config.SYMBOL
         timeframe = timeframe or config.TIMEFRAME
-        macro_tf = getattr(config, "MACRO_TIMEFRAME", "1d")
+        macro_tf = config.MACRO_TIMEFRAME
         required_base_cols = ["open", "high", "low", "close", "volume"]
 
         # C3: load whatever was persisted from the last run (for the
@@ -268,7 +273,8 @@ class Phase7Engine:
             # 3. STRUCTURE ENGINE
             try:
                 structure_obj = calculate_structure(
-                    df, lookback=getattr(config, "STRUCT_LOOKBACK", 8)
+                    df, lookback=config.STRUCT_LOOKBACK,
+                    volume_profile_bins=config.VOLUME_PROFILE_BINS
                 )
                 if not isinstance(structure_obj, dict):
                     raise ValueError("Structure engine returned invalid format")
@@ -399,7 +405,8 @@ class Phase7Engine:
                         for f in btc_failures:
                             logger.warning(f"BTC context indicator failure: {f}")
                         btc_structure_obj = calculate_structure(
-                            df_btc, lookback=getattr(config, "STRUCT_LOOKBACK", 8)
+                            df_btc, lookback=config.STRUCT_LOOKBACK,
+                            volume_profile_bins=config.VOLUME_PROFILE_BINS
                         )
                         df_btc_struct = btc_structure_obj.get("df", df_btc)
                         btc_trend = compute_trend_health(df_btc_struct)
@@ -675,7 +682,12 @@ class Phase7Engine:
                         "atr_stop": atr_stop,
                         "targets": (t1, t2, t3),
                     },
-                    save_path=f"{config.CHART_DIR}/chart_{symbol}_{timeframe}.png",
+                    # SEQUENCE ITEM 14: was an f-string joining CHART_DIR —
+                    # which already ends in a separator — with "/", producing
+                    # "logs/charts//chart_...". Harmless to the filesystem and
+                    # wrong in every path this engine reported.
+                    save_path=os.path.join(
+                        config.CHART_DIR, f"chart_{symbol}_{timeframe}.png"),
                 )
 
             # 11. UNIFIED RETURN OBJECT
@@ -701,7 +713,7 @@ class Phase7Engine:
                 # trail. engine_version has been defined in config since the
                 # engine was built and written nowhere until now.
                 "provenance": {
-                    "engine_version": getattr(config, "engine_version", "unknown"),
+                    "engine_version": config.engine_version,
                     "last_candle": str(df_struct.index[-1]) if len(df_struct) else None,
                     "row_count": int(len(df_struct)),
                     # "pinned" rather than the directory: a pinned path is

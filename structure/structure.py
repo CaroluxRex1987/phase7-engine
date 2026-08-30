@@ -391,7 +391,8 @@ class StructureEngine:
 # ENGINE COMPATIBILITY WRAPPER
 # ============================================================
 
-def calculate_structure(df: Optional[pd.DataFrame], lookback: int = 8) -> Dict[str, Any]:
+def calculate_structure(df: Optional[pd.DataFrame], lookback: int = 8,
+                        volume_profile_bins: int = 50) -> Dict[str, Any]:
     """
     Compatibility wrapper function with strict input validation, vectorized NaN
     cleaning, and formal typing contracts for engine_core.py.
@@ -434,7 +435,11 @@ def calculate_structure(df: Optional[pd.DataFrame], lookback: int = 8) -> Dict[s
 
     current_price = float(df_clean['close'].iloc[-1])
 
-    engine = StructureEngine()
+    # SEQUENCE ITEM 14: StructureEngine was constructed with no arguments, so
+    # its volume_profile_bins defaulted to 50 and config.VOLUME_PROFILE_BINS —
+    # also 50 — was read by nothing. Two copies of one number, one of them
+    # labelled as the setting and neither of them consulted.
+    engine = StructureEngine(volume_profile_bins=volume_profile_bins)
     # B2 FIX: `lookback` was accepted by this wrapper's signature but never
     # actually passed down to the engine -- analyze() didn't even take a
     # lookback parameter, so the "(Lookback 8)" already shown on the panel's

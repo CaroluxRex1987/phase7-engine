@@ -99,7 +99,7 @@ def test_the_log_records_what_the_run_saw_not_just_what_it_decided():
     from core import config, decision_log
 
     _run()
-    records = decision_log.read(getattr(config, "LOG_DIR", "Logs/"), "AEROUSDT")
+    records = decision_log.read(config.LOG_DIR, "AEROUSDT")
     assert records, "the log is empty after a successful run"
 
     latest = records[-1]
@@ -142,9 +142,9 @@ def test_engine_version_is_written_somewhere_at_last():
 
     decision = _run()
     recorded = decision.get("provenance", {}).get("engine_version")
-    assert recorded == getattr(config, "engine_version", None), (
+    assert recorded == config.engine_version, (
         f"the run records engine_version {recorded!r}, config says "
-        f"{getattr(config, 'engine_version', None)!r}"
+        f"{config.engine_version!r}"
     )
 
 

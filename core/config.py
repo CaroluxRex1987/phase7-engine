@@ -25,9 +25,11 @@ MACRO_TIMEFRAME = "1d"      # Macro Higher Timeframe for MTF Confluence
 # API SETTINGS
 # ============================================================
 
-# Optional API keys (not required for public OHLC endpoints)
-API_KEY = ""
-API_SECRET = ""
+# SEQUENCE ITEM 14: API_KEY and API_SECRET were declared here as empty strings
+# and read by nothing. The engine uses only public OHLC endpoints and is never
+# permitted to execute a trade, so there is no code path that could need a
+# credential. Two empty credential slots sitting in the config of an engine
+# that must not trade are an invitation, not a setting.
 
 # Base URL for MEXC REST API
 API_BASE_URL = "https://api.mexc.com"
@@ -37,16 +39,23 @@ API_BASE_URL = "https://api.mexc.com"
 # LOGGING & STORAGE
 # ============================================================
 
-LOG_DIR = "Logs/"
-CHART_DIR = "Logs/Charts/"
-TRADE_LOG_DIR = "Logs/Trades/"
+# SEQUENCE ITEM 14: lowercase. .gitignore ignores `logs/`, and these were
+# `Logs/`. On Windows that is the same directory and the mismatch is
+# invisible; on Linux it is a second directory that git does not ignore, so a
+# clone that runs the engine gets its run artifacts staged for commit.
+LOG_DIR = "logs/"
+CHART_DIR = "logs/charts/"
 
-# Directories the engine ensures exist
-REQUIRED_DIRS = [
-    LOG_DIR,
-    CHART_DIR,
-    TRADE_LOG_DIR
-]
+# SEQUENCE ITEM 14: TRADE_LOG_DIR and REQUIRED_DIRS removed.
+#
+# TRADE_LOG_DIR was read by nothing but REQUIRED_DIRS, and REQUIRED_DIRS was
+# read by nothing at all — the directories are created on demand by the code
+# that writes into them (engine_core's state file, decision_log, plotting), so
+# the list was a second declaration of a fact already enforced elsewhere.
+#
+# TRADE_LOG_DIR also named a directory for the trade log that sequence item 12
+# established does not exist and never did. Keeping it would leave the last
+# trace of that claim in the config.
 
 
 # ============================================================
@@ -85,15 +94,14 @@ RSI_LENGTH = 14
 ADX_LENGTH = 14
 ATR_LENGTH = 14
 
-# Bollinger Bands
-BB_LENGTH = 20
-BB_STD = 2.0
+# SEQUENCE ITEM 14: BB_LENGTH, BB_STD and KAMA_LENGTH removed. Sequence item
+# 5a deleted the Bollinger Bands and KAMA calculations as unconsumed output
+# and left these three constants for this item, which is where config hygiene
+# belongs. A length for an indicator the engine does not compute is a setting
+# that cannot be set.
 
 # Volume-weighted moving average
 VWMA_LENGTH = 20
-
-# Kaufman adaptive moving average
-KAMA_LENGTH = 10
 
 # Supertrend
 SUPERTREND_LENGTH = 10
@@ -104,7 +112,16 @@ SUPERTREND_MULT = 3.0
 # CHART SETTINGS
 # ============================================================
 
+# SEQUENCE ITEM 14: these are now read by utils/plotting.py, which hardcoded
+# figsize=(14, 8), dpi=200 and "dark_background" and ignored all four.
+#
+# Two of them DISAGREED with the code: config said height 10 and dpi 150, the
+# renderer used 8 and 200. The declaration is corrected to what the engine has
+# actually been drawing rather than the other way round — every chart Viktor
+# has looked at came out at 14x8 and 200 dpi, and silently resizing them is a
+# visible change nobody asked for. They are settings now, so changing these
+# numbers changes the chart.
 CHART_WIDTH = 14
-CHART_HEIGHT = 10
-CHART_DPI = 150
+CHART_HEIGHT = 8
+CHART_DPI = 200
 CHART_STYLE = "dark_background"

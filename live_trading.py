@@ -32,10 +32,14 @@ class LiveTradingSimulator:
     KeyErrors the moment the import itself was fixed.
     """
 
-    def __init__(self, log_dir="Logs/LiveSim/"):
-        self.log_dir = log_dir
-        if not os.path.exists(log_dir):
-            os.makedirs(log_dir)
+    # SEQUENCE ITEM 14: the default was the literal "Logs/LiveSim/". It is
+    # derived from config.LOG_DIR now, so the simulator writes beside the rest
+    # of the engine's output instead of into a directory that differs from it
+    # by case on Linux.
+    def __init__(self, log_dir=None):
+        self.log_dir = log_dir if log_dir is not None else os.path.join(
+            config.LOG_DIR, "LiveSim")
+        os.makedirs(self.log_dir, exist_ok=True)
         self.router = SignalRouter()
 
     # ============================================================

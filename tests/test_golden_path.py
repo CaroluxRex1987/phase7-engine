@@ -199,7 +199,7 @@ def _write_pinned_set(directory):
 
 def _state_path(symbol=SYMBOL, timeframe=TIMEFRAME):
     from core import config
-    log_dir = getattr(config, "LOG_DIR", "Logs/")
+    log_dir = config.LOG_DIR
     return os.path.join(REPO_ROOT, log_dir,
                         f"phase7_state_{symbol}_{timeframe}.json")
 

@@ -8,24 +8,30 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 # Log directories must exist before anything opens a file inside them.
 # logging.FileHandler opens its file at construction, not at first write, so
 # the basicConfig call below raises FileNotFoundError during import on any
-# machine where Logs/ does not already exist — before main() runs, and so
-# outside the reach of the try/except inside it. This never appeared on the
-# development machine, where Logs/ has existed since the first run; it appears
+# machine where the log directory does not already exist — before main() runs,
+# and so outside the reach of the try/except inside it. This never appeared on
+# the development machine, where it has existed since the first run; it appears
 # for anyone cloning the repository.
 #
 # Placed here rather than immediately above basicConfig because module-scope
 # code in the import chain can also touch the filesystem.
-os.makedirs('Logs', exist_ok=True)
+#
+# SEQUENCE ITEM 14: config is imported first so the directory and the log file
+# both come from config.LOG_DIR. They were the literals 'Logs' and
+# 'Logs/phase7_engine.log', naming a directory .gitignore does not ignore — so
+# on Linux the engine's own log file was offered for commit on any clone.
+from core import config
+
+os.makedirs(config.LOG_DIR, exist_ok=True)
 
 from models.signal_router import SignalRouter
-from core import config
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('Logs/phase7_engine.log'),
+        logging.FileHandler(os.path.join(config.LOG_DIR, 'phase7_engine.log')),
         logging.StreamHandler()
     ]
 )

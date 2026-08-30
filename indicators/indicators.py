@@ -182,7 +182,13 @@ def add_technical_indicators(df: pd.DataFrame, inplace: bool = False):
     # The ewm() fallbacks below are NOT fabrications and are kept — see the
     # function docstring. They compute the same exponential moving average
     # pandas_ta would, using pandas directly.
-    for length, name in ((20, "EMA_20"), (50, "EMA_50")):
+    # SEQUENCE ITEM 14: the lengths were 20 and 50 literal, while
+    # config.EMA_FAST and config.EMA_SLOW held 20 and 50 and were read by
+    # nothing. The column NAMES stay literal on purpose — they are the
+    # dataframe's contract with trend_health, entry_model and plotting, and a
+    # column named from a config value cannot be looked up by anything that
+    # does not also read that value.
+    for length, name in ((config.EMA_FAST, "EMA_20"), (config.EMA_SLOW, "EMA_50")):
         try:
             ema = ta.ema(close_prices, length=length)
             df[name] = ema.ffill().bfill() if ema.isna().any() else ema
@@ -202,15 +208,16 @@ def add_technical_indicators(df: pd.DataFrame, inplace: bool = False):
     # an oscillator pinned there reads as "perfectly balanced", which is a
     # measurement. A failed RSI is not balanced. It is absent.
     try:
-        rsi = clean_series(ta.rsi(df["close"], length=14), method="forward_fill")
+        rsi = clean_series(ta.rsi(df["close"], length=config.RSI_LENGTH),
+                           method="forward_fill")
         if rsi is None or rsi.isna().all():
             raise ValueError("pandas_ta returned no usable RSI")
         df["RSI"] = rsi
     except Exception as primary:
         try:
             delta = df["close"].diff()
-            gain = delta.where(delta > 0, 0).rolling(window=14).mean()
-            loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
+            gain = delta.where(delta > 0, 0).rolling(window=config.RSI_LENGTH).mean()
+            loss = (-delta.where(delta < 0, 0)).rolling(window=config.RSI_LENGTH).mean()
             rs = gain / loss.replace(0, np.nan)
             rsi = clean_series(100 - (100 / (1 + rs)), method="forward_fill")
             if rsi.isna().all():
@@ -229,14 +236,12 @@ def add_technical_indicators(df: pd.DataFrame, inplace: bool = False):
     # a fabricated value is one more path Item 13 would otherwise have to give
     # honest semantics to.
     #
-    # config.BB_LENGTH and config.BB_STD are now unused. They stay for
-    # sequence item 14 (explicit configuration) to remove alongside the other
-    # declared-but-unread constants, rather than being deleted here — this
-    # step is scoped to code the engine computes, not to config hygiene.
+    # config.BB_LENGTH and config.BB_STD were left unused by 5a and are
+    # removed from config.py at sequence item 14.
 
     # ADX / DI with error handling
     try:
-        adx_df = ta.adx(df["high"], df["low"], df["close"], length=14)
+        adx_df = ta.adx(df["high"], df["low"], df["close"], length=config.ADX_LENGTH)
         if adx_df is not None and not adx_df.empty:
             # SEQUENCE ITEM 5a: DIP and DIM (the directional indicators at
             # columns 1 and 2) were written here and read nowhere. ADX itself
@@ -268,9 +273,10 @@ def add_technical_indicators(df: pd.DataFrame, inplace: bool = False):
     # pipeline (main.py, engine_core.py, structure.py, plotting.py, or any other
     # module) — it was dead code that only posed a future collision risk on the
     # same "SuperTrend" / "ST_Direction" column names. It has been deleted.
-    # Length/multiplier are now pulled from config.py instead of being hardcoded,
-    # so config.SUPERTREND_LENGTH / config.SUPERTREND_MULT (previously unused)
-    # actually control the calculation.
+    # Length/multiplier are pulled from config.py instead of being hardcoded,
+    # so config.SUPERTREND_LENGTH / config.SUPERTREND_MULT actually control the
+    # calculation. Sequence item 14 did the same for every other length in this
+    # file — until then SuperTrend was the only indicator config could reach.
     try:
         st_df = ta.supertrend(
             df["high"], df["low"], df["close"],
@@ -321,8 +327,9 @@ def add_technical_indicators(df: pd.DataFrame, inplace: bool = False):
     # The manual true-range calculation stays: like the EMA and RSI fallbacks
     # it is the same quantity by another route, not a substitute for it.
     try:
-        atr = clean_series(ta.atr(df["high"], df["low"], df["close"], length=14),
-                           method="forward_fill")
+        atr = clean_series(
+            ta.atr(df["high"], df["low"], df["close"], length=config.ATR_LENGTH),
+            method="forward_fill")
         if atr is None or atr.isna().all():
             raise ValueError("pandas_ta returned no usable ATR")
         df["ATR"] = atr
@@ -332,7 +339,8 @@ def add_technical_indicators(df: pd.DataFrame, inplace: bool = False):
             tr2 = (df["high"] - df["close"].shift(1)).abs()
             tr3 = (df["low"] - df["close"].shift(1)).abs()
             tr = pd.concat([tr1, tr2, tr3], axis=1).max(axis=1, skipna=True)
-            atr = clean_series(tr.rolling(window=14).mean(), method="forward_fill")
+            atr = clean_series(tr.rolling(window=config.ATR_LENGTH).mean(),
+                               method="forward_fill")
             if atr.isna().all():
                 raise ValueError("manual true range produced no usable values")
             df["ATR"] = atr
@@ -346,14 +354,16 @@ def add_technical_indicators(df: pd.DataFrame, inplace: bool = False):
     # nothing read. A dead chain two links long: the only consumer of KAMA
     # existed to feed a consumer that did not exist.
     #
-    # config.KAMA_LENGTH is now unused; left for sequence item 14, as above.
+    # config.KAMA_LENGTH was left unused by 5a and is removed from config.py at
+    # sequence item 14.
 
     # VWMA with optimized calculation (avoid intermediate Series creation)
     try:
         volume_col = df["volume"]
         # Use rolling operations directly without creating intermediate cleaned series
-        volume_sum = volume_col.rolling(window=20).sum()
-        price_volume_sum = (close_prices * volume_col).rolling(window=20).sum()
+        volume_sum = volume_col.rolling(window=config.VWMA_LENGTH).sum()
+        price_volume_sum = (close_prices * volume_col).rolling(
+            window=config.VWMA_LENGTH).sum()
 
         # Vectorized calculation with safe division
         valid_mask = (volume_sum > 0) & np.isfinite(volume_sum) & np.isfinite(price_volume_sum)

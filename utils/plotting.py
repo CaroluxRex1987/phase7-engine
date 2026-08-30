@@ -4,6 +4,8 @@ import logging
 import os
 import numpy as np
 
+from core import config
+
 logger = logging.getLogger(__name__)
 
 def plot_engine_chart(df, entry_data, risk_data, save_path="chart_output.png"):
@@ -41,13 +43,18 @@ def plot_engine_chart(df, entry_data, risk_data, save_path="chart_output.png"):
         if save_dir:
             os.makedirs(save_dir, exist_ok=True)
 
-        # Set matplotlib style with fallback
+        # SEQUENCE ITEM 14: style, figure size and dpi were hardcoded here
+        # while config.py declared CHART_STYLE, CHART_WIDTH, CHART_HEIGHT and
+        # CHART_DPI, read by nothing. Two of the four disagreed with what this
+        # file actually did (height 10 vs 8, dpi 150 vs 200); config was
+        # corrected to the behaviour in use, so this change draws an identical
+        # chart and makes those four constants live.
         try:
-            plt.style.use("dark_background")
+            plt.style.use(config.CHART_STYLE)
         except Exception:
-            logger.warning("Could not set dark_background style, using default")
-            
-        fig, ax = plt.subplots(figsize=(14, 8))
+            logger.warning(f"Could not set {config.CHART_STYLE} style, using default")
+
+        fig, ax = plt.subplots(figsize=(config.CHART_WIDTH, config.CHART_HEIGHT))
     except Exception as e:
         logger.error(f"Failed to initialize matplotlib figure: {e}")
         return None
@@ -257,7 +264,7 @@ def plot_engine_chart(df, entry_data, risk_data, save_path="chart_output.png"):
             logger.warning(f"Failed to apply tight layout: {e}")
             
         try:
-            plt.savefig(save_path, dpi=200, bbox_inches='tight')
+            plt.savefig(save_path, dpi=config.CHART_DPI, bbox_inches='tight')
             logger.info(f"Chart successfully saved to {save_path}")
         except Exception as e:
             logger.error(f"Failed to save chart to {save_path}: {e}")

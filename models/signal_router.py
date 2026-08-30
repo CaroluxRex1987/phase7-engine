@@ -78,8 +78,12 @@ class SignalRouter:
                 render_panel(error_obj)
                 return error_obj
 
-            os.makedirs("Logs/Charts", exist_ok=True)
-            os.makedirs("Logs", exist_ok=True)
+            # SEQUENCE ITEM 14: these were the literals "Logs/Charts" and
+            # "Logs". config declares both paths, so the router was creating
+            # directories the rest of the engine did not write to on any
+            # case-sensitive filesystem.
+            os.makedirs(config.CHART_DIR, exist_ok=True)
+            os.makedirs(config.LOG_DIR, exist_ok=True)
 
             # THIS router owns rendering exclusively (see class docstring / C1
             # fix), using the one complete decision object as the single source
@@ -117,7 +121,13 @@ class SignalRouter:
                     exit_watch=raw_output.get("exit_watch", []),
                     btc_context=raw_output.get("btc_context", {}),
                     macro_bias=raw_output.get("macro_bias", "NEUTRAL"),
-                    chart_path=raw_output.get("chart_path", f"Logs/Charts/chart_{symbol}_{timeframe}.png")
+                    # SEQUENCE ITEM 14: the default was a hardcoded
+                    # f"Logs/Charts/chart_{symbol}_{timeframe}.png" — a fourth
+                    # copy of a path config declares, in a directory whose name
+                    # was already the wrong case. engine_core always sets this
+                    # key (to None when charting failed), so the default never
+                    # fired; it was a literal waiting to be believed.
+                    chart_path=raw_output.get("chart_path")
                 )
 
                 # SEQUENCE ITEM 12 (Item 6): write the log the panel has
