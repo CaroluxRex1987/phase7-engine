@@ -23,6 +23,7 @@ if REPO_ROOT not in sys.path:
 # package markers are excluded deliberately: they contain nothing to break.
 ENGINE_MODULES = [
     "core.config",
+    "core.decision_contract",
     "core.engine_core",
     "core.panel_render",
     "data.data_fetcher",
