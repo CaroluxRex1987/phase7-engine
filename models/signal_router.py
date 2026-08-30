@@ -209,7 +209,6 @@ class SignalRouter:
                 "trend": {
                     "health": float(trend.get("trend_health", 0.0)),
                     "trend_health": float(trend.get("trend_health", 0.0)),
-                    "failure": bool(trend.get("trend_failure", False)),
                     "exhaustion": bool(trend.get("trend_exhaustion", False)),
                     "momentum": str(trend.get("momentum_mode", "HEALTHY")),
                     "momentum_mode": str(trend.get("momentum_mode", "HEALTHY")),

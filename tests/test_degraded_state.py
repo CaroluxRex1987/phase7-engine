@@ -436,3 +436,73 @@ def test_the_engine_reports_a_failed_risk_plan_rather_than_inventing_one():
         "the decision carries targets after the calculation that produces them "
         "failed"
     )
+
+
+# ============================================================
+# Sequence item 9c — the dead trend_failure gate
+# ============================================================
+
+def test_the_dead_trend_failure_gate_stays_removed():
+    """
+    `trend_failure` tested whether the last five values of the STRUCTURE column
+    equalled "LH" or "LL". structure.py writes regime labels — "BULLISH TREND",
+    "BEARISH TREND", "NEUTRAL STRUCTURE" — and never those two, so the flag was
+    False on every run this engine has ever made.
+
+    It was not one dead branch. Four modules acted on it: entry_model blocked
+    entries, bias_engine halved the bias score, exit_model raised a watch flag,
+    and the router published it as trend.failure. In each case it sat beside a
+    live signal, so every block, discount and flag those lines ever produced
+    came from something else.
+
+    DELETED RATHER THAN WIRED. The audit found a gate that never fires, not a
+    specification for one that should. Choosing when to block a trade is a
+    trading decision, and wiring it would produce a behaviour change this
+    project cannot yet evaluate — the golden baseline proves a change is
+    attributable, never that it is correct, and backtesting sits behind the
+    release gate. Recorded in claude/phase7-rulings.md.
+
+    This guard exists because "restore the trend failure check" is an obvious
+    thing for someone to do later, and doing it as a restoration rather than as
+    a designed feature would bring back the same dead comparison.
+    """
+    import ast
+    import inspect
+
+    import indicators.trend_health as th
+    import models.bias_engine as be
+    import models.entry_model as em
+    import models.exit_model as xm
+    from core.decision_contract import TrendBlock
+
+    # The parameter is gone from both consumers that took it.
+    for fn in (em.generate_entry_signals, be.calculate_dynamic_bias):
+        assert "trend_failure" not in inspect.signature(fn).parameters, (
+            f"{fn.__name__} accepts trend_failure again. Nothing produces it."
+        )
+
+    # And from the published shape.
+    assert "failure" not in TrendBlock.__annotations__, (
+        "trend.failure is declared in the contract again. A field the engine "
+        "does not compute must not be published as though it does."
+    )
+
+    # No module computes or reads it. Checked on the AST so a comment
+    # explaining the removal does not count as a reference.
+    offenders = []
+    for module in (th, be, em, xm):
+        src = inspect.getsource(module)
+        for node in ast.walk(ast.parse(src)):
+            if isinstance(node, ast.Name) and node.id == "trend_failure":
+                offenders.append(module.__name__)
+                break
+            if (isinstance(node, ast.Constant) and node.value == "trend_failure"):
+                offenders.append(module.__name__)
+                break
+
+    assert not offenders, (
+        "trend_failure is back in: " + ", ".join(sorted(set(offenders)))
+        + "\nIf structural-failure detection is wanted, it needs a real "
+          "producer and its own justification — not the old comparison "
+          "against labels structure.py has never written."
+    )

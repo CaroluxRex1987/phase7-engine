@@ -97,7 +97,6 @@
   "timeframe": "4h",
   "trend": {
     "exhaustion": false,
-    "failure": false,
     "health": 95.34758422,
     "momentum": "STRONG",
     "momentum_divergence": false,

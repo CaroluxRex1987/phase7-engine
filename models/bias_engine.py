@@ -46,7 +46,6 @@ _VOLUME_SENTIMENT_SCORES = {
 def calculate_dynamic_bias(
     trend_sequence,
     trend_health,
-    trend_failure,
     trend_exhaustion,
     reversal_direction,
     reversal_strength,
@@ -111,7 +110,6 @@ def calculate_dynamic_bias(
             return default
 
     trend_health = safe_float(trend_health, 0.0)
-    trend_failure = bool(trend_failure)
     trend_exhaustion = bool(trend_exhaustion)
     reversal_strength = safe_float(reversal_strength, 0.0)
     continuation_strength = safe_float(continuation_strength, 0.0)
@@ -212,14 +210,16 @@ def calculate_dynamic_bias(
         (trend_direction < 0 and "CHOCH BULLISH" in trend_sequence)
     )
 
-    # trend_failure isn't one of the six weighted factors -- it's a
-    # structural warning sign (recent lower-high/lower-low), so it
-    # discounts the WHOLE blend rather than getting its own weight slot.
-    # A CHOCH against the current direction gets the same treatment --
-    # both are "the structure just contradicted this bias" signals, so
-    # they share one discount rather than compounding into a double
-    # penalty when they fire together.
-    if trend_failure or choch_against_trend:
+    # A CHOCH against the current direction is "the structure just
+    # contradicted this bias", so it discounts the WHOLE blend rather than
+    # getting its own weight slot among the six factors.
+    #
+    # SEQUENCE ITEM 9c: this condition was `trend_failure or
+    # choch_against_trend`, and the comment described them as two signals
+    # sharing one discount. There was only ever one. trend_failure could not
+    # become True — see the note in trend_health.py — so every discount this
+    # line has ever applied came from the CHOCH.
+    if choch_against_trend:
         bias_score *= 0.5
 
     bias_score = float(np.clip(bias_score, -100, 100))

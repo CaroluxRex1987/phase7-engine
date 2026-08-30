@@ -101,7 +101,6 @@ class BiasBlock(TypedDict):
 class TrendBlock(TypedDict):
     health: float                 # duplicate of trend_health — see module docstring
     trend_health: float
-    failure: bool
     exhaustion: bool
     momentum: str                 # duplicate of momentum_mode
     momentum_mode: str

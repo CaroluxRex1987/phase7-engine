@@ -320,7 +320,6 @@ class Phase7Engine:
                 logger.error(f"Trend health analysis failed: {e}")
                 trend = {
                     "trend_health": 50.0,
-                    "trend_failure": False,
                     "trend_exhaustion": False,
                     "momentum_mode": "NEUTRAL",
                     "momentum_divergence": False
@@ -338,7 +337,6 @@ class Phase7Engine:
             raw_bias, bias_score = calculate_dynamic_bias(
                 trend_sequence=trend_sequence,
                 trend_health=trend["trend_health"],
-                trend_failure=trend["trend_failure"],
                 trend_exhaustion=trend["trend_exhaustion"],
                 reversal_direction=trend.get("reversal_direction"),
                 reversal_strength=trend.get("reversal_strength", 0),
@@ -413,7 +411,6 @@ class Phase7Engine:
                         btc_raw_bias, btc_bias_score = calculate_dynamic_bias(
                             trend_sequence=btc_structure_obj.get("sequence", "NONE"),
                             trend_health=btc_trend["trend_health"],
-                            trend_failure=btc_trend["trend_failure"],
                             trend_exhaustion=btc_trend["trend_exhaustion"],
                             reversal_direction=btc_trend.get("reversal_direction"),
                             reversal_strength=btc_trend.get("reversal_strength", 0),
@@ -456,7 +453,6 @@ class Phase7Engine:
                 detailed_bias=detailed_bias,
                 structure_regime=structure_regime,
                 trend_health=trend["trend_health"],
-                trend_failure=trend["trend_failure"],
                 trend_exhaustion=trend["trend_exhaustion"],
                 reversal_strength=trend.get("reversal_strength", 0),
                 macro_bias=macro_bias,

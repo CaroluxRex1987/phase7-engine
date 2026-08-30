@@ -84,11 +84,10 @@ def build_exit_watch(
         current_price = float(current_price) if current_price else 0.0
 
         # --- Trend-quality warnings (no prior-run comparison needed) ---
-        if bool(trend.get("trend_failure", False)):
-            flags.append(
-                "Trend failure is active (a recent lower-high / lower-low pattern) — the current trend may be "
-                "losing structure."
-            )
+        # SEQUENCE ITEM 9c: a "Trend failure is active" flag lived here. It
+        # could not fire — trend_failure was always False — so this advisory
+        # has never once appeared on a panel, while reading as though the
+        # engine watches for a lower-high/lower-low pattern. It does not.
 
         if bool(trend.get("trend_exhaustion", False)):
             flags.append(

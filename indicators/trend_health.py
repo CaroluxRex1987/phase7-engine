@@ -21,7 +21,6 @@ def compute_trend_health(df: Optional[pd.DataFrame]) -> Dict[str, Any]:
     default_response = {
         "trend_health": 0.0,
         "degraded_inputs": ["trend health could not be computed at all"],
-        "trend_failure": False,
         "trend_exhaustion": False,
         "momentum_mode": "NEUTRAL",
         "trend_slope": 0.0,
@@ -208,15 +207,36 @@ def compute_trend_health(df: Optional[pd.DataFrame]) -> Dict[str, Any]:
             continuation_strength = 0.0
 
         # ============================================================
-        # 3. TREND FAILURE
+        # 3. TREND FAILURE — REMOVED at sequence item 9c
         # ============================================================
-        trend_failure = False
-        if "STRUCTURE" in df.columns:
-            recent_struct = df["STRUCTURE"].tail(5)
-            trend_failure = bool(
-                (recent_struct == "LH").sum() > 0 or
-                (recent_struct == "LL").sum() > 0
-            )
+        #
+        # The block here read the last five values of the STRUCTURE column and
+        # set trend_failure if any equalled "LH" or "LL".
+        #
+        # structure.py never writes those. It writes regime labels — "BULLISH
+        # TREND", "BEARISH TREND", "NEUTRAL STRUCTURE" — so the comparison
+        # could not match and trend_failure was False on every run this engine
+        # has ever made.
+        #
+        # Four modules acted on it: entry_model blocked entries, bias_engine
+        # halved the bias score, exit_model raised a watch flag, and the router
+        # published it as trend.failure. All four have been removed with it.
+        # In each case it sat beside a live signal (trend_exhaustion, a
+        # reversal, a CHOCH against trend), so the deletion is output-invariant
+        # — proven by the golden snapshot.
+        #
+        # WHY DELETED RATHER THAN WIRED. Viktor delegated the call; the
+        # reasoning is recorded in claude/phase7-rulings.md and in the commit.
+        # In short: the audit found a gate that never fires, not a
+        # specification for one that should. Choosing when to block a trade is
+        # a trading decision, and wiring it would produce a behaviour change
+        # this project cannot yet evaluate — the golden baseline proves a
+        # change is attributable, never that it is correct, and backtesting
+        # sits behind the release gate.
+        #
+        # It remains available as a deliberate feature once there is something
+        # to validate it against. This deletion does not foreclose it; it
+        # declines to smuggle it in as a repair.
 
         # ============================================================
         # 4. TREND EXHAUSTION
@@ -353,7 +373,6 @@ def compute_trend_health(df: Optional[pd.DataFrame]) -> Dict[str, Any]:
             # SEQUENCE ITEM 9a: names every input this score was computed
             # WITHOUT. Empty means the score used everything it claims to.
             "degraded_inputs": list(degraded_inputs),
-            "trend_failure": bool(trend_failure),
             "trend_exhaustion": bool(trend_exhaustion),
             "momentum_mode": str(momentum_mode),
             "trend_slope": float(trend_slope),

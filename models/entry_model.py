@@ -229,7 +229,6 @@ def generate_entry_signals(
     detailed_bias: str,
     structure_regime: str,
     trend_health: float,
-    trend_failure: bool,
     trend_exhaustion: bool,
     reversal_strength: float,
     macro_bias: str = "NEUTRAL"
@@ -238,7 +237,11 @@ def generate_entry_signals(
     Generate long/short entry signals based on structural bias,
     trend health, collapse conditions, and Multi-Timeframe Confluence.
     """
-    if trend_failure or trend_exhaustion or (reversal_strength is not None and reversal_strength > 0):
+    # SEQUENCE ITEM 9c: `trend_failure or` removed from this condition. It
+    # was always False — the gate that produced it compared STRUCTURE
+    # against labels structure.py never writes. The two remaining
+    # disjuncts are live and are what has actually been blocking entries.
+    if trend_exhaustion or (reversal_strength is not None and reversal_strength > 0):
         return False, False
 
     # A1 FIX: structure.py only ever emits "BULLISH TREND" / "BEARISH TREND"
