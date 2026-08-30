@@ -204,6 +204,24 @@ class BtcContextBlock(_BtcContextRequired, total=False):
     reasons: List[str]
 
 
+class DegradationBlock(TypedDict):
+    """
+    SEQUENCE ITEM 9a. What this analysis was computed without.
+
+    `degraded` is False and `missing_inputs` empty on a normal run.
+    `trading_authorized` is the ruling made structural: a degraded result does
+    not by itself authorize trading, so it is False whenever `degraded` is True.
+
+    It is a separate field rather than a flag on `risk` because it is a
+    statement about the ANALYSIS, not about the trade — it stays true whether
+    the action is LONG, WAIT or NO-TRADE, and a consumer asking "can I rely on
+    this?" should not have to look inside a risk block to find out.
+    """
+    degraded: bool
+    missing_inputs: List[str]
+    trading_authorized: bool
+
+
 class DecisionObject(TypedDict):
     symbol: str
     timeframe: str
@@ -215,6 +233,7 @@ class DecisionObject(TypedDict):
     risk: RiskBlock
     exit: ExitBlock
     exit_watch: List[str]
+    degradation: DegradationBlock          # sequence item 9a
     btc_context: BtcContextBlock
     explanation: ExplanationBlock
     chart_path: str
@@ -243,6 +262,7 @@ class EngineOutput(TypedDict):
     risk: Dict[str, Any]
     exit: Dict[str, Any]
     exit_watch: List[str]
+    degradation: List[str]                 # sequence item 9a: flat at this layer
     btc_context: Dict[str, Any]
     chart_path: Any               # None when save_chart is False
 

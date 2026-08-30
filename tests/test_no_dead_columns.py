@@ -82,7 +82,11 @@ def _indicator_frame():
         DataFetcher.set_pinned_source(PINNED_DIR)
         df = fetcher.get_tf("AEROUSDT", "4h", limit=300)
         assert df.attrs.get("fetch_error") is None, df.attrs.get("fetch_error")
-        return add_technical_indicators(df)
+        # SEQUENCE ITEM 9a: add_technical_indicators now returns
+        # (frame, failures). Failures are asserted on separately in
+        # test_degraded_state.py; this file is about columns.
+        frame, _failures = add_technical_indicators(df)
+        return frame
     finally:
         DataFetcher.clear_pinned_source()
 

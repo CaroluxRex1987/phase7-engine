@@ -23,6 +23,11 @@
     "trend_health": 97.0,
     "volatility": "MEDIUM VOLATILITY"
   },
+  "degradation": {
+    "degraded": false,
+    "missing_inputs": [],
+    "trading_authorized": true
+  },
   "entry": {
     "atr_dist_pts": 5.0,
     "distance_from_zone": 4.22162838,

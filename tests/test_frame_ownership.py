@@ -104,7 +104,7 @@ def _dirty_frame():
     finally:
         DataFetcher.clear_pinned_source()
 
-    df = add_technical_indicators(df)
+    df, _failures = add_technical_indicators(df)   # (frame, failures) since 9a
 
     # Damage a handful of interior rows. Not the last row — several callers
     # read .iloc[-1] and the test is about ownership, not about their

@@ -1,8 +1,27 @@
+from typing import NamedTuple
+
 import pandas as pd
 import numpy as np
 import pandas_ta as ta
 
 from core import config
+
+
+class IndicatorFailure(NamedTuple):
+    """
+    One indicator that could not be computed, and what the engine loses by it.
+
+    SEQUENCE ITEM 9a. `consequence` is written for the person reading the
+    panel, not for the person reading the traceback: "trend health is computed
+    without ADX" tells an operator what to distrust, where
+    "ta.adx returned None" does not.
+    """
+    indicator: str
+    reason: str
+    consequence: str
+
+    def __str__(self):
+        return f"{self.indicator}: {self.reason} — {self.consequence}"
 
 def clean_series(series: pd.Series, method: str = "forward_fill", fallback_value: float = None) -> pd.Series:
     """
@@ -66,14 +85,81 @@ def pct_slope(series: pd.Series) -> pd.Series:
     return clean_series(slope, method="forward_fill")
 
 
-def add_technical_indicators(df: pd.DataFrame, inplace: bool = False) -> pd.DataFrame:
+def add_technical_indicators(df: pd.DataFrame, inplace: bool = False):
     """
-    Add all core technical indicators required by the Phase‑7 engine with comprehensive NaN handling.
-    Optimized for performance with minimal DataFrame copying.
+    Add the core technical indicators, and report anything that could not be
+    computed instead of inventing a value for it.
+
+    Returns:
+        (df, failures) — the frame, and a list of IndicatorFailure records.
+        An empty list means every indicator was computed from real data.
+
+    SEQUENCE ITEM 9a. Item 13 (Fail Safely) and Item 8 (Epistemic Honesty),
+    which the audit reported separately and which are one defect.
+
+    WHAT THIS USED TO DO
+
+    Every indicator here had an `except` that substituted a constant:
+
+        RSI          50.0     the exact centre of the scale — "no opinion",
+                              which is a reading, not the absence of one
+        ADX          25.0     the conventional trend/no-trend boundary
+        ATR          close × 0.02
+        SuperTrend   close
+        ST_Direction 1.0      bullish
+        EMA_20/50    an ewm() fallback, which is a real computation
+
+    Every one of those is a number the engine then treated as a measurement.
+    Nothing downstream could tell a fabricated 50.0 from a market that really
+    is at RSI 50, and the panel printed both identically.
+
+    ST_Direction = 1.0 is the sharpest case: a failed SuperTrend calculation
+    reported *bullish*. Not neutral, not unknown — a direction, chosen by
+    whoever wrote the fallback, presented as the market's.
+
+    WHAT IT DOES NOW
+
+    On failure the column is NOT WRITTEN and the failure is recorded. Two
+    channels on purpose: the absent column means no fabricated value can be
+    read by accident, and the record is the explicit signal the engine acts on.
+
+    An absent column alone would have been quieter but not safer — Item 3's
+    lesson is that a defect you cannot name is a defect you cannot report, and
+    engine_core needs to tell the operator *which* indicator failed, not merely
+    that something did.
+
+    THE EMA FALLBACK IS KEPT, DELIBERATELY
+
+    close.ewm(span=20).mean() is not a fabrication. It is the definition of an
+    EMA, computed with pandas instead of pandas_ta, and it produces the same
+    number. A fallback that recomputes the same quantity by another route is
+    not the defect this item is about — substituting a constant for a
+    measurement is. Recorded so the distinction is deliberate rather than an
+    oversight.
+
+    RUNS THAT DEGRADE DO NOT HALT
+
+    Viktor ruled on 29 August that a failed indicator degrades rather than
+    halts: the engine continues, records what failed, reduces confidence and
+    trade quality accordingly, and a degraded result does not by itself
+    authorize trading. That ruling went against both GLM's recommendation and
+    Claude's instinct, which is why it was Viktor's to make.
+
+    So this returns failures rather than raising. engine_core decides what a
+    run missing ADX is still allowed to say.
     """
 
     if not inplace:
         df = df.copy()
+
+    failures = []
+
+    def failed(indicator, exc, consequence):
+        failures.append(IndicatorFailure(
+            indicator=indicator,
+            reason=f"{type(exc).__name__}: {exc}",
+            consequence=consequence,
+        ))
 
     # Validate and clean input data (vectorized operations)
     required_cols = ["open", "high", "low", "close", "volume"]
@@ -93,27 +179,47 @@ def add_technical_indicators(df: pd.DataFrame, inplace: bool = False) -> pd.Data
     close_prices = df["close"]
 
     # Calculate EMAs with optimized fallback
-    try:
-        ema_20 = ta.ema(close_prices, length=20)
-        df["EMA_20"] = ema_20.ffill().bfill() if ema_20.isna().any() else ema_20
-    except Exception:
-        df["EMA_20"] = close_prices.ewm(span=20, adjust=False).mean()
+    # The ewm() fallbacks below are NOT fabrications and are kept — see the
+    # function docstring. They compute the same exponential moving average
+    # pandas_ta would, using pandas directly.
+    for length, name in ((20, "EMA_20"), (50, "EMA_50")):
+        try:
+            ema = ta.ema(close_prices, length=length)
+            df[name] = ema.ffill().bfill() if ema.isna().any() else ema
+        except Exception:
+            try:
+                df[name] = close_prices.ewm(span=length, adjust=False).mean()
+            except Exception as e:
+                failed(name, e,
+                       "trend health loses its slope component and entry "
+                       "quality cannot score EMA zone position")
 
+    # SEQUENCE ITEM 9a: both paths used to end in fallback_value=50.0.
+    #
+    # The second path is a real RSI calculation, so it stays — like the EMA
+    # fallback, it computes the same quantity by another route. What goes is
+    # the constant underneath both: 50.0 is the exact centre of the scale, and
+    # an oscillator pinned there reads as "perfectly balanced", which is a
+    # measurement. A failed RSI is not balanced. It is absent.
     try:
-        ema_50 = ta.ema(close_prices, length=50)
-        df["EMA_50"] = ema_50.ffill().bfill() if ema_50.isna().any() else ema_50
-    except Exception:
-        df["EMA_50"] = close_prices.ewm(span=50, adjust=False).mean()
-
-    try:
-        df["RSI"] = clean_series(ta.rsi(df["close"], length=14), method="forward_fill", fallback_value=50.0)
-    except Exception:
-        # Fallback RSI calculation
-        delta = df["close"].diff()
-        gain = delta.where(delta > 0, 0).rolling(window=14).mean()
-        loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
-        rs = gain / loss.replace(0, np.nan)
-        df["RSI"] = clean_series(100 - (100 / (1 + rs)), method="fill_value", fallback_value=50.0)
+        rsi = clean_series(ta.rsi(df["close"], length=14), method="forward_fill")
+        if rsi is None or rsi.isna().all():
+            raise ValueError("pandas_ta returned no usable RSI")
+        df["RSI"] = rsi
+    except Exception as primary:
+        try:
+            delta = df["close"].diff()
+            gain = delta.where(delta > 0, 0).rolling(window=14).mean()
+            loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
+            rs = gain / loss.replace(0, np.nan)
+            rsi = clean_series(100 - (100 / (1 + rs)), method="forward_fill")
+            if rsi.isna().all():
+                raise ValueError("manual RSI produced no usable values")
+            df["RSI"] = rsi
+        except Exception as fallback:
+            failed("RSI", fallback,
+                   "entry quality scores RSI extension at 0 of 15, and trend "
+                   f"health loses its momentum component (primary: {primary})")
 
     # SEQUENCE ITEM 5a: Bollinger Bands removed. BB_lower, BB_middle and
     # BB_upper were written on both the success and fallback paths and read
@@ -141,12 +247,19 @@ def add_technical_indicators(df: pd.DataFrame, inplace: bool = False) -> pd.Data
             # dim-text style, used at panel_render.py:1181 as `dim =
             # Style.DIM`. That is unrelated to this dataframe column and
             # removing it breaks the panel's formatting.
-            df["ADX"] = clean_series(adx_df.iloc[:, 0], method="forward_fill", fallback_value=25.0)
+            df["ADX"] = clean_series(adx_df.iloc[:, 0], method="forward_fill")
         else:
-            raise ValueError("ADX calculation failed")
-    except Exception:
-        # Fallback ADX value
-        df["ADX"] = pd.Series(25.0, index=df.index)
+            raise ValueError("ta.adx returned an empty frame")
+    except Exception as e:
+        # SEQUENCE ITEM 9a: was pd.Series(25.0, index=df.index).
+        #
+        # 25 is the conventional line between "trending" and "not trending",
+        # so a failed ADX did not merely invent a number — it invented the
+        # single most ambiguous one, sitting exactly on the boundary that
+        # trend_health and bias both test against.
+        failed("ADX", e,
+               "trend health loses its ADX component (25 of its 100 points) "
+               "and bias cannot test trend strength")
 
     # SuperTrend with error handling
     # A9 FIX: This is now the single, canonical SuperTrend implementation for the
@@ -166,13 +279,27 @@ def add_technical_indicators(df: pd.DataFrame, inplace: bool = False) -> pd.Data
         )
         if st_df is not None and not st_df.empty:
             df["SuperTrend"] = clean_series(st_df.iloc[:, 0], method="forward_fill")
-            df["ST_Direction"] = clean_series(st_df.iloc[:, 1], method="fill_value", fallback_value=1.0)
+            direction = clean_series(st_df.iloc[:, 1], method="forward_fill")
+            if direction.isna().all():
+                raise ValueError("SuperTrend produced no usable direction")
+            df["ST_Direction"] = direction
         else:
-            raise ValueError("SuperTrend calculation failed")
-    except Exception:
-        # Fallback SuperTrend
-        df["SuperTrend"] = df["close"]
-        df["ST_Direction"] = pd.Series(1.0, index=df.index)
+            raise ValueError("ta.supertrend returned an empty frame")
+    except Exception as e:
+        # SEQUENCE ITEM 9a: was df["SuperTrend"] = df["close"] and
+        # df["ST_Direction"] = pd.Series(1.0, index=df.index).
+        #
+        # This is the sharpest of the fabrications. ST_Direction = 1.0 is
+        # BULLISH. A failed SuperTrend calculation did not report "unknown" or
+        # even "neutral" — it reported a direction, chosen by whoever wrote the
+        # fallback, and the engine presented it as the market's.
+        #
+        # bias_engine reads supertrend_direction as one of its factors and
+        # build_exit_watch compares it against the previous run to raise a
+        # "SuperTrend flipped" flag. Both were being fed a constant.
+        failed("SuperTrend", e,
+               "bias loses its SuperTrend factor and Exit Watch cannot detect "
+               "a SuperTrend flip against the previous run")
 
     # SEQUENCE ITEM 5a: Typical_Price removed — written once, read nowhere.
     # It is the classic (H+L+C)/3 input to VWAP and CCI, neither of which this
@@ -182,16 +309,37 @@ def add_technical_indicators(df: pd.DataFrame, inplace: bool = False) -> pd.Data
     # SECONDARY INDICATORS WITH NaN PROTECTION
     # ============================================================
 
+    # SEQUENCE ITEM 9a: the primary path's fallback_value was
+    # df["close"].iloc[-1] * 0.02 — a flat 2% of the last price, asserted as
+    # this market's volatility.
+    #
+    # ATR sets the stop distance and all three targets. A fabricated ATR does
+    # not produce a wrong indicator reading; it produces a wrong risk plan,
+    # with stop and targets placed by a constant that has nothing to do with
+    # how this instrument actually moves.
+    #
+    # The manual true-range calculation stays: like the EMA and RSI fallbacks
+    # it is the same quantity by another route, not a substitute for it.
     try:
-        df["ATR"] = clean_series(ta.atr(df["high"], df["low"], df["close"], length=14),
-                                method="forward_fill", fallback_value=df["close"].iloc[-1] * 0.02)
-    except Exception:
-        # Fallback ATR calculation
-        tr1 = df["high"] - df["low"]
-        tr2 = (df["high"] - df["close"].shift(1)).abs()
-        tr3 = (df["low"] - df["close"].shift(1)).abs()
-        tr = pd.concat([tr1, tr2, tr3], axis=1).max(axis=1, skipna=True)
-        df["ATR"] = clean_series(tr.rolling(window=14).mean(), method="forward_fill")
+        atr = clean_series(ta.atr(df["high"], df["low"], df["close"], length=14),
+                           method="forward_fill")
+        if atr is None or atr.isna().all():
+            raise ValueError("pandas_ta returned no usable ATR")
+        df["ATR"] = atr
+    except Exception as primary:
+        try:
+            tr1 = df["high"] - df["low"]
+            tr2 = (df["high"] - df["close"].shift(1)).abs()
+            tr3 = (df["low"] - df["close"].shift(1)).abs()
+            tr = pd.concat([tr1, tr2, tr3], axis=1).max(axis=1, skipna=True)
+            atr = clean_series(tr.rolling(window=14).mean(), method="forward_fill")
+            if atr.isna().all():
+                raise ValueError("manual true range produced no usable values")
+            df["ATR"] = atr
+        except Exception as fallback:
+            failed("ATR", fallback,
+                   "no stop distance and no targets can be computed — the "
+                   f"entire risk plan is unavailable (primary: {primary})")
 
     # SEQUENCE ITEM 5a: KAMA removed. The column itself was read by exactly
     # one thing — the slope loop below, which produced KAMA_Slope, which
@@ -214,8 +362,17 @@ def add_technical_indicators(df: pd.DataFrame, inplace: bool = False) -> pd.Data
         # Fill any remaining NaN values
         if df["VWMA"].isna().any():
             df["VWMA"] = df["VWMA"].ffill().bfill().fillna(close_prices)
-    except Exception:
-        df["VWMA"] = close_prices
+    except Exception as e:
+        # SEQUENCE ITEM 9a: was df["VWMA"] = close_prices.
+        #
+        # entry_model scores how far price sits from VWMA, worth 20 of the 100
+        # entry-quality points. Substituting close for VWMA makes that distance
+        # exactly zero — a perfect score, awarded because the calculation
+        # failed. The fabrication did not merely invent a number, it invented
+        # the most favourable one available.
+        failed("VWMA", e,
+               "entry quality loses its VWMA distance component (20 of 100 "
+               "points)")
 
     # ============================================================
     # SLOPES WITH OPTIMIZED CALCULATION
@@ -241,17 +398,25 @@ def add_technical_indicators(df: pd.DataFrame, inplace: bool = False) -> pd.Data
             slope = ((series - prev_values) / prev_values * 100).replace([np.inf, -np.inf], 0.0)
             df[slope_name] = slope.ffill().bfill().fillna(0.0)
 
-    # Final validation: ensure no critical indicators have all NaN values
+    # ============================================================
+    # FINAL SWEEP
+    # ============================================================
+    #
+    # SEQUENCE ITEM 9a: this block used to be a second fabrication layer.
+    # Any critical indicator that came out all-NaN was overwritten with the
+    # same constants the except branches used — 50.0, 25.0, close, close × 0.02
+    # — so even an indicator that failed *quietly*, without raising, ended up
+    # as an invented number.
+    #
+    # It now drops the column and reports, which is the same treatment a raised
+    # exception gets. An indicator that produced nothing but NaN did not
+    # compute; how it failed to compute is not the operator's problem.
     critical_indicators = ["EMA_20", "EMA_50", "RSI", "ATR", "ADX"]
     for indicator in critical_indicators:
         if indicator in df.columns and df[indicator].isna().all():
-            if indicator in ["EMA_20", "EMA_50"]:
-                df[indicator] = df["close"]
-            elif indicator == "RSI":
-                df[indicator] = 50.0
-            elif indicator == "ATR":
-                df[indicator] = df["close"] * 0.02
-            elif indicator == "ADX":
-                df[indicator] = 25.0
+            df.drop(columns=[indicator], inplace=True)
+            failed(indicator,
+                   ValueError("computed without raising, but every value is NaN"),
+                   "silent failure — the calculation returned, and returned nothing")
 
-    return df
+    return df, failures

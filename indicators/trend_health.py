@@ -8,8 +8,19 @@ def compute_trend_health(df: Optional[pd.DataFrame]) -> Dict[str, Any]:
     exhaustion, momentum divergence, continuation/reversal scoring,
     and trend regime classification.
     """
+    # SEQUENCE ITEM 9a: trend_health was 50.0 here — the exact middle of the
+    # scale, returned whenever this function could not run at all. "Moderately
+    # healthy trend" is a reading. The absence of one is not, and 50.0 is the
+    # value most likely to be mistaken for a measurement because it is the one
+    # a real market can genuinely produce.
+    #
+    # 0.0 instead, paired with degraded_inputs below. Zero is the floor of the
+    # scale rather than a plausible point on it, and the engine now blocks
+    # trading on any run carrying degraded inputs — so the number cannot be
+    # read as conviction the way 50.0 could.
     default_response = {
-        "trend_health": 50.0,
+        "trend_health": 0.0,
+        "degraded_inputs": ["trend health could not be computed at all"],
         "trend_failure": False,
         "trend_exhaustion": False,
         "momentum_mode": "NEUTRAL",
@@ -29,17 +40,52 @@ def compute_trend_health(df: Optional[pd.DataFrame]) -> Dict[str, Any]:
         return default_response
 
     try:
-        # Extract required values safely with NaN handling
-        ema20_slope = float(df["EMA20_Slope"].iat[-1]) if "EMA20_Slope" in df.columns else 0.0
-        ema50_slope = float(df["EMA50_Slope"].iat[-1]) if "EMA50_Slope" in df.columns else 0.0
-        adx_val = float(df["ADX"].iat[-1]) if "ADX" in df.columns else 25.0
-        rsi_val = float(df["RSI"].iat[-1]) if "RSI" in df.columns else 50.0
+        # SEQUENCE ITEM 9a: these four extractions were the engine's second
+        # fabrication layer. Where indicators.py substituted a constant when a
+        # calculation failed, this substituted one when the column was missing
+        # — ADX 25.0 (the trend/no-trend boundary), RSI 50.0 (dead centre),
+        # both slopes 0.0 (a flat market).
+        #
+        # Since indicators.py now DROPS a column it could not compute rather
+        # than inventing one, these `else` branches became the live path for
+        # every indicator failure. Left alone they would have re-fabricated
+        # exactly what item 9a removed, one module downstream.
+        #
+        # Missing now means missing: the value is None, the component it feeds
+        # scores zero, and the input is named in degraded_inputs. Zero rather
+        # than a midpoint because an unavailable component must lower
+        # conviction, never hold it steady — that is what Viktor's ruling means
+        # by "reduced accordingly".
+        degraded_inputs = []
 
-        # Handle NaN values in extracted data
-        ema20_slope = 0.0 if not np.isfinite(ema20_slope) else ema20_slope
-        ema50_slope = 0.0 if not np.isfinite(ema50_slope) else ema50_slope
-        adx_val = 25.0 if not np.isfinite(adx_val) else adx_val
-        rsi_val = 50.0 if not np.isfinite(rsi_val) else rsi_val
+        def _read(column, label):
+            if column not in df.columns:
+                degraded_inputs.append(f"{label} (column absent)")
+                return None
+            try:
+                value = float(df[column].iat[-1])
+            except Exception:
+                degraded_inputs.append(f"{label} (unreadable)")
+                return None
+            if not np.isfinite(value):
+                degraded_inputs.append(f"{label} (not finite)")
+                return None
+            return value
+
+        ema20_slope = _read("EMA20_Slope", "EMA20_Slope")
+        ema50_slope = _read("EMA50_Slope", "EMA50_Slope")
+        adx_val = _read("ADX", "ADX")
+        rsi_val = _read("RSI", "RSI")
+
+        # The slopes are the only inputs trend health itself is computed from,
+        # so their absence is not a degraded score — it is no score. Reported
+        # as such rather than as a flat market.
+        if ema20_slope is None and ema50_slope is None:
+            out = dict(default_response)
+            out["degraded_inputs"] = degraded_inputs
+            return out
+        ema20_slope = 0.0 if ema20_slope is None else ema20_slope
+        ema50_slope = 0.0 if ema50_slope is None else ema50_slope
 
         # ============================================================
         # 1. TREND SLOPE & ACCELERATION
@@ -59,19 +105,25 @@ def compute_trend_health(df: Optional[pd.DataFrame]) -> Dict[str, Any]:
         normalized_slope = float(np.tanh(abs(trend_slope) * 100) * 45)
         slope_strength = min(normalized_slope, 45.0)
 
-        adx_strength = min(max(adx_val, 0.0) * 1.2, 40.0) if np.isfinite(adx_val) else 20.0
+        # SEQUENCE ITEM 9a: the `else` branches here awarded 20.0 of 40 for a
+        # missing ADX and 10.0 of 15 for a missing RSI — half marks for an
+        # input that was never read. Trend health is the number the panel calls
+        # TREND and that bias, confidence and trade quality all build on, so
+        # half marks for absent data propagated into every score downstream.
+        #
+        # Zero now. An input that does not exist contributes nothing.
+        adx_strength = 0.0 if adx_val is None else min(max(adx_val, 0.0) * 1.2, 40.0)
 
-        if np.isfinite(rsi_val):
-            if 45.0 <= rsi_val <= 65.0:
-                rsi_strength = 15.0
-            elif 35.0 <= rsi_val < 45.0 or 65.0 < rsi_val <= 75.0:
-                rsi_strength = 12.0
-            elif 25.0 <= rsi_val < 35.0 or 75.0 < rsi_val <= 85.0:
-                rsi_strength = 8.0
-            else:
-                rsi_strength = 5.0
+        if rsi_val is None:
+            rsi_strength = 0.0
+        elif 45.0 <= rsi_val <= 65.0:
+            rsi_strength = 15.0
+        elif 35.0 <= rsi_val < 45.0 or 65.0 < rsi_val <= 75.0:
+            rsi_strength = 12.0
+        elif 25.0 <= rsi_val < 35.0 or 75.0 < rsi_val <= 85.0:
+            rsi_strength = 8.0
         else:
-            rsi_strength = 10.0
+            rsi_strength = 5.0
 
         trend_health = float(slope_strength + adx_strength + rsi_strength)
         trend_health = max(0.0, min(100.0, trend_health))
@@ -118,9 +170,20 @@ def compute_trend_health(df: Optional[pd.DataFrame]) -> Dict[str, Any]:
 
         if direction != 0:
             health_component = (trend_health / 100.0) * 40.0
-            adx_component = (min(max(adx_val, 0.0), 50.0) / 50.0) * 25.0
 
-            if direction > 0:
+            # SEQUENCE ITEM 9a: an unavailable input scores zero rather than
+            # scoring from a substituted constant. continuation_strength is out
+            # of 100; without ADX its ceiling is 75, without RSI 85, and
+            # degraded_inputs says which. A lower score for a less complete
+            # picture is the intended behaviour, not a side effect.
+            if adx_val is None:
+                adx_component = 0.0
+            else:
+                adx_component = (min(max(adx_val, 0.0), 50.0) / 50.0) * 25.0
+
+            if rsi_val is None:
+                momentum_component = 0.0
+            elif direction > 0:
                 if 50.0 <= rsi_val <= 75.0:
                     momentum_component = 15.0
                 elif 40.0 <= rsi_val < 50.0 or 75.0 < rsi_val <= 85.0:
@@ -161,9 +224,20 @@ def compute_trend_health(df: Optional[pd.DataFrame]) -> Dict[str, Any]:
         range_val = float(df["high"].iat[-1] - df["low"].iat[-1])
         range_prev = float(df["high"].iat[-2] - df["low"].iat[-2])
         range_expanding = bool(range_val > range_prev)
-        weak_adx = bool(adx_val < 20.0)
 
-        trend_exhaustion = bool((range_expanding and weak_adx) or (trend_health < 35.0 and adx_val < 15.0))
+        # SEQUENCE ITEM 9a: both clauses tested adx_val against a threshold.
+        # With ADX unavailable, neither can be evaluated — and asserting
+        # "not exhausted" would be a claim, not an absence of one. The flag is
+        # left False, which is its default, and ADX's absence is already named
+        # in degraded_inputs so the panel can say the check did not run.
+        if adx_val is None:
+            trend_exhaustion = False
+        else:
+            weak_adx = bool(adx_val < 20.0)
+            trend_exhaustion = bool(
+                (range_expanding and weak_adx)
+                or (trend_health < 35.0 and adx_val < 15.0)
+            )
 
         # ============================================================
         # 5. MOMENTUM DIVERGENCE DETECTION
@@ -191,7 +265,14 @@ def compute_trend_health(df: Optional[pd.DataFrame]) -> Dict[str, Any]:
         # ============================================================
         # 6. MOMENTUM MODE & REGIME CLASSIFICATION
         # ============================================================
-        if rsi_val < 40.0:
+        # SEQUENCE ITEM 9a: both classifications are labels the panel prints as
+        # statements about the market — MOMENTUM: STRONG, REGIME: MODERATE
+        # TREND. With their input missing there is nothing to classify, and any
+        # label chosen would be an assertion the engine cannot support. So they
+        # say so.
+        if rsi_val is None:
+            momentum_mode = "UNAVAILABLE"
+        elif rsi_val < 40.0:
             momentum_mode = "BUILDING"
         elif rsi_val < 55.0:
             momentum_mode = "HEALTHY"
@@ -202,7 +283,14 @@ def compute_trend_health(df: Optional[pd.DataFrame]) -> Dict[str, Any]:
         else:
             momentum_mode = "EXTREME"
 
-        if trend_health >= 75.0 and adx_val >= 25.0:
+        if adx_val is None:
+            # Without ADX only the divergence/exhaustion branch is decidable,
+            # and "MODERATE TREND" as a default would be the old fabrication
+            # wearing a label instead of a number.
+            trend_regime = ("EXHAUSTING / DIVERGENT"
+                            if (momentum_divergence or trend_exhaustion)
+                            else "UNAVAILABLE")
+        elif trend_health >= 75.0 and adx_val >= 25.0:
             trend_regime = "STRONG TREND"
         elif trend_acceleration > 0.0 and trend_health >= 50.0:
             trend_regime = "ACCELERATING"
@@ -262,6 +350,9 @@ def compute_trend_health(df: Optional[pd.DataFrame]) -> Dict[str, Any]:
 
         return {
             "trend_health": float(trend_health),
+            # SEQUENCE ITEM 9a: names every input this score was computed
+            # WITHOUT. Empty means the score used everything it claims to.
+            "degraded_inputs": list(degraded_inputs),
             "trend_failure": bool(trend_failure),
             "trend_exhaustion": bool(trend_exhaustion),
             "momentum_mode": str(momentum_mode),
@@ -276,5 +367,13 @@ def compute_trend_health(df: Optional[pd.DataFrame]) -> Dict[str, Any]:
         }
 
     except Exception as e:
-        # Fallback payload in case of unexpected computation errors
-        return default_response
+        # SEQUENCE ITEM 9a: this used to return default_response and swallow
+        # `e` entirely — the caller received trend_health 50.0 with no way to
+        # know the computation had failed rather than found a middling market.
+        # `e` was bound and never used, which is the tell.
+        #
+        # The payload now carries the reason, and trend_health is 0.0 rather
+        # than 50.0, so a failure here reaches the panel as a failure.
+        out = dict(default_response)
+        out["degraded_inputs"] = [f"trend health raised {type(e).__name__}: {e}"]
+        return out

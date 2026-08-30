@@ -111,6 +111,7 @@ class SignalRouter:
                     entry=raw_output.get("entry", {}),
                     risk=raw_output.get("risk", {}),
                     exit_data=raw_output.get("exit", {}),
+                    degradation=raw_output.get("degradation", []),
                     exit_watch=raw_output.get("exit_watch", []),
                     btc_context=raw_output.get("btc_context", {}),
                     macro_bias=raw_output.get("macro_bias", "NEUTRAL"),
@@ -160,6 +161,7 @@ class SignalRouter:
         chart_path: str,
         exit_watch: Optional[List[Any]] = None,
         btc_context: Optional[Dict[str, Any]] = None,
+        degradation: Optional[List[str]] = None,
     ) -> Dict[str, Any]:
         """
         Convert engine output into a unified trade decision object.
@@ -167,8 +169,18 @@ class SignalRouter:
         trade_quality, ev, btc_adjusted, explanation) comes from
         self.decision_model.evaluate().
         """
+        degradation = list(degradation) if isinstance(degradation, list) else []
+
         try:
-            dm_result = self.decision_model.evaluate(bias, trend, structure, entry, risk, macro_bias, btc_context)
+            # SEQUENCE ITEM 9a: degradation is passed INTO the decision model
+            # rather than stapled onto the object afterwards. Viktor's ruling
+            # says a degraded result does not by itself authorize trading, so
+            # the model has to know before it decides — an annotation added
+            # after the fact would describe a decision already made.
+            dm_result = self.decision_model.evaluate(
+                bias, trend, structure, entry, risk, macro_bias, btc_context,
+                degradation=degradation,
+            )
             final_action = dm_result["final_action"]
             confidence = dm_result["confidence"]
             trade_quality = dm_result["trade_quality"]
@@ -275,6 +287,14 @@ class SignalRouter:
                 # through from engine_core.py -- see exit_model.py's
                 # build_exit_watch() for what feeds into this.
                 "exit_watch": list(exit_watch) if isinstance(exit_watch, list) else [],
+
+                # SEQUENCE ITEM 9a: what this analysis was computed without,
+                # and whether that blocks it from authorizing a trade.
+                "degradation": {
+                    "degraded": bool(degradation),
+                    "missing_inputs": list(degradation),
+                    "trading_authorized": not bool(degradation),
+                },
 
                 # BTC MARKET CONTEXT (new feature, V1): merges engine_core.py's
                 # BTC-side analysis (bias/regime/correlation/beta) with

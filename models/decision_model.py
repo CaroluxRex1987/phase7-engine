@@ -46,6 +46,25 @@ class DecisionModel:
 
     AVG_REWARD_R = 2.0
 
+    # SEQUENCE ITEM 9a. Viktor's ruling of 29 August, verbatim: "When an
+    # indicator fails, the engine continues in an explicitly degraded state. It
+    # must not fabricate replacement values. The failure must be recorded in
+    # the decision output, and confidence and trade quality must be reduced
+    # accordingly. A degraded result does not by itself authorize trading."
+    #
+    # A CEILING RATHER THAN A PENALTY, and the choice is worth stating.
+    #
+    # A subtraction — "minus ten points per missing indicator" — would be a
+    # number invented to look precise, and this project has spent a week
+    # removing numbers invented to look precise. A ceiling says something the
+    # engine can actually defend: however the arithmetic came out, an analysis
+    # computed from incomplete inputs is not permitted to claim more than
+    # moderate confidence.
+    #
+    # 50 because it is the midpoint, and the midpoint is the strongest honest
+    # claim available when you do not know what you did not measure.
+    DEGRADED_CONFIDENCE_CEILING = 50.0
+
     def evaluate(
         self,
         bias: Dict[str, Any],
@@ -55,12 +74,20 @@ class DecisionModel:
         risk: Dict[str, Any],
         macro_bias: str,
         btc_context: Optional[Dict[str, Any]] = None,
+        degradation: Optional[List[str]] = None,
     ) -> Dict[str, Any]:
         reasons: List[str] = []
+        degradation = list(degradation) if degradation else []
 
         final_action = self._determine_final_action(bias, trend, entry, risk, macro_bias, reasons)
         confidence = self._compute_confidence(bias, trend, structure, risk, final_action, reasons)
         trade_quality = self._compute_trade_quality(trend, entry, final_action, reasons)
+
+        if degradation:
+            final_action, confidence, trade_quality = self._apply_degradation(
+                degradation, final_action, confidence, trade_quality, reasons
+            )
+
         ev = self._compute_ev(confidence, final_action, reasons)
 
         # BTC-adjusted confidence deliberately builds its OWN, separate
@@ -82,6 +109,62 @@ class DecisionModel:
             "btc_adjusted": btc_adjusted,
             "explanation": explanation,
         }
+
+    def _apply_degradation(self, degradation, final_action, confidence,
+                           trade_quality, reasons):
+        """
+        Enforce the degrade ruling on a decision already computed.
+
+        Three effects, in the order the ruling states them.
+
+        1. The failure is recorded in the decision output. It is listed here in
+           the reasoning the operator reads, not only in a structural field
+           they might not look at.
+
+        2. Confidence and trade quality are reduced. Capped, not penalised —
+           see DEGRADED_CONFIDENCE_CEILING.
+
+        3. A degraded result does not by itself authorize trading. Any action
+           naming a side becomes NO-TRADE. WAIT and NO-TRADE are already not
+           authorizations and are left as they are, with the reason added.
+
+        Applied AFTER the normal computation rather than instead of it, on
+        purpose: the engine still does the analysis it can, and the degraded
+        state constrains what it is allowed to conclude from it. That is what
+        distinguishes degrading from halting — halting would have thrown the
+        analysis away.
+        """
+        missing = "; ".join(degradation)
+        reasons.append(
+            f"This run is DEGRADED: {missing}. The analysis was computed "
+            f"without the input(s) named, so no trade is authorized on it "
+            f"regardless of how the remaining scores came out."
+        )
+
+        capped_confidence = min(confidence, self.DEGRADED_CONFIDENCE_CEILING)
+        capped_quality = {
+            "current_market": min(trade_quality.get("current_market", 0.0),
+                                  self.DEGRADED_CONFIDENCE_CEILING),
+            "proposed_entry": min(trade_quality.get("proposed_entry", 0.0),
+                                  self.DEGRADED_CONFIDENCE_CEILING),
+        }
+
+        if capped_confidence < confidence:
+            reasons.append(
+                f"Confidence is capped at {self.DEGRADED_CONFIDENCE_CEILING:.0f}/100 "
+                f"for this run (the uncapped score was {confidence:.0f}/100). "
+                f"An analysis missing inputs cannot claim more than moderate "
+                f"confidence, whatever the parts that did compute say."
+            )
+
+        if any(side in final_action for side in ("LONG", "SHORT")):
+            reasons.append(
+                f"The action would have been {final_action}; a degraded run "
+                f"cannot authorize a trade, so it is NO-TRADE."
+            )
+            final_action = "NO-TRADE (DEGRADED INPUT)"
+
+        return final_action, capped_confidence, capped_quality
 
     # ============================================================
     # FINAL ACTION (moved here verbatim from signal_router.py's

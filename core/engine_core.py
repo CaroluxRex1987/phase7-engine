@@ -179,6 +179,12 @@ class Phase7Engine:
         # SuperTrend-flip / bias-flip Exit Watch comparisons below).
         prior_state = self._load_state(symbol, timeframe)
 
+        # SEQUENCE ITEM 9a: every input this run could not compute, in the
+        # operator's words. Empty means the analysis below used everything it
+        # claims to. Anything in it blocks the run from authorizing a trade —
+        # see models/decision_model.py.
+        degradation = []
+
         try:
             # 1. FETCH EXECUTION DATA
             df = data_fetcher.get_tf(symbol, timeframe, limit=limit)
@@ -207,7 +213,11 @@ class Phase7Engine:
 
             if self._validate_dataframe(df_macro, required_base_cols, "macro timeframe data"):
                 try:
-                    df_macro = add_technical_indicators(df_macro)
+                    # SEQUENCE ITEM 9a: macro failures are recorded like any
+                    # other. A macro read computed without ADX is still a macro
+                    # read the operator should know about.
+                    df_macro, macro_failures = add_technical_indicators(df_macro)
+                    degradation.extend(f"macro {f}" for f in map(str, macro_failures))
                     if "EMA_50" in df_macro.columns:
                         macro_close = float(df_macro["close"].iloc[-1])
                         macro_ema50 = float(df_macro["EMA_50"].iloc[-1])
@@ -222,11 +232,29 @@ class Phase7Engine:
 
             # 2. INDICATORS
             try:
-                df = add_technical_indicators(df)
+                df, indicator_failures = add_technical_indicators(df)
+                degradation.extend(str(f) for f in indicator_failures)
 
-                required_indicators = ["EMA_20", "EMA_50", "RSI", "ATR", "ADX"]
-                if not self._validate_dataframe(df, required_indicators, "technical indicators"):
-                    raise ValueError("Failed to generate required technical indicators")
+                # SEQUENCE ITEM 9a: this used to require all five indicators
+                # and raise if any were missing — which, now that a failed
+                # indicator drops its column instead of inventing a value,
+                # would turn every indicator failure into a halt.
+                #
+                # Viktor ruled degrade, not halt. So a missing indicator is
+                # recorded above and the run continues without it.
+                #
+                # ATR is the one exception, and it is not a change of policy.
+                # Without ATR there is no stop distance and no targets, so
+                # there is no risk plan to degrade — the object the engine
+                # would return has no risk section at all. That is the
+                # difference between an analysis missing a component and an
+                # analysis that does not exist.
+                if "ATR" not in df.columns:
+                    raise ValueError(
+                        "ATR is unavailable, so no stop or targets can be "
+                        "computed. There is no degraded form of a risk plan "
+                        "with no levels in it."
+                    )
 
             except Exception as e:
                 logger.error(f"Failed to add technical indicators: {e}")
@@ -247,7 +275,20 @@ class Phase7Engine:
 
                 df_struct = structure_obj.get("df", df)
 
-                if not self._validate_dataframe(df_struct, required_indicators, "structure analysis"):
+                # SEQUENCE ITEM 9a: was `required_indicators`, a list defined
+                # inside section 2's try block. That definition went with the
+                # block when the all-five requirement was removed, and this
+                # line kept referring to it — every run died here with a
+                # NameError that the outer handler reported as "Structure
+                # analysis failed", naming the wrong stage.
+                #
+                # required_base_cols is what this check actually needs, and is
+                # more correct than what it replaced: structure.py raises on
+                # missing OHLCV, and section 2 already guarantees ATR. Under
+                # the degrade ruling the other indicators may legitimately be
+                # absent, so requiring all five here would have re-imposed the
+                # halt this item exists to remove — one stage further down.
+                if not self._validate_dataframe(df_struct, required_base_cols, "structure analysis"):
                     raise ValueError("Structure analysis produced invalid DataFrame")
 
                 structure_regime = structure_obj.get("regime", "NEUTRAL STRUCTURE")
@@ -271,6 +312,10 @@ class Phase7Engine:
                 trend = compute_trend_health(df_struct)
                 if not isinstance(trend, dict) or "trend_health" not in trend:
                     raise ValueError("Trend health engine returned invalid format")
+                # SEQUENCE ITEM 9a: trend_health names the inputs it scored
+                # without. Those are degradations of this run, not of that
+                # module, so they join the same list.
+                degradation.extend(trend.get("degraded_inputs", []))
             except Exception as e:
                 logger.error(f"Trend health analysis failed: {e}")
                 trend = {
@@ -348,7 +393,13 @@ class Phase7Engine:
                 if symbol.upper() != "BTCUSDT":
                     df_btc = data_fetcher.get_tf("BTCUSDT", timeframe, limit=limit)
                     if self._validate_dataframe(df_btc, required_base_cols, "BTC context data"):
-                        df_btc = add_technical_indicators(df_btc)
+                        # BTC failures are recorded but do not degrade the run:
+                        # BTC context is informational and already has its own
+                        # available/unavailable flag. Naming them still beats
+                        # silence when the BTC panel looks wrong.
+                        df_btc, btc_failures = add_technical_indicators(df_btc)
+                        for f in btc_failures:
+                            logger.warning(f"BTC context indicator failure: {f}")
                         btc_structure_obj = calculate_structure(
                             df_btc, lookback=getattr(config, "STRUCT_LOOKBACK", 8)
                         )
@@ -621,6 +672,9 @@ class Phase7Engine:
                 # SEQUENCE ITEM 5b: was compute_exit's six-key dict; the router
                 # consumed exactly this one value out of it.
                 "exit": {"current_price": current_price},
+                # SEQUENCE ITEM 9a: every input this analysis was computed
+                # without. Empty is the normal case.
+                "degradation": list(degradation),
                 "exit_watch": exit_watch,
                 "btc_context": btc_context,
                 "chart_path": chart_path,
