@@ -25,15 +25,66 @@ class IndicatorFailure(NamedTuple):
 
 def clean_series(series: pd.Series, method: str = "forward_fill", fallback_value: float = None) -> pd.Series:
     """
-    Clean a pandas Series by handling NaN, inf, and extreme values.
+    Clean a series by handling inf and extreme values, and filling gaps FORWARD.
+
+    SEQUENCE ITEM 15 — Item 2 (No Future Information / Look-Ahead Bias) and the
+    remainder of item 9a.
+
+    THIS FUNCTION DID TWO THINGS IT DID NOT SAY IT DID
+
+    (1) `method="forward_fill"` ran `.ffill().bfill()`. Every caller asked for a
+    forward fill and got a backward one too. `ffill` covers every gap after the
+    first valid value, so `bfill` only ever fired on the leading edge — the
+    warm-up rows of an indicator, filled with the first value that indicator
+    ever produced, which lies in their future.
+
+    In the engine as it stands that cannot reach a decision: the analysis is
+    made at the last bar of a 450-row frame and the contaminated rows are four
+    hundred bars behind every window. It is a latent leak, not a live one. But
+    Item 2 says "information unavailable at the exact decision timestamp must
+    never influence that decision", and the Constitution's own note on
+    backtesting says Item 2 "deserves the most explicit, deliberate checking of
+    any invariant in this document once that work starts, since a backtest with
+    a hidden look-ahead leak is the single most common way a system convinces
+    itself it works when it doesn't." A backtest walks the decision timestamp
+    backwards. On the day that harness is written, every one of these fills
+    becomes a live leak, silently, with no code change to blame.
+
+    (2) The final sweep — `fillna(median or 0.0)` — was a fabrication of the
+    exact kind item 9a was written to remove, one layer below where item 9a
+    looked.
+
+    It mattered more than the backfill. An indicator that came back entirely
+    NaN left this function as a column of ZEROS, and the callers' guards read
+
+        rsi = clean_series(ta.rsi(...))
+        if rsi is None or rsi.isna().all():   # can never be true
+            raise ValueError("pandas_ta returned no usable RSI")
+
+    `isna().all()` was already false, because this function had replaced every
+    NaN with 0.0 before the check ran. So a completely failed RSI became RSI=0
+    on every bar — maximum oversold — with no failure reported. A completely
+    failed ATR became ATR=0, which is a stop distance of zero and three targets
+    on top of the entry price. Item 9a's tests injected failures by raising, so
+    the returns-nothing path was never exercised and the guards were never
+    watched to see whether they could fire.
+
+    WHAT IT DOES NOW
+
+    Forward only, and NaN is a legitimate return value. A series that is all
+    NaN comes back all NaN, so the caller's guard means what it says. Leading
+    NaNs stay NaN, because a 14-period RSI genuinely has no value at bar 3 and
+    inventing one is the leak.
 
     Args:
         series: Input series to clean
-        method: Cleaning method ('forward_fill', 'interpolate', 'drop', 'fill_value')
-        fallback_value: Value to use when method='fill_value'
+        method: 'forward_fill', 'interpolate', 'drop', or 'fill_value'
+        fallback_value: Value to use when method='fill_value' — the one
+            explicit substitution left, and the caller has to ask for it by
+            name and supply the number itself.
 
     Returns:
-        Cleaned series
+        Cleaned series. May contain NaN. That is the point.
     """
     if series is None or series.empty:
         return series
@@ -49,22 +100,28 @@ def clean_series(series: pd.Series, method: str = "forward_fill", fallback_value
             outlier_mask = np.abs(series - mean_val) > (5 * std_val)
             series.loc[outlier_mask] = np.nan
 
-    # Apply cleaning method
+    # Apply cleaning method. SEQUENCE ITEM 15: `.bfill()` removed from the
+    # forward_fill branch and limit_direction changed from 'both' to 'forward'.
+    # Both filled from later rows; see the docstring.
     if method == "forward_fill":
-        series = series.ffill().bfill()
+        series = series.ffill()
     elif method == "interpolate":
-        series = series.interpolate(method='linear', limit_direction='both')
+        series = series.interpolate(method='linear', limit_direction='forward')
     elif method == "fill_value" and fallback_value is not None:
         series = series.fillna(fallback_value)
     elif method == "drop":
         series = series.dropna()
 
-    # Final fallback: fill remaining NaN with median or zero
-    if series.isna().any():
-        median_val = series.median()
-        fill_val = median_val if np.isfinite(median_val) else 0.0
-        series = series.fillna(fill_val)
-
+    # SEQUENCE ITEM 15: the final sweep lived here.
+    #
+    #     if series.isna().any():
+    #         median_val = series.median()
+    #         series = series.fillna(median_val if isfinite(median_val) else 0.0)
+    #
+    # It is gone. A median is a plausible number and that is precisely what
+    # makes it dangerous — the reader cannot distinguish it from a measurement.
+    # An all-NaN input took the `else 0.0` branch and came back as a column of
+    # zeros, which is what silenced three of item 9a's guards.
     return series
 
 def pct_slope(series: pd.Series) -> pd.Series:
@@ -165,11 +222,21 @@ def add_technical_indicators(df: pd.DataFrame, inplace: bool = False):
     required_cols = ["open", "high", "low", "close", "volume"]
 
     # Batch clean all columns at once to reduce overhead
+    #
+    # SEQUENCE ITEM 15: was `.ffill().bfill()`. Backfilling a price column
+    # invents a bar out of the one after it. Forward only now.
+    #
+    # Worth knowing that this loop is close to unreachable for the NaN case:
+    # data/validation.py rejects any NaN in an OHLCV column (validation.py:147)
+    # and runs in data_fetcher before the frame gets here. It is kept as a
+    # guard for callers that did not come through the fetcher, not deleted,
+    # because the cost is one pass and the failure it guards against is a
+    # fabricated price.
     for col in required_cols:
         if col in df.columns:
             # Use in-place operations where possible
             df[col] = df[col].replace([np.inf, -np.inf], np.nan)
-            df[col] = df[col].ffill().bfill()
+            df[col] = df[col].ffill()
 
     # ============================================================
     # CORE INDICATORS WITH NaN PROTECTION (Optimized)
@@ -191,7 +258,10 @@ def add_technical_indicators(df: pd.DataFrame, inplace: bool = False):
     for length, name in ((config.EMA_FAST, "EMA_20"), (config.EMA_SLOW, "EMA_50")):
         try:
             ema = ta.ema(close_prices, length=length)
-            df[name] = ema.ffill().bfill() if ema.isna().any() else ema
+            # SEQUENCE ITEM 15: was ema.ffill().bfill(). An EMA's leading
+            # NaNs are its warm-up and backfilling them stated a value the
+            # average did not have yet.
+            df[name] = ema.ffill() if ema.isna().any() else ema
         except Exception:
             try:
                 df[name] = close_prices.ewm(span=length, adjust=False).mean()
@@ -252,7 +322,19 @@ def add_technical_indicators(df: pd.DataFrame, inplace: bool = False):
             # dim-text style, used at panel_render.py:1181 as `dim =
             # Style.DIM`. That is unrelated to this dataframe column and
             # removing it breaks the panel's formatting.
-            df["ADX"] = clean_series(adx_df.iloc[:, 0], method="forward_fill")
+            adx = clean_series(adx_df.iloc[:, 0], method="forward_fill")
+
+            # SEQUENCE ITEM 15: ADX had no all-NaN guard, unlike RSI, ATR and
+            # SuperTrend. It did not need one while clean_series was quietly
+            # turning an all-NaN column into zeros — nothing looked NaN, ever.
+            # With that removed, a frame that comes back present but empty of
+            # values has to be caught here or it reaches trend_health as a
+            # column of NaN with no failure recorded. ADX 0 would have read as
+            # "no trend at all", the opposite end of the scale from the 25.0
+            # item 9a removed.
+            if adx.isna().all():
+                raise ValueError("ta.adx returned a frame with no usable values")
+            df["ADX"] = adx
         else:
             raise ValueError("ta.adx returned an empty frame")
     except Exception as e:
@@ -369,9 +451,21 @@ def add_technical_indicators(df: pd.DataFrame, inplace: bool = False):
         valid_mask = (volume_sum > 0) & np.isfinite(volume_sum) & np.isfinite(price_volume_sum)
         df["VWMA"] = np.where(valid_mask, price_volume_sum / volume_sum, close_prices)
 
-        # Fill any remaining NaN values
+        # SEQUENCE ITEM 15: this line was
+        #
+        #     df["VWMA"] = df["VWMA"].ffill().bfill().fillna(close_prices)
+        #
+        # and the `.fillna(close_prices)` is the identical fabrication item 9a
+        # removed from the except branch eight lines below — where the comment
+        # already explains why substituting close for VWMA "invented the most
+        # favourable number available", a zero VWMA distance and a perfect 20
+        # of 20 entry-quality points. Item 9a fixed the branch that raises and
+        # left the one that quietly succeeds.
+        #
+        # Forward fill only, and no substitution. A VWMA that has no value has
+        # no value.
         if df["VWMA"].isna().any():
-            df["VWMA"] = df["VWMA"].ffill().bfill().fillna(close_prices)
+            df["VWMA"] = df["VWMA"].ffill()
     except Exception as e:
         # SEQUENCE ITEM 9a: was df["VWMA"] = close_prices.
         #
@@ -406,7 +500,11 @@ def add_technical_indicators(df: pd.DataFrame, inplace: bool = False):
             series = df[col]
             prev_values = series.shift(1)
             slope = ((series - prev_values) / prev_values * 100).replace([np.inf, -np.inf], 0.0)
-            df[slope_name] = slope.ffill().bfill().fillna(0.0)
+            # SEQUENCE ITEM 15: was slope.ffill().bfill().fillna(0.0). Zero
+            # is not a neutral filler for a slope — it is the specific claim
+            # that the moving average is flat, and trend_health reads these at
+            # four places to decide whether a trend is strengthening.
+            df[slope_name] = slope.ffill()
 
     # ============================================================
     # FINAL SWEEP

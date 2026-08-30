@@ -92,6 +92,13 @@ def plot_engine_chart(df, entry_data, risk_data, save_path="chart_output.png"):
                 # Same class as the dead gates recorded elsewhere in this
                 # project: a repair path that has never been exercised and does
                 # not work.
+                # SEQUENCE ITEM 15 deliberately leaves the backfill here.
+                # This module draws a picture; it feeds no decision, and a
+                # chart with a hole at the left edge is less readable without
+                # being more truthful. Every other .bfill() in the engine was
+                # removed under Item 2, and this one is listed as the exception
+                # in tests/test_no_lookahead.py so that it stays a decision
+                # rather than an oversight.
                 df[col] = df[col].ffill().bfill()
 
         up = df[df["close"] >= df["open"]]

@@ -431,7 +431,23 @@ def calculate_structure(df: Optional[pd.DataFrame], lookback: int = 8,
 
     df_clean = df.copy()
 
-    df_clean.loc[:, required_cols] = df_clean[required_cols].ffill().bfill().fillna(0.0)
+    # SEQUENCE ITEM 15: was .ffill().bfill().fillna(0.0). The backfill took
+    # OHLCV values from later bars; the fillna(0.0) put a price of zero on any
+    # gap that survived, and the very next line reads close.iloc[-1] as the
+    # current price. Forward only, and a gap that a forward fill cannot close
+    # is reported rather than papered over — data/validation.py rejects NaN
+    # OHLCV upstream, so reaching this means the frame did not come through the
+    # fetcher.
+    df_clean.loc[:, required_cols] = df_clean[required_cols].ffill()
+
+    still_missing = [c for c in required_cols if df_clean[c].isna().any()]
+    if still_missing:
+        raise ValueError(
+            f"StructureEngine received gaps a forward fill cannot close in: "
+            f"{', '.join(still_missing)}. Filling these with zero would make "
+            f"the structural analysis and the current price read from bars "
+            f"that never traded."
+        )
 
     current_price = float(df_clean['close'].iloc[-1])
 

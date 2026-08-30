@@ -56,11 +56,35 @@ def compute_volume_profile(df: pd.DataFrame, num_bins: int = 50):
         try:
             # SEQUENCE ITEM 6: was writing these back into the caller's frame.
             df = df.copy()
+            # SEQUENCE ITEM 15. This block was
+            #
+            #     df[col] = df[col].ffill().bfill().fillna(0)
+            #     df[col] = df[col].replace([inf, -inf], nan).fillna(0)
+            #
+            # and it is the "zero for a missing high or low" that item 9 left
+            # on the table. A price of zero is not a neutral placeholder: the
+            # profile bins between price_min and price_max, so one zeroed low
+            # drags the range to the origin and every bin above it empties.
+            # The HVN that comes out is then a structural level derived from a
+            # price that never traded, and engine_core passes it to
+            # calculate_stop_targets.
+            #
+            # Forward fill only — no backfill, which would take the value from
+            # a later bar, and no zero. If a gap survives, there is no profile
+            # to compute and the function's existing empty return says so.
             for col in ["low", "high", "volume"]:
+                df[col] = df[col].replace([np.inf, -np.inf], np.nan)
                 if df[col].isna().any():
-                    logger.warning(f"NaN values found in {col}, cleaning data")
-                    df[col] = df[col].ffill().bfill().fillna(0)
-                df[col] = df[col].replace([np.inf, -np.inf], np.nan).fillna(0)
+                    logger.warning(f"NaN values found in {col}, forward-filling")
+                    df[col] = df[col].ffill()
+                if df[col].isna().any():
+                    logger.error(
+                        f"'{col}' still has gaps after a forward fill — no "
+                        f"volume profile can be computed from it. Substituting "
+                        f"zero would place structural levels at a price that "
+                        f"never traded."
+                    )
+                    return pd.Series(dtype=float, name="volume"), None, None
         except Exception as e:
             logger.error(f"Failed to clean input data: {e}")
             return pd.Series(dtype=float, name="volume"), None, None
