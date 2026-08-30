@@ -17,12 +17,13 @@
     "n_observations": 30,
     "raw": "BEARISH",
     "reasons": [
-      "BTC-adjusted confidence: 60/100 (vs 61/100 unadjusted, never replacing it). AERO and BTC have a weak / no clear relationship relationship (correlation -0.04 over the last 30 candles), and BTC is bearish confirmed, disagreeing with AERO's own bias."
+      "BTC-adjusted confidence: 60/100 (vs 61/100 unadjusted, never replacing it). TEST and BTC have a weak / no clear relationship (correlation -0.04 over the last 30 candles), and BTC is bearish confirmed, disagreeing with TEST's own bias."
     ],
     "regime": "BEARISH TREND",
     "trend_health": 97.0,
     "volatility": "MEDIUM VOLATILITY"
   },
+  "decision_log_path": "Logs/phase7_decision_log_testusdt.jsonl",
   "degradation": {
     "degraded": false,
     "missing_inputs": [],
@@ -59,6 +60,12 @@
     "summary": "NO-TRADE (RISK TOO HIGH) \u2014 Expected value (illustrative, not backtested): treating the 61/100 confidence score as a rough win rate against the standard 2:1 average reward, this setup works out to about +0.83R per trade \u2014 positive -- worth taking on average if that win rate holds up (this is hypothetical, since no trade is actually being suggested right now)."
   },
   "macro_bias": "BULLISH",
+  "provenance": {
+    "engine_version": "Phase\u20117 Structural Quant Engine v1.0",
+    "last_candle": "2025-03-16 20:00:00",
+    "row_count": 450,
+    "source": "pinned"
+  },
   "risk": {
     "account_balance": 10000.0,
     "assumed_win_rate": 61.00893893,

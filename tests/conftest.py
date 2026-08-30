@@ -24,6 +24,7 @@ if REPO_ROOT not in sys.path:
 ENGINE_MODULES = [
     "core.config",
     "core.decision_contract",
+    "core.decision_log",
     "core.engine_core",
     "core.panel_render",
     "data.data_fetcher",

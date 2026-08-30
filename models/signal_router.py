@@ -2,6 +2,7 @@ import os
 from typing import Dict, Any, Optional, List
 import logging
 
+from core import config, decision_log
 from core.panel_render import render_panel
 from models.decision_model import DecisionModel
 
@@ -112,11 +113,22 @@ class SignalRouter:
                     risk=raw_output.get("risk", {}),
                     exit_data=raw_output.get("exit", {}),
                     degradation=raw_output.get("degradation", []),
+                    provenance=raw_output.get("provenance", {}),
                     exit_watch=raw_output.get("exit_watch", []),
                     btc_context=raw_output.get("btc_context", {}),
                     macro_bias=raw_output.get("macro_bias", "NEUTRAL"),
                     chart_path=raw_output.get("chart_path", f"Logs/Charts/chart_{symbol}_{timeframe}.png")
                 )
+
+                # SEQUENCE ITEM 12 (Item 6): write the log the panel has
+                # claimed since the engine was built, and record whether it
+                # actually happened. The panel prints the line only when there
+                # is a path — an engine that says "logged" after a failed write
+                # is the same defect with a new filename.
+                logged_to = decision_log.write(decision, config)
+                decision["decision_log_path"] = logged_to or ""
+                if not logged_to:
+                    logger.warning("decision log could not be written for this run")
 
                 logger.info(f"Signal router successfully processed {symbol} [{timeframe}] -> Action: {decision.get('exit', {}).get('action', 'UNKNOWN')}")
                 render_panel(decision)
@@ -162,6 +174,7 @@ class SignalRouter:
         exit_watch: Optional[List[Any]] = None,
         btc_context: Optional[Dict[str, Any]] = None,
         degradation: Optional[List[str]] = None,
+        provenance: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """
         Convert engine output into a unified trade decision object.
@@ -170,6 +183,7 @@ class SignalRouter:
         self.decision_model.evaluate().
         """
         degradation = list(degradation) if isinstance(degradation, list) else []
+        provenance = dict(provenance) if isinstance(provenance, dict) else {}
 
         try:
             # SEQUENCE ITEM 9a: degradation is passed INTO the decision model
@@ -180,6 +194,7 @@ class SignalRouter:
             dm_result = self.decision_model.evaluate(
                 bias, trend, structure, entry, risk, macro_bias, btc_context,
                 degradation=degradation,
+                symbol=symbol,
             )
             final_action = dm_result["final_action"]
             confidence = dm_result["confidence"]
@@ -301,6 +316,14 @@ class SignalRouter:
                 "btc_context": self._merge_btc_context(btc_context, btc_adjusted),
 
                 "explanation": explanation,
+
+                # SEQUENCE ITEM 12 (Item 5): what this run saw, passed
+                # straight through from engine_core.
+                "provenance": provenance,
+
+                # Filled in below, after the log is written. Empty string means
+                # nothing was logged, and the panel prints no claim.
+                "decision_log_path": "",
 
                 "chart_path": str(chart_path)
             }

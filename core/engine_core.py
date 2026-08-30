@@ -699,6 +699,25 @@ class Phase7Engine:
                 # SEQUENCE ITEM 9a: every input this analysis was computed
                 # without. Empty is the normal case.
                 "degradation": list(degradation),
+
+                # SEQUENCE ITEM 12 (Item 5, Reproducibility): what this run
+                # actually saw. A stored decision without these cannot be
+                # checked against anything — it is a receipt, not an audit
+                # trail. engine_version has been defined in config since the
+                # engine was built and written nowhere until now.
+                "provenance": {
+                    "engine_version": getattr(config, "engine_version", "unknown"),
+                    "last_candle": str(df_struct.index[-1]) if len(df_struct) else None,
+                    "row_count": int(len(df_struct)),
+                    # "pinned" rather than the directory: a pinned path is
+                    # machine-specific and, in tests, a fresh temp directory
+                    # per run — recording it made provenance differ between two
+                    # runs on identical data, which is the opposite of what
+                    # this block is for. WHAT the data was is fingerprinted by
+                    # last_candle and row_count above; WHERE it sat is not part
+                    # of the identity.
+                    "source": "pinned" if data_fetcher.pinned_source() else str(data_fetcher.base_url),
+                },
                 "exit_watch": exit_watch,
                 "btc_context": btc_context,
                 "chart_path": chart_path,

@@ -80,7 +80,10 @@ def render_panel(decision):
 
     try:
         # Basic metadata with safe extraction
-        symbol = str(decision.get("symbol", "AEROUSDT"))
+        # SEQUENCE ITEM 12: the fallback was "AEROUSDT", so a decision object
+        # with no symbol rendered as a confident AERO panel rather than as the
+        # error it is.
+        symbol = str(decision.get("symbol") or "UNKNOWN")
         timeframe = str(decision.get("timeframe", "4h"))
         macro_bias = str(decision.get("macro_bias", "NEUTRAL"))
 
@@ -166,6 +169,38 @@ def render_panel(decision):
                 return f"{Fore.CYAN}{val}{Style.RESET_ALL}"
             except Exception:
                 return str(val)
+
+        # ============================================================
+        # SEQUENCE ITEM 12 — Items 5 and 6, the footer
+        # ============================================================
+        #
+        # These two lines used to be unconditional:
+        #
+        #   f"Trade logged to Logs/phase7_trade_log_{symbol.lower()}.csv"
+        #   f"AI Risk chart saved to {decision.get('chart_path', '...')}"
+        #
+        # The first named a file no code wrote — Item 6, rated Critical: the
+        # engine asserting an audit action that did not occur, on every run.
+        #
+        # The second had a subtler version of the same fault. `.get` with a
+        # default returns the DEFAULT only when the key is ABSENT; the router
+        # always sets chart_path, and sets it to None when charting failed. So
+        # a failed chart printed "AI Risk chart saved to None" — still a claim
+        # that something was saved.
+        #
+        # Both now print only when the thing they describe actually happened,
+        # and say so plainly when it did not.
+        logged_to = decision.get("decision_log_path") or ""
+        log_line = (
+            f"Decision logged to {logged_to}\n" if logged_to
+            else "Decision NOT logged — this run has no audit record.\n"
+        )
+
+        saved_chart = decision.get("chart_path") or ""
+        chart_line = (
+            f"Chart saved to {saved_chart}\n" if saved_chart
+            else "No chart was produced for this run.\n"
+        )
 
         # SEQUENCE ITEM 5b: this read used to be
         #     exit_data.get('action', exit_data.get('final_action', 'WAIT'))
@@ -275,6 +310,13 @@ def render_panel(decision):
                 f"BROAD MARKET STRESS: {colorize_val('YES' if btc.get('broad_market_stress') else 'No')}\n"
                 f"BTC-ADJUSTED CONFIDENCE: {safe_float(btc.get('btc_adjusted_confidence', 0.0)):.2f}/100 "
                 f"(vs {confidence_score:.2f}/100 unadjusted)\n"
+                # SEQUENCE ITEM 12, Item 7: this number is correctness-validated
+                # — it computes what it was designed to compute — and
+                # empirically unvalidated: nothing has tested whether adjusting
+                # confidence by BTC correlation predicts anything. Item 7
+                # requires that status be stated rather than implied away, and
+                # a number on a panel implies it away by default.
+                f"   (computationally validated, empirically unvalidated — no backtest supports this adjustment)\n"
                 f"{btc_reasoning_lines}\n"
             )
         else:
@@ -335,8 +377,8 @@ def render_panel(decision):
             f" - {risk.get('validation_note', 'VWMA volume trend is pointing down.')}\n"
             f"{btc_section}"
             f"{box_top}\n"
-            f"Trade logged to Logs/phase7_trade_log_{symbol.lower()}.csv\n"
-            f"AI Risk chart saved to {decision.get('chart_path', 'Logs/Charts/chart.png')}\n"
+            f"{log_line}"
+            f"{chart_line}"
         )
 
         print(panel)

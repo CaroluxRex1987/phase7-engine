@@ -220,6 +220,20 @@ class DegradationBlock(TypedDict):
     trading_authorized: bool
 
 
+class ProvenanceBlock(TypedDict):
+    """
+    SEQUENCE ITEM 12 (Item 5, Reproducibility). What the run actually saw.
+
+    A stored decision without these cannot be checked against anything — it is
+    a receipt rather than an audit trail. `engine_version` had been defined in
+    config since the engine was built and written nowhere until this item.
+    """
+    engine_version: str
+    last_candle: Any              # str, or None on an empty frame
+    row_count: int
+    source: str                   # the pinned directory, or the live endpoint
+
+
 class DecisionObject(TypedDict):
     symbol: str
     timeframe: str
@@ -232,6 +246,8 @@ class DecisionObject(TypedDict):
     exit: ExitBlock
     exit_watch: List[str]
     degradation: DegradationBlock          # sequence item 9a
+    provenance: ProvenanceBlock            # sequence item 12
+    decision_log_path: str                 # sequence item 12; "" if unwritten
     btc_context: BtcContextBlock
     explanation: ExplanationBlock
     chart_path: str
@@ -261,6 +277,7 @@ class EngineOutput(TypedDict):
     exit: Dict[str, Any]
     exit_watch: List[str]
     degradation: List[str]                 # sequence item 9a: flat at this layer
+    provenance: Dict[str, Any]             # sequence item 12
     btc_context: Dict[str, Any]
     chart_path: Any               # None when save_chart is False
 

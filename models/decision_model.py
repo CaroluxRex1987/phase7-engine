@@ -75,6 +75,7 @@ class DecisionModel:
         macro_bias: str,
         btc_context: Optional[Dict[str, Any]] = None,
         degradation: Optional[List[str]] = None,
+        symbol: str = "this asset",
     ) -> Dict[str, Any]:
         reasons: List[str] = []
         degradation = list(degradation) if degradation else []
@@ -94,7 +95,7 @@ class DecisionModel:
         # reasons list (not appended to `reasons`/explanation above) -- it's
         # shown in its own panel section, not folded into Decision
         # Reasoning, so it never grows that section further.
-        btc_adjusted = self._compute_btc_adjusted(confidence, bias, btc_context)
+        btc_adjusted = self._compute_btc_adjusted(confidence, bias, btc_context, symbol)
 
         explanation = {
             "summary": f"{final_action} — {reasons[-1]}" if reasons else final_action,
@@ -471,6 +472,7 @@ class DecisionModel:
         confidence: float,
         bias: Dict[str, Any],
         btc_context: Optional[Dict[str, Any]],
+        symbol: str = "this asset",
     ) -> Dict[str, Any]:
         """
         A SEPARATE confidence reading that factors in BTC's own bias and how
@@ -515,16 +517,39 @@ class DecisionModel:
 
             btc_adjusted_confidence = max(0.0, min(100.0, confidence + net_adjustment))
 
+            # SEQUENCE ITEM 12: the run's own symbol, not a hardcoded one.
+            # Trimmed of the quote currency so the sentence reads "AERO and
+            # BTC" rather than "AEROUSDT and BTC".
+            asset = str(symbol).upper()
+            for suffix in ("USDT", "USDC", "USD", "BUSD"):
+                if asset.endswith(suffix) and len(asset) > len(suffix):
+                    asset = asset[: -len(suffix)]
+                    break
+
             if agreement > 0:
-                agree_phrase = f"BTC is also {btc_detailed.lower()}, agreeing with AERO's own bias"
+                agree_phrase = f"BTC is also {btc_detailed.lower()}, agreeing with {asset}'s own bias"
             elif agreement < 0:
-                agree_phrase = f"BTC is {btc_detailed.lower()}, disagreeing with AERO's own bias"
+                agree_phrase = f"BTC is {btc_detailed.lower()}, disagreeing with {asset}'s own bias"
             else:
                 agree_phrase = "BTC isn't showing a clear directional bias either way right now"
 
+            # SEQUENCE ITEM 12. Two fixes in one string.
+            #
+            # "AERO" was hardcoded, so running on SOLUSDT produced reasoning
+            # about AERO — and running on BTCUSDT claimed to compare AERO
+            # against BTC while comparing BTC to itself.
+            #
+            # correlation_label already ENDS in the word "relationship"
+            # ("WEAK / NO CLEAR RELATIONSHIP"), and this appended another,
+            # printing "a weak / no clear relationship relationship" on every
+            # run for as long as the feature has existed.
+            label = correlation_label.lower()
+            if not label.endswith("relationship"):
+                label = f"{label} relationship"
+
             reason = (
                 f"BTC-adjusted confidence: {btc_adjusted_confidence:.0f}/100 (vs {confidence:.0f}/100 unadjusted, "
-                f"never replacing it). AERO and BTC have a {correlation_label.lower()} relationship (correlation "
+                f"never replacing it). {asset} and BTC have a {label} (correlation "
                 f"{correlation:+.2f} over the last {n_obs} candles), and {agree_phrase}."
             )
             if stress:
