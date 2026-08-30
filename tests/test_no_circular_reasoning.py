@@ -45,7 +45,7 @@ def _confidence(trend_health, bias_score=60.0):
 
     return DecisionModel()._compute_confidence(
         bias={"score": bias_score, "raw": "BULLISH"},
-        trend={"trend_health": trend_health, "health": trend_health},
+        trend={"trend_health": trend_health},
         structure={"regime": "BULLISH TREND"},
         risk={"validation_state": "NEUTRAL"},
         final_action="LONG",

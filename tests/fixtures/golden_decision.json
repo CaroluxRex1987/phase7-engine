@@ -67,20 +67,13 @@
     "source": "pinned"
   },
   "risk": {
-    "account_balance": 10000.0,
     "assumed_win_rate": 61.00893893,
     "atr_stop": 0.6421571,
     "avg_reward_r": 2.0,
     "confidence_score": 61.00893893,
     "ev_r": 0.83026817,
-    "position_size": 626.66594795,
-    "position_value": 502.41798711,
-    "risk_amount": 100.0,
-    "risk_percent": 1.0,
     "risk_reason": "Stop distance exceeds maximum allowable threshold (15%).",
-    "risk_score": 82.51117367,
     "risk_valid": false,
-    "signal_strength": 82.51117367,
     "targets": [
       0.9613064,
       1.12088105,
@@ -103,8 +96,6 @@
   "timeframe": "4h",
   "trend": {
     "exhaustion": false,
-    "health": 95.34758422,
-    "momentum": "STRONG",
     "momentum_divergence": false,
     "momentum_mode": "STRONG",
     "trend_direction": "BULLISH",

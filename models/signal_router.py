@@ -222,10 +222,16 @@ class SignalRouter:
                 },
 
                 "trend": {
-                    "health": float(trend.get("trend_health", 0.0)),
+                    # SEQUENCE ITEM 13: "health" and "momentum" were exact
+                    # duplicates of "trend_health" and "momentum_mode",
+                    # assigned from the same source expression on the adjacent
+                    # line. core/decision_contract.py named the survivors at
+                    # item 10 and scheduled the removal here. Nothing read the
+                    # short names except decision_model.py, which preferred
+                    # them, so a change to the canonical field would have gone
+                    # unnoticed there.
                     "trend_health": float(trend.get("trend_health", 0.0)),
                     "exhaustion": bool(trend.get("trend_exhaustion", False)),
-                    "momentum": str(trend.get("momentum_mode", "HEALTHY")),
                     "momentum_mode": str(trend.get("momentum_mode", "HEALTHY")),
                     "momentum_divergence": bool(trend.get("momentum_divergence", False)),
                     # New: explicit BULLISH/BEARISH/NEUTRAL direction label
@@ -262,7 +268,6 @@ class SignalRouter:
                     "targets": (float(targets[0]), float(targets[1]), float(targets[2])),
                     "risk_valid": bool(risk.get("risk_valid", True)),
                     "risk_reason": str(risk.get("risk_reason", "OK")),
-                    "risk_score": float(risk.get("risk_score", 0.0)),
                     # ROADMAP LAYER 1 FIX: confidence_score and the two
                     # trade_quality_* fields are now DecisionModel's real,
                     # multi-factor outputs (see models/decision_model.py)
@@ -270,22 +275,16 @@ class SignalRouter:
                     # passthrough. Field names/paths kept identical so
                     # panel_render.py needs no changes to consume them.
                     "confidence_score": float(confidence),
-                    "signal_strength": float(risk.get("signal_strength", bias.get("score", 0.0))),
                     "trade_quality_proposed": float(trade_quality["proposed_entry"]),
                     "validation_state": str(risk.get("validation_state", "NEUTRAL")),
                     "validation_score": float(risk.get("validation_score", 50.0)),
                     "validation_note": str(risk.get("validation_note", "Standard validation review.")),
 
-                    # C4 BUILD: displayed-only position sizing (from
-                    # engine_core.py, using config.py's risk settings) and
-                    # an illustrative EV estimate (from DecisionModel,
-                    # since it needs the confidence score above). Neither
-                    # of these causes the engine to size or place a trade.
-                    "position_size": float(risk.get("position_size", 0.0)),
-                    "position_value": float(risk.get("position_value", 0.0)),
-                    "risk_amount": float(risk.get("risk_amount", 0.0)),
-                    "account_balance": float(risk.get("account_balance", 0.0)),
-                    "risk_percent": float(risk.get("risk_percent", 0.0)),
+                    # SEQUENCE ITEM 13: the five position-sizing fields were
+                    # removed here under Viktor's ruling of 29 August 2026.
+                    # They were fed by engine_core.py from a placeholder
+                    # 10,000 balance in config.py; both the computation and
+                    # the constants are gone.
                     "ev_r": float(ev.get("ev_r", 0.0)),
                     "assumed_win_rate": float(ev.get("assumed_win_rate", 0.0)),
                     "avg_reward_r": float(ev.get("avg_reward_r", 2.0)),

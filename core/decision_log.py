@@ -64,7 +64,10 @@ FINGERPRINTED_CONFIG = [
     "EMA_FAST", "EMA_SLOW",
     "RSI_LENGTH", "ADX_LENGTH", "ATR_LENGTH",
     "VWMA_LENGTH", "SUPERTREND_LENGTH", "SUPERTREND_MULT",
-    "DEFAULT_ACCOUNT_BALANCE", "DEFAULT_RISK_PERCENT",
+    # DEFAULT_ACCOUNT_BALANCE and DEFAULT_RISK_PERCENT were fingerprinted here
+    # until sequence item 13 removed position sizing and, with it, both
+    # constants. Nothing in a decision depends on an account balance now, so
+    # recording one would suggest the number still meant something.
 ]
 
 

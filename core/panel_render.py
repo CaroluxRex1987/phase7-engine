@@ -112,28 +112,40 @@ def render_panel(decision):
         current_price = safe_float(exit_data.get("current_price", 0.0))
         stop_loss = safe_float(risk.get("atr_stop", 0.0))
 
-        # Risk amount for R:R with division by zero protection
-        risk_amount = abs(current_price - stop_loss) if stop_loss and current_price else 0.0
+        # SEQUENCE ITEM 13: this was called `risk_amount`, which is what
+        # engine_core.py called a sum of money — an account balance times a
+        # risk percentage. Here it is a price distance, and it is the
+        # denominator of all three R:R ratios. One name, two unrelated
+        # quantities, in an object that carried both.
+        #
+        # The money is gone under Viktor's ruling, so the collision is gone
+        # with it; the name is corrected anyway, because the removal of one
+        # side of a collision is the moment the other side gets renamed or
+        # never does. Zero denominator still guarded.
+        stop_distance = abs(current_price - stop_loss) if stop_loss and current_price else 0.0
 
-        if risk_amount > 0:
-            rr_t1 = abs(t1 - current_price) / risk_amount
-            rr_t2 = abs(t2 - current_price) / risk_amount
-            rr_t3 = abs(t3 - current_price) / risk_amount
+        if stop_distance > 0:
+            rr_t1 = abs(t1 - current_price) / stop_distance
+            rr_t2 = abs(t2 - current_price) / stop_distance
+            rr_t3 = abs(t3 - current_price) / stop_distance
         else:
             rr_t1 = rr_t2 = rr_t3 = 0.0
 
         # Formatted scores with safe conversion
-        # BUG FIX (found during A3/A4/A5 pass, not in original plan): the
-        # VALIDATION line below was displaying risk_score (which is set to
-        # bias_score in engine_core.py) next to the validation_state label,
-        # instead of the actual validation_score that validation_state was
-        # derived from. The STRONG/NEUTRAL/WEAK label was always correct;
-        # only the number beside it was wrong. Before B1 existed, bias_score
-        # happened to sit close to validation_score by coincidence, which is
-        # why this went unnoticed. validation_score is now used for the
-        # VALIDATION line; risk_score stays for CONFIDENCE below, which was
-        # already reading the right field.
-        risk_score = safe_float(risk.get('risk_score', 0))
+        #
+        # BUG FIX (found during the A3/A4/A5 pass): the VALIDATION line below
+        # displayed risk_score — which engine_core.py set to bias_score — next
+        # to the validation_state label, instead of the validation_score that
+        # the STRONG/NEUTRAL/WEAK label was derived from. The label was always
+        # right; only the number beside it was wrong. Before B1 existed
+        # bias_score sat close to validation_score by coincidence, which is why
+        # it went unnoticed.
+        #
+        # SEQUENCE ITEM 13: the `risk_score = ...` line that survived that fix
+        # is gone too. After the fix nothing printed it, so the panel bound a
+        # local and dropped it — and the comment claimed it was still used for
+        # CONFIDENCE, which reads confidence_score. The field itself is removed
+        # from the decision object; bias.score is where that number lives.
         validation_score = safe_float(risk.get('validation_score', 0))
         entry_score = safe_float(entry.get('score', 0))
         confidence_score = safe_float(risk.get('confidence_score', 0))

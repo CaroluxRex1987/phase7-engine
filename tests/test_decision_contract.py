@@ -295,19 +295,24 @@ def test_every_declared_field_is_actually_produced():
 
 def test_the_scheduled_removals_are_still_present_and_still_scheduled():
     """
-    Sequence item 13 removes the five position-sizing fields, under Viktor's
-    ruling of 29 August that the engine must not compute monetary sizing.
+    SCHEDULED_FOR_REMOVAL names fields that exist today and are already agreed
+    to be leaving. Each one must still be produced — the moment it is not, the
+    contract has been left behind by the change it describes, and the fix is to
+    delete it from the TypedDicts and from this dict in the same commit.
 
-    They are declared because they exist today. This test is the reminder: when
-    item 13 lands it fails, and the fix is to delete them from the contract in
-    the same commit. A contract that can be left behind by the change it
-    describes is not a contract.
+    It is empty as of sequence item 13, which removed the five position-sizing
+    fields it held. The test is kept for the next entry, and it must not pass
+    by having nothing to check while the dict is populated: an empty dict is a
+    valid state, a populated dict with nothing produced is not.
     """
     if not _engine_available():
         print("SKIP: pandas_ta not installed")
         return
 
     from core.decision_contract import SCHEDULED_FOR_REMOVAL
+
+    if not SCHEDULED_FOR_REMOVAL:
+        return                              # nothing scheduled; item 13 landed
 
     decision = _run_engine()
     assert "error" not in decision, decision.get("error")
@@ -319,27 +324,31 @@ def test_the_scheduled_removals_are_still_present_and_still_scheduled():
     assert not gone, (
         "fields listed as scheduled-for-removal are already gone: "
         + ", ".join(gone)
-        + "\n\nIf sequence item 13 has landed, remove them from both the "
-          "TypedDicts and SCHEDULED_FOR_REMOVAL in "
-          "core/decision_contract.py — this test is the reminder to do it in "
-          "the same commit rather than later."
+        + "\n\nRemove them from both the TypedDicts and SCHEDULED_FOR_REMOVAL "
+          "in core/decision_contract.py — this test is the reminder to do it "
+          "in the same commit rather than later."
     )
 
 
 def test_the_aliases_the_contract_names_really_are_duplicates():
     """
-    CANONICAL_ALIASES claims trend.health duplicates trend.trend_health, and
-    trend.momentum duplicates trend.momentum_mode.
+    CANONICAL_ALIASES names the survivor wherever the object carries two names
+    for one value. A claim in a docstring is worth nothing: if a declared pair
+    ever stops being equal, the contract is telling new code to read a field
+    that means something else. So the claim is checked against a real run.
 
-    A claim in a docstring is worth nothing; if they ever stop being equal, the
-    contract is telling new code to read a field that means something else. So
-    the claim is checked against a real run.
+    Empty as of sequence item 13. The two pairs it held — trend.health and
+    trend.momentum — were removed rather than disambiguated, and
+    tests/test_no_position_sizing.py asserts they stay gone.
     """
     if not _engine_available():
         print("SKIP: pandas_ta not installed")
         return
 
     from core.decision_contract import CANONICAL_ALIASES
+
+    if not CANONICAL_ALIASES:
+        return
 
     decision = _run_engine()
     assert "error" not in decision, decision.get("error")

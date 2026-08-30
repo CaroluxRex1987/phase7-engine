@@ -156,46 +156,27 @@ class RiskModel:
             ) from e
 
     # ============================================================
-    # POSITION SIZING & LEVERAGE ADJUSTMENT
+    # POSITION SIZING — REMOVED AT SEQUENCE ITEM 13
     # ============================================================
-
-    def calculate_position_size(
-        self,
-        account_balance: float,
-        risk_percent: float,
-        current_price: float,
-        atr_stop: float,
-        volatility_state: str = "NORMAL"
-    ) -> float:
-        """
-        Calculates exact position size based on account risk percentage, stop distance,
-        and volatility-adjusted leverage constraints.
-        """
-        if account_balance <= 0 or risk_percent <= 0 or current_price <= 0:
-            return 0.0
-
-        risk_amount = account_balance * (risk_percent / 100.0)
-        stop_distance = abs(current_price - atr_stop)
-
-        # Critical protection: Prevent division by zero and micro stops
-        min_stop_distance = current_price * 0.001  # 0.1% minimum stop distance
-        if stop_distance < min_stop_distance:
-            return 0.0
-
-        position_size = risk_amount / stop_distance
-
-        # Cap maximum position size to prevent extreme leverage overexposure
-        max_position_value = account_balance * 10.0  # 10x max structural leverage limit
-        max_position_size = max_position_value / current_price
-        position_size = min(position_size, max_position_size)
-
-        # Apply volatility scaling haircuts
-        if volatility_state == "EXTREME VOLATILITY":
-            position_size *= 0.5  # Cut position sizing in half during market stress
-        elif volatility_state == "HIGH VOLATILITY":
-            position_size *= 0.8
-
-        return float(position_size)
+    #
+    # calculate_position_size() lived here. It took an account balance and a
+    # risk percentage from config, divided a risk budget by the stop distance,
+    # capped the result at 10x notional and then applied 0.5x / 0.8x haircuts
+    # in stressed volatility.
+    #
+    # Viktor ruled on 29 August 2026 that the engine must not compute monetary
+    # position sizing at all: sizing belongs to the portfolio/execution layer,
+    # which is the only place that knows the real balance, the open exposure,
+    # the correlation across positions and the venue's constraints. This engine
+    # knows none of those and is never permitted to place a trade.
+    #
+    # The removal is not a tidy-up. A number labelled POSITION SIZE, produced
+    # from a fixed 10,000 placeholder balance, is a specific instruction to risk
+    # a specific amount — and the 10x cap and the volatility haircuts are
+    # portfolio policy, decided here by whoever wrote the constants, invisible
+    # to whoever reads the output. The engine's job ends at the structural
+    # verdict, the stop and the targets. Converting those into a quantity is a
+    # decision made with information that only exists downstream.
 
     # ============================================================
     # RISK REGIME CLASSIFICATION & VALIDATION

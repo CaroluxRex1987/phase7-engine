@@ -523,22 +523,17 @@ class Phase7Engine:
                 trend_health=trend["trend_health"],
             )
 
-            # C4 BUILD: position size, displayed for you to read -- the
-            # engine never sizes or places a trade itself. Uses the risk
-            # settings from config.py (DEFAULT_ACCOUNT_BALANCE /
-            # DEFAULT_RISK_PERCENT) so this reflects a fixed, known risk
-            # budget rather than any real connected account.
-            account_balance = float(getattr(config, "DEFAULT_ACCOUNT_BALANCE", 10_000))
-            risk_percent = float(getattr(config, "DEFAULT_RISK_PERCENT", 1.0))
-            position_size = self.risk_model.calculate_position_size(
-                account_balance=account_balance,
-                risk_percent=risk_percent,
-                current_price=current_price,
-                atr_stop=atr_stop,
-                volatility_state=volatility_mode,
-            )
-            risk_amount = account_balance * (risk_percent / 100.0)
-            position_value = position_size * current_price
+            # SEQUENCE ITEM 13 — position sizing removed.
+            #
+            # This block computed position_size, position_value and risk_amount
+            # from config.DEFAULT_ACCOUNT_BALANCE and DEFAULT_RISK_PERCENT.
+            # Viktor ruled on 29 August 2026 that the engine must not do this:
+            # monetary sizing belongs in the portfolio/execution layer, which is
+            # the only layer that knows the real balance and the real exposure.
+            #
+            # The two config constants are gone with it, so nothing can quietly
+            # start reading a placeholder balance again. See
+            # models/risk_model.py for the full note.
 
             # ============================================================
             # VALIDATION — SEQUENCE ITEM 11 (Item 11, No Circular Reasoning)
@@ -610,20 +605,20 @@ class Phase7Engine:
                 "targets": (t1, t2, t3),
                 "risk_valid": risk_valid,
                 "risk_reason": risk_reason,
-                "risk_score": bias_score,
+                # SEQUENCE ITEM 13 — risk_score and signal_strength removed.
+                # Both were assigned bias_score verbatim, making three names for
+                # one number in a single object, and the third — bias.score — is
+                # the one that says what it holds. Neither alias was read by any
+                # consumer: panel_render.py bound risk_score to a local and then
+                # printed validation_score and confidence_score instead. An
+                # unread field with a misleading name is worse than no field,
+                # because the next reader believes it.
                 "confidence_score": trend["trend_health"],
-                "signal_strength": bias_score,
                 "trade_quality_current": trend["trend_health"],
                 "trade_quality_proposed": eq_metrics["score"],
                 "validation_state": validation_state,
                 "validation_score": val_score,
                 "validation_note": validation_note,
-                # C4 BUILD: displayed only -- the engine doesn't act on these.
-                "position_size": position_size,
-                "position_value": position_value,
-                "risk_amount": risk_amount,
-                "account_balance": account_balance,
-                "risk_percent": risk_percent,
             }
 
             # 9. EXIT MODEL

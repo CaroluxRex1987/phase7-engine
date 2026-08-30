@@ -53,11 +53,12 @@ REQUIRED_DIRS = [
 # RISK SETTINGS
 # ============================================================
 
-# Default account balance used for position sizing
-DEFAULT_ACCOUNT_BALANCE = 10_000
-
-# Default risk percentage per trade (1% of account)
-DEFAULT_RISK_PERCENT = 1.0
+# SEQUENCE ITEM 13: DEFAULT_ACCOUNT_BALANCE (10,000) and DEFAULT_RISK_PERCENT
+# (1.0) were defined here and read only by the position-sizing block in
+# engine_core.py. Viktor ruled on 29 August 2026 that the engine must not
+# compute monetary sizing, so both the computation and these constants are
+# gone. Leaving them would leave a placeholder balance sitting in config for
+# the next reader to wire back up.
 
 
 # ============================================================

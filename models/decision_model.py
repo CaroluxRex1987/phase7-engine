@@ -200,7 +200,11 @@ class DecisionModel:
                 return "NO-TRADE (RISK TOO HIGH)"
 
             validation_state = str(risk.get("validation_state", "NEUTRAL"))
-            trend_health = _safe_float(trend.get("health", trend.get("trend_health", 50.0)))
+            # SEQUENCE ITEM 13: this read trend["health"] first and fell back
+            # to trend["trend_health"]. Both held the same number, but the
+            # duplicate was the preferred one, so the canonical field could have
+            # been changed here without any effect. "health" is now gone.
+            trend_health = _safe_float(trend.get("trend_health", 50.0))
             entry_score = _safe_float(entry.get("score", 0.0))
             entry_status = str(entry.get("entry_status", ""))
             divergence = bool(trend.get("momentum_divergence", False))

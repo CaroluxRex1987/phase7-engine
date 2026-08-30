@@ -56,26 +56,30 @@ The declarations below are TypedDicts precisely so that nothing is foreclosed.
 If mypy and consumer annotations arrive later, the types are already here to
 make it worth running.
 
-KNOWN DEFECTS THIS DECLARATION RECORDS RATHER THAN FIXES
+WHAT ITEM 10 RECORDED AND ITEM 13 REMOVED
 
-Declaring a shape honestly means declaring the parts of it that are wrong.
+This file was written at item 10 to declare the shape honestly, including the
+parts of it that were wrong. Four defects were declared rather than fixed,
+because a field change needs verification and item 13 was where that lived:
 
-  trend.health          duplicates trend.trend_health
-  trend.momentum        duplicates trend.momentum_mode
-
-Two names for one value, twice, with nothing saying which is canonical. Same
-shape as the risk_score / signal_strength aliasing already scheduled for
-sequence item 13. CANONICAL_ALIASES below names the survivor of each pair so
-that new code has an answer; removing the duplicates is a field change and
-belongs with item 13's, under item 13's verification.
+  trend.health          duplicated trend.trend_health
+  trend.momentum        duplicated trend.momentum_mode
+  risk.risk_score       held bias_score
+  risk.signal_strength  held bias_score
 
   risk.position_size, position_value, risk_amount,
   account_balance, risk_percent
 
-Viktor ruled on 29 August that the engine must not compute monetary position
-sizing at all. These five are declared because they are currently produced, and
-they are scheduled for removal at sequence item 13. When that lands, they come
-out of here in the same commit — that is the contract doing its job.
+All nine are gone as of sequence item 13. The two trend pairs were exact
+duplicates assigned from the same expression; the two risk fields were a third
+and fourth name for bias.score, read by nobody; the five sizing fields fell to
+Viktor's ruling of 29 August 2026 that the engine must not compute monetary
+position sizing.
+
+The mechanism worked as intended and is worth recording. SCHEDULED_FOR_REMOVAL
+and CANONICAL_ALIASES below are now empty, and the tests that watched them
+fired when item 13 landed — which is what forced this file to be updated in the
+same commit rather than left describing an engine that no longer existed.
 """
 
 from typing import Any, Dict, List, Tuple
@@ -99,10 +103,10 @@ class BiasBlock(TypedDict):
 
 
 class TrendBlock(TypedDict):
-    health: float                 # duplicate of trend_health — see module docstring
+    # `health` and `momentum` were declared here as duplicates of the two
+    # fields below and removed at sequence item 13.
     trend_health: float
     exhaustion: bool
-    momentum: str                 # duplicate of momentum_mode
     momentum_mode: str
     momentum_divergence: bool
     trend_direction: str
@@ -137,19 +141,15 @@ class RiskBlock(TypedDict):
     targets: Tuple[float, float, float]
     risk_valid: bool
     risk_reason: str
-    risk_score: float
+    # `risk_score` and `signal_strength` both held bias_score and were removed
+    # at sequence item 13. bias.score is that number's one home.
     confidence_score: float
-    signal_strength: float
     trade_quality_proposed: float
     validation_state: str
     validation_score: float
     validation_note: str
-    # Scheduled for removal at sequence item 13 — see module docstring.
-    position_size: float
-    position_value: float
-    risk_amount: float
-    account_balance: float
-    risk_percent: float
+    # The five position-sizing fields were declared here and removed at
+    # sequence item 13 — see module docstring.
     ev_r: float
     assumed_win_rate: float
     avg_reward_r: float
@@ -306,27 +306,27 @@ ERROR_KEY = "error"
 # ============================================================
 #
 # Where the object carries two names for one value, this names the survivor.
-# New code reads the canonical name; the duplicate is removed at sequence
-# item 13, when a field change is in scope and has verification attached.
+#
+# Empty as of sequence item 13: the two pairs it held — trend.health /
+# trend.trend_health and trend.momentum / trend.momentum_mode — were removed
+# rather than merely disambiguated. It is kept, empty, because the next
+# unavoidable alias should be declared here rather than left implicit, and
+# because tests/test_decision_contract.py checks that whatever it names really
+# does hold identical values on a live run.
 
-CANONICAL_ALIASES = {
-    ("trend", "health"): "trend_health",
-    ("trend", "momentum"): "momentum_mode",
-}
+CANONICAL_ALIASES = {}
 
 
 # ============================================================
 # Fields whose removal is already scheduled
 # ============================================================
 #
-# Declared because they are produced today. Listed here so that when sequence
-# item 13 removes them, the contract test fails until this file is updated in
-# the same commit — which is the whole point of having a contract.
+# Fields that exist today and are already agreed to be leaving. Declared here
+# so the contract test fails the moment they go, forcing this file to be
+# updated in the same commit as the removal.
+#
+# Empty as of sequence item 13, which removed the five position-sizing fields
+# it held. The mechanism did its job: the test fired on the first run of item
+# 13 and this file was updated alongside the producers rather than after them.
 
-SCHEDULED_FOR_REMOVAL = {
-    ("risk", "position_size"): "sequence item 13 — Viktor's position-sizing ruling",
-    ("risk", "position_value"): "sequence item 13 — Viktor's position-sizing ruling",
-    ("risk", "risk_amount"): "sequence item 13 — Viktor's position-sizing ruling",
-    ("risk", "account_balance"): "sequence item 13 — Viktor's position-sizing ruling",
-    ("risk", "risk_percent"): "sequence item 13 — Viktor's position-sizing ruling",
-}
+SCHEDULED_FOR_REMOVAL = {}
