@@ -4,6 +4,7 @@ import pandas as pd
 import requests
 import time
 from core import config
+from data.validation import validate_ohlcv
 
 # Environment variable naming a directory of pinned OHLCV CSVs. Checked at call
 # time rather than import time, so it can be set after this module is loaded.
@@ -135,9 +136,20 @@ class DataFetcher:
             )}
 
         try:
-            df = self.load_csv(path)
+            df = self.load_csv(path, timeframe=timeframe)
         except Exception as e:
             return {"error": f"pinned data unreadable ({path}): {e}"}
+
+        # SEQUENCE ITEM 8: checked here, before the reshape below. pandas does
+        # not reliably carry .attrs through operations like the column
+        # selection and astype that follow, so a later check could silently
+        # find nothing wrong with a frame that is.
+        #
+        # No `now` is passed: a pinned file is historical by definition and
+        # asserting it is current would reject the entire fixture set.
+        problem = df.attrs.get("validation_error")
+        if problem:
+            return {"error": f"pinned data {path} failed validation: {problem}"}
 
         missing = [c for c in _OHLCV_COLUMNS if c not in df.columns]
         if missing:
@@ -161,10 +173,28 @@ class DataFetcher:
     # LOCAL CSV LOADING
     # ============================================================
 
-    def load_csv(self, filepath):
+    def load_csv(self, filepath, timeframe=None, now=None):
         """
         Load OHLCV data from a CSV file.
         CSV must contain: timestamp, open, high, low, close, volume
+
+        SEQUENCE ITEM 8: the loaded frame is validated against Item 3's defect
+        classes, and any failure is recorded at `.attrs["validation_error"]`.
+
+        Annotate rather than raise, for two reasons. The frame is still wanted
+        by callers that want to look at what is wrong with it — the tests do
+        exactly that. And every caller in the engine already has an error
+        channel; _load_pinned turns this attribute into an {"error": ...} dict,
+        get_tf turns that into .attrs["fetch_error"], and engine_core surfaces
+        it. Raising here would mean unwinding all of that for no gain.
+
+        The consequence to be aware of: an attribute is easy to ignore, and
+        pandas does not reliably propagate .attrs through operations. Anything
+        reading a frame from this method must check the attribute BEFORE
+        reshaping it. _load_pinned does, immediately.
+
+        `now` defaults to None, so a plain load makes no claim that the file is
+        current and the staleness check does not run. See validation.py.
         """
 
         df = pd.read_csv(filepath)
@@ -173,6 +203,10 @@ class DataFetcher:
         if "timestamp" in df.columns:
             df["timestamp"] = pd.to_datetime(df["timestamp"], unit="ms")
             df.set_index("timestamp", inplace=True)
+
+        problem = validate_ohlcv(df, timeframe=timeframe, now=now)
+        if problem:
+            df.attrs["validation_error"] = problem
 
         return df
 
@@ -231,6 +265,21 @@ class DataFetcher:
         df["volume"] = df["volume"].astype(float)
 
         df.set_index("timestamp", inplace=True)
+
+        # SEQUENCE ITEM 8: live data is validated too, and this is the one
+        # path that DOES claim to be current — so it is the one that passes a
+        # reference time and can therefore fail the staleness check.
+        #
+        # Item 3 lists "malformed API responses" alongside the data defects.
+        # The shape checks above catch a response with the wrong number of
+        # fields; this catches one that is correctly shaped and wrong, which is
+        # the harder case and the one that reaches analysis.
+        # MEXC timestamps are UTC epoch ms, so the reference must be UTC too.
+        # Timestamp.now(tz="UTC") rather than the deprecated utcnow().
+        problem = validate_ohlcv(df, timeframe=timeframe,
+                                 now=pd.Timestamp.now(tz="UTC").tz_localize(None))
+        if problem:
+            return {"error": f"API data for {symbol} {timeframe} failed validation: {problem}"}
 
         return df
 

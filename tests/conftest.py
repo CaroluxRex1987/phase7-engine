@@ -27,6 +27,7 @@ ENGINE_MODULES = [
     "core.engine_core",
     "core.panel_render",
     "data.data_fetcher",
+    "data.validation",
     "indicators.indicators",
     "indicators.trend_health",
     "indicators.volume_profile",
