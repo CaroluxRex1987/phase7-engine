@@ -20,33 +20,48 @@ by one person, with heavy AI assistance.**
 |---|---|
 | Constitution | Ratified 26 August 2026. Rules frozen at 21 / 7 / 10 / 6 = 44. Scope freeze lifted 27 August. |
 | Independent audit | **Complete.** Four runs, all 44 rules graded: 21 Compliant, 17 Non-compliant, 6 Unknown. Four findings rated Critical. |
-| Engine code | **Non-compliant on 17 rules, four of them Critical.** Remediation has started: 2 of 16 sequence items done. |
-| Tests | 18 tests. **8 pass, 10 fail.** The failures are the Non-compliances written as executable acceptance criteria. |
+| Engine code | **Two of the four Criticals now resolved.** Remediation in progress: 10 of 16 sequence items done. |
+| Tests | 76 tests. **74 pass, 2 fail.** The two failures are Non-compliances written as executable acceptance criteria, for work not yet done. |
 | Backtesting | Not rebuilt. Blocked by the release gate until Items 2, 3, 6 and 18 are Compliant. |
-| Live trading | Read-only market access only. The engine cannot place orders. |
+| Live trading | Read-only market access only. The engine cannot place orders — enforced by five guards, each verified by injecting its violation. |
 
-**A release gate is now in force.** No output of this engine may be relied on for a
-real trading decision while any Critical Tier 1 finding stands unresolved. Running it
-to look at is fine. Acting on it is not.
+**A release gate is in force.** No output of this engine may be relied on for a real
+trading decision while any Critical Tier 1 finding stands unresolved. Running it to look
+at is fine. Acting on it is not. **Two Criticals remain, so the gate is still shut.**
 
 The four Criticals, stated plainly:
 
-- **Item 3 — Data Integrity.** Nothing detects missing candles, duplicates, impossible
-  prices, bad timestamp ordering, stale data or abnormal volume. Defects are silently
-  filled in by `ffill`/`bfill` rather than caught.
-- **Item 6 — Traceability.** The panel prints "Trade logged to
+- ✅ **Item 3 — Data Integrity.** *Resolved.* Nothing detected missing candles,
+  duplicates, impossible prices, bad timestamp ordering or stale data; defects were
+  filled in by `ffill`/`bfill` rather than caught. A validator now rejects each defect
+  class before it becomes analysis, and names which one it found.
+- ✅ **Item 13 — Fail Safely.** *Resolved.* When an indicator failed, the engine
+  substituted confident-looking constants with no marker — `RSI = 50` (dead centre),
+  `ADX = 25` (the trend/no-trend boundary), `ST_Direction = 1.0` (**bullish**, a
+  direction chosen by whoever wrote the fallback). A failed indicator now drops its
+  column and reports what the engine lost by it; the run continues in an explicitly
+  degraded state, confidence and trade quality are capped, and **a degraded result
+  cannot authorize a trade.**
+- ⬜ **Item 11 — No Circular Reasoning.** One quantity (`trend_health`) is counted at
+  least four times and presented on the panel as four agreeing signals.
+- ⬜ **Item 6 — Traceability.** The panel prints "Trade logged to
   `Logs/phase7_trade_log_<symbol>.csv`" on every run, and no code anywhere writes that
   file. The engine reports an audit action as having happened when it did not.
-- **Item 11 — No Circular Reasoning.** One quantity (`trend_health`) is counted at
-  least four times and presented on the panel as four agreeing signals.
-- **Item 13 — Fail Safely.** When an indicator fails, the engine substitutes
-  confident-looking constants with no marker. A failed SuperTrend silently adds a
-  permanent bullish vote to the bias score.
 
-Three of those came from the audit. Item 6 was raised from Major to Critical after the
-fact, on the principle that severity reflects consequence rather than how much work the
-fix takes — the repair is one line, and the consequence is that the tool asserts a
-safety action which never occurred.
+Three came from the audit. Item 6 was raised from Major to Critical after the fact, on
+the principle that severity reflects consequence rather than how much work the fix takes
+— the repair is one line, and the consequence is that the tool asserts a safety action
+which never occurred.
+
+**What the remediation has removed so far**, since the list is more interesting than the
+count: two caches that never once returned a hit in any production path; four modules
+quietly editing DataFrames they did not own; a function whose only use of its first
+parameter was to modify it; an exit model whose five verdicts were computed every run and
+discarded; a chart renderer that had been silently drawing charts with **no price
+candles** whenever it met a NaN; a risk fallback that returned a stop 1% *below* price and
+targets above it **regardless of trade direction**, inverted for a short and printed as a
+real plan; and an entry-blocking gate that had never once fired because it compared
+against labels nothing writes — while four modules acted on its result.
 
 The engine has **not** been shown to predict anything. One component
 (BTC-Adjusted Prediction) is correctness-validated — it computes what it was
@@ -113,6 +128,11 @@ three models had all missed — including that, as published, the repository did
 start from a fresh clone. None of the audits ran the code; they read it. A different
 *method* beat a different *model*.
 
+That has kept being true. The harness has since caught defects the audits missed and
+defects the remediation itself introduced, usually on the first run after a change — a
+chart renderer drawing charts with no price candles, a `NameError` that killed every run,
+and a test that contradicted the design it was written to check.
+
 The remediation sequence is in [`docs/Phase7_Roadmap.pdf`](docs/), and the reasoning
 behind its ordering in [`docs/Phase7_Remediation_Plan.pdf`](docs/).
 
@@ -149,16 +169,21 @@ pytest
 Or with nothing but a Python interpreter:
 
 ```
-python run_tests.py            # everything
-python run_tests.py imports    # one file
-python run_tests.py -q         # summary only
+python run_tests.py               # everything
+python run_tests.py imports       # one file
+python run_tests.py -q            # summary only
+python run_tests.py --show-output # don't suppress passing tests' stdout
 ```
 
 The dependency-free runner exists because the suite has to work on a clean machine
 before `pip install` has succeeded — which is exactly the situation the dependency test
 is about.
 
-**Ten failures are expected.** They are acceptance criteria for fixes that have not
+It discards a passing test's output and prints a failing one's, which is not a cosmetic
+choice: two defects were found in output that a *passing* test had been burying, and one
+of them was a chart renderer failing silently for as long as anyone can tell.
+
+**Two failures are expected.** They are acceptance criteria for fixes that have not
 landed yet, and each one names a file and a line.
 
 ---
