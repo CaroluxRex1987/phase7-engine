@@ -335,3 +335,104 @@ def test_the_reasoning_says_why_out_loud():
     assert "ADX" in reasons, (
         "the reasoning says the run was degraded but not by what"
     )
+
+
+# ============================================================
+# Sequence item 9b — the last fabrication
+# ============================================================
+
+def test_a_failed_risk_calculation_does_not_invent_levels():
+    """
+    risk_model.calculate_stop_targets' except used to return "safe default
+    fallback bounds": a stop at price x 0.99 and targets at 1.01, 1.02, 1.03.
+
+    DIRECTION-BLIND. The stop sits 1% BELOW price and the targets ABOVE it,
+    whatever the bias said — so on a short the stop is where the trade would be
+    winning and every target is where it would be losing. The panel printed
+    them as STOP LOSS and TARGET 1/2/3, with R:R ratios computed off them.
+
+    Nor were they safe: a 1% stop on an instrument whose ATR is 4% is a stop
+    inside the noise, and the 1/2/3% targets encode a reward profile that has
+    nothing to do with this market.
+
+    This is the only fabrication in the codebase that produced a
+    TRADEABLE-LOOKING ARTEFACT rather than a wrong indicator reading, which is
+    why it is tested by side rather than merely by presence.
+    """
+    if not _engine_available():
+        print("SKIP: pandas_ta not installed")
+        return
+
+    from models.risk_model import RiskModel
+
+    model = RiskModel()
+
+    # Force the failure from inside the try, by handing it an input the body
+    # cannot work with. atr_val=None raises TypeError at the first comparison.
+    #
+    # The first draft of this test patched classify_risk_regime instead —
+    # which calculate_stop_targets never calls; it belongs to
+    # validate_risk_parameters. Nothing raised, the function returned real
+    # levels, and the assertion below fired correctly on a test that had not
+    # broken anything. Second time in item 9 that the test was wrong and the
+    # code was right, which is its own small lesson about injecting failures
+    # at a point you have actually confirmed is on the path.
+    raised = None
+    try:
+        model.calculate_stop_targets(
+            detailed_bias="BEARISH CONFIRMED",   # a SHORT
+            trend_health=80.0,
+            current_price=100.0,
+            atr_val=None,
+            structural_level=None,
+            bias_score=-70.0,
+        )
+    except Exception as e:
+        raised = e
+
+    assert raised is not None, (
+        "a failed stop/target calculation returned levels instead of raising.\n"
+        "Whatever came back was not computed from this market, and the panel "
+        "cannot tell — it prints a STOP LOSS and three TARGETs either way."
+    )
+    assert "risk plan" in str(raised).lower(), (
+        f"the failure does not say what was lost: {raised}"
+    )
+
+
+def test_the_engine_reports_a_failed_risk_plan_rather_than_inventing_one():
+    """
+    End to end. The exception must reach the operator as a reported failure,
+    not vanish into a handler that supplies levels of its own.
+    """
+    if not _engine_available():
+        print("SKIP: pandas_ta not installed")
+        return
+
+    import models.risk_model as rm
+    from data.data_fetcher import DataFetcher, data_fetcher
+    from models.signal_router import SignalRouter
+
+    original = rm.RiskModel.calculate_stop_targets
+    original_url = data_fetcher.base_url
+    try:
+        rm.RiskModel.calculate_stop_targets = lambda *a, **k: (
+            _ for _ in ()
+        ).throw(ValueError("simulated stop/target failure"))
+        data_fetcher.base_url = UNREACHABLE
+        DataFetcher.set_pinned_source(PINNED_DIR)
+        decision = SignalRouter().route(symbol="AEROUSDT", timeframe="4h")
+    finally:
+        rm.RiskModel.calculate_stop_targets = original
+        DataFetcher.clear_pinned_source()
+        data_fetcher.base_url = original_url
+
+    assert "error" in decision, (
+        "the engine produced a normal decision object despite the stop/target "
+        f"calculation failing. Keys: {sorted(decision)}\n"
+        "That means something downstream supplied levels the market did not."
+    )
+    assert "risk" not in decision or not decision.get("risk", {}).get("targets"), (
+        "the decision carries targets after the calculation that produces them "
+        "failed"
+    )

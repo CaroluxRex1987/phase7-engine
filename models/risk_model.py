@@ -124,14 +124,36 @@ class RiskModel:
             return float(atr_stop), float(target_t1), float(target_t2), float(target_t3)
 
         except Exception as e:
+            # SEQUENCE ITEM 9b: this used to return "safe default fallback
+            # bounds" — a stop at price × 0.99 and targets at 1.01, 1.02, 1.03.
+            #
+            # DIRECTION-BLIND. Those numbers put the stop 1% BELOW price and the
+            # targets ABOVE it, whatever `detailed_bias` said. On a short they
+            # are inverted: the stop sits where the trade would be winning and
+            # every target sits where it would be losing. The panel printed
+            # them as STOP LOSS and TARGET 1/2/3 with R:R ratios computed off
+            # them, indistinguishable from a real plan.
+            #
+            # Nor were they "safe". A 1% stop on an instrument whose ATR is 4%
+            # is not conservative, it is a stop inside the noise — and the
+            # 1/2/3% targets encode a 1:1, 2:1, 3:1 reward that has nothing to
+            # do with this market.
+            #
+            # It is the last of the fabrications item 9 set out to remove, and
+            # the only one that produced a tradeable-looking artefact rather
+            # than a wrong indicator reading.
+            #
+            # It raises now. This is the same line drawn at 9a for a missing
+            # ATR: without a stop and targets there is no risk plan to degrade
+            # to, so there is nothing to continue with. engine_core's existing
+            # error path reports it, and the reason travels with it.
             logger.error(f"Stop targets calculation failed: {e}")
-            # Return safe default fallback bounds
-            return (
-                float(current_price * 0.99),
-                float(current_price * 1.01),
-                float(current_price * 1.02),
-                float(current_price * 1.03)
-            )
+            raise ValueError(
+                f"Stop and target calculation failed ({type(e).__name__}: {e}). "
+                f"No risk plan can be produced, and substituting default levels "
+                f"would put a stop and three targets on the panel that were "
+                f"never computed from this market."
+            ) from e
 
     # ============================================================
     # POSITION SIZING & LEVERAGE ADJUSTMENT
@@ -221,5 +243,15 @@ class RiskModel:
             return True, "OK"
 
         except Exception as e:
+            # SEQUENCE ITEM 9b: examined and deliberately left alone.
+            #
+            # Step 5 listed "risk_model's direction-blind except-return" among
+            # the fabrications. That is the one in calculate_stop_targets above.
+            # This one is different in kind: it returns False — the trade is
+            # NOT valid — and names the reason. It fails closed, and a caller
+            # cannot mistake it for a passed check.
+            #
+            # Recorded rather than silently skipped so the re-audit at item 16
+            # sees that both except-returns in this file were considered.
             logger.error(f"Risk validation failed: {e}")
             return False, f"Risk validation error: {str(e)}"
