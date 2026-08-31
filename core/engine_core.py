@@ -621,7 +621,6 @@ class Phase7Engine:
                 # unread field with a misleading name is worse than no field,
                 # because the next reader believes it.
                 "confidence_score": trend["trend_health"],
-                "trade_quality_current": trend["trend_health"],
                 "trade_quality_proposed": eq_metrics["score"],
                 "validation_state": validation_state,
                 "validation_score": val_score,

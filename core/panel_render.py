@@ -1,6 +1,8 @@
 import logging
 import textwrap
 
+from . import config
+
 logger = logging.getLogger(__name__)
 
 # Viktor's terminal window can't comfortably show a line longer than this,
@@ -359,7 +361,7 @@ def render_panel(decision):
             f"ENTRY ZONE    : {c_cyan}${safe_float(entry.get('zone_lower', 0)):.4f} - ${safe_float(entry.get('zone_upper', 0)):.4f}{reset}\n"
             f"ZONE DISTANCE : {safe_float(entry.get('distance_from_zone', 0.0)):.2f}% away from zone\n"
             f"STATUS        : {colorize_val(entry.get('entry_status', 'ACTIVE ENTRY ZONE'))}\n"
-            f"SWING STRUCT  : ${safe_float(structure.get('swing_struct', current_price)):.4f} (Lookback 8)\n"
+            f"SWING STRUCT  : ${safe_float(structure.get('swing_struct', current_price)):.4f} (Lookback {config.STRUCT_LOOKBACK})\n"
             f"STOP LOSS     : {c_red}${stop_loss:.4f}{reset}\n"
             f"TARGET 1 (Cons): {c_green}${t1:.4f}{reset} | R:R 1 : {rr_t1:.2f}\n"
             f"TARGET 2 (Norm): {c_green}${t2:.4f}{reset} | R:R 1 : {rr_t2:.2f}\n"

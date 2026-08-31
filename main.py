@@ -56,7 +56,7 @@ def main():
         logger.info(f"Starting Phase-7 engine for {config.SYMBOL} on {config.TIMEFRAME}")
         
         # Ensure log directory exists
-        os.makedirs('Logs', exist_ok=True)
+        os.makedirs(config.LOG_DIR, exist_ok=True)
         
         router = SignalRouter()
 

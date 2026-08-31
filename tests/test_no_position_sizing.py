@@ -49,6 +49,7 @@ canonical field could have been changed with no effect on the decision.
 
 import ast
 import os
+import pytest
 
 PINNED_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           "fixtures", "pinned")
@@ -99,8 +100,7 @@ def _run(symbol="AEROUSDT"):
 
 def test_no_block_of_the_decision_object_carries_a_sizing_field():
     if not _engine_available():
-        print("SKIP: pandas_ta not installed")
-        return
+        pytest.skip("pandas_ta not installed")
 
     decision = _run()
     assert "error" not in decision, decision.get("error")
@@ -165,8 +165,7 @@ def test_the_decision_log_does_not_fingerprint_a_balance():
 
 def test_the_duplicate_fields_are_gone():
     if not _engine_available():
-        print("SKIP: pandas_ta not installed")
-        return
+        pytest.skip("pandas_ta not installed")
 
     decision = _run()
     assert "error" not in decision, decision.get("error")
@@ -194,8 +193,7 @@ def test_the_survivors_are_still_there():
     on an engine that produces nothing at all.
     """
     if not _engine_available():
-        print("SKIP: pandas_ta not installed")
-        return
+        pytest.skip("pandas_ta not installed")
 
     decision = _run()
     assert "error" not in decision, decision.get("error")

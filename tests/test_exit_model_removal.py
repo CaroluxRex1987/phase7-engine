@@ -64,6 +64,7 @@ family. Deleted under Item 16. Ruled by Viktor, 30 August 2026.
 import ast
 import inspect
 import os
+import pytest
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PINNED_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -200,8 +201,7 @@ def test_current_price_survives_the_removal():
     derives its risk distance from this value.
     """
     if not _engine_available():
-        print("SKIP: pandas_ta not installed")
-        return
+        pytest.skip("pandas_ta not installed")
 
     from data.data_fetcher import DataFetcher, data_fetcher
     from models.signal_router import SignalRouter

@@ -50,6 +50,7 @@ a setting, and the engine must change with it.
 
 import ast
 import os
+import pytest
 import re
 
 from conftest import REPO_ROOT
@@ -357,8 +358,7 @@ def test_changing_an_indicator_length_changes_the_indicator():
     a source scan and fail here the moment the primary path was unavailable.
     """
     if not _engine_available():
-        print("SKIP: pandas_ta not installed")
-        return
+        pytest.skip("pandas_ta not installed")
 
     import pandas as pd
     from core import config

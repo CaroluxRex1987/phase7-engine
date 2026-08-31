@@ -98,6 +98,7 @@ a baseline taken the day before would now be the standard.
 
 import json
 import os
+import pytest
 import shutil
 import tempfile
 
@@ -256,8 +257,7 @@ def _run(seed=None):
 
 def test_decision_object_matches_snapshot():
     if not _engine_available():
-        print("SKIP: pandas_ta not installed")
-        return
+        pytest.skip("pandas_ta not installed")
 
     raw = _run()
     assert "error" not in raw, (
@@ -311,8 +311,7 @@ def test_the_snapshot_covers_every_top_level_field():
     So the expected shape is asserted independently of the stored file.
     """
     if not _engine_available():
-        print("SKIP: pandas_ta not installed")
-        return
+        pytest.skip("pandas_ta not installed")
     if not os.path.exists(SNAPSHOT):
         print("SKIP: no baseline yet")
         return
@@ -384,8 +383,7 @@ def test_the_macro_series_is_actually_read():
     neutral reading. Rider recorded there.
     """
     if not _engine_available():
-        print("SKIP: pandas_ta not installed")
-        return
+        pytest.skip("pandas_ta not installed")
 
     with_macro = _run().get("macro_bias")
     without_macro = _run_without(f"{SYMBOL}_{MACRO_TIMEFRAME}.csv").get("macro_bias")
@@ -419,8 +417,7 @@ def test_engine_is_deterministic_on_identical_input():
     is the answer you get when the leak is real but benign.
     """
     if not _engine_available():
-        print("SKIP: pandas_ta not installed")
-        return
+        pytest.skip("pandas_ta not installed")
 
     first = _strip(_run())
     second = _strip(_run())
@@ -447,8 +444,7 @@ def test_a_bias_flip_against_prior_state_is_reported():
     Silence is also what a broken comparison produces.
     """
     if not _engine_available():
-        print("SKIP: pandas_ta not installed")
-        return
+        pytest.skip("pandas_ta not installed")
 
     actual_bias = _run().get("bias", {}).get("detailed", "")
     assert actual_bias, "the run produced no detailed bias to compare against"
@@ -478,8 +474,7 @@ def test_a_supertrend_flip_against_prior_state_is_reported():
     wrong.
     """
     if not _engine_available():
-        print("SKIP: pandas_ta not installed")
-        return
+        pytest.skip("pandas_ta not installed")
 
     fired = []
     for direction in (1.0, -1.0):
@@ -528,8 +523,7 @@ def test_explanation_does_not_name_a_hardcoded_symbol():
     EXPECTED TO FAIL until sequence item 12.
     """
     if not _engine_available():
-        print("SKIP: pandas_ta not installed")
-        return
+        pytest.skip("pandas_ta not installed")
 
     decision = _run()
     reasons = " ".join(decision.get("explanation", {}).get("reasons", []))
@@ -562,8 +556,7 @@ def test_correlation_phrase_is_not_doubled():
     EXPECTED TO FAIL until sequence item 12.
     """
     if not _engine_available():
-        print("SKIP: pandas_ta not installed")
-        return
+        pytest.skip("pandas_ta not installed")
 
     decision = _run()
     btc = decision.get("btc_context", {}) or {}

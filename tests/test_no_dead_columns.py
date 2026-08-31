@@ -34,6 +34,7 @@ test_exit_model_removal.py for the corrected trace.
 """
 
 import os
+import pytest
 
 from conftest import fixture
 
@@ -100,8 +101,7 @@ def test_deleted_columns_stay_deleted():
     Non-compliant again with nothing to notice it.
     """
     if not _engine_available():
-        print("SKIP: pandas_ta not installed")
-        return
+        pytest.skip("pandas_ta not installed")
 
     df = _indicator_frame()
     resurrected = [c for c in DELETED_COLUMNS if c in df.columns]
@@ -130,8 +130,7 @@ def test_consumed_columns_are_still_produced():
     test rather than a comment.
     """
     if not _engine_available():
-        print("SKIP: pandas_ta not installed")
-        return
+        pytest.skip("pandas_ta not installed")
 
     df = _indicator_frame()
     missing = [c for c in KEPT_COLUMNS if c not in df.columns]
@@ -154,8 +153,7 @@ def test_slope_columns_are_not_all_zero():
     price movement, so a real slope calculation cannot be flat.
     """
     if not _engine_available():
-        print("SKIP: pandas_ta not installed")
-        return
+        pytest.skip("pandas_ta not installed")
 
     df = _indicator_frame()
     for col in ["EMA20_Slope", "EMA50_Slope"]:

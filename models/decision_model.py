@@ -238,7 +238,7 @@ class DecisionModel:
                     reasons.append(
                         f"Bias is bullish and the broader macro trend agrees, with decent trend health "
                         f"({trend_health:.0f}/100), but the entry quality ({entry_score:.0f}/100) isn't strong "
-                        f"enough for full size — CONSERVATIVE LONG."
+                        f"enough — CONSERVATIVE LONG."
                     )
                     return "CONSERVATIVE LONG"
 
@@ -260,7 +260,7 @@ class DecisionModel:
                     reasons.append(
                         f"Bias is bearish and the broader macro trend agrees, with decent trend health "
                         f"({trend_health:.0f}/100), but the entry quality ({entry_score:.0f}/100) isn't strong "
-                        f"enough for full size — CONSERVATIVE SHORT."
+                        f"enough — CONSERVATIVE SHORT."
                     )
                     return "CONSERVATIVE SHORT"
 

@@ -21,6 +21,7 @@ Constitution: Tier 3, item 3 (automated tests). Sequence item 4.
 """
 
 import os
+import pytest
 
 from conftest import REPO_ROOT
 
@@ -57,8 +58,7 @@ def test_engine_runs_end_to_end_on_pinned_data():
     fall-through to live data cannot masquerade as a passing smoke test.
     """
     if not _engine_available():
-        print("SKIP: pandas_ta not installed")
-        return
+        pytest.skip("pandas_ta not installed")
 
     from data.data_fetcher import DataFetcher, data_fetcher
     from models.signal_router import SignalRouter
@@ -103,8 +103,7 @@ def test_the_smoke_run_is_reproducible():
     re-baselining at sequence item 7.
     """
     if not _engine_available():
-        print("SKIP: pandas_ta not installed")
-        return
+        pytest.skip("pandas_ta not installed")
 
     from data.data_fetcher import DataFetcher, data_fetcher
     from models.signal_router import SignalRouter
@@ -153,8 +152,7 @@ def test_a_missing_pinned_series_surfaces_as_an_engine_error():
     just inside DataFetcher.
     """
     if not _engine_available():
-        print("SKIP: pandas_ta not installed")
-        return
+        pytest.skip("pandas_ta not installed")
 
     from data.data_fetcher import DataFetcher, data_fetcher
     from models.signal_router import SignalRouter

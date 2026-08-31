@@ -64,6 +64,7 @@ the fallbacks are given honest semantics. Recorded as riders there.
 import ast
 import inspect
 import os
+import pytest
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PINNED_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -129,8 +130,7 @@ def _unchanged(before, after):
 
 def test_calculate_structure_does_not_touch_the_callers_frame():
     if not _engine_available():
-        print("SKIP: pandas_ta not installed")
-        return
+        pytest.skip("pandas_ta not installed")
 
     from structure.structure import calculate_structure
 
@@ -148,8 +148,7 @@ def test_calculate_structure_does_not_touch_the_callers_frame():
 
 def test_compute_volume_profile_does_not_touch_the_callers_frame():
     if not _engine_available():
-        print("SKIP: pandas_ta not installed")
-        return
+        pytest.skip("pandas_ta not installed")
 
     from indicators.volume_profile import compute_volume_profile
 
@@ -166,8 +165,7 @@ def test_compute_volume_profile_does_not_touch_the_callers_frame():
 
 def test_plot_engine_chart_does_not_touch_the_callers_frame():
     if not _engine_available():
-        print("SKIP: pandas_ta not installed")
-        return
+        pytest.skip("pandas_ta not installed")
 
     try:
         import matplotlib
@@ -212,8 +210,7 @@ def test_plotting_does_not_swallow_a_broken_repair_path():
     save path whether or not the candles were drawn.
     """
     if not _engine_available():
-        print("SKIP: pandas_ta not installed")
-        return
+        pytest.skip("pandas_ta not installed")
 
     import logging
 

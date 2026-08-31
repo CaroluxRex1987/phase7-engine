@@ -46,6 +46,7 @@ now asserts it directly, so the two kinds of fallback cannot be confused again.
 """
 
 import os
+import pytest
 
 PINNED_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           "fixtures", "pinned")
@@ -116,8 +117,7 @@ def test_a_failed_indicator_leaves_no_column_behind():
     A dropped column can be detected. A plausible number cannot.
     """
     if not _engine_available():
-        print("SKIP: pandas_ta not installed")
-        return
+        pytest.skip("pandas_ta not installed")
 
     import indicators.indicators as ind
 
@@ -144,8 +144,7 @@ def test_the_failure_names_the_indicator_and_the_consequence():
     which reading to distrust, which a traceback does not tell them.
     """
     if not _engine_available():
-        print("SKIP: pandas_ta not installed")
-        return
+        pytest.skip("pandas_ta not installed")
 
     import indicators.indicators as ind
 
@@ -171,8 +170,7 @@ def test_the_failure_names_the_indicator_and_the_consequence():
 
 def test_the_decision_object_reports_the_degradation():
     if not _engine_available():
-        print("SKIP: pandas_ta not installed")
-        return
+        pytest.skip("pandas_ta not installed")
 
     decision = _run_with_broken("adx")
     assert "error" not in decision, (
@@ -207,8 +205,7 @@ def test_a_recoverable_failure_does_not_degrade_the_run():
     degraded run, and reported the CODE as failing when the test was wrong.
     """
     if not _engine_available():
-        print("SKIP: pandas_ta not installed")
-        return
+        pytest.skip("pandas_ta not installed")
 
     decision = _run_with_broken("rsi")
 
@@ -234,8 +231,7 @@ def test_a_clean_run_is_not_marked_degraded():
     ruling's clothes.
     """
     if not _engine_available():
-        print("SKIP: pandas_ta not installed")
-        return
+        pytest.skip("pandas_ta not installed")
 
     from data.data_fetcher import DataFetcher, data_fetcher
     from models.signal_router import SignalRouter
@@ -265,8 +261,7 @@ def test_a_clean_run_is_not_marked_degraded():
 
 def test_confidence_and_trade_quality_are_capped_when_degraded():
     if not _engine_available():
-        print("SKIP: pandas_ta not installed")
-        return
+        pytest.skip("pandas_ta not installed")
 
     from models.decision_model import DecisionModel
 
@@ -277,10 +272,6 @@ def test_confidence_and_trade_quality_are_capped_when_degraded():
     assert risk.get("confidence_score", 0.0) <= ceiling, (
         f"confidence is {risk.get('confidence_score')} on a degraded run, "
         f"above the {ceiling} ceiling"
-    )
-    assert risk.get("trade_quality_current", 0.0) <= ceiling, (
-        f"trade quality (current market) is {risk.get('trade_quality_current')} "
-        f"on a degraded run, above the {ceiling} ceiling"
     )
     assert risk.get("trade_quality_proposed", 0.0) <= ceiling, (
         f"trade quality (proposed entry) is "
@@ -299,8 +290,7 @@ def test_a_degraded_run_cannot_authorize_a_trade():
     safe rather than merely more informative than halting.
     """
     if not _engine_available():
-        print("SKIP: pandas_ta not installed")
-        return
+        pytest.skip("pandas_ta not installed")
 
     decision = _run_with_broken("adx")
 
@@ -322,8 +312,7 @@ def test_the_reasoning_says_why_out_loud():
     operator. The reason belongs in the prose they actually see.
     """
     if not _engine_available():
-        print("SKIP: pandas_ta not installed")
-        return
+        pytest.skip("pandas_ta not installed")
 
     decision = _run_with_broken("adx")
     reasons = " ".join(decision.get("explanation", {}).get("reasons", []))
@@ -360,8 +349,7 @@ def test_a_failed_risk_calculation_does_not_invent_levels():
     why it is tested by side rather than merely by presence.
     """
     if not _engine_available():
-        print("SKIP: pandas_ta not installed")
-        return
+        pytest.skip("pandas_ta not installed")
 
     from models.risk_model import RiskModel
 
@@ -406,8 +394,7 @@ def test_the_engine_reports_a_failed_risk_plan_rather_than_inventing_one():
     not vanish into a handler that supplies levels of its own.
     """
     if not _engine_available():
-        print("SKIP: pandas_ta not installed")
-        return
+        pytest.skip("pandas_ta not installed")
 
     import models.risk_model as rm
     from data.data_fetcher import DataFetcher, data_fetcher

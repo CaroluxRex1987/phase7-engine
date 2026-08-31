@@ -32,6 +32,7 @@ of what the panel says.
 
 import json
 import os
+import pytest
 import shutil
 import tempfile
 
@@ -68,8 +69,7 @@ def _run(symbol="AEROUSDT"):
 
 def test_the_decision_log_the_panel_claims_actually_exists():
     if not _engine_available():
-        print("SKIP: pandas_ta not installed")
-        return
+        pytest.skip("pandas_ta not installed")
 
     decision = _run()
     path = decision.get("decision_log_path")
@@ -93,8 +93,7 @@ def test_the_log_records_what_the_run_saw_not_just_what_it_decided():
     repeatable.
     """
     if not _engine_available():
-        print("SKIP: pandas_ta not installed")
-        return
+        pytest.skip("pandas_ta not installed")
 
     from core import config, decision_log
 
@@ -135,8 +134,7 @@ def test_engine_version_is_written_somewhere_at_last():
     number", which is the question a traceability rule exists to answer.
     """
     if not _engine_available():
-        print("SKIP: pandas_ta not installed")
-        return
+        pytest.skip("pandas_ta not installed")
 
     from core import config
 
@@ -209,8 +207,7 @@ def test_the_explanation_names_the_symbol_under_analysis():
     to compare AERO against BTC while comparing BTC to itself.
     """
     if not _engine_available():
-        print("SKIP: pandas_ta not installed")
-        return
+        pytest.skip("pandas_ta not installed")
 
     from models.decision_model import DecisionModel
 
@@ -243,8 +240,7 @@ def test_the_correlation_phrase_is_not_doubled():
     run for as long as the BTC feature has existed.
     """
     if not _engine_available():
-        print("SKIP: pandas_ta not installed")
-        return
+        pytest.skip("pandas_ta not installed")
 
     from models.decision_model import DecisionModel
 

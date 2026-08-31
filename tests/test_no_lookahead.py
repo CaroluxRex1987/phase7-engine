@@ -82,6 +82,7 @@ import os
 
 import numpy as np
 import pandas as pd
+import pytest
 
 from conftest import REPO_ROOT, fixture
 
@@ -218,8 +219,7 @@ def test_an_indicator_that_returns_nothing_usable_is_reported_as_a_failure():
     9a removed, which is the more misleading of the two.
     """
     if not _engine_available():
-        print("SKIP: pandas_ta not installed")
-        return
+        pytest.skip("pandas_ta not installed")
 
     import pandas_ta as ta
     from indicators import indicators
@@ -265,8 +265,7 @@ def test_an_indicators_warmup_rows_stay_empty():
     took at bar 14.
     """
     if not _engine_available():
-        print("SKIP: pandas_ta not installed")
-        return
+        pytest.skip("pandas_ta not installed")
 
     from core import config
     from indicators.indicators import add_technical_indicators
@@ -291,8 +290,7 @@ def test_the_decision_bar_is_unaffected():
     leading edge.
     """
     if not _engine_available():
-        print("SKIP: pandas_ta not installed")
-        return
+        pytest.skip("pandas_ta not installed")
 
     from indicators.indicators import add_technical_indicators
 

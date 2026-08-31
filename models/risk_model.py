@@ -207,6 +207,8 @@ class RiskModel:
         Validates whether risk parameters are within safe operational thresholds.
         """
         try:
+            if not (np.isfinite(current_price) and np.isfinite(atr_stop)):
+                return False, "Price or stop level is not a finite number."
             if current_price <= 0 or atr_stop <= 0:
                 return False, "Invalid price or stop levels."
 

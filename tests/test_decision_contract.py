@@ -27,6 +27,7 @@ and the contract test above it covers the shape.
 
 import ast
 import os
+import pytest
 
 from conftest import REPO_ROOT
 
@@ -143,8 +144,7 @@ def _run_engine():
 
 def test_the_decision_object_matches_the_contract():
     if not _engine_available():
-        print("SKIP: pandas_ta not installed")
-        return
+        pytest.skip("pandas_ta not installed")
 
     from core.decision_contract import DecisionObject, ERROR_KEY
 
@@ -176,8 +176,7 @@ def test_the_btc_block_is_legal_in_both_of_its_shapes():
     `available` check becomes insufficient and this fails.
     """
     if not _engine_available():
-        print("SKIP: pandas_ta not installed")
-        return
+        pytest.skip("pandas_ta not installed")
 
     from models.signal_router import SignalRouter
 
@@ -266,8 +265,7 @@ def test_every_declared_field_is_actually_produced():
     declaration, because it reads as documentation and is wrong.
     """
     if not _engine_available():
-        print("SKIP: pandas_ta not installed")
-        return
+        pytest.skip("pandas_ta not installed")
 
     from core.decision_contract import DecisionObject, BtcContextBlock
 
@@ -306,8 +304,7 @@ def test_the_scheduled_removals_are_still_present_and_still_scheduled():
     valid state, a populated dict with nothing produced is not.
     """
     if not _engine_available():
-        print("SKIP: pandas_ta not installed")
-        return
+        pytest.skip("pandas_ta not installed")
 
     from core.decision_contract import SCHEDULED_FOR_REMOVAL
 
@@ -342,8 +339,7 @@ def test_the_aliases_the_contract_names_really_are_duplicates():
     tests/test_no_position_sizing.py asserts they stay gone.
     """
     if not _engine_available():
-        print("SKIP: pandas_ta not installed")
-        return
+        pytest.skip("pandas_ta not installed")
 
     from core.decision_contract import CANONICAL_ALIASES
 
