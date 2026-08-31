@@ -1,0 +1,12 @@
+Reorder PHASE7_NEXT.md's Suggested order to group done vs. open
+
+The "Suggested order — status" list had the still-open item 8/13
+macro-degradation step sandwiched between three done items (3, then 11,
+14), left over from the pre-remediation ordering where 8/13 was planned to
+come before 11 and 14. Since 11 and 14 landed in c4dfcc7 without waiting on
+8/13, the list no longer read in status order.
+
+Reordered so the five completed steps (batches 1-2, items 3, 11, 14) come
+first in the order they were done, and the one open step (item 8/13) is
+last. No wording changed within any step -- only the ordering and the
+step numbers.

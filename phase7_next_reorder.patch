@@ -1,0 +1,23 @@
+diff --git a/docs/PHASE7_NEXT.md b/docs/PHASE7_NEXT.md
+index 6a94b50..f02a3e5 100644
+--- a/docs/PHASE7_NEXT.md
++++ b/docs/PHASE7_NEXT.md
+@@ -77,15 +77,15 @@ individually. What follows is the ruling and where it lives; full reasoning is i
+ 1. ✅ `pytest.skip()` across the suite — batch 1, `dba1b63`.
+ 2. ✅ The cheap and unambiguous fixes — batch 2, `dba1b63`.
+ 3. ✅ Item 3 volume policy — `c4dfcc7`.
+-4. **Item 8/13 macro degradation — still open.** `engine_core.py`'s macro-timeframe fetch
++4. ✅ Item 11 circularity — `c4dfcc7`.
++5. ✅ Item 14 — `c4dfcc7`.
++6. **Item 8/13 macro degradation — still open.** `engine_core.py`'s macro-timeframe fetch
+    failure leaves `macro_bias` at its initialised `"NEUTRAL"` without adding anything to
+    `degradation` — a failed higher-timeframe read and a genuinely neutral macro trend
+    currently render identically. `tests/test_golden_path.py::test_the_macro_series_is_actually_read`
+    already documents this in its own docstring as "recorded rather than fixed... a rider on
+    sequence item 9's degrade ruling." Includes rewriting that golden-path assertion once
+    fixed. Not part of the 31 August delegation — needs its own go-ahead.
+-5. ✅ Item 11 circularity — `c4dfcc7`.
+-6. ✅ Item 14 — `c4dfcc7`.
+ 
+ ## The machine was rebuilt
+ 
