@@ -13,6 +13,39 @@ import numpy as np
 # weighted sum (weights below sum to 1.00), so the -100..100 bias_score
 # contract everything downstream relies on (DecisionModel, entry_model,
 # BiasStateMachine) is unchanged.
+#
+# ITEM 11 RE-AUDIT (Finding 4), dependency graph, made explicit rather than
+# left to be reconstructed. Six factors are combined below, and each is
+# meant to be genuinely independent of the other five:
+#
+#   trend health (0.30)        <- indicators/trend_health.py's slope/ADX/RSI
+#                                  blend, unsigned magnitude
+#   structure regime (0.20)    <- structure.py's swing-based regime label
+#   volume sentiment (0.15)    <- structure.py's volume/price divergence read
+#   supertrend direction (0.15)<- indicators.py's SuperTrend column, sign only
+#   macro bias (0.10)          <- engine_core.py's higher-timeframe EMA read
+#   reversal/continuation(0.10)<- trend_health.py's continuation_strength
+#                                  (ADX + RSI-momentum + acceleration only --
+#                                  it no longer includes a trend-health-
+#                                  derived term; see trend_health.py's
+#                                  "ITEM 11 RE-AUDIT" comment for why that
+#                                  was itself a duplicate of the first factor)
+#
+# This is where the auditor's finding 4 example lived: reversal_continuation_
+# score used to be built in part from trend_health's own value, so trend
+# health reached bias_score through two of the six weights, not one. That is
+# fixed at the source (trend_health.py), not here, because continuation_
+# strength has exactly one consumer -- this function -- so the source is
+# where the independence actually needs to be true.
+#
+# What this function does NOT try to do: re-derive or cross-check any factor
+# against another. structure_regime, macro_bias and volume_sentiment are also
+# read downstream by models/decision_model.py's confidence calculation and by
+# engine_core.py's validation score -- Item 11's other broken path, fixed
+# there by removing the second and third readings rather than by disagreeing
+# with this one. bias_score is the one place these six factors are weighed;
+# every other consumer reports what bias_score already concluded rather than
+# re-weighing the same inputs.
 
 WEIGHT_TREND_HEALTH = 0.30
 WEIGHT_STRUCTURE_REGIME = 0.20

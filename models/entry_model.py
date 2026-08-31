@@ -109,9 +109,25 @@ def calculate_entry_quality(
     # ============================================================
     vwma_pts = 15.0  # Default score
     if "VWMA" in df.columns and not df["VWMA"].empty:
-        vwma = safe_float(df["VWMA"].iloc[-1], close)
-
-        if close > 0:
+        # ITEM 3 RE-AUDIT (Finding 1): this used
+        #     vwma = safe_float(df["VWMA"].iloc[-1], close)
+        # -- close as the fallback whenever the last VWMA value was NaN.
+        # indicators.py now leaves VWMA as NaN for exactly the windows with no
+        # usable volume measurement (all-zero or invalid volume_sum), rather
+        # than fabricating a close-price substitute -- see
+        # indicators/indicators.py's VWMA block. This was the second half of
+        # the same defect: even a genuinely-missing VWMA reached here and was
+        # quietly replaced by `close`, making `vwma_diff` exactly zero and
+        # awarding the full 20 points for a distance that was never measured.
+        # "Fix the helper, not just the branch" -- the source stopped
+        # fabricating a value, and this consumer was the branch still reading
+        # one.
+        #
+        # A missing VWMA now leaves vwma_pts at its neutral default above,
+        # the same treatment the column-absent case already got two lines up.
+        vwma_raw = df["VWMA"].iloc[-1]
+        if np.isfinite(vwma_raw) and close > 0:
+            vwma = float(vwma_raw)
             try:
                 vwma_diff = abs(close - vwma) / close
                 if np.isfinite(vwma_diff):

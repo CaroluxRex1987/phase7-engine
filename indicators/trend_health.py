@@ -168,11 +168,38 @@ def compute_trend_health(df: Optional[pd.DataFrame]) -> Dict[str, Any]:
             trend_direction = "NEUTRAL"
 
         if direction != 0:
-            health_component = (trend_health / 100.0) * 40.0
+            # ITEM 11 RE-AUDIT (Finding 4). This block used to open with:
+            #
+            #     health_component = (trend_health / 100.0) * 40.0
+            #
+            # and add it into raw_continuation below. continuation_strength
+            # has exactly one consumer: bias_engine.calculate_dynamic_bias(),
+            # which already weights trend_health directly at
+            # WEIGHT_TREND_HEALTH = 0.30. Feeding 40% of this score from the
+            # same trend_health reading meant one measurement reached
+            # bias_score through two of its six "independent" factors at
+            # once -- the auditor's own quoted example of Item 11's broken
+            # clause, "a signal reinforcing itself through multiple derived
+            # layers and then presented as independent confirmation."
+            #
+            # Removed rather than reweighted: there is no independent
+            # fraction of health_component to keep, since it was wholly a
+            # function of the same trend_health value bias_engine already
+            # reads. What is left below -- ADX, RSI-relative-to-direction,
+            # and acceleration -- has no other channel into bias_score, so it
+            # remains genuinely independent evidence about whether this
+            # trend is continuing.
+            #
+            # Ruled by Viktor, 31 August 2026 (delegated). No rescale: the
+            # ceiling this score can reach without a health-derived term is
+            # honestly lower (60, not 100) rather than stretched back to 100
+            # by a multiplier invented to hide that the trend-health share is
+            # gone.
 
             # SEQUENCE ITEM 9a: an unavailable input scores zero rather than
-            # scoring from a substituted constant. continuation_strength is out
-            # of 100; without ADX its ceiling is 75, without RSI 85, and
+            # scoring from a substituted constant. continuation_strength is
+            # now out of 60 (ADX 25 + RSI-momentum 15 + acceleration 20);
+            # without ADX its ceiling is 35, without RSI 45, and
             # degraded_inputs says which. A lower score for a less complete
             # picture is the intended behaviour, not a side effect.
             if adx_val is None:
@@ -201,7 +228,7 @@ def compute_trend_health(df: Optional[pd.DataFrame]) -> Dict[str, Any]:
             accel_magnitude = float(np.tanh(abs(accel_aligned) * 50.0) * 20.0)
             accel_component = accel_magnitude if accel_aligned >= 0 else -accel_magnitude
 
-            raw_continuation = health_component + adx_component + momentum_component + accel_component
+            raw_continuation = adx_component + momentum_component + accel_component
             continuation_strength = float(direction * max(0.0, min(100.0, raw_continuation)))
         else:
             continuation_strength = 0.0

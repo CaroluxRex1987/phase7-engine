@@ -448,8 +448,22 @@ def add_technical_indicators(df: pd.DataFrame, inplace: bool = False):
             window=config.VWMA_LENGTH).sum()
 
         # Vectorized calculation with safe division
+        #
+        # ITEM 3 RE-AUDIT (Finding 1), the fallback the auditor actually
+        # quoted. This line still read `close_prices` here until now: every
+        # rolling window whose volume summed to zero or non-finite (an
+        # all-zero stretch, or one that landed just past a spike the sum
+        # picked up and then dropped) got VWMA = close, a zero-distance read
+        # worth a perfect 20 of 20 entry-quality points for a window with no
+        # usable volume measurement. That is the identical fabrication the
+        # comment below already named for the except branch and sequence item
+        # 15 already removed from the trailing fillna — this is the one
+        # instance neither pass reached, because it lives in the success path,
+        # not a repair of it.
+        #
+        # NaN now, matching the "no value has no value" rule two lines below.
         valid_mask = (volume_sum > 0) & np.isfinite(volume_sum) & np.isfinite(price_volume_sum)
-        df["VWMA"] = np.where(valid_mask, price_volume_sum / volume_sum, close_prices)
+        df["VWMA"] = np.where(valid_mask, price_volume_sum / volume_sum, np.nan)
 
         # SEQUENCE ITEM 15: this line was
         #
@@ -463,7 +477,11 @@ def add_technical_indicators(df: pd.DataFrame, inplace: bool = False):
         # left the one that quietly succeeds.
         #
         # Forward fill only, and no substitution. A VWMA that has no value has
-        # no value.
+        # no value. This is also what now carries a genuinely all-invalid
+        # window forward from the last window that did have usable volume —
+        # and entry_model.py's own consumption of a still-NaN VWMA (the
+        # leading edge, before any window has ever been valid) is fixed
+        # separately; see models/entry_model.py.
         if df["VWMA"].isna().any():
             df["VWMA"] = df["VWMA"].ffill()
     except Exception as e:
@@ -477,6 +495,59 @@ def add_technical_indicators(df: pd.DataFrame, inplace: bool = False):
         failed("VWMA", e,
                "entry quality loses its VWMA distance component (20 of 100 "
                "points)")
+
+    # ============================================================
+    # ITEM 3 RE-AUDIT (Finding 1): ISOLATED VOLUME SPIKE, DEGRADED NOT REJECTED
+    # ============================================================
+    #
+    # data/validation.py deliberately does not reject an isolated extreme
+    # volume reading — see that module's docstring. A spike is real data, and
+    # rejecting the run over a busy market would make the engine least
+    # available exactly when it matters most.
+    #
+    # But "not rejected" cannot mean "reaches bias, structure and entry quality
+    # with no record of it" either — that was the auditor's concrete scenario:
+    # a single candle with volume = 10^12 can move volume_expansion,
+    # volume_sentiment, the bias score, VWMA and entry quality, and the panel
+    # would show a clean analysis. Ruled by Viktor, 31 August 2026: the spike's
+    # real value reaches every calculation UNALTERED — nothing here fabricates
+    # a cap or a substitute for it — but the run is recorded as degraded, so
+    # DecisionModel caps confidence rather than letting a single extreme bar
+    # buy full conviction.
+    #
+    # Checked against a rolling median of the same window structure.py and
+    # this function's own VWMA already use (config.VWMA_LENGTH, 20 candles),
+    # because a threshold measured against a window nobody else reads would be
+    # answering a different question than the one those calculations ask. The
+    # median rather than the mean, because one extreme value cannot drag its
+    # own baseline away from itself the way a mean would. 10x is deliberately
+    # loose — a busy market can easily run 2-3x an ordinary bar; the audit's
+    # own illustration was many orders of magnitude past any real trading
+    # session, and this is sized to catch that, not to flag Tuesday.
+    if "volume" in df.columns:
+        vol = pd.to_numeric(df["volume"], errors="coerce")
+        window = min(config.VWMA_LENGTH, len(vol))
+        SPIKE_RATIO = 10.0
+        if window >= 5:
+            recent = vol.iloc[-window:]
+            finite_recent = recent[np.isfinite(recent)]
+            baseline_median = float(finite_recent.median()) if len(finite_recent) else 0.0
+            if baseline_median > 0:
+                spikes = finite_recent[finite_recent > SPIKE_RATIO * baseline_median]
+                if len(spikes):
+                    worst = float(spikes.max())
+                    failures.append(IndicatorFailure(
+                        indicator="volume",
+                        reason=(f"a candle in the last {window} carries volume "
+                                f"{worst:.0f}, {worst / baseline_median:.1f}x "
+                                f"the window's median ({baseline_median:.0f})"),
+                        consequence=("an isolated extreme volume reading is "
+                                      "used as-is in VWMA, volume sentiment and "
+                                      "the bias score -- not fabricated away -- "
+                                      "but this run is degraded so confidence "
+                                      "is capped rather than taken at face "
+                                      "value"),
+                    ))
 
     # ============================================================
     # SLOPES WITH OPTIMIZED CALCULATION

@@ -128,6 +128,44 @@ def test_rejects_negative_volume():
         _assert_rejected(_write(df, tmp), "negative volume")
 
 
+def test_rejects_all_zero_volume():
+    """
+    Item 3 re-audit, Finding 1. Every candle reports zero volume.
+
+    Ruled by Viktor, 31 August 2026: unlike an isolated spike (real data,
+    deliberately left to indicators.py to degrade rather than reject — see
+    the module docstring), an all-zero series has no genuine volume
+    measurement to build VWMA or any volume-weighted read from. There is
+    nothing here to salvage, so it is rejected the same way a negative price
+    is: before analysis, not degraded within it.
+    """
+    df = _load()
+    df["volume"] = 0.0
+    with tempfile.TemporaryDirectory() as tmp:
+        _assert_rejected(_write(df, tmp), "all-zero volume")
+
+
+def test_accepts_an_isolated_volume_spike():
+    """
+    The other half of the ruling: a single, real, extreme volume bar is NOT a
+    validation-layer rejection. See the module docstring's "ITEM 3 RE-AUDIT"
+    section — a spike is data, and validate_ohlcv is not where "abnormal" gets
+    defined. indicators/indicators.py's degradation flag is where this case is
+    actually handled; tests/test_no_dead_columns.py and the indicator suite
+    cover that side.
+    """
+    df = _load()
+    df.loc[200, "volume"] = df["volume"].median() * 500.0
+    with tempfile.TemporaryDirectory() as tmp:
+        accepted, reason = _validate(_write(df, tmp))
+        assert accepted, (
+            f"an isolated volume spike was rejected by the validator: {reason}\n"
+            "A spike is real market data, not corruption — see the module "
+            "docstring's ITEM 3 RE-AUDIT section. Rejecting it here would make "
+            "the engine least available exactly when the market is busiest."
+        )
+
+
 def test_rejects_stale_data():
     """
     Every candle is real and well formed, but the series ends two years ago.
@@ -241,6 +279,9 @@ def test_each_defect_is_reported_by_its_own_name():
 
     d = df.copy(); d.loc[77, "volume"] = -5000.0
     cases.append((d, ("negative volume",), "negative volume"))
+
+    d = df.copy(); d["volume"] = 0.0
+    cases.append((d, ("all volume", "zero"), "all-zero volume"))
 
     d = df.copy(); d.loc[250, "close"] = float("nan")
     cases.append((d, ("nan",), "NaN"))

@@ -355,6 +355,12 @@ def render_panel(decision):
             f"VOLUME     : {colorize_val(structure.get('volume_sentiment', 'WEAK OR CONTRARY VOLUME'))}\n"
             f"VALIDATION : {colorize_val(risk.get('validation_state', 'WEAK'))} (Score: {validation_score:.2f})\n"
             f"VOLATILITY : {colorize_val(bias.get('volatility', 'LOW'))}\n"
+            # ITEM 14 RE-AUDIT (Finding 5): the independent risk classification
+            # that now caps the AGGRESSIVE action label -- see
+            # decision_model.py's _determine_final_action. Shown so the
+            # reasoning in Decision Reasoning below ("the risk regime is HIGH
+            # VOLATILITY RISK") points at something visible on the panel.
+            f"RISK REGIME: {colorize_val(risk.get('risk_regime', 'NORMAL RISK'))}\n"
             f"MACRO TREND: {colorize_val(macro_bias)}\n\n"
             f"{divider}"
             f"CURRENT PRICE : {ORANGE}${current_price:.4f}{reset}\n"

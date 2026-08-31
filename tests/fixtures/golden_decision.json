@@ -3,21 +3,21 @@
     "detailed": "BULLISH CONFIRMED",
     "raw": "BULLISH",
     "regime": "BULLISH TREND",
-    "score": 82.51117367,
+    "score": 78.6972703,
     "volatility": "MEDIUM VOLATILITY"
   },
   "btc_context": {
     "available": true,
     "beta": -0.04925435,
     "broad_market_stress": false,
-    "btc_adjusted_confidence": 60.41365386,
+    "btc_adjusted_confidence": 78.13506618,
     "correlation": -0.0426301,
     "correlation_label": "WEAK / NO CLEAR RELATIONSHIP",
     "detailed": "BEARISH CONFIRMED",
     "n_observations": 30,
     "raw": "BEARISH",
     "reasons": [
-      "BTC-adjusted confidence: 60/100 (vs 61/100 unadjusted, never replacing it). TEST and BTC have a weak / no clear relationship (correlation -0.04 over the last 30 candles), and BTC is bearish confirmed, disagreeing with TEST's own bias."
+      "BTC-adjusted confidence: 78/100 (vs 79/100 unadjusted, never replacing it). TEST and BTC have a weak / no clear relationship (correlation -0.04 over the last 30 candles), and BTC is bearish confirmed, disagreeing with TEST's own bias."
     ],
     "regime": "BEARISH TREND",
     "trend_health": 97.0,
@@ -53,11 +53,11 @@
   "explanation": {
     "reasons": [
       "Risk check failed (Stop distance exceeds maximum allowable threshold (15%).), so no trade is allowed right now.",
-      "Confidence is 61/100 \u2014 bias strength is 83/100 (which already carries trend health), structure agrees with the bullish bias, and validation is weak. This reflects how the picture lines up, not a green light \u2014 the risk check above is what's blocking the trade.",
+      "Confidence is 79/100 \u2014 the bias engine's own composite strength (trend health, structure regime, volume sentiment, SuperTrend direction, macro bias, and reversal/continuation, already weighted and blended into one score). Restating any of those as a separate bonus here would count the same evidence twice. This reflects how the picture lines up, not a green light \u2014 the risk check above is what's blocking the trade.",
       "Entry quality is 45/100 \u2014 a weak entry. Compare it against the TREND line rather than against a restatement of it.",
-      "Expected value (illustrative, not backtested): treating the 61/100 confidence score as a rough win rate against the standard 2:1 average reward, this setup works out to about +0.83R per trade \u2014 positive -- worth taking on average if that win rate holds up (this is hypothetical, since no trade is actually being suggested right now)."
+      "Expected value (illustrative, not backtested): treating the 79/100 confidence score as a rough win rate against the standard 2:1 average reward, this setup works out to about +1.36R per trade \u2014 positive -- worth taking on average if that win rate holds up (this is hypothetical, since no trade is actually being suggested right now)."
     ],
-    "summary": "NO-TRADE (RISK TOO HIGH) \u2014 Expected value (illustrative, not backtested): treating the 61/100 confidence score as a rough win rate against the standard 2:1 average reward, this setup works out to about +0.83R per trade \u2014 positive -- worth taking on average if that win rate holds up (this is hypothetical, since no trade is actually being suggested right now)."
+    "summary": "NO-TRADE (RISK TOO HIGH) \u2014 Expected value (illustrative, not backtested): treating the 79/100 confidence score as a rough win rate against the standard 2:1 average reward, this setup works out to about +1.36R per trade \u2014 positive -- worth taking on average if that win rate holds up (this is hypothetical, since no trade is actually being suggested right now)."
   },
   "macro_bias": "BULLISH",
   "provenance": {
@@ -67,12 +67,13 @@
     "source": "pinned"
   },
   "risk": {
-    "assumed_win_rate": 61.00893893,
+    "assumed_win_rate": 78.6972703,
     "atr_stop": 0.6421571,
     "avg_reward_r": 2.0,
-    "confidence_score": 61.00893893,
-    "ev_r": 0.83026817,
+    "confidence_score": 78.6972703,
+    "ev_r": 1.36091811,
     "risk_reason": "Stop distance exceeds maximum allowable threshold (15%).",
+    "risk_regime": "UNKNOWN",
     "risk_valid": false,
     "targets": [
       0.9613064,

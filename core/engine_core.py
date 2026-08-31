@@ -523,7 +523,11 @@ class Phase7Engine:
             # volatility_state/trend_health, so risk validation always ran against
             # the function's hardcoded defaults ("NORMAL", 50.0) regardless of
             # actual market conditions. Now passes the real, current values.
-            risk_valid, risk_reason = self.risk_model.validate_risk_parameters(
+            # ITEM 14 RE-AUDIT (Finding 5): now returns risk_regime as a
+            # third value -- see models/risk_model.py. Carried into the risk
+            # dict below so decision_model.py can gate the AGGRESSIVE label
+            # on it, independently of trend health and entry quality.
+            risk_valid, risk_reason, risk_regime = self.risk_model.validate_risk_parameters(
                 current_price=current_price,
                 atr_stop=atr_stop,
                 volatility_state=volatility_mode,
@@ -612,6 +616,7 @@ class Phase7Engine:
                 "targets": (t1, t2, t3),
                 "risk_valid": risk_valid,
                 "risk_reason": risk_reason,
+                "risk_regime": risk_regime,
                 # SEQUENCE ITEM 13 — risk_score and signal_strength removed.
                 # Both were assigned bias_score verbatim, making three names for
                 # one number in a single object, and the third — bias.score — is

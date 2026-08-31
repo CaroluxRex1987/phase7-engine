@@ -141,6 +141,12 @@ class RiskBlock(TypedDict):
     targets: Tuple[float, float, float]
     risk_valid: bool
     risk_reason: str
+    # ITEM 14 RE-AUDIT (Finding 5): risk_model.classify_risk_regime() always
+    # computed this; only a boolean comparison against "EXTREME RISK" used to
+    # reach risk_valid above. decision_model.py now reads the regime itself
+    # to gate the AGGRESSIVE action label independently of trend health and
+    # entry quality.
+    risk_regime: str
     # `risk_score` and `signal_strength` both held bias_score and were removed
     # at sequence item 13. bias.score is that number's one home.
     confidence_score: float

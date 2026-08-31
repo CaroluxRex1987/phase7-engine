@@ -202,28 +202,43 @@ class RiskModel:
         volatility_state: str = "NORMAL",
         trend_health: float = 50.0,
         **kwargs
-    ) -> Tuple[bool, str]:
+    ) -> Tuple[bool, str, str]:
         """
         Validates whether risk parameters are within safe operational thresholds.
+
+        ITEM 14 RE-AUDIT (Finding 5): now returns the risk regime alongside
+        the pass/fail, rather than computing it and discarding everything but
+        one comparison against "EXTREME RISK". decision_model.py needs the
+        regime itself: risk_valid already gates whether a trade is allowed at
+        all, and Item 14 is a second, independent question -- given that a
+        trade IS allowed, how much risk is actually being taken, which
+        risk_valid alone cannot answer (HIGH VOLATILITY RISK and NORMAL RISK
+        both return risk_valid=True, and previously looked identical to
+        every caller past this function).
+
+        "UNKNOWN" in the three early-return branches: classify_risk_regime()
+        was never reached, so there is nothing to report — those branches
+        already fail risk_valid, so decision_model.py never reaches the
+        AGGRESSIVE-gating logic for them regardless of this string.
         """
         try:
             if not (np.isfinite(current_price) and np.isfinite(atr_stop)):
-                return False, "Price or stop level is not a finite number."
+                return False, "Price or stop level is not a finite number.", "UNKNOWN"
             if current_price <= 0 or atr_stop <= 0:
-                return False, "Invalid price or stop levels."
+                return False, "Invalid price or stop levels.", "UNKNOWN"
 
             stop_dist_pct = (abs(current_price - atr_stop) / current_price) * 100.0
 
             if stop_dist_pct > 15.0:
-                return False, "Stop distance exceeds maximum allowable threshold (15%)."
+                return False, "Stop distance exceeds maximum allowable threshold (15%).", "UNKNOWN"
             if stop_dist_pct < 0.2:
-                return False, "Stop distance too tight (risk of market noise liquidation)."
+                return False, "Stop distance too tight (risk of market noise liquidation).", "UNKNOWN"
 
             risk_regime = self.classify_risk_regime(volatility_state, stop_dist_pct, trend_health)
             if risk_regime == "EXTREME RISK":
-                return False, "Risk regime classified as EXTREME RISK."
+                return False, "Risk regime classified as EXTREME RISK.", risk_regime
 
-            return True, "OK"
+            return True, "OK", risk_regime
 
         except Exception as e:
             # SEQUENCE ITEM 9b: examined and deliberately left alone.
@@ -237,4 +252,4 @@ class RiskModel:
             # Recorded rather than silently skipped so the re-audit at item 16
             # sees that both except-returns in this file were considered.
             logger.error(f"Risk validation failed: {e}")
-            return False, f"Risk validation error: {str(e)}"
+            return False, f"Risk validation error: {str(e)}", "UNKNOWN"

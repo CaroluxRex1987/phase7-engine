@@ -46,16 +46,47 @@ chosen there is a magic number with an expiry date.
 
 Ruled by Viktor, 30 August 2026.
 
-WHAT IS DELIBERATELY NOT CHECKED
+ITEM 3 RE-AUDIT (Finding 1): ABNORMAL VOLUME, RULED
 
-**Abnormal volume.** The invariant lists it, and this module checks only that
-volume is finite and non-negative. A volume spike is not corruption — it is
-frequently the most informative bar in the series, and rejecting runs because
-the market got busy would make the engine least available exactly when it
-matters. Detecting "abnormal" would require a model of normal, which is analysis
-rather than validation, and belongs downstream of this file if it belongs
-anywhere. Recorded here so item 16's re-audit sees a decision rather than an
-omission.
+The independent audit found this module's volume check checks only
+non-negativity, and named four cases to distinguish: negative, all-zero /
+unusable, isolated extreme spikes, and non-finite. Ruled by Viktor, 31 August
+2026, having delegated the ruling itself:
+
+  negative       already rejected below (unchanged).
+  non-finite     already rejected — NaN/Inf in 'volume' is caught by the
+                 OHLCV loop above, since "volume" is one of the five columns
+                 it walks. The audit read this module's comment ("checks only
+                 that volume is finite and non-negative") and took it as a
+                 complete list of what runs; it undersold its own coverage.
+  all-zero       REJECTED, new below. A series where every candle reports
+                 zero volume is not a quiet market — a quiet market still
+                 trades something — it is an absent measurement wearing the
+                 shape of one, and indicators/indicators.py's VWMA calculation
+                 (and structure.py's volume-weighted reads) cannot compute
+                 anything real from it. There is no partial analysis to
+                 salvage, which is this module's existing rule for
+                 no-measurement-at-all cases (see REJECT, NOT DEGRADE above).
+  isolated spike DELIBERATELY LEFT TO indicators.py, not rejected here — see
+                 below. This is the one case that stays out of this file.
+
+**Isolated extreme spikes are not validation's job, and remain accepted here.**
+The reasoning below predates the re-audit and still holds: a spike is real
+market data, frequently the most informative bar in the series, and rejecting
+a run because the market got busy would make the engine least available
+exactly when it matters. Detecting "abnormal" requires a model of normal,
+which is analysis, not validation.
+
+What changed is that "accepted here" no longer means "reaches every downstream
+calculation unflagged." indicators.add_technical_indicators() now detects an
+isolated spike (a candle far above the recent rolling volume) and records it
+as a degradation — Viktor's standing rule that a failed or suspect input
+degrades the run rather than halting it, and that a degraded run does not by
+itself authorize a trade. The spike's real value is never altered or
+substituted; only the operator's confidence in the result is capped. See
+indicators/indicators.py for the detection and core/engine_core.py's
+`degradation` list for where it surfaces. This module still rejects nothing
+over a spike — Item 3's "reject or degrade" is satisfied one layer down.
 
 **Row count.** engine_core._validate_dataframe already requires 20 rows and
 reports its own message. Duplicating it here would mean two thresholds to keep
@@ -168,6 +199,16 @@ def validate_ohlcv(df, timeframe=None, now=None):
 
     if (volume < 0).any():
         return f"negative volume; lowest is {float(volume.min())}"
+
+    # ITEM 3 RE-AUDIT (Finding 1): all-zero volume is a missing measurement,
+    # not a quiet market — see the module docstring. `volume` here has already
+    # passed the NaN/Inf checks above, so a series that is all zero really
+    # reported zero on every candle rather than failing to parse.
+    if len(volume) and (volume == 0).all():
+        return ("all volume values are zero; there is no genuine volume "
+                "measurement in this series. VWMA and every volume-weighted "
+                "read downstream would be computed from an absence, not a "
+                "quiet market.")
 
     # --- candles must be internally possible -----------------------------
     #

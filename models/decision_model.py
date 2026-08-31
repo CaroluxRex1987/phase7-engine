@@ -21,8 +21,10 @@ class DecisionModel:
     Original roadmap diagnosis: decision logic (_determine_final_action)
     was living inside signal_router.py, which is architecturally wrong --
     "Router contains decision logic (should not)." This module is the fix:
-    the single place that turns {bias, trend, structure, entry, risk,
-    macro_bias} into {final_action, confidence, trade_quality, explanation}.
+    the single place that turns {bias, trend, entry, risk, macro_bias} into
+    {final_action, confidence, trade_quality, explanation}. (`structure` was
+    a parameter too until the Item 11 re-audit removed the confidence
+    calculation that was its only reader here -- see evaluate()'s comment.)
     signal_router.py now just calls DecisionModel.evaluate(...) and
     assembles/renders the result -- it is a pure assembler, per the
     roadmap's stated architecture.
@@ -69,7 +71,6 @@ class DecisionModel:
         self,
         bias: Dict[str, Any],
         trend: Dict[str, Any],
-        structure: Dict[str, Any],
         entry: Dict[str, Any],
         risk: Dict[str, Any],
         macro_bias: str,
@@ -77,11 +78,17 @@ class DecisionModel:
         degradation: Optional[List[str]] = None,
         symbol: str = "this asset",
     ) -> Dict[str, Any]:
+        # ITEM 11 RE-AUDIT (Finding 4): `structure` was a parameter here,
+        # threaded into _compute_confidence to compute structure_alignment.
+        # It is gone along with that term -- see _compute_confidence's
+        # docstring. signal_router.py still reads structure.regime for its
+        # own "structure" block; this method simply no longer needs a second
+        # copy of it.
         reasons: List[str] = []
         degradation = list(degradation) if degradation else []
 
         final_action = self._determine_final_action(bias, trend, entry, risk, macro_bias, reasons)
-        confidence = self._compute_confidence(bias, trend, structure, risk, final_action, reasons)
+        confidence = self._compute_confidence(bias, final_action, reasons)
         trade_quality = self._compute_trade_quality(trend, entry, final_action, reasons)
 
         if degradation:
@@ -199,6 +206,21 @@ class DecisionModel:
                 reasons.append(f"Risk check failed ({risk_reason}), so no trade is allowed right now.")
                 return "NO-TRADE (RISK TOO HIGH)"
 
+            # ITEM 14 RE-AUDIT (Finding 5): risk_regime is read here as its
+            # own, independent input -- see models/risk_model.py's
+            # classify_risk_regime(), which computed this all along but
+            # discarded everything except the EXTREME RISK/not-EXTREME
+            # boolean already folded into risk_valid above. It gates action
+            # INTENSITY only -- whether "AGGRESSIVE" may be used -- never
+            # direction and never whether a trade is allowed at all; that is
+            # what risk_valid above already decided. Conviction (trend
+            # health, entry quality) and risk are now two separate checks
+            # instead of one number standing in for both, per the audit's
+            # required action: "directional conviction must never be treated
+            # as equivalent to risk."
+            risk_regime = str(risk.get("risk_regime", "NORMAL RISK"))
+            aggressive_allowed = risk_regime not in ("HIGH VOLATILITY RISK", "EXTREME RISK")
+
             validation_state = str(risk.get("validation_state", "NEUTRAL"))
             # SEQUENCE ITEM 13: this read trend["health"] first and fell back
             # to trend["trend_health"]. Both held the same number, but the
@@ -222,13 +244,21 @@ class DecisionModel:
 
             if raw_bias == "BULLISH" or long_signal or macro_bias == "BULLISH":
                 if trend_health >= 75 and entry_score >= 70 and not divergence:
-                    if entry_active:
+                    if entry_active and aggressive_allowed:
                         reasons.append(
                             f"Bias is bullish with strong trend health ({trend_health:.0f}/100) and a "
                             f"high-quality, active entry ({entry_score:.0f}/100), with no momentum divergence "
-                            f"— AGGRESSIVE LONG."
+                            f"and a {risk_regime.lower()} — AGGRESSIVE LONG."
                         )
                         return "AGGRESSIVE LONG"
+                    if entry_active and not aggressive_allowed:
+                        reasons.append(
+                            f"Bias is bullish with strong trend health ({trend_health:.0f}/100) and a "
+                            f"high-quality, active entry ({entry_score:.0f}/100) would otherwise qualify as "
+                            f"AGGRESSIVE, but the risk regime is {risk_regime} — directional conviction does "
+                            f"not override risk, so this stays LONG."
+                        )
+                        return "LONG"
                     reasons.append(
                         f"Bias is bullish with strong trend health ({trend_health:.0f}/100) and a high-quality "
                         f"entry ({entry_score:.0f}/100), with no momentum divergence — LONG."
@@ -244,13 +274,21 @@ class DecisionModel:
 
             if raw_bias == "BEARISH" or short_signal or macro_bias == "BEARISH":
                 if trend_health >= 75 and entry_score >= 70 and not divergence:
-                    if entry_active:
+                    if entry_active and aggressive_allowed:
                         reasons.append(
                             f"Bias is bearish with strong trend health ({trend_health:.0f}/100) and a "
                             f"high-quality, active entry ({entry_score:.0f}/100), with no momentum divergence "
-                            f"— AGGRESSIVE SHORT."
+                            f"and a {risk_regime.lower()} — AGGRESSIVE SHORT."
                         )
                         return "AGGRESSIVE SHORT"
+                    if entry_active and not aggressive_allowed:
+                        reasons.append(
+                            f"Bias is bearish with strong trend health ({trend_health:.0f}/100) and a "
+                            f"high-quality, active entry ({entry_score:.0f}/100) would otherwise qualify as "
+                            f"AGGRESSIVE, but the risk regime is {risk_regime} — directional conviction does "
+                            f"not override risk, so this stays SHORT."
+                        )
+                        return "SHORT"
                     reasons.append(
                         f"Bias is bearish with strong trend health ({trend_health:.0f}/100) and a high-quality "
                         f"entry ({entry_score:.0f}/100), with no momentum divergence — SHORT."
@@ -283,76 +321,54 @@ class DecisionModel:
     def _compute_confidence(
         self,
         bias: Dict[str, Any],
-        trend: Dict[str, Any],
-        structure: Dict[str, Any],
-        risk: Dict[str, Any],
         final_action: str,
         reasons: List[str],
     ) -> float:
         """
-        Confidence = how much the overall picture agrees with itself, not
-        just "how strong is the trend." Built from:
-          - bias_strength (0-100): magnitude of bias_score, i.e. how
-            decisively the bias engine committed to a direction. Trend health
-            is INSIDE this at weight 0.30 and must not be added again --
-            see sequence item 11 below.
-          - structure_alignment: bonus if structure regime agrees with
-            bias direction, penalty if they actively disagree
-          - validation_adj: bonus/penalty from risk.validation_state
-        This is a V1 -- the roadmap's Layer 2 (multi-factor bias weighting,
-        including SuperTrend direction and macro bias strength as their
-        own explicit inputs) will feed a richer version of this later.
+        Confidence is bias_score's own magnitude, and nothing else.
+
+        ITEM 11 RE-AUDIT (Finding 4), the second half. Sequence item 11
+        removed a direct `trend_health * 0.3` term because trend health
+        already reaches bias_score at WEIGHT_TREND_HEALTH = 0.30 inside
+        bias_engine.py. This removes the two terms that survived that pass
+        and that the auditor's Finding 4 named specifically:
+
+            structure_alignment   +/-10 to +/-15 if structure_regime agreed
+                                   or disagreed with raw_bias
+            validation_adj        +/-10 to -15 from risk.validation_state,
+                                   which engine_core.py built from macro_bias
+                                   agreement and volume_sentiment strength
+
+        structure_regime, macro_bias and volume_sentiment are not new
+        evidence at this point in the pipeline -- they are three of the six
+        weighted factors bias_engine.calculate_dynamic_bias() already blended
+        into bias_score, at 0.20, 0.10 and 0.15 respectively (see that
+        module's dependency-graph comment). Adding structure_alignment and
+        validation_adj on top counted each of them a second time, and let the
+        confidence explanation describe that repetition as independent
+        confirmation -- literally the auditor's concrete scenario: "structure
+        agrees with the bullish bias, and validation is strong," about a
+        bias score those same two facts had already produced.
+
+        The dependency graph, stated rather than left to be reconstructed:
+        bias_score already IS the multi-factor consensus (trend health,
+        structure regime, volume sentiment, SuperTrend direction, macro bias,
+        reversal/continuation). Confidence reports how decisively that
+        consensus committed to a direction; it does not re-derive an opinion
+        from any of the six factors, because there is no genuinely
+        independent input left to check them against. entry_score is the
+        nearest candidate, and it already shares macro_bias, trend_direction
+        and structure_sequence with bias_score (see engine_core.py's call
+        into calculate_entry_quality) -- folding it in here would reproduce
+        the same defect through a fourth path rather than fix it.
+
+        Ruled by Viktor, 31 August 2026 (delegated). No rescale needed:
+        bias_strength already spans 0-100 on its own (bias_score is clipped
+        to +/-100 in bias_engine.py), so removing the two additive terms
+        does not shrink confidence's own range the way removing the old
+        trend_health term once did.
         """
-        bias_strength = min(100.0, abs(_safe_float(bias.get("score"), 0.0)))
-
-        # SEQUENCE ITEM 11: `trend_health * 0.3` was a term here. It is
-        # removed. bias_score already carries trend health at WEIGHT_TREND_HEALTH
-        # = 0.30 (bias_engine.py), so adding it again counted one measurement
-        # twice and presented the agreement of a number with itself as
-        # corroboration.
-        #
-        # bias_strength moves 0.5 -> 0.8 so the score still spans 0-100. Without
-        # that the ceiling would be 70, and confidence is consumed by
-        # _compute_ev as a rough win rate — a percentage that cannot reach its
-        # own maximum understates every expected value computed from it.
-        #
-        # 80 + 10 (structure) + 10 (validation) = 100 exactly.
-
-        raw_bias = str(bias.get("raw", "NEUTRAL"))
-        structure_regime = str(structure.get("regime", "NEUTRAL"))
-
-        if raw_bias == "BULLISH" and structure_regime == "BULLISH TREND":
-            structure_alignment = 10.0
-            alignment_phrase = "structure agrees with the bullish bias"
-        elif raw_bias == "BEARISH" and structure_regime == "BEARISH TREND":
-            structure_alignment = 10.0
-            alignment_phrase = "structure agrees with the bearish bias"
-        elif raw_bias == "BULLISH" and structure_regime == "BEARISH TREND":
-            structure_alignment = -15.0
-            alignment_phrase = "structure is actually bearish while bias is bullish, a real disagreement"
-        elif raw_bias == "BEARISH" and structure_regime == "BULLISH TREND":
-            structure_alignment = -15.0
-            alignment_phrase = "structure is actually bullish while bias is bearish, a real disagreement"
-        else:
-            structure_alignment = 0.0
-            alignment_phrase = "structure is neutral relative to the bias"
-
-        # Note: this is the volume/structure "validation" check (risk.validation_state),
-        # a separate signal from the risk-regime gate that decides risk_valid/risk_reason
-        # above. Deliberately NOT called "risk validation" here -- when the risk-regime
-        # gate blocks a trade (NO-TRADE) and this validation check happens to read STRONG,
-        # the two would otherwise read as contradicting each other.
-        validation_state = str(risk.get("validation_state", "NEUTRAL"))
-        validation_adj = {"STRONG": 10.0, "NEUTRAL": 0.0, "WEAK": -15.0}.get(validation_state, 0.0)
-        if validation_state == "STRONG":
-            validation_phrase = "validation is strong"
-        elif validation_state == "WEAK":
-            validation_phrase = "validation is weak"
-        else:
-            validation_phrase = "validation is neutral"
-
-        confidence = (bias_strength * 0.8) + structure_alignment + validation_adj
-        confidence = max(0.0, min(100.0, confidence))
+        confidence = min(100.0, abs(_safe_float(bias.get("score"), 0.0)))
 
         # When the risk-regime gate has already blocked the trade, make clear this
         # confidence score describes how the picture lines up, not a green light --
@@ -363,14 +379,12 @@ class DecisionModel:
             else ""
         )
 
-        # SEQUENCE ITEM 11, coupling rule: this sentence changed in the same
-        # commit as the formula. Prose describing a calculation that no longer
-        # runs is an Item 8 regression the moment the number moves — and it
-        # named trend health as an input, which is exactly what was removed.
         reasons.append(
-            f"Confidence is {confidence:.0f}/100 — bias strength is {bias_strength:.0f}/100 "
-            f"(which already carries trend health), {alignment_phrase}, and "
-            f"{validation_phrase}.{qualifier}"
+            f"Confidence is {confidence:.0f}/100 — the bias engine's own composite "
+            f"strength (trend health, structure regime, volume sentiment, SuperTrend "
+            f"direction, macro bias, and reversal/continuation, already weighted and "
+            f"blended into one score). Restating any of those as a separate bonus here "
+            f"would count the same evidence twice.{qualifier}"
         )
         return float(confidence)
 

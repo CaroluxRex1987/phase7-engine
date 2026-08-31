@@ -201,8 +201,13 @@ class SignalRouter:
             # says a degraded result does not by itself authorize trading, so
             # the model has to know before it decides — an annotation added
             # after the fact would describe a decision already made.
+            # ITEM 11 RE-AUDIT (Finding 4): `structure` is no longer passed
+            # to evaluate() -- DecisionModel's confidence calculation stopped
+            # reading it (see decision_model.py's _compute_confidence). It is
+            # still used below, to build this function's own "structure"
+            # block of the decision object.
             dm_result = self.decision_model.evaluate(
-                bias, trend, structure, entry, risk, macro_bias, btc_context,
+                bias, trend, entry, risk, macro_bias, btc_context,
                 degradation=degradation,
                 symbol=symbol,
             )
@@ -278,6 +283,14 @@ class SignalRouter:
                     "targets": (float(targets[0]), float(targets[1]), float(targets[2])),
                     "risk_valid": bool(risk.get("risk_valid", True)),
                     "risk_reason": str(risk.get("risk_reason", "OK")),
+                    # ITEM 14 RE-AUDIT (Finding 5): risk_model.py's
+                    # classify_risk_regime() always computed this; only its
+                    # EXTREME-RISK/not boolean reached risk_valid above.
+                    # DecisionModel now reads the regime itself to gate
+                    # whether an AGGRESSIVE action label may be used --
+                    # directional conviction is no longer the only thing
+                    # deciding it.
+                    "risk_regime": str(risk.get("risk_regime", "NORMAL RISK")),
                     # ROADMAP LAYER 1 FIX: confidence_score and the two
                     # trade_quality_* fields are now DecisionModel's real,
                     # multi-factor outputs (see models/decision_model.py)
