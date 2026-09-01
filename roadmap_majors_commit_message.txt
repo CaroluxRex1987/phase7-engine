@@ -1,0 +1,53 @@
+PHASE7_NEXT.md: verified status of every remaining finding
+
+Viktor's instruction, 2 September: fix the Major and Moderate findings
+tomorrow, and record that plus anything else outstanding.
+
+Before writing the plan, every remaining finding was checked against the
+code rather than against the report -- opening each location the audit
+quoted and looking at what is there now. That changed the answer.
+
+THE COUNT WAS WRONG
+
+Claude told Viktor on 1 September that "nine Major and Moderate findings"
+were still open. That number came from the report. Three of the ten are
+already closed, by work that never named a finding number:
+
+  Finding 8  (inaccurate user-facing claims)  -- all three paths fixed:
+             panel_render prints (Lookback {config.STRUCT_LOOKBACK}),
+             "full size" appears nowhere in the engine, and the failed-macro
+             path degrades as of 5d2cbbe. Batches 1-2 did the first two.
+  Finding 10 (unconsumed trade_quality_current) -- field gone from
+             engine_core and signal_router.
+  Finding 15 (dependency versions) -- a26c545.
+
+Genuinely open: Findings 6, 7, 9, 11, 12 in full, plus the remainders of 13
+(the plotting test still asserts only the absence of ERROR records) and 14
+(the independently-required shape still omits provenance, degradation and
+the log path). Seven items, not nine. Part 6 observations 1, 3 and 4 are
+also open; 2 and 5 are closed.
+
+WHAT WENT INTO THE FILE
+
+- A status table for Findings 6-15 and all six Part 6 observations, citing a
+  file and a line for every verdict, so the next reader can re-check it
+  rather than trust it.
+- A note that twelve rules graded "Not verifiable" are unassessable rather
+  than failed, and that five of them -- version control, controlled changes,
+  known-good checkpoints, rollback, documentation of decisions -- were
+  unassessable only because commit history was withheld from the auditor.
+  Supplying the git history to a re-audit would likely move those five
+  without a line of code changing. Cheapest work on the page.
+- Tomorrow's order, with Findings 6 and 7 paired because the report pairs
+  them, and flagged as the item most likely to need a ruling: a content hash
+  and a raw-data archive are a storage policy, not a refactor.
+- Earned rule 20: a finding list is a snapshot with a date on it and decays
+  in both directions. Rule 19 was the plan missing what the report had; this
+  is the report not knowing what has been fixed since. Neither document
+  knows the state of the code.
+
+Documentation only -- no code or test changes, no suite run needed. The
+engine is unchanged at 155 passing.
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01PdeL38fmbxrR8xyboe4QYm
