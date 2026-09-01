@@ -371,36 +371,60 @@ def test_the_macro_series_is_actually_read():
     this asserts the difference directly: remove the macro file and the macro
     read must change.
 
-    WHAT THIS EXPOSES, recorded rather than fixed. A macro fetch that fails does
-    not raise and does not mark the run degraded — engine_core validates the
-    frame, and on failure leaves macro_bias at its initialised "NEUTRAL". So a
-    missing timeframe and a genuinely directionless market produce the same
-    word, and the panel prints MACRO TREND: NEUTRAL either way.
+    ITEM 8/13 RE-AUDIT, 1 September 2026 (WHAT THIS USED TO EXPOSE, NOW FIXED).
+    A macro fetch that failed did not raise and did not mark the run degraded
+    — engine_core validated the frame, and on failure left macro_bias at its
+    initialised "NEUTRAL". A missing timeframe and a genuinely directionless
+    market produced the same word, and the panel printed MACRO TREND: NEUTRAL
+    either way — the fabricated-fallback pattern sequence item 9's degrade
+    ruling names: a real value and a failure sharing a representation.
 
-    That is the fabricated-fallback pattern: a real value and a failure sharing
-    a representation. It belongs to sequence item 9 under the degrade ruling —
-    a failed input must be reported as a failure, not silently rendered as a
-    neutral reading. Rider recorded there.
+    engine_core.py now records a degradation whenever the macro frame fails
+    validation (or raises while being processed), the same as any other
+    missing input. macro_bias still cannot invent a direction from absent
+    data, so it still reports NEUTRAL — but the run built on it is now marked
+    degraded, so a missing macro series and a genuinely flat one no longer
+    look identical to anything downstream.
     """
     if not _engine_available():
         pytest.skip("pandas_ta not installed")
 
-    with_macro = _run().get("macro_bias")
-    without_macro = _run_without(f"{SYMBOL}_{MACRO_TIMEFRAME}.csv").get("macro_bias")
+    with_macro = _run()
+    without_macro = _run_without(f"{SYMBOL}_{MACRO_TIMEFRAME}.csv")
     _clear_state()
 
-    assert with_macro != without_macro, (
+    with_macro_bias = with_macro.get("macro_bias")
+    without_macro_bias = without_macro.get("macro_bias")
+
+    assert with_macro_bias != without_macro_bias, (
         f"deleting {SYMBOL}_{MACRO_TIMEFRAME}.csv from the pinned set did not "
-        f"change macro_bias (both {with_macro!r}).\n"
+        f"change macro_bias (both {with_macro_bias!r}).\n"
         "The macro timeframe is therefore not being read from the pinned "
         "source, and the golden baseline is pinned against a data path the "
         "engine does not use."
     )
-    assert without_macro == "NEUTRAL", (
-        f"a missing macro series produced macro_bias={without_macro!r}, "
-        f"expected 'NEUTRAL'.\nIf engine_core has learned to report this "
-        f"failure honestly, that is sequence item 9 landing and this "
-        f"expectation should be updated to match."
+    assert without_macro_bias == "NEUTRAL", (
+        f"a missing macro series produced macro_bias={without_macro_bias!r}, "
+        f"expected 'NEUTRAL' -- the engine still cannot invent a direction "
+        f"from a fetch it never got."
+    )
+
+    with_degradation = with_macro.get("degradation", {})
+    without_degradation = without_macro.get("degradation", {})
+
+    assert with_degradation.get("degraded") is False, (
+        f"the run with a full pinned set (macro series included) reports "
+        f"itself degraded: {with_degradation}"
+    )
+    assert without_degradation.get("degraded") is True, (
+        f"a missing macro series does not mark the run degraded: "
+        f"{without_degradation}\n"
+        "Item 8/13 requires a failed macro read to be reported as a "
+        "failure, not silently rendered as an ordinary neutral reading."
+    )
+    assert any("macro" in m.lower() for m in without_degradation.get("missing_inputs", [])), (
+        f"the degradation block does not name the macro timeframe: "
+        f"{without_degradation.get('missing_inputs')}"
     )
 
 

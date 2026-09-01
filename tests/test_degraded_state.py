@@ -493,3 +493,84 @@ def test_the_dead_trend_failure_gate_stays_removed():
           "producer and its own justification — not the old comparison "
           "against labels structure.py has never written."
     )
+
+
+# ============================================================
+# Item 8/13 re-audit — the macro read gets the same treatment
+# ============================================================
+#
+# tests/test_golden_path.py::test_the_macro_series_is_actually_read covers
+# the case named in the roadmap: the macro timeframe fetch itself failing
+# (deleting the pinned macro file, which makes get_tf return an empty frame
+# that fails _validate_dataframe). This section covers the other half of the
+# same fabricated-fallback shape: the macro frame fetches fine, but something
+# raises while it is being processed. Before this fix engine_core.py's
+# `except Exception` around that step only logged a warning and left
+# macro_bias at "NEUTRAL" -- unreported, same as the fetch-failure case was.
+
+def _run_with_broken_macro_processing():
+    """
+    Makes add_technical_indicators raise on its FIRST call only, then hands
+    every later call through to the real function.
+
+    engine_core.py calls add_technical_indicators on the macro frame (step
+    1b) before it calls it on the base frame (step 2), so a first-call-only
+    break lands exactly on the macro path and leaves base-data processing
+    untouched -- unlike patching a single ta.* function (which would break
+    the indicator on both frames, or unlike breaking the whole function
+    unconditionally, which would also take down step 2 and turn this into a
+    halt-the-run test instead of a degrade-the-macro-read test.
+    """
+    import core.engine_core as ec
+    from data.data_fetcher import DataFetcher, data_fetcher
+    from models.signal_router import SignalRouter
+
+    real_fn = ec.add_technical_indicators
+    calls = {"n": 0}
+
+    def first_call_explodes(*a, **k):
+        calls["n"] += 1
+        if calls["n"] == 1:
+            raise RuntimeError("simulated macro processing failure")
+        return real_fn(*a, **k)
+
+    original_url = data_fetcher.base_url
+    try:
+        ec.add_technical_indicators = first_call_explodes
+        data_fetcher.base_url = UNREACHABLE
+        DataFetcher.set_pinned_source(PINNED_DIR)
+        return SignalRouter().route(symbol="AEROUSDT", timeframe="4h")
+    finally:
+        ec.add_technical_indicators = real_fn
+        DataFetcher.clear_pinned_source()
+        data_fetcher.base_url = original_url
+
+
+def test_a_macro_processing_exception_degrades_rather_than_fabricates():
+    if not _engine_available():
+        pytest.skip("pandas_ta not installed")
+
+    decision = _run_with_broken_macro_processing()
+    assert "error" not in decision, (
+        f"the engine halted instead of degrading: {decision.get('error')}\n"
+        "A macro-processing exception must not end the run any more than a "
+        "failed indicator does."
+    )
+
+    assert decision.get("macro_bias") == "NEUTRAL", (
+        f"expected macro_bias='NEUTRAL' when macro processing raises "
+        f"(the engine cannot invent a direction), got "
+        f"{decision.get('macro_bias')!r}"
+    )
+
+    block = decision.get("degradation", {})
+    assert block.get("degraded") is True, (
+        f"macro processing raised but the run does not report itself "
+        f"degraded: {block}\n"
+        "Before the item 8/13 fix this exception was only logged, so a "
+        "failed macro read and a genuinely neutral one looked identical."
+    )
+    assert any("macro" in m.lower() for m in block.get("missing_inputs", [])), (
+        f"the degradation block does not name the macro timeframe: "
+        f"{block.get('missing_inputs')}"
+    )

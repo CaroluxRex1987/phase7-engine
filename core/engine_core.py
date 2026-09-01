@@ -232,8 +232,44 @@ class Phase7Engine:
                         elif macro_close < macro_ema50:
                             macro_bias = "BEARISH"
                 except Exception as e:
+                    # ITEM 8/13 RE-AUDIT: this used to only log.warning and
+                    # leave macro_bias at "NEUTRAL" -- indistinguishable from a
+                    # genuinely flat higher timeframe. Same fabricated-fallback
+                    # shape item 9 named for indicator failures (a failure
+                    # rendered as a real reading), so it gets the same fix:
+                    # recorded as a degradation instead of only logged.
                     logger.warning(f"Failed to process macro timeframe data: {e}")
+                    degradation.append(
+                        f"macro timeframe data failed to process ({e}) -- "
+                        f"macro_bias reported as NEUTRAL by default, not "
+                        f"because the higher timeframe is genuinely flat"
+                    )
                     macro_bias = "NEUTRAL"
+            else:
+                # ITEM 8/13 RE-AUDIT (roadmap "Item 8/13 macro degradation"):
+                # a macro fetch failure or an insufficient/malformed macro
+                # frame used to leave macro_bias at its initialised "NEUTRAL"
+                # with nothing added to `degradation` -- a failed higher-
+                # timeframe read and a genuinely neutral macro trend rendered
+                # identically, both on the panel and to every downstream
+                # consumer of macro_bias (bias_engine's macro factor,
+                # signal_router's macro/volume agreement check, the
+                # AGGRESSIVE-gate macro checks in decision_model).
+                # tests/test_golden_path.py::test_the_macro_series_is_actually_read
+                # documented this in its own docstring as "recorded rather
+                # than fixed... a rider on sequence item 9's degrade ruling."
+                #
+                # Ruled: report the failure like any other degraded input,
+                # per Viktor's item 9 "degrade, don't fabricate" ruling.
+                # macro_bias still can't invent a direction from missing
+                # data, so it stays NEUTRAL -- but the run is now marked
+                # degraded instead of silently trusted.
+                macro_fetch_error = df_macro.attrs.get("fetch_error") if df_macro is not None else None
+                degradation.append(
+                    f"macro timeframe fetch failed: {macro_fetch_error}"
+                    if macro_fetch_error
+                    else "macro timeframe data is invalid or insufficient"
+                )
 
             # 2. INDICATORS
             try:
