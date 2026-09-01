@@ -2,4 +2,6 @@
 #     pip install -r requirements.txt -r requirements-dev.txt
 #
 # The suite also runs with no pytest at all, via `python run_tests.py`.
-pytest>=8.0
+#
+# Pinned per audit Finding 15 -- see requirements.txt's header.
+pytest==9.1.1

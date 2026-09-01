@@ -106,10 +106,14 @@ GitHub at `375334a`; nothing lived only on disk except gitignored `logs/`.
 
 **`docs/audit_package/environment_before_reinstall.txt`** records the exact library
 versions and **Python 3.12.0** that produced the original golden baseline.
-`requirements.txt` pins no versions — that is audit Finding 15, still open — so a fresh
-install can resolve different pandas / numpy / pandas_ta and shift indicator output. The
-baseline has since moved twice more, deliberately, at `dba1b63` and `c4dfcc7` — each time
-because a real fix changed what the engine computes, verified by predicting the diff before
+`requirements.txt` and `requirements-dev.txt` now pin exact versions — audit **Finding 15,
+closed 1 September 2026** — so a fresh install can no longer silently resolve a different
+pandas / numpy / pandas_ta and shift indicator output. Pinned to the versions verified
+identical across both environments that ran the full suite that day (sandbox, Python 3.12.3;
+Viktor's machine, Python 3.12.10): `pandas==3.0.5`, `numpy==2.2.6`, `matplotlib==3.11.1`,
+`pandas_ta==0.4.71b0`, `requests==2.32.5`, `colorama==0.4.6`, `pytest==9.1.1`. The baseline
+has since moved twice more, deliberately, at `dba1b63` and `c4dfcc7` — each time because a
+real fix changed what the engine computes, verified by predicting the diff before
 re-baselining (see Working practice below). **If the golden snapshot moves and neither
 commit explains it, check this file's environment note before assuming the engine broke.**
 

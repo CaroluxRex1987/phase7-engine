@@ -1,0 +1,59 @@
+diff --git a/docs/PHASE7_NEXT.md b/docs/PHASE7_NEXT.md
+index 0c7c4da..c72a2f8 100644
+--- a/docs/PHASE7_NEXT.md
++++ b/docs/PHASE7_NEXT.md
+@@ -106,10 +106,14 @@ GitHub at `375334a`; nothing lived only on disk except gitignored `logs/`.
+ 
+ **`docs/audit_package/environment_before_reinstall.txt`** records the exact library
+ versions and **Python 3.12.0** that produced the original golden baseline.
+-`requirements.txt` pins no versions — that is audit Finding 15, still open — so a fresh
+-install can resolve different pandas / numpy / pandas_ta and shift indicator output. The
+-baseline has since moved twice more, deliberately, at `dba1b63` and `c4dfcc7` — each time
+-because a real fix changed what the engine computes, verified by predicting the diff before
++`requirements.txt` and `requirements-dev.txt` now pin exact versions — audit **Finding 15,
++closed 1 September 2026** — so a fresh install can no longer silently resolve a different
++pandas / numpy / pandas_ta and shift indicator output. Pinned to the versions verified
++identical across both environments that ran the full suite that day (sandbox, Python 3.12.3;
++Viktor's machine, Python 3.12.10): `pandas==3.0.5`, `numpy==2.2.6`, `matplotlib==3.11.1`,
++`pandas_ta==0.4.71b0`, `requests==2.32.5`, `colorama==0.4.6`, `pytest==9.1.1`. The baseline
++has since moved twice more, deliberately, at `dba1b63` and `c4dfcc7` — each time because a
++real fix changed what the engine computes, verified by predicting the diff before
+ re-baselining (see Working practice below). **If the golden snapshot moves and neither
+ commit explains it, check this file's environment note before assuming the engine broke.**
+ 
+diff --git a/requirements-dev.txt b/requirements-dev.txt
+index 0194ce9..4c3fb53 100644
+--- a/requirements-dev.txt
++++ b/requirements-dev.txt
+@@ -2,4 +2,6 @@
+ #     pip install -r requirements.txt -r requirements-dev.txt
+ #
+ # The suite also runs with no pytest at all, via `python run_tests.py`.
+-pytest>=8.0
++#
++# Pinned per audit Finding 15 -- see requirements.txt's header.
++pytest==9.1.1
+diff --git a/requirements.txt b/requirements.txt
+index 9051fea..068543c 100644
+--- a/requirements.txt
++++ b/requirements.txt
+@@ -1,6 +1,13 @@
+-pandas
+-numpy
+-matplotlib
+-pandas_ta
+-requests
+-colorama
++# Pinned to the versions verified on Viktor's machine, 1 September 2026 --
++# both after the 30 August Windows reinstall (Python 3.12.10) and in the
++# sandbox that ran items 3/11/14 and 8/13 (Python 3.12.3). Audit Finding 15:
++# unpinned versions let a fresh install silently resolve different pandas /
++# numpy / pandas_ta and shift indicator output -- exactly what happened
++# across the reinstall (numpy 1.26.4 -> 2.2.6), caught only because someone
++# happened to check. See docs/PHASE7_NEXT.md's environment note.
++pandas==3.0.5
++numpy==2.2.6
++matplotlib==3.11.1
++pandas_ta==0.4.71b0
++requests==2.32.5
++colorama==0.4.6

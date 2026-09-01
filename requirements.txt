@@ -1,6 +1,13 @@
-pandas
-numpy
-matplotlib
-pandas_ta
-requests
-colorama
+# Pinned to the versions verified on Viktor's machine, 1 September 2026 --
+# both after the 30 August Windows reinstall (Python 3.12.10) and in the
+# sandbox that ran items 3/11/14 and 8/13 (Python 3.12.3). Audit Finding 15:
+# unpinned versions let a fresh install silently resolve different pandas /
+# numpy / pandas_ta and shift indicator output -- exactly what happened
+# across the reinstall (numpy 1.26.4 -> 2.2.6), caught only because someone
+# happened to check. See docs/PHASE7_NEXT.md's environment note.
+pandas==3.0.5
+numpy==2.2.6
+matplotlib==3.11.1
+pandas_ta==0.4.71b0
+requests==2.32.5
+colorama==0.4.6
