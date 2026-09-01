@@ -1,8 +1,15 @@
 # Next step — read this first
 
-*Updated 31 August 2026, after items 3, 11 and 14. **Remediation of the audit's five
-Criticals is complete.** Suite: 136 passing, 0 skipped, 0 failed — the skip-visibility
-caveat below is now history, not a live warning.*
+*Updated 2 September 2026, after Finding 3. **All five of the audit's Criticals are now
+fixed — but only four of them ever were until today.** Suite: 155 passing, 0 skipped, 0
+failed, and 91 passed / 64 skipped on a machine without `pandas_ta`.*
+
+> **Read the audit report, not this file, when you want to know what is outstanding.**
+> From 31 August to 1 September this file said remediation of the five Criticals was
+> complete. It was not. Finding 3 — a whole Critical — had never been entered into any
+> roadmap, so it was never scheduled, never ruled on, and never noticed missing. It was
+> found by reading `docs/audit_package/luna_pro_audit_report.md` end to end. This file is
+> a plan derived from that report; the report is the record.
 
 ## Where things stand
 
@@ -11,10 +18,17 @@ caveat below is now history, not a live warning.*
 16   ✅  Step 8 independent re-audit — RUN, by GPT-5.6 Luna Pro
      ✅  Batches 1–2: real skips + five unambiguous fixes — dba1b63
      ✅  Items 3, 11, 14: rulings made and implemented — c4dfcc7
+     ✅  Item 8/13 macro degradation — 5d2cbbe
+     ✅  Finding 15: dependency versions pinned — a26c545
+     ✅  Finding 3: decision-bar integrity — the Critical nobody scheduled
 ─────────────────────────────────────────────────────────
-     ←   Item 8/13 macro-degradation gap (see below)    NEXT
-         then: the owed document batch
+     ←   nothing outstanding from the audit
+         then: the owed document batch (never scoped — see below)
 ```
+
+**"The owed document batch"** has been carried in this diagram since before the audit and
+appears nowhere else — not in the audit report, not in any commit. Nobody now knows what
+it referred to. Treat it as stale unless Viktor recognises it.
 
 `claude/phase7-item16-triage.md`, which this file used to say to read first, does not
 exist and never did — flagged rather than blocked on when batches 1–2 shipped. This file
@@ -72,6 +86,45 @@ individually. What follows is the ruling and where it lives; full reasoning is i
    VOLATILITY RISK or worse — the setup still trades, just as the plain LONG/SHORT it
    earned on trend health and entry quality alone.
 
+## Finding 3 — the Critical that was never on the list
+
+Found 2 September 2026, by reading the audit report itself rather than this file.
+
+**What it was.** Every indicator guard in `indicators/indicators.py` asked one question:
+`.isna().all()` — "did the calculation return nothing at all". That catches total failure.
+It does not catch a series with 299 good values and no value at the bar the decision is
+made on. And it could not: `clean_series(method="forward_fill")` had already filled that
+gap with the previous bar's number before the guard ran, so `.isna().all()` was False no
+matter what happened at the decision bar. A stale reading sat in the decision row,
+indistinguishable from a measurement.
+
+**How wide.** The audit named ATR and SuperTrend direction. Injecting a trailing NaN into
+each indicator in turn found ATR, RSI, ADX, SuperTrend *and* both EMAs — every one, no
+failure recorded, decision row equal to the previous bar. It was a property of the guard,
+so the guard is now one function (`indicators.unusable_reason`) that every caller asks.
+Two had no guard at all to fix: the SuperTrend *level* (only its direction was checked)
+and the EMAs. The same trailing fill was also running on the raw OHLCV columns, turning a
+truncated final candle into a synthetic bar repeating the previous close — defence in
+depth only, since `validation.py` rejects that frame first, which is now pinned by a test.
+
+**And the consumers.** Item 9a removed the invented constants from the producer and left
+them in the readers, where two of them awarded the *maximum* score for a measurement never
+taken: a missing RSI fell back to `50.0`, inside the "not extended" band, scoring 15 of
+15; a missing HVN fell back to `close`, making the distance exactly zero, scoring 12 of 12.
+The HVN one is byte-for-byte the defect item 3 fixed for VWMA, sitting forty lines below
+that fix. `risk_model.calculate_stop_targets` accepted a NaN ATR outright — every
+comparison against NaN is False — and with a structural level present returned a
+completely normal-looking plan in which ATR contributed nothing.
+
+**Ruled:** a value that was not measured at the decision bar is absent, and absent means
+that indicator failed — which hands it to the degradation machinery that already caps
+confidence and refuses to authorize a trade. No new policy was invented; the existing one
+was applied one row over.
+
+Fixed in `indicators/indicators.py`, `models/entry_model.py`, `models/risk_model.py`,
+`core/panel_render.py`, with `tests/test_decision_bar_integrity.py` (18 tests, 14 of which
+fail against the pre-fix code — the other four are controls that must pass both sides).
+
 ## Suggested order — status
 
 1. ✅ `pytest.skip()` across the suite — batch 1, `dba1b63`.
@@ -79,13 +132,14 @@ individually. What follows is the ruling and where it lives; full reasoning is i
 3. ✅ Item 3 volume policy — `c4dfcc7`.
 4. ✅ Item 11 circularity — `c4dfcc7`.
 5. ✅ Item 14 — `c4dfcc7`.
-6. **Item 8/13 macro degradation — still open.** `engine_core.py`'s macro-timeframe fetch
-   failure leaves `macro_bias` at its initialised `"NEUTRAL"` without adding anything to
-   `degradation` — a failed higher-timeframe read and a genuinely neutral macro trend
-   currently render identically. `tests/test_golden_path.py::test_the_macro_series_is_actually_read`
-   already documents this in its own docstring as "recorded rather than fixed... a rider on
-   sequence item 9's degrade ruling." Includes rewriting that golden-path assertion once
-   fixed. Not part of the 31 August delegation — needs its own go-ahead.
+6. ✅ Item 8/13 macro degradation — `5d2cbbe`. A failed macro-timeframe fetch used to
+   leave `macro_bias` at its initialised `"NEUTRAL"` with nothing added to `degradation`,
+   so a failed higher-timeframe read and a genuinely neutral macro trend rendered
+   identically. `test_the_macro_series_is_actually_read` had documented this in its own
+   docstring as "recorded rather than fixed"; that assertion was rewritten with the fix.
+7. ✅ Audit Finding 15 — dependency versions pinned, `a26c545`.
+8. ✅ Audit Finding 3 — decision-bar integrity. Never appeared in steps 1–6 at all; see
+   the section above for why that is the most important thing on this page.
 
 ## Not on the roadmap, worth revisiting
 
@@ -170,7 +224,13 @@ and re-link the Claude desktop app to `D:\phase7_engine`.
     free of audit outcomes after searching three guessed phrases and reading six of
     eighteen hits on a fourth. The outcomes were in a table using words never searched, and
     the auditor found them in its first act.
-18. **Fixing the instance you found does not close the item; the re-audit checks the
+19. **The plan is not the source. Work from the audit, not from the summary of it.**
+    Four of the five Criticals were remediated, verified and signed off while the fifth
+    sat unread in the report the whole time. It was absent from this file, so every check
+    that consulted this file agreed the work was done — including three separate passes
+    that re-read *this page* looking for what was left. Nobody re-opened the report until
+    2 September. A derived document cannot tell you what it never contained.
+20. **Fixing the instance you found does not close the item; the re-audit checks the
     pattern.** Sequence item 11 removed one duplicated-evidence term (trend_health, counted
     directly and via bias_score) and the item was marked done. The independent audit found
     the same pattern — a measurement counted once as a weighted factor and again as a bonus

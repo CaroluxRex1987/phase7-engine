@@ -103,8 +103,30 @@ def clean_series(series: pd.Series, method: str = "forward_fill", fallback_value
     # Apply cleaning method. SEQUENCE ITEM 15: `.bfill()` removed from the
     # forward_fill branch and limit_direction changed from 'both' to 'forward'.
     # Both filled from later rows; see the docstring.
+    #
+    # FINDING 3 RE-AUDIT, 1 September 2026 -- THE TRAILING EDGE.
+    #
+    # `ffill()` fills every gap after the first valid value, and the decision
+    # bar is the last row. So an indicator that had no value at the bar the
+    # analysis is made on came back holding the PREVIOUS bar's number, and
+    # every guard downstream tests `.isna().all()`, which such a series can
+    # never satisfy. A stale reading occupied the decision row, indis-
+    # tinguishable from a measurement, and nothing recorded a failure.
+    #
+    # The argument is item 15's own, applied to the other end of the series:
+    # leading NaNs stay NaN because "a 14-period RSI genuinely has no value at
+    # bar 3 and inventing one is the leak". A missing value at the LAST bar is
+    # the same claim about the one row that decides the trade. Interior gaps
+    # still fill forward -- the last real observation carried across a gap is
+    # a defensible reading, and a real value follows it. Nothing follows the
+    # trailing edge.
+    last_valid = series.last_valid_index()
     if method == "forward_fill":
         series = series.ffill()
+        if last_valid is not None:
+            trailing = series.index > last_valid
+            if trailing.any():
+                series.loc[trailing] = np.nan
     elif method == "interpolate":
         series = series.interpolate(method='linear', limit_direction='forward')
     elif method == "fill_value" and fallback_value is not None:
@@ -123,6 +145,52 @@ def clean_series(series: pd.Series, method: str = "forward_fill", fallback_value
     # An all-NaN input took the `else 0.0` branch and came back as a column of
     # zeros, which is what silenced three of item 9a's guards.
     return series
+
+def unusable_reason(series, name: str = "the series"):
+    """
+    Why this series cannot be used for a decision, or None if it can.
+
+    FINDING 3 RE-AUDIT, 1 September 2026. Every guard in this file used to ask
+    only `.isna().all()` -- "did the calculation return nothing at all". That
+    catches total failure and nothing else. It does not catch the case the
+    engine actually depends on: a series with 299 good values and no value at
+    the bar the decision is made on.
+
+    The audit named ATR and SuperTrend direction. Injecting a trailing NaN into
+    each indicator in turn showed the same result for ATR, RSI, ADX, SuperTrend
+    AND both EMAs -- no failure recorded, column present, decision row holding
+    the previous bar's number. It is a property of the guard, not of any one
+    indicator, so the guard is now one function and every caller asks it.
+
+    Three ways a series is unusable, in the order they are worth reporting:
+
+        1. it does not exist          -- the call returned None or an empty frame
+        2. it is empty of values      -- every entry is NaN (the old check)
+        3. it has no value HERE       -- the decision bar, the last row
+
+    (3) is the new one. It reads the last row rather than scanning, because
+    that is the row every consumer of this frame reads: engine_core.py takes
+    .iloc[-1] of ATR, ST_Direction, EMA_20, EMA_50, HVN and LVN; entry_model
+    takes .iloc[-1] of ATR, VWMA, RSI and HVN; bias_engine takes .iloc[-1] of
+    ATR and close.
+    """
+    if series is None:
+        return f"{name} was not returned by the calculation"
+    if len(series) == 0:
+        return f"{name} came back empty"
+    if series.isna().all():
+        return f"{name} computed without raising, but every value is NaN"
+    last = series.iloc[-1]
+    try:
+        finite = bool(np.isfinite(last))
+    except (TypeError, ValueError):
+        finite = False
+    if not finite:
+        return (f"{name} has no usable value at the decision bar (the last "
+                f"candle); the rest of the series computed, so this is a gap "
+                f"at exactly the row the analysis is made on")
+    return None
+
 
 def pct_slope(series: pd.Series) -> pd.Series:
     """Return the normalized percentage slope of a series with NaN handling."""
@@ -232,11 +300,31 @@ def add_technical_indicators(df: pd.DataFrame, inplace: bool = False):
     # guard for callers that did not come through the fetcher, not deleted,
     # because the cost is one pass and the failure it guards against is a
     # fabricated price.
+    #
+    # FINDING 3 RE-AUDIT, 1 September 2026: this loop forward-filled the
+    # PRICE columns with no trailing-edge exception, so a truncated or
+    # corrupt final candle became a synthetic bar repeating the previous
+    # close -- and then every indicator, the current price, the stop distance
+    # and the panel's CURRENT PRICE read it as a real bar. It is the same
+    # trailing-edge fabrication clean_series now refuses, one layer further
+    # up and on the rawest input there is.
+    #
+    # The comment above says this loop is close to unreachable because
+    # validation.py rejects NaN OHLCV upstream, and that it is kept "as a
+    # guard for callers that did not come through the fetcher". A guard whose
+    # action is to invent the value it was guarding against is not a guard.
+    # Interior gaps still fill forward; the decision bar does not, so the
+    # indicator guards below see the gap and report it.
     for col in required_cols:
         if col in df.columns:
             # Use in-place operations where possible
             df[col] = df[col].replace([np.inf, -np.inf], np.nan)
+            last_valid = df[col].last_valid_index()
             df[col] = df[col].ffill()
+            if last_valid is not None:
+                trailing = df.index > last_valid
+                if trailing.any():
+                    df.loc[trailing, col] = np.nan
 
     # ============================================================
     # CORE INDICATORS WITH NaN PROTECTION (Optimized)
@@ -261,14 +349,31 @@ def add_technical_indicators(df: pd.DataFrame, inplace: bool = False):
             # SEQUENCE ITEM 15: was ema.ffill().bfill(). An EMA's leading
             # NaNs are its warm-up and backfilling them stated a value the
             # average did not have yet.
-            df[name] = ema.ffill() if ema.isna().any() else ema
-        except Exception:
+            #
+            # FINDING 3 RE-AUDIT: this branch had NO guard of any kind -- not
+            # even the all-NaN one every other indicator here had. A completely
+            # failed EMA that returned without raising was written to the frame
+            # as a column of NaN, and engine_core reads EMA_20/EMA_50 at
+            # .iloc[-1] to build the entry zone. Routed through clean_series
+            # now so the trailing edge is handled identically, then checked.
+            ema = clean_series(ema, method="forward_fill")
+            unusable = unusable_reason(ema, f"ta.ema's {name}")
+            if unusable:
+                raise ValueError(unusable)
+            df[name] = ema
+        except Exception as primary:
             try:
-                df[name] = close_prices.ewm(span=length, adjust=False).mean()
+                fallback_ema = clean_series(
+                    close_prices.ewm(span=length, adjust=False).mean(),
+                    method="forward_fill")
+                unusable = unusable_reason(fallback_ema, f"the manual {name}")
+                if unusable:
+                    raise ValueError(unusable)
+                df[name] = fallback_ema
             except Exception as e:
                 failed(name, e,
                        "trend health loses its slope component and entry "
-                       "quality cannot score EMA zone position")
+                       f"quality cannot score EMA zone position (primary: {primary})")
 
     # SEQUENCE ITEM 9a: both paths used to end in fallback_value=50.0.
     #
@@ -280,8 +385,10 @@ def add_technical_indicators(df: pd.DataFrame, inplace: bool = False):
     try:
         rsi = clean_series(ta.rsi(df["close"], length=config.RSI_LENGTH),
                            method="forward_fill")
-        if rsi is None or rsi.isna().all():
-            raise ValueError("pandas_ta returned no usable RSI")
+        # FINDING 3 RE-AUDIT: was `if rsi is None or rsi.isna().all()`.
+        unusable = unusable_reason(rsi, "pandas_ta's RSI")
+        if unusable:
+            raise ValueError(unusable)
         df["RSI"] = rsi
     except Exception as primary:
         try:
@@ -290,13 +397,22 @@ def add_technical_indicators(df: pd.DataFrame, inplace: bool = False):
             loss = (-delta.where(delta < 0, 0)).rolling(window=config.RSI_LENGTH).mean()
             rs = gain / loss.replace(0, np.nan)
             rsi = clean_series(100 - (100 / (1 + rs)), method="forward_fill")
-            if rsi.isna().all():
-                raise ValueError("manual RSI produced no usable values")
+            unusable = unusable_reason(rsi, "the manual RSI")
+            if unusable:
+                raise ValueError(unusable)
             df["RSI"] = rsi
         except Exception as fallback:
+            # FINDING 3 RE-AUDIT: this said "scores RSI extension at 0 of 15",
+            # which was never what happened. entry_model's fallback was 50.0 --
+            # inside the 40-60 band, so a missing RSI scored the FULL 15 of 15.
+            # The consequence text was a user-facing claim that contradicted
+            # the calculation, which is the same Item 8 defect as the "Lookback
+            # 8" line the audit flagged. entry_model now leaves the component
+            # at its neutral default and this says so.
             failed("RSI", fallback,
-                   "entry quality scores RSI extension at 0 of 15, and trend "
-                   f"health loses its momentum component (primary: {primary})")
+                   "entry quality scores RSI extension at its neutral 10 of 15 "
+                   "rather than from a reading, and trend health loses its "
+                   f"momentum component (primary: {primary})")
 
     # SEQUENCE ITEM 5a: Bollinger Bands removed. BB_lower, BB_middle and
     # BB_upper were written on both the success and fallback paths and read
@@ -332,8 +448,10 @@ def add_technical_indicators(df: pd.DataFrame, inplace: bool = False):
             # column of NaN with no failure recorded. ADX 0 would have read as
             # "no trend at all", the opposite end of the scale from the 25.0
             # item 9a removed.
-            if adx.isna().all():
-                raise ValueError("ta.adx returned a frame with no usable values")
+            # FINDING 3 RE-AUDIT: was `if adx.isna().all()`.
+            unusable = unusable_reason(adx, "ta.adx's ADX column")
+            if unusable:
+                raise ValueError(unusable)
             df["ADX"] = adx
         else:
             raise ValueError("ta.adx returned an empty frame")
@@ -366,10 +484,20 @@ def add_technical_indicators(df: pd.DataFrame, inplace: bool = False):
             multiplier=config.SUPERTREND_MULT,
         )
         if st_df is not None and not st_df.empty:
-            df["SuperTrend"] = clean_series(st_df.iloc[:, 0], method="forward_fill")
+            # FINDING 3 RE-AUDIT: the LEVEL had no guard at all -- only the
+            # direction was checked, and only for all-NaN. The level is drawn
+            # on the chart and read by plotting; the direction feeds bias and
+            # Exit Watch. Both are now checked the same way, at the decision
+            # bar, before either is written.
+            level = clean_series(st_df.iloc[:, 0], method="forward_fill")
             direction = clean_series(st_df.iloc[:, 1], method="forward_fill")
-            if direction.isna().all():
-                raise ValueError("SuperTrend produced no usable direction")
+
+            unusable = (unusable_reason(level, "SuperTrend's level")
+                        or unusable_reason(direction, "SuperTrend's direction"))
+            if unusable:
+                raise ValueError(unusable)
+
+            df["SuperTrend"] = level
             df["ST_Direction"] = direction
         else:
             raise ValueError("ta.supertrend returned an empty frame")
@@ -412,8 +540,13 @@ def add_technical_indicators(df: pd.DataFrame, inplace: bool = False):
         atr = clean_series(
             ta.atr(df["high"], df["low"], df["close"], length=config.ATR_LENGTH),
             method="forward_fill")
-        if atr is None or atr.isna().all():
-            raise ValueError("pandas_ta returned no usable ATR")
+        # FINDING 3 RE-AUDIT: was `if atr is None or atr.isna().all()`. This is
+        # the guard the audit quoted. ATR sets the stop distance and all three
+        # targets, so a stale value here is not a wrong indicator reading -- it
+        # is a risk plan measured on the wrong bar.
+        unusable = unusable_reason(atr, "pandas_ta's ATR")
+        if unusable:
+            raise ValueError(unusable)
         df["ATR"] = atr
     except Exception as primary:
         try:
@@ -423,8 +556,9 @@ def add_technical_indicators(df: pd.DataFrame, inplace: bool = False):
             tr = pd.concat([tr1, tr2, tr3], axis=1).max(axis=1, skipna=True)
             atr = clean_series(tr.rolling(window=config.ATR_LENGTH).mean(),
                                method="forward_fill")
-            if atr.isna().all():
-                raise ValueError("manual true range produced no usable values")
+            unusable = unusable_reason(atr, "the manual true range")
+            if unusable:
+                raise ValueError(unusable)
             df["ATR"] = atr
         except Exception as fallback:
             failed("ATR", fallback,
@@ -590,12 +724,29 @@ def add_technical_indicators(df: pd.DataFrame, inplace: bool = False):
     # It now drops the column and reports, which is the same treatment a raised
     # exception gets. An indicator that produced nothing but NaN did not
     # compute; how it failed to compute is not the operator's problem.
-    critical_indicators = ["EMA_20", "EMA_50", "RSI", "ATR", "ADX"]
+    # FINDING 3 RE-AUDIT: two changes here.
+    #
+    # (1) The list gained SuperTrend and ST_Direction. Both are read at the
+    #     decision bar -- ST_Direction by bias_engine and Exit Watch, the level
+    #     by plotting -- and neither was swept. VWMA is deliberately NOT here:
+    #     item 3 made it NaN for exactly the windows with no usable volume, and
+    #     entry_model checks np.isfinite before scoring it. That is an honest
+    #     absence already handled at the reader, not a silent one.
+    #
+    # (2) The test is the shared guard rather than `.isna().all()`, so a column
+    #     whose only missing value is at the decision bar is caught here too --
+    #     the same defect this sweep was written to catch, one row over.
+    critical_indicators = ["EMA_20", "EMA_50", "RSI", "ATR", "ADX",
+                           "SuperTrend", "ST_Direction"]
     for indicator in critical_indicators:
-        if indicator in df.columns and df[indicator].isna().all():
+        if indicator not in df.columns:
+            continue
+        unusable = unusable_reason(df[indicator], indicator)
+        if unusable:
             df.drop(columns=[indicator], inplace=True)
             failed(indicator,
-                   ValueError("computed without raising, but every value is NaN"),
-                   "silent failure — the calculation returned, and returned nothing")
+                   ValueError(unusable),
+                   "silent failure — the calculation returned, and what it "
+                   "returned cannot be read at the bar being analysed")
 
     return df, failures

@@ -53,6 +53,30 @@ class RiskModel:
         """
         try:
             # Input validation
+            #
+            # FINDING 3 RE-AUDIT, 1 September 2026: this was
+            #     if current_price <= 0 or atr_val <= 0
+            # and NaN fails both comparisons, because every comparison against
+            # NaN is False. So a NaN ATR walked straight past the guard. With
+            # no structural level it produced (nan, nan, nan, nan) -- printed
+            # verbatim by the panel, whose safe_float did not check finiteness
+            # either. WITH a structural level it was worse: the levels came out
+            # of the structural branch and looked completely normal
+            # -- (98.0, 102.0, 104.0, 106.0) in the audit's own scenario --
+            # while the ATR that is supposed to set stop distance contributed
+            # nothing and nothing anywhere was flagged.
+            #
+            # validate_risk_parameters, twenty lines below in this same file,
+            # has checked np.isfinite since sequence item 2. The two methods
+            # disagreed about whether NaN was acceptable input; they no longer
+            # do.
+            if not (np.isfinite(current_price) and np.isfinite(atr_val)):
+                logger.error(f"Non-finite price inputs: price={current_price}, atr={atr_val}")
+                raise ValueError(
+                    f"Non-finite price or ATR (price={current_price}, "
+                    f"atr={atr_val}) -- no stop or targets can be computed from "
+                    f"a value that is not a number."
+                )
             if current_price <= 0 or atr_val <= 0:
                 logger.error(f"Invalid price inputs: price={current_price}, atr={atr_val}")
                 raise ValueError("Invalid price or ATR values")

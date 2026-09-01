@@ -1,0 +1,134 @@
+Audit Finding 3: validate indicators at the decision bar
+
+This is the audit's fifth Critical. It was never scheduled, never ruled on,
+and never noticed missing -- it does not appear in PHASE7_NEXT.md at all.
+From 31 August until today that file claimed "remediation of the audit's
+five Criticals is complete", and four of the five were. Found by reading
+docs/audit_package/luna_pro_audit_report.md end to end rather than the
+roadmap derived from it.
+
+THE DEFECT
+
+Every indicator guard in indicators.py asked one question -- .isna().all(),
+"did the calculation return nothing at all". That catches total failure and
+nothing else. It cannot catch a series with 299 good values and no value at
+the bar the decision is made on, and it could not even in principle:
+clean_series(method="forward_fill") had already filled that gap with the
+previous bar's number before the guard ran, so .isna().all() was False no
+matter what happened at the decision bar.
+
+The engine then read .iloc[-1] and got a real number computed from a real
+bar -- the wrong bar. No failure recorded, no degradation, no cap on
+confidence, a full risk plan printed.
+
+Measured before the fix, injecting a trailing NaN into each in turn:
+
+    indicator    failure recorded?    decision row == prior bar
+    atr          []                   YES (stale)
+    rsi          []                   YES (stale)
+    adx          []                   YES (stale)
+    supertrend   []                   YES (stale)
+    ema          []                   YES (stale)
+
+The audit named two of those. It is a property of the guard, not of any
+indicator. End to end through the routed path, a trailing-NaN ATR produced
+degraded=False, missing_inputs=[], a full stop and three targets, and moved
+entry quality from 45.18 to 45.25 -- a different answer, reported clean.
+
+THE FIX
+
+indicators/indicators.py
+  - clean_series no longer fills past the last valid observation. Interior
+    gaps still fill forward (the last real observation carried across a gap,
+    with a real value following); the trailing edge does not, because
+    nothing follows it. This is sequence item 15's own argument -- leading
+    NaNs stay NaN because inventing one is a leak -- applied to the one row
+    that decides the trade.
+  - One shared guard, unusable_reason(), replaces six inconsistent
+    .isna().all() checks: does not exist / empty of values / no value at the
+    decision bar. Every caller asks it.
+  - Two indicators had no guard at all and now have one: the SuperTrend
+    LEVEL (only its direction was ever checked) and both EMAs.
+  - The FINAL SWEEP uses the same guard and gained SuperTrend/ST_Direction.
+    VWMA is deliberately excluded: item 3 made it NaN for exactly the
+    windows with no usable volume and entry_model checks isfinite before
+    scoring it -- an honest absence already handled at the reader.
+  - The raw OHLCV cleaning loop had the same trailing fill, turning a
+    truncated final candle into a synthetic bar repeating the previous
+    close. validation.py rejects that frame before the production path
+    reaches it (verified, and now pinned by a test), so this half is defence
+    in depth.
+  - RSI's failure text said entry quality "scores RSI extension at 0 of 15".
+    It never did -- see below. The claim now matches the code.
+
+models/entry_model.py -- the consumers were fabricating what item 9a removed
+  - rsi fell back to 50.0, which sits inside the 40-60 "not extended" band,
+    so a missing RSI scored the FULL 15 of 15. Top marks for a measurement
+    never taken.
+  - hvn fell back to close, making |close-hvn|/close exactly zero, the
+    tightest band: 12 of 12. This is byte-for-byte the defect item 3 fixed
+    for VWMA, sitting forty lines below that fix -- rule 18 of
+    PHASE7_NEXT.md's own list, applied to the item that wrote rule 18.
+  - atr fell back to close * 0.02, the flat 2%-of-price constant item 9a
+    deleted from indicators.py. On the pinned fixture the real ATR is
+    0.010554 and the fallback 0.016035: a 52% overstatement.
+  All three now leave their component at the neutral default rather than
+  scoring against an invented number.
+
+models/risk_model.py
+  - calculate_stop_targets checked `current_price <= 0 or atr_val <= 0`, and
+    every comparison against NaN is False, so a NaN ATR walked past it. With
+    no structural level it returned (nan, nan, nan, nan); WITH one it
+    returned a completely normal-looking plan -- (98.0, 102.0, 104.0, 106.0)
+    in the audit's own scenario -- in which the ATR that is supposed to set
+    stop distance contributed nothing. validate_risk_parameters twenty lines
+    below has checked np.isfinite since sequence item 2; the two methods no
+    longer disagree about whether NaN is acceptable input.
+
+core/panel_render.py
+  - safe_float did not check finiteness, so a non-finite value printed as
+    the literal text "nan" in a price field (the audit's Observation 5). The
+    engine's three other safe_float implementations all check it.
+
+RULED
+
+A value that was not measured at the decision bar is absent, and absent
+means that indicator failed -- which hands it to the degradation machinery
+that already caps confidence and refuses to authorize a trade. No new policy
+was invented; the existing one was applied one row over. Indicators with a
+real second computation route (ATR, RSI, EMA) still recover through it and
+still do not degrade the run, which is item 9a's distinction and is pinned
+by its own test.
+
+VERIFICATION
+
+tests/test_decision_bar_integrity.py, 18 tests. 14 of them fail against the
+pre-fix code; the other 4 are controls that must pass on both sides
+(interior gaps still fill, leading warm-up still stays NaN, total failure
+was already caught, valid inputs still produce levels). Checked by reverting
+the four source files and running the file against them.
+
+  With pandas_ta:     155 passed, 0 skipped, 0 failed
+  Without pandas_ta:   91 passed, 64 skipped, 0 failed, 0 errors
+
+The golden snapshot did NOT move and was not re-baselined. Predicted before
+running, and the reason it holds: on real pinned data every indicator has a
+finite value at the decision bar and zero trailing NaNs -- all NaNs are
+leading warm-up, which this change leaves alone. This failure mode needs
+corrupt or truncated data, which is why it went unseen.
+
+Note against myself: the first draft of the new test file reintroduced the
+exact defect fixed this morning in 3d0b410 -- five of its tests imported
+indicators.indicators, which imports pandas_ta at module scope, with no
+_engine_available() guard, so they errored instead of skipping on a machine
+without it. Caught by running the suite in the pandas_ta-free virtualenv
+before packaging. Same class, same day, in the fix for the class.
+
+docs/PHASE7_NEXT.md updated: the "five Criticals complete" claim corrected
+with its history, Finding 3 given its own section, the suggested order
+extended to steps 7 and 8, and a new earned rule 19 -- the plan is not the
+source; work from the audit, not from the summary of it. The stale "owed
+document batch" line is now marked as unrecognised rather than pending.
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01PdeL38fmbxrR8xyboe4QYm

@@ -88,9 +88,21 @@ def calculate_entry_quality(
     # ============================================================
     # 2. ATR DISTANCE SCORING (Max 25)
     # ============================================================
-    atr = safe_float(df["ATR"].iloc[-1] if "ATR" in df.columns and not df["ATR"].empty else None, close * 0.02)
+    # FINDING 3 RE-AUDIT, 1 September 2026: the fallback here was
+    # `close * 0.02` -- the same flat 2%-of-price constant sequence item 9a
+    # deleted from indicators.py, still living in the consumer that reads the
+    # column. On this repo's own pinned fixture the real ATR is 0.010554 and
+    # the fallback is 0.016035: a 52% overstatement of how much this
+    # instrument moves, fed straight into the ATR-distance score.
+    #
+    # A missing ATR now leaves atr_dist_pts at the same neutral default the
+    # unusable-ratio branches below already use, rather than scoring a
+    # distance measured against a number nobody computed. Same treatment VWMA
+    # got at item 3, twenty lines down.
+    atr = safe_float(df["ATR"].iloc[-1] if "ATR" in df.columns and not df["ATR"].empty else None,
+                     float("nan"))
 
-    if atr > 0:
+    if np.isfinite(atr) and atr > 0:
         try:
             atr_ratio = dist_to_mid / atr
             if np.isfinite(atr_ratio):
@@ -147,9 +159,21 @@ def calculate_entry_quality(
     # ============================================================
     rsi_pts = 10.0  # Default score
     if "RSI" in df.columns and not df["RSI"].empty:
-        rsi = safe_float(df["RSI"].iloc[-1], 50.0)
+        # FINDING 3 RE-AUDIT, 1 September 2026: the fallback was 50.0 -- the
+        # exact "perfectly balanced" constant sequence item 9a removed from
+        # indicators.py, and the worst possible choice here. 50 sits inside the
+        # 40-60 band, so a missing RSI scored the FULL 15 of 15: top marks for
+        # "not extended", awarded for a measurement that was never taken.
+        # indicators.py's own failure text for RSI tells the operator this
+        # "scores RSI extension at 0 of 15"; the code did the opposite.
+        #
+        # Now a missing RSI leaves rsi_pts at the neutral default set above,
+        # which is also what the column-absent case gets one line up.
+        rsi = safe_float(df["RSI"].iloc[-1], float("nan"))
 
-        if 40.0 <= rsi <= 60.0:
+        if not np.isfinite(rsi):
+            pass  # neutral default stands; nothing was measured to score
+        elif 40.0 <= rsi <= 60.0:
             rsi_pts = 15.0
         elif 30.0 <= rsi < 40.0 or 60.0 < rsi <= 70.0:
             rsi_pts = 10.0
@@ -161,9 +185,19 @@ def calculate_entry_quality(
     # ============================================================
     struct_pts = 6.0  # Default score
     if "HVN" in df.columns and not df["HVN"].empty:
-        hvn = safe_float(df["HVN"].iloc[-1], close)
+        # FINDING 3 RE-AUDIT, 1 September 2026: the fallback was `close` --
+        # byte-for-byte the same defect item 3 fixed for VWMA forty lines up,
+        # sitting untouched next to it. close as the fallback makes
+        # `abs(close - hvn) / close` exactly zero, which lands in the
+        # `< 0.015` band and awards the FULL 12 of 12 structure points for a
+        # high-volume node that was never located.
+        #
+        # Item 3 fixed the instance it was looking at and left its twin. That
+        # is rule 18 of PHASE7_NEXT.md's own list, applied to the item that
+        # wrote rule 18.
+        hvn = safe_float(df["HVN"].iloc[-1], float("nan"))
 
-        if close > 0:
+        if np.isfinite(hvn) and close > 0:
             try:
                 hvn_dist = abs(close - hvn) / close
                 if np.isfinite(hvn_dist):

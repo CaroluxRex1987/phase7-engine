@@ -1,4 +1,5 @@
 import logging
+import math
 import textwrap
 
 from . import config
@@ -99,8 +100,22 @@ def render_panel(decision):
 
         # Safe numeric extraction with error handling
         def safe_float(value, default=0.0):
+            # FINDING 3 RE-AUDIT, 1 September 2026 (the audit's Observation 5):
+            # this converted NaN and infinity without checking, so a non-finite
+            # value reached the panel and printed as the literal text "nan" in
+            # a price field -- "STOP LOSS : $nan" from calculate_stop_targets'
+            # NaN path, which that function now rejects at its own input. The
+            # three other safe_float implementations in the engine
+            # (entry_model, bias_engine, decision_model) all check finiteness;
+            # this one did not.
+            #
+            # math.isfinite rather than numpy: this module imports neither, and
+            # one stdlib import beats a numpy dependency for one predicate.
             try:
-                return float(value) if value is not None else default
+                if value is None:
+                    return default
+                out = float(value)
+                return out if math.isfinite(out) else default
             except (ValueError, TypeError):
                 return default
 
