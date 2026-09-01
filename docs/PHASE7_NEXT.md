@@ -1,11 +1,16 @@
 # Next step — read this first
 
-*Updated 2 September 2026, after Finding 3 and a status sweep of every remaining finding.
-**All five of the audit's Criticals are now fixed — but only four of them ever were until
-2 September.** Suite: 155 passing, 0 skipped, 0 failed, and 91 passed / 64 skipped on a
-machine without `pandas_ta`. Next: the Major and Moderate findings, seven of which are
-genuinely open — see the status table below, which was built by checking the code, not by
-re-reading the report.*
+*Updated 2 September 2026, after Finding 3, a status sweep of every remaining finding, and
+a full read of all nine governing documents. **All five of the Luna Pro audit's Criticals
+are fixed — but the release gate is still shut, and it is shut on Item 6, which is
+tomorrow's work.** Suite: 155 passing, 0 skipped, 0 failed, and 91 passed / 64 skipped on
+a machine without `pandas_ta`.*
+
+> **The engine is under its own trading prohibition right now.** The Constitution's release
+> gate, adopted 27 August: *"No output of this engine may be relied on for a real trading
+> decision while any Critical Tier 1 finding stands unresolved"* — and unresolved means
+> *"no fix has landed **and been re-audited**."* Running it to look at is fine. Acting on
+> it is not. See "What the document set says" below.
 
 > **Read the audit report, not this file, when you want to know what is outstanding.**
 > From 31 August to 1 September this file said remediation of the five Criticals was
@@ -179,17 +184,177 @@ next re-audit would likely move five verdicts without a line of code changing**,
 makes it the cheapest work on this page. Item 17 (backtesting isolation) and Item 15
 (empirical evidence supersedes theory) genuinely need artifacts that do not exist yet.
 
+## What the document set says — read end to end, 2 September 2026
+
+Nine documents, read in full for the first time by this thread: the Constitution, the
+Documentation & Change-Log Standard, the Engineering Notes, the Tier 0 Companion, the
+Roadmap, the Remediation Plan, the Audit Execution Instructions, the Credential Security
+Protocol, and both copies of the item-16 review instruction. Everything below is a
+citation, not a recollection.
+
+### The two gates, and what they actually block
+
+**The release gate** (Constitution, adopted 27 August, after the freeze lifted): *"No
+output of this engine may be relied on for a real trading decision while any Critical Tier
+1 finding stands unresolved."* Unresolved is defined as *"no fix has landed and been
+re-audited."* Both halves matter — everything fixed this week has landed and none of it has
+been re-audited.
+
+**The backtest gate**, same section: *"Backtesting architecture is not built until Items 2,
+3, 6 and 18 are all Compliant."*
+
+**Four Criticals block them, not three.** Viktor's ruling of 29 August raised Item 6
+(Traceability) from Major to Critical — *"severity reflects consequence, not implementation
+effort"* — because the panel asserts a safety action that did not occur, on every run. Item
+6 is Luna Pro's Finding 7. **It is the last Critical standing and it is tomorrow's work.**
+
+### The Constitution does not need amending, and the project already ruled so
+
+The scope freeze lifted on 27 August, when the last Tier 1 item received a finding. That
+permits amendments; it is not licence to make them. Engineering Notes #26, written the hour
+it lifted: *"None of them should be adopted today. The freeze was never about whether
+changes were good ideas — it was about not letting the document be revised by the same
+enthusiasm that wrote it, before anything had tested it. Something has now tested it, and
+the useful next act is fixing the ten Non-compliances rather than reopening the rulebook
+that found them."* The Constitution says it in its own voice too: *"Lifting the freeze
+permits proposing amendments. It is not a statement that the engine is sound."*
+
+**Amendment control, in force since 27 August, for whenever that day comes:**
+
+1. Tier 1 and Tier 2 amendments require review by a party that is **not Claude**.
+2. Every amendment must state explicitly what it **weakens, broadens, removes or newly
+   excepts** — not what it improves.
+3. There is no "wording only" category that bypasses either of the above.
+
+### Two amendments are owed. Neither is urgent, and one is smaller than it looks.
+
+**Item 20 — the crash-reporter channel.** Item 20 enumerates the channels a credential must
+never reach (hardcoding, version control, logs, error messages, screenshots) and does not
+name process-environment capture by a crash reporter or telemetry agent. Recorded and
+deliberately left unfixed because closing it means amending a Tier 1 invariant, which now
+requires the non-Claude review above. The Roadmap names the practical blocker: Gemini and
+Copilot both refused to ingest the Constitution PDF — a content-classification false
+positive.
+
+**But the protection already exists.** `Phase7_Credential_Security_Protocol.pdf` §6.2,
+"Diagnostics Cannot Carry a Credential Out": *"Any telemetry, crash reporting, error
+aggregation, or usage analytics the engine ever gains must be incapable of including
+credential material — verified by inspecting what is actually transmitted, not by trusting
+the library's defaults."* Tagged **"Enforces: Tier 1, Items 20 and 21."** Written the same
+day as the invariant it serves. So this amendment tidies the register to match a practice
+that is already written down; it does not close a live hole. The engine also holds no
+credentials at all. **Unblocking it is small:** amendment control asks only for an
+uninvolved model, given the current text and the proposed change, asked whether the change
+weakens anything. A plain-text extract of Item 20 plus the proposed clause sidesteps the
+PDF classifier that stopped Gemini and Copilot.
+
+**The Minimum Viable Audit gate wording.** The DEFECT row records the Constitution
+contradicting itself: Next Steps defines the gate as four items (2, 3, 6, 18) and the
+conflict-of-interest safeguards written in the same revision describe it as three (2, 3, 6),
+omitting Item 18. The audit resolved it in favour of the four-item gate — Run A was
+actually executed against all four, per the Audit Execution Instructions §6 — and the
+Constitution records that the correction *"is now permissible but has not been made, and
+needs its own proposal and its own row."* Practice has settled it; only the text is stale.
+
+### Correction: the adjudications were ruled on 29 August
+
+`Phase7_Roadmap.pdf` Revision 4 is titled "All five adjudications ruled" and records every
+one closed. This thread said on 2 September that four remained open, having read the
+Engineering Notes and the Constitution — both of which stop before that ruling — and not
+the Roadmap. The rulings:
+
+| Question | Ruling |
+|---|---|
+| Item 6 severity | **CRITICAL** — severity reflects consequence, not implementation effort |
+| Position sizing | **REMOVE FROM THE ENGINE** — no Constitution amendment needed |
+| Item 13, halt or degrade | **DEGRADE** — record the failure, cut confidence, authorize no trade |
+| Item 2 strength | **COMPLIANT, rationale amended** — sequence item 15 becomes mandatory for the backtest gate |
+| Items 4 and 12 | **DISSOLVED BY REMEDIATION** — the caches were deleted at sequence item 6 |
+| Item 20 amendment | **STILL OPEN** — the only one |
+
+### The independence ledger, and a cost already paid
+
+Engineering Notes #31 tracks which models have seen what, on the principle that
+*"independence is tracked at the lab, not the checkpoint."* Nine have now seen the
+Constitution. The Remediation Plan of 29 August names the families **still clean on both
+lists for the Step 8 re-audit: Meta, Mistral, Qwen, Cohere, Amazon, MiniMax** — and records
+in the same paragraph that **Luna Pro was considered and rejected for Step 5 "because it had
+already seen the Constitution during the hostile review."**
+
+Step 8 was then run by Luna Pro.
+
+Its findings were real — every one was checked against source before any of it was fixed,
+and Finding 3 in particular was verified by running the engine, not by trusting the report.
+Nothing here argues for discarding them. What it costs is precisely what the ledger exists
+to buy: **the next re-audit cannot treat agreement with this one as independent
+confirmation.** Use one of the six clean families for it, and do not let a second Luna Pro
+result read as corroboration of the first.
+
+### One thing to verify that this thread could not
+
+The item-16 instruction to Luna Pro says: *"You will be given the file
+`..._RATIFIED_AUDITCOPY.pdf`. Audit against that copy and no other. If you are given, or
+find, a different version of the Constitution, stop and say so — the live version has been
+annotated since ratification with the outcomes of a previous audit, and grading against it
+would let you read the answers before sitting the exam."*
+
+`docs/audit_package/Phase7_Constitution_v1.0_RATIFIED_AUDITCOPY.pdf` is 69,656 bytes; the
+live document is 112,290 bytes and 38 pages. The smaller size is consistent with a frozen
+pre-annotation copy and gives no reason for alarm. It is worth one check anyway — open it
+and confirm it has no AUDITED, AMENDED or DEFECT row — because it is a one-minute check on
+the question of whether the re-audit graded the exam or the answer key, and nobody has run
+it. (An earlier draft of this section compared that figure against the 101,831 bytes in the
+Audit Execution Instructions and called it a mismatch. That was wrong: those instructions
+describe the **Step 3** package for Kimi K3, a different audit with a different material
+set. Recorded rather than deleted, per this project's practice.)
+
+### The documentation is a week in arrears
+
+This is the real answer to "does anything need upgrading."
+
+- **Engineering Notes stop at entry #33, 29 August.** The rebuild, the Step 8 re-audit,
+  nine commits and Finding 3 are all unrecorded in the project's standing log. Draft
+  entries #34–#42 exist and are awaiting the build script.
+- **Change Impact Records: none.** The Documentation & Change-Log Standard has been "in
+  effect immediately" since 25 August, and its own trigger is *"anything that could
+  plausibly affect what the engine outputs."* Every commit this week qualifies. The commit
+  messages do the job informally; what does not exist is the *"one running, referenceable
+  log"* the standard says it was written to create.
+- **The Constitution's Version History has no row for Step 8 having run.** The AUDITED row
+  records the Kimi K3 audit of 27 August. The re-audit that followed the whole remediation
+  has no row at all.
+- **Stale pointers.** The Tier 0 Companion and the Credential Security Protocol both name
+  `Phase7_Engineering_Constitution_v1.0_Rev6.pdf` as their companion; the live document is
+  RATIFIED, Rev 8 content.
+- **The Roadmap's Revision 4 predates everything since 29 August** and still presents the
+  sixteen-item sequence as pending.
+
+### A convergence worth noticing
+
+Roadmap section D parks machine learning with five written conditions. Condition 2 is *"a
+working decision **and outcome** log with real accumulated history,"* and Engineering Notes
+#32 explains why it does not exist: *"`engine_core.py:466` overwrites its state file each
+run rather than accumulating. Decisions without outcomes are unlabelled examples."*
+
+That is the same gap as Findings 6 and 7. It is also the same gap the database question of
+1 September was circling. Tomorrow's work is load-bearing for three separate threads: the
+release gate, the backtest gate, and whether ML ever comes off ice.
+
 ## Tomorrow — the Major and Moderate work
 
 Agreed with Viktor, 2 September. Order is mine; the pairings are the audit's own.
 
-1. **Findings 6 and 7 together.** The report says so directly ("Re-audit Item 5 and the
-   traceability relationship with Item 6"). They are one question asked at two depths: what
-   has to be recorded for a run to be reconstructable, and what has to be recorded for a
-   number on the panel to be traceable back to a candle. Doing 7 without 6 means writing
-   the lineage twice. **The largest item here by some distance, and the one most likely to
-   need a ruling from Viktor** — a content hash and a raw-data archive are a storage policy,
-   not a refactor.
+1. **Findings 6 and 7 together — and this is the release gate.** Finding 7 is Item 6,
+   Traceability, which Viktor's 29 August ruling raised to Critical. It is the last Critical
+   standing, so it is what keeps the trading prohibition in force and what blocks the
+   backtest gate (Items 2, 3, 6, 18). It is also ML condition 2. The report pairs 6 and 7
+   itself ("Re-audit Item 5 and the traceability relationship with Item 6"): one question at
+   two depths — what has to be recorded for a run to be reconstructable, and what has to be
+   recorded for a number on the panel to be traceable back to a candle. Doing 7 without 6
+   writes the lineage twice. **The largest item here, and the one most likely to need a
+   ruling** — a content hash, a raw-data archive and a retention window are storage policy,
+   not a refactor, and the Constitution says under Item 5 that the retention decision is one
+   "the audit should force explicitly rather than leave implicit."
 2. **Finding 9**, the `confidence_score` collision. Small and self-contained: either rename
    the raw field or make both entry points mean the same thing, then update `EngineOutput`
    and `DecisionObject` to say which.
@@ -204,8 +369,18 @@ Agreed with Viktor, 2 September. Order is mine; the pairings are the audit's own
 6. **Part 6 observations 1, 3 and 4.** A refusal instead of a silent live fallback, a
    request timeout, and an atomic state write. Three small, unrelated, cheap.
 
-Not scheduled: the independent re-audit itself. It is the point of all of this and it is
-not something the engine's own author can grade.
+Also owed, and cheap, once the code work lands:
+
+7. **The documentation arrears** — Engineering Notes #34-#42 (drafted), the Constitution
+   Version History row for Step 8, Change Impact Records, and the two stale Rev 6 pointers.
+8. **The two amendments**, in the order their blockers clear: the MVA gate wording (settled
+   in practice, needs a proposal and a row) and Item 20 (needs one uninvolved model, given a
+   text extract rather than the PDF).
+
+Not scheduled: the independent re-audit itself. It is the point of all of this, it is not
+something the engine's own author can grade, and it should go to one of the six model
+families still clean on both independence lists — Meta, Mistral, Qwen, Cohere, Amazon,
+MiniMax — not to Luna Pro a second time.
 
 ## Suggested order — status
 
@@ -320,7 +495,15 @@ and re-link the Claude desktop app to `D:\phase7_engine`.
     told Viktor "nine still open" straight from the report the day before, and that was
     wrong by three. Neither document knows the current state of the code. Only the code
     does, so the status table above cites a file and a line for every verdict in it.
-21. **Fixing the instance you found does not close the item; the re-audit checks the
+21. **An independence ledger only works if it is read before the room opens.** The
+    Remediation Plan of 29 August names six model families still clean for the Step 8
+    re-audit and records, in the same paragraph, that Luna Pro had been rejected for Step 5
+    because it had already read the Constitution during the hostile review. Step 8 was then
+    run by Luna Pro. Its findings were real and were each verified against source, so this
+    is not an argument for discarding them — it is a record of what was spent. The ledger
+    buys exactly one thing, the ability to treat a second opinion as independent, and that
+    is the thing no longer available for this round.
+22. **Fixing the instance you found does not close the item; the re-audit checks the
     pattern.** Sequence item 11 removed one duplicated-evidence term (trend_health, counted
     directly and via bias_score) and the item was marked done. The independent audit found
     the same pattern — a measurement counted once as a weighted factor and again as a bonus
