@@ -1,0 +1,222 @@
+diff --git a/core/engine_core.py b/core/engine_core.py
+index 6bdc249..fd645a9 100644
+--- a/core/engine_core.py
++++ b/core/engine_core.py
+@@ -232,8 +232,44 @@ class Phase7Engine:
+                         elif macro_close < macro_ema50:
+                             macro_bias = "BEARISH"
+                 except Exception as e:
++                    # ITEM 8/13 RE-AUDIT: this used to only log.warning and
++                    # leave macro_bias at "NEUTRAL" -- indistinguishable from a
++                    # genuinely flat higher timeframe. Same fabricated-fallback
++                    # shape item 9 named for indicator failures (a failure
++                    # rendered as a real reading), so it gets the same fix:
++                    # recorded as a degradation instead of only logged.
+                     logger.warning(f"Failed to process macro timeframe data: {e}")
++                    degradation.append(
++                        f"macro timeframe data failed to process ({e}) -- "
++                        f"macro_bias reported as NEUTRAL by default, not "
++                        f"because the higher timeframe is genuinely flat"
++                    )
+                     macro_bias = "NEUTRAL"
++            else:
++                # ITEM 8/13 RE-AUDIT (roadmap "Item 8/13 macro degradation"):
++                # a macro fetch failure or an insufficient/malformed macro
++                # frame used to leave macro_bias at its initialised "NEUTRAL"
++                # with nothing added to `degradation` -- a failed higher-
++                # timeframe read and a genuinely neutral macro trend rendered
++                # identically, both on the panel and to every downstream
++                # consumer of macro_bias (bias_engine's macro factor,
++                # signal_router's macro/volume agreement check, the
++                # AGGRESSIVE-gate macro checks in decision_model).
++                # tests/test_golden_path.py::test_the_macro_series_is_actually_read
++                # documented this in its own docstring as "recorded rather
++                # than fixed... a rider on sequence item 9's degrade ruling."
++                #
++                # Ruled: report the failure like any other degraded input,
++                # per Viktor's item 9 "degrade, don't fabricate" ruling.
++                # macro_bias still can't invent a direction from missing
++                # data, so it stays NEUTRAL -- but the run is now marked
++                # degraded instead of silently trusted.
++                macro_fetch_error = df_macro.attrs.get("fetch_error") if df_macro is not None else None
++                degradation.append(
++                    f"macro timeframe fetch failed: {macro_fetch_error}"
++                    if macro_fetch_error
++                    else "macro timeframe data is invalid or insufficient"
++                )
+ 
+             # 2. INDICATORS
+             try:
+diff --git a/tests/test_degraded_state.py b/tests/test_degraded_state.py
+index e63e4a3..b711d22 100644
+--- a/tests/test_degraded_state.py
++++ b/tests/test_degraded_state.py
+@@ -493,3 +493,84 @@ def test_the_dead_trend_failure_gate_stays_removed():
+           "producer and its own justification — not the old comparison "
+           "against labels structure.py has never written."
+     )
++
++
++# ============================================================
++# Item 8/13 re-audit — the macro read gets the same treatment
++# ============================================================
++#
++# tests/test_golden_path.py::test_the_macro_series_is_actually_read covers
++# the case named in the roadmap: the macro timeframe fetch itself failing
++# (deleting the pinned macro file, which makes get_tf return an empty frame
++# that fails _validate_dataframe). This section covers the other half of the
++# same fabricated-fallback shape: the macro frame fetches fine, but something
++# raises while it is being processed. Before this fix engine_core.py's
++# `except Exception` around that step only logged a warning and left
++# macro_bias at "NEUTRAL" -- unreported, same as the fetch-failure case was.
++
++def _run_with_broken_macro_processing():
++    """
++    Makes add_technical_indicators raise on its FIRST call only, then hands
++    every later call through to the real function.
++
++    engine_core.py calls add_technical_indicators on the macro frame (step
++    1b) before it calls it on the base frame (step 2), so a first-call-only
++    break lands exactly on the macro path and leaves base-data processing
++    untouched -- unlike patching a single ta.* function (which would break
++    the indicator on both frames, or unlike breaking the whole function
++    unconditionally, which would also take down step 2 and turn this into a
++    halt-the-run test instead of a degrade-the-macro-read test.
++    """
++    import core.engine_core as ec
++    from data.data_fetcher import DataFetcher, data_fetcher
++    from models.signal_router import SignalRouter
++
++    real_fn = ec.add_technical_indicators
++    calls = {"n": 0}
++
++    def first_call_explodes(*a, **k):
++        calls["n"] += 1
++        if calls["n"] == 1:
++            raise RuntimeError("simulated macro processing failure")
++        return real_fn(*a, **k)
++
++    original_url = data_fetcher.base_url
++    try:
++        ec.add_technical_indicators = first_call_explodes
++        data_fetcher.base_url = UNREACHABLE
++        DataFetcher.set_pinned_source(PINNED_DIR)
++        return SignalRouter().route(symbol="AEROUSDT", timeframe="4h")
++    finally:
++        ec.add_technical_indicators = real_fn
++        DataFetcher.clear_pinned_source()
++        data_fetcher.base_url = original_url
++
++
++def test_a_macro_processing_exception_degrades_rather_than_fabricates():
++    if not _engine_available():
++        pytest.skip("pandas_ta not installed")
++
++    decision = _run_with_broken_macro_processing()
++    assert "error" not in decision, (
++        f"the engine halted instead of degrading: {decision.get('error')}\n"
++        "A macro-processing exception must not end the run any more than a "
++        "failed indicator does."
++    )
++
++    assert decision.get("macro_bias") == "NEUTRAL", (
++        f"expected macro_bias='NEUTRAL' when macro processing raises "
++        f"(the engine cannot invent a direction), got "
++        f"{decision.get('macro_bias')!r}"
++    )
++
++    block = decision.get("degradation", {})
++    assert block.get("degraded") is True, (
++        f"macro processing raised but the run does not report itself "
++        f"degraded: {block}\n"
++        "Before the item 8/13 fix this exception was only logged, so a "
++        "failed macro read and a genuinely neutral one looked identical."
++    )
++    assert any("macro" in m.lower() for m in block.get("missing_inputs", [])), (
++        f"the degradation block does not name the macro timeframe: "
++        f"{block.get('missing_inputs')}"
++    )
+diff --git a/tests/test_golden_path.py b/tests/test_golden_path.py
+index 9cbe009..c184d65 100644
+--- a/tests/test_golden_path.py
++++ b/tests/test_golden_path.py
+@@ -371,36 +371,60 @@ def test_the_macro_series_is_actually_read():
+     this asserts the difference directly: remove the macro file and the macro
+     read must change.
+ 
+-    WHAT THIS EXPOSES, recorded rather than fixed. A macro fetch that fails does
+-    not raise and does not mark the run degraded — engine_core validates the
+-    frame, and on failure leaves macro_bias at its initialised "NEUTRAL". So a
+-    missing timeframe and a genuinely directionless market produce the same
+-    word, and the panel prints MACRO TREND: NEUTRAL either way.
+-
+-    That is the fabricated-fallback pattern: a real value and a failure sharing
+-    a representation. It belongs to sequence item 9 under the degrade ruling —
+-    a failed input must be reported as a failure, not silently rendered as a
+-    neutral reading. Rider recorded there.
++    ITEM 8/13 RE-AUDIT, 1 September 2026 (WHAT THIS USED TO EXPOSE, NOW FIXED).
++    A macro fetch that failed did not raise and did not mark the run degraded
++    — engine_core validated the frame, and on failure left macro_bias at its
++    initialised "NEUTRAL". A missing timeframe and a genuinely directionless
++    market produced the same word, and the panel printed MACRO TREND: NEUTRAL
++    either way — the fabricated-fallback pattern sequence item 9's degrade
++    ruling names: a real value and a failure sharing a representation.
++
++    engine_core.py now records a degradation whenever the macro frame fails
++    validation (or raises while being processed), the same as any other
++    missing input. macro_bias still cannot invent a direction from absent
++    data, so it still reports NEUTRAL — but the run built on it is now marked
++    degraded, so a missing macro series and a genuinely flat one no longer
++    look identical to anything downstream.
+     """
+     if not _engine_available():
+         pytest.skip("pandas_ta not installed")
+ 
+-    with_macro = _run().get("macro_bias")
+-    without_macro = _run_without(f"{SYMBOL}_{MACRO_TIMEFRAME}.csv").get("macro_bias")
++    with_macro = _run()
++    without_macro = _run_without(f"{SYMBOL}_{MACRO_TIMEFRAME}.csv")
+     _clear_state()
+ 
+-    assert with_macro != without_macro, (
++    with_macro_bias = with_macro.get("macro_bias")
++    without_macro_bias = without_macro.get("macro_bias")
++
++    assert with_macro_bias != without_macro_bias, (
+         f"deleting {SYMBOL}_{MACRO_TIMEFRAME}.csv from the pinned set did not "
+-        f"change macro_bias (both {with_macro!r}).\n"
++        f"change macro_bias (both {with_macro_bias!r}).\n"
+         "The macro timeframe is therefore not being read from the pinned "
+         "source, and the golden baseline is pinned against a data path the "
+         "engine does not use."
+     )
+-    assert without_macro == "NEUTRAL", (
+-        f"a missing macro series produced macro_bias={without_macro!r}, "
+-        f"expected 'NEUTRAL'.\nIf engine_core has learned to report this "
+-        f"failure honestly, that is sequence item 9 landing and this "
+-        f"expectation should be updated to match."
++    assert without_macro_bias == "NEUTRAL", (
++        f"a missing macro series produced macro_bias={without_macro_bias!r}, "
++        f"expected 'NEUTRAL' -- the engine still cannot invent a direction "
++        f"from a fetch it never got."
++    )
++
++    with_degradation = with_macro.get("degradation", {})
++    without_degradation = without_macro.get("degradation", {})
++
++    assert with_degradation.get("degraded") is False, (
++        f"the run with a full pinned set (macro series included) reports "
++        f"itself degraded: {with_degradation}"
++    )
++    assert without_degradation.get("degraded") is True, (
++        f"a missing macro series does not mark the run degraded: "
++        f"{without_degradation}\n"
++        "Item 8/13 requires a failed macro read to be reported as a "
++        "failure, not silently rendered as an ordinary neutral reading."
++    )
++    assert any("macro" in m.lower() for m in without_degradation.get("missing_inputs", [])), (
++        f"the degradation block does not name the macro timeframe: "
++        f"{without_degradation.get('missing_inputs')}"
+     )
+ 
+ 
