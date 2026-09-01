@@ -28,7 +28,17 @@ import os
 import py_compile
 import sys
 
+import pytest
+
 from conftest import ENGINE_MODULES, REPO_ROOT, all_python_files
+
+
+def _engine_available():
+    try:
+        import pandas_ta  # noqa: F401
+        return True
+    except Exception:
+        return False
 
 
 def test_every_file_compiles():
@@ -58,6 +68,27 @@ def test_every_module_imports():
 
     This is the check that fails today on a clean checkout. See
     test_clean_checkout.py for why, and for the isolated case.
+
+    "FOUR TESTS THAT FAIL OUTRIGHT" RE-AUDIT, 1 September 2026. This test
+    imported core.engine_core (and, transitively through it, indicators.
+    indicators) directly, bypassing the _engine_available() guard the rest
+    of the suite uses -- one of the four tests docs/PHASE7_NEXT.md recorded
+    since batch 1 as "reported for record, not fixed."
+
+    A blanket skip like every other guarded test uses would be the wrong fix
+    here specifically: only 2 of the 21 ENGINE_MODULES (core.engine_core,
+    indicators.indicators) import pandas_ta, and this is the one test that
+    catches a bad import or an undefined name at module scope in any of the
+    other 19 -- exactly the class of bug this file's own docstring cites
+    seven real, logged incidents of. Skipping the whole test on a machine
+    without pandas_ta would silently stop checking those 19 modules for
+    nothing to do with the reason it skipped.
+
+    So the two known-pandas_ta-dependent modules are treated specially: a
+    ModuleNotFoundError naming pandas_ta itself, exactly, is recorded as an
+    environment fact rather than a suite failure, and every other module
+    (and any OTHER exception from these two, including a real bug in either)
+    is still checked and still fails the test.
     """
     def _affected():
         return [m for m in list(sys.modules)
@@ -88,8 +119,10 @@ def test_every_module_imports():
     # worked correctly, because this test had not run first. That is the worst
     # shape of bug — invisible in isolation, wrong in aggregate.
     saved = {m: sys.modules[m] for m in _affected()}
+    pandas_ta_ready = _engine_available()
 
     failures = []
+    skipped_no_pandas_ta = []
     try:
         for mod in ENGINE_MODULES:
             for cached in [m for m in sys.modules if m == mod or m.startswith(mod + ".")]:
@@ -97,7 +130,17 @@ def test_every_module_imports():
             try:
                 importlib.import_module(mod)
             except Exception as e:
-                failures.append(f"{mod}: {type(e).__name__}: {e}")
+                # Only the exact "pandas_ta itself is missing" shape is
+                # excused, and only when it demonstrably is missing (checked
+                # once above, not inferred from this exception) -- a real bug
+                # inside core.engine_core or indicators.indicators that
+                # happens to also raise ModuleNotFoundError for some other
+                # name is not let through by this check.
+                if (not pandas_ta_ready and isinstance(e, ModuleNotFoundError)
+                        and e.name == "pandas_ta"):
+                    skipped_no_pandas_ta.append(mod)
+                else:
+                    failures.append(f"{mod}: {type(e).__name__}: {e}")
     finally:
         # Put the original module objects back, so every later test sees one
         # consistent set of modules rather than a mixture.
@@ -119,6 +162,18 @@ def test_every_module_imports():
 
     assert not failures, "modules failed to import:\n  " + "\n  ".join(failures)
 
+    # Visible the same way a real pytest.skip is: printed to the report, not
+    # swallowed. This test still PASSES -- the 19 pandas_ta-independent
+    # modules (and any module that genuinely does import cleanly) were
+    # actually checked, which is what distinguishes this from the other
+    # three tests in this fix, where nothing engine-related can be checked
+    # at all without pandas_ta.
+    if skipped_no_pandas_ta:
+        print(
+            "pandas_ta not installed; import not verified for: "
+            + ", ".join(skipped_no_pandas_ta)
+        )
+
 
 def test_the_engine_and_the_fetcher_module_share_one_singleton():
     """
@@ -132,7 +187,18 @@ def test_the_engine_and_the_fetcher_module_share_one_singleton():
 
     Cheap to check, and it fails loudly the moment the module table is left
     inconsistent by anything.
+
+    "FOUR TESTS THAT FAIL OUTRIGHT" RE-AUDIT, 1 September 2026: this test
+    imported core.engine_core directly with no _engine_available() guard --
+    one of the four docs/PHASE7_NEXT.md recorded since batch 1 as "reported
+    for record, not fixed." Unlike test_every_module_imports above, there is
+    no partial version of this check: it is specifically about engine_core's
+    singleton, so it skips outright like the rest of the suite rather than
+    checking something else instead.
     """
+    if not _engine_available():
+        pytest.skip("pandas_ta not installed")
+
     import core.engine_core as engine_core
     import data.data_fetcher as fetcher_module
 

@@ -290,7 +290,17 @@ def test_the_engine_holds_no_caches():
 
     A reintroduced cache is not automatically wrong, but it would reopen a
     dispute two audit runs disagreed about, so it should not arrive quietly.
+
+    "FOUR TESTS THAT FAIL OUTRIGHT" RE-AUDIT, 1 September 2026: this test
+    imported core.engine_core directly, bypassing the _engine_available()
+    guard every other pandas_ta-dependent test in this file already uses --
+    recorded in docs/PHASE7_NEXT.md since batch 1 as "reported for record,
+    not fixed." A machine without pandas_ta got a hard failure here instead
+    of the honest SKIPPED the rest of the suite reports.
     """
+    if not _engine_available():
+        pytest.skip("pandas_ta not installed")
+
     from core.engine_core import Phase7Engine
 
     engine = Phase7Engine()

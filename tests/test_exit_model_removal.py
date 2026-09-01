@@ -119,7 +119,15 @@ def test_build_exit_watch_survives():
 def test_engine_core_has_no_render_parameter():
     """
     Signature-level, so it fails at import rather than at some later run.
+
+    "FOUR TESTS THAT FAIL OUTRIGHT" RE-AUDIT, 1 September 2026: this test
+    imported core.engine_core directly, bypassing the _engine_available()
+    guard this same file already uses elsewhere -- recorded in
+    docs/PHASE7_NEXT.md since batch 1 as "reported for record, not fixed."
     """
+    if not _engine_available():
+        pytest.skip("pandas_ta not installed")
+
     from core.engine_core import Phase7Engine
 
     params = inspect.signature(Phase7Engine.run).parameters
