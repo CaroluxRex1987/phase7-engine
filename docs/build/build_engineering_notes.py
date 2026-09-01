@@ -1170,6 +1170,281 @@ story.extend(entry_box(33, "August 29, 2026",
     "caught it; the pattern is now a working note.",
     "AUDIT STEP 5 — VERIFIED", GREEN))
 
+story.extend(entry_box(34, "August 30, 2026",
+    "The Machine Was Rebuilt, and the Baseline Survived It",
+    "A golden baseline is a claim about an environment, and the environment was destroyed.",
+    "Windows was reinstalled and every drive wiped. Nothing of value was lost: the repository "
+    "stood at <font face=\"Courier\">375334a</font> on GitHub and nothing lived only on disk "
+    "except the gitignored <font face=\"Courier\">logs/</font> tree. The reason this earns an "
+    "entry rather than a shrug is Item 5. The golden snapshot is not a claim about the code "
+    "alone; it is a claim about the code <i>in an environment</i>, and that environment was "
+    "destroyed and rebuilt from nothing. "
+    "<font face=\"Courier\">docs/audit_package/environment_before_reinstall.txt</font> records "
+    "the library versions and the Python 3.12.0 that produced the original baseline. The "
+    "rebuild resolved different ones — <font face=\"Courier\">numpy</font> moved from 1.26.4 to "
+    "2.2.6, <font face=\"Courier\">pandas</font> and <font face=\"Courier\">pandas-ta</font> "
+    "unchanged — and the snapshot did not move. That was checked rather than assumed, and it is "
+    "a real result. It is also the strongest available argument for what became audit Finding "
+    "15: <b>nothing in the repository required those versions.</b> The baseline held across a "
+    "major version bump of the numerical library underneath every indicator, and it held by "
+    "luck that nobody had arranged. Viktor's machine is now on Python 3.12.10 and the "
+    "remediation sandbox runs 3.12.3; both produce identical suite results, verified on every "
+    "delivery since.",
+    "REFERENCE — FILED FOR THE RECORD", AMBER))
+
+story.extend(entry_box(35, "August 30, 2026",
+    "Step 8 — The Independent Re-Audit, and Five Criticals",
+    "It tests that selected implementation details have not changed more strongly than it "
+    "tests whether the engine is correct.",
+    "Sequence item 16 executed. GPT-5.6 Luna Pro received the engine source, the test suite, "
+    "the frozen audit copy of the register and a written instruction "
+    "(<font face=\"Courier\">docs/audit_package/item16_review_instruction.md</font>), and "
+    "returned <font face=\"Courier\">docs/audit_package/luna_pro_audit_report.md</font> — a "
+    "full 44-rule verdict table, fifteen findings, a test-suite assessment and a release-gate "
+    "determination. <b>Release gate: not met.</b> Five findings rated Critical: Item 3, "
+    "abnormal volume reaching analysis unchecked; Items 8 and 13 together, a failed macro input "
+    "rendered as an ordinary neutral reading; Item 13, partially invalid indicator columns "
+    "passing without degradation; Item 11, bias and confidence reusing derived evidence as if "
+    "it were independent; and Item 14, <font face=\"Courier\">AGGRESSIVE</font> selected from "
+    "conviction and entry quality with no independent risk decision. Ten further findings at "
+    "Major or Moderate, and twelve rules graded Not verifiable. Two things about this run "
+    "belong in the record rather than in a summary of it. First, the sentence quoted above — "
+    "the auditor's judgement of the suite — is the sharpest single observation any reviewer has "
+    "produced about this project, and it was aimed at a harness built four days earlier "
+    "specifically to be better than that. Second, see Entry #41: the model that produced this "
+    "report was not on the clean list the Remediation Plan had drawn up for this step.",
+    "AUDIT STEP 8 — RECORDED", MAROON))
+
+story.extend(entry_box(36, "August 31, 2026",
+    "Remediation Batches 1 and 2",
+    "Under pytest, a return is a pass.",
+    "Two batches, one commit — <font face=\"Courier\">dba1b63</font>. "
+    "<b>Batch 1, the skip mechanism.</b> The suite contained 46 occurrences of "
+    "<font face=\"Courier\">if not _engine_available(): return</font>. A returning test is a "
+    "passing test, so on a machine without <font face=\"Courier\">pandas_ta</font> the suite "
+    "reported success for work it had not done — audit Finding 13, and precisely the defect "
+    "Entry #29's harness had been built to prevent. All 46 became real "
+    "<font face=\"Courier\">pytest.skip()</font> calls. Running the suite without "
+    "<font face=\"Courier\">pandas_ta</font> then reported 46 SKIPPED instead of 46 false "
+    "passes, which is how four tests that import <font face=\"Courier\">core.engine_core</font> "
+    "directly, bypassing the guard, were found to fail outright in that environment. Recorded "
+    "at the time and deliberately not fixed in the same batch — see Entry #38. "
+    "<b>Batch 2, five unambiguous fixes.</b> The “full size” text in "
+    "<font face=\"Courier\">decision_model.py</font> (Finding 8, path B); "
+    "<font face=\"Courier\">main.py</font>'s bare <font face=\"Courier\">'Logs'</font> (Part 6 "
+    "observation 2); <font face=\"Courier\">trade_quality_current</font> and the vacuous "
+    "assertion that guarded it (Findings 10 and 13); the hardcoded "
+    "<font face=\"Courier\">Lookback 8</font> on the panel, now interpolated from "
+    "<font face=\"Courier\">config.STRUCT_LOOKBACK</font> (Finding 8, path A); and "
+    "<font face=\"Courier\">np.isfinite</font> in risk validation. <b>None of those five named "
+    "the audit finding it closed.</b> Three whole findings were later discovered to be already "
+    "shut for exactly that reason — Entry #40 records the cost from the other side.",
+    "MILESTONE — RECORDED", GREEN))
+
+story.extend(entry_box(37, "August 31, 2026",
+    "Items 3, 11 and 14 — Delegated, Ruled, Implemented",
+    "Decide items 3, 11, 14 myself.",
+    "Viktor's instruction, delegating all three trading-judgment calls rather than ruling on "
+    "each in turn. Recorded as a delegation because Roles &amp; Authority assigns this class of "
+    "decision to Viktor, and this is the second time he has knowingly handed a specific class "
+    "of them over. Commit <font face=\"Courier\">c4dfcc7</font>. <b>Item 3 — abnormal volume: "
+    "reject, degrade or accept, per case.</b> All-zero volume is now rejected at "
+    "<font face=\"Courier\">data/validation.py</font>, because there is no measurement from "
+    "which to build a volume-weighted read. An isolated extreme spike is still accepted at that "
+    "layer: the original “deliberately not implemented” reasoning held, in that a spike is real "
+    "data and rejecting a run over a busy market makes the engine least available exactly when "
+    "it matters most. What changed is that a spike no longer reaches every downstream score "
+    "unflagged — <font face=\"Courier\">indicators.py</font> detects one above ten times the "
+    "recent rolling median and records it as a degradation, capping confidence rather than "
+    "substituting a value. <b>Item 11 — remove the duplicated factors rather than argue for "
+    "their independence.</b> The earlier sequence-item-11 pass had removed one duplicated term "
+    "and left three siblings standing. <font face=\"Courier\">bias_score</font> is now the one "
+    "place all six weighted factors are combined and <font face=\"Courier\">confidence</font> "
+    "is exactly its magnitude; <font face=\"Courier\">continuation_strength</font> no longer "
+    "carries a trend-health-derived component; and "
+    "<font face=\"Courier\">bias_engine.py</font> gained the explicit dependency-graph comment "
+    "the audit's required action had actually asked for. <b>Item 14 — the labels survive, "
+    "gated.</b> <font face=\"Courier\">classify_risk_regime()</font> already computed a "
+    "four-tier regime, and only the EXTREME-or-not boolean ever escaped "
+    "<font face=\"Courier\">validate_risk_parameters</font>. The regime is now threaded through "
+    "as its own contract field, and AGGRESSIVE is refused when it is HIGH VOLATILITY RISK or "
+    "worse. Direction and whether a trade is permitted at all are untouched; this gates "
+    "intensity only. Ten net new tests. The golden snapshot moved, in exactly the four fields "
+    "predicted before the run.",
+    "DECISION — ADOPTED", GREEN))
+
+story.extend(entry_box(38, "September 1–2, 2026",
+    "Three Small Items, and the Four Tests From Entry #36",
+    "A test docstring naming what it did not fix is a debt with an address on it.",
+    "Four commits. <b>Item 8/13, the macro half "
+    "(<font face=\"Courier\">5d2cbbe</font>).</b> A failed macro-timeframe fetch left "
+    "<font face=\"Courier\">macro_bias</font> at its initialised "
+    "<font face=\"Courier\">\"NEUTRAL\"</font> with nothing added to "
+    "<font face=\"Courier\">degradation</font>, so a failed higher-timeframe read and a "
+    "genuinely flat one rendered identically on the panel. Both the validation-failure path and "
+    "the processing-exception path now record a degradation. "
+    "<font face=\"Courier\">test_the_macro_series_is_actually_read</font> had documented this "
+    "in its own docstring as “recorded rather than fixed… a rider on sequence item 9's degrade "
+    "ruling”; that assertion was rewritten alongside the fix, which is what the docstring had "
+    "asked whoever fixed it to do. <b>Finding 15, dependency pinning "
+    "(<font face=\"Courier\">a26c545</font>).</b> "
+    "<font face=\"Courier\">requirements.txt</font> and "
+    "<font face=\"Courier\">requirements-dev.txt</font> now pin exact versions, verified by "
+    "building a virtualenv from empty and confirming <font face=\"Courier\">pip freeze</font> "
+    "matched before the suite was run. Closes the risk Entry #34 records the project having "
+    "survived by luck. <b>The four unguarded tests "
+    "(<font face=\"Courier\">3d0b410</font>).</b> The ones Entry #36 recorded and left. Three "
+    "are entirely about <font face=\"Courier\">Phase7Engine</font> and now carry the same "
+    "<font face=\"Courier\">_engine_available()</font> guard as the rest of the suite. The "
+    "fourth, <font face=\"Courier\">test_every_module_imports</font>, needed a different fix: "
+    "it checks all 21 engine modules for import-time defects and only three of them need "
+    "<font face=\"Courier\">pandas_ta</font>, so a blanket skip would have stopped checking the "
+    "other eighteen for an unrelated reason. It now excuses that one exception by name and "
+    "still fails on anything else. <b>Stale labels "
+    "(<font face=\"Courier\">2be405f</font>).</b> Two golden-path tests still carried "
+    "“EXPECTED TO FAIL until sequence item 12” in their docstrings; item 12 had fixed both "
+    "defects before the Luna Pro audit began and both tests had been passing ever since. "
+    "Documentation only — but a docstring that lies about the state of the code is the same "
+    "class of defect as a panel line that does.",
+    "MILESTONE — RECORDED", GREEN))
+
+story.extend(entry_box(39, "September 2, 2026",
+    "Finding 3 — the Critical That Was Never Scheduled",
+    "A derived document cannot tell you what it never contained.",
+    "Found by reading <font face=\"Courier\">luna_pro_audit_report.md</font> end to end rather "
+    "than the roadmap written from it. Finding 3 — Item 13, partially invalid indicator columns "
+    "passing without degradation — is one of the audit's five Criticals and had never been "
+    "entered into any roadmap, so it was never scheduled, never ruled on, and never noticed "
+    "missing. From 31 August to 2 September <font face=\"Courier\">PHASE7_NEXT.md</font> stated "
+    "that remediation of the five Criticals was complete. Four of them were. Commit "
+    "<font face=\"Courier\">108cc9f</font>. <b>The defect.</b> Every indicator guard asked one "
+    "question, <font face=\"Courier\">.isna().all()</font> — did the calculation return nothing "
+    "at all. That cannot catch a series with 299 good values and no value at the bar the "
+    "decision is made on, and it could not even in principle: "
+    "<font face=\"Courier\">clean_series(method=\"forward_fill\")</font> had already filled "
+    "that gap with the previous bar's number before the guard ran. <b>The class was wider than "
+    "the two instances the audit named.</b> Injecting a trailing NaN into each indicator in "
+    "turn, before the fix: ATR, RSI, ADX, SuperTrend and both EMAs — every one carried a stale "
+    "prior-bar value into the decision row, and not one recorded a failure. Two had no guard at "
+    "all to fix, the SuperTrend <i>level</i> and the EMAs. The same trailing fill ran on the raw "
+    "OHLCV columns, turning a truncated final candle into a synthetic bar repeating the previous "
+    "close. <b>And the consumers were re-fabricating what sequence item 9a had removed.</b> A "
+    "missing RSI fell back to <font face=\"Courier\">50.0</font>, inside the “not extended” "
+    "band, scoring the full 15 of 15 — while "
+    "<font face=\"Courier\">indicators.py</font>'s own failure text told the operator it scored "
+    "0 of 15. A missing HVN fell back to <font face=\"Courier\">close</font>, making the "
+    "distance exactly zero and scoring 12 of 12; that is byte-for-byte the defect item 3 had "
+    "fixed for VWMA six days earlier, sitting forty lines above it. A missing ATR fell back to "
+    "<font face=\"Courier\">close * 0.02</font>, the flat constant item 9a had deleted — on the "
+    "pinned fixture, 0.016035 against a real 0.010554, a 52% overstatement of the distance that "
+    "sets the stop. <b>Ruled:</b> a value not measured at the decision bar is absent, and "
+    "absent means that indicator failed — which hands it to the degradation machinery that "
+    "already exists. No new policy was invented; the existing one was applied one row over. "
+    "Verified end to end: before the fix, a trailing-NaN ATR produced "
+    "<font face=\"Courier\">degraded: False</font>, "
+    "<font face=\"Courier\">missing_inputs: []</font>, a full stop and three targets, and moved "
+    "entry quality from 45.18 to 45.25 — a different answer, reported clean. Eighteen new "
+    "tests, fourteen of which fail against the pre-fix code; the other four are controls that "
+    "must pass on both sides. The golden snapshot did not move, predicted in advance and for "
+    "the right reason: real pinned data has zero trailing NaNs, which is why this went unseen. "
+    "<b>Recorded against Claude:</b> the first draft of that test file reintroduced the defect "
+    "fixed in <font face=\"Courier\">3d0b410</font> the same morning — five of its tests "
+    "imported <font face=\"Courier\">indicators.indicators</font> with no "
+    "<font face=\"Courier\">_engine_available()</font> guard and errored instead of skipping. "
+    "Caught by running the suite in a <font face=\"Courier\">pandas_ta</font>-free virtualenv "
+    "before packaging. Same class, same day, inside the fix for the class.",
+    "FINDINGS — FROM EXECUTION", MAROON))
+
+story.extend(entry_box(40, "September 2, 2026",
+    "The Status Sweep, and a Count That Was Wrong by Three",
+    "Neither document knows the state of the code.",
+    "Claude told Viktor on 1 September that nine Major and Moderate findings remained open. "
+    "That number came from the audit report rather than from the code, and it was wrong by "
+    "three. Checked by opening each location the audit quoted rather than trusting the summary: "
+    "<b>Finding 8</b> (inaccurate user-facing claims) was fully closed — "
+    "<font face=\"Courier\">Lookback</font> interpolated from config and the “full size” text "
+    "gone, both in batch 2, with the macro path closed by "
+    "<font face=\"Courier\">5d2cbbe</font>. <b>Finding 10</b> (the unconsumed "
+    "<font face=\"Courier\">trade_quality_current</font>) was closed in batch 2. <b>Finding "
+    "15</b> was closed at <font face=\"Courier\">a26c545</font> the previous day. None of those "
+    "three commits mentioned a finding number, which is why nobody knew they had shut one; "
+    "Entry #36 records the same omission from the authoring side. Genuinely open: Findings 6, "
+    "7, 9, 11 and 12 in full, plus the remainders of 13 (the plotting test still asserts only "
+    "the absence of ERROR records) and 14 (the required-shape assertion still omits "
+    "<font face=\"Courier\">provenance</font>, <font face=\"Courier\">degradation</font> and "
+    "the log path). Seven, not nine. The status table now in "
+    "<font face=\"Courier\">PHASE7_NEXT.md</font> cites a file and a line for every verdict, so "
+    "the next reader can re-check it rather than trust it. This is the mirror image of Entry "
+    "#39: that one was the plan missing what the report had, and this one is the report not "
+    "knowing what had been fixed since.",
+    "OBSERVATION — FILED FOR THE RECORD", STEEL))
+
+story.extend(entry_box(41, "September 2, 2026",
+    "The Step 8 Auditor Was Not on the Clean List",
+    "The party that made the error should not be the party that decides the evidence of it "
+    "disappears.",
+    "<font face=\"Courier\">Phase7_Remediation_Plan.pdf</font>, 29 August, records that Luna "
+    "Pro was considered and rejected for Step 5 because it had already seen the Constitution "
+    "during the hostile review, and names the six families still clean on both lists for the "
+    "Step 8 re-audit: Meta, Mistral, Qwen, Cohere, Amazon and MiniMax. <b>Step 8 was run on "
+    "Luna Pro the following day.</b> Entry #31 sets out why the ledger exists — independence is "
+    "tracked at the lab, not the checkpoint — and Entries #18 and #20 record Grok being removed "
+    "from the auditor plan for precisely this reason, having read the Constitution in an "
+    "earlier conversation. The same disqualifier applied here and the ledger was not consulted. "
+    "<b>What this does not mean.</b> The findings are sound. Every one was checked against "
+    "source before any of it was fixed, and Finding 3 was verified by running the engine rather "
+    "than by trusting the report. Nothing here argues for discarding the report or redoing the "
+    "work it produced. <b>What it costs</b> is the one thing the ledger buys: the next "
+    "re-audit cannot treat agreement with this one as independent corroboration, because it "
+    "would be the second reading by a model that had already read the standard. The next "
+    "re-audit should go to one of the six families named above, and its agreement with Luna Pro "
+    "should be read as agreement between two readings, one of them contaminated — not as "
+    "confirmation. Recorded rather than quietly noted, on Entry #21's reasoning.",
+    "OBSERVATION — FILED FOR THE RECORD", MAROON))
+
+story.extend(entry_box(42, "September 2, 2026",
+    "The Document Set Read End to End",
+    "A document you have sampled is a document you have not read.",
+    "Viktor asked whether the Constitution needed upgrading. Answering that honestly required "
+    "reading all nine governing documents rather than sampling them — Entry #17's lesson, and "
+    "rule 17 of <font face=\"Courier\">PHASE7_NEXT.md</font>'s earned list, which exists "
+    "because Claude once declared this exact PDF clean after searching four guessed phrases. "
+    "<b>The answer is no, and the project had already ruled so.</b> Entry #26, written the hour "
+    "the freeze lifted: the useful next act is fixing the Non-compliances rather than reopening "
+    "the rulebook that found them. Four things the read surfaced that were in no working "
+    "document. <b>One: the release gate is in force and blocks on Item 6.</b> Viktor's 29 "
+    "August ruling raised Traceability from Major to Critical; Item 6 is the audit's Finding 7, "
+    "still open. Until it lands <i>and is re-audited</i>, no output may be relied on for a real "
+    "trading decision, and the backtest architecture is not built. Nothing in "
+    "<font face=\"Courier\">PHASE7_NEXT.md</font> had said so. <b>Two: the adjudications were "
+    "ruled on 29 August</b>, in Roadmap Revision 4, whose title says exactly that. Claude "
+    "reported four still open, having read the Engineering Notes and the Constitution — both of "
+    "which stop before that ruling — and not the Roadmap. Only the Item 20 amendment remains. "
+    "<b>Three: Item 20's gap is already served operationally.</b> "
+    "<font face=\"Courier\">Phase7_Credential_Security_Protocol.pdf</font> §6.2 covers "
+    "telemetry, crash reporting, error aggregation and usage analytics, and is tagged “Enforces: "
+    "Tier 1, Items 20 and 21” — written the same day as the invariant whose channel list omits "
+    "it. The pending amendment tidies the register to match a practice that already exists; it "
+    "does not close a live hole, and the engine holds no credentials at all. Unblocking it "
+    "needs one uninvolved model given a text extract, not the PDF that Gemini's and Copilot's "
+    "classifiers refused. <b>Four: the documentation is a week in arrears</b> — this log "
+    "stopping at #33 being the largest part of it, alongside no Change Impact Records since the "
+    "standard took effect on 25 August, no Version History row for Step 8, and two companion "
+    "documents still pointing at Rev 6. <b>One check nobody has run.</b> The item-16 "
+    "instruction requires the re-audit to grade against the frozen audit copy rather than the "
+    "live version annotated with the outcomes of a previous audit. "
+    "<font face=\"Courier\">Phase7_Constitution_v1.0_RATIFIED_AUDITCOPY.pdf</font> is 69,656 "
+    "bytes against the live document's 112,290; the smaller size is consistent with a frozen "
+    "copy and there is no reason for alarm. It is still worth opening once to confirm it "
+    "carries no AUDITED, AMENDED or DEFECT row, because it is a one-minute check on whether the "
+    "re-audit graded the exam or the answer key. <i>(An earlier draft of this entry compared "
+    "that byte count against the 101,831 recorded in "
+    "<font face=\"Courier\">Phase7_Audit_Execution_Instructions.pdf</font> and called it a "
+    "mismatch. That was wrong — those instructions describe the Step 3 package for Kimi K3, a "
+    "different audit with a different material set. The claim was made to Viktor before it was "
+    "checked. Corrected here rather than deleted.)</i>",
+    "REFERENCE — FILED FOR THE RECORD", AMBER))
+
 # ---------- DOCUMENT HISTORY ----------
 hist_rows = [
     ["Version", "Date", "Notes"],
@@ -1290,6 +1565,21 @@ hist_rows = [
      "running on GLM 5.3, nine of nine source claims verifying, and Claude coming one sentence "
      "from a third false assertion of absence. Register unchanged at 21 / 7 / 10 / 6; the "
      "adjudications Step 5 asks for remain open."],
+    ["v1.17", "September 2, 2026", "Entries #34 through #42 added, covering the six days "
+     "between the audit closing and this row — a period this log had not recorded at all. #34 "
+     "the machine rebuild and the golden baseline surviving it across a numpy major version. "
+     "#35 Step 8, the independent re-audit: five Criticals, ten further findings, release gate "
+     "not met. #36 remediation batches 1 and 2, including 46 tests that returned where they "
+     "should have skipped. #37 items 3, 11 and 14 delegated by Viktor and ruled. #38 the macro "
+     "degradation, dependency pinning, the four unguarded tests and two stale docstring labels. "
+     "#39 Finding 3 — a Critical that had never been entered into any roadmap, found by reading "
+     "the audit report rather than the summary derived from it, with a defect class wider than "
+     "the two instances the report named. #40 the status sweep: three findings already closed "
+     "by commits that never named them, and a count wrong by three. #41 the Step 8 auditor not "
+     "being on the clean list, recorded rather than quietly noted. #42 the full document set "
+     "read end to end, correcting four things no working document held. Register unchanged at "
+     "21 / 7 / 10 / 6, no longer frozen. Two amendments owed, neither adopted; the release gate "
+     "stands closed on Item 6."],
 ]
 th = Table(wrap_table(hist_rows), colWidths=[0.9 * inch, 1.4 * inch, 4.2 * inch])
 th.setStyle(row_style)
