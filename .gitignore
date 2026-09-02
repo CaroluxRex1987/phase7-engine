@@ -61,3 +61,15 @@ API KEY FROM OPEN CODE.txt
 !tests/fixtures/**/*.json
 !tests/fixtures/*.csv
 !tests/fixtures/*.json
+
+# Generated audit packages. docs/build/build_audit_package.py rebuilds these
+# from the repository, so storing 700KB of derived bytes per round would be
+# committing the same content twice.
+#
+# MANIFEST.md is the exception and is kept, because it records the commit the
+# bundle was built from and a SHA-256 for every file in it. That is what makes
+# the package reproducible and lets a later reader establish exactly which
+# artifact an auditor graded -- the same argument Item 6 makes about decisions,
+# applied to the audit itself.
+docs/audit_package/round*/*
+!docs/audit_package/round*/MANIFEST.md

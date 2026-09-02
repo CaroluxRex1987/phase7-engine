@@ -544,6 +544,60 @@ guess at it.
 one an auditor would ask about first. That is the price of the ruling, and it is the
 reason it is written down here rather than left to be discovered.
 
+## The round-2 re-audit — prepared 2 September 2026
+
+**Auditor ruled: Qwen3.8-Max.** It is the highest-ranked model still clean on both
+independence lists. Of the five highest-ranked coding models available, three are Claude
+(which wrote this engine), one shares a lineage with Luna Pro, and one — Kimi K3 — was
+spent on the Step 3 attempt that truncated. Whether Kimi should still count as spent, given
+it never completed a review, is left open as an optional future call rather than ruled now.
+
+Cost, at $2/M in and $6/M out: roughly **$0.75–0.80 per pass** on a package of about 181K
+tokens. Worth budgeting for two or three attempts — this step has already failed twice, once
+on a token ceiling and once on the wrong Constitution file being supplied.
+
+### What changed in the package
+
+`docs/build/build_audit_package.py` **generates** it now. Entry #24 records a false claim
+that got into the hand-assembled Step 2a package; a script that walks the repository and
+computes the manifest from the bytes it wrote cannot make that class of error. It also
+refuses to build if `docs/` would ship, because intending to withhold the answers is not the
+same as withholding them.
+
+Three things Luna Pro did not get:
+
+- **Version-control history.** Five Not-verifiable verdicts were unassessable *only* because
+  history was withheld — the cheapest verdict movement on the register. Supplied as metadata
+  only: hashes, dates, files changed, insertions, tags. **Subject lines are held back**, since
+  "Audit Findings 6 and 7: make a run reconstructable and traceable" leaks a finding number
+  and its outcome in eleven words. Full messages go in a separate Part 7 file.
+- **Project files** — `requirements.txt` and the rest. Grading "are dependencies pinned"
+  while withholding the file that pins them is asking a question with the answer hidden.
+- **Execution transcripts.** Two deterministic offline runs, including one where the
+  timeframes disagree. Labelled as claims by the party under audit, because that is what
+  they are. The instruction also invites the auditor to *request* runs, which is the more
+  valuable half.
+
+### What this round honestly cannot be
+
+Rev 1 was a blind review. **This one is not, and the instruction says so in its own section.**
+The fixes shipped with comments and docstrings that describe the defects in detail —
+`test_timeframe_disagreement.py` opens by narrating the CONSERVATIVE LONG run. Those files
+are part of the artifact and stripping them would be the party under audit editing its own
+evidence, which Rev 1 already ruled against for code comments.
+
+So round 2 buys two things instead: **are the claimed fixes real**, and **what did neither
+round find**. That is worth more than a re-discovery of findings already known — but it is a
+smaller claim than "an independent audit found the same things", and the report must not be
+read as the larger one.
+
+### Before sending
+
+One check from Entry #42 that still has not been run: open
+`Phase7_Constitution_v1.0_RATIFIED_AUDITCOPY.pdf` and confirm it carries no AUDITED, AMENDED
+or DEFECT row. It is a one-minute check on whether the re-audit grades the exam or the
+answer key, and a previous attempt was correctly refused for exactly this.
+
 ## Suggested order — status
 
 1. ✅ `pytest.skip()` across the suite — batch 1, `dba1b63`.
