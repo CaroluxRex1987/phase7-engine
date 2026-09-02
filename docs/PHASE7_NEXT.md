@@ -4,8 +4,8 @@
 the Luna Pro audit raised now has a fix that has landed.** The release gate is still shut,
 because "unresolved" means no fix has landed **and been re-audited**, and the re-audit has
 not run. That re-audit is now the single thing standing between this engine and its own
-trading prohibition. Suite: 170 passing, 0 failed, and 99 passed / 71 skipped / 0 errors on
-a machine without `pandas_ta`.*
+trading prohibition. Suite: 196 passing, 0 failed, and 114 passed / 82 skipped / 0 errors
+on a machine without `pandas_ta`.*
 
 > **The engine is under its own trading prohibition right now.** The Constitution's release
 > gate, adopted 27 August: *"No output of this engine may be relied on for a real trading
@@ -684,6 +684,57 @@ So round 2 buys two things instead: **are the claimed fixes real**, and **what d
 round find**. That is worth more than a re-discovery of findings already known — but it is a
 smaller claim than "an independent audit found the same things", and the report must not be
 read as the larger one.
+
+### Pre-flight checklist — run this every time, do not do it from memory
+
+Written after the round-2 run started with **eight tools enabled, including a shell**, which
+nobody had chosen and nobody had checked. It probed an empty sandbox, found nothing and
+moved on — but the repository is public, and one `git clone` would have handed the auditor
+`PHASE7_NEXT.md`, the previous audit report, the Engineering Notes and every commit message.
+The entire answer key, in one command.
+
+It was caught by watching a screenshot at the right moment. That is luck, and earned rule 28
+says luck is the signal to change the setup rather than to be more careful next time. This
+list is that change.
+
+**Tooling — the one that nearly cost this round**
+
+- [ ] **All tools OFF.** Shell, web search, browsing, file access. An auditor needs to read
+      what it was given and nothing else. Entry #27 records a previous run fetching the
+      public repository; that was noted as a "method difference" after the fact, which is
+      the polite name for finding out too late.
+- [ ] File parser set to **Native** — not MistralOCR or CloudflareAI. No reason to route
+      audit material through a third party, and Mistral is off the clean list.
+
+**Model and routing**
+
+- [ ] Model pinned, provider pinned, **fallbacks off**. A failed request tells you
+      something; a silent reroute does not.
+- [ ] Training-on-request-data routing **disabled**, paid *and* free. Verify afterwards in
+      the billing export rather than trusting the toggle — see rule 29.
+- [ ] Confirm no `:free` variant. Free endpoints are usually free because the traffic is
+      kept.
+
+**The settings that decide whether you get a report at all**
+
+- [ ] **Max output at the model's ceiling.** Step 3 died at exactly 16,384 tokens with
+      `finish=length`. This is the cheapest possible way to waste a full input charge.
+- [ ] Streaming **on**. These runs take 5–20 minutes; a non-streamed request that long
+      invites a gateway timeout.
+- [ ] Reasoning **on**, effort high. And expect a long silence before output — one previous
+      run had time-to-first-token equal to its entire generation time. Do not cancel.
+
+**The package**
+
+- [ ] The audit copy carries **no AUDITED, AMENDED or DEFECT row**. Verified two ways:
+      extract the text and grep, then look at the Version History pages. A previous attempt
+      was correctly refused because the wrong file went out.
+- [ ] Upload the **whole `UPLOAD_THESE/` folder** and nothing else. Never hand-pick: two
+      rounds' bundles share filenames and differ only by size.
+- [ ] `commit_messages_PART7_ONLY.md` stays back until Parts 1–6 are written **and saved**.
+- [ ] **No code commits while the audit runs.** The report describes the artifact at the
+      commit the package was built from; changing it underneath makes the findings
+      unlocatable. Documentation is safe — `docs/` is excluded from the bundle.
 
 ### Before sending
 
