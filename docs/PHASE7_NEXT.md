@@ -440,6 +440,30 @@ this, and neither did four earlier passes across three models. It needs bias and
 disagree on live data, which no pinned fixture does. Reading finds what is written;
 running finds what happens. New earned rule 25.
 
+**And the gap is now closed rather than noted.** Viktor's observation, 2 September: *"I
+really should have run the engine more often, but I was too caught up in the workflow."*
+The better answer than resolving to be more diligent — which decays — is to make the suite
+able to reach the state it could not.
+
+`tests/test_timeframe_disagreement.py` generates a series where the two timeframes
+genuinely disagree: a long rally then a sharp multi-day break, so the daily EMA-50 still
+sits below the daily close while the 4h structure has decisively turned. An ordinary market
+condition, not a contrivance. Deterministic and derived from a pure function — the wobble is
+`sin()`, not an RNG — so the series is identical on every machine and every numpy, following
+`test_golden_path._write_pinned_set`'s discipline rather than inventing a second one.
+
+Seven tests, running the **whole** engine rather than `DecisionModel` in isolation. Four
+fail against the code before `30408c2`, reproducing the live run from generated data:
+CONSERVATIVE LONG over descending targets, CONSERVATIVE SHORT in the mirror, and the false
+"Bias is bullish" claim. The other three must pass on both sides — two of them assert the
+*fixture itself* still produces the disagreement, because if it ever stops, every other test
+in the file would go on passing while testing agreement. That is section 7.3's "setup
+contradicts what it claims to test", and this file is exactly the shape that fails that way.
+
+The property pinned is deliberately not "the engine returns WAIT here" — that is today's
+answer to today's thresholds, and it would fail the next time one legitimately moves. What
+must never be true at any threshold is a LONG label above descending targets.
+
 ## Findings 6 and 7 — the last Critical, and what Viktor ruled
 
 **Viktor's ruling, 2 September 2026: hash *and* archive, pruned at ninety days.** The
