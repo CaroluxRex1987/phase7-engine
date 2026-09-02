@@ -1,5 +1,6 @@
 from typing import Dict, Any, List, Tuple, Optional
 import logging
+import math
 
 logger = logging.getLogger(__name__)
 
@@ -88,6 +89,16 @@ class DecisionModel:
         degradation = list(degradation) if degradation else []
 
         final_action = self._determine_final_action(bias, trend, entry, risk, macro_bias, reasons)
+
+        # The guard that would have caught 2 September's live run.
+        #
+        # Narrowing the direction source stops the two modules disagreeing for
+        # the reason they disagreed that day. It cannot stop them disagreeing
+        # for a reason nobody has thought of yet, and the cost of that class of
+        # defect is not a wrong number on a panel -- it is an operator taking
+        # the opposite side of the analysis. So the relationship is checked
+        # rather than trusted.
+        final_action = self._refuse_incoherent_plan(final_action, risk, reasons)
         confidence = self._compute_confidence(bias, final_action, reasons)
         trade_quality = self._compute_trade_quality(trend, entry, final_action, reasons)
 
@@ -117,6 +128,70 @@ class DecisionModel:
             "btc_adjusted": btc_adjusted,
             "explanation": explanation,
         }
+
+    @staticmethod
+    def _plan_direction(risk: Dict[str, Any]) -> Optional[str]:
+        """
+        Which way the risk plan actually points, read off the plan itself.
+
+        Derived from the targets rather than from any bias field, deliberately:
+        a check that asks the same source the action asked cannot detect the
+        two disagreeing. Targets ascending from the stop is a long; descending
+        is a short. Returns None when there is no plan to read, which is a
+        normal state -- a degraded run, or one with no ATR.
+        """
+        targets = risk.get("targets") if isinstance(risk, dict) else None
+        if not isinstance(targets, (list, tuple)) or len(targets) < 2:
+            return None
+        try:
+            first = float(targets[0])
+            last = float(targets[-1])
+        except (TypeError, ValueError):
+            return None
+        if not (math.isfinite(first) and math.isfinite(last)):
+            return None
+        if last > first:
+            return "LONG"
+        if last < first:
+            return "SHORT"
+        return None
+
+    def _refuse_incoherent_plan(self, final_action, risk, reasons):
+        """
+        An action must never ship attached to a plan pointing the other way.
+
+        On 2 September the engine printed CONSERVATIVE LONG with a stop above
+        price and three descending targets. Every number in that plan was
+        correctly computed; the label on it was not. An operator following the
+        DECISION line would have bought an instrument the engine had just
+        analysed, in detail and correctly, as a short.
+
+        Refusing rather than relabelling. Picking a side here would mean this
+        method deciding a trade direction on a disagreement it cannot
+        adjudicate -- and one of the two sources is wrong, with no way to tell
+        which from inside this function. NO-TRADE is the only answer available
+        that is certainly not the wrong one.
+        """
+        if not any(side in final_action for side in ("LONG", "SHORT")):
+            return final_action
+
+        plan = self._plan_direction(risk)
+        if plan is None:
+            return final_action
+
+        action_side = "LONG" if "LONG" in final_action else "SHORT"
+        if plan == action_side:
+            return final_action
+
+        reasons.append(
+            f"REFUSED: the decision came out {final_action}, and the risk plan "
+            f"beneath it is a {plan.lower()} -- its targets run "
+            f"{'up' if plan == 'LONG' else 'down'} from the stop. The action "
+            f"and the levels were derived from different readings of "
+            f"direction, and one of them is wrong. Which one cannot be "
+            f"determined here, so no trade is authorized."
+        )
+        return "NO-TRADE (PLAN CONTRADICTS ACTION)"
 
     def _apply_degradation(self, degradation, final_action, confidence,
                            trade_quality, reasons):
@@ -232,9 +307,44 @@ class DecisionModel:
             divergence = bool(trend.get("momentum_divergence", False))
             entry_active = "ACTIVE" in entry_status.upper()
 
-            long_signal = bool(entry.get("long_signal", False))
-            short_signal = bool(entry.get("short_signal", False))
             raw_bias = str(bias.get("raw", "NEUTRAL"))
+
+            # VIKTOR'S RULING, 2 September 2026: bias is the sole direction
+            # source. This block used to read
+            #
+            #     if raw_bias == "BULLISH" or long_signal or macro_bias == "BULLISH":
+            #
+            # and the bearish block below it mirrored that. Three independent
+            # sources could each open a direction, the first block to match
+            # returned, and nothing ever compared the answer against the risk
+            # plan -- which risk_model builds from `detailed_bias` alone.
+            #
+            # Found by running the engine on live data, 2 September. AEROUSDT
+            # 4h came back BEARISH CONFIRMED on every measure the engine has --
+            # bearish regime, bearish structure, an LH-LL sequence, strong
+            # bearish distribution, SuperTrend freshly flipped bearish -- with a
+            # BULLISH macro read. The macro clause alone entered the bullish
+            # block; `trend_health >= 50` passed because trend health is an
+            # UNSIGNED magnitude and a strong bearish trend scores 69; and the
+            # engine printed CONSERVATIVE LONG above a stop ABOVE price and
+            # three targets BELOW it. A long label on a short plan.
+            #
+            # It also printed "Bias is bullish and the broader macro trend
+            # agrees" while its own Validation Notes said the higher timeframe
+            # DISAGREED. Two contradictory claims in one panel, and the first
+            # of them false -- Item 8's class, in the module that picks the side.
+            #
+            # Why bias rather than macro: macro is ALREADY inside bias_score as
+            # a 10% weighted factor. Letting it also override the blend counts
+            # one piece of evidence twice, which is Item 11 in the module that
+            # decides direction. It has had its vote.
+            #
+            # long_signal / short_signal are gone from here for the same
+            # reason, not as tidying: an entry-zone signal that can open a
+            # direction against the engine's own bias is the identical defect
+            # wearing a different name. They remain available in `entry` for a
+            # future ruling on whether they should CONFIRM a direction bias has
+            # already chosen; they may no longer choose one.
 
             if validation_state == "WEAK" and trend_health < 40:
                 reasons.append(
@@ -242,7 +352,7 @@ class DecisionModel:
                 )
                 return "WAIT"
 
-            if raw_bias == "BULLISH" or long_signal or macro_bias == "BULLISH":
+            if raw_bias == "BULLISH":
                 if trend_health >= 75 and entry_score >= 70 and not divergence:
                     if entry_active and aggressive_allowed:
                         reasons.append(
@@ -272,7 +382,7 @@ class DecisionModel:
                     )
                     return "CONSERVATIVE LONG"
 
-            if raw_bias == "BEARISH" or short_signal or macro_bias == "BEARISH":
+            if raw_bias == "BEARISH":
                 if trend_health >= 75 and entry_score >= 70 and not divergence:
                     if entry_active and aggressive_allowed:
                         reasons.append(

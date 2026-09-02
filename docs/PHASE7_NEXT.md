@@ -373,6 +373,73 @@ something the engine's own author can grade, and it should go to one of the six 
 families still clean on both independence lists — Meta, Mistral, Qwen, Cohere, Amazon,
 MiniMax — not to Luna Pro a second time.
 
+## Found by running the engine, 2 September — a Critical the audit did not have
+
+Viktor ran `python main.py` against live MEXC data the evening Findings 6 and 7 landed.
+AEROUSDT 4h came back bearish on every measure the engine has — bearish bias, bearish
+regime, bearish structure, an LH-LL sequence, strong bearish distribution, SuperTrend
+freshly flipped bearish — with one dissenting reading, `MACRO TREND: BULLISH`.
+
+It printed:
+
+```
+DECISION      : CONSERVATIVE LONG
+CURRENT PRICE : $0.4725
+STOP LOSS     : $0.4889      <- above price
+TARGET 1      : $0.4561
+TARGET 2      : $0.4397
+TARGET 3      : $0.4233      <- all below price, descending
+```
+
+**A long label on a short plan.** Every number in that plan was correctly computed; the
+word attached to them was not. An operator following the DECISION line would have bought
+an instrument the engine had just analysed, in detail and correctly, as a short. That is
+the audit's own definition of Critical.
+
+It also printed *"Bias is bullish and the broader macro trend agrees"* four lines above its
+own Validation Note saying *"The higher timeframe disagrees with this bias"* — two
+contradictory claims in one panel, the first of them false.
+
+**Two causes.** `decision_model.py` opened a direction from any of three independent
+sources — `raw_bias or long_signal or macro_bias` — so the macro clause alone was enough,
+and `trend_health >= 50` then passed because trend health is an *unsigned magnitude*: a
+strong bearish trend scores 69. No bearish evidence anywhere in the run could block it, and
+the bearish block below never ran because the bullish one returned first. Meanwhile
+`risk_model.py:84` builds stop and targets from `detailed_bias` alone. Two direction
+sources, never reconciled.
+
+**Viktor's ruling, 2 September: bias is the sole direction source.** Macro keeps its
+existing 10% vote inside `bias_score` and gets no second, overriding one — letting it
+override the blend counts one piece of evidence twice, which is Item 11 in the module that
+picks the side. `long_signal` / `short_signal` go with it for the same reason: an
+entry-zone reading that can pick a side against the engine's own bias is the identical
+defect under another name. They stay available in `entry` for a future ruling on whether
+they should *confirm* a direction bias has already chosen; they may no longer choose one.
+
+Two more instances surfaced while testing, neither of which anyone had seen: the mirror
+case (bullish bias, bearish macro) returned `CONSERVATIVE SHORT`, and a **neutral** bias
+with a long entry signal returned `AGGRESSIVE LONG` — the most confident label the engine
+has, from no directional view at all.
+
+**And a guard, because narrowing the source is not the same as checking.** The fix stops
+these two modules disagreeing for the reason they disagreed that day; it cannot stop them
+disagreeing for a reason nobody has thought of. `_refuse_incoherent_plan` reads direction
+off the targets themselves — ascending from the stop is a long, descending is a short — and
+refuses any action whose label contradicts its own levels. Deliberately a refusal and not a
+relabelling: one of the two sources is wrong and nothing inside that function can tell
+which, so `NO-TRADE` is the only answer available that is certainly not the wrong one.
+
+Thirteen tests. Five fail against the committed code on behavioural assertions, six on
+`AttributeError` because the guard is new, and two are controls that must pass on both
+sides — a genuine bullish run still reaches a LONG, a genuine bearish one still reaches a
+SHORT. A fix that stopped the engine ever taking a side would pass every other test in that
+file and be worthless.
+
+**What this says about the audit.** Luna Pro read the source and the tests and did not find
+this, and neither did four earlier passes across three models. It needs bias and macro to
+disagree on live data, which no pinned fixture does. Reading finds what is written;
+running finds what happens. New earned rule 25.
+
 ## Findings 6 and 7 — the last Critical, and what Viktor ruled
 
 **Viktor's ruling, 2 September 2026: hash *and* archive, pruned at ninety days.** The
@@ -448,6 +515,9 @@ is tested. The general case is open.
 9. ✅ Audit Findings 6 and 7 — reproducibility and traceability, the last Critical. Input
    hashing, a raw-candle archive pruned at ninety days per Viktor's ruling, and the full
    Item 6 lineage chain persisted to the decision log.
+10. ✅ The direction-source Critical — not from the audit, found by running the engine on
+    live data. Bias is now the sole source of direction, and a plan that contradicts its
+    own label is refused. See the section above.
 
 ## Not on the roadmap, worth revisiting
 
@@ -572,3 +642,10 @@ and re-link the Claude desktop app to `D:\phase7_engine`.
     made the test pass for a reason unrelated to what it was written to prove, and the
     commit would have claimed a ruling nobody made. Narrow the test to the claim you can
     actually support, and record the other defect where the next reader will find it.
+25. **Reading finds what is written; running finds what happens.** The direction-source
+    Critical — a CONSERVATIVE LONG printed over a stop above price and three descending
+    targets — survived an independent 44-rule audit and four earlier passes across three
+    models, all of which read the source and the tests. It surfaced on the first live run,
+    because it needs bias and macro to actually disagree and no pinned fixture makes them.
+    A suite built from fixtures cannot reach a state its fixtures never enter, so running
+    the thing is a distinct form of verification and not a slower version of reading it.
