@@ -483,19 +483,42 @@ The golden snapshot moved exactly as predicted before the run: `lineage` added,
 `provenance` gained seven keys, **and not one existing value changed**. This commit adds a
 record and alters no output.
 
-### Found while doing it, and not fixed: an unwritable log directory halts a run
+### Found while doing it, then ruled: an unwritable log directory no longer halts a run
 
-Writing the halt-safety test surfaced a defect that predates all of this. If `LOG_DIR`
-cannot be created — a path under a regular file, a read-only volume — the whole run dies
-with `Router execution failed: [Errno 20] Not a directory`, and the operator gets no
-analysis at all. Verified against the pre-change code, so it is not something this work
-introduced.
+Writing the halt-safety test surfaced a defect predating all of this. If `LOG_DIR` could
+not be created — a path under a regular file, a read-only volume — the whole run died with
+`Router execution failed: [Errno 20] Not a directory` and the operator got no analysis at
+all. Verified against the pre-change code, so this work did not introduce it. It was left
+unfixed in that commit on purpose, because fixing it there would have let the halt-safety
+test pass for a reason unrelated to what it was written to prove.
 
-It is left unfixed deliberately. It is a different finding, it needs a ruling nobody has
-made about what the engine should do when it cannot log at all, and fixing it inside this
-commit would have let the halt-safety test pass for the wrong reason — claiming a fix that
-was not made. The archive step itself is guarded and provably cannot halt a run; that much
-is tested. The general case is open.
+**The cause was smaller than "the engine cannot log."** `route()` opened with two unguarded
+`os.makedirs` calls that wrote nothing — every writer in this engine already creates its own
+directory on demand inside its own error handling (`decision_log.write` returns `None`,
+`_save_state` warns, `plot_engine_chart` warns, `lineage.write_archive` returns `None`).
+The two calls duplicated all four and added a failure mode at the worst point in the run:
+the top of `route()`, before anything had been computed, so four independently recoverable
+conditions collapsed into one total failure and took the analysis with them. Same class as
+sequence item 14's own `REQUIRED_DIRS` finding, which removed the list and left these two
+calls standing.
+
+**Viktor's ruling, 2 September: a run whose decision log cannot be written still authorizes
+a trade.** It warns, the panel makes no claim that anything was logged, and the operator
+decides. His 29 August degrade-not-halt ruling applied literally — a disk problem must
+neither destroy an analysis that was computed correctly nor veto one.
+
+**Claude recommended the opposite and was overruled**, on the grounds that Item 6 is
+Critical and a trade taken on a decision that left no trace is unauditable by construction —
+and that this differs from a failed *archive*, where the hash still lands in the log and
+the run stays verifiable. Recorded because the difference matters to whoever audits this
+next: it was decided, with the trade-off on the table, not defaulted into. The tests in
+`tests/test_unwritable_log_dir.py` pin the ruling and say so in their docstrings, so a
+later reader who thinks the assertion looks wrong will find the reasoning rather than
+guess at it.
+
+**The cost, stated plainly.** The one decision an operator acts on without a record is the
+one an auditor would ask about first. That is the price of the ruling, and it is the
+reason it is written down here rather than left to be discovered.
 
 ## Suggested order — status
 

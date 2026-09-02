@@ -1,4 +1,7 @@
-import os
+# `import os` was here. Its only two uses were the eager makedirs removed
+# from route() -- see the note there. Left in place it would be a
+# declaration nothing reads, which is what sequence item 14 spent its
+# time removing from this codebase.
 from typing import Dict, Any, Optional, List
 import logging
 
@@ -78,12 +81,46 @@ class SignalRouter:
                 render_panel(error_obj)
                 return error_obj
 
-            # SEQUENCE ITEM 14: these were the literals "Logs/Charts" and
-            # "Logs". config declares both paths, so the router was creating
-            # directories the rest of the engine did not write to on any
-            # case-sensitive filesystem.
-            os.makedirs(config.CHART_DIR, exist_ok=True)
-            os.makedirs(config.LOG_DIR, exist_ok=True)
+            # SEQUENCE ITEM 14 corrected these from the literals "Logs/Charts"
+            # and "Logs" to the config paths. VIKTOR'S RULING, 2 September
+            # 2026, removes them outright.
+            #
+            # They wrote nothing. Every writer in this engine creates its own
+            # directory, on demand, inside its own error handling:
+            # decision_log.write (returns None), engine_core._save_state
+            # (warns), plotting.plot_engine_chart (warns), and
+            # lineage.write_archive (returns None). These two calls duplicated
+            # all four.
+            #
+            # What they added was a failure mode. Unguarded, at the top of
+            # route(), BEFORE the analysis runs -- so an unwritable log
+            # directory raised here, the broad handler below turned it into
+            # "Router execution failed: [Errno 20] Not a directory", and the
+            # operator lost not just the log but the entire analysis. Four
+            # independently recoverable conditions collapsed into one total
+            # failure, at the one point in the run where nothing had been
+            # computed yet to lose.
+            #
+            # Found while writing the halt-safety test for the raw-input
+            # archive; verified present before that work, so it long predates
+            # it. It is the same class as item 14's own REQUIRED_DIRS finding
+            # -- "read by nothing at all -- the directories are created on
+            # demand by the code that writes into them" -- which removed the
+            # list and left these two calls standing.
+            #
+            # RULED, and this is the part that is a judgment rather than a bug
+            # fix: a run whose decision log cannot be written STILL AUTHORIZES
+            # A TRADE. It warns, the panel makes no claim that anything was
+            # logged, and the operator decides. Viktor's 29 August
+            # degrade-not-halt ruling applied literally: a disk problem must
+            # not destroy an analysis that was computed correctly, and must not
+            # veto one either.
+            #
+            # The cost is stated rather than hidden. Item 6 is Critical, and
+            # the one decision acted on without a record is the one an auditor
+            # would ask about first. Recorded in docs/PHASE7_NEXT.md as a
+            # decision with its trade-off, so a re-audit reads a ruling and not
+            # an oversight.
 
             # THIS router owns rendering exclusively (see class docstring / C1
             # fix), using the one complete decision object as the single source
