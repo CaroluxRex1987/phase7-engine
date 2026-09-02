@@ -59,11 +59,171 @@
     ],
     "summary": "NO-TRADE (RISK TOO HIGH) \u2014 Expected value (illustrative, not backtested): treating the 79/100 confidence score as a rough win rate against the standard 2:1 average reward, this setup works out to about +1.36R per trade \u2014 positive -- worth taking on average if that win rate holds up (this is hypothetical, since no trade is actually being suggested right now)."
   },
+  "lineage": {
+    "archive": {
+      "path": "logs/archive/testusdt_4h_8d7e0a3ec69888c1.json.gz",
+      "pruned_this_run": 0,
+      "retention_days": 90
+    },
+    "bias_components": {
+      "after_discount": 78.6972703,
+      "bias_score": 78.6972703,
+      "choch_against_trend": false,
+      "clipped": false,
+      "factors": {
+        "macro_bias": {
+          "contribution": 10.0,
+          "input": "BULLISH",
+          "signed": 100.0,
+          "weight": 0.1
+        },
+        "reversal_continuation": {
+          "contribution": 5.09299503,
+          "input": 50.92995033,
+          "signed": 50.92995033,
+          "weight": 0.1
+        },
+        "structure_regime": {
+          "contribution": 20.0,
+          "input": "BULLISH TREND",
+          "signed": 100.0,
+          "weight": 0.2
+        },
+        "supertrend_direction": {
+          "contribution": 15.0,
+          "input": 1.0,
+          "signed": 100.0,
+          "weight": 0.15
+        },
+        "trend_health": {
+          "contribution": 28.60427526,
+          "input": 95.34758422,
+          "signed": 95.34758422,
+          "weight": 0.3
+        },
+        "volume_sentiment": {
+          "contribution": 0.0,
+          "input": "VOLUME DIVERGENCE",
+          "signed": 0.0,
+          "weight": 0.15
+        }
+      },
+      "raw_bias_threshold": 20.0,
+      "reversal_direction": "NONE",
+      "reversal_strength": 0.0,
+      "trend_direction": 1,
+      "trend_sequence": "BOS BULLISH (TREND CONTINUATION)",
+      "weighted_sum": 78.6972703
+    },
+    "format": 1,
+    "indicators_at_decision_bar": {
+      "ADX": 31.95632018,
+      "ATR": 0.01055373,
+      "EMA20_Slope": 0.3559522,
+      "EMA50_Slope": 0.22363874,
+      "EMA_20": 0.77559759,
+      "EMA_50": 0.76017364,
+      "HVN": 0.6421571,
+      "LVN": 0.52223143,
+      "RSI": 69.14034432,
+      "STRUCTURE": "BULLISH TREND",
+      "ST_Direction": 1.0,
+      "SuperTrend": 0.77278893,
+      "VWMA": 0.7687302,
+      "close": 0.80173175,
+      "high": 0.80942185,
+      "low": 0.79981214,
+      "open": 0.80634644,
+      "volume": 84693.7281
+    },
+    "inputs": {
+      "btc": {
+        "columns": [
+          "close",
+          "high",
+          "low",
+          "open",
+          "volume"
+        ],
+        "first_candle": "2025-01-01 00:00:00",
+        "last_candle": "2025-03-16 20:00:00",
+        "rows": 450,
+        "sha256": "45aa632acf021dc68b6a995ff92ab0b6961c4691dfab8a5db31594e9e1dc6efc"
+      },
+      "macro": {
+        "columns": [
+          "close",
+          "high",
+          "low",
+          "open",
+          "volume"
+        ],
+        "first_candle": "2025-01-01 00:00:00",
+        "last_candle": "2025-03-16 00:00:00",
+        "rows": 75,
+        "sha256": "c771c1af577f6f3f9a098ab5ba71abd0f4588002251001851571e0523279ac4d"
+      },
+      "struct": {
+        "columns": [
+          "close",
+          "high",
+          "low",
+          "open",
+          "volume"
+        ],
+        "first_candle": "2025-01-01 00:00:00",
+        "last_candle": "2025-03-16 20:00:00",
+        "rows": 450,
+        "sha256": "208ab83f53ef37c16554877577f2ee5ce65f018d33b6d2bc5111d0668f9a8c4c"
+      }
+    },
+    "risk_inputs": {
+      "atr": 0.01055373,
+      "bias_score": 78.6972703,
+      "current_price": 0.80173175,
+      "detailed_bias": "BULLISH CONFIRMED",
+      "risk_regime": "UNKNOWN",
+      "structural_level": 0.6421571,
+      "trend_health": 95.34758422,
+      "volatility_state": "MEDIUM VOLATILITY"
+    },
+    "run_hash": "8d7e0a3ec69888c13a9b04a6bf59da03392b0ca29a906f73458ac1260df99d83"
+  },
   "macro_bias": "BULLISH",
   "provenance": {
+    "archive_path": "logs/archive/testusdt_4h_8d7e0a3ec69888c1.json.gz",
+    "canonical_format": 1,
     "engine_version": "Phase\u20117 Structural Quant Engine v1.0",
+    "fetch": {
+      "effective_rows": {
+        "btc": 450,
+        "macro": 75,
+        "struct": 450
+      },
+      "macro_requested_limit": 100,
+      "pinned": true,
+      "requested_limit": 450
+    },
+    "input_hashes": {
+      "btc": "45aa632acf021dc68b6a995ff92ab0b6961c4691dfab8a5db31594e9e1dc6efc",
+      "macro": "c771c1af577f6f3f9a098ab5ba71abd0f4588002251001851571e0523279ac4d",
+      "struct": "208ab83f53ef37c16554877577f2ee5ce65f018d33b6d2bc5111d0668f9a8c4c"
+    },
     "last_candle": "2025-03-16 20:00:00",
+    "module_constants": {
+      "models.bias_engine": {
+        "RAW_BIAS_THRESHOLD": 20.0,
+        "WEIGHT_MACRO_BIAS": 0.1,
+        "WEIGHT_REVERSAL_CONTINUATION": 0.1,
+        "WEIGHT_STRUCTURE_REGIME": 0.2,
+        "WEIGHT_SUPERTREND_DIRECTION": 0.15,
+        "WEIGHT_TREND_HEALTH": 0.3,
+        "WEIGHT_VOLUME_SENTIMENT": 0.15
+      }
+    },
+    "prior_state": {},
     "row_count": 450,
+    "run_hash": "8d7e0a3ec69888c13a9b04a6bf59da03392b0ca29a906f73458ac1260df99d83",
     "source": "pinned"
   },
   "risk": {

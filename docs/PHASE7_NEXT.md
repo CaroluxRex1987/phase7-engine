@@ -1,9 +1,10 @@
 # Next step — read this first
 
-*Updated 2 September 2026, after Finding 3, a status sweep of every remaining finding, and
-a full read of all nine governing documents. **All five of the Luna Pro audit's Criticals
-are fixed — but the release gate is still shut, and it is shut on Item 6, which is
-tomorrow's work.** Suite: 155 passing, 0 skipped, 0 failed, and 91 passed / 64 skipped on
+*Updated 2 September 2026, after Findings 6 and 7 — the last Critical. **Every Critical
+the Luna Pro audit raised now has a fix that has landed.** The release gate is still shut,
+because "unresolved" means no fix has landed **and been re-audited**, and the re-audit has
+not run. That re-audit is now the single thing standing between this engine and its own
+trading prohibition. Suite: 170 passing, 0 failed, and 99 passed / 71 skipped / 0 errors on
 a machine without `pandas_ta`.*
 
 > **The engine is under its own trading prohibition right now.** The Constitution's release
@@ -344,17 +345,7 @@ release gate, the backtest gate, and whether ML ever comes off ice.
 
 Agreed with Viktor, 2 September. Order is mine; the pairings are the audit's own.
 
-1. **Findings 6 and 7 together — and this is the release gate.** Finding 7 is Item 6,
-   Traceability, which Viktor's 29 August ruling raised to Critical. It is the last Critical
-   standing, so it is what keeps the trading prohibition in force and what blocks the
-   backtest gate (Items 2, 3, 6, 18). It is also ML condition 2. The report pairs 6 and 7
-   itself ("Re-audit Item 5 and the traceability relationship with Item 6"): one question at
-   two depths — what has to be recorded for a run to be reconstructable, and what has to be
-   recorded for a number on the panel to be traceable back to a candle. Doing 7 without 6
-   writes the lineage twice. **The largest item here, and the one most likely to need a
-   ruling** — a content hash, a raw-data archive and a retention window are storage policy,
-   not a refactor, and the Constitution says under Item 5 that the retention decision is one
-   "the audit should force explicitly rather than leave implicit."
+1. ✅ **Findings 6 and 7 — done. The last Critical.** See the section below.
 2. **Finding 9**, the `confidence_score` collision. Small and self-contained: either rename
    the raw field or make both entry points mean the same thing, then update `EngineOutput`
    and `DecisionObject` to say which.
@@ -382,6 +373,63 @@ something the engine's own author can grade, and it should go to one of the six 
 families still clean on both independence lists — Meta, Mistral, Qwen, Cohere, Amazon,
 MiniMax — not to Luna Pro a second time.
 
+## Findings 6 and 7 — the last Critical, and what Viktor ruled
+
+**Viktor's ruling, 2 September 2026: hash *and* archive, pruned at ninety days.** The
+Constitution says under Item 5 that the retention decision is one "the audit should force
+explicitly rather than leave implicit," and this is that decision made rather than assumed.
+
+The two halves do different jobs, and the difference is the whole design.
+
+- **The hash detects.** It costs nothing, it lives in the decision log, and the log is
+  never pruned. A decision from two years ago can still be checked against data fetched
+  today, and the answer — same or different — is exactly as trustworthy as it was on the
+  day.
+- **The archive reconstructs.** It is the actual candles, and the only thing that can
+  rebuild a run whose source has since changed. It is also the only part with a cost, which
+  is why it is the only part with a limit: about 31 KB a run, so roughly 2.8 MB steady-state
+  at the ninety-day cap.
+
+Past the window a run does not become unverifiable — it becomes **verifiable but not
+rebuildable**, and the record says which by whether the archive file is still there.
+
+**What the gap actually was.** Sequence item 12 built a decision log: what the engine
+concluded, plus a five-field fingerprint of what it saw. The fingerprint was a last-candle
+timestamp and a row count, and two different frames can share both. Nothing stored told them
+apart, so "reconstructable" was a word in the Constitution rather than a property of the
+engine.
+
+**How it is proven.** The central test does not inspect fields — a test asserting
+`"lineage" in decision` would pass just as happily over a lineage section full of nulls, and
+that is precisely the shape Luna Pro's assessment of this suite warned about. Instead it
+takes the archive the engine wrote, rebuilds the candles from it, runs the engine again
+against the rebuilt data *and nothing else*, and requires the identical decision. An archive
+missing a column, truncating history, or losing a float's precision fails it.
+
+Fifteen tests. Three fail against pre-fix code on real behavioural assertions (no lineage
+section, the router dropping it, the log not carrying it); nine fail on `ImportError`
+because `core/lineage.py` is new, which proves the module did not exist rather than
+anything about the old engine; one is a control that passes on both sides. Worth stating
+plainly rather than counting all twelve as behavioural evidence.
+
+The golden snapshot moved exactly as predicted before the run: `lineage` added,
+`provenance` gained seven keys, **and not one existing value changed**. This commit adds a
+record and alters no output.
+
+### Found while doing it, and not fixed: an unwritable log directory halts a run
+
+Writing the halt-safety test surfaced a defect that predates all of this. If `LOG_DIR`
+cannot be created — a path under a regular file, a read-only volume — the whole run dies
+with `Router execution failed: [Errno 20] Not a directory`, and the operator gets no
+analysis at all. Verified against the pre-change code, so it is not something this work
+introduced.
+
+It is left unfixed deliberately. It is a different finding, it needs a ruling nobody has
+made about what the engine should do when it cannot log at all, and fixing it inside this
+commit would have let the halt-safety test pass for the wrong reason — claiming a fix that
+was not made. The archive step itself is guarded and provably cannot halt a run; that much
+is tested. The general case is open.
+
 ## Suggested order — status
 
 1. ✅ `pytest.skip()` across the suite — batch 1, `dba1b63`.
@@ -397,6 +445,9 @@ MiniMax — not to Luna Pro a second time.
 7. ✅ Audit Finding 15 — dependency versions pinned, `a26c545`.
 8. ✅ Audit Finding 3 — decision-bar integrity. Never appeared in steps 1–6 at all; see
    the section above for why that is the most important thing on this page.
+9. ✅ Audit Findings 6 and 7 — reproducibility and traceability, the last Critical. Input
+   hashing, a raw-candle archive pruned at ninety days per Viktor's ruling, and the full
+   Item 6 lineage chain persisted to the decision log.
 
 ## Not on the roadmap, worth revisiting
 
@@ -509,3 +560,15 @@ and re-link the Claude desktop app to `D:\phase7_engine`.
     the same pattern — a measurement counted once as a weighted factor and again as a bonus
     layered on top of the result those factors produced — in three more places nobody had
     re-checked once the first one was fixed.
+23. **A test that fails with `ImportError` proves the module is new, not that the defect
+    was real.** Findings 6 and 7 shipped with twelve of thirteen tests failing against the
+    pre-fix code, which reads like strong evidence and mostly is not: nine of those failures
+    were `cannot import name 'lineage'`. Only three were assertions about what the old
+    engine actually did. The number to quote is the behavioural one, because a reader who
+    later discovers the difference will discount everything else in the same commit message.
+24. **Do not fix a second defect inside the test that found it.** The halt-safety test for
+    the archive step first failed because an unwritable log directory already killed the
+    whole run — a real defect, and not this one. Widening the fix to cover it would have
+    made the test pass for a reason unrelated to what it was written to prove, and the
+    commit would have claimed a ruling nobody made. Narrow the test to the claim you can
+    actually support, and record the other defect where the next reader will find it.

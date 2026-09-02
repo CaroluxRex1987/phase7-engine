@@ -239,6 +239,56 @@ class ProvenanceBlock(TypedDict):
     row_count: int
     source: str                   # the pinned directory, or the live endpoint
 
+    # AUDIT FINDING 6 (Item 5). The four fields above identify a run only as
+    # far as a timestamp and a length can, which the Step 8 re-audit pointed
+    # out is not far enough to meet the clause they were written for: two
+    # different frames can share a last candle and a row count, and nothing
+    # stored told them apart.
+    run_hash: str                 # the run's identity: inputs AND settings
+    input_hashes: Dict[str, Any]  # per-frame SHA-256; None for a frame not read
+    canonical_format: int         # which serialisation produced those digests
+    fetch: Dict[str, Any]         # requested vs effective parameters
+    prior_state: Dict[str, Any]   # what the previous run left for Exit Watch
+    module_constants: Dict[str, Any]   # bias weights and threshold
+    archive_path: Any             # str, or None when nothing was written
+
+
+class LineageBlock(TypedDict):
+    """
+    AUDIT FINDING 7 (Item 6, Traceability). The chain under the conclusion.
+
+    Item 6 asks for an explainable lineage:
+
+        decision <- decision components <- normalized signals <- raw signals
+                 <- indicators <- validated market data <- raw source data
+
+    and each field below is one link of it:
+
+        bias_components["factors"][*]["contribution"]  decision components
+        bias_components["factors"][*]["signed"]        normalized signals
+        bias_components["factors"][*]["input"]         raw signals
+        indicators_at_decision_bar                     indicators
+        inputs[*]["sha256"]                            validated market data
+        archive["path"]                                raw source data
+
+    `risk_inputs` is the second decision-component branch: the stop and the
+    three targets are computed from price, ATR and a structural level, and
+    without those recorded a target is a number with no derivation.
+
+    A note on what `archive.path` means when it is None. It means nothing was
+    written for this run -- not that the path is unknown. The alternative, a
+    record naming the file that WOULD have been used, is the exact defect
+    sequence item 12 exists to have closed, and it is worth being explicit
+    that this field cannot become that.
+    """
+    format: int
+    run_hash: str
+    inputs: Dict[str, Any]
+    indicators_at_decision_bar: Dict[str, Any]
+    bias_components: Dict[str, Any]
+    risk_inputs: Dict[str, Any]
+    archive: Dict[str, Any]
+
 
 class DecisionObject(TypedDict):
     symbol: str
@@ -252,7 +302,8 @@ class DecisionObject(TypedDict):
     exit: ExitBlock
     exit_watch: List[str]
     degradation: DegradationBlock          # sequence item 9a
-    provenance: ProvenanceBlock            # sequence item 12
+    provenance: ProvenanceBlock            # sequence item 12; audit Finding 6
+    lineage: LineageBlock                  # audit Finding 7
     decision_log_path: str                 # sequence item 12; "" if unwritten
     btc_context: BtcContextBlock
     explanation: ExplanationBlock
@@ -283,7 +334,8 @@ class EngineOutput(TypedDict):
     exit: Dict[str, Any]
     exit_watch: List[str]
     degradation: List[str]                 # sequence item 9a: flat at this layer
-    provenance: Dict[str, Any]             # sequence item 12
+    provenance: Dict[str, Any]             # sequence item 12; audit Finding 6
+    lineage: Dict[str, Any]                # audit Finding 7
     btc_context: Dict[str, Any]
     chart_path: Any               # None when save_chart is False
 

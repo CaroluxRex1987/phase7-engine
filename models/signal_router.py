@@ -118,6 +118,12 @@ class SignalRouter:
                     exit_data=raw_output.get("exit", {}),
                     degradation=raw_output.get("degradation", []),
                     provenance=raw_output.get("provenance", {}),
+                    # AUDIT FINDING 7 (Item 6): the lineage chain, passed
+                    # through with provenance. This assembly is a whitelist --
+                    # a key engine_core produces and this call does not name is
+                    # silently dropped -- so a record that never reaches the
+                    # decision log is the default outcome of adding one.
+                    lineage_record=raw_output.get("lineage", {}),
                     exit_watch=raw_output.get("exit_watch", []),
                     btc_context=raw_output.get("btc_context", {}),
                     macro_bias=raw_output.get("macro_bias", "NEUTRAL"),
@@ -185,6 +191,7 @@ class SignalRouter:
         btc_context: Optional[Dict[str, Any]] = None,
         degradation: Optional[List[str]] = None,
         provenance: Optional[Dict[str, Any]] = None,
+        lineage_record: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """
         Convert engine output into a unified trade decision object.
@@ -194,6 +201,7 @@ class SignalRouter:
         """
         degradation = list(degradation) if isinstance(degradation, list) else []
         provenance = dict(provenance) if isinstance(provenance, dict) else {}
+        lineage_record = dict(lineage_record) if isinstance(lineage_record, dict) else {}
 
         try:
             # SEQUENCE ITEM 9a: degradation is passed INTO the decision model
@@ -342,6 +350,13 @@ class SignalRouter:
                 # SEQUENCE ITEM 12 (Item 5): what this run saw, passed
                 # straight through from engine_core.
                 "provenance": provenance,
+
+                # AUDIT FINDING 7 (Item 6, Traceability): the walkable chain
+                # from this decision back to the raw candles -- decision
+                # components, normalized signals, raw signals, indicator values
+                # at the decision bar, the validated-input hashes, and the
+                # archive holding the input itself.
+                "lineage": lineage_record,
 
                 # Filled in below, after the log is written. Empty string means
                 # nothing was logged, and the panel prints no claim.

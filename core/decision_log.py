@@ -74,6 +74,13 @@ LOG_FILENAME = "phase7_decision_log_{symbol}.jsonl"
 # depend on them. tests/test_explicit_configuration.py holds it true.
 FINGERPRINTED_CONFIG = [
     "SYMBOL", "TIMEFRAME", "MACRO_TIMEFRAME",
+    # AUDIT FINDING 6 (Item 5): the endpoint decides WHICH candles a
+    # run saw, so two runs against different exchanges were previously
+    # indistinguishable in the config half of the record. provenance
+    # already carried a source string; fingerprinting it here is what
+    # puts it inside the run hash, where a change to it changes the
+    # run identity instead of merely being noted beside it.
+    "API_BASE_URL",
     "STRUCT_LOOKBACK", "VOLUME_PROFILE_BINS",
     "EMA_FAST", "EMA_SLOW",
     "RSI_LENGTH", "ADX_LENGTH", "ATR_LENGTH",
@@ -98,6 +105,54 @@ def config_snapshot(config):
     that was never fingerprinted.
     """
     return {name: getattr(config, name, MISSING) for name in FINGERPRINTED_CONFIG}
+
+
+# AUDIT FINDING 6 (Item 5). The audit's required action asks for "all
+# decision-affecting configuration, including risk-model multipliers and bias
+# weights." Those are not in config.py -- they are module-level constants in
+# the models that use them, which is the right place for them to live and the
+# wrong place for them to be invisible.
+#
+# The weights are the sharpest case. bias_score is a weighted blend of six
+# factors, and changing 0.30 to 0.35 changes every decision the engine makes
+# while leaving config, the candles and the indicator lengths all identical.
+# Before this, two such runs were byte-identical in the record.
+#
+# Read live from the modules rather than restated here. A copy of the numbers
+# in this file would be a second declaration that agrees with the first only
+# until someone edits one of them -- the defect this project has now recorded
+# three times (seven dead config constants at sequence item 14, a guard list
+# short by three indicators at Finding 3, a stale docstring at 2be405f).
+FINGERPRINTED_MODULES = {
+    "models.bias_engine": [
+        "WEIGHT_TREND_HEALTH", "WEIGHT_STRUCTURE_REGIME",
+        "WEIGHT_VOLUME_SENTIMENT", "WEIGHT_SUPERTREND_DIRECTION",
+        "WEIGHT_MACRO_BIAS", "WEIGHT_REVERSAL_CONTINUATION",
+        "RAW_BIAS_THRESHOLD",
+    ],
+}
+
+
+def module_snapshot():
+    """
+    The decision-affecting constants that live in modules rather than config.
+
+    A module that cannot be imported records the reason instead of being
+    omitted, for the same reason config_snapshot records a missing name: a
+    record that looks complete and is not gives the reader no way to tell an
+    absent value from one that was never asked for.
+    """
+    out = {}
+    for module_name, names in FINGERPRINTED_MODULES.items():
+        try:
+            module = __import__(module_name, fromlist=["_"])
+        except Exception as exc:
+            out[module_name] = {"<import failed>": str(exc)}
+            continue
+        out[module_name] = {
+            name: getattr(module, name, MISSING) for name in names
+        }
+    return out
 
 
 def log_path(log_dir, symbol):

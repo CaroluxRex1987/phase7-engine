@@ -1,3 +1,4 @@
+import math
 import pandas as pd
 from typing import Dict, Any, Optional, List
 import json
@@ -18,6 +19,8 @@ from models.bias_engine import (
 from models.risk_model import RiskModel
 from models.entry_model import generate_entry_signals, calculate_entry_quality
 from models.exit_model import build_exit_watch
+from core import lineage
+from core import decision_log
 from models.btc_context import compute_correlation_beta, classify_correlation, classify_stress
 from utils.plotting import plot_engine_chart
 
@@ -97,6 +100,81 @@ class Phase7Engine:
         # silently instead of failing where it can be seen.
         log_dir = config.LOG_DIR
         return os.path.join(log_dir, f"phase7_state_{symbol}_{timeframe}.json")
+
+    # ============================================================
+    # AUDIT FINDINGS 6 AND 7 -- Items 5 (Reproducibility) and 6
+    # (Traceability), the last Critical.
+    #
+    # Item 6 was raised from Major to Critical by Viktor's ruling of 29
+    # August 2026, which is what makes it the finding holding the release
+    # gate shut: "no output of this engine may be relied on for a real
+    # trading decision while any Critical Tier 1 finding stands unresolved."
+    #
+    # What sequence item 12 built was a decision log: what the engine
+    # concluded, plus a five-field fingerprint of what it saw. What the
+    # re-audit asked for is the chain underneath the conclusion --
+    #
+    #   decision <- decision components <- normalized signals <- raw signals
+    #            <- indicators <- validated market data <- raw source data
+    #
+    # -- and enough of the input to rebuild the run rather than merely
+    # describe it. The three methods below collect the middle links; the
+    # ends are the input hash (core/lineage.py) and the archive.
+    #
+    # Every one of them is read-only over frames the analysis already
+    # produced. Nothing here can change a decision, which is deliberate:
+    # an audit trail that can alter the thing it records is not one.
+    # ============================================================
+
+    @staticmethod
+    def _decision_bar_row(df) -> Dict[str, Any]:
+        """
+        Every column's value at the decision bar -- the last row, the one the
+        analysis is actually made on.
+
+        Read off the frame rather than re-listed by name, so an indicator
+        added later is recorded without anyone remembering to add it here. A
+        hand-maintained list of what to record is a list that goes stale, and
+        this project has already fixed that defect twice: seven config
+        constants that were fingerprinted but read by nothing (sequence item
+        14), and a guard list that named two indicators when the defect had
+        five (Finding 3).
+        """
+        out: Dict[str, Any] = {}
+        if df is None or len(df) == 0:
+            return out
+        try:
+            row = df.iloc[-1]
+        except Exception:
+            return out
+        for name in df.columns:
+            try:
+                value = row[name]
+            except Exception:
+                continue
+            try:
+                as_float = float(value)
+            except (TypeError, ValueError):
+                out[str(name)] = str(value)
+                continue
+            # A non-finite value is recorded as None rather than as the string
+            # "nan": this record is read back as JSON, and "nan" in a numeric
+            # field is the exact defect Observation 5 named in the panel.
+            out[str(name)] = as_float if math.isfinite(as_float) else None
+        return out
+
+    @staticmethod
+    def _frame_summary(df, digest) -> Dict[str, Any]:
+        """One input frame, identified rather than described."""
+        if df is None:
+            return {"sha256": None, "rows": 0, "first_candle": None, "last_candle": None}
+        return {
+            "sha256": digest,
+            "rows": int(len(df)),
+            "columns": sorted(str(c) for c in df.columns),
+            "first_candle": str(df.index[0]) if len(df) else None,
+            "last_candle": str(df.index[-1]) if len(df) else None,
+        }
 
     def _load_state(self, symbol: str, timeframe: str) -> Dict[str, Any]:
         try:
@@ -212,11 +290,41 @@ class Phase7Engine:
                 }
                 return decision_object
 
+            # AUDIT FINDING 6: the input, as validated and before a single
+            # derived column exists.
+            #
+            # Taken HERE and not later, for a reason that decides whether the
+            # hash means anything. The frame the decision is assembled from
+            # carries every indicator column, and those are this engine's own
+            # arithmetic. Hashing them would fingerprint the code together
+            # with the market data, so changing an indicator length would
+            # present as the exchange having changed its candles -- and the
+            # one question this hash exists to answer, "was the input the
+            # same?", would stop having an answer.
+            #
+            # A copy, because add_technical_indicators() returns a frame that
+            # may share storage with this one. The whole point is a record of
+            # what arrived, and a record that later mutates into what the
+            # engine made of it is not a record.
+            raw_struct = df.copy()
+
             # 1b. FETCH MACRO DATA (Multi-Timeframe Confluence)
-            df_macro = data_fetcher.get_tf(symbol, macro_tf, limit=100)
+            # None means "not archived because it was never usable", which is
+            # a different fact from "archived and empty". The record keeps
+            # them different.
+            raw_macro = None
+            raw_btc = None
+            # AUDIT FINDING 6 requires the fetch parameters actually used to
+            # be recoverable. Bound to a name and then both passed and
+            # recorded, so the call and the record cannot disagree -- a
+            # literal here and a literal in the provenance block would be two
+            # declarations of one number, which is how they drift.
+            macro_limit = 100
+            df_macro = data_fetcher.get_tf(symbol, macro_tf, limit=macro_limit)
             macro_bias = "NEUTRAL"
 
             if self._validate_dataframe(df_macro, required_base_cols, "macro timeframe data"):
+                raw_macro = df_macro.copy()  # AUDIT FINDING 6 -- see raw_struct above
                 try:
                     # SEQUENCE ITEM 9a: macro failures are recorded like any
                     # other. A macro read computed without ADX is still a macro
@@ -376,6 +484,10 @@ class Phase7Engine:
 
             # SEQUENCE ITEM 6: the df=df_struct argument is gone. See
             # bias_engine.calculate_dynamic_bias — it never read the frame.
+            # AUDIT FINDING 7: the blend fills this in as it runs, so what is
+            # recorded is the arithmetic that produced bias_score rather than
+            # a second computation of it. See bias_engine.calculate_dynamic_bias.
+            bias_components: Dict[str, Any] = {}
             raw_bias, bias_score = calculate_dynamic_bias(
                 trend_sequence=trend_sequence,
                 trend_health=trend["trend_health"],
@@ -387,6 +499,7 @@ class Phase7Engine:
                 volume_sentiment=volume_sentiment,
                 supertrend_direction=supertrend_direction,
                 macro_bias=macro_bias,
+                components=bias_components,
             )
 
             dynamic_regime, volatility_mode = calculate_dynamic_regime(df_struct)
@@ -433,6 +546,7 @@ class Phase7Engine:
                 if symbol.upper() != "BTCUSDT":
                     df_btc = data_fetcher.get_tf("BTCUSDT", timeframe, limit=limit)
                     if self._validate_dataframe(df_btc, required_base_cols, "BTC context data"):
+                        raw_btc = df_btc.copy()  # AUDIT FINDING 6 -- see raw_struct above
                         # BTC failures are recorded but do not degrade the run:
                         # BTC context is informational and already has its own
                         # available/unavailable flag. Naming them still beats
@@ -730,6 +844,125 @@ class Phase7Engine:
                         config.CHART_DIR, f"chart_{symbol}_{timeframe}.png"),
                 )
 
+            # ============================================================
+            # 10b. LINEAGE -- AUDIT FINDINGS 6 AND 7
+            # ============================================================
+            #
+            # Assembled here, after everything it describes has been computed
+            # and before anything is returned, so it cannot describe a state
+            # the run never reached.
+            input_hashes = {
+                "struct": lineage.frame_hash(raw_struct),
+                "macro": lineage.frame_hash(raw_macro),
+                "btc": lineage.frame_hash(raw_btc),
+            }
+            config_fingerprint = decision_log.config_snapshot(config)
+            module_fingerprint = decision_log.module_snapshot()
+
+            # The run's identity: the data AND the settings that decide what
+            # is computed from it. Neither alone identifies a run -- the same
+            # candles under different indicator lengths are a different
+            # analysis, and so are different candles under the same settings.
+            run_id = lineage.run_hash(
+                input_hashes,
+                {"config": config_fingerprint, "modules": module_fingerprint},
+            )
+
+            # Wrapped, on top of the swallowing those two functions already do
+            # internally. Viktor's ruling of 29 August is degrade, not halt,
+            # and this is the one place in a run where a purely audit-side
+            # concern touches the disk. An analysis that was computed
+            # correctly must reach the operator even when the archive cannot
+            # be written: a traceability feature able to destroy the analysis
+            # it documents would be a worse defect than the gap it closes.
+            #
+            # Belt and braces deliberately. write_archive() returning None
+            # covers the failures it anticipates; this covers the ones it does
+            # not.
+            archive_path = None
+            pruned = []
+            try:
+                archive_path = lineage.write_archive(
+                    {"struct": raw_struct, "macro": raw_macro, "btc": raw_btc},
+                    config.LOG_DIR, symbol, timeframe, run_id,
+                    meta={
+                        "engine_version": config.engine_version,
+                        "config": config_fingerprint,
+                        "modules": module_fingerprint,
+                    },
+                )
+                # Retention is Viktor's ruling of 2 September 2026: ninety days
+                # of rebuildable history, an unlimited life for the hash that
+                # verifies. The run just written is passed as `keep` so it can
+                # never be removed by its own prune, whatever the clock on this
+                # machine says.
+                pruned = lineage.prune(
+                    config.LOG_DIR, lineage.RETENTION_DAYS, keep=[archive_path])
+            except Exception as exc:
+                # Deliberately NOT appended to `degradation`. That list blocks
+                # the run from authorizing a trade and is about inputs the
+                # ANALYSIS was computed without. The analysis here is complete;
+                # what failed is the filing of it. Conflating the two would
+                # refuse trades over a full disk.
+                logger.warning(
+                    f"Raw-input archive could not be written ({exc}). The "
+                    f"analysis is unaffected and its input hashes are still "
+                    f"recorded, so this run stays verifiable -- it is simply "
+                    f"not rebuildable from this machine."
+                )
+                archive_path = None
+            if pruned:
+                logger.info(
+                    f"Pruned {len(pruned)} raw-input archive(s) older than "
+                    f"{lineage.RETENTION_DAYS} days. Their hashes remain in the "
+                    f"decision log, so those runs stay verifiable against data "
+                    f"fetched later -- they are no longer rebuildable from here."
+                )
+
+            # Item 6's chain, walkable end to end:
+            #
+            #   decision            -> the object returned below
+            #   decision components -> bias_components, risk_inputs
+            #   normalized signals  -> each factor's `signed` value
+            #   raw signals         -> each factor's `input` value
+            #   indicators          -> indicators_at_decision_bar
+            #   validated data      -> inputs[*].sha256
+            #   raw source data     -> archive
+            #
+            # Each link names the one below it, which is the property that
+            # makes it a chain rather than a pile of fields.
+            lineage_record = {
+                "format": lineage.CANONICAL_FORMAT,
+                "run_hash": run_id,
+                "inputs": {
+                    "struct": self._frame_summary(raw_struct, input_hashes["struct"]),
+                    "macro": self._frame_summary(raw_macro, input_hashes["macro"]),
+                    "btc": self._frame_summary(raw_btc, input_hashes["btc"]),
+                },
+                "indicators_at_decision_bar": self._decision_bar_row(df_struct),
+                "bias_components": bias_components,
+                "risk_inputs": {
+                    "current_price": current_price,
+                    "atr": atr_val if math.isfinite(atr_val) else None,
+                    "structural_level": (
+                        float(hvn) if (hvn is not None and math.isfinite(hvn)) else None),
+                    "bias_score": bias_score,
+                    "detailed_bias": detailed_bias,
+                    "trend_health": trend["trend_health"],
+                    "volatility_state": volatility_mode,
+                    "risk_regime": risk_regime,
+                },
+                "archive": {
+                    # The path this run's inputs were written to, or null. Null
+                    # is recorded rather than the path that would have been
+                    # used, because a record naming a file nothing wrote is the
+                    # defect sequence item 12 exists to have closed.
+                    "path": archive_path,
+                    "pruned_this_run": len(pruned),
+                    "retention_days": lineage.RETENTION_DAYS,
+                },
+            }
+
             # 11. UNIFIED RETURN OBJECT
             decision_object = {
                 "symbol": symbol,
@@ -764,8 +997,40 @@ class Phase7Engine:
                     # last_candle and row_count above; WHERE it sat is not part
                     # of the identity.
                     "source": "pinned" if data_fetcher.pinned_source() else str(data_fetcher.base_url),
+
+                    # AUDIT FINDING 6. The five fields above identify a run
+                    # only as far as a timestamp and a length can, which is not
+                    # far: two different frames can share both, and nothing
+                    # stored told them apart. These do.
+                    "run_hash": run_id,
+                    "input_hashes": input_hashes,
+                    "canonical_format": lineage.CANONICAL_FORMAT,
+                    "fetch": {
+                        # Requested and effective, separately. They differ
+                        # whenever the source holds less history than was asked
+                        # for, and a record that stores only one of them cannot
+                        # say which happened.
+                        "requested_limit": limit,
+                        "macro_requested_limit": macro_limit,
+                        "effective_rows": {
+                            "struct": int(len(raw_struct)) if raw_struct is not None else 0,
+                            "macro": int(len(raw_macro)) if raw_macro is not None else 0,
+                            "btc": int(len(raw_btc)) if raw_btc is not None else 0,
+                        },
+                        "pinned": bool(data_fetcher.pinned_source()),
+                    },
+                    # The state carried in from the previous run. Two runs on
+                    # identical candles produce different Exit Watch flags when
+                    # this differs, so a reconstruction without it is not a
+                    # reconstruction.
+                    "prior_state": prior_state,
+                    "module_constants": module_fingerprint,
+                    "archive_path": archive_path,
                 },
                 "exit_watch": exit_watch,
+                # AUDIT FINDING 7 (Item 6, Traceability): the chain from this
+                # decision back to the raw candles it was made from.
+                "lineage": lineage_record,
                 "btc_context": btc_context,
                 "chart_path": chart_path,
             }

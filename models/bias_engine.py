@@ -87,11 +87,26 @@ def calculate_dynamic_bias(
     volume_sentiment="NEUTRAL VOLUME",
     supertrend_direction=0.0,
     macro_bias="NEUTRAL",
+    components=None,
 ):
     """
     Returns:
         raw_bias (str)
         bias_score (float, -100..100)
+
+    AUDIT FINDING 7 (Item 6, Traceability): `components`, when a dict is
+    passed, is filled with each factor's input, score, weight and
+    contribution, plus the discount and the clip. It is an out-parameter
+    rather than a third return value for one reason and it is not style:
+    the alternative was a second function that recomputes the breakdown,
+    and a second implementation of a number is exactly the shape this
+    engine keeps finding defects in -- two places computing one thing,
+    drifting apart quietly. What is recorded here is the arithmetic that
+    actually ran, not a reconstruction of it, so it cannot disagree with
+    the score it explains.
+
+    Passing nothing changes nothing. Every existing caller is unaffected
+    and the function still returns exactly two values.
 
     SEQUENCE ITEM 6: this function used to take `df` as its first parameter.
 
@@ -227,6 +242,45 @@ def calculate_dynamic_bias(
         reversal_continuation_score * WEIGHT_REVERSAL_CONTINUATION
     )
 
+    # AUDIT FINDING 7: the six factors as they were actually weighed.
+    # Recorded here rather than after the clip below, because these are
+    # the inputs to the blend -- what the clip and the discount then do
+    # to their sum is recorded separately, so a reader can see both the
+    # parts and what happened to the whole.
+    if components is not None:
+        components["factors"] = {
+            "trend_health": {
+                "input": float(trend_health), "signed": float(signed_trend_health),
+                "weight": WEIGHT_TREND_HEALTH,
+                "contribution": float(signed_trend_health * WEIGHT_TREND_HEALTH)},
+            "structure_regime": {
+                "input": structure_regime, "signed": float(structure_score),
+                "weight": WEIGHT_STRUCTURE_REGIME,
+                "contribution": float(structure_score * WEIGHT_STRUCTURE_REGIME)},
+            "volume_sentiment": {
+                "input": volume_sentiment, "signed": float(volume_score),
+                "weight": WEIGHT_VOLUME_SENTIMENT,
+                "contribution": float(volume_score * WEIGHT_VOLUME_SENTIMENT)},
+            "supertrend_direction": {
+                "input": float(supertrend_direction), "signed": float(supertrend_score),
+                "weight": WEIGHT_SUPERTREND_DIRECTION,
+                "contribution": float(supertrend_score * WEIGHT_SUPERTREND_DIRECTION)},
+            "macro_bias": {
+                "input": macro_bias, "signed": float(macro_score),
+                "weight": WEIGHT_MACRO_BIAS,
+                "contribution": float(macro_score * WEIGHT_MACRO_BIAS)},
+            "reversal_continuation": {
+                "input": float(continuation_strength),
+                "signed": float(reversal_continuation_score),
+                "weight": WEIGHT_REVERSAL_CONTINUATION,
+                "contribution": float(
+                    reversal_continuation_score * WEIGHT_REVERSAL_CONTINUATION)},
+        }
+        components["weighted_sum"] = float(bias_score)
+        components["trend_direction"] = int(trend_direction)
+        components["reversal_direction"] = reversal_direction
+        components["reversal_strength"] = float(reversal_strength)
+
     # B2 FIX: trend_sequence was accepted as a parameter here but never
     # actually used anywhere in this function -- structure.py's
     # _detect_sequence() was a stub that always returned "NONE", so there
@@ -255,7 +309,17 @@ def calculate_dynamic_bias(
     if choch_against_trend:
         bias_score *= 0.5
 
+    if components is not None:
+        components["choch_against_trend"] = bool(choch_against_trend)
+        components["trend_sequence"] = trend_sequence
+        components["after_discount"] = float(bias_score)
+
     bias_score = float(np.clip(bias_score, -100, 100))
+
+    if components is not None:
+        components["clipped"] = bool(components["after_discount"] != bias_score)
+        components["bias_score"] = float(bias_score)
+        components["raw_bias_threshold"] = RAW_BIAS_THRESHOLD
 
     # raw_bias now comes directly from the same composite score, instead
     # of a separate trend_health-only gate -- one computation drives both.
