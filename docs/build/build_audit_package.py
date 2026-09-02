@@ -67,9 +67,22 @@ PART7_DIR = os.path.join(OUT_DIR, "PART7_LATER")
 
 # Copied in from docs/audit_package/ rather than referenced, so the upload
 # folder is complete on its own.
+# The Constitution ships as TEXT, not as the PDF.
+#
+# Round 2's second attempt sent the PDF. The model could see the filename and
+# could not see the contents; it said so and stopped. A standard the auditor
+# cannot read is worse than one they were told about and never received, so the
+# format changed rather than the auditor being asked to work around it. The .txt
+# is a mechanical `pdftotext -layout` extraction carrying the source PDF's
+# SHA-256 in its own header.
+#
+# The PDF stays in the repository as the canonical artifact and is deliberately
+# NOT in this list. Shipping both would put two files in the upload folder each
+# claiming to be the standard, which is the same defect check 7.6 asks the
+# auditor to look for.
 HAND_WRITTEN = [
-    "item16_review_instruction_rev2.md",
-    "Phase7_Constitution_v1.0_RATIFIED_AUDITCOPY.pdf",
+    "item16_review_instruction_rev3.md",
+    "Phase7_Constitution_v1.0_RATIFIED_AUDITCOPY.txt",
 ]
 
 # Directories that never enter a bundle, for four different reasons:
