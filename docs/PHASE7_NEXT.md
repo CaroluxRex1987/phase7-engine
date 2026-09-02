@@ -807,3 +807,24 @@ and re-link the Claude desktop app to `D:\phase7_engine`.
     remedies.** See the ruling below. The register spent models permanently for a reason
     that a fresh conversation removes, and the two rulings that disagreed about it sat in
     two documents for a week without anyone noticing they could not both be true.
+28. **Where a mistake cannot be undone, change the structure rather than writing an
+    instruction to be careful.** Viktor, 2 September: *"It is important to simplify the
+    process as much as is reasonable."* The audit package had two files named
+    `phase7_engine_source.md` — last round's and this round's — differing only by size and
+    date. Uploading the stale one would have the auditor grade code that no longer exists,
+    and nothing in its report would reveal it: a plausible, ordinary-looking audit of the
+    wrong artifact. The first fix was a careful paragraph explaining which file to pick.
+    The real fix was a folder containing only the correct seven, so "upload everything in
+    here" needs no judgment at the moment judgment is most expensive.
+
+    This pattern recurred four times in one day, which is why it is a rule rather than an
+    anecdote. The package builder **refuses to build** if `docs/` would ship, instead of
+    intending to exclude it. `prune()` matches whole filenames rather than trusting an age
+    check not to catch something it was never meant to. The archive path is normalised at
+    the point it is written rather than relying on anyone remembering that Windows spells
+    separators differently. In each case the earlier version was correct and depended on
+    someone staying careful; the later version cannot go wrong.
+
+    The test for whether this rule applies: **if this goes wrong, will anything tell us?**
+    A mistake that announces itself can be handled with care. One that produces a
+    confident, ordinary-looking wrong answer cannot.
