@@ -588,6 +588,56 @@ retention — treat it as permanent, because a wrong guess in that direction can
   well as reproducibility: an API call with training opt-out is the case where session
   exposure demonstrably clears.
 
+### Verified against the billing log, 2 September — and the ledger was wrong
+
+The ruling above rests on training-on-conversations being off. Rather than assume it,
+Viktor exported the OpenRouter activity log: 713 requests, every model, every route. Three
+things came out of it, and only the first was the question being asked.
+
+**One — no free endpoints, ever.** Every request in the entire history shows
+`variant=standard`. Combined with paid-endpoint training routing having been off already,
+no Phase-7 material was ever sent to an endpoint that trains. **Kimi K3's exposure is
+confirmed session-level and it remains available.** The ruling holds unchanged.
+
+**Two — the Step 3 truncation has an exact cause.** Entry #23 records the Kimi K3 attempt
+"truncating inside its own reasoning at a default token ceiling." The log names it:
+
+```
+2026-08-27 02:56:56  kimi-k3  completion=16,384  reasoning=18,668  finish=length
+```
+
+`finish=length`, at exactly 2^14 output tokens. Luna Pro later produced a 133,383-token
+completion through the same interface, so the ceiling is raisable and simply was not raised
+that day. **Check the max-output setting before every audit run.** It is the cheapest
+possible way to waste a full input charge.
+
+**Three — Mistral is not clean, and the Remediation Plan says it is.** Five models ran
+through Aider on 22-24 August, while the engine was being built:
+
+| model | requests |
+|---|---|
+| `deepseek/deepseek-chat-v3` | 315 |
+| `anthropic/claude-4-sonnet` | 194 |
+| `deepseek/deepseek-r1` | 96 |
+| **`mistralai/mistral-nemo`** | **71** |
+| `anthropic/claude-3-haiku` | 4 |
+
+Entry #31 names three of them — "Claude Sonnet 4, DeepSeek V3 and DeepSeek R1, through
+Aider" — and misses `mistral-nemo` and `claude-3-haiku`. Mistral's lineage worked on this
+codebase through exactly the mechanism Entry #31 used to disqualify DeepSeek.
+
+**Mistral comes off the clean list.** What remains: Meta, Qwen, Cohere, Amazon, MiniMax,
+and Kimi K3 per the ruling above.
+
+One thing not to over-read: *Amazon Bedrock* appears as the **provider** serving Claude
+models, not as Amazon's own models being used. That is a hosting relationship, not lineage.
+Amazon stays clean.
+
+The correction matters less than how it was found. Entry #31's independence table was
+written from recollection, and it was wrong for a week. **Nobody could have caught it by
+thinking harder** — only by reading the billing record, which is the only account of what
+actually happened. See earned rule 29.
+
 ## The round-2 re-audit — prepared 2 September 2026
 
 **Auditor ruled: Qwen3.8-Max.** It is the highest-ranked model still clean on both
@@ -828,3 +878,15 @@ and re-link the Claude desktop app to `D:\phase7_engine`.
     The test for whether this rule applies: **if this goes wrong, will anything tell us?**
     A mistake that announces itself can be handled with care. One that produces a
     confident, ordinary-looking wrong answer cannot.
+29. **Reconstruct the independence ledger from the billing log, not from memory.** Entry
+    #31 listed the models that had worked on this codebase through Aider and named three.
+    The OpenRouter activity export shows five: `mistral-nemo` and `claude-3-haiku` were
+    missing, and Mistral had therefore sat on the clean list of eligible auditors for a
+    week while being disqualified by the project's own rule. The error was not carelessness
+    — it was writing a factual record from recollection when an authoritative one existed
+    and cost nothing to export.
+
+    Every provider bills per request, and the bill cannot be mistaken about what was called.
+    Before naming any model as clean, export the log and check. This generalises past model
+    independence: wherever a project keeps a record of what happened, ask whether some
+    system already recorded it as a side effect of doing its own job, and prefer that.
