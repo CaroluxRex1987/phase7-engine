@@ -544,6 +544,50 @@ guess at it.
 one an auditor would ask about first. That is the price of the ruling, and it is the
 reason it is written down here rather than left to be discovered.
 
+## Independence — what kind of exposure, and what clears it
+
+**Ruled 2 September 2026, delegated by Viktor to Claude.** The project held two positions
+on this and had not noticed they contradict.
+
+Entry #18 resolved Grok's prior exposure by running Step 3 "in a fresh conversation with no
+shared memory of the earlier one." The Remediation Plan, eleven days later, rejected Luna
+Pro for Step 5 *because* it had read the Constitution during the hostile review — treating
+the same kind of exposure as permanent. Entry #41 then graded Step 8 against the stricter
+reading without noticing the looser one existed. Both cannot be right, and which answer you
+got depended on which document you happened to open.
+
+**Three different things were being recorded as one:**
+
+| Kind | What it is | What clears it |
+|---|---|---|
+| **Session** | A model read the document in a chat | A fresh conversation with no shared memory — *provided* that conversation was not fed back into training |
+| **Training** | The artifact is in the model's weights | Nothing. Ever. |
+| **Lineage** | A sibling model from the same lab worked on the artifact | Nothing — this is training exposure under another name |
+
+Entry #31's rule that "independence is tracked at the lab, not the checkpoint" was written
+for the second and third. Applying it to the first is a category error, and it is why the
+clean list emptied faster than it had to.
+
+**The ruling.** Session exposure is cleared by a fresh conversation where
+training-on-conversations is off. Training and lineage exposure never clear. Where it cannot
+be established whether a session fed training — a consumer chat interface, unknown
+retention — treat it as permanent, because a wrong guess in that direction cannot be undone.
+
+**Consequences.**
+
+- Viktor's "relatively OK" grade on the Luna Pro Step 8 stands, and for the right reason.
+  The only thing short of fully fine is that the hostile review may have run somewhere that
+  retains conversations, which is now unknowable. Probably clean, not provably.
+- **Kimi K3 is available again.** Its exposure was session-level and its Step 3 attempt
+  truncated before completing. It ranks fourth on the current coding leaderboards, above
+  Qwen3.8-Max — and its truncated run found two material Item 14 defects that neither
+  completed run did. It should be considered for round three.
+- Round 2's auditor is **not** being changed. Qwen is chosen, the package is built for it,
+  and re-deciding a settled question costs a day for a marginal gain.
+- Audits should run **through the API rather than a chat interface**, for independence as
+  well as reproducibility: an API call with training opt-out is the case where session
+  exposure demonstrably clears.
+
 ## The round-2 re-audit — prepared 2 September 2026
 
 **Auditor ruled: Qwen3.8-Max.** It is the highest-ranked model still clean on both
@@ -750,3 +794,16 @@ and re-link the Claude desktop app to `D:\phase7_engine`.
     because it needs bias and macro to actually disagree and no pinned fixture makes them.
     A suite built from fixtures cannot reach a state its fixtures never enter, so running
     the thing is a distinct form of verification and not a slower version of reading it.
+26. **A ledger that tracks conversations cannot see training data.** This project has
+    recorded, for weeks, which models were shown which documents — and never recorded that
+    the repository is public on GitHub, which puts the codebase in reach of anything
+    trained since. That channel cannot be audited, cannot be cleared, and applies to every
+    reviewer including the clean ones. Viktor's ruling, 2 September: state it in the
+    reviewer's instruction and ask the reviewer to say so if it finds itself recognising
+    the code rather than reading it. On a new project the same fact is a decision rather
+    than a disclosure — publish and accept that no future model is provably clean, or stay
+    private until the audits are done. Cheaper to choose than to discover.
+27. **Name which KIND of exposure you are recording, because they have different
+    remedies.** See the ruling below. The register spent models permanently for a reason
+    that a fresh conversation removes, and the two rulings that disagreed about it sat in
+    two documents for a week without anyone noticing they could not both be true.
