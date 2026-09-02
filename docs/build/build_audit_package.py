@@ -46,7 +46,31 @@ from datetime import datetime, timezone
 
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 ROUND = "round2"
-OUT_DIR = os.path.join(REPO, "docs", "audit_package", ROUND)
+PACKAGE_DIR = os.path.join(REPO, "docs", "audit_package")
+OUT_DIR = os.path.join(PACKAGE_DIR, ROUND)
+
+# The upload set is a DIRECTORY, not a list in a document.
+#
+# docs/audit_package/ contains last round's bundles under the same filenames as
+# this round's. They differ only by size and date, and uploading the stale pair
+# would have the auditor grade code that no longer exists -- with nothing in its
+# report to reveal that had happened. A warning is not a safeguard when the two
+# files are named the same thing.
+#
+# So the files that go to the auditor are copied into one folder containing
+# nothing else, including the instruction and the Constitution, and the
+# withheld material goes in a separate folder. "Upload everything in this
+# folder" is then literally correct and requires no judgment at the moment
+# where a mistake cannot be undone.
+UPLOAD_DIR = os.path.join(OUT_DIR, "UPLOAD_THESE")
+PART7_DIR = os.path.join(OUT_DIR, "PART7_LATER")
+
+# Copied in from docs/audit_package/ rather than referenced, so the upload
+# folder is complete on its own.
+HAND_WRITTEN = [
+    "item16_review_instruction_rev2.md",
+    "Phase7_Constitution_v1.0_RATIFIED_AUDITCOPY.pdf",
+]
 
 # Directories that never enter a bundle, for four different reasons:
 #   docs      another party's reasoning about this code (see the docstring)
@@ -389,24 +413,62 @@ def main():
             manifest.append(f"- `{rel}` — {size} bytes — `{digest}`")
         manifest.append("")
 
-    written = {
+    import shutil
+
+    # Rebuilt from empty each time. A stale file left behind in the upload
+    # folder from a previous build is the same hazard this layout exists to
+    # remove, one level down.
+    for directory in (UPLOAD_DIR, PART7_DIR):
+        shutil.rmtree(directory, ignore_errors=True)
+        os.makedirs(directory, exist_ok=True)
+
+    upload = {
         "phase7_engine_source.md": source_text,
         "phase7_test_suite.md": test_text,
         "MANIFEST.md": "\n".join(manifest),
         "version_control_history.md": _history_metadata(),
-        "commit_messages_PART7_ONLY.md": _full_messages(),
         "execution_transcripts.md": _transcripts(),
     }
-    for name, text in written.items():
-        path = os.path.join(OUT_DIR, name)
-        with open(path, "w", encoding="utf-8", newline="\n") as fh:
-            fh.write(text)
-        print(f"  {name:36} {len(text.encode('utf-8')):>9,} bytes")
+    withheld = {"commit_messages_PART7_ONLY.md": _full_messages()}
 
-    total = sum(len(t.encode("utf-8")) for t in written.values())
-    print(f"\nWrote {len(written)} files to docs/audit_package/{ROUND}/  "
-          f"({total:,} bytes total, roughly {total // 4:,} tokens)")
+    print("\nUPLOAD_THESE/ -- give the auditor everything in this folder:")
+    for name, text in upload.items():
+        with open(os.path.join(UPLOAD_DIR, name), "w",
+                  encoding="utf-8", newline="\n") as fh:
+            fh.write(text)
+        print(f"  {name:38} {len(text.encode('utf-8')):>9,} bytes")
+
+    copied = 0
+    for name in HAND_WRITTEN:
+        source = os.path.join(PACKAGE_DIR, name)
+        if not os.path.exists(source):
+            print(f"  {name:38}   MISSING -- not copied")
+            continue
+        shutil.copy2(source, os.path.join(UPLOAD_DIR, name))
+        copied += 1
+        print(f"  {name:38} {os.path.getsize(source):>9,} bytes")
+
+    print("\nPART7_LATER/ -- do NOT upload until Parts 1-6 are written and saved:")
+    for name, text in withheld.items():
+        with open(os.path.join(PART7_DIR, name), "w",
+                  encoding="utf-8", newline="\n") as fh:
+            fh.write(text)
+        print(f"  {name:38} {len(text.encode('utf-8')):>9,} bytes")
+
+    with open(os.path.join(OUT_DIR, "MANIFEST.md"), "w",
+              encoding="utf-8", newline="\n") as fh:
+        fh.write("\n".join(manifest))
+
+    upload_bytes = sum(len(t.encode("utf-8")) for t in upload.values()) + sum(
+        os.path.getsize(os.path.join(PACKAGE_DIR, n))
+        for n in HAND_WRITTEN if os.path.exists(os.path.join(PACKAGE_DIR, n)))
+    print(f"\n{len(upload) + copied} files to upload, {upload_bytes:,} bytes "
+          f"(roughly {upload_bytes // 4:,} tokens -- treat as a floor; code "
+          f"tokenizes denser than four bytes per token).")
     print(f"HEAD: {head}")
+    if copied != len(HAND_WRITTEN):
+        print("\nWARNING: an expected document was missing and the upload folder "
+              "is incomplete. Do not send it until that is resolved.")
 
 
 if __name__ == "__main__":
