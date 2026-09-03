@@ -226,6 +226,25 @@ def render_panel(decision):
         )
 
         saved_chart = decision.get("chart_path") or ""
+
+        # AUDIT FINDING (2 September 2026): this line read
+        #
+        #     risk.get('validation_note', 'VWMA volume trend is pointing down.')
+        #
+        # A .get default that asserts a specific market fact. If the key were
+        # ever missing the panel would state, under a heading called
+        # Validation Notes, that volume was pointing down -- a reading of this
+        # market that nothing computed. The router always supplies the key, so
+        # the default never fired; that makes it latent, not harmless. It is
+        # the same shape as the hardcoded trade-log path and the chart
+        # default, both removed for the same reason.
+        #
+        # The replacement says only that nothing was produced, which is the
+        # one thing that is true when the key is absent.
+        validation_note = (
+            risk.get("validation_note")
+            or "No validation note was produced for this run."
+        )
         chart_line = (
             f"Chart saved to {saved_chart}\n" if saved_chart
             else "No chart was produced for this run.\n"
@@ -409,7 +428,7 @@ def render_panel(decision):
             f"{exit_watch_lines}\n"
             f"{divider}"
             f"Validation Notes:\n"
-            f" - {risk.get('validation_note', 'VWMA volume trend is pointing down.')}\n"
+            f" - {validation_note}\n"
             f"{btc_section}"
             f"{box_top}\n"
             f"{log_line}"

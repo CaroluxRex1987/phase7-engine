@@ -199,6 +199,38 @@ def test_the_panel_makes_no_unconditional_claims_about_files():
         "panel prints 'saved to None'."
     )
 
+    assert "VWMA volume trend is pointing down" not in code, (
+        "the Validation Notes line has a .get default that asserts a specific "
+        "market fact. A default under that heading states a reading of this "
+        "market that nothing computed, and the heading gives it the authority "
+        "of something that was."
+    )
+
+    # 2 SEPTEMBER 2026. The first assertion above described a live defect and
+    # did not catch it. Its message says, correctly, that the key "is None
+    # when charting failed" and that the panel "prints 'saved to None'" --
+    # and then checked only that the OLD hardcoded default was gone from THIS
+    # file. The None arrived from somewhere else: models/signal_router.py
+    # built the decision object with str(chart_path), and str(None) is the
+    # truthy string "None", which passes the panel's own gate. It printed for
+    # the life of the engine.
+    #
+    # A test whose failure message documents a defect it cannot detect is
+    # worse than no test: it reads as coverage to anyone auditing the suite.
+    # The claim is made in one file and the value is built in another, so the
+    # check has to follow the value.
+    with open(os.path.join(REPO_ROOT, "models", "signal_router.py"),
+              encoding="utf-8") as f:
+        router = f.read()
+
+    assert "str(chart_path) if chart_path" in router, (
+        "signal_router stringifies chart_path without a guard again. "
+        "str(None) is the truthy string 'None', so the panel prints "
+        "'Chart saved to None' -- a claim about a file nothing wrote. The "
+        "convention is '' for absent, as decision_log_path already uses two "
+        "fields above it."
+    )
+
 
 def test_the_explanation_names_the_symbol_under_analysis():
     """

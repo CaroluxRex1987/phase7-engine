@@ -399,7 +399,25 @@ class SignalRouter:
                 # nothing was logged, and the panel prints no claim.
                 "decision_log_path": "",
 
-                "chart_path": str(chart_path)
+                # AUDIT FINDING (2 September 2026): this was str(chart_path).
+                # plot_engine_chart returns None when it could not write --
+                # an unwritable directory, a matplotlib failure -- and
+                # str(None) is the four-character string "None", which is
+                # TRUTHY. panel_render gates the chart line on
+                # `decision.get("chart_path") or ""`, so the gate passed and
+                # the panel printed:
+                #
+                #     Chart saved to None
+                #
+                # naming a file that does not exist, in the same shape as the
+                # trade-log claim sequence item 12 removed for being a claim
+                # about a file nothing wrote.
+                #
+                # The convention was already here, two fields up:
+                # decision_log_path uses "" to mean nothing was written and
+                # the panel prints no claim. chart_path simply never followed
+                # it. It does now.
+                "chart_path": str(chart_path) if chart_path else ""
             }
 
         except Exception as e:

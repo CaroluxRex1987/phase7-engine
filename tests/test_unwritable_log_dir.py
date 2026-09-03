@@ -138,6 +138,53 @@ def test_the_panel_claims_no_log_when_none_was_written():
         shutil.rmtree(work, ignore_errors=True)
 
 
+def test_the_panel_claims_no_chart_when_none_was_written():
+    """
+    The same rule as the test above, in the field that did NOT follow it.
+
+    This test already drove the engine through a failed chart write -- the
+    setup points config.CHART_DIR inside the unwritable directory and the
+    docstring at the top of this file says so -- and asserted only the log
+    path and the archive. The chart was never looked at, so
+    signal_router's str(None) survived into the panel as
+
+        Chart saved to None
+
+    for the life of the engine. Found on 2 September 2026 by an audit run
+    that never completed, and verified against source before being believed.
+
+    Behavioural rather than source-level on purpose: the source checks in
+    test_traceability.py look for a shape, and the shape moved from
+    panel_render.py to signal_router.py once already.
+    """
+    if not _engine_available():
+        pytest.skip("pandas_ta not installed")
+
+    from core.panel_render import render_panel
+
+    work = tempfile.mkdtemp(prefix="phase7_nochart_")
+    try:
+        decision = _run_with_log_dir(_unwritable_dir(work))
+
+        assert decision.get("chart_path") == "", (
+            f"the run reports a chart at {decision.get('chart_path')!r} and "
+            f"no chart was written. \"\" is the convention here -- it is what "
+            f"decision_log_path uses for the same condition."
+        )
+
+        panel = render_panel(decision)
+        assert "Chart saved to None" not in panel, (
+            "the panel names a file called None."
+        )
+        assert "No chart was produced for this run." in panel, (
+            "the panel says nothing at all about the chart. Silence is not "
+            "the fix -- the operator should be told the chart is missing, "
+            "not left to notice."
+        )
+    finally:
+        shutil.rmtree(work, ignore_errors=True)
+
+
 def test_a_run_that_could_not_be_logged_still_authorizes_a_trade():
     """
     VIKTOR'S RULING, 2 September 2026, pinned.
