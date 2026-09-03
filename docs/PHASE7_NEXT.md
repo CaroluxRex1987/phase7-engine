@@ -981,6 +981,23 @@ and re-link the Claude desktop app to `D:\phase7_engine`.
   downstream of confidence moving with it, nothing else. That is exactly what the diff
   showed.
 - **Never `device_stage_files` back into the sandbox working copy**; it overwrites edits.
+- **Run the handover check before the session ends — Claude initiates it, Viktor does not
+  have to remember.** A session does not persist. Whatever was established in it and not
+  written down has to be rediscovered, slowly and incompletely, and the parts that came
+  out of live runs cannot be rediscovered at all. On 3 September the whole day's state --
+  eleven verified findings with line numbers, four patches, three rulings made, three
+  owed, sizes for what remained -- existed only in a chat window until Viktor asked
+  whether it was safe. It was not. The check runs on any signal the session is ending:
+
+  1. Is the current state in this file, rather than only in the conversation?
+  2. Are today's rulings recorded here, with what they decided and why?
+  3. Does `git status --short` show untracked files that matter? Evidence in the repo
+     root is the usual casualty -- it survives only if someone commits it.
+  4. Are the Engineering Notes current, or is the gap stated explicitly?
+  5. Are loose `.patch` files still sitting unapplied?
+  6. Is anything still only in a chat window -- a review, a transcript, a reasoning dump?
+
+  Report what the check finds, not that it ran. If everything is filed, one line.
 
 ## The rules, earned
 
@@ -1132,3 +1149,12 @@ and re-link the Claude desktop app to `D:\phase7_engine`.
     Both were harmless. The point of predicting a diff is that anything unpredicted stops
     the work, and a prediction that only covers the parts worth talking about cannot do
     that.
+34. **A conversation is not a record, and the person doing the work should not be the one
+    who has to remember that.** On 3 September a full day of findings, verifications,
+    rulings and sizings existed nowhere but a chat window, and would have been lost
+    because nothing in the routine said to write it down. It was caught because Viktor
+    asked whether it was safe -- which is exactly the save-by-vigilance that rule 28 says
+    to replace with a structural fix. The fix is the handover check under Working
+    practice, run by Claude at the end of every session rather than requested. The general
+    form: where continuity depends on someone remembering to preserve something, move the
+    remembering into the process and give it to the party that does not get tired.
