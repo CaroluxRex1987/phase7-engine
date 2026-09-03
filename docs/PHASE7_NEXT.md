@@ -11,6 +11,12 @@ source, four fixed. Two more found by running the engine and reading the panel �
 one introduced by a patch the same day, which every test in the suite passed because they
 matched substrings and not shape.*
 
+> **This project now has two goals with two different endings.** It is the technical
+> portfolio project in Viktor's 2026–2028 career plan and the intended *examensarbete*,
+> AND it is an engine he intends to finish. Those complete at very different times, and
+> the first must be banked and tagged before the second begins. See "Two goals, and the
+> order they finish in" immediately below — read it before planning any work.
+
 > **The engine is under its own trading prohibition right now.** The Constitution's release
 > gate, adopted 27 August: *"No output of this engine may be relied on for a real trading
 > decision while any Critical Tier 1 finding stands unresolved"* — and unresolved means
@@ -23,6 +29,76 @@ matched substrings and not shape.*
 > roadmap, so it was never scheduled, never ruled on, and never noticed missing. It was
 > found by reading `docs/audit_package/luna_pro_audit_report.md` end to end. This file is
 > a plan derived from that report; the report is the record.
+
+## Two goals, and the order they finish in — 3 September 2026
+
+This engine now has two purposes, and they end at different times. Recorded here
+because treating them as one is the single most likely way this project fails to
+finish.
+
+**Goal A — portfolio-ready.** Phase 7 is the major technical portfolio project in
+Viktor's 2026–2028 career plan, and the intended *examensarbete* if he takes a YH
+programme. What it has to demonstrate is independent technical work, architecture,
+testing, debugging, iterative development and structured decision-making. **It does
+not have to make money.** The career plan never mentions profitability. A validation
+that comes back negative is a result rather than a failure, provided the evidence is
+shown.
+
+**Goal B — a finished engine.** Backtesting, a fixed evaluation dataset, known-good
+checkpoints, and empirical validation of the features currently declared
+correctness-validated and empirically unvalidated. Months of work, and the last of
+those is open-ended by nature.
+
+B contains A, so they do not conflict. What conflicts is their **dates**: treated as
+one goal, A's completion silently becomes B's. That is the drift the career plan
+warns about in its own words — *"Do not keep endlessly redesigning it simply because
+another interesting technical rabbit hole appears. The project needs an ending."*
+
+### Portfolio-ready — the milestone and its criteria
+
+Reached when all of these are true:
+
+1. **The release gate is open.** Every Critical fixed *and* re-audited, with a report
+   that says so.
+2. **The remaining findings are closed or accepted.** Anything not fixed is recorded
+   as a limitation with the reason, not left silent.
+3. **The Engineering Notes are current**, with no undocumented gap.
+4. **The portfolio document exists** — the fourteen sections the career plan
+   specifies: objective, problem definition, architecture, data sources, modules,
+   decision logic, testing methodology, debugging process, major problems, solutions,
+   results, limitations, lessons learned, future development.
+5. **The AI-attribution section is written.** What Viktor designed, decided, tested
+   and ruled on, versus what Claude produced. The raw material already exists and is
+   unusually strong — every ruling in the Engineering Notes is attributed and dated,
+   the commit messages record where Claude was overruled, and this file names the
+   calls that were his. It has never been assembled into one place.
+6. **The suite passes and the golden snapshot is current.**
+
+Then **tag the commit** — suggested name `portfolio-v1`.
+
+### Why the tag matters, and why B waits behind it
+
+Backtesting destroyed the previous build of this engine. That is the recorded reason
+the Constitution gates it, and it is not a hypothetical risk. Pursuing goal B before
+goal A is banked exposes the thing Viktor intends to submit to the one failure this
+project has already suffered once.
+
+With the tag in place, B can break whatever it likes. The submission is a fixed
+point.
+
+Anything B produces then becomes item 14 of the portfolio document — future
+development. If validation succeeds, the document is revised with a stronger result.
+If it fails, that is also a result and the document says so.
+
+### One consequence for the career plan
+
+Section 10 of the roadmap lists "Finish Phase 7" as a single late-2026 objective,
+while its guiding principle says to apply for jobs while learning rather than waiting
+for a CV to become complete. Those pull against each other for as long as "finish"
+means goal B.
+
+Once portfolio-ready is a named milestone with its own date, job applications start
+there — months before B is done, which is what the guiding principle asks for.
 
 ## Where things stand
 
