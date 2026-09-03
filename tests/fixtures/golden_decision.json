@@ -61,7 +61,7 @@
   },
   "lineage": {
     "archive": {
-      "path": "logs/archive/testusdt_4h_8d7e0a3ec69888c1.json.gz",
+      "path": "logs/archive/testusdt_4h_49a826652598435f.json.gz",
       "pruned_this_run": 0,
       "retention_days": 90
     },
@@ -187,11 +187,11 @@
       "trend_health": 95.34758422,
       "volatility_state": "MEDIUM VOLATILITY"
     },
-    "run_hash": "8d7e0a3ec69888c13a9b04a6bf59da03392b0ca29a906f73458ac1260df99d83"
+    "run_hash": "49a826652598435f025448f5ff4fae8e98b6e0e1fc21226a31870f78c162e9da"
   },
   "macro_bias": "BULLISH",
   "provenance": {
-    "archive_path": "logs/archive/testusdt_4h_8d7e0a3ec69888c1.json.gz",
+    "archive_path": "logs/archive/testusdt_4h_49a826652598435f.json.gz",
     "canonical_format": 1,
     "engine_version": "Phase\u20117 Structural Quant Engine v1.0",
     "fetch": {
@@ -219,11 +219,27 @@
         "WEIGHT_SUPERTREND_DIRECTION": 0.15,
         "WEIGHT_TREND_HEALTH": 0.3,
         "WEIGHT_VOLUME_SENTIMENT": 0.15
+      },
+      "models.risk_model": {
+        "ATR_STOP_MULT": 1.2,
+        "BIAS_FACTOR_DIVISOR": 300.0,
+        "MAX_STOP_DISTANCE_PCT": 15.0,
+        "MIN_STOP_DISTANCE_PCT": 0.2,
+        "REGIME_EXTREME_STOP_PCT": 8.0,
+        "REGIME_HIGH_TREND_HEALTH": 70.0,
+        "REGIME_LOW_TREND_HEALTH": 40.0,
+        "TARGET1_MULT": 1.0,
+        "TARGET2_MULT": 2.0,
+        "TARGET3_MULT": 3.0,
+        "TREND_FACTOR_DIVISOR": 200.0,
+        "VOL_MULT_EXTREME": 1.6,
+        "VOL_MULT_HIGH": 1.35,
+        "VOL_MULT_LOW": 0.85
       }
     },
     "prior_state": {},
     "row_count": 450,
-    "run_hash": "8d7e0a3ec69888c13a9b04a6bf59da03392b0ca29a906f73458ac1260df99d83",
+    "run_hash": "49a826652598435f025448f5ff4fae8e98b6e0e1fc21226a31870f78c162e9da",
     "source": "pinned"
   },
   "risk": {

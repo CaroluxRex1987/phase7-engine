@@ -130,6 +130,27 @@ FINGERPRINTED_MODULES = {
         "WEIGHT_MACRO_BIAS", "WEIGHT_REVERSAL_CONTINUATION",
         "RAW_BIAS_THRESHOLD",
     ],
+    # The other half of Finding 6's required action, and it was missing
+    # until 2 September. The comment above has quoted "risk-model
+    # multipliers and bias weights" since the fix was written, while the
+    # dict named only the weights. Changing ATR_STOP_MULT from 1.2 to 1.5
+    # moves the stop and all three targets on every run the engine makes,
+    # and until now left run_hash, config_snapshot and module_snapshot
+    # byte-identical -- an audit trail asserting two different plans were
+    # the same run.
+    #
+    # It was not an omission from this list. models/risk_model.py held
+    # these on the RiskModel INSTANCE, where module_snapshot() cannot
+    # see them, so there was nothing here to name. The constants moved
+    # to module level in the same change that added this entry.
+    "models.risk_model": [
+        "ATR_STOP_MULT", "TARGET1_MULT", "TARGET2_MULT", "TARGET3_MULT",
+        "VOL_MULT_HIGH", "VOL_MULT_LOW", "VOL_MULT_EXTREME",
+        "TREND_FACTOR_DIVISOR", "BIAS_FACTOR_DIVISOR",
+        "REGIME_EXTREME_STOP_PCT", "REGIME_LOW_TREND_HEALTH",
+        "REGIME_HIGH_TREND_HEALTH",
+        "MAX_STOP_DISTANCE_PCT", "MIN_STOP_DISTANCE_PCT",
+    ],
 }
 
 

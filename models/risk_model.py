@@ -4,6 +4,58 @@ import numpy as np
 
 logger = logging.getLogger(__name__)
 
+# ==================================================================
+# DECISION-AFFECTING CONSTANTS
+#
+# These are module-level, not instance attributes, because
+# core/decision_log.py's module_snapshot() fingerprints MODULE
+# attributes and cannot see instance state.
+#
+# AUDIT FINDING 6 (Item 5) asked for "all decision-affecting
+# configuration, including risk-model multipliers and bias weights."
+# The bias weights were fingerprinted at that item. These were not,
+# and they could not have been: they lived on the instance, where
+# the mechanism cannot reach them. Two runs whose stops and every
+# target differed by 25% hashed identically, and the record that
+# claims to identify a run could not tell them apart.
+#
+# They are read DIRECTLY by the methods below. They are deliberately
+# not copied onto self in __init__, because a copy restores exactly
+# the gap this closes -- the snapshot would report the module value
+# while the arithmetic used the instance one, and nothing would say
+# which produced the plan. There is no instance state here to drift.
+#
+# tests/test_risk_fingerprint.py holds all of this true: that every
+# name below is fingerprinted, that none of them is dead, and that
+# the multipliers have not crept back onto the instance.
+# ==================================================================
+
+# Stop and target geometry.
+ATR_STOP_MULT = 1.2            # base ATR multiplier for the stop
+TARGET1_MULT = 1.0             # conservative target, x stop distance
+TARGET2_MULT = 2.0             # normal target, x stop distance
+TARGET3_MULT = 3.0             # aggressive target, x stop distance
+
+# Volatility adjustment applied to the stop multiplier.
+VOL_MULT_HIGH = 1.35           # widen stops in high vol to avoid whipsaws
+VOL_MULT_LOW = 0.85            # tighter stops in calm markets
+VOL_MULT_EXTREME = 1.60
+
+# Structural influence on the stop. A strong trend pushes the stop
+# further out; a strong bias pulls it back in.
+TREND_FACTOR_DIVISOR = 200.0
+BIAS_FACTOR_DIVISOR = 300.0
+
+# Risk regime boundaries.
+REGIME_EXTREME_STOP_PCT = 8.0
+REGIME_LOW_TREND_HEALTH = 40.0
+REGIME_HIGH_TREND_HEALTH = 70.0
+
+# Hard validity limits on the stop distance.
+MAX_STOP_DISTANCE_PCT = 15.0   # wider than this is not a stop, it is a hope
+MIN_STOP_DISTANCE_PCT = 0.2    # tighter than this sits inside market noise
+
+
 class RiskModel:
     """
     Core institutional risk engine for Phase-7.
@@ -14,12 +66,13 @@ class RiskModel:
         - Risk regime classification & advanced validation
     """
 
-    def __init__(self) -> None:
-        # Tunable multipliers
-        self.atr_stop_mult: float = 1.2        # Base ATR multiplier for stop
-        self.target1_mult: float = 1.0         # Conservative target (x stop distance)
-        self.target2_mult: float = 2.0         # Normal target (x stop distance)
-        self.target3_mult: float = 3.0         # Aggressive target (x stop distance)
+    # __init__ removed. It set four multipliers onto the instance:
+    # atr_stop_mult, target1_mult, target2_mult and target3_mult. They
+    # are module-level constants above now -- see the block there for
+    # why. Nothing outside this file ever read the attributes, and
+    # nothing assigned to them, so removing them changes no behaviour
+    # and removes the only place the recorded settings and the settings
+    # actually used could diverge.
 
     # ============================================================
     # STOP & TARGETS (WITH VOLATILITY ADJUSTMENT)
@@ -88,17 +141,17 @@ class RiskModel:
             # Volatility-adjusted modifier
             vol_multiplier = 1.0
             if volatility_state == "HIGH VOLATILITY":
-                vol_multiplier = 1.35  # Widen stops in high vol to avoid whipsaws
+                vol_multiplier = VOL_MULT_HIGH
             elif volatility_state == "LOW VOLATILITY":
-                vol_multiplier = 0.85  # Tighter stops in calm markets
+                vol_multiplier = VOL_MULT_LOW
             elif volatility_state == "EXTREME VOLATILITY":
-                vol_multiplier = 1.60
+                vol_multiplier = VOL_MULT_EXTREME
 
             # Structural influence: strong trend pushes stop further
-            trend_factor = 1.0 + (max(0.0, min(100.0, trend_health)) / 200.0)
-            bias_factor = 1.0 - (abs(bias_score) / 300.0)
+            trend_factor = 1.0 + (max(0.0, min(100.0, trend_health)) / TREND_FACTOR_DIVISOR)
+            bias_factor = 1.0 - (abs(bias_score) / BIAS_FACTOR_DIVISOR)
 
-            stop_mult = self.atr_stop_mult * trend_factor * bias_factor * vol_multiplier
+            stop_mult = ATR_STOP_MULT * trend_factor * bias_factor * vol_multiplier
 
             # Ensure structural level is a valid finite float if provided
             valid_structural = structural_level is not None and np.isfinite(structural_level)
@@ -124,11 +177,11 @@ class RiskModel:
                     # Degenerate case (e.g. structural level sits above price) —
                     # fall back to the raw ATR-based distance so targets never
                     # collapse to current_price.
-                    stop_distance = atr_val * self.atr_stop_mult
+                    stop_distance = atr_val * ATR_STOP_MULT
 
-                target_t1 = current_price + (stop_distance * self.target1_mult)
-                target_t2 = current_price + (stop_distance * self.target2_mult)
-                target_t3 = current_price + (stop_distance * self.target3_mult)
+                target_t1 = current_price + (stop_distance * TARGET1_MULT)
+                target_t2 = current_price + (stop_distance * TARGET2_MULT)
+                target_t3 = current_price + (stop_distance * TARGET3_MULT)
             else:  # SHORT
                 calculated_stop = current_price + (atr_val * stop_mult)
                 atr_stop = (
@@ -139,11 +192,11 @@ class RiskModel:
 
                 stop_distance = atr_stop - current_price
                 if not np.isfinite(stop_distance) or stop_distance <= 0:
-                    stop_distance = atr_val * self.atr_stop_mult
+                    stop_distance = atr_val * ATR_STOP_MULT
 
-                target_t1 = current_price - (stop_distance * self.target1_mult)
-                target_t2 = current_price - (stop_distance * self.target2_mult)
-                target_t3 = current_price - (stop_distance * self.target3_mult)
+                target_t1 = current_price - (stop_distance * TARGET1_MULT)
+                target_t2 = current_price - (stop_distance * TARGET2_MULT)
+                target_t3 = current_price - (stop_distance * TARGET3_MULT)
 
             return float(atr_stop), float(target_t1), float(target_t2), float(target_t3)
 
@@ -210,11 +263,11 @@ class RiskModel:
         """
         Classifies current setup into a distinct risk regime profile.
         """
-        if volatility_state == "EXTREME VOLATILITY" or stop_distance_pct > 8.0:
+        if volatility_state == "EXTREME VOLATILITY" or stop_distance_pct > REGIME_EXTREME_STOP_PCT:
             return "EXTREME RISK"
-        elif volatility_state == "HIGH VOLATILITY" or trend_health < 40.0:
+        elif volatility_state == "HIGH VOLATILITY" or trend_health < REGIME_LOW_TREND_HEALTH:
             return "HIGH VOLATILITY RISK"
-        elif volatility_state == "LOW VOLATILITY" and trend_health >= 70.0:
+        elif volatility_state == "LOW VOLATILITY" and trend_health >= REGIME_HIGH_TREND_HEALTH:
             return "LOW RISK"
         else:
             return "NORMAL RISK"
@@ -253,9 +306,12 @@ class RiskModel:
 
             stop_dist_pct = (abs(current_price - atr_stop) / current_price) * 100.0
 
-            if stop_dist_pct > 15.0:
-                return False, "Stop distance exceeds maximum allowable threshold (15%).", "UNKNOWN"
-            if stop_dist_pct < 0.2:
+            if stop_dist_pct > MAX_STOP_DISTANCE_PCT:
+                return False, (
+                    f"Stop distance exceeds maximum allowable threshold "
+                    f"({MAX_STOP_DISTANCE_PCT:.0f}%)."
+                ), "UNKNOWN"
+            if stop_dist_pct < MIN_STOP_DISTANCE_PCT:
                 return False, "Stop distance too tight (risk of market noise liquidation).", "UNKNOWN"
 
             risk_regime = self.classify_risk_regime(volatility_state, stop_dist_pct, trend_health)
