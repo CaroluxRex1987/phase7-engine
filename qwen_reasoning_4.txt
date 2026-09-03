@@ -1,0 +1,205 @@
+Also related: engine_core.run's save_chart=True always (router). If plot returns None, engine sets decision_object["chart_path"] = None → provenance? no. lineage? no. The router stringifies. Also test for this? tests check decision.get("chart_path") truthiness in lineage tests (archived). No test forces chart failure and checks the panel line. test_unwritable_log_dir: sets CHART_DIR under an unwritable dir → plot fails → chart_path None → str→"None" → and the test asserts... test_the_panel_claims_no_log_when_none_was_written asserts decision_log_path == "" and archive path None. It does NOT assert chart_path! So the suite runs THROUGH this exact state (chart write fails in that test — CHART_DIR is logs/charts under the blocker file → makedirs in plotting fails → logger.error → return None) and never checks chart_path. The defect is reachable by an existing test's setup and unasserted. 7.3 + 7.2 cross. STRONG.
+
+Wait — actually let me verify plot failure in that test: config.CHART_DIR = os.path.join(log_dir, "charts") where log_dir = blocker_file/logs. plot_engine_chart: save_dir = os.path.dirname(save_path); os.makedirs(save_dir, exist_ok=True) → raises NotADirectoryError → caught by the OUTER try at function top? The makedirs is inside the first try block ("Ensure save directory exists") → except → logger.error("Failed to initialize matplotlib figure") → return None. Yes → chart_path None → "None" string. Confirmed reachable.
+
+Also same stringify issue: "chart_path": str(chart_path) also converts a valid Windows path with backslashes — transcripts show backslashes (Windows) — fine for local display.
+
+And what about "decision_log_path": str — no, it's set to logged_to or "" after _build_decision_object returns; _build sets "" initially. Good.
+
+Next: 7.2 continued — "Connecting to MEXC API for AEROUSDT (4h)" printed even when data is pinned/offline (transcripts show it on pinned runs). Cosmetic; the header claims an API connection that isn't happening (pinned source). Minor honesty quibble — the banner always says "Connecting to MEXC API" regardless of source. In pinned/offline runs (including every test), it prints that claim. It's cosmetic but it IS a claim that doesn't match reality in pinned mode. Observation (Minor).
+
+Bigger 7.1/7.2 items — let me also check live_trading.py claims: docstring says fixed to route through SignalRouter.route_and_execute ✓ code does. Fields: entry.get("zone_lower") ✓ matches contract. exit_data.get("action") ✓. OK. But run_once catches nothing around router call — exceptions propagate. Fine.
+
+main.py: validates SYMBOL/TIMEFRAME, calls router.route ✓. Note main.py calls router.route(...) → route_and_execute → renders panel ✓.
+
+Panel RISK REGIME line: risk.get('risk_regime', 'NORMAL RISK') — Run 1 printed "RISK REGIME: UNKNOWN" — because risk_valid False early return "UNKNOWN" (stop >15%) ✓ consistent with code (returns "UNKNOWN" on the >15% branch). ✓ transcripts consistent.
+
+Engine's hvn passed as structural_level to calculate_stop_targets: structural_level=hvn — HVN (high volume node) used as the stop's structural level for BOTH longs and shorts: LONG: min(hvn, calc_stop) — hvn below price tightens... HVN could be ABOVE current price (a volume node overhead) — then for LONG min(hvn, calc) = calc ✓ fine. For SHORT: max(hvn, calc) — if HVN below price, max = calc ✓. OK sensible.
+
+validate_risk_parameters trend_health default 50.0 — engine passes real value ✓.
+
+Now let me look for anything in the spirit of "the most serious defect since Rev 1" (7.6) beyond what's fixed. The instruction says a defect "later found by running the program" — that's the direction-source one, now fixed with the guard. They want me to look for OTHER two-source computations:
+
+bias_score computed twice per run when symbol != BTCUSDT: once for AERO, once for BTC with macro_bias="NEUTRAL" hardcoded (comment: "BTC's own macro-timeframe confluence isn't fetched separately yet"). Disclosed. fine.
+
+volatility_mode computed twice (AERO and BTC) via same function on different frames — fine.
+
+The state file: _save_state writes {"supertrend_direction", "detailed_bias"} — supertrend_direction could be 0.0 if ST failed (but then run is degraded... state still saved with 0.0; next run's flip check: prior_sign 0 → skipped ✓).
+
+Exit Watch "Bias state changed" flag: fires whenever prior != current detailed bias — even NEUTRAL→BULLISH CONFIRMED. Fine, advisory.
+
+Two WIN-RATE-ish numbers: confidence vs assumed_win_rate = confidence. Same number, disclosed. fine.
+
+provenance.run_hash vs lineage.run_hash: same value, two locations (noted above — consistent by construction).
+
+structural_level in lineage risk_inputs: records hvn — consistent.
+
+Two sources of macro_bias for BTC context: hardcoded NEUTRAL — disclosed.
+
+Zone distance vs entry status: both from entry_model — consistent.
+
+RISK REGIME: UNKNOWN when risk invalid — panel prints UNKNOWN (honest) ✓.
+
+SWING STRUCT fallback in router: "swing_struct": float(structure.get("swing_struct", exit_data.get("current_price", 0.0))) — if structure lacks swing_struct, defaults to CURRENT PRICE — and panel prints safe_float(structure.get('swing_struct', current_price)) — another current_price default. Engine always supplies swing_struct (structure_obj.get("swing_struct", 0.0))... wait engine: swing_struct = structure_obj.get("swing_struct", 0.0) → 0.0 default; analyze() always returns swing_struct (real or current_price on exception). So swing_struct can be current_price when the swing detection raised — a "structural level" equal to price, printed as "SWING STRUCT: $ (Lookback 8)" — silently. The analyze() except swallows. Observation (already noted under structure fallbacks).
+
+panel swing default: structure.get('swing_struct', current_price) — latent.
+
+Now — anything about bias_components out-param mutability: engine passes a dict; fine.
+
+lineage._frame_summary: "columns": sorted(...) — included in lineage but not in hash inputs... input_hashes store the hash; run_hash over input_hashes+config. fine.
+
+decision_log.read skips torn lines ✓.
+
+config_snapshot getattr MISSING ✓.
+
+module_snapshot imports models.bias_engine — fine.
+
+Fingerprint list vs actual config reads: FINGERPRINTED_CONFIG names SYMBOL, TIMEFRAME, MACRO_TIMEFRAME, API_BASE_URL, STRUCT_LOOKBACK, VOLUME_PROFILE_BINS, EMA_FAST, EMA_SLOW, RSI_LENGTH, ADX_LENGTH, ATR_LENGTH, VWMA_LENGTH, SUPERTREND_LENGTH, SUPERTREND_MULT. Are all read? EMA_FAST/SLOW → indicators ✓; RSI/ADX/ATR/VWMA lengths ✓ (config.RSI_LENGTH etc. used); SUPERTREND ✓; STRUCT_LOOKBACK ✓ engine passes; VOLUME_PROFILE_BINS ✓ passed to calculate_structure → StructureEngine(volume_profile_bins=...) ✓; API_BASE_URL → DataFetcher.init reads config.API_BASE_URL ✓; SYMBOL/TIMEFRAME/MACRO_TIMEFRAME ✓. test_explicit_configuration enforces. ✓.
+
+But — CHART_* not fingerprinted (comment says they don't affect decisions — correct). BTC window=30 hardcoded in engine call compute_correlation_beta(window=30) — not in config, not fingerprinted. It affects btc_adjusted_confidence (a displayed number, not the decision). The Finding-6 required action per comments: "all decision-affecting configuration, including risk-model multipliers and bias weights" — risk multipliers (atr_stop_mult etc. — instance attrs on RiskModel!) are NOT fingerprinted! FINGERPRINTED_MODULES only covers bias_engine weights + RAW_BIAS_THRESHOLD. RiskModel's atr_stop_mult=1.2, target mults, and DecisionModel's AVG_REWARD_R, DEGRADED_CONFIDENCE_CEILING, BTC_ADJUSTMENT_CAP, BTC_STRESS_PENALTY, and classify_risk_regime thresholds (8.0, 40.0, 70.0), validate thresholds (15%, 0.2%), RAW_BIAS_THRESHOLD ✓ covered, _VOLUME_SENTIMENT_SCORES... The run_hash claims to be "the run's identity: inputs AND settings" — but risk multipliers change stops/targets (decision-affecting!) and aren't in the hash. Changing atr_stop_mult 1.2→1.5 changes every stop and target while run_hash stays identical. That's a gap in the claimed identity — the comment says "risk-model multipliers and bias weights" were required; only bias weights are fingerprinted. RiskModel's multipliers are instance attributes (self.atr_stop_mult) — module_snapshot can't getattr them from the module. So: run identity incomplete — two runs with different risk multipliers hash identically. Observation/finding under 7.6/7.2 (the record claims to identify the run; it doesn't cover risk multipliers, EV constants, degradation ceiling, regime thresholds). Moderate.
+
+BiasStateMachine state across runs: fresh instance per process → state NEUTRAL at start each run. But within-process multiple runs (tests) — engine instance per SignalRouter; tests create new routers. _save_state/_load_state handle cross-run. OK.
+
+BiasStateMachine.transition: elif abs(bias_score) < 20: NEUTRAL else: state = raw_bias. raw_bias BULLISH with score 25 → state = "BULLISH" (unconfirmed). Then detailed_bias "BULLISH" — generate_entry_signals requires "BULLISH CONFIRMED" → no signal. decision_model reads raw_bias (not detailed) for direction blocks. risk plan effective_bias: detailed "BULLISH" not in [LONG,SHORT] → sign(bias_score) → LONG for score 25 > 0. raw BULLISH (>20) + trend_health≥75 + entry≥70 → AGGRESSIVE LONG possible with score 25?? bias_score 25 → confidence 25. Action AGGRESSIVE LONG with confidence 25/100?! _determine_final_action doesn't check bias_score magnitude — only raw_bias string + trend_health + entry_score. A bias_score of 21 → raw BULLISH; trend_health 80; entry 75 → AGGRESSIVE LONG with confidence = 21. Hmm! Is that coherent? bias_score 21 means the six-factor blend barely crossed the threshold — structure/macro/etc. mixed — yet trend_health (an input to the blend, but only 30%) is 80. Possible: trend strong, everything else neutral → score = 0.380 = 24 + small → 24-25. Then AGGRESSIVE LONG at confidence 24. The panel would show CONFIDENCE 24/100 and DECISION AGGRESSIVE LONG. Contradictory-looking but internally explained? The EV line would say negative EV (-0.28R... (0.242-0.76)= -0.28 → "close to breakeven"). An operator sees AGGRESSIVE LONG + confidence 24 + EV ~breakeven. Is this a defect? The direction source ruling said bias is the source; raw_bias threshold is 20 (RAW_BIAS_THRESHOLD) while state machine confirmation needs >30. So scores 20-30: raw BULLISH, detailed BULLISH (unconfirmed... wait transition: raw BULLISH and score >30? no (25) → abs<20? no → state = raw_bias = "BULLISH"). generate_entry_signals needs detailed == "BULLISH CONFIRMED" → no long_signal. But decision_model no longer reads long_signal for direction (removed). So AGGRESSIVE LONG on bias_score 21-30. Before the direction fix, long_signal gate indirectly required CONFIRMED (score>30) for signal... but the old code's bullish block also fired on macro alone. Now: no score-magnitude gate in decision_model at all. Is a minimum bias strength needed? trend_health≥75 & entry≥70 & raw_bias BULLISH (score>20) — the blend at 21 is weak conviction. The AGGRESSIVE label on a 21-confidence run seems like a conviction/risk labelling gap — arguably Item 14-adjacent ("risk-free conviction" was about the reverse). It's a design hole: no minimum bias_score for directional actions. The threshold RAW_BIAS_THRESHOLD=20 exists; the state machine uses 30 for CONFIRMED. decision_model uses neither numerically. Observation — worth flagging under 7.6-ish/consistency: three different thresholds for "is the bias strong enough" (20 raw, 30 confirmed, none in decision), and the decision reads only the string. Moderate observation.
+
+Hmm, wait — also entry path: trend_health≥75 & entry_score≥70 but bias 21: plausible state? trend 30% of blend; if trend 80 → +24; structure 0, volume 0, ST 0, macro 0, continuation small negative → ~21-24. Yes reachable: strong trend, everything else flat. AGGRESSIVE LONG with CONFIDENCE 21-24/100 printed below it. The operator sees a strong action with a weak confidence number. At minimum it's incoherent presentation; arguably fine since confidence is displayed. I'll put it as an observation (design gap, not a false claim).
+
+Also: validation WAIT gate: validation_state == "WEAK" and trend_health < 40 — uses raw trend health (unsigned magnitude!). trend_health is unsigned — a strong bearish trend scores 90 (Run 2!). The gate's "trend health is low" means weak trend in EITHER direction. Run 2: WEAK validation + health 90 → no WAIT from that gate; WAIT came from direction blocks. Consistent. OK.
+
+test_direction_source BEARISH_TREND trend_health 69.14 — unsigned used as magnitude for a bearish run — the unit fixtures acknowledge unsigned. fine.
+
+_determine_final_action uses trend_health (unsigned) for BULLISH block: trend_health 80 from a strong BEARISH trend + raw_bias BULLISH → could pass trend_health >= 75. But raw_bias BULLISH while trend is strongly bearish: bias_score > 20 requires the blend positive; signed trend health = -800.3 = -24 → needs +45 from other factors to exceed 20 → structure +20, ST +15, macro +10, volume... max others = 20+15+10+15(vol STRONG BULLISH 1000.15) + continuation... continuation for bearish trend is negative → -6 max... 20+15+10+15 = 60 - 24 - continuation... = up to +36 > 20. So YES reachable: strong bearish EMA trend, but bullish structure regime + bullish ST + bullish macro + strong bullish volume → raw_bias BULLISH while trend_health 80 (bearish EMAs). Then AGGRESSIVE LONG requires entry_score ≥ 70 — entry trend_multiplier 0.90 (trend_direction BEARISH vs LONG)... still reachable. Then the plan: effective_bias from sign(bias_score) > 0 → LONG. Consistent direction. So not contradictory, just mixed-evidence. Fine — that's what the blend is for.
+
+OK — also the _safe_float(trend.get("trend_health", 50.0)) default 50.0 in decision_model — router always supplies trend_health (float(trend.get(...,0.0))). So default latent. But note the router's own default is 0.0 — two different defaults (50 vs 0) in two layers for the same missing field. Both latent. Eh — minor.
+
+entry.get("score", 0.0) in _determine_final_action — router supplies. latent.
+
+Now the biggest remaining question — the BTC block contract: BtcContextBlock total=False with required "available". _merge_btc_context returns {"available": False} or full block including "reasons" and btc_adjusted_confidence ✓ matches.
+
+DegradationBlock: router builds ✓.
+
+DecisionObject.provenance.archive_path: engine sets archive_path (None or path) ✓.
+
+Now, anything about validate_ohlcv gaps: _timestamps returns None for positional index → skips dup/monotonic checks → returns None early... wait: if ts is None: return None — a positionally-indexed frame passes ALL time-axis checks (can't check). Pinned loader sets DatetimeIndex ✓. fetch_ohlc sets DatetimeIndex ✓. So production frames have time axes. OK.
+
+Interval check: wrong = gaps[gaps != expected] — strict equality; 4h candles on MEXC are exactly 4h. Daylight-saving? Crypto has no DST. OK. 1d bars exactly 1440 min ✓.
+
+Stale check: age > 3 bars — MEXC klines: the LAST candle from a live API is the CURRENT, still-forming candle (open time = current bar start). age = now - last_open_time < 1 bar normally ✓.
+
+One more possible issue — fetch_ohlc limit: engine calls get_tf(symbol, timeframe, limit=450); MEXC kline limit max is... not my business to assert (can't verify; MEXC v3 klines limit ≤ 1000? not sure). Not verifiable — skip.
+
+load_csv: pd.to_datetime(df["timestamp"], unit="ms") — if the CSV has ISO strings instead of ms, raises? unit="ms" with non-numeric → raises → load_csv raises → _load_pinned catches Exception → error dict ✓.
+
+Manifest verification: I can't compute SHA-256. State that. Structural counts: source bundle = 34 files (count: init, live_trading, main, core/init, config, decision_contract, decision_log, engine_core, lineage, panel_render, data/init, data_fetcher, validation, indicators/init, indicators, trend_health, volume_profile, models/init, bias_engine, btc_context, decision_model, entry_model, exit_model, risk_model, signal_router, structure/init, structure, utils/init, plotting, pytest.ini, requirements.txt, requirements-dev.txt, .gitattributes, .gitignore = 34 ✓). Tests: run_tests, test_live, conftest + 23 test modules = 26 ✓ (clean_checkout, data_integrity, decision_bar_integrity, decision_contract, degraded_state, direction_source, execution_surface, exit_model_removal, explicit_configuration, frame_ownership, golden_path, imports, lineage, no_circular_reasoning, no_dead_columns, no_lookahead, no_position_sizing, no_risk_free_conviction, pinned_source, smoke, timeframe_disagreement, traceability, unwritable_log_dir = 23 + 3 = 26 ✓).
+
+Working tree clean: NO — uncommitted changes present at package build. Note: HEAD 52e1e03 but tree dirty — so the packaged files may include uncommitted content. Observation for process rules (can't grade which rule without the Constitution, but note it).
+
+Tags: only "audited-2026-08-27" — a tag named "audited" could be mistaken for a known-good checkpoint; it's from before the week of fixes. Whatever.
+
+Author "unknown" on recent commits vs "Your Name" earlier — git identity not configured on the new machine. Process observation.
+
+Patch files committed then deleted (item16_finding3.patch +1112/-0 then +0/-1112 next commit) — patch artifacts committed and removed in pairs; noisy history but controlled. Observation.
+
+Now, do I recognise this code? No. This is a bespoke project (Phase-7 AERO/MEXC). I have no recollection of it. State so honestly per instruction #2.
+
+Outcome language: No Version History of the Constitution was supplied (no Constitution at all). The instruction itself supplies counts (seventeen non-compliances; fifteen findings, five Critical; a sixteenth Critical) — sanctioned by the instruction. Comments name "Luna Pro" as a prior auditor — sanctioned per Section 4. Report this transparently.
+
+Now, given all the analysis above — should I really include it? Yes: as ungraded observations, clearly labeled, with locations/quotes. That maximizes usefulness without pretending to grade.
+
+Actually — wait. I need to decide the overall shape once more. The user said "follow it exactly" and "Work through Parts 1 to 6." The instruction says the report's value is honesty. Given the missing standard, the exact-following move is:
+
+Part 1: 44 rows of Not verifiable (with the one shared reason + naming what's known).
+Part 2: empty by construction (no Non-compliant/Partial verdicts can be issued). State why.
+Part 3: the master Not-verifiable explanation.
+Part 4: full test-suite assessment (doable).
+Part 5: gate cannot be assessed.
+Part 6: observations — including the Section-7 observations as a clearly-separated subsection, claimed fixes I could not confirm, comment-reliance disclosure, package integrity notes, run requests (Section 11).
+Hmm, but is putting real technical findings in Part 6 "Observations outside the Constitution" misleading? Part 6 is defined as "Anything you think matters that no rule covers." My observations ARE likely covered by rules I can't see (Items 6, 8, 13...). Labeling them "outside the Constitution" would be wrong. Better: a clearly-marked separate section "Ungraded observations (standard unavailable — mapping to rule numbers withheld)" between Part 4 and Part 5 or within Part 6 with an explicit caveat. I'll make a distinct section: "Interim observations — NOT graded verdicts" and explain precisely why they're not verdicts (can't quote the clause they'd break). That's the most honest structure.
+
+Also required: "claimed fixes you could not confirm" and "any place where you noticed yourself relying on a comment rather than on the code" — Part 6 per Section 8's addendum.
+
+And Section 11 run requests: I can request:
+
+A run with charting forced to fail (e.g., CHART_DIR pointing at an unwritable path) capturing the panel's chart line — would confirm "Chart saved to None". Distinguisher: the footer line reads "Chart saved to None" vs "No chart was produced for this run."
+A run with an isolated 10x+ volume spike injected in pinned data — to see whether the run degrades as claimed (no test covers it).
+A run where ta.rsi is unavailable (fallback path) vs available, comparing RSI values — to quantify the SMA/RMA discrepancy.
+A run with bias_score in (20,30] and trend_health≥75/entry≥70 to see AGGRESSIVE LONG with confidence ~25.
+Good.
+
+Also, since the Constitution is missing — should I ask for it? Yes: the primary request is "supply the actual Constitution file; I will then produce Parts 1-3 and 5 as specified."
+
+Let me also double-check the "Chart saved to None" logic once more, very carefully, because it's my strongest finding.
+
+engine_core.run(...): chart_path = None; if save_chart: chart_path = plot_engine_chart(...) → plot returns save_path (str) or None.
+decision_object["chart_path"] = chart_path → str or None.
+signal_router.route_and_execute: chart_path=raw_output.get("chart_path") → str or None (key always present).
+_build_decision_object(..., chart_path: str, ...): returns {..., "chart_path": str(chart_path)}.
+str(None) == "None". Yes.
+panel_render: saved_chart = decision.get("chart_path") or "" → "None" (truthy string) → chart_line = f"Chart saved to {saved_chart}\n" → prints "Chart saved to None".
+
+Confirmed. Also the transcripts can't disprove it (chart succeeded there).
+
+Is there a test that would catch it? test_the_panel_makes_no_unconditional_claims_about_files checks for "'Logs/Charts/chart.png'" default and "Trade logged to Logs/" — not the str(None) path. test_unwritable_log_dir runs through the failure but asserts only log path and archive. So no test catches it. And the comment in panel_render claims the fix. And contract DecisionObject.chart_path: str — validates. Also note the contract comment in EngineOutput: chart_path: Any # None when save_chart is False — acknowledges None at engine layer.
+
+One more possible mitigation: does the panel maybe not get reached on chart failure? No — render_panel(decision) always called. Confirmed reachable.
+
+Severity under instruction's rubric: "an assertion by the engine that something happened when it did not" → that's the Critical definition. BUT the same class previously: the trade-LOG claim was Critical because it's the audit trail; a chart is cosmetic. The instruction says reserve Critical for wrong/fabricated numbers operator would act on, or assertions that something happened when it didn't. Literally this IS an assertion that something happened when it didn't (a file save). But materiality matters: the original chart-line version of this bug was treated as "a subtler version of the same fault" (their words) — the Critical rating attached to the trade-log claim. I'd call this Major with reasoning, noting the rubric's letter would support Critical and explaining my choice. Since it's ungraded anyway (no Constitution), I'll present it as my strongest observation with that reasoning.
+
+Also — wait, actually, I should double check "chart_path": str(chart_path) against golden snapshot: golden runs produce real chart path string ✓ stripped from comparison anyway.
+
+And hmm — one more: the transcripts show "Chart saved to C:\Users\MSI-PC\AppData\Local\Temp\phase7_transcripts_...\logs\charts\chart_AEROUSDT_4h.png" — consistent with save succeeding in those runs. Fine.
+
+Now the RSI/ATR fallback discrepancy — verify pandas_ta defaults: ta.rsi(close, length) — pandas_ta rsi signature: rsi(close, length=None, scalar=None, talib=None, offset=None, **kwargs) — if talib available uses TA-Lib (Wilder), else their own "rma"-based implementation. pandas_ta's rsi uses RMA (Wilder) by default (mamode="rma"). ta.atr: atr(high, low, close, length=None, mamode=None, talib=None, offset=None, **kwargs) — mamode default "rma". The manual fallbacks use .rolling(window).mean() — SMA. Cutler's RSI (SMA-based) vs Wilder's RSI differ, especially early and on choppy data. So the claim in indicators.py's RSI comment ("The second path is a real RSI calculation, so it stays — like the EMA fallback, it computes the same quantity by another route") — "same quantity" yes (RSI), "another route" with different smoothing → different values. The ATR comment: "The manual true-range calculation stays: like the EMA and RSI fallbacks it is the same quantity by another route, not a substitute for it." Same nuance. The EMA claim is essentially exact (both adjust=False ewm). So my observation is narrowed: RSI and ATR fallbacks produce different numbers than the primary, and nothing records which path produced the run's RSI/ATR (only total failure is recorded). The decision bar guard ensures A VALUE exists; its provenance (which smoothing) is unrecorded. Since RSI feeds trend health, entry, divergence; ATR feeds stops — a run computed via fallback is a slightly different engine. Worth stating precisely. (And note test_decision_bar_integrity asserts the fallback value differs from the PRIOR BAR — it does NOT assert closeness to the primary path, so the suite doesn't contradict me.)
+
+Wait, actually, is that right that nothing records it? In add_technical_indicators, failed() is only called when BOTH paths fail. If primary fails and fallback succeeds → no failure record → no degradation → run "clean". Hmm — but the fallback is legitimate per the ruling ("recomputes the same quantity by another route"). The residual issue is purely that RMA≠SMA numerically, so "clean" runs can differ depending on library availability, with identical run_hash (pandas_ta version IS pinned in requirements, but the hash doesn't include library versions... requirements pinned ✓ but the run hash's config snapshot doesn't include library versions. If someone runs without pandas_ta... they can't — import fails. So fallback triggers only if ta.rsi itself returns None/raises at runtime — rare). OK — minor observation, precisely scoped: IF the fallback ever fires, values differ from the primary path's, and the run is not marked. Fine.
+
+Now the macro EMA_50 check: if "EMA_50" in df_macro.columns: — if EMA_50 failed on macro, macro_bias stays "NEUTRAL" — but the macro indicator failures ARE recorded (degradation.extend(f"macro {f}" ...)) ✓.
+
+But note: macro frame 100 rows (macro_limit=100); engine requires ≥20 ✓; EMA_50 on 100 rows fine.
+
+BTC frame limit=450 same as base ✓; correlation window=30 positional — noted.
+
+btc_context["score"] — BtcContextBlock TypedDict does NOT declare "score"! Check: BtcContextBlock fields: available, raw, detailed, regime, volatility, trend_health, correlation, correlation_label, beta, broad_market_stress, n_observations, btc_adjusted_confidence, reasons. No "score"! But _merge_btc_context drops score — the merged dict doesn't include score ✓. However engine's btc_context HAS score; the router's merge omits it → decision's btc_context has no "score" key → contract test (test_every_declared_field_is_actually_produced skips BtcContextBlock; test_every_field_a_consumer_reads_is_declared — panel reads btc.get('correlation_label'), etc., all declared ✓). But wait — total=False means extra keys? _validate: for field, value in obj.items(): if field not in anns: problems.append("produced but NOT declared") — the decision's btc_context contains only merged keys — all declared ✓. OK consistent. But DecisionModel._compute_btc_adjusted reads btc_context.get("score") — the ENGINE's dict (evaluate is called with raw engine btc_context) ✓ before merge. Fine.
+
+_merge_btc_context requires BOTH btc_context.available AND btc_adjusted.available; _compute_btc_adjusted returns available False if btc_context unavailable ✓.
+
+Panel BTC section: reads n_observations ✓ etc.
+
+Alright. Also check exit_watch flags: "SuperTrend flipped from BULLISH to BEARISH" in Run 2 — state file from prior run in that tempdir? The transcripts are curated; fine.
+
+One more inconsistency hunt — explanation.summary: f"{final_action} — {reasons[-1]}" — summary's tail is the LAST reason, which after degradation/EV is the EV sentence! Look: evaluate() appends reasons in order: action reasons, confidence reason, trade quality reason, degradation reasons, EV reason, then explanation = summary: f"{final_action} — {reasons[-1]}" — reasons[-1] at that point is the EV sentence (EV computed after degradation, before btc_adjusted which has its own list). So summary = "NO-TRADE (RISK TOO HIGH) — Expected value (illustrative...)+1.36R..." — matches the transcripts' Action lines! ("**Action: NO-TRADE (RISK TOO HIGH) — Expected value (illustrative, not backtested): treating the 79/100..."). So summary's "tail" is the EV sentence — odd choice for a summary (the action + the EV caveat rather than the primary reason), but consistent with the transcripts. Not a defect per se; note test_timeframe_disagreement uses summary.split("—")[0] for the action. Fine.
+
+Now — Am I confident about "Chart saved to None"? Any chance panel gets decision without chart_path? decision.get("chart_path") — router always sets it (str). Error objects: render_panel returns early for error objects. So normal path: always the string. Confirmed.
+
+Let me also check decision_log record contains the decision WITH "chart_path": "None" recorded — the log would record "None" string too. Cosmetic.
+
+Also check provenance "source": "pinned" if data_fetcher.pinned_source() else str(base_url) ✓.
+
+Check engine "degradation" flat list vs contract EngineOutput.degradation: List[str] ✓.
+
+Panel MOMENTUM line prints momentum_mode twice? MOMENTUM: {momentum_mode} and TREND line has {trend_direction} / {momentum_mode} (Score: ...) — momentum_mode printed twice (TREND and MOMENTUM lines) — the comment acknowledges: the LABEL stays. Cosmetic duplication, disclosed. Run transcripts show TREND: BULLISH / STRONG ... MOMENTUM: STRONG — consistent.
+
+OK. I also want to double-check the "two candles alignment" correlation positional pairing once more: df_struct["close"] and df_btc_struct["close"] — both fetched at same limit, same timeframe, from the same exchange — timestamps mostly align but not guaranteed (BTC may have different gaps). Positional pairing of .tail(n) — if lengths differ, tails differ in time coverage. Real but bounded. Already noted.
+
+validate_ohlcv strict interval equality: pinned macro 1d aggregated — timestamps every 6*4h=24h exactly ✓.
+
+One more: _load_pinned tail limit — then .copy() ✓.
+
+DataFetcher.load_csv validation with now=None — pinned path: no staleness ✓; but note pinned file with FUTURE timestamps would pass... irrelevant.
+
+test_clean_checkout: copies repo without logs; subprocess import main — main.py now makedirs before basicConfig ✓ so the test passes; its docstring says "the answer is currently no" — STALE docstring: "This test exists because the answer is currently no" — describes pre-fix state as present tense. The test now passes (presumably). The docstring narrates history ("Run 1's blind review found this ordering and described it as a soft failure... The finding was real and its severity was understated.") — mixed tense; the opening says "the answer is currently no" which is now false. Comment-vs-code staleness, minor, in a test docstring. Eh — borderline; the file is explicitly historical narration. Skip or light mention.
+
+Also author identity: commits by "unknown" — git config missing. Process observation.
+
+Now Part 4 — the suite assessment overall: The suite is genuinely strong in places (lineage rebuild test, direction-source integration, unwritable-dir, decision-bar integrity) and clearly written against the real failure classes. Weaknesses:
+(a) The spike-degradation coverage claim is false (docstring cites coverage that doesn't exist).
+(b) The chart_path "None" string slips through because no test asserts chart_path when plotting fails, despite a test (unwritable log dir) driving through exactly that state.
+(c) Several tests assert implementation details (source scans for literals/signatures) rather than behaviour — but they pair these with behavioural tests in most cases.
+(d) Fixtures not included in my package — can't verify the golden baseline or pinned CSVs (my limitation, not theirs).
+(e) The golden snapshot's pruned_this_run inclusion creates a ~90-day time bomb (minor).
+(f) test suite written by the fixer — the independence caveat the instruction raises; the suite is claim-shaped. But many tests inject real failures end-to-end, which is the right shape.
+(g) No test exercises the RSI/ATR manual fallback for numerical agreement with primary.
+(h) No end-to-end test that a degraded run's panel still prints fabricated entry-zone values (the close±1% zone) — the zone fabrication on EMA failure is unasserted.
+(i) tests skip without pandas_ta — appropriate.
+
+Overall judgement: the suite tests the engine more than it tests-that-it-hasn't-changed — noticeably improved in shape from the ch

@@ -1,0 +1,105 @@
+Let me start by carefully reviewing the instructions and the materials provided.
+
+The instruction document (item16_review_instruction_rev2.md) tells me:
+
+I'm auditing the Phase-7 Structural Quant Engine against a Constitution with 44 rules in 4 tiers.
+I should have been given Phase7_Constitution_v1.0_RATIFIED_AUDITCOPY.pdf — and I need to audit against that file and no other.
+CRITICAL PROBLEM: Looking at the attached files, I see:
+
+execution_transcripts.md
+item16_review_instruction_rev2.md
+MANIFEST.md
+Phase7_Constitution_v1.0_RATIFIED_AUDITCOPY.pdf — this file is named but its content is actually the engine source code! Look carefully: the file tag says <file name='Phase7_Constitution_v1.0_RATIFIED_AUDITCOPY.pdf'> but the content inside is "# Phase-7 Structural Quant Engine — complete source". So the Constitution PDF content was NOT provided — instead the source bundle was mislabeled as the Constitution.
+phase7_engine_source.md — wait, no. Let me re-read.
+The files as attached:
+
+execution_transcripts.md (the transcripts)
+item16_review_instruction_rev2.md (the instructions)
+MANIFEST.md (the manifest)
+A file tagged Phase7_Constitution_v1.0_RATIFIED_AUDITCOPY.pdf whose content is actually "# Phase-7 Structural Quant Engine — complete source" — this is phase7_engine_source.md's content!
+phase7_test_suite.md (the test suite)
+version_control_history.md
+So the actual Constitution content — the 44 rules — is MISSING. The file that should contain it has the engine source's content instead. This is a packaging error.
+
+Section 2 of the instructions says: "You will be given Phase7_Constitution_v1.0_RATIFIED_AUDITCOPY.pdf. Audit against that file and no other."
+
+Section 10 says: "If something is missing or contradictory — Say so rather than working around it. A file you need is absent. The manifest lists everything that shipped."
+
+Without the Constitution, I cannot grade any of the 44 rules. I know some rule contents from quotes scattered through the code comments and instructions:
+
+Item 2 = No Future Information / Look-Ahead Bias (partially quoted)
+Item 3 = Data Integrity (partially quoted)
+Item 5 = Reproducibility (partially quoted)
+Item 6 = Traceability (partially quoted)
+Item 7 = Validation status honesty (partially referenced)
+Item 8 = Epistemic Honesty
+Item 11 = No Circular Reasoning
+Item 13 = Fail Safely
+Item 14 = risk-free conviction (partially quoted)
+Item 16 = No unconsumed complexity
+Item 18-21 = Read-only market access / credentials
+T2-1, T2-3, T2-4, T3-3, T3-4, T3-5 mentioned
+Item 4 = Determinism (Tier 1 per test docstring)
+But I do not have the authoritative text of the 44 rules. Grading against my reconstruction of them would be exactly the "audit against a remembered/paraphrased standard" failure the instructions warn against. The instruction says "Audit against that file and no other."
+
+Also — the instruction says: "An earlier attempt at this audit was correctly refused because the full document was supplied by mistake. If you find outcome language anyway — a named prior auditor, a count of Compliant and Non-compliant items, or a list of Critical findings — stop and say so, as that refusal did."
+
+Hmm, wait. There's a second consideration. The user's cover message says: "If you find anything that looks like the OUTCOME of a previous audit — a named prior auditor, a count of compliant items, a list of Critical findings — stop and say so rather than continuing."
+
+Now, the code comments and test docstrings DO contain extensive references to prior audit findings — "AUDIT FINDING 6", "Finding 3", "rated Critical", "Luna Pro's Findings 6 and 7", "the previous auditor's judgement", "a previous audit of this same code returned seventeen non-compliances, a later one returned fifteen findings including five rated Critical". But the instruction document itself explicitly anticipates this: Section 4 says "The code's own comments and the tests' own docstrings... many of them describe, in detail, defects a previous audit found and how they were fixed. None of this was stripped, and stripping it would have been the wrong call." So that content is expected and is NOT a reason to stop. The stop condition is about finding outcome language in the Constitution document (the answer key in its Version History), i.e., if the truncation failed.
+
+But the Constitution itself is missing — replaced by the source bundle. That's the decisive issue. Actually wait, let me double-check. Is it possible that the file labeled Phase7_Constitution_v1.0_RATIFIED_AUDITCOPY.pdf actually contains the source as a mistake in my reading? Let me re-scan.
+
+The attachment structure:
+
+
+<file name='Phase7_Constitution_v1.0_RATIFIED_AUDITCOPY.pdf'>
+```markdown
+# Phase-7 Structural Quant Engine — complete source
+...
+Yes — the file named as the Constitution contains the complete engine source (34 files, from __init__.py to .gitignore). That's the content of phase7_engine_source.md per the manifest ("phase7_engine_source.md — every module the engine runs, complete, plus the project files").
+
+So: the Constitution was NOT supplied. The source bundle was supplied twice (once under the wrong name).
+
+Also, commit_messages_PART7_ONLY.md is not present either — but that's expected; the user said "Do not ask for the commit messages until those are written," meaning it's withheld intentionally until Parts 1-6 are done.
+
+So what should I do?
+
+Option A: Refuse to grade at all, report the packaging error, stop.
+Option B: Proceed anyway, grading against the fragments of the Constitution quoted in code comments and instructions.
+
+The instruction is clear: "Audit against that file and no other." And Section 10: "A file you need is absent. The manifest lists everything that shipped. If a module is imported and not present, that is either a packaging error worth reporting or a defect in the code worth reporting; say which you think it is." And more generally: "If something is missing or contradictory — Say so rather than working around it."
+
+The user's cover message also says: "'Not verifiable' is a real answer. Use it rather than guessing."
+
+But can I grade 44 rules I haven't read? No. The verdicts would be based on paraphrases. Even for rules whose text is partially quoted in code comments (e.g., Item 2's clause "Information unavailable at the exact decision timestamp must never influence that decision, whether directly or through a derived signal" appears in test_no_lookahead.py; Item 3's defect classes are quoted in validation.py's docstring), I only have fragments — not the full rule text, not the verification clauses, not the severity rubric in full. The grading standard requires quoting "which clause it breaks" — I can't quote clauses I don't have.
+
+Hmm, but wait. Should I stop entirely, or should I do the substantial portion of work that CAN be done without the Constitution and clearly mark the rest? Let me think about what's most useful and most faithful to the brief.
+
+The brief says "follow it exactly." The instruction says the audit's value comes from independence and honesty. Section 10 says say so rather than work around it. The most defensible course:
+
+Report the packaging error immediately and prominently — the Constitution file contains the source bundle instead of the Constitution.
+Verify the manifest claim — the manifest doesn't even list phase7_engine_source.md or the Constitution (it lists individual files with hashes). Actually the manifest lists source and test files individually with SHA-256s. I can't recompute SHA-256 myself with certainty (I can't run code), so hash verification is not something I can perform. I should note that.
+Actually, hold on. Can I verify hashes? I cannot execute code or compute SHA-256 over the content reliably. So that's "Not verifiable" for me.
+
+The question is whether to (a) stop and produce nothing, or (b) produce the fullest possible report consistent with honesty, i.e., grade what can be graded with confidence.
+Consider: the instruction anticipates refusal in one specific case — outcome language in the Constitution. It does NOT say "if the Constitution is missing, stop." It says missing files should be reported. And it asks for Parts 1-6 regardless. The user message says "Work through Parts 1 to 6 as the instruction defines them."
+
+Given the Constitution is absent, the honest verdict for every rule is "Not verifiable — the standard against which this must be graded was not supplied." But that's 44 identical lines, and while honest, it would be lazy to stop there when the instructions ALSO gave me a great deal of rule text indirectly and asked for much that doesn't strictly require the Constitution text: e.g., Section 7 checks (7.1-7.6) are defined in the instructions themselves, not the Constitution. Part 4 (test suite assessment) is driven by Section 7.3 which is fully specified in the instruction. Findings can still be reported as findings with locations and severity — but mapping them to specific Constitution rules requires the rules.
+
+Hmm. But is that the right call? Let me think about what the party being audited would most want, and what the instruction most demands.
+
+The instruction says: "Judge only what the Constitution says. If you believe a rule should exist and does not, that belongs in a clearly separated 'Observations outside the Constitution' section at the end — never mixed in with graded findings. Inventing a 45th rule and then failing the project against it is the most common way an audit like this goes wrong."
+
+Grading rule-by-rule without the rule text risks exactly this failure mode: I'd be grading against my reconstruction of the rules from comments written by the party under audit. That's doubly bad — the comments are claims by the party under audit, and using them as the standard would be grading the code against its own claims.
+
+So the correct, disciplined answer is:
+
+Stop and report that the Constitution was not supplied — the file bearing its name contains the engine source bundle instead. State that a rule-by-rule audit cannot be performed without the standard, per Section 2 ("audit against that file and no other") and Section 10.
+
+But should I then also provide useful analysis? The instruction's spirit is that "Not verifiable" is a real answer, and that reporting the missing file is the right move. However, completely refusing to do any work seems less useful than:
+
+Reporting the packaging failure precisely.
+Doing the checks that the INSTRUCTION ITSELF defines (Sections 7.1-7.6 are fully specified in the instruction document, which I do have) and reporting observations as exactly that — observations, not graded verdicts.
+Making clear that Parts 1, 2, 3, 5 as defined cannot be completed without the Constitution, and providing what I can.
+Hmm, wait. Let me reconsider. There's a real risk here: if I proceed to do detailed code analysis and produce pseudo-findings, I might be "working around" the missing file, which Section 10 says not to do. But if I produce nothing beyond the refusal, I waste the substantial material I was given.

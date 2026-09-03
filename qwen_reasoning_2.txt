@@ -1,0 +1,122 @@
+Let me re-read the key passages:
+
+"## 10. If something is missing or contradictory — Say so rather than working around it. Three specific cases: - A file you need is absent. The manifest lists everything that shipped. If a module is imported and not present, that is either a packaging error worth reporting or a defect in the code worth reporting; say which you think it is."
+
+This case is literally about a file being absent. It says report it. It doesn't say halt the entire audit. The example given is about a module imported but not present in the package. Here it's the grading standard that's absent — more fundamental.
+
+The user's cover message: "Read item16_review_instruction_rev2.md in full before opening any of the others. It tells you what you are auditing, what you are auditing it against, how to grade, and what to hand back. Follow it exactly."
+
+And: "Work through Parts 1 to 6 as the instruction defines them. Do not ask for the commit messages until those are written."
+
+Hmm, "Do not ask for the commit messages until those are written" — implies the user expects me to write Parts 1-6.
+
+Decision: I will do the following:
+
+State the packaging defect plainly at the top: the file supplied as Phase7_Constitution_v1.0_RATIFIED_AUDITCOPY.pdf does not contain the Constitution; it contains the engine source bundle. The 44-rule standard is therefore not in front of me. Per Section 2, I must audit against that file and no other; per Section 10, I am reporting this rather than working around it.
+
+Consequence: Part 1 (44-rule verdict table), Part 2 (rule-mapped findings), Part 3, and Part 5 (release gate) cannot be completed as specified. Every verdict would be a guess against a paraphrase — and the paraphrases available are in comments written by the party under audit, which Section 4 explicitly warns are claims, not facts. Grading the code against its own comments would invert the audit.
+
+What I CAN do without the Constitution, because the instruction defines them independently of it:
+
+Section 7 checks (7.1-7.6) are described in the instruction itself in operational terms. I can report what I find under those checks as observations, clearly labeled as unmapped to rule numbers.
+Part 4 (test suite assessment per Section 7.3) — the criteria are fully in the instruction.
+Part 6 observations.
+But should I? If I do a thorough job of 7.1-7.6 analysis and present it, the report is useful for when the Constitution arrives. The instruction says "Not verifiable is a real answer. Use it rather than guessing" — for the 44 verdicts. The 7.x checks are the auditor's own work defined by the instruction, and I can do them honestly as long as I don't pretend they're graded verdicts.
+
+Hmm, but hold on. Is there any chance the intent was that the Constitution is genuinely attached and I should treat the markdown content inside the file tag as the Constitution? No — the content is unmistakably the source bundle: it begins "# Phase-7 Structural Quant Engine — complete source / Every module the engine runs, plus the project files that decide how it is built and pinned... 34 files follow, in path order." That matches the instruction's description of item 3 (phase7_engine_source.md), not item 2 (the Constitution). And the manifest lists 34 source files, matching.
+
+So this is unambiguous: the Constitution's slot contains the source bundle. The Constitution is absent.
+
+One more consideration: could I reconstruct the Constitution reliably? I have:
+
+Tier structure: 44 rules, Tier 1 Items 1-21 invariants, Tier 2 (7 principles), Tier 3 (10 disciplines), Tier 4 (6 preferences). That's 21+7+10+6 = 44.
+Specific items quoted: Item 2 (no future info — full clause quoted in test_no_lookahead docstring), Item 3 (defect classes quoted), Item 5 (reproducibility — quoted: "Every analysis must be reconstructable later -- its data timestamp, data source and version, engine version, configuration, and parameters must all be recoverable."), Item 6 (traceability chain quoted), Item 11 (no circular reasoning — partial), Item 13 (fail safely), Item 14 (risk-free conviction — quoted clause: "Directional conviction must never be treated as equivalent to risk. Being highly confident an asset is bullish does not automatically justify taking on high risk."), Item 18 (read-only), Items 19-21 (credentials), Item 16 (unconsumed complexity), Item 7 (validation status), Item 8 (epistemic honesty), Item 4 (determinism, Tier 1 per test_smoke docstring — wait, test_smoke says "Constitution Tier 1, item 4 (Determinism)" — hmm, actually test_golden_path says "Constitution Tier 1, item 4 (Determinism)").
+T2-1 (frame ownership), T2-3 (decision contract), T2-4 (explicit config), T2-6 (controlled dependencies), T3-3 (automated tests), T3-4 (regression tests), T3-5 (fixed evaluation datasets).
+But: the "Minimum Viable Audit" names Items 2, 3, 6 and 18. The numbering of Tiers 2-4 isn't fully known (e.g., are Tier 2 items numbered 22-28 or T2-1..T2-7?). The instruction says "Tier 2 (7 principles)" without numbers. The tests reference "Tier 3, items 3 and 4" and "Tier 1, Items 18 through 21". So Tier 1 = Items 1-21. Tier 2-4 numbering is unclear. Without the document I can't even produce the Part 1 table skeleton reliably.
+
+Given all this, the honest report is:
+
+Stop-condition/packaging report up front.
+No 44-rule verdict table possible. All 44 would be "Not verifiable" in the most literal sense: the standard was not supplied. I should say that explicitly rather than manufacturing a table.
+Then, to be maximally useful within the rules: provide the Section 7 checks as observations (clearly labeled as such, not graded verdicts), the test-suite assessment (Part 4 is defined entirely by Section 7.3 of the instruction, which I have), and observations. Also answer the three easy-to-skip questions: (1) outcome language — yes/no and where; (2) code recognition — do I recognise this code? (I don't; it's a bespoke project. I should say so honestly); (3) Not verifiable usage.
+Wait — one more check on the "stop and say so" trigger. The user's message: "If you find anything that looks like the OUTCOME of a previous audit — a named prior auditor, a count of compliant items, a list of Critical findings — stop and say so rather than continuing."
+
+Within the materials I was given, there IS outcome-like content:
+
+The instruction itself (Section 9) says: "a previous audit of this same code returned seventeen non-compliances, a later one returned fifteen findings including five rated Critical, and a sixteenth Critical was found after that by running the program." — that's a count of findings, given in the instruction itself. The instruction explicitly says "The counts are given; the content is not."
+The test docstrings name "Luna Pro" (a named prior auditor — "Luna Pro's Findings 6 and 7", "Luna Pro's assessment of the previous suite").
+Code comments say things like "Item 6, rated Critical", "the first Critical", "the audit's five Criticals", "FOUR TESTS THAT FAIL OUTRIGHT RE-AUDIT".
+test_data_integrity.py: "Item 3 — Data Integrity. Rated Critical. Fixed at sequence item 8."
+But Section 4 of the instruction explicitly anticipates and sanctions this: comments and docstrings describing prior audit findings were deliberately left in, and I'm told to treat them as claims, not as a stop trigger. The stop trigger is specifically about the Constitution document containing outcome language (the answer key in its Version History) — "If you find outcome language anyway — a named prior auditor, a count of Compliant and Non-compliant items, or a list of Critical findings — stop and say so" — that's in Section 2, in the context of the truncation of the Constitution.
+
+Since the Constitution is absent entirely, I cannot find outcome language in it. But the user's cover message phrases the trigger more broadly: "anything that looks like the OUTCOME of a previous audit — a named prior auditor, a count of compliant items, a list of Critical findings". Strictly read, "Luna Pro" is a named prior auditor, and the code comments do list which items were rated Critical ("Item 3... Rated Critical", "the four Criticals", "Finding 3 — one of the independent audit's five Criticals"). Hmm.
+
+But the instruction (the authoritative brief, which the user says to follow exactly) addresses this precisely: "A comment naming a previous audit's severity rating tells you what someone else concluded. It does not tell you what is true now, and you are not being asked to agree." And: "None of this was stripped, and stripping it would have been the wrong call." So the presence of this material is by design and is NOT a stop condition. The stop condition is about the Constitution's answer key leaking.
+
+So my handling: I note that (a) outcome-adjacent material exists in comments/docstrings, that it is expected per Section 4, and I treated it as claims, not facts; and (b) the actual stop-condition document (the Constitution with its Version History) is absent, which is the real problem.
+
+Now, how much analysis should I do? Let me weigh:
+
+The user's framing: "You are performing a formal, independent software audit against a written standard. The attached instruction document is your complete brief: follow it exactly. Report what you actually find."
+
+Following it exactly means: Part 1-6. But the standard is missing. A faithful execution must say so. I think the best structure is:
+
+Halt notice / packaging defect — clear, first thing.
+What this round can and cannot be, given the missing standard — short.
+What I verified about the package itself (manifest vs. contents; I cannot compute SHA-256, so I can only verify structural completeness — 34 source files present, 26 test files present, matches manifest counts; the file-naming mixup itself).
+Outcome-language check (required by the brief): report what I found and how I treated it.
+Recognition check (required): state whether I recognised the code. I do not recognise this specific codebase. Honest statement.
+Section 7 checks as observations — I should do these properly. They're the core technical work and don't require the Constitution text; they're defined in the instruction. BUT — and this is important — I must be careful: the instruction frames 7.1-7.6 as guides for grading against rules. Presenting findings without rule mapping is fine if labeled "observations, ungraded." Actually, hmm, wait. Let me reconsider whether to do the deep analysis at all.
+Risk of doing the analysis: it could be seen as "working around" the missing file. Risk of not doing it: the report is empty and a second round costs another week; the instruction says "Say so rather than working around it" — meaning don't silently pretend; it doesn't forbid doing useful work while saying so.
+
+I think the right balance is: do the analysis, but present every finding as an OBSERVATION with no Constitution rule number claimed, no verdicts, no severity ratings tied to the Constitution's rubric (I can still say "wrong number an operator would act on" as a qualitative note, carefully). Actually — severity rubric is in the Constitution ("the finding schema, the severity rubric" are said to be present in the Constitution). The instruction's Section 6 gives me a Critical definition: "a defect that produces a wrong or fabricated number the operator would reasonably act on, or an assertion by the engine that something happened when it did not." That's IN the instruction, so I can use that definition for severity guidance. But mapping to rule numbers is out.
+
+Hmm, actually, wait. Let me reconsider once more whether to do full analysis. The user's last line: "Work through Parts 1 to 6 as the instruction defines them. Do not ask for the commit messages until those are written."
+
+This strongly implies the user wants the Parts. If I return only "the Constitution is missing, stopped," that's defensible but possibly over-rigid. The instruction's Section 10 pattern is "say so rather than working around it" — i.e., the sin is silent workaround. Saying so AND providing everything that can honestly be provided is not a workaround; it's transparency plus diligence.
+
+But there's a counter-consideration: an audit that grades against a reconstructed standard is worse than no audit. My mitigation: I grade NOTHING rule-by-rule. I provide observations only under the instruction's own Section 7 framework and clearly state they're provisional pending the Constitution. Part 1 becomes: "44 × Not verifiable — standard not supplied," stated once, not 44 manufactured rows. Actually, I could produce the table with 44 rows all "Not verifiable" with a single shared reason. That's literally the honest verdict per the grading scheme: "Not verifiable — You could not determine this from what you were given." That seems right and is actually the cleanest way to honour Part 1's format without inventing rule text. But I don't know all 44 rule names/numbers... I know Tier 1 is Items 1-21, Tier 2 = 7, Tier 3 = 10, Tier 4 = 6. I can enumerate: Items 1-21 by number with names where quoted (Item 2, 3, 5, 6, 7, 8, 11, 13, 14, 16, 18, 19, 20, 21 partially), Tier 2 principles 1-7 (T2-1 frame ownership, T2-3 contract, T2-4 explicit config, T2-6 dependencies known from comments), Tier 3 disciplines 1-10 (T3-3 automated tests, T3-4 regression, T3-5 fixed datasets known), Tier 4 prefs 1-6 (T4-2 generalization known). For the rest, "name unknown — standard not supplied." That's honest and structured.
+
+OK here's my decision: produce the report with:
+
+Part 0 (preamble): The packaging defect; the answer-key check; the recognition check.
+
+Part 1: 44 rows, all Not verifiable, reason: the standard was not supplied; the file named as the Constitution contains the source bundle. Names given only where quoted in supplied materials, marked as paraphrase.
+
+Part 2: No graded findings possible. Instead: "Observations under the instruction's Section 7 checks" — clearly labeled as NOT graded findings, with locations, quotes, concrete scenarios. These are the checks the instruction itself defines (7.1-7.6), so this is doing the instruction's work, not inventing rules.
+
+Wait, actually — hmm. Should Part 2 contain the observations or should they go in a separate section? The instruction's Part 2 is "Findings. Every Non-compliant and Partially compliant verdict in full." Since there are no such verdicts possible, Part 2 is empty by construction. I'll put Section-7 observations in a clearly-labeled separate section (maybe "Interim observations, not graded") so they can't be mistaken for verdicts. That's consistent with the instruction's insistence on separation (cf. Part 6 separation for extra-Constitution observations).
+
+Part 3: Not verifiable — the whole table, plus specific blockers.
+
+Part 4: Test suite assessment per Section 7.3 — I CAN do this; the criteria are in the instruction. This is genuinely valuable and doesn't need the Constitution. Let me actually do this work carefully.
+
+Part 5: Release gate — cannot be assessed (gate condition is "no Critical Tier 1 finding stands unresolved" — I can't find Tier 1 findings without Tier 1).
+
+Part 6: Observations outside the Constitution — including claimed fixes I could not confirm, places I relied on comments, plus run requests per Section 11.
+
+Also required by Section 11: request specific runs if useful. I can request runs here.
+
+Now — before writing, let me actually DO the technical work: read the code carefully for the Section 7 checks, so that if I include observations, they're real and precise. Let me go through the code.
+
+Let me trace key things:
+
+7.1 — Fallbacks that invent vs. recompute.
+
+Scanning every except block that assigns a value:
+
+indicators.py EMA fallback: close_prices.ewm(span=length, adjust=False).mean() — recompute. OK per instruction's own allowance.
+
+RSI manual fallback: rolling mean RSI — recompute. Note: the manual RSI uses simple rolling mean of gains/losses (Cutler's RSI) whereas pandas_ta uses Wilder's smoothing (RMA). These produce different values! Cutler vs Wilder RSI differ numerically. Hmm — the comment claims "it computes the same quantity by another route." It computes a DIFFERENT RSI variant. That's a claim in comments worth flagging as an observation: the fallback is not numerically identical to the primary; on a run where pandas_ta fails, RSI values (and everything downstream) shift discontinuously vs. runs where it succeeds. Similarly the manual ATR uses simple rolling mean of TR, whereas pandas_ta's atr uses Wilder's RMA smoothing by default. Same issue. Is this a defect? The instruction says "some fallbacks legitimately recompute the same quantity by another route — an EMA via pandas instead of a library — and those are fine. The question is whether the fallback measures or invents." Wilder vs Cutler RSI both "measure" but give different numbers. The EMA fallback via ewm(adjust=False) — pandas_ta's ema also uses adjust=False I believe, so that one matches. The RSI/ATR fallbacks measure the same concept with a different smoothing, so the panel numbers jump depending on which path ran, with nothing on the panel saying which. Actually — is that recorded? The failed() only fires if BOTH paths fail. If primary fails and fallback succeeds, no failure is recorded (by design: "a fallback that recomputes the same quantity by another route is not a fabrication"). So the same market could show RSI 61.3 on one machine and 58.7 on another because pandas_ta was unavailable, with no record. Hmm. Worth an observation — it's a real subtlety. But wait, is it true that pandas_ta rsi uses RMA? pandas_ta's rsi default mamode="rma". Yes, pandas_ta RSI defaults to Wilder's RMA. And ta.atr default mamode="rma" as well. The manual versions use .rolling().mean() = SMA. So values differ. This is a legitimate observation: the fallback measures but with different smoothing; the claim "produces the same number" in the comment is inaccurate. The comment in indicators.py says: "close.ewm(span=20).mean() is not a fabrication. It is the definition of an EMA, computed with pandas instead of pandas_ta, and it produces the same number." For EMA with adjust=False that's approximately true (pandas_ta uses adjust=False by default too — actually pandas_ta's ema: close.ewm(span=length, adjust=False).mean()? I believe pandas_ta uses adjust=False. So EMA claim is fine). But for RSI and ATR, "the same quantity by another route" is overstated — different smoothing → different numbers. Flag as comment-vs-code observation.
+
+ATR manual fallback: same SMA-vs-RMA issue.
+
+SuperTrend failure: no fallback — column dropped, failure recorded. Good.
+
+engine_core.py: entry_zone_lower = float(df_struct["EMA_20"].iloc[-1]) if "EMA_20" in df_struct.columns else float(df_struct["close"].iloc[-1] * 0.99) and upper = close*1.01. THIS IS A FABRICATION PATH. If EMA_20/EMA_50 failed (both primary AND fallback), the columns are absent (item 9a drops them), and then the entry zone becomes close±1% — invented levels presented as the entry zone. Is it recorded? The indicator failure IS recorded in degradation (EMA_20 failure → degradation list). So the run is degraded → NO-TRADE. But the panel still prints "ENTRY ZONE: $X - $Y" computed from the 1% invention, on a degraded run. Hmm — the degradation blocks trading, but the zone is still printed as numbers. Is that within the degrade ruling? The ruling says continue and report. The zone values are fabricated though — invented numbers on the panel. This is arguably a live fabrication path: numbers the operator reads, derived from constants (0.99/1.01), indistinguishable in form from real EMA-based zones. The degradation note says EMA failed, but the zone still prints plausible numbers. Worth flagging as an observation. Note entry_model.calculate_entry_quality also has its own fallbacks: zone_lower = safe_float(zone_lower, close*0.99) — same invention inside scoring, plus zone_width = close * 0.01 if degenerate. Those feed the score. But degradation blocks trading anyway. The residual issue: fabricated zone prices still rendered as levels. It's mitigated by the degraded state. I'd call it an observation (Minor-ish), honest.
+
+engine_core.py: atr_val = float(df_struct["ATR"].iloc[-1]) if "ATR" in df_struct.columns else (current_price * 0.02). WAIT. ATR fallback to 2% of price is STILL HERE in engine_core! Section 2 raises ValueError if "ATR" not in df.columns after indicators. So by section 8, ATR is guaranteed present... unless it was dropped later? calculate_structure copies the frame; it doesn't drop columns. So ATR column presence at section 8 is guaranteed by the section-2 check. The else (current_price * 0.02) is dead code — but it's the exact fabrication constant item 9a says was removed. It's unreachable (since section 2 raises if ATR absent). Dead fabrication path — latent, not live. Worth noting as an observation: the constant survives in engine_core as dead code; unreachable because of the section-2 raise. Hmm, actually let me double check: could "ATR" be in df but all-NaN? indicators' final sweep drops ATR if unusable_reason fires. So if ATR present, it has a finite value at the last bar. And if ATR was dropped by the sweep, section 2 raises. So the else branch is truly unreachable. Dead code observation.
+
+trend_health.py: defaults 0.0 and degraded_inputs — honest.
+
+structure.py analyze(): except Exception: regime = self._last_regime — a failure in _detect_regime falls back to the PREVIOUS state (hysteresis state). Within one process run, _last_regime starts "NEUTRAL STRUCTURE". So an exception → previous state, and no failure recorded anywhere. This is a silent fallback: the regime presented could be stale state rather than computed. Hmm — but _detect_regime is simple numpy on closes; when would it raise? If df has <15 rows it returns last regime anyway (deliberate). If close column has NaN... gap_pct would be NaN, comparisons False, falls to NEUTRAL branch... actually with NaN gap_pct: if current_state == "BULLISH TREND" — initial state NEUTRAL, so goes to else: if gap_pct > threshold — NaN > x is False; elif gap_pct < -threshold False; → "NEUTRAL STRUCTURE". OK. But the except Exception: regime = self._last_regime in analyze() means any unexpected error yields stale regime with no record. Also _detect_hvn_lvn except → hvn=lvn=current_price — INVENTED structural levels equal to price! And _detect_swing_structure except → current_price. And _volume_sentiment_simple except → "NEUTRAL VOLUME". And _detect_sequence except → "NONE". These are all silent fallbacks in StructureEngine.analyze()'s localized exception handlers: on error, hvn/lvn = current_price (a "structural level" that is just the price — distance zero → entry_model struct_pts... wait, struct scoring uses HVN column in df, which comes from result hvn — hvn = current_price → hvn_dist = 0 → struct_pts = 12/12 full marks for a level never computed!). Hmm wait — but that's on EXCEPTION inside _detect_hvn_lvn. How likely? compute_volume_profile failing returns (profile, None, None) and _detect_hvn_lvn falls to the legacy adaptive method, which itself could produce values. The except in analyze() catches errors from _detect_hvn_lvn itself. The legacy path: hvn = max(high[-lookback:]) — a price extreme labelled HVN (high volume node) — that's a measurement of a different quantity presented under the HVN name. The code comments acknowledge this: "This replaces the previous approach of using the high/low extremes ... which measured price range, not where volume actually traded. Falls back to the old adaptive-lookback method only if the volume profile can't be computed" — so the fallback measures a different quantity (price extreme) and presents it as HVN/LVN. That IS a "fallback that invents" in the instruction's sense? It measures SOMETHING (price extreme) but presents it as a volume node — a different quantity under the same name. And hvn feeds risk_model.calculate_stop_targets as structural_level, entry_model struct_pts, exit_watch HVN proximity flags. Worth flagging as an observation under 7.1: the legacy HVN fallback substitutes a price-range extreme for a volume node — a different measurement wearing the same label, reaching the stop and the panel. Severity: real but secondary (fallback path, requires volume profile failure). And no degradation recorded for it — silent.
