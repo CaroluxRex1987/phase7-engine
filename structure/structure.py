@@ -35,33 +35,80 @@ class StructureEngine:
     def analyze(self, df: pd.DataFrame, current_price: float, lookback: int = 8) -> Dict[str, Any]:
         """
         Main structure engine entry point with localized sub-routine error handling.
-        Returns structure regime, sequence, HVN/LVN, swing structure, and volume sentiment.
+        Returns structure regime, sequence, HVN/LVN, swing structure, volume
+        sentiment, and a list of the sub-routines that failed.
+
+        AUDIT FINDING (2 September 2026): FIVE SILENT FALLBACKS
+
+        Each handler below caught its sub-routine and substituted a value.
+        None of them recorded anything, and this function had no channel to
+        record it through -- so a failed sub-routine produced a complete,
+        plausible-looking structure reading and the run continued as though
+        every measurement had been taken. Viktor's 29 August ruling is
+        degrade, not halt: a failure is RECORDED, confidence is capped and no
+        trade is authorised. Two of those three were happening. The recording
+        was not.
+
+        The volume-node handler was the worst of the five. It returned
+
+            hvn, lvn = float(current_price), float(current_price)
+
+        and models/entry_model.py scores structure proximity as
+        abs(close - hvn) / close, which is then EXACTLY ZERO -- inside the
+        < 0.015 band, awarding the full 12 of 12 structure points for a
+        high-volume node that was never located. That is the defect Finding 3
+        fixed on 1 September, and the comment recording it sits in
+        entry_model.py to this day. The fix changed the CONSUMER's fallback
+        to NaN and left this producer handing down a finite number equal to
+        the price. The door was closed and the window left open.
+
+        What changed here: no handler invents a measurement any more. A price
+        level that could not be located is NaN, which every consumer already
+        guards against -- entry_model checks np.isfinite before scoring and
+        risk_model checks it before using a structural level for the stop. A
+        label that could not be determined says UNKNOWN rather than borrowing
+        NEUTRAL, which is a reading. And every failure is appended to
+        degraded_inputs, which engine_core extends onto the run's degradation
+        list exactly as it already does for trend_health's.
         """
+        degraded_inputs = []
+
         # Improvement 4: Localized Exception Handling for Sub-Routines
         try:
             regime = self._detect_regime(df)
-        except Exception:
-            regime = self._last_regime
+        except Exception as exc:
+            # Was self._last_regime -- the previous bar's answer presented as
+            # this bar's. Hysteresis is a deliberate part of _detect_regime;
+            # reusing its output when the detector CRASHED is a guess.
+            regime = "UNKNOWN STRUCTURE"
+            degraded_inputs.append(f"structure regime detection failed: {exc}")
 
         try:
             sequence = self._detect_sequence(df, lookback=lookback)
-        except Exception:
-            sequence = "NONE"
+        except Exception as exc:
+            sequence = "UNKNOWN"
+            degraded_inputs.append(f"structure sequence detection failed: {exc}")
 
         try:
             hvn, lvn = self._detect_hvn_lvn(df)
-        except Exception:
-            hvn, lvn = float(current_price), float(current_price)
+        except Exception as exc:
+            hvn = lvn = float("nan")
+            degraded_inputs.append(f"volume node detection failed: {exc}")
 
         try:
             swing_struct = self._detect_swing_structure(df, current_price, lookback=lookback)
-        except Exception:
-            swing_struct = float(current_price)
+        except Exception as exc:
+            swing_struct = float("nan")
+            degraded_inputs.append(f"swing structure detection failed: {exc}")
 
         try:
             volume_sentiment = self._volume_sentiment_simple(df)
-        except Exception:
-            volume_sentiment = "NEUTRAL VOLUME"
+        except Exception as exc:
+            # Was "NEUTRAL VOLUME" -- the same shape as the macro NEUTRAL that
+            # sequence item 9 removed for being a fabricated reading rather
+            # than an absent one.
+            volume_sentiment = "UNKNOWN VOLUME"
+            degraded_inputs.append(f"volume sentiment detection failed: {exc}")
 
         return {
             "regime": regime,
@@ -69,7 +116,8 @@ class StructureEngine:
             "hvn": hvn,
             "lvn": lvn,
             "swing_struct": swing_struct,
-            "volume_sentiment": volume_sentiment
+            "volume_sentiment": volume_sentiment,
+            "degraded_inputs": degraded_inputs,
         }
 
     # ============================================================
@@ -414,13 +462,19 @@ def calculate_structure(df: Optional[pd.DataFrame], lookback: int = 8,
     against the class of bug it removes, that is not a trade worth making.
     """
     if df is None or df.empty:
+        # 2 September 2026: the three levels here were 0.0 and the two labels
+        # were NEUTRAL. Zero is a price, and a structural level of $0.0000 is
+        # not "no level" to anything downstream -- np.isfinite(0.0) is True,
+        # so risk_model would accept it as a structural stop. NaN is what
+        # "not located" is spelled as everywhere else in this engine.
         return {
-            "regime": "NEUTRAL STRUCTURE",
-            "sequence": "NONE",
-            "hvn": 0.0,
-            "lvn": 0.0,
-            "swing_struct": 0.0,
-            "volume_sentiment": "NEUTRAL VOLUME",
+            "regime": "UNKNOWN STRUCTURE",
+            "sequence": "UNKNOWN",
+            "hvn": float("nan"),
+            "lvn": float("nan"),
+            "swing_struct": float("nan"),
+            "volume_sentiment": "UNKNOWN VOLUME",
+            "degraded_inputs": ["structure analysis received an empty frame"],
             "df": df
         }
 

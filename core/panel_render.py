@@ -227,6 +227,23 @@ def render_panel(decision):
 
         saved_chart = decision.get("chart_path") or ""
 
+        # 2 SEPTEMBER 2026: this line read
+        #
+        #     safe_float(structure.get('swing_struct', current_price))
+        #
+        # Two fabrications in one expression. The .get default handed back the
+        # CURRENT PRICE as a structural level, and safe_float's own 0.0 default
+        # turned a NaN -- which is now what structure.py reports when the swing
+        # detector fails -- into "$0.0000". Both print as a located level in a
+        # price field. A level that was not found is said, not drawn.
+        swing_value = safe_float(structure.get("swing_struct"), None)
+        swing_struct_line = (
+            f"SWING STRUCT  : ${swing_value:.4f} (Lookback {config.STRUCT_LOOKBACK})"
+            if swing_value is not None
+            else "SWING STRUCT  : not located this run "
+                 f"(Lookback {config.STRUCT_LOOKBACK})"
+        )
+
         # AUDIT FINDING (2 September 2026): this line read
         #
         #     risk.get('validation_note', 'VWMA volume trend is pointing down.')
@@ -401,7 +418,7 @@ def render_panel(decision):
             f"ENTRY ZONE    : {c_cyan}${safe_float(entry.get('zone_lower', 0)):.4f} - ${safe_float(entry.get('zone_upper', 0)):.4f}{reset}\n"
             f"ZONE DISTANCE : {safe_float(entry.get('distance_from_zone', 0.0)):.2f}% away from zone\n"
             f"STATUS        : {colorize_val(entry.get('entry_status', 'ACTIVE ENTRY ZONE'))}\n"
-            f"SWING STRUCT  : ${safe_float(structure.get('swing_struct', current_price)):.4f} (Lookback {config.STRUCT_LOOKBACK})\n"
+            f"{swing_struct_line}\n"
             f"STOP LOSS     : {c_red}${stop_loss:.4f}{reset}\n"
             f"TARGET 1 (Cons): {c_green}${t1:.4f}{reset} | R:R 1 : {rr_t1:.2f}\n"
             f"TARGET 2 (Norm): {c_green}${t2:.4f}{reset} | R:R 1 : {rr_t2:.2f}\n"

@@ -441,12 +441,26 @@ class Phase7Engine:
                 if not self._validate_dataframe(df_struct, required_base_cols, "structure analysis"):
                     raise ValueError("Structure analysis produced invalid DataFrame")
 
-                structure_regime = structure_obj.get("regime", "NEUTRAL STRUCTURE")
-                trend_sequence = structure_obj.get("sequence", "NONE")
-                volume_sentiment = structure_obj.get("volume_sentiment", "NEUTRAL VOLUME")
+                # 2 SEPTEMBER 2026: these four .get defaults were
+                # "NEUTRAL STRUCTURE", "NONE", "NEUTRAL VOLUME" and 0.0 -- a
+                # second layer of the same invention structure.py's handlers
+                # were making, ready to fire if a key ever went missing. An
+                # absent reading is UNKNOWN, and an absent price level is NaN.
+                structure_regime = structure_obj.get("regime", "UNKNOWN STRUCTURE")
+                trend_sequence = structure_obj.get("sequence", "UNKNOWN")
+                volume_sentiment = structure_obj.get("volume_sentiment", "UNKNOWN VOLUME")
                 # A6-adjacent FIX: swing_struct was computed by structure.py but never
                 # extracted here, so it never made it into the decision object / panel.
-                swing_struct = structure_obj.get("swing_struct", 0.0)
+                swing_struct = structure_obj.get("swing_struct", float("nan"))
+
+                # Sub-routine failures inside StructureEngine.analyze() reach
+                # the run's degradation list here, the same way trend_health's
+                # do further down. Until 2 September there was nothing to
+                # extend: analyze() swallowed its five sub-routine exceptions
+                # and reported nothing, so a run with a crashed detector was
+                # indistinguishable from a clean one and still authorised a
+                # trade.
+                degradation.extend(structure_obj.get("degraded_inputs", []))
 
             except Exception as e:
                 logger.error(f"Structure analysis failed: {e}")
@@ -514,8 +528,11 @@ class Phase7Engine:
             }
 
             # 6. STRUCTURE SUMMARY
-            hvn = float(df_struct["HVN"].iloc[-1]) if "HVN" in df_struct.columns else float(structure_obj.get("hvn", 0.0))
-            lvn = float(df_struct["LVN"].iloc[-1]) if "LVN" in df_struct.columns else float(structure_obj.get("lvn", 0.0))
+            # 2 SEPTEMBER 2026: both fallbacks were 0.0. A structural level of
+            # zero is finite, so risk_model would have accepted it and placed
+            # a long's stop at $0.0000. NaN is what "not located" means here.
+            hvn = float(df_struct["HVN"].iloc[-1]) if "HVN" in df_struct.columns else float(structure_obj.get("hvn", float("nan")))
+            lvn = float(df_struct["LVN"].iloc[-1]) if "LVN" in df_struct.columns else float(structure_obj.get("lvn", float("nan")))
 
             structure = {
                 "regime": structure_regime,
