@@ -1,11 +1,15 @@
 # Next step — read this first
 
-*Updated 2 September 2026, after Findings 6 and 7 — the last Critical. **Every Critical
-the Luna Pro audit raised now has a fix that has landed.** The release gate is still shut,
-because "unresolved" means no fix has landed **and been re-audited**, and the re-audit has
-not run. That re-audit is now the single thing standing between this engine and its own
-trading prohibition. Suite: 196 passing, 0 failed, and 114 passed / 82 skipped / 0 errors
-on a machine without `pandas_ta`.*
+*Updated 3 September 2026. **Every Critical the Luna Pro audit raised has a fix that has
+landed, and four more patches went in on 3 September** — see "Round 2, attempt three"
+below, which is the section to read first. The release gate is still shut, because
+"unresolved" means no fix has landed **and been re-audited**, and the re-audit has now
+failed three times without ever reaching a verdict. Suite: 226 passing, 0 failed.*
+
+*Eleven defects found by an audit run that never produced a report, all verified against
+source, four fixed. Two more found by running the engine and reading the panel — including
+one introduced by a patch the same day, which every test in the suite passed because they
+matched substrings and not shape.*
 
 > **The engine is under its own trading prohibition right now.** The Constitution's release
 > gate, adopted 27 August: *"No output of this engine may be relied on for a real trading
@@ -743,6 +747,154 @@ One check from Entry #42 that still has not been run: open
 or DEFECT row. It is a one-minute check on whether the re-audit grades the exam or the
 answer key, and a previous attempt was correctly refused for exactly this.
 
+## Round 2, attempt three — and what an unfinished audit found, 3 September 2026
+
+Read this section before doing anything else on this project. It is the current
+state, it is written down because the conversation that produced it does not
+persist, and every claim in it was verified against source rather than taken
+from an auditor's word.
+
+### The re-audit has now failed three times, and never on its own merits
+
+| attempt | model | what happened |
+|---|---|---|
+| 1 | Qwen3.8-Max | repeated provider-side failures before grading began |
+| 2 | Kimi K3 | received the Constitution as a PDF, could see the filename and not the contents, said so and stopped |
+| 3 | Qwen3.8-Max | same defect. Its reasoning names it precisely |
+
+Not one of the three was the reviewer's fault, and the third one refusing was
+correct behaviour. The common factor across two different providers was the
+PDF. The Constitution now ships to auditors as text
+(`docs/audit_package/Phase7_Constitution_v1.0_RATIFIED_AUDITCOPY.txt`), a
+`pdftotext -layout` extraction carrying the source PDF's SHA-256 in its own
+header and verified byte-for-byte against a fresh extraction.
+
+A fourth attempt has not been made. **The model is already chosen** — Viktor
+ruled Qwen3.8-Max on 2 September and nothing since has changed it. Its two
+failed attempts spent no independence: by his own 2 September ruling, session
+exposure ends with the session, and a fresh conversation is clean.
+
+### The unfinished audit did the work anyway, and found eleven real things
+
+Attempt 3 could not read the standard, correctly refused to grade 44 rules it
+had not seen, and then ran the instruction's own Section 7 checks — which are
+defined in the instruction rather than the Constitution. Its reasoning is
+preserved at `qwen_reasoning_1.txt` through `qwen_reasoning_4.txt` in the repo
+root.
+
+**Every one of the eleven was treated as a CLAIM and verified against source
+before anything was written.** None evaporated; two got worse under checking.
+
+| # | finding | evidence |
+|---|---|---|
+| 1 | `run_hash` omitted the risk multipliers | `decision_log.py:126` named only `bias_engine`; `risk_model.py:19-22` held them on the instance |
+| 2 | `chart_path` printed as the string `"None"` | `signal_router.py:402` + `panel_render.py:228` |
+| 3 | structure sub-routines failed silently, inventing levels | `structure.py:42-64`; `hvn = current_price` scores 12/12 at `entry_model.py:200-205` |
+| 4 | entry zone fabricated as `close * 0.99 / 1.01` | `engine_core.py:618-619`, `entry_model.py:55-56` |
+| 5 | RSI/ATR fallbacks use SMA where `pandas_ta` uses Wilder RMA | `indicators.py:396-397, 557` |
+| 6 | two dead fabrication constants survive | `engine_core.py:472` (`50.0`), `:660` (`* 0.02`) |
+| 7 | no minimum bias magnitude gates a directional action | `decision_model.py:355` reads the string only |
+| a | correlation pairs AERO and BTC by position, not timestamp | `btc_context.py:34-35` discards the index |
+| b | the continuation floor silently zeroes a 30% weight | `trend_health.py:232` → `bias_engine.py:177,182` |
+| c | no HTTP timeout; `DataFrame` built outside the `try` | `data_fetcher.py:231`, `:245-265` |
+| d | a directory is created at import | `live_trading.py:151` + `:42` |
+
+Two more were added by running the engine rather than reading it:
+
+- **The panel called a directional macro neutral.** `MACRO TREND: BULLISH`
+  printed four lines above *"The higher timeframe is neutral."* Fixed, patch D.
+- **Entry sub-scores do not sum to the printed total.** 30+23+15+15+12 = 95
+  under a total of 100.00. The gap is three multipliers applied after the sum
+  and then clipped, with nothing on the panel to reconcile them. Not wrong,
+  unexplained. Open.
+
+### Four patches landed, 3 September. Suite 196 → 226.
+
+| | patch | what |
+|---|---|---|
+| A | `patchA_run_identity` | fourteen decision-affecting constants in `risk_model.py` moved to module level and into `FINGERPRINTED_MODULES`. `RiskModel.__init__` is gone, so no instance state can drift from what the record reports. Proven behaviour-preserving across 1,728 stop/target and 192 regime combinations — zero differences |
+| B | `patchB_no_false_claims`, commit `23bd476` | `chart_path` follows the `""` convention `decision_log_path` already used; the Validation Notes default that asserted `'VWMA volume trend is pointing down.'` is gone |
+| C | `patchC_no_invented_levels` | `analyze()` returns `degraded_inputs` and no handler invents a measurement. Absent levels are NaN, absent labels say UNKNOWN, and `engine_core` extends the run's degradation list with them |
+| D | `patchD_macro_note` | `macro_agreement()` extracted with a fourth branch, so a neutral bias no longer produces a false claim about the macro |
+
+**Patch A changed every `run_hash`.** That is the point of it — the identity now
+covers settings it did not cover before — but a hash computed after A does not
+match one computed before it on identical data. A reader comparing across that
+boundary must not read the difference as a change in the market data.
+
+### Rulings made 3 September 2026
+
+- **Fix before auditing, then measure the auditor afterwards.** Leaving known
+  defects in place to test whether the auditor finds them was considered and
+  rejected — not on honesty grounds, since nothing would have been planted, but
+  because the gate requires a fix to have landed *and been re-audited*. Auditing
+  first guarantees a third round. The measurement is preserved instead as a
+  second Part 7: the auditor grades blind, saves Parts 1–6, and only then sees
+  the `qwen_reasoning_*` observations for comparison.
+- **The non-Claude review an amendment requires must be of the amendment TEXT,
+  not of the problem it fixes.** Gemini's review of the Constitution confirms
+  the two pending problems are real, which unblocks drafting. The drafts still
+  go to a non-Claude reviewer before adoption.
+- **Gemini's recommendation to ban viewing the engine while a Critical is open
+  is REJECTED.** Running the engine is how two of this project's defects were
+  found, including one the same day. The gate restricts relying on output for a
+  real trading decision; a rule that blocks running the program blocks fixing
+  it.
+
+### Awaiting a ruling — three, none urgent
+
+1. **Should the decision reason strings keep citing trend health as directional
+   support?** `decision_model.py:358` prints *"Bias is bullish with strong trend
+   health (90/100)"* — and `trend_health` is an UNSIGNED magnitude, so a strong
+   BEARISH trend also scores 90. It can no longer choose a side, so this is not
+   the direction Critical returning; it is a question about what the engine
+   implies to the operator.
+2. **Should a directional action require a minimum bias magnitude?** Three
+   thresholds exist — 20 for `raw_bias`, 30 for CONFIRMED, none in the decision
+   model. A `bias_score` of 21 with trend health ≥ 75 and entry ≥ 70 prints
+   AGGRESSIVE LONG above CONFIDENCE 21/100.
+3. **Is the continuation floor intended?** `trend_health.py:232` floors
+   `raw_continuation` at zero, which makes `continuation_strength` exactly 0 for
+   a decelerating trend, which makes `bias_engine`'s `trend_direction` 0, which
+   zeroes `signed_trend_health` — a 30% weight, silently, while the panel still
+   prints TREND: BULLISH. **This ruling decides the size of the remaining work.**
+   If the zeroing is intended, only a comment is wrong and it is a two-line
+   change. If it is not, it alters `bias_score` on every run and is the largest
+   item left.
+
+### What is left to fix, with sizes
+
+| | size | note |
+|---|---|---|
+| two dead constants (#6) | tiny | delete and comment |
+| HTTP timeout, `DataFrame` inside the `try` (#c) | tiny | |
+| directory created at import (#d) | small | |
+| RSI/ATR smoothing (#5) | small | needs a choice: match the smoothing, or record which path ran |
+| entry sub-scores vs printed total | small | panel only |
+| entry-zone fabrication (#4) | medium | two files; entry scoring must handle an absent zone |
+| correlation alignment (#a) | medium | changes a printed number, so the golden snapshot moves |
+| continuation floor (#b) | unknown | see ruling 3 above |
+
+Four or five patches. Three change printed numbers, so those need a golden
+re-baseline and a live run before they commit.
+
+### Before the audit can be sent — do not skip these
+
+1. **Rebuild the package** with `docs/build/build_audit_package.py`, so the
+   auditor grades current code rather than last week's.
+2. **Commit everything first.** The working tree was dirty when the round-2
+   package was built, which means the packaged files matched no commit.
+3. **Rev 4 of the reviewer instruction.** Rev 3 describes the world as of
+   2 September. Sections 4a, 5 and 12 need the four patches, the failed
+   attempts, and the fix-first-then-compare ruling.
+4. **Package the holdout.** The `qwen_reasoning_*` observations become a second
+   Part 7 document, opened only after Parts 1–6 are written and saved.
+5. **Bring the Engineering Notes current.** They stop before any of this.
+
+**A completed audit is not an open gate.** If the report returns a Critical,
+the gate stays shut and the cycle repeats. The milestone is a clean report,
+not a finished one.
+
 ## Suggested order — status
 
 1. ✅ `pytest.skip()` across the suite — batch 1, `dba1b63`.
@@ -764,6 +916,17 @@ answer key, and a previous attempt was correctly refused for exactly this.
 10. ✅ The direction-source Critical — not from the audit, found by running the engine on
     live data. Bias is now the sole source of direction, and a plan that contradicts its
     own label is refused. See the section above.
+11. ✅ Patch A — the risk multipliers enter the run's identity. Finding 6's required action
+    asked for "risk-model multipliers and bias weights"; only the weights were
+    fingerprinted, and the multipliers could not have been, because they lived on the
+    instance where `module_snapshot()` cannot see them.
+12. ✅ Patch B — `chart_path` no longer stringifies `None` into a claim that a file was
+    written, and the Validation Notes default that asserted a market fact is gone.
+13. ✅ Patch C — the structure engine records its sub-routine failures instead of
+    substituting the current price for a level it could not locate.
+14. ✅ Patch D — the panel no longer calls a directional macro neutral.
+15. ⬜ The remaining eight items, sized in "What is left to fix" above.
+16. ⬜ Rev 4, the package rebuild, and the re-audit itself.
 
 ## Not on the roadmap, worth revisiting
 
@@ -941,3 +1104,31 @@ and re-link the Claude desktop app to `D:\phase7_engine`.
     Before naming any model as clean, export the log and check. This generalises past model
     independence: wherever a project keeps a record of what happened, ask whether some
     system already recorded it as a side effect of doing its own job, and prefer that.
+30. **A substring assertion cannot see the shape of what it matched.** Patch C replaced a
+    panel line that ended in a newline with a computed one that did not, and the panel
+    printed `SWING STRUCT : $0.4700 (Lookback 8)STOP LOSS : $0.4636`. Thirteen new tests, a
+    negative control, a full-suite run and a golden check all passed, because every
+    assertion asked whether a substring was present and it was. Viktor found it by reading
+    the output of one live run. Where the layout is part of the claim, assert on the
+    structure: split the text and check the line boundaries.
+31. **Write the negative control before believing the test.** Every test added on
+    3 September was run against the unfixed code first. Eleven of twelve failed as intended
+    on patch C; the twelfth passes in both directions on purpose and is recorded as a
+    regression guard rather than counted as evidence. Where a fix introduces a function that
+    did not exist, pointing the test at the old tree gives an ImportError, which proves
+    nothing — reproduce the old logic and run the new assertion against that instead.
+32. **Check the project's own record before raising an alarm about it.** Three times on
+    3 September Claude flagged a problem that dissolved on inspection: that Gemini's audit
+    counts contradicted the record (Entry #29 states exactly those numbers), that having
+    Gemini read the Constitution spent independence (Entry #31 already listed it as spent),
+    and that the lab-level independence rule might have been introduced without a ruling
+    (Entries #18, #20 and #31 record it with precedent). Rule 1 is about not asserting
+    absence. This is its mirror: do not assert a discrepancy either, when the document that
+    settles it is thirty seconds away.
+33. **Predict every consequence of a change, not only the interesting one.** Patch A's
+    golden diff was predicted as three changes and produced four — the archive filename is
+    built from `run_hash[:16]` and moved with it. Patch B was predicted to add two tests and
+    added one, because two of the three new checks were assertions inside an existing test.
+    Both were harmless. The point of predicting a diff is that anything unpredicted stops
+    the work, and a prediction that only covers the parts worth talking about cannot do
+    that.
