@@ -27,6 +27,69 @@ from utils.plotting import plot_engine_chart
 logger = logging.getLogger(__name__)
 
 
+# AUDIT FINDING (2 September 2026), found by running the engine.
+#
+# The panel printed, four lines apart:
+#
+#     MACRO TREND: BULLISH
+#     ...
+#     Validation Notes:
+#      - The higher timeframe is neutral.
+#
+# Two claims about the same thing, in one panel, and the second one false.
+# The block that produced it had three branches -- agrees, disagrees, and an
+# else that said "The higher timeframe is neutral." That else was covering
+# TWO different situations:
+#
+#     the macro really is neutral            -> the sentence is true
+#     the macro has a direction, the BIAS    -> the sentence is false. It
+#     is neutral                                describes the bias and
+#                                               attributes it to the macro.
+#
+# On a neutral-bias run -- which is what the engine reports whenever its six
+# factors cancel, a common state -- the panel therefore contradicted its own
+# MACRO TREND line every time.
+#
+# This is the same shape as the contradiction that exposed the direction
+# Critical on 2 September: the decision claimed "the broader macro trend
+# agrees" while Validation Notes said it disagreed. Item 8, in the section
+# that exists to tell the operator what was checked.
+#
+# Extracted to a function so the four cases can be tested directly. Inline,
+# the only way to reach the false branch was to find market data that
+# produced a neutral bias under a directional macro.
+def macro_agreement(macro_bias, raw_bias):
+    """
+    How the higher timeframe stands relative to this run's bias.
+
+    Returns (score_delta, note). The deltas are unchanged from the inline
+    version: +10 agreeing, -20 disagreeing, 0 when there is no comparison to
+    make. Only the sentence for that last case is new, and only in the half
+    of it that was previously described wrongly.
+    """
+    macro = str(macro_bias).upper()
+    macro_up = "BULLISH" in macro
+    macro_down = "BEARISH" in macro
+    bias_up = raw_bias == "BULLISH"
+    bias_down = raw_bias == "BEARISH"
+
+    if (macro_up and bias_up) or (macro_down and bias_down):
+        return 10.0, "The higher timeframe agrees with this bias."
+
+    if (macro_up and bias_down) or (macro_down and bias_up):
+        return -20.0, "The higher timeframe disagrees with this bias."
+
+    if not (macro_up or macro_down):
+        return 0.0, "The higher timeframe is neutral."
+
+    # The macro has a direction and the bias does not. Naming the macro read
+    # here matters: the operator can see MACRO TREND on the panel above and
+    # check this sentence against it.
+    return 0.0, (
+        f"The bias is neutral, so there is nothing for the higher timeframe "
+        f"({macro}) to agree or disagree with."
+    )
+
 class Phase7Engine:
     """
     Phase‑7 Structural Quant Engine
@@ -740,19 +803,9 @@ class Phase7Engine:
             val_score = 50.0
             val_notes = []
 
-            macro_up = "BULLISH" in macro_bias.upper()
-            macro_down = "BEARISH" in macro_bias.upper()
-            bias_up = raw_bias == "BULLISH"
-            bias_down = raw_bias == "BEARISH"
-
-            if (macro_up and bias_up) or (macro_down and bias_down):
-                val_score += 10
-                val_notes.append("The higher timeframe agrees with this bias.")
-            elif (macro_up and bias_down) or (macro_down and bias_up):
-                val_score -= 20
-                val_notes.append("The higher timeframe disagrees with this bias.")
-            else:
-                val_notes.append("The higher timeframe is neutral.")
+            macro_delta, macro_note = macro_agreement(macro_bias, raw_bias)
+            val_score += macro_delta
+            val_notes.append(macro_note)
 
             if "STRONG" in volume_sentiment.upper() or "EXPANSION" in volume_sentiment.upper():
                 val_score += 15
