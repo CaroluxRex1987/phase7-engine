@@ -1704,6 +1704,150 @@ story.extend(entry_box(49, "September 2, 2026",
     "max tokens, streaming, file parser and data retention, and never mentioned the tools.",
     "PROCESS — RECORDED", STEEL))
 
+story.extend(entry_box(50, "September 3, 2026",
+    "The Standard the Auditor Could Not Read",
+    "This file is named but its content is not there.",
+    "The round-2 re-audit has now failed three times, and not once on its own merits. "
+    "Attempt 1, Qwen3.8-Max: repeated provider-side failures before grading began. "
+    "Attempt 2, Kimi K3: it received the Constitution as a PDF, could see the filename and "
+    "not the contents, said so, and stopped. Attempt 3, Qwen again: the same defect. "
+    "<b>All three refusals were correct behaviour.</b> The common factor across two "
+    "different providers on two different days was the PDF, so the Constitution now ships "
+    "to auditors as text — a <font face=\"Courier\">pdftotext -layout</font> extraction "
+    "carrying the source PDF's SHA-256 in its own header and verified byte-for-byte against "
+    "a fresh extraction. Earned rule 28 applied: a format the recipient cannot open is not "
+    "fixed by asking the recipient to try harder. <b>One thing recorded against Claude.</b> "
+    "The first diagnosis was built from a truncated sentence visible in a screenshot — "
+    "“this file is named but its content is” — and asserted as a parsing failure. The full "
+    "reasoning, recovered later, said something stronger and more specific. The fix was "
+    "right; the confidence behind it was not earned at the time it was stated.",
+    "PROCESS — RECORDED", STEEL))
+
+story.extend(entry_box(51, "September 3, 2026",
+    "Eleven Claims, and the Rule About Believing Them",
+    "An audit that produced no report still produced eleven defects.",
+    "Attempt 3 could not read the standard and correctly refused to grade 44 rules it had "
+    "not seen. It then ran the instruction's own Section 7 checks — which are defined in "
+    "the instruction rather than in the Constitution — and returned eleven observations. "
+    "Its reasoning is preserved at <font face=\"Courier\">qwen_reasoning_1.txt</font> "
+    "through <font face=\"Courier\">_4.txt</font> in the repository. <b>Every one was "
+    "treated as a CLAIM and checked against source before a line of code was written.</b> "
+    "None evaporated. Two got worse under checking. That discipline is the entry: a "
+    "reviewer's finding is a hypothesis with a file and a line attached, and the difference "
+    "between an audit and a rumour is whether someone opened the file. The eleven span "
+    "fabricated levels, false claims about files, a run identity that did not identify the "
+    "run, a smoothing mismatch between an indicator and its own fallback, an unset HTTP "
+    "timeout, and a directory created as a side effect of an import.",
+    "FINDINGS — FROM AN UNFINISHED AUDIT", MAROON))
+
+story.extend(entry_box(52, "September 3, 2026",
+    "The Run Hash That Did Not Identify the Run",
+    "Two different trading plans on the same candles, recorded as the same run.",
+    "<font face=\"Courier\">core/decision_log.py</font> has carried this sentence since "
+    "the Finding 6 fix was written: the audit's required action asks for “all "
+    "decision-affecting configuration, <b>including risk-model multipliers and bias "
+    "weights</b>.” Fifteen lines below it, the fingerprint dictionary named one module — the "
+    "bias engine. The weights were covered. The risk multipliers were not. Changing "
+    "<font face=\"Courier\">ATR_STOP_MULT</font> from 1.2 to 1.5 moves the stop and all "
+    "three targets on every run, and left the hash, the config snapshot, the module "
+    "snapshot and provenance byte-identical. Item 6 is Traceability, raised to Critical by "
+    "Viktor on 29 August — broken inside the fix written to satisfy it. <b>It was not a "
+    "name missing from a list.</b> The multipliers were instance attributes on RiskModel, "
+    "and the snapshot mechanism reads module attributes; there was nothing for the list to "
+    "name. Viktor ruled the constants move to module level rather than the mechanism grow "
+    "to reach inside objects — the smaller change, and the shape the one compliant module "
+    "already had. <font face=\"Courier\">__init__</font> is gone entirely, so no instance "
+    "state can drift from what the record reports. Proven behaviour-preserving across 1,728 "
+    "stop and target combinations and 192 regime combinations: zero differences.",
+    "DECISION — ADOPTED", GREEN))
+
+story.extend(entry_box(53, "September 3, 2026",
+    "A Test That Described the Defect It Could Not Catch",
+    "“…so the default never fires and the panel prints ‘saved to None’.”",
+    "That sentence has been the failure message of a test in "
+    "<font face=\"Courier\">test_traceability.py</font> since sequence item 12. It is "
+    "correct. It describes, exactly, a defect that was live in the engine the whole time — "
+    "and the assertion beneath it only checked that the OLD hardcoded default was gone from "
+    "<font face=\"Courier\">panel_render.py</font>. The None arrived from somewhere else: "
+    "the router built the decision object with <font face=\"Courier\">str(chart_path)</font>, "
+    "and <font face=\"Courier\">str(None)</font> is the four-character string “None”, "
+    "which is truthy, which passes the panel's own gate. The panel printed <b>Chart saved "
+    "to None</b> — a file that does not exist — for the life of the engine. <b>A second "
+    "test had the same gap from the other direction.</b> "
+    "<font face=\"Courier\">test_unwritable_log_dir.py</font> already pointed the chart "
+    "directory inside an unwritable path, so every run of that file drove the engine "
+    "through this exact state, and it asserted only the log path and the archive. Nobody "
+    "looked at the chart. A test whose failure message documents a defect it cannot detect "
+    "is worse than no test: to anyone auditing the suite it reads as coverage. The claim is "
+    "made in one file and the value built in another, so the check now follows the value.",
+    "PROCESS — RECORDED", STEEL))
+
+story.extend(entry_box(54, "September 3, 2026",
+    "The Door Closed and the Window Left Open",
+    "Twelve of twelve points for a volume node that was never located.",
+    "<font face=\"Courier\">StructureEngine.analyze()</font> wrapped each of five "
+    "sub-routines in its own handler and substituted a value on failure — the previous "
+    "bar's regime, “NONE”, “NEUTRAL VOLUME”, and for both volume nodes and the swing level, "
+    "<b>the current price</b>. None of the five recorded anything, and the function had no "
+    "channel to record through, so a crashed detector produced an ordinary-looking reading "
+    "and the run was never marked degraded. <b>The volume-node case is Finding 3 again.</b> "
+    "Entry quality scores structure proximity as "
+    "<font face=\"Courier\">abs(close - hvn) / close</font>, which with hvn equal to close "
+    "is exactly zero — inside the &lt; 0.015 band, awarding the full 12 of 12. The comment "
+    "describing that arithmetic has sat in "
+    "<font face=\"Courier\">entry_model.py</font> since 1 September, written when Finding "
+    "3 was fixed. That fix changed the <i>consumer's</i> fallback to NaN and left the "
+    "<i>producer</i> handing down a finite number equal to the price. It even cites rule 18 "
+    "— fixed the instance it was looking at and left its twin. This is the twin of that "
+    "twin. No handler invents a measurement now: an unlocated level is NaN, which every "
+    "consumer already guards, an undetermined label says UNKNOWN rather than borrowing "
+    "NEUTRAL, and every failure reaches the run's degradation list.",
+    "DECISION — ADOPTED", GREEN))
+
+story.extend(entry_box(55, "September 3, 2026",
+    "Found by Reading the Panel, Twice in One Morning",
+    "226 tests, and neither defect was found by any of them.",
+    "<b>The first was Claude's, shipped that hour.</b> The patch above replaced a panel line "
+    "that ended in a newline with a computed one that did not, and the engine printed "
+    "<font face=\"Courier\">SWING STRUCT : $0.4700 (Lookback 8)STOP LOSS : $0.4636</font>. "
+    "Thirteen new tests, a negative control, a full-suite run and a golden-snapshot check "
+    "all passed — because every assertion asked whether a substring was present, and it "
+    "was. Nothing in the suite rendered the panel and looked at its shape. Viktor found it "
+    "in one live run, which is earned rule 30. <b>The second was not Claude's.</b> The same "
+    "panel printed <font face=\"Courier\">MACRO TREND: BULLISH</font> and, four lines "
+    "below, “The higher timeframe is neutral.” The branch that produced it fired when the "
+    "BIAS was neutral and then made a claim about the MACRO — false on every neutral-bias "
+    "run, which is a common state and was the state that morning. Same shape as the "
+    "contradiction that exposed the direction Critical the day before. The logic is now a "
+    "named function with a fourth branch, extracted so the four cases can be tested at all: "
+    "inline, the false branch could only be reached with market data that happened to "
+    "produce a neutral bias under a directional macro, which is why no fixture held it and "
+    "no test could have.",
+    "FINDINGS — FROM EXECUTION", MAROON))
+
+story.extend(entry_box(56, "September 3, 2026",
+    "A Conversation Is Not a Record",
+    "A full day of findings, rulings and sizings existed in a chat window and nowhere else.",
+    "Late in the session Viktor asked whether Claude would still have everything the "
+    "following day. It would not have. Eleven verified findings with their file and line, "
+    "four patches, three rulings made, three owed, sizes for the remaining work and the "
+    "pre-audit checklist were all established in one conversation and written into no "
+    "document. It was caught because he asked — which is precisely the save-by-vigilance "
+    "earned rule 28 exists to replace. <b>The fix is a handover check, run by Claude "
+    "unprompted at the end of every session</b>, asking six questions: is the state in the "
+    "entry-point document rather than only in chat; are the day's rulings recorded; does "
+    "<font face=\"Courier\">git status</font> show untracked files that matter; are these "
+    "notes current or the gap stated; are loose patch files unapplied; is any evidence still "
+    "in a chat window. On its first run it found three files left on the floor, one of them "
+    "sitting there since the previous day. <b>The same conversation split the project's "
+    "goal in two.</b> Phase 7 is now both the technical portfolio project in Viktor's "
+    "2026–2028 career plan and an engine he intends to finish, and those end months apart. "
+    "Portfolio-ready is reached, tagged, and only then does backtesting begin — on top of "
+    "the tag, so that the phase which destroyed the previous build cannot damage the version "
+    "he submits. Earned rules 30 through 34 were written the same day.",
+    "PROCESS — RECORDED", STEEL))
+
+
 # ---------- DOCUMENT HISTORY ----------
 hist_rows = [
     ["Version", "Date", "Notes"],
@@ -1855,6 +1999,18 @@ hist_rows = [
      "eight tools left enabled on the first attempt at it. Register unchanged at 21 / 7 / "
      "10 / 6. Every Critical the Step 8 audit raised now has a fix that has landed; the "
      "release gate stays shut until a re-audit has seen them."],
+    ["v1.19", "September 3, 2026", "Entries #50 through #56 added. #50 the re-audit's "
+     "third failed attempt and the Constitution shipped as text, because two providers on "
+     "two days could see its filename and not its contents. #51 eleven defects returned by "
+     "an audit that produced no report, every one checked against source before it was "
+     "believed. #52 the run hash that did not cover the risk multipliers — Item 6 broken "
+     "inside the fix written to satisfy it. #53 a test whose failure message described a "
+     "live defect it could not detect. #54 the volume-node fabrication reached through the "
+     "producer after Finding 3 closed it at the consumer. #55 two defects found by reading "
+     "the panel in one morning, one of them shipped by Claude an hour earlier and passed "
+     "by all 226 tests. #56 the handover check, and the project goal split into a tagged "
+     "portfolio milestone and a later finished engine. Suite 196 to 226. Register "
+     "unchanged at 21 / 7 / 10 / 6. Earned rules 30 through 34 written the same day."],
 ]
 th = Table(wrap_table(hist_rows), colWidths=[0.9 * inch, 1.4 * inch, 4.2 * inch])
 th.setStyle(row_style)
