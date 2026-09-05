@@ -1,0 +1,144 @@
+Wait — order: _determine_final_action → _refuse_incoherent_plan → confidence → trade_quality → degradation → ev. If plan contradicts action → "NO-TRADE (PLAN CONTRADICTS ACTION)". Does the panel/contract handle that string? ExitBlock action: str — fine. colorize: falls to yellow. live_trading decision field: fine. test_direction_source covers.
+
+But hold on: _refuse_incoherent_plan reads risk.get("targets") — the ROUTER's risk dict or engine's? evaluate() is called with the ENGINE's raw_output blocks (signal_router passes risk=raw_output.get("risk", {})). Engine's risk["targets"] = (t1,t2,t3) tuple. Good — real plan. In the unit tests they hand-build. Fine.
+
+Edge: LONG action with targets ascending but stop ABOVE price? E.g., effective_bias LONG but structural_level above price → atr_stop = min(structural, calculated_stop)... min picks the LOWER — stop below structural. For LONG: atr_stop = min(structural_level, calculated_stop) — the lower of the two — below price if both below. If structural above price: min(structural, calc) = calc (calc = price - atrmult < price). OK stop below price. stop_distance = price - atr_stop > 0. Fine. For SHORT: max(structural, calc) — calc = price + atrmult > price → stop above price. OK. Degenerate handled by fallback stop_distance = atr*1.2 if ≤0 (structural exactly at price?). atr_stop could equal structural above price for LONG only if structural < price... min(structural,calc): if structural < price but > calc → stop = structural (closer). distance > 0. OK.
+
+n) Panel VALIDATION line: prints validation_state + validation_score — consistent now (the old risk_score bug fixed).
+
+o) MACRO TREND line vs Validation Notes: Run 2 prints MACRO TREND: BULLISH and Validation Notes "The higher timeframe disagrees with this bias." — consistent (bias bearish, macro bullish → disagrees). And decision reasoning: "No side has a strong enough..." — consistent.
+
+p) Wait, one more duplicate: ProvenanceBlock.run_hash and LineageBlock.run_hash — same value stored twice (run_id used in both provenance and lineage_record). Same source variable — consistent by construction.
+
+q) entry_zone vs ema zone: entry zone = EMA_20..EMA_50 range; entry_model zone_width etc. Consistent source (passed in).
+
+r) ZONE DISTANCE : 4.22% away = dist_to_mid/close*100 where dist_to_mid = |close - zone_mid|. Run 1: close 0.8017, zone 0.7756-0.7602, mid = 0.7679, dist = 0.0338, /0.8017 = 4.22%. ✓.
+
+Hmm OK. Now other cross-checks:
+
+Run 1: ENTRY QUALITY 45.18 = 10+5+10+10+4 = 39... wait: EMA 10 + ATR 5 + VWMA 10 + RSI 10 + Struct 4 = 39, but printed total 45.18. Multipliers! combined_multiplier = macro(?) * trend * structure. Run 1: macro BULLISH, bias bullish, trade direction LONG (no short signal → eq_trade_direction = "LONG"). macro_multiplier = 1.05 (BULLISH & LONG). trend_direction: TREND BULLISH → 1.05. structure_sequence: "BOS BULLISH (TREND CONTINUATION)" & LONG → 1.05. 39 * 1.05^3 = 39 * 1.157625 = 45.147 ≈ 45.18 (rounding of int components). ✓ plausible.
+
+Run 1 CONFIDENCE 78.70 = |bias_score| = 78.70. Bias: trend health 95.35 signed + → 28.6; structure BULLISH TREND → 20; volume divergence → 0; supertrend +1 → 15; macro BULLISH → 10; continuation: ? Sum without continuation = 73.6; +continuation*0.10 → 78.70 → continuation ≈ 50.5? Plausible (max 60). ✓.
+
+BTC-adjusted: 78.70 + adj = 81.42 → adj = 2.72. agreement=+1, |corr|=0.23, |btc_score|/100... btc bias_score unknown; cap 20. 10.23(btc_score/100)*20 = 2.72 → btc_score ≈ 59. Plausible.
+
+Run 2: bias BEARISH, score -52.64? confidence 52.64 = |score|. components: trend health 90 signed NEGATIVE (direction -1: continuation < 0) → -27; structure BEARISH → -20; volume divergence → 0; supertrend -1 → -15; macro BULLISH → +10; continuation negative → -x. Sum: -62 + continuation0.1 = -52.64 → continuation ≈ +93?? That can't be — continuation max 60, and negative. Hmm: -27 -20 -15 +10 = -52. continuation0.1 = -0.64 → continuation ≈ -6.4. OK yes that works: -52 - 0.64 = -52.64. ✓ (I mis-added.)
+
+Run 2 BTC-adjusted: 52.64 + adj = 64.58 → adj = 11.94. agreement: aero_dir = sign(bias_score) = -1; btc_dir: BTC BEARISH → -1 → agreement +1. |corr| = 0.90, |btc_score|/100 ~ 0.66? 10.90.66*20 = 11.9 ✓ plausible.
+
+Run 2 VALIDATION WEAK 5.00: 50 + macro disagree (-20) + volume divergence (-25) = 5 ✓. Run 1: 50 + macro agree (+10) + volume divergence (-25) = 35 ✓ WEAK.
+
+Run 2 reasoning: "No side has a strong enough, well-aligned case right now (trend health 90/100, entry quality 46/100)". Check decision path: validation WEAK (5) and trend_health 90 ≥ 40 → gate doesn't fire. raw_bias BEARISH → bearish block: trend_health 90 ≥ 75, entry_score 46.37 < 70 → first branch fails; elif trend_health >= 50 and macro_bias == "BEARISH" — macro is BULLISH → fails → falls through to WAIT ✓. Consistent.
+
+Run 1: risk_valid False → NO-TRADE (RISK TOO HIGH) ✓; confidence qualifier appended ✓ ("This reflects how the picture lines up, not a green light").
+
+EV run 1: 0.7872 - 0.213 = 1.574-0.213 = 1.361 ✓ +1.36R. Run 2: 0.52642 - 0.4736 = 1.0528-0.4736 = 0.579 ✓ +0.58R.
+
+Transcripts internally consistent with the code. Good — I verified them as claims and they check out arithmetically.
+
+Wait — one more: Run 1 "ZONE DISTANCE : 4.22%" and status "APPROACHING ZONE": dist_to_mid <= zone_width2 → NEAR (20 pts)? zone_width = |0.7602-0.7756| = 0.0154; dist_to_mid = 0.0338 > 0.0154; ≤ 20.0154=0.0308? No, 0.0338 > 0.0308; ≤ 3.5*0.0154=0.0539 → yes → 10 pts APPROACHING ✓ matches printed 10/30.
+
+Run 2: close 0.8617, zone 0.8799-0.9059 → zone_lower > close... wait zone_lower 0.8799, zone_upper 0.9059; close 0.8617 below zone. mid = 0.8929; dist = 0.0312; width = 0.026; dist ≤ width? no. ≤ 2*width=0.052 → yes → 20 pts NEAR ZONE ✓ matches 20/30.
+
+Entry zone for a bearish run: EMA_20=0.8799 > EMA_50=0.9059? zone_lower = EMA_20 .iloc[-1], zone_upper = EMA_50. In a downtrend EMA20 < EMA50 typically... but printed zone_lower 0.8799 < zone_upper 0.9059. entry_model swaps if lower > upper for scoring, but the panel prints raw values. Fine.
+
+Now the test suite (7.3). Look for the listed failure shapes:
+
+"Tests that iterate a collection and assert nothing when it is empty": test_execution_surface loops — if _engine_sources() returned empty, tests pass vacuously. all_python_files walks REPO_ROOT — non-empty in practice. Not a live hole but structural. Hmm.
+
+test_pinned_source.test_pinned_directory_exists_and_is_complete — checks MANIFEST.json exists and hashes match. Real.
+
+test_no_lookahead.test_only_the_chart_may_fill_backwards — scans AST per module; if all_python_files missed a module, gap. It walks the repo — fine.
+
+test_timeframe_disagreement — the key new file. Check test_the_action_never_contradicts_the_plan_beneath_it: action = decision["explanation"]["summary"] — summary = f"{final_action} — {reasons[-1]}". side in action.split("—")[0] — splits on em-dash; action part. If plan None → skip (continue) — for both polarities; if plan is None in both runs, the test asserts nothing! When would plan be None? targets < 2 — risk targets always 3-tuple on success. decision has risk targets — error? asserts not error in fixture tests but NOT in this test! test_the_action_never_contradicts... does NOT assert no error first. If the engine errored, decision["explanation"] → KeyError → test ERRORS (not pass). OK it would fail loudly. But if plan is None: continue — targets present → fine. Hmm, also possible: action "NO-TRADE (PLAN CONTRADICTS ACTION)" contains neither LONG nor SHORT... "PLAN CONTRADICTS ACTION" — no LONG/SHORT. OK.
+
+test_direction_source: unit-level, hand-built dicts. Solid.
+
+test_decision_bar_integrity.test_a_recoverable_indicator_still_recovers: assert value != prior — asserts fallback recomputation differs from prior bar. Reasonable.
+
+test_degraded_state._run_with_broken: patches ta.adx to raise. Real path. Good.
+
+test_golden_path: snapshot compares decision to stored JSON. The snapshot file isn't in the bundle (fixtures aren't included — manifest lists only .py). So I can't inspect the baseline. Not verifiable what it pins. The test strips VOLATILE = {"chart_path", "timestamp", "generated_at"} — decision has no timestamp/generated_at keys anyway. Note: the golden snapshot compares the WHOLE decision including provenance and lineage? strip only removes volatile keys; provenance includes last_candle, row_count, run_hash, input_hashes, fetch, prior_state, module_constants, archive_path — archive_path is a temp-dir path... wait, in golden runs, LOG_DIR is config's logs/ (not temp) — archive_path would be "logs/archive/aerousdt_4h.json.gz" — deterministic given same input hash! run_hash deterministic → same filename. prior_state: cleared before run → {} deterministic. logged_at? that's in the decision LOG record, not the decision object. OK. But lineage.archive.pruned_this_run — count depends on disk state! Is "pruned_this_run" stripped? VOLATILE in golden = {"chart_path", "timestamp", "generated_at"} — pruned_this_run NOT stripped. On a fresh machine with old archives present, prune removes them → pruned_this_run > 0 → snapshot mismatch → golden test fails spuriously. Hmm — but archives only age past 90 days; on the dev machine after 90 days from first archive (written ~2 Sept 2026), golden runs start failing until re-baselined! That's a time bomb in the test: ~1 Dec 2026, archives age out (if any survive), pruned_this_run becomes nonzero once, then 0 again after they're gone... Actually after they're pruned once, subsequent runs find none → 0 again. So one spurious failure ~90 days after the first archived run on each machine. Minor test-fragility observation. Also "archived_at" inside the archive payload — not in decision object. OK.
+
+Hmm wait, actually also retention_days — constant 90, fine.
+
+run_tests.py runner: fine.
+
+test_imports.test_every_module_imports — deletes and re-imports modules; the restore logic documented. OK.
+
+Vacuous-pass scan:
+
+test_execution_surface loops over sources — non-empty.
+test_no_circular_reasoning.test_validation_is_not_seeded_with_trend_health: assert seeds — if val_score assignment renamed, fails. OK.
+test_no_position_sizing loops decision blocks — decision non-empty. OK.
+test_explicit_configuration.test_every_config_constant_is_read — iterates config constants; if config had zero constants → vacuous pass. Config has many. OK.
+test_lineage tests: real end-to-end rebuild — strong test.
+test_unwritable_log_dir: uses a file-as-dir blocker — good.
+test_smoke: real.
+Tests whose setup contradicts claims: test_decision_bar_integrity._pinned_frame uses limit=300 vs engine's 450 — fine.
+
+One important suite-level observation: fixtures are not in the audit package — I cannot verify the pinned CSVs exist as described, nor the golden snapshot contents. The manifest lists only .py files (34 source + 26 test). So claims about fixtures are not verifiable from the package. Note in Part 3.
+
+The four "reported for record, not fixed" tests: docstrings say they were FIXED (guards added) — the docstrings in test_imports describe the re-audit and the fix ("So the two known-pandas_ta-dependent modules are treated specially"). test_frame_ownership docstring still says "recorded for record, not fixed" in one spot but the code HAS the guard (if not _engine_available(): pytest.skip). Let me check: test_frame_ownership.test_the_engine_holds_no_caches — has the skip guard ✓, but its docstring still contains the "FOUR TESTS THAT FAIL OUTRIGHT RE-AUDIT... recorded in docs/PHASE7_NEXT.md since batch 1 as 'reported for record, not fixed.' A machine without pandas_ta got a hard failure here instead of the honest SKIPPED the rest of the suite reports." — the docstring describes the OLD state but the code has the fix; the docstring doesn't say it was fixed. Actually re-reading: the docstring quotes the re-audit note. It doesn't claim it's still unfixed... it's ambiguous — a reader could conclude it's still unfixed. Borderline comment staleness. test_exit_model_removal.test_engine_core_has_no_render_parameter docstring: "this test imported core.engine_core directly, bypassing the _engine_available() guard this same file already uses elsewhere -- recorded in docs/PHASE7_NEXT.md since batch 1 as 'reported for record, not fixed.'" — code HAS the guard now. The docstring narrates history without saying "fixed". Mildly misleading but framed as history. Not worth a finding; maybe an observation about docstring staleness. Eh — borderline; I'll mention lightly in Part 6 if at all.
+
+run_tests.py captures only stdout, not stderr — documented as known limit.
+
+pytest.ini exists; conftest ENGINE_MODULES includes "main" and "live_trading" — importing main triggers logging.basicConfig with FileHandler(os.path.join(config.LOG_DIR, 'phase7_engine.log')) — main.py now does os.makedirs(config.LOG_DIR) before basicConfig ✓ (the clean-checkout fix). But note: importing main in the test process calls logging.basicConfig — global side effect; they run it in-process (test_every_module_imports imports "main" in-process!). basicConfig at import of main... yes main.py module scope calls logging.basicConfig with a FileHandler — in the pytest process, installing handlers. Side effect but tolerated.
+
+Wait — actually importing "main" module: os.makedirs(config.LOG_DIR, exist_ok=True) then basicConfig(FileHandler(logs/phase7_engine.log)) — creates logs/ and the file in the repo during tests. And "live_trading" import → LiveTradingSimulator() → SignalRouter() → Phase7Engine() + os.makedirs(logs/LiveSim). Import-time side effects: directory creation. Not defects per se.
+
+test_golden_path._write_pinned_set: groups = base.index // 6 — base has default RangeIndex after read_csv ✓. daily has 75 rows — engine requires ≥20 ✓. But macro EMA_50 needs 50 rows — 75 ≥ 50 ✓... EMA_50 on 75 rows: defined after ~50. OK.
+Wait, one more: golden path SYMBOL = "TESTUSDT" — decision["symbol"] = "TESTUSDT"; the BTC suffix stripping: TESTUSDT → ends with "USDT" → "TEST". Fine.
+
+test_lineage central test: rebuilds CSVs from archive, reruns, compares decisions modulo VOLATILE — strong. Note VOLATILE includes "prior_state" — hmm, why? prior_state is {} on cleared state... they clear state per run, so {} both times; stripping harmless.
+Also lineage test: first["lineage"]["archive"]["path"] — archive written to log_dir=original_logs (temp). ✓.
+
+Coverage gaps worth noting (7.3/7.6-flavored):
+No test runs the engine where bias_score ∈ (0, 20] to check the NEUTRAL-bias-but-directional-plan display (plan leans long/short while action WAIT). The levels print with no direction label; probably fine.
+
+No test for the _refuse_incoherent_plan firing END-TO-END (only unit-level via _refuse_incoherent_plan and _evaluate with hand-built dicts; test_timeframe_disagreement asserts the property on generated data — which is the integration cover. OK actually that IS end-to-end).
+
+No test that ta.rsi fallback and ta.atr fallback produce VALUES CONSISTENT with the primary path (the SMA-vs-RMA discrepancy). test_decision_bar_integrity asserts value != prior bar, not value ≈ primary. So the RSI-variant difference is unobserved by the suite. Observation.
+
+No fixture with a genuine volume spike (only unit-level in data integrity: spike accepted by validator; is there a test that a spike DEGRADES the run end-to-end? test_data_integrity says "tests/test_no_dead_columns.py and the indicator suite cover that side" — do they? Search: no_dead_columns doesn't test spike degradation. I don't see an end-to-end spike→degraded test. The docstring's claim "the indicator suite cover that side" — I don't see coverage of the spike→IndicatorFailure→degraded path anywhere! Let me search the test files: "spike" appears in test_data_integrity (acceptance by validator) and... test_no_dead_columns? No. test_degraded_state? Breaks ta.adx/rsi/supertrend — no spike test. So the volume-spike degradation path (indicators.py's SPIKE_RATIO block) has NO test asserting it fires. The comment in test_data_integrity says coverage exists in "the indicator suite" — there is no indicator test module beyond what's listed; none tests the spike degradation. That's a claimed-coverage-that-doesn't-exist — exactly a 7.3 finding: docstring asserts coverage that is absent. Good catch. Let me double check by searching all test files for "SPIKE" / "spike": test_data_integrity.py has test_accepts_an_isolated_volume_spike (validator accepts) with docstring "indicators/indicators.py's degradation flag is where this case is actually handled; tests/test_no_dead_columns.py and the indicator suite cover that side." test_no_dead_columns.py — no spike test (deleted columns, kept columns, slopes). No file named test_indicators*. So the claim "test_no_dead_columns.py and the indicator suite cover that side" is FALSE — no test covers the spike→degradation flag. A test asserting that a 500x spike marks the run degraded does not exist. That's a concrete 7.3 finding: a docstring pointing to coverage that isn't there, and an untested degradation path. The path itself: 10x median over last ≤20 candles → appends failure → degradation → NO-TRADE. Untested both for firing and for NOT firing on ordinary 2-3x busy markets (the comment's stated intent). Real finding for Part 4.
+
+test_data_integrity.test_rejects_stale_data uses now=reference (fixture's own end) — durable. Good design.
+
+test_golden_path.test_decision_object_matches_snapshot — if PHASE7_UPDATE_SNAPSHOT set, it WRITES baseline and returns (passes). Documented behavior. OK.
+
+test_decision_contract static scan CONSUMERS covers panel_render, live_trading, signal_router — explicit limitation noted.
+
+test_lineage hash tests — solid.
+
+No test of main.py returning 0 on success — clean checkout tests cover import/run-without-traceback. Fine.
+
+The EV claim: _compute_ev uses confidence as win rate — disclosed as illustrative. Panel prints "(illustrative, not backtested)". Consistent with Item 7-style honesty. Fine.
+
+test_no_risk_free_conviction — direct unit tests. Fine.
+
+run_tests.py vs pytest: pytest.ini testpaths=tests; test_live.py at root is NOT in tests/ → pytest won't collect it; run_tests.py only scans tests/ too. test_live.py would hit live network if run — it's a manual script. It imports live_trading which at import constructs the simulator (makedirs). Fine.
+
+Now 7.2 — claims vs reality:
+
+Panel prints "Decision logged to ..." only when path returned ✓; "Chart saved to" only when chart_path truthy ✓. BUT: chart_path in the decision is str(chart_path) in the router — str(None) = "None"!! Look: "chart_path": str(chart_path) — engine_core sets chart_path = None when save_chart False or plotting failed (plot_engine_chart returns None on failure). Router: chart_path=raw_output.get("chart_path") → None → str(None) → the STRING "None". Then panel: saved_chart = decision.get("chart_path") or "" — "None" is truthy (non-empty string)! → prints "Chart saved to None"!!! WAIT. Let me re-check. signal_router._build_decision_object: "chart_path": str(chart_path). chart_path comes from raw_output.get("chart_path") — engine_core always sets it: None if save_chart False; plot_engine_chart returns save_path or None on failure. So on chart failure: raw chart_path = None → router converts to "None" (string) → decision["chart_path"] = "None" → panel: decision.get("chart_path") or "" → "None" is a non-empty string → truthy → chart_line = f"Chart saved to None\n". THE EXACT DEFECT THE COMMENTS CLAIM WAS FIXED: "So a failed chart printed 'AI Risk chart saved to None' — still a claim that something was saved. Both now print only when the thing they describe actually happened." The claimed fix is defeated by str(chart_path) in the router!!
+Hold on, double-check: is it really str(chart_path)? From the source:
+
+
+# Filled in below, after the log is written. Empty string means
+# nothing was logged, and the panel prints no claim.
+"decision_log_path": "",
+
+"chart_path": str(chart_path)
+Yes. And chart_path param: chart_path=raw_output.get("chart_path") with the comment "engine_core always sets this key (to None when charting failed), so the default never fired". So on chart failure: str(None) = "None". Panel: saved_chart = decision.get("chart_path") or "" → "None" truthy → prints Chart saved to None.
+
+Wait, but is this reachable in production? save_chart defaults True in engine_core.run; router calls run(symbol, timeframe) without save_chart → True → plot_engine_chart called → returns save_path on success, None on failure. Chart failure requires matplotlib issues — rare but real (the tests document a past failure mode where candle plotting raised). Also when does run get save_chart=False? No caller passes it. So the path is: chart fails → "Chart saved to None" printed. The golden snapshot: chart succeeds on the dev machine → chart_path = "logs/charts/chart_AEROUSDT_4h.png" — wait, the golden test VOLATILE strips chart_path ✓. But the transcripts show "Chart saved to C:\Users\MSI-PC..." — a Windows tempdir path (test runs). Fine.
+
+Also DecisionContract says chart_path: str — and the router makes it a str always, so the contract validates while the value is "None". The contract test would pass with the bogus value.
+
+Also — hmm, wait: is it possible chart_path None never reaches because plotting returns None only on failure and failure is rare? Reachability: plt.style.use(config.CHART_STYLE) is inside try; savefig wrapped; failures logged and return None. A headless machine without a display: matplotlib Agg backend default in headless — fine usually. So rare but real. ALSO: what about the decision_log_path analogue? decision_log.write returns path or None; router: decision["decision_log_path"] = logged_to or "" → "" on failure → panel prints "Decision NOT logged" ✓ correct there. So the chart line is the broken twin. The fix claim in panel_render's comment ("Both now print only when the thing they describe actually happened") is FALSE for the chart line because of the router's str() coercion. This is a REAL FINDING — a claimed fix defeated one layer up, the exact defect family (7.2: engine claims something it does not do — "Chart saved to None" asserts a save that did not occur). Severity: it's an assertion that something happened when it did not — the instruction's Critical definition: "an assertion by the engine that something happened when it did not." The original trade-log line was rated Critical for exactly this. The chart variant is the same shape, lower stakes (a chart, not an audit record). I'd rate it Major under their rubric (chart is informational; the log line is the audit trail). But it is a live, reachable false assertion. STRONG finding.
+
+Also related: engine_core.run's save_chart=True always (router). If plot returns None, engine sets decision_object["chart_path"] = None → provenance? no. lineage? no. The router stringifies. Also test for this? tests check decision.get("chart_path") truthiness in lineage tests (archived). No test forces chart failure and checks the panel line. test_unwritable_log_dir: sets CHART_DIR under an unwritable dir → plot fails → chart_path None → str→"None" → and the test asserts... test_the_panel_claims_no_log_when_none_was_written asserts decision_log_path == "" and archive path None. It does NOT assert chart_path! So the suite runs THROUGH this exact state (chart write fails in that test — CHART_DIR is logs/charts under the blocker file → makedirs in plotting fails → logger.error → return None) and never checks chart_path. The defect is reachable by an existing test's setup and unasserted. 7.3 + 7.2 cross. STRONG.
+
+Wait — actually let me verify plot failure in that test: config.CHART_DIR = os.path.join(log_dir, "charts") where log_dir = blocker_file/logs. plot_engine_chart: save_dir = os.path.dirname(save_path); os.makedirs(save_dir, exist_ok=True) → raises NotADirectoryError → caught by the OUTER try at function top? The makedirs is inside the first try block ("Ensure save directory exists") → except → logger.error("Failed to initialize matplotlib figure") → return None. Yes → chart_path None → "None" string. Confirmed reachable.
+
+Also same stringify issue: "chart_path": str(chart_path) also converts a valid Windows path with backslashes — transcripts show backslashes (Windows) — fine for local display.

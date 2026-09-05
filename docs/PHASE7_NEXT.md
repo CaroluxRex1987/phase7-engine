@@ -1519,7 +1519,12 @@ the record accounts for, three of them on 3 September mapping to nothing; and Ki
 2 September call returning 36,085 output tokens, which is not the truncated stub the
 record describes when leaving its spent status undecided.
 
-### Ruled 5 September: Kimi K3 runs round 3
+### Ruled 5 September: Kimi K3 runs round 3 — WITHDRAWN THE SAME DAY
+
+**This ruling was withdrawn on the afternoon of 5 September. Its central reason was
+built on a misattribution and inverted once the record was corrected. It is kept in
+full below, unedited, because the reasoning is what went wrong and deleting it would
+hide that. See "The transcripts were Kimi's all along" further down.**
 
 Viktor's call, delegated to Claude on the evening of 5 September — he had reserved the
 model choice for himself, then handed it over and set the confound aside. Recorded here
@@ -1575,13 +1580,190 @@ that row is what it might be.
 - **Through the API, not a chat interface.** Session exposure demonstrably clears only
   where the training opt-out is a matter of record.
 
-### What comes next
+## The transcripts were Kimi's all along — 5 September 2026, afternoon
 
-The checklist is closed and the auditor is chosen. One step remains, and it is Viktor's.
+The largest correction this project has had to make. It began as a request to read
+the old Kimi chat room before spending a call on it, and ended with a withdrawn
+ruling, a downgraded auditor and two evidence sets that were never going to reach
+version control.
 
-1. **Send it.** Everything in `round3/UPLOAD_THESE/`, and nothing else, to Kimi K3
-   through the API with the output ceiling raised. `PART7_LATER/` goes only after Parts
-   1–6 are written and saved. The gate opens on a clean report, not a finished one.
+### What the room contained
+
+Six documents, saved from the Kimi K3 room of 2 September. They are **not** Parts 1-6
+of a report. They are one continuous reasoning trace, split at the chat interface's
+own message boundaries, ending mid-sentence at "**A13 path". Kimi produced 36,085
+tokens of reasoning and no report. That closes the open question about the
+36,085-token bill row.
+
+### The finding
+
+The four files in the repository root named `qwen_reasoning_1.txt` through
+`qwen_reasoning_4.txt` are that same Kimi transcript.
+
+Verified rather than inferred: with all whitespace stripped, the two are identical for
+**57,631 characters from the first byte**, both opening "Let me start by carefully
+reviewing the instructions and the materials provided." Two different models do not
+coincide on 57,000 characters.
+
+`prior_observations_PART8_ONLY.md` is a header plus those four files. **So the eleven
+prior observations are Kimi's work, not Qwen's.**
+
+### Why nobody caught it
+
+The repository copy is lossy — about 60,000 characters shorter than the room copy,
+with material missing from the middle. One of the passages in the gap is the model
+identifying itself:
+
+> the instruction says I'm "Qwen3.8-Max" — I'm not; I'm Kimi (Moonshot AI) ... If the
+> ledger records "Qwen3.8-Max" but the actual reviewer is Kimi, the ledger is wrong —
+> that's material to the audit's integrity.
+
+It said so explicitly, in the section of the instruction written to make it say so,
+and the sentence never reached the repository. Every document downstream inherited the
+filename instead: Entry #50, the attempts table, the Part 8 document, the 5 September
+correction from the bill, and the morning's ruling.
+
+The 5 September correction is the instructive one. It reasoned from call timestamps —
+Qwen 15:42 before Kimi 15:58 — to conclude the eleven came from Qwen. The inference
+was sound and the conclusion was wrong, because the bill records **what was called**,
+not **which output was saved under which name**. Rule 29 says prefer the system that
+recorded it as a side effect of its own job. The transcript is that system, and it was
+sitting in the repository under the wrong name the whole time.
+
+### What it cost
+
+The morning's ruling put the confound on Qwen and sent the package to Kimi. It is
+Kimi-audits-Kimi that makes Part 8 uninformative. The ruling was exactly inverted.
+
+## The GLM 5.3 Flash run — an accident that produced a report
+
+The Chatroom tab was left on **Auto Router** rather than a named model. The router
+chose GLM 5.3 Flash, and the round-3 package went to it.
+
+| field | value |
+|---|---|
+| date | 5 September 2026, 13:39 (11:39 UTC) |
+| model | `z-ai/glm-5.3-flash-20260826` via Auto Router |
+| serving provider | BaseTen |
+| input / output | 251,148 / 11,475 tokens |
+| cost | $0.0434, 102.7 s |
+| package | `round3/UPLOAD_THESE/` at `c4d6969`, instruction rev 4 |
+
+It read the package: Part 1 names all 44 rules, six checked against the Constitution
+text and all six trace. Its model-identity check fired correctly — the first line
+states it is not Qwen3.8-Max.
+
+**Verdict returned:** 26 Compliant, 13 Partially compliant, 1 Not verifiable, 0
+Non-compliant. Eleven findings, all Minor. Gate reported met on its findings alone,
+with its own caveat that it is not claiming no Major or Critical defect exists.
+
+### Verified against source, three of eleven
+
+- **F-2, `pct_slope` unconsumed** — CONFIRMED, and stronger than filed: the name
+  occurs exactly once in the source bundle, its own `def`. No call sites.
+- **F-4, `_merge_btc_context` fabricated defaults** — CONFIRMED, `signal_router.py`.
+- **F-7, `risk.get("risk_valid", True)`** — CONFIRMED, and **under-scoped by the
+  report**. GLM filed it against `live_trading.py` and justified Minor on the grounds
+  that the module only writes a simulated-order log. The same permissive default sits
+  in `decision_model._determine_final_action` — the trade-authorization gate — and in
+  `signal_router._build_decision_object`. A risk block that is a dict but missing that
+  key means risk was never assessed and the decision engine reads it as passed. GLM's
+  severity argument does not cover either.
+
+That miss is what the depth-of-read difference looks like in practice: 11,475 output
+tokens against 251,148 of input, no reasoning spend, 102 seconds. Kimi burned 36,085
+tokens of reasoning on a smaller package and never reached a report.
+
+The best thing in it is Part 6b: three named places where a comment led its reasoning
+before the code confirmed it, in descending order, unprompted beyond the instruction
+asking.
+
+## The independence ledger, rebuilt from the full provider export
+
+723 rows, every model, every route. **All 723 are `variant=standard`.** No free
+endpoint, ever. The no-training conclusion holds unchanged.
+
+### Z.ai is not clean, and this is the second family the ledger had wrong
+
+`z-ai/glm-5.3` ran on **28 August at 22:53** through the Chatroom: 104,394 in, 55,179
+out, 48,167 reasoning, finish=stop. A full substantive session on this project, eleven
+days before GLM 5.3 Flash audited it. Under the lab-not-checkpoint rule, **GLM 5.3
+Flash was not an independent reviewer.** Its findings stand on their own evidence; the
+comparison it feeds is one exposed reviewer against one clean one, and that caveat
+travels with it permanently.
+
+### Kimi clears, on the check that mattered most
+
+Every Aider call in the history carries the key `Nexus-Key` and the app `Aider` — 681
+of them, across Claude Sonnet 4 (194), DeepSeek v3 (315), DeepSeek R1 (96), Mistral
+Nemo (71) and Claude 3 Haiku (4). Exactly the five the corrected record names.
+
+**All 14 Kimi K3 calls are `OpenRouter: Chatroom`.** Kimi never worked on the
+codebase. Session exposure only, which the 2 September ruling clears.
+
+But its exposure is far larger than the record said: eight substantive reads on 27
+August of 93K-110K input each, producing roughly 100,000 tokens of output about this
+engine, plus 36,085 on 2 September. "A Step 3 attempt that truncated" describes one
+row of thirteen.
+
+### Outputs that were produced and never saved
+
+- Four of the 27 August Kimi calls finished `stop`: 16,361, 15,971, 18,386 and 9,819
+  tokens. None is in the repository.
+- Qwen's 2 September call at 13:42 UTC returned **11,964 tokens**. No Qwen transcript
+  exists in the repository under any name — the files bearing that name are Kimi's.
+  What Qwen actually said is lost.
+- Luna Pro's three 3 September calls returned 165,887, 162,555 and 65,221 tokens.
+- One row, 2 September 08:59:19, has no model recorded at all.
+
+## The .gitignore blind spot
+
+Both evidence sets were first saved under `docs/audit_package/round*/`, which
+`.gitignore` ignores except for `MANIFEST.md`. That rule is correct for generated
+package bytes and wrong for reviewer responses, which are primary evidence and cannot
+be regenerated.
+
+Worse, **ignored files do not appear in `git status --short`**, so the standing
+handover check could not have caught it. A check that looks for untracked files that
+matter is blind to files the repository has been told to ignore.
+
+**Structural fix, not an instruction to be careful:** reviewer responses now live in
+`docs/audit_reports/<round>_<model>_<date>/`, which is tracked by default. No
+exception list to maintain, and the safe location is the only one on offer. `round*/`
+stays ignored for generated packages, which is what the rule was written for.
+
+Filed there: `round2_kimi_k3_20260902/` (the complete transcript, six files, with a
+README recording what it establishes) and `round3_glm_5.3_flash_20260905/` (the
+report, three files, with its ledger row and verification status).
+
+## Rulings, 5 September afternoon
+
+- **The GLM report is round 3.** Not discarded, not acted on. No finding in it is
+  fixed before the next round. It exists to be compared against round 4's report on
+  the same unmodified code.
+- **Kimi K3 runs round 4**, on that same unmodified code.
+- **Part 8 is dropped from the Kimi run entirely.** Its comparison set is Kimi's own
+  reasoning. Parts 1-6, Part 7 optional. Viktor does the GLM-versus-Kimi comparison
+  himself from the two reports, which keeps both fully independent and puts the
+  comparison in the hands of the only party who can make it honestly.
+- **Rev 5 changes exactly two things** — Section 5's false statement about the
+  reviewer's identity and clean-list status, and the removal of Part 8 — and nothing
+  that changes what is graded, how, or what is handed over. GLM ran against rev 4; the
+  revision history will name the delta so the comparison carries its own caveat.
+
+## What comes next
+
+1. **Rev 5 of the reviewer instruction.** Section 5 currently tells the reviewer "You
+   are Qwen3.8-Max… You are on the clean list… one was spent on an earlier attempt at
+   this same audit." Sent to Kimi, that last clause describes Kimi as someone else.
+   Section 13 and the Part 8 file come out.
+2. **Rebuild the package** with `python docs/build/build_audit_package.py`.
+3. **Send to Kimi K3** — named model, named provider, pinned. Not Auto Router. Output
+   ceiling raised before the call.
+4. **Then** the GLM-versus-Kimi comparison.
+
+Still owed from the morning and not done: the Engineering Notes stop at Entry #72 and
+now also miss everything above.
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then

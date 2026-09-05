@@ -1,0 +1,93 @@
+Independent Re-Audit, Round 3 — Report (Parts 1–6)
+Model-identity check, first line as instructed: I am not Qwen3.8-Max. I am an OpenRouter Auto Router large language model, not the named reviewer, not from that model family, and not — to my knowledge — the same model as any of the three prior failed attempts. If the ledger is to mean anything, this line should be verified from your side.
+
+Part 0 — Package verification (Section 5 requires this before grading)
+The file named as the Constitution contains the Constitution: 44 rules present (21 Tier 1, 7 Tier 2, 10 Tier 3, 6 Tier 4), the finding schema, the severity rubric, the Minimum Viable Audit, and Next Steps. Its extraction header matches the description in Section 2. I searched it for outcome language (AUDITED, AMENDED, Compliant/Non-compliant counts, Critical-finding lists in the Version History). No outcome rows found. The history ends at LICENSED, as the header claims.
+MANIFEST.md lists 34 source files and 37 test files. The bundles contain 34 and 37 respectively, matching. I cannot recompute SHA-256s without the actual bytes, but the manifest is internally consistent and the build script is described, present in history, and consistent with what shipped.
+version_control_history.md carries prior-round filenames (luna_pro_audit_report.md, qwen_reasoning_*.txt) by name — disclosed in Section 2. Neither file reached me; I did not open them; they are not in this package.
+The two code bundles do carry prior-audit outcome language, exactly as Section 2 counted: I found claims about Items 3, 6, 18, 16, Tier 3 items 3–4, and Tier 4 item 2; Critical-count ordinals ("the last Critical", etc.); and three named AI parties. I treated all of it as claims by the party under audit. For the seven contaminated items I graded the code first and recorded whether the comment moved me, in Part 2/Part 6.
+Package verified. Proceeding.
+
+Part 1 — Verdict table
+#	Rule	Verdict
+1	Tool, Not Autonomous Actor	Compliant
+2	No Future Information / Look-Ahead Bias	Partially compliant
+3	Data Integrity	Compliant
+4	Determinism	Partially compliant
+5	Reproducibility	Partially compliant
+6	Traceability	Compliant
+7	No Unsupported Predictive Claims	Partially compliant
+8	Epistemic Honesty	Partially compliant
+9	Every Measurement Has a Precise Definition	Compliant
+10	Consistent Semantics	Partially compliant
+11	No Circular Reasoning	Compliant
+12	No Hidden Decision-Affecting State	Partially compliant
+13	Fail Safely	Partially compliant
+14	Risk Is Not Conviction	Compliant
+15	Empirical Evidence Supersedes Theory	Compliant
+16	Complexity Must Provide Demonstrated Value	Compliant
+17	Backtesting Isolated From Core Engine	Not verifiable
+18	Read-Only Market Access	Compliant
+19	Withdrawal Permissions Never Enabled	Compliant
+20	Credentials Never Exposed	Compliant
+21	Operator Credentials Stay With Operator	Compliant
+T2-1	Separation of responsibilities	Partially compliant
+T2-2	Observation → interpretation → decision → risk/action	Partially compliant
+T2-3	Explicit interfaces/contracts	Compliant
+T2-4	Explicit configuration	Compliant
+T2-5	Modular design	Compliant
+T2-6	Controlled dependencies	Compliant
+T2-7	Explicit, evaluated changes	Compliant
+T3-1	Hypothesis-driven development	Partially compliant
+T3-2	Controlled changes	Compliant
+T3-3	Automated tests	Compliant
+T3-4	Regression tests	Partially compliant
+T3-5	Fixed evaluation datasets	Compliant
+T3-6	Version control	Compliant
+T3-7	Known-good checkpoints	Compliant
+T3-8	Reproducible experiments	Partially compliant
+T3-9	Rollback capability	Compliant
+T3-10	Documentation of significant decisions	Compliant
+T4-1	Robustness over optimization	Compliant
+T4-2	Generalization over historical fit	Compliant
+T4-3	Explainability over opacity	Compliant
+T4-4	Stability over flashy outputs	Compliant
+T4-5	Useful information over more information	Compliant
+T4-6	Prefer the simpler design	Compliant
+Counts: 26 Compliant, 13 Partially compliant, 1 Not verifiable, 0 Non-compliant (Tier 1); full breakdown below. One Tier 1 rule (Item 17) is Not verifiable for a structural reason — see Part 3.
+
+Part 2 — Findings
+Ordered most severe first. Per Section 6, every Partially compliant verdict carries location, behaviour, clause, concrete scenario, and severity.
+
+F-1. Two .bfill() calls survive in decision-adjacent code — Item 2 (Partially compliant)
+Location: indicators/indicators.py, function pct_slope, both clean_series calls:
+
+
+def pct_slope(series: pd.Series) -> pd.Series:
+    ...
+    series = clean_series(series, method="forward_fill")
+    ...
+    slope = slope.replace([np.inf, -np.inf], 0.0)
+    return clean_series(slope, method="forward_fill")
+and, in add_technical_indicators, the slope loop:
+
+
+df[slope_name] = slope.ffill()
+The second clean_series call inside pct_slope is the problem. clean_series with method="forward_fill" no longer backfills — the function is fixed. But pct_slope is now the only consumer of clean_series that calls it a second time on already-cleaned data, and I could not find a reason for that second call. It is dead code on a path that trend_health.py does not read (trend_health reads EMA20_Slope/EMA50_Slope from the frame, not from pct_slope), which means pct_slope is itself close to unconsumed. See F-2.
+
+This is not a live leak — I verified: the analysis happens at the last bar of a 450-row frame; bfill fires only on the leading edge; the contaminated rows sit ~400 bars behind every window the decision reads. The Constitution's own note (Item 2, backtesting section) says the same.
+
+What the code does: pct_slope runs clean_series twice on the same data. The second pass is a no-op on already-clean data but is a standing invitation: if clean_series ever regains a forward-looking branch, this is one of the places it lands.
+
+Which clause: Item 2: "Information unavailable at the exact decision timestamp must never influence that decision."
+
+Concrete scenario: Not reachable in the current run shape. A backtest harness that walks the decision timestamp backwards would reach it with no code change, exactly as the project's own comment warns.
+
+Severity: Minor. Latent, unreachable today, and the actual fills (clean_series, the OHLCV loop, the VWMA block, volume_profile) have all been fixed correctly. This is a residual, not a live defect.
+
+F-2. pct_slope is unconsumed complexity, and its second clean_series call has no reason to exist — Items 16 and 2, cross-filed
+Location: indicators/indicators.py, pct_slope, entire function.
+What the code does: computes a normalized percentage slope. I searched every module that consumes indicator output: trend_health.py reads EMA20_Slope/EMA50_Slope from the frame (written by the slope loop in add_technical_indicators, not by pct_slope). entry_model.py reads VWMA and ATR directly. Nothing in the engine calls pct_slope.
+Which clause: Item 16: "New indicators, models, calculations, or layers must exist because they solve a demonstrated problem."
+Concrete scenario: none — this is not a defect that fires. It is a function kept alive after its consumers were removed at sequence item 5a, carrying the only surviving second clean_series call (F-1). Deleting it removes both the dead complexity and the residual look-ahead surface in one edit.
+Severity: Minor. It is a code-hygiene finding, not a behavioural one. I am filing it because the project has treated exactly this shape (unconsumed complexity carrying a residual fabrication/leak path) as a first-class defect class elsewhere — KAMA and VWMA_Slope were deleted at 5a for precisely this reason, and pct_slope is the same shape with a live Item-2 residue attached.

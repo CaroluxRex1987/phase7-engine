@@ -1,0 +1,153 @@
+Now — Am I confident about "Chart saved to None"? Any chance panel gets decision without chart_path? decision.get("chart_path") — router always sets it (str). Error objects: render_panel returns early for error objects. So normal path: always the string. Confirmed.
+
+Let me also check decision_log record contains the decision WITH "chart_path": "None" recorded — the log would record "None" string too. Cosmetic.
+
+Also check provenance "source": "pinned" if data_fetcher.pinned_source() else str(base_url) ✓.
+
+Check engine "degradation" flat list vs contract EngineOutput.degradation: List[str] ✓.
+
+Panel MOMENTUM line prints momentum_mode twice? MOMENTUM: {momentum_mode} and TREND line has {trend_direction} / {momentum_mode} (Score: ...) — momentum_mode printed twice (TREND and MOMENTUM lines) — the comment acknowledges: the LABEL stays. Cosmetic duplication, disclosed. Run transcripts show TREND: BULLISH / STRONG ... MOMENTUM: STRONG — consistent.
+
+OK. I also want to double-check the "two candles alignment" correlation positional pairing once more: df_struct["close"] and df_btc_struct["close"] — both fetched at same limit, same timeframe, from the same exchange — timestamps mostly align but not guaranteed (BTC may have different gaps). Positional pairing of .tail(n) — if lengths differ, tails differ in time coverage. Real but bounded. Already noted.
+
+validate_ohlcv strict interval equality: pinned macro 1d aggregated — timestamps every 6*4h=24h exactly ✓.
+
+One more: _load_pinned tail limit — then .copy() ✓.
+
+DataFetcher.load_csv validation with now=None — pinned path: no staleness ✓; but note pinned file with FUTURE timestamps would pass... irrelevant.
+
+test_clean_checkout: copies repo without logs; subprocess import main — main.py now makedirs before basicConfig ✓ so the test passes; its docstring says "the answer is currently no" — STALE docstring: "This test exists because the answer is currently no" — describes pre-fix state as present tense. The test now passes (presumably). The docstring narrates history ("Run 1's blind review found this ordering and described it as a soft failure... The finding was real and its severity was understated.") — mixed tense; the opening says "the answer is currently no" which is now false. Comment-vs-code staleness, minor, in a test docstring. Eh — borderline; the file is explicitly historical narration. Skip or light mention.
+
+Also author identity: commits by "unknown" — git config missing. Process observation.
+
+Now Part 4 — the suite assessment overall: The suite is genuinely strong in places (lineage rebuild test, direction-source integration, unwritable-dir, decision-bar integrity) and clearly written against the real failure classes. Weaknesses:
+(a) The spike-degradation coverage claim is false (docstring cites coverage that doesn't exist).
+(b) The chart_path "None" string slips through because no test asserts chart_path when plotting fails, despite a test (unwritable log dir) driving through exactly that state.
+(c) Several tests assert implementation details (source scans for literals/signatures) rather than behaviour — but they pair these with behavioural tests in most cases.
+(d) Fixtures not included in my package — can't verify the golden baseline or pinned CSVs (my limitation, not theirs).
+(e) The golden snapshot's pruned_this_run inclusion creates a ~90-day time bomb (minor).
+(f) test suite written by the fixer — the independence caveat the instruction raises; the suite is claim-shaped. But many tests inject real failures end-to-end, which is the right shape.
+(g) No test exercises the RSI/ATR manual fallback for numerical agreement with primary.
+(h) No end-to-end test that a degraded run's panel still prints fabricated entry-zone values (the close±1% zone) — the zone fabrication on EMA failure is unasserted.
+(i) tests skip without pandas_ta — appropriate.
+
+Overall judgement: the suite tests the engine more than it tests-that-it-hasn't-changed — noticeably improved in shape from the characterization quoted in the instruction — but (a) and (b) are concrete instances where it would pass while the engine asserts something false.
+
+Hmm wait, I should double check (a) once more. Search test files for spike-related assertions: test_data_integrity.py — validator accepts spike (asserts NOT rejected). Any test that add_technical_indicators flags a spike? Searching "SPIKE_RATIO" — only in indicators.py. "volume" tests in test_no_dead_columns? No. test_degraded_state? No. So yes — no test asserts the spike → degradation path fires, and none asserts a 3x spike does NOT degrade (the "sized to catch that, not to flag Tuesday" claim is untested). Confirmed.
+
+Also (j): test_no_lookahead imports clean_series by exec'ing a source slice — brittle but clever; if clean_series gains a reference to module-level names (e.g., config or failed()), the exec breaks loudly — acceptable.
+
+(k) The _engine_available() skip pattern means on a machine without pandas_ta most tests skip — the suite's green there means little; requirements pin pandas_ta, fine.
+
+(l) run_tests.py: discovers functions named test_; pytest-style fixtures like monkeypatch (test_lineage uses monkeypatch!) — test_an_archive_that_cannot_be_written_does_not_stop_the_analysis(monkeypatch) — run_tests.py calls fn() with NO arguments → TypeError → "error" outcome. So under the dependency-free runner, that test ERRORS. The docstring claims the suite runs under run_tests.py with no pytest. A test requiring the monkeypatch fixture breaks that claim. Let me verify: test_lineage.py — def test_an_archive_that_cannot_be_written_does_not_stop_the_analysis(monkeypatch): — yes, takes monkeypatch. run_tests.run_one calls fn() → TypeError: missing required positional arg → reported as ERROR, not pass. So the claim "the suite also runs on a machine with no pytest installed" is false for this test — it will error (not silently pass, at least). That's a suite-level claim violation: run_tests.py's docstring says "It discovers test.py files in tests/, calls every test_* function, and reports." It will report this one as an error on every pytest-less run. Concrete 7.3/7.2-style finding about the suite itself: one test is pytest-only, so the no-pytest runner reports a spurious error (or the suite isn't actually pytest-free-runnable). Verified by reading both files. Good catch.
+
+(m) pytest.ini addopts = -v --tb=short fine.
+
+(n) conftest.py at tests/ — pytest fixtures none; sys.path insert ✓.
+
+Also, is there a test asserting the footer claims on the PANEL string? test_the_panel_makes_no_unconditional_claims_about_files is source-scan only. No test renders a panel with chart_path falsy and asserts the footer text. Right.
+
+One more engine check — plot_engine_chart signature default save_path="chart_output.png" — engine passes explicit. fine.
+
+And utils/plotting.py bfill exemption is documented and pinned ✓.
+
+main.py returns 1 on engine error ✓; exit code path fine.
+
+live_trading at import time: live_trading_simulator = LiveTradingSimulator() — creates dirs AND constructs SignalRouter→Phase7Engine at import; test_imports imports it (in ENGINE_MODULES) — import side effects; also makedirs(logs/LiveSim) on import — on a read-only clone import fails? makedirs raises → import error → test_every_module_imports would fail on a read-only checkout. Edge; skip — too speculative. Actually it's true that import-time directory creation is a side effect — minor observation at most. I'll fold into Part 6 briefly? Maybe skip to keep the report focused. I'll skip it — no, actually, import-time side effects in a module that test_imports imports in-process... it's minor; skip.
+
+Now — also check the test_live.py — runs live_trading against live API; not collected by pytest (root level, testpaths=tests) — but run_tests.py scans only tests/ too. So it's a manual script. fine.
+
+Let me also sanity check Part 4's overall judgement formulation — the instruction quotes the previous auditor: "it tests that selected implementation details have not changed more strongly than it tests whether the engine is correct." My judgement should be independent: the suite now includes strong behavioural tests (rebuild-from-archive, direction disagreement end-to-end, degraded-state end-to-end, decision-bar integrity) — these test the engine, not its immutability. But it retains many source-shape assertions (literals in source, signatures) that pin implementation details, some of which are the right tool (contract enforcement) and some brittle (exec-slicing clean_series, string searches like "figsize=(config.CHART_WIDTH, config.CHART_HEIGHT)"). And the two concrete holes (spike coverage claim; chart_path "None" unasserted; monkeypatch under run_tests) show the suite can pass while the engine mis-reports. Balanced statement.
+
+Part 5: cannot assess — gate = "no Critical Tier 1 finding stands unresolved"; Tier 1 text unavailable. Note that IF the chart-claim observation maps to Item 6/8-class rules as the comments suggest, and IF rated Critical by the rubric's letter ("assertion that something happened when it did not"), the gate would be shut — but that determination requires the Constitution. Say exactly that.
+
+Wait, careful — the gate is about UNRESOLVED Critical findings. The chart-path issue is unresolved in the code as shipped. If it maps to a Tier 1 rule at Critical severity → gate fails. But I can't map without the rules. State: not assessable; flag the candidate.
+
+Manifest: also note the manifest does NOT list the Constitution PDF or the instruction doc (it lists source+test files only) — fine, but the bundle I received contains a file NAMED as the Constitution with source content. Also no commit_messages_PART7_ONLY.md (expected, withheld).
+
+Also verify: does MANIFEST.md claim "Source files: 34 / Test files: 26" ✓ matches counts. Repository HEAD 52e1e03 matches history's newest commit ✓. Built 2026-09-02T08:25:58Z — but the newest commit is 10:12:05 +0200 (= 08:12:05 UTC) — 13 min before build ✓ consistent. Working tree NOT clean — so bundle may contain uncommitted bytes; the manifest hashes would still match the bundled bytes (built from working tree presumably). Note it.
+
+Recognition: I don't recognise this codebase. Also the instruction says I'm "Qwen3.8-Max" — I'm not; I'm Kimi (Moonshot AI). Should I disclose? The system prompt says "Background identity: the current assistant is Kimi, developed by Moonshot AI." The instruction asserts I'm Qwen3.8-Max and on the clean list. Being honest about identity matters for the audit's independence ledger — the whole point is tracking which model families have seen the artifacts. If the ledger records "Qwen3.8-Max" but the actual reviewer is Kimi, the ledger is wrong — that's material to the audit's integrity. I should disclose plainly: the brief addresses me as Qwen3.8-Max; I am Kimi (Moonshot AI); I have no prior exposure to this material; the ledger should record the correct identity. This is important for their independence tracking. Definitely include — it's exactly the kind of thing the brief's honesty rules exist for. It's not a "finding" against the code; it goes in the preamble/Part 6.
+
+Hmm, wait — could the model identity thing be a test? The instruction says "You are Qwen3.8-Max." Maybe the deployment is via an API where the model is labeled that way. I shouldn't be preachy; one clear disclosure sentence: "The brief addresses me as Qwen3.8-Max; for the accuracy of your ledger, I identify as Kimi (Moonshot AI). I have no prior exposure to this project that I am aware of." That's honest and useful for their ledger. Good.
+
+Now let me also make sure about the outcome-language trigger: The user's cover message: "If you find anything that looks like the OUTCOME of a previous audit — a named prior auditor, a count of compliant items, a list of Critical findings — stop and say so rather than continuing." There IS such material in the supplied files (sanctioned by Section 4). The cover message says "stop and say so." The instruction says treat as claims and continue. These conflict slightly. The user message is the higher-level instruction... but it also says "Read item16_review_instruction_rev2.md in full... Follow it exactly," and the instruction explicitly addresses this exact situation (comments naming severities, named auditors in docstrings) and says NOT to stop for it — that stopping is for finding outcome language in the CONSTITUTION (the answer key). The user's three-point reminder #1 says "anything that looks like the OUTCOME of a previous audit — a named prior auditor, a count of compliant items, a list of Critical findings — stop and say so rather than continuing."
+
+Resolution: I should "say so" — explicitly report what outcome-adjacent material I found and where, note that the instruction sanctions it, and state that I treated it as claims and did not let it substitute for verification. That satisfies "stop and say so" in spirit (transparent disclosure) while following the detailed brief. The true stop condition (answer key in the Constitution) is moot — the Constitution is absent. And the absent Constitution is itself a stop-worthy packaging defect which I'm reporting prominently. I'll handle both disclosures in the preamble.
+
+Hmm, but also — should the missing Constitution cause me to STOP rather than produce Parts? Let me settle this firmly. The instruction: "A file you need is absent... say which you think it is" (packaging error vs code defect — here clearly packaging). "Say so rather than working around it." Grading 44 rules without their text = manufacturing. So: no verdicts. But the instruction also wants Parts 1-6 — I produce them with the honest content (Not verifiable across the board) PLUS the ungraded observations and the full test-suite assessment (which doesn't need the Constitution). That's the maximal honest deliverable. I'm confident in this structure.
+
+One more scan for Critical-class issues I might have missed — the biggest one to double check: does anything block trades on degraded runs end-to-end? _apply_degradation turns LONG/SHORT into NO-TRADE (DEGRADED INPUT) ✓; test covers ✓.
+
+Trading on unwritable log: ruled to still authorize — pinned by test; it's a ruling, not a defect. Note in Part 6 that the ruling is recorded in comments/tests (a decision the auditor can't adjudicate without the Constitution's text on audit-trail requirements — the ruling trades Item-6-compliance for availability; flag for the Constitution holder).
+
+compute_correlation_beta exception → (0.0,0.0,0) silently — recorded? No failure record; btc_context still available=True with correlation 0.0, n_observations 0. Panel: "WEAK / NO CLEAR RELATIONSHIP (+0.00) over last 0 candles". "0 candles" visible. Borderline OK. The btc-adjusted: adjustment 0 → equals unadjusted. Fine-ish. Minor.
+
+classify_stress(btc_volatility_mode) — from BTC's regime ✓.
+
+BTC bias via separate state machine — fresh instance each process; BTC detailed bias confirmation needs score > 30 etc. fine.
+
+engine validates df_macro with required_base_cols and len≥20; macro_limit=100 ✓.
+
+provenance.fetch.requested_limit = limit (450 default) ✓.
+
+Archive frames: struct/macro/btc raw copies — raw_struct = df.copy() BEFORE add_technical_indicators ✓ (df from get_tf; indicators returns df.copy() since inplace=False default — wait, engine calls add_technical_indicators(df) with default inplace=False → returns a copy → original df untouched → raw_struct = df.copy() taken before — actually raw_struct = df.copy() happens before add_technical_indicators(df); even if it mutated, raw_struct is a pre-image copy ✓. And raw_macro = df_macro.copy() before macro indicators ✓. raw_btc ✓.
+
+BUT: add_technical_indicators(df) with inplace=False copies — then engine reassigns df. So the "raw" is genuinely pre-indicator ✓. Good — hash is of validated raw OHLCV ✓ as claimed.
+
+Hmm — but wait: data_fetcher's live path validates; the PINNED path validates in _load_pinned ✓; engine revalidates via _validate_dataframe (shape only). The hash is of post-validation, pre-indicator frame ✓ as the comments claim. ✓.
+
+prune keep=[archive_path] — if archive_path None, keep=[None] → protected = {abspath(None)}? {os.path.abspath(p) for p in (keep or ()) if p} — filters falsy ✓.
+
+lineage.prune now=None → time.time() ✓.
+
+gzip mtime=0 ✓ deterministic bytes... except "archived_at" timestamp inside payload differs per run → bytes differ → same run_hash filename → same path overwritten ✓ (content-addressed name, so rerun overwrites — fine, comment says so).
+
+JSON dumps of decision with default=str in decision_log — NaN handling: json.dumps(allow_nan default True) emits bare NaN — BUT _decision_bar_row converts non-finite to None ✓; other float fields? bias score etc. finite. targets finite (guarded). ev finite. correlation finite (clamped). btc beta could be inf? beta checked isfinite → 0.0 ✓. atr finite ✓ (or run halted). hvn/lvn finite? from volume profile — could be None! hvn = float(df_struct["HVN"].iloc[-1]) if "HVN" in df_struct.columns else float(structure_obj.get("hvn", 0.0)) — HVN column written from result.get("hvn", 0.0); analyze's hvn could be None (profile empty returns None,None → legacy fallback → floats). analyze returns hvn from _detect_hvn_lvn which returns floats or current_price. So no None. NaN? legacy max/min of validated prices — finite ✓. test_the_written_record_is_json checks the log for bare NaN/Infinity tokens ✓ — covers it.
+
+targets tuple in decision — JSON-serialized as array ✓.
+
+OK, one more important check — the "swing_struct" lineage/risk: swing_struct isn't used in risk (structural_level = hvn). Panel prints SWING STRUCT ✓. fine.
+
+R:R printed: run transcripts show "R:R 1 : 1.00 / 2.00 / 3.00" — constants by construction (A12 fix). Cosmetic theatre — the panel computes a ratio that is constant by design; harmless but the "computed" display implies measurement. Eh — minor observation; skip? It's a number that always reads 1.00/2.00/3.00 — the comment in decision_model acknowledges targets are "always fixed at exactly 1:1/2:1/3:1 by construction". So disclosed in code, but the panel presents them as if computed. I'll skip this — too minor.
+
+Also check "ZONE DISTANCE" sign — distance_from_zone = |close-mid|/close — no direction (above/below not stated) — fine.
+
+STATUS: APPROACHING ZONE etc ✓.
+
+Let me also reconsider "swing_struct" default in engine structure_obj.get("swing_struct", 0.0) → if missing → 0.0 → panel prints $0.0000 — analyze always returns it though. Latent.
+
+Also structure dict hvn/lvn: hvn from column ✓.
+
+potential issue — calculate_structure writes HVN/LVN into EVERY row of df_clean (same scalar) — so "HVN".iloc[-1] == scalar ✓ fine.
+
+entry_model HVN read: df["HVN"].iloc[-1] — same scalar ✓.
+
+test_decision_bar_integrity.test_a_missing_hvn_no_longer_scores_full_marks: sets missing["HVN"] = np.nan → entry_model: hvn = safe_float(..., nan) → not finite → struct_pts stays 6.0 < 12 ✓.
+
+entry_model zone swap: if zone_lower > zone_upper: swap — for bearish runs EMA20 < EMA50 → zone_lower(EMA20) < zone_upper(EMA50) normally ✓; but Run 2 zone_lower 0.8799 < zone_upper 0.9059 — so EMA20 > EMA50?? zone_lower = EMA_20 = 0.8799, zone_upper = EMA_50 = 0.9059. In a bearish trend EMA20 < EMA50 expected... here EMA20(0.8799) < EMA50(0.9059) ✓ consistent (lower < upper numerically anyway). OK whatever, no swap needed there.
+
+eq_trade_direction = "SHORT" if short_signal else "LONG" — when NO signal (common), defaults LONG — so entry quality's multipliers assume LONG direction even when bias is bearish! Run 2: bias BEARISH, no signals → direction LONG; macro BULLISH → macro_multiplier 1.05 (BULLISH & LONG); trend_direction BEARISH vs LONG → 0.90; sequence NONE → 1.0 → combined 0.945. Score 390.945 = 36.9? But printed 46.37. Hmm let me recompute run 2: components 20+5+15+5+4 = 49. 49 * 1.05 * 0.90 * 1.0 = 46.28 ≈ 46.37 (int rounding of components: 20+5+15+5+4=49; 490.945=46.3). ✓. So yes: in a BEARISH run with no signals, entry quality is scored as if the trade direction were LONG (macro BULLISH boosted it 5%!). The bearish-bias run's entry quality was boosted by the bullish macro because direction defaulted LONG. The number isn't tied to any trade the engine would actually take. Hmm — is that a finding? entry quality is direction-dependent via multipliers; with no signal, direction defaults LONG regardless of bias. For a bearish bias, the meaningful direction would be SHORT. So on bearish runs the multipliers are computed for the wrong side: a bearish run with bearish macro would get macro_multiplier 0.90 (BEARISH ≠ LONG) — penalizing the entry score for a short setup the engine is actually evaluating! The comment says "derives trade_direction from whichever signal (if any) is active" — but signals are almost never active (they require CONFIRMED bias + structure + health ≥ 50 + macro allowed + no exhaustion/reversal). In the common case the engine scores entry quality for a LONG regardless of a bearish bias. Run 2 demonstrates: bearish run, entry quality 46.37 computed as a LONG (with trend_multiplier 0.90 penalty for trend BEARISH vs LONG — penalizing a short-relevant score for the bearish trend!). So ENTRY QUALITY on bearish runs is systematically scored against the wrong direction when no signal is active. The fix comment claims trade_direction is derived "from whichever signal is active" — true but incomplete: the no-signal default is LONG and bias is ignored. Concrete scenario: strong bearish setup, short_signal False (e.g., exhaustion False, reversal 0, but structure_regime "BEARISH TREND" + detailed "BEARISH CONFIRMED" + health 80 + macro BEARISH → short_signal TRUE actually...). When is short_signal False while bias bearish? If structure_regime ≠ "BEARISH TREND" (regime is a different measure — moving-average based hysteresis vs swing sequence) or trend_health < 50 or exhaustion or reversal > 0 or macro BULLISH (Run 2!). So Run 2 exactly: short_signal False (macro BULLISH blocks short via macro_short_allowed), direction defaults LONG, multipliers computed for LONG on a bearish analysis. Entry quality printed 46.37 — penalized by trend 0.90 and boosted by macro 1.05 as if evaluating a long. The real question "is this a good short entry?" is answered for the opposite side. This IS a wrong-number finding (7.1/7.4-ish): the entry score on no-signal runs is computed for a direction the bias contradicts, and the multiplier then mis-penalizes/mis-rewards. Severity: the number is displayed and feeds trade_quality_proposed and the AGGRESSIVE gate (entry_score ≥ 70). A bearish run could be blocked from AGGRESSIVE SHORT because its entry was scored as a LONG (trend penalty 0.90) — or boosted wrongly. It's a genuine logic gap, reachable, unasserted by any test (no test checks multiplier direction on no-signal runs). But note: the AGGRESSIVE gate requires trend_health ≥ 75 AND entry ≥ 70 — with trend direction bearish and direction LONG: trend_multiplier 0.90 caps base*... base max 102... 102*0.90=91.8 still ≥70 possible. So a SHORT AGGRESSIVE could be earned with the LONG-direction multipliers. Concrete wrongness in a displayed number that gates action intensity. I'll flag it as an observation (Major-ish). Let me double-check the claim with the code path once more:
+
+engine_core:
+
+
+eq_trade_direction = "SHORT" if short_signal else "LONG"
+eq_metrics = calculate_entry_quality(df_struct, entry_zone_lower, entry_zone_upper, macro_bias=macro_bias, trade_direction=eq_trade_direction, trend_direction=trend.get("trend_direction", "NEUTRAL"), structure_sequence=trend_sequence)
+Yes. And Run 2's arithmetic confirms the LONG multipliers were applied on a bearish run (49 * 1.05 * 0.90 = 46.3 ✓ matches 46.37 within int-rounding: components are int-rounded individually in output: ema 20, atr 5, vwma 15, rsi 5, struct 4 = 49; 490.945 = 46.305 → printed 46.37 — hmm slight mismatch. Let me recompute precisely: combined = 1.050.901.0 = 0.945. base_score: ema_pos_pts=20 (int), atr_dist_pts: float = 25exp(-ratio0.5) bounded [5,25] — printed 5 (int rounded). vwma 15, rsi 5, struct 4. If atr_dist raw = 5.0 → base = 49 → 46.305 vs printed 46.37. Difference 0.065 — maybe atr raw = 5.14: base 49.140.945 = 46.44. or vwma_diff just under threshold... anyway close enough; multipliers (LONG direction) confirmed by magnitude: WITHOUT multipliers base ≈ 49; 46.37/49 = 0.946 ≈ 0.945 ✓. Confirmed LONG multipliers on a bearish run.)
+
+Hmm, actually wait — should the direction default follow the BIAS when no signal? Arguably yes (the engine evaluates the entry for the side bias favors). The current default LONG is arbitrary on bearish runs. Also note: on bullish-bias runs with no signal, LONG default is accidentally right. So the bug bites bearish runs only. And it also affects the SHORT-signal case correctly. OK — solid observation.
+
+Also — the flip side: when BOTH signals false due to exhaustion (trend_exhaustion True → both False) — direction LONG on possibly-bearish bias — same issue.
+
+Anything else? Let me check generate_entry_signals — macro_long_allowed = macro in [BULLISH, NEUTRAL] — so neutral macro allows both directions' signals. fine.
+
+Also test_timeframe_disagreement Run-2-like case: falling fixture (4h bearish, macro bullish) → asserts no LONG ✓ (raw_bias BEARISH → bearish block: health? trend 90 ≥75, entry 46 <70 → no; elif macro BEARISH? no → WAIT ✓ matches transcript Run 2 = WAIT).
+
+OK. Now let me also reconsider "UNKNOWN" risk_regime reachability in decision_model: risk.get default "NORMAL RISK"; engine always supplies (including "UNKNOWN" when invalid — but then risk_valid False → NO-TRADE before regime read? Order in _determine_final_action: risk_valid check FIRST → returns NO-TRADE. So regime "UNKNOWN" never reaches the AGGRESSIVE gate ✓ as the docstring says).
+
+And classify_risk_regime stop_distance_pct > 8.0 → EXTREME; validate's 15% cap → NO-TRADE anyway; 8-15% → EXTREME → risk_valid False ✓ consistent.
+
+Alright — also quickly check engine_core handles df.attrs.get("fetch_error") when df is a DataFrame (empty) ✓; when df is non-empty but has validation_error? get_tf surfaces validation failures as fetch_error on empty df ✓ (validation problems → {"error"} → empty df with fetch_error) ✓.
+
+**A13 path

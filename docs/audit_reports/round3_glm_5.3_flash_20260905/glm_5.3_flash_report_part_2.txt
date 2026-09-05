@@ -1,0 +1,178 @@
+F-3. structure.py still writes STRUCTURE, HVN, LVN back onto its own output frame, and calculate_structure's contract is "returns a dict that happens to carry a DataFrame it also mutated" — Tier 2-1, Partially compliant
+Location: structure/structure.py, calculate_structure, final block:
+
+
+df_clean = df.copy()
+...
+df_clean.loc[:, "STRUCTURE"] = result.get("regime", "NEUTRAL STRUCTURE")
+df_clean.loc[:, "HVN"] = result.get("hvn", 0.0)
+df_clean.loc[:, "LVN"] = result.get("lvn", 0.0)
+result["df"] = df_clean
+and core/engine_core.py, section 6:
+
+
+hvn = float(df_struct["HVN"].iloc[-1]) if "HVN" in df_struct.columns else float(structure_obj.get("hvn", float("nan")))
+lvn = float(df_struct["LVN"].iloc[-1]) if "LVN" in df_struct.columns else float(structure_obj.get("lvn", float("nan")))
+What the code does: calculate_structure writes three columns into its working copy and returns that copy inside the dict. engine_core then reads the same three values twice by two different routes — once from the frame columns, once from the dict fields — with a fallback chain that prefers the frame.
+
+Which clause: Tier 2, "Separation of responsibilities" / "Explicit interfaces/contracts" — and Item 10 (Consistent Semantics) as a downstream consequence.
+
+Concrete scenario: the two routes are currently equal by construction (the frame columns are written from the dict fields on the line immediately above), so this does not fire today. It is the same shape as the defect class the project itself names in check 7.6: two sources for one quantity, nothing comparing them, agreement by accident of adjacency. One edit to calculate_structure — say, a future sub-routine failure handler that writes the frame but not the dict, or vice versa — and engine_core's HVN/LVN, structure.hvn, and the panel's structural levels diverge silently, because nothing checks that the two routes agree.
+
+Severity: Minor. Latent, currently consistent, and I could not construct an input that makes them disagree today. Filed as design debt, not a defect.
+
+F-4. _merge_btc_context invents defaults for fields the contract says can be absent — Tier 2-3 / Item 10 (Partially compliant)
+Location: models/signal_router.py, _merge_btc_context:
+
+
+"correlation": float(btc_context.get("correlation", 0.0)),
+"correlation_label": str(btc_context.get("correlation_label", "WEAK / NO CLEAR RELATIONSHIP")),
+"beta": float(btc_context.get("beta", 0.0)),
+What the code does: when btc_context is available but a field is missing, this substitutes 0.0 and the label for "no relationship found" — the same fabrication-with-a-sentence defect class the project has spent two weeks removing. The whole point of the Finding-(a) fix in btc_context.py and panel_render.py was that an unmeasured relationship must not print as a measurement.
+
+Which clause: Tier 2, "Explicit interfaces/contracts"; Item 10 (Consistent Semantics); and it brushes Item 8 (the default label is a claim).
+
+Concrete scenario: engine_core currently always populates these keys when available is True, so the defaults never fire — the same "unreachable, therefore harmless" argument the project itself rejects in check 7.1 and in the trend_health fallback finding. If a future change to engine_core's BTC block ever omits correlation while keeping available: True, this merge point will print CORRELATION: WEAK / NO CLEAR RELATIONSHIP (+0.00) — the exact output test_btc_correlation_alignment.py::test_the_panel_does_not_print_a_correlation_it_does_not_have exists to forbid, reached through a path that test does not exercise (it builds the decision dict by hand and does not go through _merge_btc_context).
+
+Severity: Minor. The defaults are latent, and the panel-side guard exists — but the merge point is between them, and it re-introduces the values the guards reject. This is a real inconsistency in the fix, not a hypothetical.
+
+F-5. The exit-quality/decision "confidence" is bias_score under a third name, and the panel's label does not say so — Item 10 / Item 8 (Partially compliant)
+Location: models/decision_model.py, _compute_confidence:
+
+
+confidence = min(100.0, abs(_safe_float(bias.get("score"), 0.0)))
+and core/panel_render.py:
+
+
+f"CONFIDENCE (decision): {confidence_score:.2f}/100\n"
+and core/engine_core.py, risk block:
+
+
+"confidence_score": trend["trend_health"],
+What the code does: three things. First, engine_core still assigns the literal trend_health to risk["confidence_score"] — a field the contract (decision_contract.RiskBlock) declares as confidence_score: float. Second, the router overwrites that field with DecisionModel's real confidence ("confidence_score": float(confidence) in signal_router._build_decision_object), so the panel and log see the correct number. Third, that number is abs(bias_score), which the panel presents under the label "CONFIDENCE (decision)" with no indication that it is the bias magnitude renamed.
+
+Which clause: Item 10 ("The same term, score, or scale must mean the same thing in every module"); Item 8 (the label implies a composite the number is not).
+
+Concrete scenario: an operator reading CONFIDENCE (decision): 78.70/100 and ENTRY QUALITY: 45.18/100 reasonably concludes these are two independent assessments. The first is |bias_score|; the second is a five-component score that shares four inputs with bias_score (trend health, macro bias, structure sequence, volume sentiment all feed both). The engine's own reasoning text now says this correctly ("the bias engine's own composite strength… already weighted and blended into one score"), which is honest prose on top of a label that still misleads. Separately: the dead trend["trend_health"] assignment in engine_core's risk dict is a field the contract declares and the router discards — the exact "declaration the producer does not honour" shape the contract file's own docstring warns about, surviving because the router silently overwrites it.
+
+Severity: Minor. No wrong number reaches the operator; the prose disclaims what the label implies. But the dead assignment is real (the contract's declared producer emits a value nothing consumes before it is overwritten) and the naming is still one rename away from the fourteen-module incident this contract module exists to prevent.
+
+F-6. The BTC context's trend_health, score, regime, and volatility reach the panel unvalidated — Item 3, edge case (Partially compliant on Item 3's "before they become analysis" clause, informational channel only)
+Location: core/engine_core.py, section 6b:
+
+
+btc_trend = compute_trend_health(df_btc_struct)
+...
+"trend_health": float(btc_trend["trend_health"]),
+and models/signal_router.py, _merge_btc_context:
+
+
+"trend_health": float(btc_context.get("trend_health", 0.0)),
+What the code does: the BTC-side pipeline reuses compute_trend_health and calculate_dynamic_bias on BTC's own data, and any failure anywhere in that block is caught by the outer except and degrades to {"available": False} — which is correct. But within the block, if compute_trend_health succeeds with degraded inputs (its own degraded path returns trend_health: 0.0 and names the failures in degraded_inputs), those degradations are not propagated to the AERO run's degradation list, and the BTC panel prints BTC trend health: 0.0 (or whatever the degraded value is) as though it were a reading.
+
+Which clause: Item 13 ("When data is missing, invalid… the engine must become less confident or halt output — never invent a confident-looking answer") — on the BTC channel specifically; and Item 8, since the panel presents the number without the degradation note that accompanies the same value on the AERO side.
+
+Concrete scenario: BTC's pinned data has a gap; compute_trend_health returns 0.0 with degraded_inputs non-empty; the BTC panel prints BTC BIAS: NEUTRAL, BTC trend health contributes 0.0 to btc_score, and the BTC-adjusted confidence line prints an adjustment of 0.0 with a reason string that says BTC "isn't showing a clear directional bias" — none of which is distinguishable from BTC genuinely having no trend. The AERO analysis is unaffected (the requirement this feature was built under), so nothing downstream is wrong — but the BTC panel section presents a degraded reading as a clean one.
+
+Severity: Minor. The channel is informational, gated behind available, and cannot reach the decision. Filed because the project's own standard (Item 13) is stated without a carve-out for informational panels, and the fix pattern used everywhere else (record the degradation, print it) is not applied here.
+
+F-7. live_trading.py still references a field shape (risk.get("risk_valid", True)) that defaults to the permissive value — Item 13, edge case
+Location: live_trading.py, _build_simulated_order:
+
+
+"risk_valid": risk.get("risk_valid", True),
+"risk_reason": risk.get("risk_reason", "OK"),
+What the code does: the simulated-order builder defaults risk_valid to True and risk_reason to "OK" when the keys are absent. risk_valid is a boolean gate; True is the permissive default. This mirrors the pattern the project removed from panel_render (a .get default that asserts a specific state) and from decision_log (a shadow default for a config value).
+
+Which clause: Item 13, in spirit: a missing risk verdict should not be rendered as a passed one. Also Tier 2, "Explicit interfaces/contracts" — the default contradicts the risk model's own fail-closed convention (validate_risk_parameters returns False on every failure path).
+
+Concrete scenario: engine_core always supplies both keys on a successful run, so this cannot fire through the production path today. It is the same "unreachable today, one refactor from live" argument the project itself applies (check 7.1, and the trend_health fallback finding). If the risk block ever fails to build on some path that still returns an entry and exit section, the simulated order logs risk_valid: True for a run whose risk was never assessed.
+
+Severity: Minor. This module writes a simulated-order JSON log, not a decision the operator acts on; and the module's own docstring says it is never executed against a real exchange. Still: the default is the wrong polarity, and the project has removed this exact pattern from three other files for this exact reason.
+
+F-8. test_golden_path.py still controls the C3 state file by deleting it, and one test in the same file asserts behaviour that depends on the deletion — Tier 3-4/3-5, Partially compliant
+Location: tests/test_golden_path.py, _clear_state and _run:
+
+
+def _clear_state():
+    """No prior run. Both flip flags are skipped, deterministically."""
+    try:
+        os.remove(_state_path())
+    except FileNotFoundError:
+        pass
+    except OSError:
+        pass
+What the code does: every golden-path run deletes the cross-run state file before running, so exit_watch is a function of input alone. This is deliberate and documented in the file's own v3 notes. The gap is in the two C3 tests (test_a_bias_flip_against_prior_state_is_reported, test_a_supertrend_flip_against_prior_state_is_reported), which seed the state file and then run — but do not restore the "clean" state afterwards beyond calling _clear_state() at the end of the bias test. The SuperTrend test loops over two seeds and calls _clear_state() after the loop, not between iterations — so the second iteration runs against the first iteration's written state, not against its own seed. Both iterations still pass (the assertion is "exactly one flag fired across both"), but the test is not testing what its name says: it is testing that the flag fires for at least one of the two seeds, with the second iteration's prior state contaminated by the first.
+
+Which clause: Tier 3, "Regression tests" (a test whose setup drifts from what it claims) and Tier 2, "Explicit, evaluated changes" — the file's own v3 notes state the isolation goal and the implementation falls short of it in one test.
+
+Concrete scenario: if the SuperTrend-flip comparison ever broke such that it fired for every seed, the loop would report two firings and fail — the test does catch that. But if it broke such that it fired only when the first iteration's leftover state disagreed, the test would pass for the wrong reason.
+
+Severity: Minor. Test-suite hygiene, not an engine defect. I am filing it because Section 7.3 asks specifically for tests whose setup contradicts what they claim, and this is one — mildly.
+
+F-9. test_no_circular_reasoning.py::test_continuation_strength_no_longer_contains_a_health_derived_term cannot fail on the defect it names — Tier 3-4 (Partially compliant)
+Location: tests/test_no_circular_reasoning.py, that test, its _frame helper, and its final assertion:
+
+
+df = _frame()
+low = compute_trend_health(df)
+...
+assert abs(low["continuation_strength"]) <= 27.0 + 1e-6, (...)
+What the code does: the docstring says the test drives trend_health indirectly and checks that continuation_strength does not vary with it. But the fixture holds ADX=25.0 and RSI=90.0 fixed — which means compute_trend_health's own trend_health output is also fixed for this frame (slope + ADX + RSI are the only inputs to trend_health, and slope is fixed too). So there is exactly one call to compute_trend_health and one value of continuation_strength; the test asserts a ceiling on that single value and never varies anything. If a health_component were re-added inside continuation_strength's calculation, the ceiling would indeed be breached and the test would fail — but the mechanism described in the docstring (vary trend health, observe continuation does not move) is not what the code does, because the fixture cannot vary trend health without also varying the components the test wants held fixed.
+
+Which clause: Tier 3, "Regression tests" — the test's stated method and its actual method diverge, which is the "setup contradicts what it claims" pattern from Section 7.3.
+
+Concrete scenario: none today (the ceiling is correct and the defect is fixed). The risk is that a future refactor to continuation_strength passes this test while re-introducing the coupling through a path the fixed-ADX/RSI fixture cannot see.
+
+Severity: Minor. The assertion is still load-bearing (it does bound the value); only the docstring's account of how is wrong. Filed because misdescribed tests are the project's own named failure class.
+
+F-10. decision_log.FINGERPRINTED_MODULES names MIN_ACTION_BIAS but module_snapshot records it via a live import inside the snapshot — a coupling the snapshot's own docstring does not disclose — Item 5, edge case (Partially compliant on Item 5's "recoverable" clause)
+Location: core/decision_log.py, FINGERPRINTED_MODULES and module_snapshot:
+
+
+FINGERPRINTED_MODULES = {
+    "models.bias_engine": [...],
+    "models.decision_model": ["MIN_ACTION_BIAS"],
+    "models.risk_model": [...],
+}
+What the code does: module_snapshot() imports each named module at snapshot time and reads the named attributes. This is correct and the project has tested it (test_risk_fingerprint.py, test_minimum_bias_strength.py::test_the_constant_is_fingerprinted). The gap: MIN_ACTION_BIAS was added to the fingerprint and to run_hash on 5 September — but the comment block above FINGERPRINTED_CONFIG still opens by describing the list as "The knobs that change what the engine computes. Not every constant in config", and the risk-model entry's own comment (added 2 September) ends with "5 September 2026: MIN_ACTION_BIAS decides whether a directional lean is strong enough to act on… so it belongs inside run_hash by the same argument that put the risk multipliers there." That is all consistent. What is not disclosed anywhere: module_snapshot swallows import failures and records {"<import failed>": str(exc)} — meaning a run whose models.decision_model failed to import records a reason string in the run-hash payload rather than omitting the module, and run_hash changes accordingly. That is arguably correct behaviour (a different environment is a different run), but nothing documents it, and a consumer comparing two run hashes across an environment change cannot tell "the constant moved" from "the module failed to import" without re-reading module_snapshot's source.
+
+Which clause: Item 5, "its data timestamp, data source and version, engine version, configuration, and parameters must all be recoverable" — recoverable, yes; distinguishable, not from the record alone.
+
+Concrete scenario: two runs on identical data, one on Viktor's machine and one in a sandbox where models.decision_model raises on import for an unrelated reason. Both record a run_hash. The hashes differ. The log carries "<import failed>" as the recorded value, but a reader diffing the two hashes has no field-level signal that the difference is an environment failure rather than a deliberate setting change.
+
+Severity: Minor. The record is honest (it does not fabricate a value); it is merely not self-explanatory. Filed for completeness under Item 5, not as a defect that produces a wrong number.
+
+F-11. models/exit_model.py::build_exit_watch treats hvn/lvn of 0.0 and of NaN identically via or 0.0 — Item 13, residual (Partially compliant, informational channel)
+Location: models/exit_model.py, build_exit_watch:
+
+
+hvn = float(structure.get("hvn", 0.0) or 0.0)
+lvn = float(structure.get("lvn", 0.0) or 0.0)
+What the code does: or 0.0 collapses both a missing key and a NaN to 0.0 — but NaN is truthy in Python, so float("nan") or 0.0 returns NaN, and float(structure.get(...)) on a NaN returns NaN. The guard below (if current_price > 0 and hvn > 0 and ...) then rejects NaN because NaN > 0 is False. So the flag is correctly suppressed for both "absent" and "not located." However, float(structure.get("hvn", 0.0)) on a legitimately-zero structural level (an asset that has genuinely traded at $0.00 in the lookback — not AERO, but not impossible) would also be suppressed, and the or 0.0 is dead code either way.
+
+Which clause: Item 13, marginally; mostly Tier 4 (the code does something the author probably did not intend, even though the outcome is safe).
+
+Concrete scenario: none reachable that produces a wrong output — the guard's hvn > 0 test happens to reject both failure modes correctly. This is a defensive line that works by coincidence rather than by design.
+
+Severity: Minor. No wrong output. Filed because "works by coincidence" is the exact shape the project's own check 7.6 warns about, and one future edit to the guard (say, hvn >= 0) would turn the coincidence into a defect.
+
+F-12. Summary of the seven comment-contaminated items — whether the comment moved me
+Per Section 2, these seven had prior-audit verdicts stated in comments/docstrings. I graded each from the code first. Here is the disclosure:
+
+Item	Comment claims	Code evidence	Did the comment move me?
+3 (Data Integrity)	rated Critical previously	data/validation.py now detects and rejects all eight defect classes, with per-defect messages, and test_data_integrity.py (13 tests) exercises each one individually, including negative controls. The all-zero-volume and isolated-spike split is ruled and implemented on both sides.	No. The code stands on its own; I would have reached Compliant without the comment.
+6 (Traceability)	went Non-compliant previously	core/lineage.py (402 lines) + core/decision_log.py + engine_core's lineage record. The chain is present and walkable end-to-end, the archive round-trips and re-hashes, and test_lineage.py executes the reconstruction claim rather than asserting a field. This is the strongest single piece of evidence in the codebase.	No.
+18 (Read-Only)	kept Compliant	test_execution_surface.py makes the hand-verification continuous: call-syntax, import, dependency-manifest, and endpoint guards, all source-level. requirements.txt declares no execution library. live_trading.py builds a dict and writes JSON; its docstring says so and the code confirms it.	No.
+16 (Complexity)	went Non-compliant previously	Sequence items 5a/5b deleted BB/DIP/DIM/Typical_Price/KAMA/two slopes, compute_exit, and the render path; test_no_dead_columns.py and test_exit_model_removal.py guard the deletions. Residue: pct_slope (F-2).	Slightly. The comment told me where the deletions were, which shortened my search. The verdict is from the code, but the comment made the search faster than it would otherwise have been.
+T3-3 (Automated tests)	currently Non-compliant previously	pytest.ini, run_tests.py, 37 test files, ~250 tests, including negative controls and end-to-end pipeline runs. Genuinely Compliant now.	No.
+T3-4 (Regression tests)	currently Non-compliant previously	Golden snapshot + pinned data + determinism tests + the deletion guards. Genuinely strong. Residue: F-8 and F-9 are real but minor.	Partially. The comment directed me to the right file; the Partially compliant verdict is from reading those files, not from trusting the comment.
+T4-2 (Generalization)	rated Compliant, with the auditor's reasoning quoted	The symbol is a parameter throughout; TESTUSDT is the golden-path subject specifically so a hardcoded name cannot pass; the "AERO" hardcoding was fixed and is guarded.	No. The quoted reasoning was correct and I reached it independently.
+One honest note: the comments told me where to look for several of these, which is exactly what Section 4a says this round cannot avoid. I have tried to keep the verdicts separable from the navigation, and I flag Item 16 and T3-4 as the two where the boundary is least clean.
+
+Part 3 — Not verifiable
+Item 17 — Backtesting Must Be Isolated From the Core Engine.
+
+What I would have needed: a backtesting component to isolate. There is none in this package — the Constitution's own "A Note on Backtesting" section says backtesting is deliberately sequenced after the audit, and live_trading.py is a simulator, not a backtester. The invariant is a constraint on a subsystem that does not exist yet.
+What the code does support: the preconditions for Item 17 are in place — a golden snapshot, pinned data, version control with a tag (audited-2026-08-27), and a rollback convention visible in the history (patch files committed alongside their reverts). But the invariant itself governs a failure mode (a backtesting failure corrupting the live engine) that cannot be tested or verified until the backtester exists.
+Verdict: Not verifiable. Not a defect, not a gap in the package — a rule whose subject has not been built. The honest answer per the Constitution's own "Unknown is a legitimate audit result" clause.
