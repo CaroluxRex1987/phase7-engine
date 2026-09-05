@@ -45,7 +45,13 @@ import sys
 from datetime import datetime, timezone
 
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-ROUND = "round2"
+# Each round gets its own directory, and the build never writes into a previous
+# one. That is the same traceability argument Item 6 makes about decisions,
+# applied to the audit process: round2/ is the record of what the previous
+# attempts were given, and it is the only evidence of what an auditor actually
+# saw when its report is later compared against a new one. Overwriting it would
+# destroy the baseline the comparison is measured against.
+ROUND = "round3"
 PACKAGE_DIR = os.path.join(REPO, "docs", "audit_package")
 OUT_DIR = os.path.join(PACKAGE_DIR, ROUND)
 
@@ -81,9 +87,16 @@ PART7_DIR = os.path.join(OUT_DIR, "PART7_LATER")
 # claiming to be the standard, which is the same defect check 7.6 asks the
 # auditor to look for.
 HAND_WRITTEN = [
-    "item16_review_instruction_rev3.md",
+    "item16_review_instruction_rev4.md",
     "Phase7_Constitution_v1.0_RATIFIED_AUDITCOPY.txt",
 ]
+
+# The observations a previous attempt returned, held back on the same terms as the
+# commit messages: another reader's view of this code, which would replace the new
+# reviewer's view with theirs if read first. Section 13 of the instruction says what
+# the reviewer is asked to do with them once Parts 1-6 are saved.
+PRIOR_OBSERVATIONS = ["qwen_reasoning_1.txt", "qwen_reasoning_2.txt",
+                      "qwen_reasoning_3.txt", "qwen_reasoning_4.txt"]
 
 # Directories that never enter a bundle, for four different reasons:
 #   docs      another party's reasoning about this code (see the docstring)
@@ -256,6 +269,48 @@ def _full_messages():
     return header + _git("log", "--format=commit %H%nDate: %ad%n%n%B%n---%n", "--date=iso") + "\n"
 
 
+def _prior_observations():
+    """
+    A previous attempt's raw reasoning, concatenated and unedited.
+
+    Unedited is the point. These are one reader's observations about an earlier
+    state of this code, and the project accepted and fixed eleven of them -- which
+    does not make them correct. Trimming the parts that turned out to be wrong
+    would be the party under audit curating the evidence its own auditor is being
+    measured against, and the reviewer is explicitly invited to disagree with any
+    of them.
+
+    Read as bytes and decoded rather than read as text, so that a file this script
+    cannot decode fails here with its own name attached instead of producing a
+    silently short document.
+    """
+    header = (
+        "# Prior observations — FOR PART 8 ONLY\n\n"
+        "**Do not read this file until Parts 1 through 6 of your report are written\n"
+        "and saved.** Section 13 of your instructions explains what it is and what you\n"
+        "are asked to do with it.\n\n"
+        "This is the verbatim reasoning of an earlier attempt at this same round, which\n"
+        "was unable to read the standard, correctly refused to grade the 44 rules, and\n"
+        "ran the instruction's own Section 7 checks instead. Nothing has been removed,\n"
+        "including the parts this project judged wrong. It graded no rule and it was\n"
+        "looking at an earlier state of the code.\n\n---\n\n"
+    )
+    parts = [header]
+    for name in PRIOR_OBSERVATIONS:
+        path = os.path.join(REPO, name)
+        if not os.path.exists(path):
+            sys.exit(f"REFUSING TO BUILD: {name} is missing, so the Part 8 document "
+                     f"would be silently incomplete.")
+        with open(path, "rb") as fh:
+            raw = fh.read()
+        try:
+            text = raw.decode("utf-8")
+        except UnicodeDecodeError as exc:
+            sys.exit(f"REFUSING TO BUILD: {name} is not valid UTF-8: {exc}")
+        parts.append(f"## {name}\n\n```\n" + text.replace("\r\n", "\n") + "\n```\n\n")
+    return "".join(parts)
+
+
 def _capture(label, why, run):
     """One engine run, with everything it printed, verbatim."""
     import contextlib, io as _io, traceback as _tb
@@ -389,6 +444,14 @@ def main():
         sys.exit(f"REFUSING TO BUILD: found {len(source_files)} source and "
                  f"{len(test_files)} test files; expected both to be non-empty.")
 
+    missing = [n for n in HAND_WRITTEN
+               if not os.path.exists(os.path.join(PACKAGE_DIR, n))]
+    missing += [n for n in PRIOR_OBSERVATIONS
+                if not os.path.exists(os.path.join(REPO, n))]
+    if missing:
+        sys.exit(f"REFUSING TO BUILD: these inputs are missing: {missing}. "
+                 f"Nothing has been written.")
+
     project_present = [p for p in PROJECT_FILES if os.path.exists(os.path.join(REPO, p))]
 
     source_text, source_entries = _bundle(
@@ -442,7 +505,8 @@ def main():
         "version_control_history.md": _history_metadata(),
         "execution_transcripts.md": _transcripts(),
     }
-    withheld = {"commit_messages_PART7_ONLY.md": _full_messages()}
+    withheld = {"commit_messages_PART7_ONLY.md": _full_messages(),
+                "prior_observations_PART8_ONLY.md": _prior_observations()}
 
     print("\nUPLOAD_THESE/ -- give the auditor everything in this folder:")
     for name, text in upload.items():
@@ -455,8 +519,13 @@ def main():
     for name in HAND_WRITTEN:
         source = os.path.join(PACKAGE_DIR, name)
         if not os.path.exists(source):
-            print(f"  {name:38}   MISSING -- not copied")
-            continue
+            # Previously a printed warning at the end of a long, otherwise
+            # successful run. An incomplete upload folder that announces itself
+            # in the last line of output is exactly the hazard this layout exists
+            # to remove: the folder still looks complete, and 'upload everything
+            # in here' is then wrong. Nothing may be shipped, so nothing is built.
+            sys.exit(f"REFUSING TO BUILD: {name} is not in {PACKAGE_DIR}. The upload "
+                     f"folder would be incomplete and would look complete.")
         shutil.copy2(source, os.path.join(UPLOAD_DIR, name))
         copied += 1
         print(f"  {name:38} {os.path.getsize(source):>9,} bytes")
@@ -472,6 +541,26 @@ def main():
               encoding="utf-8", newline="\n") as fh:
         fh.write("\n".join(manifest))
 
+    # A round directory contains an upload folder, a withheld folder, and -- in
+    # round2, from an older layout -- loose copies of the upload files at its root
+    # under the same names. An earlier attempt at this audit went out carrying a
+    # superseded revision of the reviewer instruction, and nothing in its report
+    # revealed that. So each round says, in its own directory, which folder is the
+    # one to send.
+    with open(os.path.join(OUT_DIR, "README.md"), "w",
+              encoding="utf-8", newline="\n") as fh:
+        fh.write(
+            f"# {ROUND}\n\n"
+            f"Built {datetime.now(timezone.utc).isoformat()} from `{head}`.\n\n"
+            "**Upload every file in `UPLOAD_THESE/`, and nothing else.** Not the files\n"
+            "at this directory's root, and not anything from another round directory:\n"
+            "several carry the same filenames and differ only by size and date.\n\n"
+            "`PART7_LATER/` is withheld. It goes to the reviewer only after Parts 1-6\n"
+            "of the report are written and saved.\n\n"
+            "Regenerate with `python docs/build/build_audit_package.py`. Do not edit\n"
+            "anything in here by hand: `MANIFEST.md` is computed from the bytes that\n"
+            "were written, and a hand edit makes it a false claim.\n")
+
     upload_bytes = sum(len(t.encode("utf-8")) for t in upload.values()) + sum(
         os.path.getsize(os.path.join(PACKAGE_DIR, n))
         for n in HAND_WRITTEN if os.path.exists(os.path.join(PACKAGE_DIR, n)))
@@ -479,9 +568,6 @@ def main():
           f"(roughly {upload_bytes // 4:,} tokens -- treat as a floor; code "
           f"tokenizes denser than four bytes per token).")
     print(f"HEAD: {head}")
-    if copied != len(HAND_WRITTEN):
-        print("\nWARNING: an expected document was missing and the upload folder "
-              "is incomplete. Do not send it until that is resolved.")
 
 
 if __name__ == "__main__":
