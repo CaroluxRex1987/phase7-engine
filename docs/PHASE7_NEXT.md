@@ -1,10 +1,11 @@
 # Next step — read this first
 
-*Updated 3 September 2026. **Every Critical the Luna Pro audit raised has a fix that has
-landed, and four more patches went in on 3 September** — see "Round 2, attempt three"
-below, which is the section to read first. The release gate is still shut, because
-"unresolved" means no fix has landed **and been re-audited**, and the re-audit has now
-failed three times without ever reaching a verdict. Suite: 226 passing, 0 failed.*
+*Updated 5 September 2026. **Every Critical the Luna Pro audit raised has a fix that has
+landed. Nine patches have now gone in — four on 3 September, three on 4–5 September, and
+patches L and M on 5 September.** The section to read first is "Patches L and M" at the
+end of this file. The release gate is still shut, because "unresolved" means no fix has
+landed **and been re-audited**, and the re-audit has now failed three times without ever
+reaching a verdict. Suite: 270 passing, 0 failed, at `0603dff`.*
 
 *Eleven defects found by an audit run that never produced a report, all verified against
 source, four fixed. Two more found by running the engine and reading the panel — including
@@ -942,17 +943,18 @@ boundary must not read the difference as a change in the market data.
 
 | | size | note |
 |---|---|---|
-| two dead constants (#6) | tiny | delete and comment |
-| HTTP timeout, `DataFrame` inside the `try` (#c) | tiny | |
-| directory created at import (#d) | small | |
-| RSI/ATR smoothing (#5) | small | needs a choice: match the smoothing, or record which path ran |
+| ~~two dead constants (#6)~~ | done | patch L, 5 Sept |
+| ~~HTTP timeout, `DataFrame` inside the `try` (#c)~~ | done | patch M, 5 Sept |
+| ~~directory created at import (#d)~~ | done | patch M, 5 Sept |
+| ~~RSI/ATR smoothing (#5)~~ | done | patch L, 5 Sept — smoothing matched |
 | entry sub-scores vs printed total | small | panel only |
 | entry-zone fabrication (#4) | medium | two files; entry scoring must handle an absent zone |
 | correlation alignment (#a) | medium | changes a printed number, so the golden snapshot moves |
 | ~~continuation floor (#b)~~ | done | ruling 3, patch I, 4 Sept |
 
-Four or five patches. Three change printed numbers, so those need a golden
-re-baseline and a live run before they commit.
+**Three left, and all three change printed numbers**, so each needs a golden re-baseline
+and a live run before it commits. Note that the table said "four or five patches" when it
+had seven rows; the count was never right and is not the thing to trust — the rows are.
 
 ### Before the audit can be sent — do not skip these
 
@@ -1136,6 +1138,92 @@ repeatedly. Two changes, decided by Claude and accepted by Viktor:
 
 This must not become a reason to explain less. It is a reason to explain in the right
 place.
+
+## Patches L and M — built and landed, 5 September 2026
+
+Four of the seven rows in "What is left to fix" closed in two commits. Suite 251 → **270**.
+Neither patch moved the golden snapshot, and both said so before running.
+
+`fa68197` — patch L, findings 5 and 6
+`0603dff` — patch M, findings (c) and (d)
+
+The reasoning is in the two commit messages, in full. What belongs here is the part that
+outlives them.
+
+### Unreachable is not the same as safe (finding 6)
+
+Two fabrication constants survived in `engine_core.py` after item 9a removed their
+siblings from `indicators.py` and Finding 3 removed them from `entry_model.py`:
+`{"trend_health": 50.0, ...}` and `atr_val = ... else current_price * 0.02`.
+
+Both were unreachable, which is *why* they survived two passes. `compute_trend_health` is
+total — every path through it returns a dict — so nothing could reach the first handler.
+Section 2 halts when ATR is absent and `structure.py` returns a copy of that frame, so
+nothing could reach the second.
+
+The trend one was worse than a fabrication, and the negative control is what showed it: its
+substitute dict has no `trend_direction_sign`, which the next stage reads by subscript
+*outside* the try. Run against pre-fix code, a broken trend contract does not degrade the
+run — it dies with `KeyError: 'trend_direction_sign'`, reported as neither a trend failure
+nor a bias failure. That was found by running the test, not by reading the code.
+
+### A fallback claimed to be an equivalence and was not (finding 5)
+
+The RSI and ATR fallbacks smoothed with a simple moving average. `pandas_ta` smooths both
+with Wilder's RMA. So "recomputes the same quantity by another route" — the claim in
+`add_technical_indicators`' own docstring, and the stated grounds on which
+`test_degraded_state` asserts these paths are **not** degradations — was false.
+
+On the pinned fixture, final bar: RSI 84.45 against `pandas_ta`'s 69.14, and an ATR 1.80%
+low. That test had been passing on a false premise for as long as it existed.
+
+The choice the table flagged — match the smoothing, or record which path ran — was Claude's
+to make (Viktor: *"None needs a ruling from me"*) and was made by reading the repo rather
+than by preference: `test_degraded_state` already asserts this fallback costs nothing.
+Recording the path would leave that assertion false and add a flag to explain why.
+Matching makes it true.
+
+### Two defects found by the verification step itself
+
+Neither was on the list. Both were found because the process ran, not because anyone
+looked.
+
+- **The `pandas_ta`-free run could not run at all.** `test_macro_agreement` and
+  `test_volume_agreement` import a pure function whose module chain reaches `pandas_ta`,
+  so both **errored at collection** and pytest reported "2 errors" and ran *nothing*. The
+  result for the other 251 tests was unobtainable, silently, since those files were
+  written. `pytest.importorskip` now makes it the skip it should have been: 0 errors,
+  159 passed, 88 skipped.
+- **The module-level simulator defeated a deliberate lazy import.**
+  `SignalRouter.__init__` imports `engine_core` inside the function, which is what lets
+  `live_trading` be imported without `pandas_ta`. `live_trading_simulator =
+  LiveTradingSimulator()` at module scope called that `__init__` at import time and undid
+  it. Verified both directions rather than argued: pre-fix `import live_trading` raises
+  `ModuleNotFoundError`; post-fix it succeeds.
+
+### Found by running the engine, and not yet fixed
+
+`main.py` on `fa68197` printed:
+
+```
+ENTRY ZONE    : $0.4981 - $0.4918
+```
+
+The lower bound is above the upper. `engine_core` assigns `EMA_20` to `zone_lower` and
+`EMA_50` to `zone_upper` unconditionally, so in an uptrend they come out inverted.
+`entry_model` swaps them before scoring, so the arithmetic is right and **the display is
+wrong**. It belongs with finding (4), which touches those exact two lines. Not yet checked:
+whether any other reader of the zone is missing the same swap.
+
+### What is left
+
+Three rows, all of which change printed numbers:
+
+1. entry sub-scores vs printed total — panel only
+2. entry-zone fabrication (#4) — plus the inverted display above
+3. correlation alignment by timestamp (#a)
+
+Each needs its own patch, a golden re-baseline, and a live run before it commits.
 
 ## Working practice
 
