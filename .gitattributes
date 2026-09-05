@@ -11,3 +11,10 @@
 *.jpg binary
 *.jpeg binary
 *.ico binary
+
+# Reviewer responses are evidence: they are committed exactly as the provider's
+# stream delivered them. `* text=auto` above would normalise their line endings
+# at commit and rewrite them again at checkout, so a file that is supposed to be
+# a verbatim record would no longer be byte-identical to what arrived. -text
+# switches normalisation off for that directory only.
+docs/audit_reports/** -text

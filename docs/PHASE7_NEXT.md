@@ -1788,21 +1788,76 @@ rebuilt from it. `round4/UPLOAD_THESE/` holds seven files with rev 5 in place of
 `PART7_LATER/` holds one, `round3/` is untouched, and the round-3 and round-4 manifests
 differ in three lines — Built, HEAD, Round — so all 71 file hashes are unchanged.
 
-1. **Send to Kimi K3** — named model, named provider, pinned. Not Auto Router; that is
-   what turned round 3 into an accident. Output ceiling raised before the call: the last
-   Kimi run stopped at 36,085 output tokens, mid-sentence.
-2. **Then** the GLM-versus-Kimi comparison, from the two reports, by Viktor.
+### Round 4 — sent, and what came back
 
-**Do not rename the four `qwen_reasoning_*.txt` until the package has been sent.** The
-builder no longer reads them, so the rename has become possible; it is still wrong. A
-rename is a commit, commits appear in `version_control_history.md`, and that file ships
-inside `UPLOAD_THESE` — so renaming now puts the string "kimi" in front of Kimi before
-Section 5 has had the chance to ask it to state its own identity unprompted. A comment in
-`build_audit_package.py`, where `PRIOR_OBSERVATIONS` used to be, says the same thing to
-anyone who goes looking for why the wrong names are still there.
+Sent 5 September 2026 at 16:24 UTC through the OpenRouter API by
+`docs/build/send_audit_round.py`, not through a chat interface: model
+`moonshotai/kimi-k3`, provider pinned to Moonshot AI (`only`, fallbacks off,
+`data_collection: deny`), max output 200,000 tokens. The payload was the seven files of
+`round4/UPLOAD_THESE` as built at `417cadf`, in the order Section 4 lists them —
+1,085,418 bytes, sha256 `dd3d21d19b0a4115878c7b9156c80a2706c62882a549f72e497102fe2d1e4a8e`.
+Provider pinning is what makes round 3's accident impossible rather than unlikely: the
+same model on DeepInfra caps completions at 16,384 tokens, the exact ceiling that killed
+27 August, and on Chutes at 65,535.
 
-Still owed from the morning and not done: the Engineering Notes stop at Entry #72 and
-now also miss everything above.
+| | |
+|---|---|
+| finish_reason | `stop` |
+| provider reported | Moonshot AI |
+| tokens in / out | 251,485 / 41,861 — 33,931 reasoning, 7,930 report |
+| cost | $1.38 |
+| elapsed | 1,047 s |
+| filed at | `docs/audit_reports/round4_kimi-k3_2026-09-05/` |
+
+Structure, checked and deliberately not graded: all 44 rules carry a verdict — 38
+Compliant, one of them marked vacuous because no backtester exists; 6 Partially
+compliant; no Non-compliant; no Not verifiable. Seven findings, three Major and four
+Minor. Part 7 was not begun and `PART7_LATER/` was never sent. The reviewer stated its
+identity unprompted, as Section 5 of rev 5 asks: Kimi, made by Moonshot AI — adding that
+it cannot name its own checkpoint from the inside, so it cannot say whether it is the
+same Kimi K3 that made the 2 September attempt, and that a reader should weigh the report
+accordingly.
+
+**The 36,085 question is still open, and Claude twice said otherwise while the run was
+streaming.** Watching the progress lines, Claude converted characters to tokens at 3.3
+chars/token — a ratio taken from the lossy repository copy of the 2 September transcript
+— and announced that the run had passed the point where that attempt died, so the ceiling
+had been the cause. The billing row gives the real ratio as 4.31. This run's reasoning
+ended at **33,931 tokens, below 36,085**, and stopped of its own accord before the report
+began; only the total completion exceeded it, at 41,861. What the run establishes is
+therefore narrower than what was claimed: the same model, on the same material, spends
+about 34,000 tokens reasoning and can then write a complete report. Whether 36,085 was a
+ceiling is if anything less likely than before — ceilings are round numbers and that one
+is not — but that is inference, not evidence. The entry stays open.
+
+**Wrong turns, recorded.** The first `--send` returned HTTP 401 `Missing Authentication
+header`: the placeholder `sk-or-...` from Claude's own command block had been set as the
+key, literally. Nothing was charged, and `http_error.txt` is kept in the run directory
+rather than deleted. Separately, the live API key was visible in a screenshot pasted into
+the session; it was deleted and replaced after the run. If a later reader is reconciling
+the ledger, the rows to look at are those between the exposure and the deletion.
+
+**The `.gitignore` blind spot, second instance.** `*.json` and `*.csv` are ignored
+repository-wide, so `run_metadata.json` and `generation.json` would have been written into
+a tracked directory and never seen — the same shape as the reviewer responses that sat
+unnoticed under `round*/`, and invisible to `git status --short` for the same reason.
+Exceptions were added for `docs/audit_reports/**`. Adding them also revealed that
+`provider_activity_export/openrouter_activity_20260905.csv` — filed the same day as the
+ledger's source of truth — had never actually been committed.
+
+**The rename hold is discharged.** The four `qwen_reasoning_*.txt` in the repository root
+may now be renamed: the package has been sent, and Section 5 did its work with nothing in
+front of it. The comment in `build_audit_package.py` where `PRIOR_OBSERVATIONS` used to be
+should go with the rename.
+
+**Open.**
+
+1. The **GLM-versus-Kimi comparison**, from the two reports, by Viktor. No finding is
+   acted on before it, and nothing about the round-3 run was disclosed to this reviewer.
+2. Section 11: the reviewer asked for **one engine run** — a synthetic BTC series whose
+   correlation cannot be measured — to confirm or kill Finding 1 end to end. Not yet run.
+3. The Engineering Notes are current through Entry #82 and do not yet cover this run.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then

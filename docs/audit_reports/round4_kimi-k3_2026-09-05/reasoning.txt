@@ -1,0 +1,868 @@
+Let me start by understanding what's being asked. This is a comprehensive audit task. I'm being asked to audit a Python "Phase-7 Structural Quant Engine" against a 44-rule Constitution, and produce Parts 1-6 of a report.
+
+First, per the instructions Section 5, I need to check my own package before grading:
+1. The file named as the Constitution should contain the Constitution â I can see it does contain the Phase-7 Engineering Constitution with 44 rules (21 Tier 1, 7 Tier 2, 10 Tier 3, 6 Tier 4). Let me verify counts.
+2. Hash files against MANIFEST.md â I can't compute SHA-256 myself reliably in my head, but I can note the manifest exists and the files look structurally complete.
+3. Confirm this document is the revision named â the instructions say Rev 5 based on the revision history (Rev 5 is the latest described, issued 5 September 2026).
+
+Also, per Section 5, I must state which model I am in the first line of my report. I'm Kimi, made by Moonshot AI. The instructions specifically say "If you are Kimi K3, say so in your report." I don't know my exact version with certainty â I should state what I know: I'm Kimi (Moonshot AI). I should be honest that I can't reliably self-identify my exact checkpoint version. Actually the instruction says "Say which model you are, in the first line of your report â the family, and the version if you know it." I am Kimi, developed by Moonshot AI. I don't have reliable knowledge of whether I'm "K3" or another version. I'll say "Kimi (Moonshot AI), version unknown to me" â and note that if I am the same model as the previous Kimi K3 attempt, this is a fresh conversation with none of that material in context. The instruction says "If you are Kimi K3, say so" â I can't verify that, so I'll disclose what I can.
+
+Wait â actually, I need to think about this. The system prompt doesn't name me. I know I'm Kimi from Moonshot AI based on my training. I should state that honestly, including the uncertainty about version.
+
+Now, the actual audit work. This is a large task. Let me work through it systematically.
+
+The 44 rules:
+- Tier 1 (Items 1-21): Invariants
+- Tier 2 (7 principles): Architecture
+- Tier 3 (10 disciplines): Process
+- Tier 4 (6 preferences): Style
+
+Let me enumerate them:
+
+Tier 1:
+1. Tool, Not Autonomous Actor
+2. No Future Information / Look-Ahead Bias
+3. Data Integrity
+4. Determinism
+5. Reproducibility
+6. Traceability
+7. No Unsupported Predictive Claims
+8. Epistemic Honesty
+9. Every Measurement Has a Precise Definition
+10. Consistent Semantics
+11. No Circular Reasoning
+12. No Hidden Decision-Affecting State
+13. Fail Safely
+14. Risk Is Not Conviction
+15. Empirical Evidence Supersedes Theoretical Expectation
+16. Complexity Must Provide Demonstrated Value
+17. Backtesting Must Be Isolated From the Core Engine
+18. Read-Only Market Access
+19. Withdrawal Permissions Are Never Enabled
+20. Credentials Are Never Exposed
+21. Operator Credentials Stay With the Operator
+
+Tier 2:
+1. Separation of responsibilities
+2. Observation â interpretation â decision â risk/action
+3. Explicit interfaces/contracts
+4. Explicit configuration
+5. Modular design
+6. Controlled dependencies
+7. Explicit, evaluated changes to interfaces or behavior
+
+Tier 3:
+1. Hypothesis-driven development
+2. Controlled changes
+3. Automated tests
+4. Regression tests
+5. Fixed evaluation datasets
+6. Version control
+7. Known-good checkpoints
+8. Reproducible experiments
+9. Rollback capability
+10. Documentation of significant decisions
+
+Tier 4:
+1. Robustness over optimization
+2. Generalization over historical fit
+3. Explainability over unnecessary opacity
+4. Stability over flashy outputs
+5. Useful information over more information
+6. When multiple designs satisfy every invariant equally well, prefer the simpler one
+
+Now I need to grade each against the code. Let me carefully analyze the source.
+
+Key things I noticed while reading the code:
+
+**Potential findings to investigate:**
+
+1. **Run 1 transcript shows RISK REGIME: UNKNOWN** â In the committed pinned fixtures run, the panel printed "RISK REGIME: UNKNOWN" while BIAS was BULLISH CONFIRMED and the decision was NO-TRADE (RISK TOO HIGH) because "Stop distance exceeds maximum allowable threshold (15%)". Let me trace: validate_risk_parameters returns "UNKNOWN" as the regime in early-return branches. In Run 1, stop_dist_pct = |0.8017 - 0.6422|/0.8017 = 0.1595/0.8017 â 19.9% > 15% (MAX_STOP_DISTANCE_PCT), so it returns False, "Stop distance exceeds maximum allowable threshold (15%).", "UNKNOWN". So the panel prints RISK REGIME: UNKNOWN. But wait â classify_risk_regime was never reached, so "UNKNOWN" is honest per the docstring. But hold on: stop distance 19.9% exceeds REGIME_EXTREME_STOP_PCT of 8.0, so if classify_risk_regime had been called it would have returned "EXTREME RISK". The validate function checks MAX_STOP_DISTANCE_PCT (15%) BEFORE classifying. So for stop distances between 8% and 15%, we get "EXTREME RISK" regime and risk_valid=False; for stop distances > 15%, we get risk_valid=False with regime "UNKNOWN". Hmm, this is a bit odd but arguably fine â the panel says UNKNOWN which is... actually misleading? The risk regime is classifiable (it would be EXTREME RISK), but the code path returns UNKNOWN. This is a display inconsistency: RISK REGIME: UNKNOWN is printed when actually the regime was determinable but the code chose to return early. Actually, per the code comment: "'UNKNOWN' in the three early-return branches: classify_risk_regime() was never reached, so there is nothing to report". Hmm, but they could have computed the regime anyway. Is this a finding? It's a minor panel inconsistency. Run 1 prints "RISK REGIME: UNKNOWN" â an operator reading the panel might wonder. Actually, this is a minor issue at most. Let me note it as a potential Minor finding under Item 8 or 9 â a printed value that doesn't reflect what the engine could know. Actually let me think about whether this is "wrong" â the panel's RISK REGIME line prints risk.get('risk_regime', 'NORMAL RISK'). The router got "UNKNOWN" from validate_risk_parameters. So panel prints UNKNOWN. The decision reasoning says "Risk check failed (Stop distance exceeds maximum allowable threshold (15%)". So the operator knows why. RISK REGIME: UNKNOWN is perhaps fine â it's honest that classification didn't run. But it's also arguably a case where a displayed field is less informative than it could be. Not a strong finding. Let me keep it in mind.
+
+2. **Run 2 transcript: VALIDATION: WEAK (Score: 5.00)** â with macro disagreeing (-20) and volume divergence (-25): 50 - 20 - 25 = 5. OK that reconciles.
+
+3. **Run 2: BTC-ADJUSTED CONFIDENCE: 64.58 vs 52.64 unadjusted, with STRONG NEGATIVE correlation (-0.90) and BTC bearish confirmed "agreeing with AERO's own bias"**. Wait â AERO bias is BEARISH, BTC bias is BEARISH, so they agree (both bearish). The adjustment: agreement = 1 (both bearish â aero_dir = -1, btc_dir = -1, equal â agreement = 1). direction_adjustment = 1 * |â0.90| * (|btc_score|/100) * 20. If btc_score is strongly negative... The formula multiplies by abs(correlation) and abs(btc_score)/100, and agreement = +1 because directions match. But the correlation is STRONG NEGATIVE â the two assets move in opposite directions! If AERO and BTC are strongly negatively correlated, and BTC is bearish, does BTC's bearishness really "agree" with AERO's bearishness in a way that should ADD confidence? This is a conceptual issue: the adjustment uses |correlation| (absolute value) as the relevance scaler, but agreement is computed from the signs of the bias scores, not accounting for the sign of the correlation. If correlation is strongly negative, BTC being bearish is actually evidence FOR AERO being bullish, not bearish. The formula treats "BTC bearish + AERO bearish + correlation â0.9" as agreement â +confidence. That seems conceptually wrong: a strongly negatively correlated asset moving opposite should invert the signal. Hmm, but is this a "fabrication" or a design choice? The feature is declared "computationally validated, empirically unvalidated". Item 7 requires the status be stated, which it is. But the computation itself: does it "compute what it was designed to compute"? The design intent is presumably "BTC context adjusts AERO confidence based on how they move together". With negative correlation, "moving together" means moving oppositely. The current formula: agreement from bias-score signs, scaled by abs(correlation). For correlation â0.9, AERO bearish, BTC bearish: agreement = +1, adjustment positive â confidence boosted by ~12 points. But logically, if they move oppositely, BTC bearish implies AERO bullish â contradicting the AERO bearish read â so confidence in the bearish read should DECREASE. The formula as written increases it. This looks like a genuine conceptual bug in the adjustment: it ignores the sign of the correlation when determining "agreement". 
+
+   Wait, let me re-read the code:
+
+   ```python
+   aero_dir = 1 if aero_score > 0 else (-1 if aero_score < 0 else 0)
+   btc_dir = 1 if btc_score > 0 else (-1 if btc_score < 0 else 0)
+
+   if aero_dir != 0 and btc_dir != 0 and aero_dir == btc_dir:
+       agreement = 1
+   elif ...:
+       agreement = -1
+   ...
+   direction_adjustment = agreement * abs(correlation) * (abs(btc_score)/100) * CAP
+   ```
+
+   Yes â `abs(correlation)` is used, and agreement is purely from bias-score signs. So for a strongly NEGATIVELY correlated pair, BTC bullish should count as evidence against AERO bullish... or at least, the sign logic should flip with negative correlation. The transcript Run 2 demonstrates exactly this: STRONG NEGATIVE (-0.90), both bearish, confidence boosted 52.64 â 64.58 (+11.94). The reasoning string says "BTC is also bearish confirmed, agreeing with AERO's own bias" â but with â0.90 correlation, BTC bearish is empirically evidence that AERO should move UP (opposite), i.e., disagreeing with the bearish read. The adjustment is in the wrong direction for negative correlations.
+
+   Is this a Critical? It's a number the operator reads â BTC-ADJUSTED CONFIDENCE â that inverts its meaning when correlation is negative. It doesn't change the decision (informational only), but Item 7/8 territory: the feature presents an adjustment whose sign is wrong in the negative-correlation case. Given "informational only" and labeled unvalidated, I'd rate this Major (not reaching a live decision, but a wrong number presented with two-decimal confidence). Actually wait â does it reach a decision? btc_adjusted never changes BIAS/DECISION/confidence. It's displayed only. So Major at most. Under which rule? Item 8 (epistemic honesty â presenting a derived quantity whose derivation is conceptually inverted in a reachable case), or Item 9 (precise definition â the definition doesn't match intuition for negative correlation). I'd frame it under Item 8 or Item 7. The feature is labeled unvalidated, which mitigates. I'd say Major, Item 8 partially compliant, or Item 7. Hmm. Let me hold this thought. The strongest framing: the number moves in the wrong direction for negatively correlated pairs â a concrete scenario exists (Run 2 transcript). I'd grade Item 8 Non-compliant or Partially compliant with Major severity. Or should this be an "Observation outside the Constitution"? Item 7 says predictive components must be empirically tested before presented as predictive; the label handles that. But the wrong-sign issue is about correctness of the computation, not validation. Item 9: "Every measurement has a precise definition" â the definition is precise but wrong-ish. Item 8 is the best fit: "distinguish between what is mathematically derived... what remains unknown" â hmm, actually Item 8 is about distinguishing categories. The wrong-sign issue is more of a correctness defect. Section 6 says Critical = "a defect that produces a wrong or fabricated number the operator would reasonably act on". This produces a wrong number (wrong direction of adjustment), but it's informational and labeled unvalidated. Major seems right.
+
+4. **btc_context for BTCUSDT itself** â engine_core: `if symbol.upper() != "BTCUSDT"` â OK handled.
+
+5. **`_merge_btc_context` drops the beta None handling**: In signal_router._merge_btc_context:
+   ```python
+   "correlation": float(btc_context.get("correlation", 0.0)),
+   "beta": float(btc_context.get("beta", 0.0)),
+   ```
+   engine_core converts NaN to None for correlation/beta. But `float(None)` raises TypeError! Wait: `float(btc_context.get("correlation", 0.0))` â if the key exists with value None, .get returns None (not the default), and float(None) raises TypeError. When would correlation be None in btc_context? engine_core sets correlation to None when `math.isfinite(correlation)` is False â i.e., when compute_correlation_beta returned NaN (unmeasured). But then btc_context["available"] = True is still set (the dict is built with available: True regardless of correlation). So if the correlation is unmeasured (n_obs=0 or NaN), btc_context has available=True, correlation=None. Then DecisionModel._compute_btc_adjusted handles None correctly (correlation_measured=False, returns available: True with adjustment 0 and the "could not be measured" phrase). Then _merge_btc_context: btc_context.get("available") is True, btc_adjusted.get("available") is True â proceeds to build merged dict â `float(btc_context.get("correlation", 0.0))` â float(None) â TypeError â caught by the try in _build_decision_object? Let's see â _merge_btc_context is called inside _build_decision_object's try block. The except catches Exception and returns an error object: `{"error": f"Decision object construction failed: ..."}`. So a run where BTC context is available but correlation is unmeasured would produce "Decision object construction failed" â the entire run errors out instead of showing the panel with "NOT MEASURED"!
+
+   Wait, let me double-check. In engine_core:
+   ```python
+   "correlation": (float(correlation) if math.isfinite(correlation) else None),
+   "beta": float(beta) if math.isfinite(beta) else None,
+   ```
+   And btc_context = {"available": True, ...} â yes, available is True even when correlation is None (unmeasured). The panel's _correlation_lines handles None/0 n_obs â prints NOT MEASURED. The test test_the_panel_does_not_print_a_correlation_it_does_not_have constructs a decision directly with correlation None â it tests render_panel directly, bypassing _merge_btc_context.
+
+   But in the real path: SignalRouter._build_decision_object â _merge_btc_context(btc_context, btc_adjusted) â float(None) â TypeError â caught â returns {"symbol", "timeframe", "error": "Decision object construction failed: float() argument must be a string or a real number, not 'NoneType'"}.
+
+   Hold on â does the merged dict actually call float() on None? `float(btc_context.get("correlation", 0.0))`. If btc_context["correlation"] is None â .get returns None â float(None) raises TypeError. Yes.
+
+   But wait â can this state actually occur? compute_correlation_beta returns (NaN, NaN, 0) when series share no timestamps or lack DatetimeIndex or are too short. In production, df_struct["close"] and df_btc_struct["close"] both have DatetimeIndex from data_fetcher. If both fetches return 450 candles with identical timestamps, inner join gives 450 rows â fine. If BTC fetch has different timestamps (gap), join could drop to < 3 â returns NaN, NaN, 0 â correlation None. Also `btc_var == 0` case â returns NaN, NaN, n. So yes, reachable: a BTC fetch with a gap or a new candle between fetches... actually if they share â¥3 timestamps it's measured. Disjoint timestamps are rare but possible. Also when run on symbol where BTC fetch returns data with mismatched timestamps.
+
+   Hmm wait â actually also the case where n_obs >= 3 but btc_var == 0: returns NOT_MEASURED with n>0. Then correlation None again.
+
+   So: whenever the BTC pairing fails (correlation unmeasured), the router crashes into an error object and the operator sees "Decision object construction failed" instead of the analysis. That's a real defect: a fail-not-safe path that destroys the whole analysis because of an informational feature's edge case. Item 13 (Fail Safely) â "When data is missing, invalid, stale, or contradictory, the engine must become less confident or halt output â never invent a confident-looking answer." Well, it does halt output â but for the wrong reason; the analysis was computed fine and a presentational merge kills it. Actually halting is permitted by Item 13... but the intent of the BTC feature is explicitly "any failure here can never break or alter the AERO panel -- it just falls back to 'unavailable.'" The comment in engine_core says: "Wrapped end-to-end so any failure here (bad fetch, bad data) can never break or alter the AERO panel." The _merge_btc_context crash violates that design intent.
+
+   Let me verify there's no guard: _merge_btc_context:
+   ```python
+   if not btc_context.get("available") or not btc_adjusted.get("available"):
+       return {"available": False}
+   return {
+       "available": True,
+       ...
+       "correlation": float(btc_context.get("correlation", 0.0)),
+       ...
+       "beta": float(btc_context.get("beta", 0.0)),
+   ```
+   Yes, no None guard. `float(None)` â TypeError.
+
+   And _compute_btc_adjusted returns {"available": True, ...} even when correlation unmeasured (it returns early only if btc_context not a dict or not available). So btc_adjusted["available"] = True. So the merge proceeds. Crash.
+
+   Hmm wait â but actually let me check _compute_btc_adjusted more carefully for the unmeasured case. It computes:
+   ```python
+   correlation_raw = btc_context.get("correlation")  # None
+   correlation = _safe_float(correlation_raw, float("nan"))  # None â default â nan
+   n_obs = int(btc_context.get("n_observations", 0) or 0)
+   correlation_measured = (correlation_raw is not None and n_obs > 0 and math.isfinite(correlation))  # False
+   ...
+   direction_adjustment = (...) if correlation_measured else 0.0
+   stress_penalty = ...
+   net_adjustment = 0.0 - stress_penalty
+   btc_adjusted_confidence = max(0, min(100, confidence + net_adjustment))
+   ```
+   Then returns {"available": True, "btc_adjusted_confidence": ..., "adjustment": ..., "reasons": [reason]}. So yes available: True.
+
+   So the crash is real and reachable: BTC available with unmeasured correlation â router error â "Decision object construction failed" rendered as an error panel. The tests never exercise _merge_btc_context with correlation=None; the panel test bypasses the router. This is exactly the class of defect the audit instructions warn about: tests asserting the panel behavior but not through the production path.
+
+   Severity: The operator loses the entire analysis because of an informational side-feature's edge case â but it halts visibly (error message), it doesn't invent a number. Item 13's clause is "become less confident or halt output â never invent a confident-looking answer". It does halt. But the Constitution's spirit and the code's own stated invariant ("BTC context failure can never break the AERO panel") is violated. I'd grade Item 13 Partially compliant or Non-compliant with Major severity (contained â visible halt, not silent â but destroys analysis on a routine edge case). Actually, let me reconsider: is this really reachable in practice? The pinned fixtures are fully paired, so tests pass. Live: BTC fetch returns ~450 candles from MEXC, same endpoint, same interval â timestamps almost always identical. But a candle closing between the two fetches would give AERO 450 bars [t1..t450] and BTC 450 bars [t2..t451] â inner join = 449 shared â still â¥3, measured fine. Truly disjoint needs a big gap. btc_var==0 needs BTC flat for 30 candles â extremely rare but possible on a dead feed. Short histories (< 3 joined) possible on new listings. It's an edge case, but when hit, the whole run dies. And crucially â the engine's own stated invariant says this can't happen. Major severity, I'd say. This is my strongest candidate finding so far. Let me verify once more that float(None) raises â yes, TypeError: float() argument must be a string or a number, not 'NoneType'.
+
+   Wait, one more check â does engine_core really set available=True with correlation=None? The dict:
+   ```python
+   btc_context = {
+       "available": True,
+       ...
+       "correlation": (float(correlation) if math.isfinite(correlation) else None),
+       "correlation_label": classify_correlation(correlation),
+       "beta": float(beta) if math.isfinite(beta) else None,
+       ...
+   }
+   ```
+   Yes. available is hardcoded True in that branch. So if compute_correlation_beta returned NaN (any of its NaN paths: disjoint indexes, non-DatetimeIndex, <3 rows, btc_var==0, non-finite corr/beta), correlation=None with available=True.
+
+   Hmm, but wait â in the production path, when would compute_correlation_beta return NaN? aero and btc both come from data_fetcher with DatetimeIndex. If the pinned/live data has â¥3 shared timestamps and variance > 0, it's measured. The failure paths require: BTC frame fails validation (but then btc_context stays {"available": False} from the outer guard â no wait, df_btc validated by _validate_dataframe; if it fails, the whole try block is skipped? No â look: `if self._validate_dataframe(df_btc, ...)` guards the entire BTC analysis; if validation fails, btc_context stays {"available": False}. So available=True only when BTC data was fine. Within that, compute_correlation_beta could still return NaN if the two frames' timestamps don't overlap enough. df_struct has timestamps from AERO fetch; df_btc_struct from BTC fetch. Same exchange, same interval â usually identical. Edge: exchange gap in one symbol â fewer shared rows but usually still â¥3. So rare but possible. Also the `btc_var == 0` path â returns NaN with n = len â¥ 3. BTC not moving for 30 candles â dead data scenario. Possible with stale/broken feeds.
+
+   So reachable in degraded-data conditions â exactly when Item 13 cares. And the result is the whole analysis replaced by an error. I'm fairly confident in this finding. Severity Major (visible halt, recoverable, but loses a complete analysis and violates the stated "can never break the AERO panel" invariant; it's also a crash-path the tests don't cover â a test exists for the panel rendering with None but the router path is untested).
+
+   Actually â hold on. Let me reconsider severity. Is it "Critical"? Critical = "wrong or fabricated number the operator would reasonably act on, or an assertion by the engine that something happened when it did not." This doesn't fabricate a number; it halts with an error. So not Critical by the rubric. Major: "violates a Tier 1 invariant but is contained or not yet reachable" â it violates Item 13's spirit (fail safely â it fails, but not safely relative to design intent... hmm). Actually strictly: Item 13 says the engine "must become less confident or halt output". It halts output. So is it even a violation of Item 13? The violation is of the design contract and Item 8 (a comment claiming BTC failures can't break the panel, when they can). Also relevant: the engine returns an error for a condition it explicitly claims is handled. I'd frame it as Item 8 (claims that aren't true â the engine's own docstring says BTC context failures "can never break or alter the AERO panel", and they can) plus Item 13 (a missing BTC pairing kills an otherwise-complete analysis rather than degrading the BTC block to unavailable). The cleanest framing: Item 13 Non-compliant in this path â a missing/invalid input (unpairable BTC) does not degrade gracefully; it destroys the analysis. Severity Major.
+
+   Hmm, wait. Let me reconsider once more whether the error object actually results. _build_decision_object's try wraps the whole assembly including the return statement. _merge_btc_context is called in the dict literal: `"btc_context": self._merge_btc_context(btc_context, btc_adjusted),`. TypeError propagates to `except Exception as e:` â returns error dict. Then route_and_execute: decision = that error dict... wait, _build_decision_object returns the error dict, then `logged_to = decision_log.write(decision, config)` â writes an error "decision" to the log â then render_panel(decision) prints "[ERROR] Decision object construction failed: ...". So the operator sees an error panel. The analysis is lost. Confirmed.
+
+6. **decision_log.write is called BEFORE render_panel, and decision["decision_log_path"] is set AFTER write** â so the log record contains decision_log_path="" (empty), since write happens before assignment. Minor: the on-disk record lacks its own log path. Not important.
+
+   Actually wait, more interesting: decision_log.write(decision, config) writes the decision WITHOUT decision_log_path set (it's set after). The stored record has decision_log_path: "". That's fine/self-referential anyway.
+
+7. **Item 12 â hidden state**: BiasStateMachine instances (self.bias_state_machine, self.btc_bias_state_machine) persist in-memory across runs within a process, plus the state file on disk (documented). The state file is documented in comments ("C3 BUILD: cross-run state persistence") â is it "explicit, documented part of the design"? The documentation exists in code comments. The audit guidance says documentation must have existed before the audit began â the comments are in the shipped code, so yes. Also provenance.prior_state records it now. Compliant.
+
+   But BiasStateMachine itself: within one process, `self.state` persists across multiple run() calls. In practice each CLI invocation is a fresh process; live_trading.run_once creates one router per call (new engine each time). main.py: one route per process. So the in-memory state machine never actually carries state between runs in production paths. Documented as such. Fine.
+
+8. **The state file is written even when the run errors?** _save_state is called near the end (after exit_watch). If run() errors earlier, no state write â fine. But note: _save_state happens BEFORE charting and lineage. If a later stage raises (charting is inside try? plot_engine_chart has its own handling; lineage wrapped in try), the outer except returns error object â but state was already saved. So a failed run (e.g., exception in lineage assembly... actually lineage assembly is not wrapped fully â the dict construction could raise) could have already persisted state, meaning the next run's flip flags compare against a run that errored. Edge case, minor.
+
+9. **Run 1 transcript: RISK REGIME: UNKNOWN issue** â already noted. In run 1, stop 19.9% > 15% â early return "UNKNOWN". The panel prints "RISK REGIME: UNKNOWN" right below "VOLATILITY : MEDIUM VOLATILITY". Not a fabrication, but arguably a missed classification. Minor.
+
+10. **Volume spike degradation check uses only the last `window` (20) candles**: `recent = vol.iloc[-window:]` â the docstring says "a candle in the last {window}". That's as designed. OK.
+
+11. **pct_slope is dead code?** pct_slope defined in indicators.py â used anywhere? The slope loop inlines its own calculation. pct_slope seems unused. Item 16? Minor. Let me search... In the bundle, `pct_slope` appears only in its definition. Unused function. Minor complexity finding. Also `unusable_reason` used. `is_valid` in validation.py â used anywhere? Only defined; data_fetcher uses validate_ohlcv directly. `is_valid` appears unused. Minor.
+
+    Also `StructureAnalysisResult` TypedDict in structure.py â defined but not used as annotation anywhere (calculate_structure returns Dict[str, Any]). Dead declaration â and worse, it doesn't include degraded_inputs key, so it's stale. Minor.
+
+    `BiasBlock.regime` etc all used. `ERROR_KEY` used in test only... it's used in test_decision_contract. Fine.
+
+12. **main.py calls router.route() which renders the panel â and returns decision; main checks "error" in decision. Fine.**
+
+13. **live_trading.py: `result.get("entry", {})`... `_build_simulated_order` uses entry.get("zone_lower")... but decision object has entry.zone_lower â OK, matches. exit.action â OK. risk.targets â OK.**
+
+    But: `order["timestamp"] = datetime.datetime.utcnow().isoformat()` â deprecated utcnow() â they fixed the filename one but left utcnow() in _build_simulated_order! Look:
+    ```python
+    order = {
+        "timestamp": datetime.datetime.utcnow().isoformat(),
+    ```
+    And the comment in _log_simulated_trade says "5 September 2026: was datetime.datetime.utcnow(), which is deprecated... The repo fixed the same call in data_fetcher.py on 2 September and missed this one." â they fixed it in _log_simulated_trade but there's ANOTHER utcnow() in _build_simulated_order, same file! The comment claims both forms produce the same UTC wall clock â but the order dict's timestamp field still uses the deprecated call. Not a behavioral defect (works fine), but a comment-vs-code mismatch... no wait, the comment is specifically about the filename timestamp. The order timestamp is a separate call they missed. It's a deprecation nit, not a real finding. Actually, hmm â Tier 4 / minor. Worth a mention in observations maybe. Not a graded finding.
+
+14. **Item 4 Determinism**: Any nondeterminism? datetime.now in logging (logged_at) â fine, metadata. The state file path: deterministic. random? None. dict ordering: Python dicts are insertion-ordered â deterministic. `set` iteration in _find... `missing = [c for c in _OHLCV_COLUMNS...]` â list. volume_profile: bins iteration deterministic. `sorted(str(c) for c in df.columns)` in canonical_text â sorted. run_hash json sort_keys=True. Looks deterministic given identical inputs. One thing: `data_fetcher.pinned_source()` reads env var at call time â fine, configuration. Timezone handling: fetch uses pd.to_datetime(ms) â naive UTC. OK. Determinism: Compliant, verified by test_engine_is_deterministic_on_identical_input.
+
+15. **Item 5 Reproducibility**: provenance block + lineage + archive + hashes + module constants + prior_state. What about the **engine code version**? engine_version = "Phaseâ7 Structural Quant Engine v1.0" â a static string that never changes across code edits! The Constitution requires "engine version ... recoverable". A static "v1.0" string that doesn't change when code changes does not identify the code version. The git commit hash would. config.engine_version is recorded, satisfying the letter ("engine version must be recoverable") but the value is a constant that didn't change through 127 commits â so two runs on different code versions record the same engine_version. Is that a finding? The requirement: "its data timestamp, data source and version, engine version, configuration, and parameters must all be recoverable." "Recoverable" means recorded, which it is. But the value recorded is not actually a version â it's a name. run_hash does change with module constants but not with code logic changes (e.g., a bug fix in bias_engine that changes no constants â same run_hash, different output). Hmm, run_hash covers inputs + config + module constants â not code. So a code change (not constants) produces identical run_hash. The record can't distinguish runs from different code. Item 5's "engine version" clause is met only in letter: the string recorded, but it doesn't version anything. I'd call this Partially compliant or a Minor/Major finding. Let me think about severity. The scenario: exchange revises data... no wait. Scenario: a bug is fixed in calculate_dynamic_bias's formula (not weights). Two runs â before and after â produce different decisions from the same data, but the log records identical engine_version and identical run_hash. "Why did the engine produce this decision" is not answerable in terms of which code produced it. That's a real gap vs Item 5's rationale. Severity: Major? It doesn't produce a wrong number on the panel; it's an audit-trail gap. Moderate-Major. I'd say Major under Item 5 Partially compliant. Actually, careful: does the Constitution require version to be the *code* version? "engine version" â plausibly the engine's version string. The engine HAS one and it's recorded. A strict reading says Compliant. But the rationale ("why did the engine produce this decision needs to be answerable") clearly wants the code identified. The instructions say grade against the Constitution text. The clause: "its data timestamp, data source and version, engine version, configuration, and parameters must all be recoverable." A reader must be able to recover the engine version. They can recover "v1.0" â but that identifies nothing. I'll grade Partially compliant, Major, since the recorded "version" cannot distinguish any two builds of the engine ever shipped (127 commits, one version string). Hmm, or Minor? The release-gate rubric: Critical = wrong/fabricated number operator acts on. Not that. Major = violates Tier 1 invariant but contained/not reachable... The finding does violate the invariant's purpose but satisfies its letter. I'll go Partially compliant, Major, and explain the letter-vs-purpose tension honestly.
+
+    Wait â but also data source "version": source = "pinned" or base_url. The "version" of the data source is covered by input hashes. OK.
+
+16. **Item 6 Traceability**: lineage chain present. One gap: lineage.inputs has struct/macro/btc frames hashed, indicators at decision bar, bias_components, risk_inputs, archive. What about entry components? The chain "decision â decision components" â bias_components covers bias; risk_inputs covers risk; entry quality's sub-scores are in the decision object (ema_pos_pts etc.) and indicators at decision bar cover ATR/VWMA/RSI. Seems walkable. The validation score components? macro_agreement/volume_agreement deltas â derivable from recorded factors? macro_bias and volume_sentiment are recorded (decision.macro_bias, structure.volume_sentiment; bias_components factors). OK. Compliant? I think Item 6 is now Compliant, honestly reached. The prior verdict (comments) said Item 6 was the last Critical, fixed. I should verify claims, and they look real: decision_log.write returns path; panel prints only if path; lineage assembled; archive written; tests cover. One check â "raw source data": archive holds canonical text of the three frames. Yes. Compliant.
+
+17. **Item 2 Look-ahead**: bfill removed everywhere except plotting (documented exemption, feeds no decision). Any other future-info? `_volume_sentiment_simple` uses trailing windows. calculate_dynamic_regime uses iloc[-1]. Swing detection: `_find_confirmed_swings` uses windows on both sides but only confirms pivots `lookback` bars back â no future info at decision bar. VWMA: rolling trailing. compute_correlation_beta: tail(window+1) of joined â trailing. pct_change trailing. trend_health: iat[-1], [-2], [-4], [-5], [-10:-5] â all trailing. Momentum divergence uses -1 and -5. Fine. The macro read: EMA_50 of daily, last row â fine. The state file: prior run â past info, fine.
+
+    One subtle thing: engine makes the decision at the last bar of a 450-row frame fetched as "most recent limit candles" â fine, that's the live decision.
+
+    Plotting backfill: documented exemption, asserted by test. Feeds no decision. Compliant.
+
+    Also clean_series "interpolate" method: `limit_direction='forward'` â linear interpolation with limit_direction forward fills NaN using... pandas interpolate forward direction interpolates from past values; leading NaNs stay NaN. Fine. Is interpolate used anywhere? Not in engine (method="forward_fill" everywhere). Fine.
+
+    Item 2: Compliant.
+
+18. **Item 3 Data Integrity**: validation.py covers missing (interval check), duplicates, impossible prices (high/low + body checks), non-monotonic, NaN/Inf, negative prices/volume, all-zero volume, staleness (with explicit now), malformed responses (fetch try). Volume spikes: degraded not rejected (ruled). Row count â¥20 in engine_core. "abnormal volume" â spike detection exists (degrades). Compliant? One gap: **validation only runs in data_fetcher paths (load_csv, fetch_ohlc). The macro fetch and BTC fetch also go through get_tf â validated. Pinned data validated in _load_pinned. OK.**
+
+    But: `fetch_ohlc` validates with `now=Timestamp.now(UTC).tz_localize(None)` â good. `load_csv` validates without now â by design.
+
+    What about `validate_ohlcv` gap check: `wrong = gaps[gaps != expected]` â any gap not exactly expected is flagged, including *smaller* gaps (e.g., 1h bar in a 4h series) â fine, that's irregular.
+
+    One issue: the interval check uses `gaps.to_numpy().__ne__(expected.to_timedelta64()).argmax()` â argmax on a boolean array returns the FIRST True index... np.argmax of bool array returns first max (True). OK. And `i = ... + 1` â the index of the second candle of the gap. Fine.
+
+    Also duplicated timestamps check before monotonic â fine.
+
+    `_timestamps` for a positionally-indexed frame with no timestamp column returns None â validation returns None (passes) â documented: "some callers hand over a positionally-indexed frame". Hmm â so a frame without time axis passes validation entirely (no dup/gap/staleness checks). For the engine's paths, indexes are always DatetimeIndex. OK.
+
+    Item 3: Compliant, I believe. Tests cover each class with naming.
+
+19. **Item 7 Unsupported Predictive Claims**: BTC-Adjusted confidence carries "(computationally validated, empirically unvalidated â no backtest supports this adjustment)" on the panel. EV is labeled "illustrative, not backtested". The feature is informational. The word "Prediction" â the Constitution calls it "BTC-Adjusted AERO Prediction"; the panel calls it "BTC-ADJUSTED CONFIDENCE" with the disclaimer. Compliant? The label is present. But see finding #3 â the adjustment's sign logic for negative correlation is conceptually wrong. Does Item 7 cover that? Item 7 is about presenting predictions as validated. The sign issue is a correctness defect, better under Item 8/9. I'll grade Item 7 Compliant (status stated where presented) and put the correlation-sign issue under Item 8 or 9 as a separate finding. Hmm â actually, let me reconsider which rule best fits. The wrong-direction adjustment: it's a *mathematically derived* value presented with a precise definition that doesn't match its behavior in the negative-correlation regime. Item 9: "Every measurement has a precise definition â terms like confidence... need an explicit mathematical or semantic definition." The BTC-adjusted confidence's definition is given in the docstring ("scaled by how relevant BTC is (|correlation|) and how convicted BTC's bias is") â the definition matches the code. So it's precisely defined â but the definition produces a perverse result for negative correlation (BTC bearish + negative correlation â should reduce confidence in AERO-bearish, but increases it). That's arguably a "wrong number the operator would read" â but labeled unvalidated and informational. I'll file it as a finding under Item 8 (epistemic honesty: a derived quantity whose presentation asserts "agreeing with AERO's own bias" â a claim that is false when correlation is negative) with Major severity. Actually â the reasoning string in Run 2 says: "BTC is also bearish confirmed, agreeing with AERO's own bias." With correlation â0.90, "agreeing" in bias direction is empirically *disagreeing* in expected price movement. The sentence misleads. And the number moves the wrong way. Good, I'll write it as a finding under Item 8, Partially compliant (honest about validation status, dishonest about agreement semantics in the negative-correlation case), Major.
+
+    Hmm, wait. Let me think again about whether "agreement" should flip with correlation sign. The feature's purpose: "how closely AERO has been tracking BTC" â if AERO tracks BTC closely (high |corr|), BTC's bias is informative about AERO's near-term movement. If correlation is strongly NEGATIVE, AERO tracks BTC inversely â BTC bearish â AERO tends up â evidence against an AERO-bearish read â confidence in the bearish read should fall. The code boosts it instead. Yes, the sign should flip (or |correlation| shouldn't be used with direction-based agreement). Defensible as a genuine defect. Also the test only covers positive correlation. Confirmed finding, Major.
+
+20. **Item 8 Epistemic Honesty**: covered above; also check: the panel's "RISK REGIME: UNKNOWN" in run 1 â honest. Validation notes â now direction-aware. macro_agreement â fixed. volume_agreement â fixed. BTC NOT MEASURED â handled in panel but crashes in router (finding #5). Decision reasoning â now includes direction words.
+
+    Additional Item 8 check: `entry_status` default in signal_router: `str(entry.get("entry_status", "ACTIVE ENTRY ZONE"))` â a default claiming ACTIVE when missing. But entry always comes from engine with entry_status set. Latent default, minor.
+
+    `panel_render`: `timeframe = str(decision.get("timeframe", "4h"))` â fabricates 4h if missing; symbol defaults UNKNOWN but timeframe gets 4h â inconsistent honesty. Minor.
+
+    `macro_bias = str(decision.get("macro_bias", "NEUTRAL"))` â defaults NEUTRAL. Minor, latent.
+
+    Bigger: **`_validate_engine_output` requires sections bias/trend/structure/entry/risk â but for error objects returns True first. OK.**
+
+    Another Item 8: **header prints "Connecting to MEXC API for ..." even when data is pinned** â the panel always says "Connecting to MEXC API for {symbol} ({timeframe}) - Phase-7.3 Structural Quant Engine..." even in pinned/offline runs (transcripts show it while offline). The engine is NOT connecting to MEXC in those runs. A claim that isn't true. Hmm â in production (live) it is true. In pinned runs it's false. Is this worth a finding? It's a static banner. The transcripts literally show "Connecting to MEXC API" for an offline pinned run. Item 8/Item 6 territory â the engine asserting an action it did not perform. Severity Minor (cosmetic, but exactly the defect class this project cares about: the panel asserting something that didn't happen). I'll file as Minor under Item 8. Also "Phase-7.3" in banner vs engine_version "v1.0" â version inconsistency: banner says Phase-7.3, config says v1.0. Minor Item 10/8 nit. Combined into one minor finding maybe.
+
+21. **Item 9 Precise definitions**: trend_health formula defined in code; confidence = |bias_score| â defined in reasoning string; entry quality reconciled on panel (base, multipliers, clip). Validation: 50 baseline Â± macro/volume, thresholds STRONGâ¥70 etc. â printed score and state. RISK REGIME: classify_risk_regime documented. BTC-adjusted: capped Â±20, documented. EV: defined. "component_max_points 102" now shown. Definitions exist. The two-analyst lens question is a future candidate, not a rule. Compliant mostly. The negative-correlation semantics issue is separate (finding #19).
+
+    Hmm, one more: "RISK REGIME: UNKNOWN" â when validate returns UNKNOWN because early return happened before classification. The panel prints risk regime from validate_risk_parameters. For stop > 15%, regime UNKNOWN â but a regime WAS determinable (EXTREME by stop_pct > 8). The operator sees UNKNOWN where the engine could say EXTREME RISK. Minor definitional/display gap â fold into the minor findings or observations. Actually let me look: validate_risk_parameters checks finite, positive, then stop_dist > MAX (15%) â return False, msg, "UNKNOWN". It could still classify (8% < 15% < stop â EXTREME). The early return loses that. But risk_valid=False and NO-TRADE result either way. The panel showing UNKNOWN vs EXTREME RISK â informational. Minor.
+
+22. **Item 10 Consistent semantics**: "confidence" â risk.confidence_score = DecisionModel confidence = |bias_score| (capped). Panel "CONFIDENCE (decision)". trend_health separate line. BTC-adjusted labeled separately. "validation" â validation_score/state/note consistent. "entry quality"/"trade_quality_proposed" â Proposed Entry = entry score â panel labels "TRADE QUALITY: Proposed Entry 45.18/100" and "ENTRY QUALITY: 45.18/100" â two labels, same number â consistent semantics? The panel prints both lines with the same value under two names: ENTRY QUALITY and TRADE QUALITY â Proposed Entry. That's a duplicate presentation, Item 10-adjacent. Both 45.18. Consistent values, two names â could confuse but they're equal by construction. Minor.
+
+    "degradation" â consistent. "risk_valid"/"risk_regime" â consistent. volatility: bias.volatility from calculate_dynamic_regime ("MEDIUM VOLATILITY"), panel prints STRUCTURE line's Vol and VOLATILITY line â same source. OK.
+
+    Historical issue (confidence_score = trend_health) â fixed: now DecisionModel's. Compliant-ish. I'll say Compliant.
+
+23. **Item 11 Circular reasoning**: Layer 5 question from the Constitution: entry quality's multipliers combine macro_bias, trend_direction, structure_sequence â are those derived from each other upstream? macro_bias: EMA50 of daily â independent. trend_direction: EMA slopes of 4h â independent of macro (different timeframe). structure_sequence: swing pivots â independent computation from price. So no circularity there â checked, that's the open question the Constitution flags; I can answer it: they're computed from the same raw candles but not derived from each other's outputs. Not circular reasoning in the Item 11 sense (a signal reinforcing itself through derived layers presented as independent). macro and trend and structure are three readings of price, weighted as confluence multipliers â small (Â±5-10%). Is "three readings of the same candles" circular? Item 11 targets derived layers restating a signal. trend_direction derives from EMA slopes; EMA position in entry zone also derives from EMAs â but they score different aspects. I'd grade Item 11 Compliant with a note. The known prior issues (trend_health triple counting, continuation health_component, structure_alignment, validation_adj) â verified removed in code. confidence = |bias_score| only. validation starts at 50 neutral. Yes.
+
+    One remaining overlap to check: validation_score uses macro_bias and volume_sentiment, which are also bias factors â but validation_score does NOT feed confidence anymore (validation_adj removed). Does validation_score feed anything decisional? _determine_final_action reads validation_state: `if validation_state == "WEAK" and trend_health < 40: WAIT`. So validation_state (built from macro+volume agreement) gates a WAIT â macro and volume already voted inside bias_score (which produced raw_bias, and trend_health...). Is that double-counting? The decision logic uses validation_state as a sanity gate, not as "independent confirmation" added to a score. It's a second use of the same evidence in a gate â defensible or a mild Item 11 echo? The rule: "A signal must not reinforce itself through multiple derived layers and then be presented as independent confirmation." validation notes ARE presented as "Validation Notes" â macro agreement and volume agreement, which already contributed to bias_score. The panel shows VALIDATION: WEAK/STRONG (score) â presented as if an independent check, though its inputs are two of bias's six factors. Hmm. But its function now is transparent: the notes name macro and volume explicitly, and the score is printed as VALIDATION, not added to confidence. Is it "presented as independent confirmation"? The heading "VALIDATION" does imply an independent check. But the notes say exactly what it is: "The higher timeframe agrees with this bias. | Volume divergence or weakness detected." A reader can see it's macro and volume â the same things in the bias reasoning. Borderline. I won't file it as Non-compliant; mention in observations. Actually â wait. The validation score is also used in _determine_final_action's WAIT gate. macro_bias gets: 10% weight in bias_score â affects raw_bias â direction; then validation_state=WEAK (+trend<40) â WAIT override. So macro's disagreement can push validation to WEAK and, combined with trend_health < 40, veto a trade its bias_score already reflects. Double use of one input in one decision. But it's a gate, not an additive score â the Item 11 defect was about scores. The re-audit ruling (documented) chose to keep validation as agreement-measure. I'll note in observations, grade Item 11 Compliant.
+
+24. **Item 12 Hidden state**: state file documented + now recorded in provenance.prior_state. BiasStateMachine in-memory documented. Compliant.
+
+25. **Item 13 Fail Safely**: degrade machinery extensive. The router crash (finding #5) is my main Item 13 finding. Also check `calculate_dynamic_regime`: `vol_ratio = 0.01  # Default to medium volatility` â a fabricated default! If ATR or price is NaN/non-finite at iloc[-1], vol_ratio = 0.01 â "MEDIUM VOLATILITY" â a reading invented on failure. But wait â can that fire? ATR is guaranteed present and validated at decision bar by unusable_reason (decision-bar finite). price = close iloc[-1] â validated non-NaN by validation.py (NaN close rejected). So unreachable in production paths. Latent fallback inventing "medium volatility" â same class as the ones they removed. The instruction 7.1 says ask what it would print if it fired: it would print MEDIUM VOLATILITY from a failed read. Hmm, it's guarded by np.isfinite checks â 0.01. This is a latent fabrication. Severity: Minor (unreachable today; one edit away). Worth filing as Minor under Item 13, noting unreachability. The instruction says to report these. Yes.
+
+    Also `calculate_dynamic_regime` when "ATR" not in columns â volatility_mode = "UNKNOWN" â honest. When STRUCTURE missing â "NEUTRAL STRUCTURE" default â a fabricated regime label! If STRUCTURE column absent, dynamic_regime = "NEUTRAL STRUCTURE" â a reading, not absence. Reachable? df_struct always has STRUCTURE written by calculate_structure. Unreachable latent. Minor, same class.
+
+    `classify_stress(btc_volatility_mode)` â fine.
+
+    Also **risk_model.calculate_stop_targets stop_distance fallback**: `if stop_distance <= 0: stop_distance = atr_val * ATR_STOP_MULT` â for LONG with structural level above price (atr_stop = min(structural, calculated) â if structural > price, atr_stop > price â stop_distance negative â fallback to raw ATR distance. Then targets computed above price â but the stop sits ABOVE price (structural level above price for a long!). Wait: atr_stop = min(structural_level, calculated_stop). min picks the LOWER. If structural_level > current_price... min(structural, calculated) = calculated (since calculated < price < structural) â no wait, calculated_stop = price - atr*mult < price < structural, so min = calculated_stop. So atr_stop can't exceed price for long. Hmm, then stop_distance > 0 always for long? calculated_stop < price always (atr>0, mult>0). min can't exceed calculated. So stop_distance = price - atr_stop â¥ price - calculated_stop = atr*stop_mult > 0. So the <=0 branch is unreachable for long... For short: atr_stop = max(structural, calculated), calculated > price, so max â¥ calculated > price â stop_distance > 0. Also unreachable. Dead guard, harmless.
+
+    Hmm wait, actually the min/max logic: for LONG, stop should be the LOWER of structural support and ATR stop? A structural level (HVN) above price shouldn't drag the stop up for a long â min() handles that correctly. OK fine.
+
+    The `stop_distance <= 0` fallback: unreachable. Fine, harmless guard.
+
+    Item 13 overall: degrade machinery is real and tested. The router crash is the big exception; latent vol_ratio=0.01 and NEUTRAL STRUCTURE defaults are minor latent fabrications. Grade: Partially compliant, with the router issue Major.
+
+26. **Item 14 Risk Is Not Conviction**: risk_valid gates; risk_regime gates AGGRESSIVE; MIN_ACTION_BIAS floors direction; validation gate. Conviction (trend_health/entry) separate from risk. Compliant â verified the Finding 5 fix (risk_regime threaded, aggressive_allowed). Yes.
+
+27. **Item 15 Empirical evidence**: N/A-ish (no claims tested against live). Not verifiable? The rule: "When live measured behavior and mathematical elegance disagree, measured behavior wins." It's about process/feature-killing. Evidence: they removed BBands/KAMA (unconsumed), deleted dead gates. But "empirical testing of features" â nothing shows empirical evaluation of features against live behavior; the BTC feature is explicitly unvalidated and labeled. I'd say Not verifiable or Compliant by construction of process? The instruction: grade on evidence supplied. Version history shows removals of non-working features (supertrend.py dead code, compute_exit). I think "Not verifiable" is most honest â whether measured behavior wins over theory in this project's decisions can't be fully judged from source; but there IS evidence of empirically-driven removals (the live-run-driven fixes of Sept 2-5 â they ran the engine and changed code based on observed output, overriding theoretical judgments â e.g., direction source ruling). Actually that's decent positive evidence: measured behavior (live runs) repeatedly superseded the code's assumptions. I'll grade Compliant with reasoning, or Not verifiable? The rule is about the engine/project valuing measured behavior. The VC history + transcripts show runs driving fixes. I'll say Compliant.
+
+    Hmm, but be careful not to over-rely on comments. The transcripts are evidence of running. Fine â Compliant.
+
+28. **Item 16 Complexity demonstrated value**: removed dead columns, compute_exit, position sizing, caches, supertrend.py. Remaining complexity: BTC context feature â "correctness-validated, empirically unvalidated" â does it "solve a demonstrated problem or provide measurable value"? It's labeled unvalidated; kept per the Constitution's own Next Steps ("doesn't require removing the feature"). The Constitution explicitly contemplates it staying. So Compliant per the standard's own carve-out. Dead code remaining: pct_slope (unused), is_valid (unused), StructureAnalysisResult (unused+stale). Minor complexity residue â file as Minor or fold into observations. I'll fold into a Minor finding under Item 16.
+
+    Also `BiasStateMachine` â its output (detailed bias) is used. Fine.
+
+29. **Item 17 Backtesting isolation**: no backtesting exists in the codebase. The rule governs future tooling; current engine has no backtester to fail. Isolation: nothing in this code imports or hooks a backtester. Compliant (vacuously) â or Not verifiable? The invariant is about architecture of future tooling. Current state: no backtesting tooling present â nothing can corrupt the engine. I'd grade Compliant (vacuously satisfied today; the isolation question reopens when a backtester is built). Say so.
+
+30. **Item 18 Read-Only Market Access**: only endpoint /api/v3/klines (public). No credentials anywhere. API_KEY/API_SECRET removed from config. test_execution_surface guards. Compliant.
+
+31. **Item 19 Withdrawal never enabled**: no credentials at all. Compliant.
+
+32. **Item 20 Credentials never exposed**: no credential literals; .gitignore covers key files; logging doesn't include credentials (no credentials exist). The logs could include... exception messages from requests include URL with params (symbol, interval, limit) â no keys (none used). Compliant.
+
+33. **Item 21 Operator credentials stay with operator**: single-user tool; no telemetry, no uploads. Compliant.
+
+Tier 2:
+1. **Separation of responsibilities**: data_fetcher fetches + validates; indicators compute; models score; decision_model decides; router assembles; panel renders (router renders â router owns rendering, documented as deliberate). engine_core orchestrates and DOES contain validation-score logic (macro_agreement/volume_agreement) â is that a separation violation? The validation block computes a score â arguably decision-layer logic living in the orchestrator. But decision_model consumes validation_state... The architecture: engine_core computes validation (score+state), decision_model uses it. Hmm, validation is an analysis component; acceptable. Also engine_core computes bias (calls bias_engine), trend (trend_health), etc. â orchestration. I'd say Compliant. One nit: panel_render imports entry_model constants â fine.
+
+2. **Observation â interpretation â decision â risk/action**: distinct stages exist (indicators â trend/structure/bias â entry/risk â decision). The validation block mixes? It's a scoring stage. Compliant.
+
+3. **Explicit interfaces/contracts**: decision_contract.py with TypedDicts + tests. Function signatures documented. StructureAnalysisResult unused (minor). Compliant.
+
+4. **Explicit configuration**: config wired; constants moved to module level and fingerprinted (bias weights, risk mults, MIN_ACTION_BIAS). Remaining hardcoded: RAW_BIAS_THRESHOLD â in bias_engine module constants, fingerprinted. SPIKE_RATIO = 10.0 local in indicators (not fingerprinted â does it affect a decision? It gates a degradation flag â degrades run â blocks trading. It IS decision-affecting and NOT in config nor fingerprinted!). Hmm â FINGERPRINTED_MODULES covers bias_engine and decision_model and risk_model. indicators.py's SPIKE_RATIO=10.0 and window=min(VWMA_LENGTH,...) â the spike threshold changes whether a run degrades â changes decisions â not fingerprinted. Also DEGRADED_CONFIDENCE_CEILING in decision_model â is it fingerprinted? FINGERPRINTED_MODULES["models.decision_model"] = ["MIN_ACTION_BIAS"] only. DEGRADED_CONFIDENCE_CEILING (50) and BTC_ADJUSTMENT_CAP/BTC_STRESS_PENALTY and AVG_REWARD_R affect confidence/BTC-adjusted/panel numbers â not fingerprinted. Decision-affecting constants not in the run record. Item 5-adjacent (Finding 6's spirit: "all decision-affecting configuration"). The re-audit's required action said "including risk-model multipliers and bias weights" â done â but the general principle ("the run's identity: inputs AND settings") leaves these out. DEGRADED_CONFIDENCE_CEILING changes the printed confidence and action on degraded runs; BTC_ADJUSTMENT_CAP changes a printed number; AVG_REWARD_R changes printed EV. Also entry_model's ZONE_POINTS_NOT_MEASURED etc, multipliers 1.05/0.90 in entry_model, SCORE_CEILING â these change entry score â can change action! entry score â¥ 70 gates AGGRESSIVE. entry_model's constants are not fingerprinted. trend_health's thresholds (RSI bands, adx multipliers) change trend_health â changes bias score â decision â not fingerprinted. structure's threshold 0.0015 â not fingerprinted. So run_hash does NOT identify the run under many decision-affecting settings. Is that an Item 5 violation? Item 5: "configuration, and parameters must all be recoverable". Parameters of the analysis (RSI bands, entry multipliers, thresholds) are NOT recoverable from the record â only a subset. This is a genuine gap: the Finding-6 fix fingerprinted config + two modules' constants, but the engine has decision-affecting constants scattered in entry_model, trend_health, structure, indicators, decision_model (partially), validation (STALE_AFTER_BARS â affects acceptance), btc_context (window=30), decision caps. A changed multiplier in entry_model (1.05â1.10) changes decisions with identical run_hash. Severity: Major under Item 5? It undermines reconstructability claims. Hmm, but how far does "parameters" extend? Every literal in the code? A reasonable reading: the knobs the project itself calls settings. The project already decided which things are "settings" by fingerprinting some. The inconsistency: MIN_ACTION_BIAS got fingerprinted with a comment arguing it belongs; by the same argument DEGRADED_CONFIDENCE_CEILING, BTC caps, AVG_REWARD_R, entry multipliers, trend thresholds, spike ratio all belong. I'd file as Item 5 Partially compliant, Major. Actually wait â should this be Item 5 or Tier 2 explicit configuration? Both. The cleanest: Item 5 (record incomplete â reconstruction can't be verified for those settings) â Partially compliant, Major. And Tier 2-4 (explicit configuration) also Partially compliant? T2-4: "Important behavior (RSI period, EMA windows, confidence caps) comes from named, visible configuration â not mystery constants buried in the logic that touches them." The clause explicitly names "confidence caps" â DEGRADED_CONFIDENCE_CEILING is a named module constant (visible, named, documented) â is module-level named constant "configuration"? The project's own pattern treats module-level named constants as acceptable IF fingerprinted (bias weights precedent). So T2-4 is mostly satisfied (named, visible constants) but the fingerprint gap is Item 5. I'll file one finding: run record omits numerous decision-affecting constants (list them), Item 5 Partially compliant, Major; mention T2-4 partially in same or separate finding. Let me make it one finding under Item 5, and grade T2-4 Partially compliant referencing the same gap (SPIKE_RATIO is a local literal, not even module-level â that's the T2-4 hit; also window=30 in the correlation call site, 0.0015 in structure, stale-after-3 in validation, spike 10x, degraded ceiling, BTC caps). Actually T2-4's own examples: "RSI period, EMA windows, confidence caps" â RSI period/EMA windows ARE in config. Confidence caps (BTC_ADJUSTMENT_CAP, DEGRADED_CONFIDENCE_CEILING) are named module constants â "named, visible configuration"? They're named and visible in the deciding module. I'd grade T2-4 Partially compliant, Minor-Moderate, citing SPIKE_RATIO local literal + un-fingerprinted decision constants; or fold entirely into the Item 5 finding to avoid double-counting. I'll grade T2-4 Partially compliant (Minor) with the spike-ratio local constant as the concrete cite, and the Item 5 fingerprint gap as its own Major finding. Hmm, actually, let me reconsider severity of the Item 5 finding. Reconstruction of a run requires the code anyway (run_hash doesn't capture code). If you have the code (git hash), you have the constants. The record lacks the git hash too (finding #15). So "recover parameters" = recover code version â which gives all constants. The two findings merge conceptually: the record identifies inputs and SOME settings but not the code, so anything not fingerprinted is unrecoverable. Given git history exists, linking runs to commits is the missing piece. I'll combine: "The run record cannot be tied to the code that produced it â engine_version is a static string and many decision-affecting constants are unfingerprinted." One Item 5 finding, Major, Partially compliant. Cleaner.
+
+5. **Modular design**: modules have clear jobs. Compliant.
+
+6. **Controlled dependencies**: requirements pinned; test_declared_dependencies_cover_actual_imports; imports map clean. requests used (fetcher), colorama (panel), matplotlib (plotting), pandas_ta (indicators), pandas/numpy. Compliant.
+
+7. **Explicit, evaluated changes**: decision_contract + tests guard the decision object shape. Compliant. (VC history shows contract-driven changes.)
+
+Tier 3 (process) â grade from VC history + tests:
+1. **Hypothesis-driven development**: commit sizes show focused changes with test files. Subjects withheld â can I verify "hypothesis stated before work"? Commit messages withheld; docs/PHASE7_NEXT.md referenced but not in package. Evidence: each commit pairs a focused code change with a test module. Partially verifiable â I'd say Partially compliant or Not verifiable for the "hypothesis stated first" part. The diff stats show disciplined one-topic commits (e.g., 2bbb40e btc_context + its test). I'd grade Compliant on the visible pattern, noting commit messages would confirm. Careful: instruction says grade on evidence; the pattern of fix+test+docs commits is decent evidence. I'll say Compliant, with note.
+
+2. **Controlled changes**: 127 commits, mostly small, single-topic, each with tests. Diff stats support. Compliant.
+
+3. **Automated tests**: 37 test files, extensive. run_tests.py + pytest.ini. Compliant. (See Part 4 for quality assessment.)
+
+4. **Regression tests**: golden snapshot, determinism tests, contract tests, guards for removed defects. Compliant.
+
+5. **Fixed evaluation datasets**: pinned fixtures + MANIFEST.json with hashes + clean CSV. Compliant.
+
+6. **Version control**: real git history, 127 commits, branches, tag. Compliant.
+
+7. **Known-good checkpoints**: tag `audited-2026-08-27`; golden snapshot; working tree clean. One tag in 127 commits covering 13 days of heavy change â is that "every major iteration recoverable"? Git itself makes every commit recoverable. Tag exists. Compliant (git history + at least one explicit checkpoint tag). I'd say Compliant.
+
+8. **Reproducible experiments**: pinned data + determinism test + rebuild-from-archive test. Compliant.
+
+9. **Rollback capability**: git history + clean tree â revert possible. Evidence of actual reverts? `docs_update.patch` files added then deleted (e70b835 adds patch, 89131f2 deletes) â suggests patch-file workflow cleaned up. Rollback capability exists structurally. Compliant.
+
+10. **Documentation of significant decisions**: extensive code comments, docs/PHASE7_NEXT.md (referenced, not in package), Engineering Notes (referenced, not in package), rulings recorded in comments. The package doesn't include those docs, but comments + VC history show the practice. Partially verifiable â comments are rich decision records; the named docs exist in VC history (docs/PHASE7_NEXT.md appears in many commits). Compliant.
+
+Tier 4:
+1. **Robustness over optimization**: degradation handling, hysteresis, guards â evidence of robustness choices. Compliant.
+2. **Generalization over historical fit**: symbol-parameterized (hardcoded "AERO" strings fixed to use symbol param); BTC context generalizes. Prior verdict Compliant (disclosed). Test on TESTUSDT. Compliant.
+3. **Explainability over opacity**: heavy comments, lineage, reasoning strings, reconciliation lines. Compliant.
+4. **Stability over flashy outputs**: hysteresis, bias state machine, caps. Compliant.
+5. **Useful information over more information**: removed dead columns/fields (position sizing panel lines dropped, risk_score removed). Panel still dense but curated. Compliant.
+6. **Prefer simpler when equal**: deletions (caches removed rather than repaired, singleton deleted). Compliant.
+
+Now the seven pre-disclosed items (Section 2): Items 3 and 6 described as rated Critical (fixed â I verified the fixes are real); Item 18 kept Compliant (agree); Item 16 went Non-compliant (per the comment in decision_log? Let me recall â "Tier 3 items 3 and 4 as currently Non-compliant; and Tier 4 item 2 as rated Compliant". Hmm the disclosure says: "Items 3 and 6 are described as rated Critical; Item 18 as kept Compliant; Item 16 as having gone Non-compliant; Tier 3 items 3 and 4 as currently Non-compliant; and Tier 4 item 2 as rated Compliant".
+
+Wait, Item 16 (Complexity Must Provide Demonstrated Value) described as "having gone Non-compliant" â where? Probably in a comment. My grade: Item 16 Compliant now (complexity mostly removed; minor dead code). I'll note whether the comment moved me.
+
+Tier 3 items 3 (Automated tests) and 4 (Regression tests) described as "currently Non-compliant" â that claim appears in test docstrings ("Constitution: Tier 3, items 3 and 4, both currently Non-compliant" â in test_imports.py: "Constitution: Tier 3, items 3 (automated tests) and 4 (regression tests), both currently Non-compliant."). That docstring is stale â it describes the state before the test suite existed. My grade: Compliant (extensive suite exists). The stale claim itself is a doc bug â worth noting (comment wrong about current state). Actually it's in a docstring explaining history... "both currently Non-compliant" is stale. Note it.
+
+For Part 6 I need to say for each of the seven whether the comment moved me. Items 3, 6: I verified fixes independently; comment didn't move verdict. Item 18: agree from code; didn't move. Item 16: I found remaining dead code (pct_slope etc.) â Minor; the comment (if it says Non-compliant) didn't change my verdict. Tier 3-3/4: I grade Compliant against the disclosed "currently Non-compliant" claim â the claim is stale; it didn't move me down because the evidence (37 test files) is in front of me; but I should flag the stale docstring. Tier 4-2: Compliant; didn't move.
+
+Now, let me also do the Section 7 checks more rigorously:
+
+**7.1 â fallbacks that invent:**
+- calculate_dynamic_regime: vol_ratio = 0.01 default (latent, Minor); "NEUTRAL STRUCTURE" default (latent, Minor).
+- bias_engine safe_float defaults 0.0 for scores â inputs guaranteed by upstream; latent.
+- signal_router `.get` defaults (entry_status ACTIVE ENTRY ZONE, validation_note "Standard validation review.", validation_score 50.0, chart default) â latent defaults; validation_note default "Standard validation review." is an invented note if key missing â router always supplies. Latent Minor â worth one combined "latent defaults" finding (Minor) rather than many.
+- trend_health.get("trend_health", 50.0) in decision_model â `trend_health = _safe_float(trend.get("trend_health", 50.0))` â 50.0 default! If trend_health missing from the trend dict, decision uses 50.0 (a real mid reading). Is it reachable? trend dict always has trend_health from engine (contract). Latent. Hmm â this is the SAME class as the fabricated 50.0 they removed elsewhere. It's latent (contract guarantees the key) but a missing key â invented 50/100 trend strength affecting LONG/SHORT gating. Minor latent finding. Include in latent-defaults finding.
+- `risk.get("risk_regime", "NORMAL RISK")` in decision_model â latent default claiming NORMAL. Include.
+- `panel_render` safe_float defaults 0.0 with finite check â for prices â prints $0.0000 if key missing. Latent; panel's job is display; they fixed the NaN case. The `validation_score = safe_float(risk.get('validation_score', 0))` â 0 default â "VALIDATION: WEAK (Score: 0.00)" if missing â invented. Latent. Include in the same Minor finding.
+- entry_model defaults: neutral midpoints now (documented policy). Fine.
+- btc_context NOT_MEASURED NaN â None conversion â good. But the router crash on it (Major finding #5).
+
+**7.2 â claims engine doesn't do:**
+- Banner "Connecting to MEXC API" in pinned runs (Minor, noted).
+- "Decision logged to ..." only when path â verified good. "No chart was produced" when absent â good.
+- live_trading docstring says "NEVER executes real trades" â true.
+- engine_core comment: BTC context "can never break or alter the AERO panel" â FALSE per the merge crash (supports Major finding #5).
+
+**7.3 â tests that pass without proving:**
+- test_live.py imports `live_trading_simulator` which NO LONGER EXISTS (deleted; replaced by get_live_trading_simulator()). `from live_trading import live_trading_simulator` â ImportError. test_live.py is at repo root, not under tests/ â is it collected? pytest.ini testpaths = tests, so not collected by pytest. run_tests.py discovers tests/ only. So test_live.py is dead/broken scaffolding at root â would fail if run. It's not part of the suite. Minor packaging nit; mention in Part 4 or observations. Actually â it imports a name that doesn't exist; it's a broken script shipped in the repo. Item 16/Tier-4 nit. Mention in observations + Part 4.
+- test_the_supertrend_level_is_guarded_and_not_only_its_direction â asserts source contains "SuperTrend's level" â a source-grep test that proves little (7.3: tests that prove nothing). It checks a string in source. Weak but has companion behavioral tests. Mention in Part 4.
+- test_declared_dependencies_cover_actual_imports â real.
+- test_the_engine_holds_no_caches â attribute-name scan; weak but has source scan companion.
+- test_clean_checkout: subprocess import â real.
+- The test suite's biggest blind spot: _merge_btc_context crash is NOT covered â the panel tests bypass the router for the None-correlation case (a test constructs the decision dict by hand). Also note test_the_btc_block_is_legal_in_both_of_its_shapes tests _merge_btc_context({}, {}) â {"available": False} only. The available-with-unmeasured-correlation shape is untested â my Major finding stands as suite gap. Good for Part 4.
+- test_golden_path baseline comparison â strong.
+- "tests asserting only absence" â several (deleted columns stay deleted) â but paired with presence tests (consumed columns still produced). OK.
+- test_the_panel_never_prints_a_non_finite_number â asserts "math.isfinite" in source â weak source-grep, but there are behavioral companions elsewhere.
+- Any test iterating empty collections? `test_each_defect_is_reported_by_its_own_name` builds cases â non-empty. `test_no_order_execution_calls` â if _engine_sources() were empty it'd pass vacuously; it walks the repo â fine.
+- test_every_config_constant_is_read_by_the_engine â real static check.
+- I'll summarize: suite is strong and adversarial (negative controls everywhere), but has a few source-grep assertions and one material coverage gap (router merge crash; also no live-run for BTC-USDT self-run? engine handles BTCUSDT symbol â btc unavailable â tested? Not directly, but trivial). Also the suite pins the "rulings" as tests â tests written by the fixer (Section 5 caveat).
+
+**7.4 â restated inputs**: confidence = |bias_score| â explicitly one input, documented. validation gate uses validation_state â overlaps macro/volume (noted in observations). trade_quality = entry score (one input). EV uses confidence â confidence is |bias_score| â EV is a transform of bias_score â "illustrative" labeled. OK. Entry quality multipliers: macro (also bias factor 10%), trend_direction (related to trend health's slope inputs), structure_sequence (structure regime related). These multiply entry score while macro also votes in bias â but entry score and bias score are different outputs; macro feeding both is macro counted twice across two scores presented separately. Borderline; the Constitution's Layer 5 question answered: not derived from each other. Note in observations.
+
+**7.5 â future info**: done above. Compliant. One more: `_load_pinned` takes tail â matches API. `rebuild_frame` â archive only. Plotting bfill exempt. Also `interpolate` unused. Volume profile uses whole frame for bins â that's a profile of the whole window including past â fine, it's a structural summary, computed from data up to now. Fine.
+
+**7.6 â duplicated computations without comparison:**
+- bias_engine._VOLUME_SENTIMENT_SCORES vs engine_core.volume_agreement â now consistent (test enforces).
+- macro read: engine_core macro_bias (EMA50) vs decision "MACRO TREND" â same source.
+- structure_regime via calculate_structure (regime from StructureEngine hysteresis state machine!) vs dynamic_regime = df["STRUCTURE"].iloc[-1] â same value. Note: StructureEngine._last_regime is instance state; calculate_structure constructs a NEW StructureEngine per call â hysteresis resets each run â regime is stateless in practice (hysteresis within a single call only â meaningless since one call per frame). Hmm: _detect_regime uses self._last_regime initialized "NEUTRAL STRUCTURE" each new instance. calculate_structure makes a fresh engine each call. So the "hysteresis state machine" never persists across runs â the hysteresis is effectively from NEUTRAL each time. Design docstring claims whipsaw prevention across... within one call it does one transition from NEUTRAL. So regime = one step from NEUTRAL based on current gap. The hysteresis feature is vestigial (fresh instance per call). Is that a finding? It works (deterministic), just the state machine doesn't do what the docstring implies ("state persistence to reduce whipsaws" across... what? bars? calls?). Within one analyze() call, _detect_regime is called once â so _last_regime matters only as the prior state = NEUTRAL always. The "hysteresis" is thus always relative to NEUTRAL. It still yields hysteresis-like behavior only if you consider NEUTRAL a sticky prior. It's arguably dead-ish complexity (Item 16 nit) or misleading docstring (Item 8 nit). Minor â mention in observations.
+- current_price computed once, used everywhere â good.
+- atr_val: engine asserts ATR present â good.
+- The direction sources: now bias-only + guard _refuse_incoherent_plan â verified.
+- risk stop geometry: stop_distance recomputed in panel (stop_distance = |price - stop|) vs risk_model's internal stop_distance â R:R printed by panel derives ratios from price/stop/targets â same numbers, recomputed independently â could disagree if targets weren't multiples of actual stop distance; risk_model computes targets as multiples of actual stop_distance, so ratios 1.00/2.00/3.00 (transcripts confirm). Two computations agreeing by construction. Fine.
+- BTC correlation pairing â fixed with join.
+- `hvn` passed as structural_level to risk_model AND HVN column in df_struct â engine uses df_struct["HVN"].iloc[-1] if present else structure_obj hvn. calculate_structure writes HVN column = result["hvn"] (scalar broadcast) â same value. Fine.
+- **swing_struct**: structure block uses structure_obj.get("swing_struct", nan); panel SWING STRUCT prints it. Note swing detection falls back to current_price when not enough data (`return float(current_price)` in _detect_swing_structure for short frames!) â wait: `_detect_swing_structure` returns float(current_price) if len < 2*lookback+5 or no swings found. So on short frames, swing_struct = current_price â a fabricated level! But frames have â¥20 rows min (validation requires 20; 2*8+5=21 â frames of exactly 20 rows hit the fallback). Engine requires â¥20; 20 < 21 â fallback current_price. And if no confirmed swings (flat or short history), also current_price. Then SWING STRUCT prints price as the level â the very defect class (level equal to price). Hmm â engine_core extracts swing_struct = structure_obj.get("swing_struct", nan); analyze() calls _detect_swing_structure which returns current_price on insufficient data. That's a latent fabrication: for frames < 21 rows or swing-less charts, SWING STRUCT prints current price as a located level. Reachable? Production frames are 450 rows with real swings â unreachable in practice, but the fallback fires for any frame 20 rows (min accepted) â plausible for new listings! A new listing with 20 candles â swing_struct = current price â panel prints "SWING STRUCT: $X" where X = current price, presented as a located structural level. Also exit watch proximity? No â exit watch uses hvn/lvn. trend_health uses HVN only. risk_model uses hvn. So swing_struct = price only affects the panel line. Severity: Minor (display fabrication on edge inputs; no decision impact). Add to findings (Item 8/13, Minor). Hmm â and on failure of the detector, analyze's handler sets nan (good). The current_price returns are in the non-exception paths. Let me file as Minor under Item 13 or 8. I'll put it under Item 8 as a latent invented reading, Minor.
+
+Let me also check `_detect_hvn_lvn` legacy fallback: returns high/low window extremes â that's a real computation (documented legacy). Fine.
+
+**Another 7.6 candidate**: `validation_score` thresholds: STRONG â¥ 70 in engine_core; panel prints state from risk.validation_state â same. decision_model reads validation_state == "WEAK". Consistent.
+
+**MIN_ACTION_BIAS=30 vs BiasStateMachine confirmed threshold 30** â two declarations of 30 in different modules (decision_model.MIN_ACTION_BIAS=30.0; bias_engine transition uses 30 literal). The comment says "30 matches bias_engine's CONFIRMED threshold" â but bias_engine's 30 is a literal, not a shared constant. Two copies of one value that must agree. Item 10/T2-4 nit â drift risk. Minor. Also BiasStateMachine's 20 vs RAW_BIAS_THRESHOLD=20.0 â two declarations (literal 20 in transition, constant 20.0). Minor. Mention in observations.
+
+Also engine_core `macro_limit = 100` â decision-affecting (macro EMA50 needs 50+ bars; limit 100 fine) â recorded in provenance.fetch.macro_requested_limit â good.
+
+OK â also check **execution_transcripts Run 1: "RISK REGIME: UNKNOWN"** â discussed. And Run 1 EV positive +1.36R printed while NO-TRADE â labeled hypothetical. Fine.
+
+Now â is there anything Critical? Candidates:
+1. Router merge crash â Major (visible halt, not fabrication).
+2. BTC-adjusted sign for negative correlation â Major (wrong number, informational + unvalidated label).
+3. Item 5 record gaps (version + unfingerprinted constants) â Major.
+4. Latent defaults/fabrications (vol_ratio 0.01, NEUTRAL STRUCTURE, trend_health 50.0, validation_score 0, swing_struct=current_price, risk_regime NORMAL) â Minor each; bundle as one or two Minor findings.
+5. Banner "Connecting to MEXC API" on pinned runs + Phase-7.3 vs v1.0 â Minor.
+6. Dead code (pct_slope, is_valid, StructureAnalysisResult stale, test_live.py broken) â Minor Item 16.
+7. StructureEngine hysteresis vestigial â observation.
+8. Duplicate thresholds (30, 20) â observation/minor.
+9. validation presented as independent though inputs are bias factors â observation (Item 11 echo).
+
+Severity check against release gate: no Critical Tier 1 â gate met, on my findings.
+
+Now, "Not verifiable" candidates: Item 15 (empirical) â I said Compliant from evidence; Tier 3 items â gradeable from VC history. Item 17 â vacuous Compliant. Hmm, I said earlier Item 15 Compliant. Let me keep Compliant with brief justification.
+
+Wait â I should double-check the router-crash finding once more, because it's my headline Major. Trace exactly:
+
+engine_core section 6b: on success builds btc_context with available True, correlation possibly None. The outer try wraps everything: `except Exception as e: logger.warning(...); btc_context = {"available": False}`. So engine-side failures â unavailable. The None-correlation case is NOT an exception â available stays True with correlation None.
+
+signal_router._build_decision_object:
+```python
+btc_adjusted = dm_result["btc_adjusted"]
+...
+"btc_context": self._merge_btc_context(btc_context, btc_adjusted),
+```
+btc_adjusted: DecisionModel._compute_btc_adjusted(confidence, bias, btc_context, symbol). btc_context here is raw_output's btc_context (with correlation None, available True). Returns available True (computed with adjustment 0, reason "could not be measured"). 
+
+_merge_btc_context(btc_context, btc_adjusted): both available â builds dict:
+```python
+"correlation": float(btc_context.get("correlation", 0.0)),
+```
+btc_context["correlation"] is None â float(None) â TypeError. Propagates up to _build_decision_object's except â returns {"symbol", "timeframe", "error": "Decision object construction failed: float() argument must be a string or a real number, not 'NoneType'"}.
+
+Then route_and_execute continues after the inner try? No â the inner try wraps _build_decision_object call; the except returns error_obj after render_panel. Wait:
+
+```python
+try:
+    decision = self._build_decision_object(...)
+    logged_to = decision_log.write(decision, config)
+    ...
+    render_panel(decision)
+    return decision
+except Exception as e:
+    ...error_obj...
+```
+
+_build_decision_object itself catches its own exceptions and returns an error dict â so no exception propagates; decision = error dict. Then `logged_to = decision_log.write(decision, config)` â logs the error dict as a "decision"! Then `decision["decision_log_path"] = logged_to or ""`. Then `logger.info(... Action: {decision.get('exit', {}).get('action', 'UNKNOWN')})` â 'UNKNOWN'. render_panel(decision) â prints "[ERROR] Decision object construction failed: ...". Returns error dict to caller.
+
+So yes: the run produces an error panel, the entire completed analysis (bias, levels, etc.) is discarded, and a spurious "decision" record (the error dict) is appended to the decision log. Also note: decision_log.write of an error object pollutes the log â secondary issue.
+
+Reachability again: correlation None requires compute_correlation_beta NaN path: (a) either series None â no; (b) len < 3 â frames â¥ 20; (c) non-DatetimeIndex â fetcher always sets DatetimeIndex; pinned loader too. (d) joined < 3 â requires AERO and BTC to share < 3 timestamps â live: possible if BTC fetch returns a very different range (exchange outage partial data? new listing? or limit differences â both use same `limit=450`; if BTC has fewer than 3 candles total â but _validate_dataframe requires â¥20 rows for df_btc â so â¥20 rows; timestamps could still be disjoint in a pathological case â e.g., BTCUSDT fetch returns valid 20+ rows from a different period? Unlikely from same endpoint. Hmm. (e) btc_var == 0 â BTC flat 30 candles â dead/stale feed: if BTC prices are constant (broken feed returning same candle), variance 0 â NaN path with n = len â¥ 3! Stale BTC data: validate_ohlcv checks staleness for live fetches (now passed) â stale BTC (last candle > 3 bars old) â rejected with error â df_btc error â _validate_dataframe fails â btc unavailable. But a feed returning 450 *identical* current candles? Duplicated timestamps â rejected. A feed with valid timestamps but zero price movement for 30 candles (possible in theory, ultra-low-liquidity)... For BTCUSDT, essentially impossible live. Hmm.
+
+So in practice the crash path is narrow: mostly (d) disjoint timestamps or (e) zero variance. Both are rare but real in degraded-data conditions â precisely when robustness matters. Also pinned datasets constructed by others (operators running their own pinned data, per PHASE7_PINNED_DATA) can easily be disjoint â the pinned mechanism is user-facing! An operator pinning AERO and BTC CSVs from different exports with mismatched calendars â inner join < 3 â correlation None â crash. That's actually quite reachable in the documented reproducibility workflow. test_two_series_that_share_no_timestamps_measure_nothing proves the None path exists at the unit level. OK, Major stands, maybe even high-Major. The instruction's check 7.6 example was exactly the positional-pairing defect; the fix introduced this None path and left the merge unguarded.
+
+Actually â wait. Let me also check `_merge_btc_context` beta: same None issue (beta None when unmeasured or when btc_var==0 â beta NaN â None). Same crash via beta too. Yes.
+
+And also â even when measured, beta could be... fine.
+
+Now, is there any OTHER place float(None) could bite? signal_router: `"hvn": float(structure.get("hvn", 0.0))` â structure.hvn can be NaN (float('nan')) â float(nan) fine (nan). None? engine sets hvn = float(...) or nan via structure_obj.get(..., nan) â never None. OK. `"zone_lower": float(entry.get("zone_lower", 0.0))` â entry zone can be NaN â float(nan) fine. `"distance_from_zone": float(entry.get("distance_from_zone", 0.0))` â NaN fine. Panel handles NaN. OK.
+
+`"correlation": float(btc_context.get("correlation", 0.0))` â the only None-producing field. Confirmed unique.
+
+Another check â `decision_log.write(decision, config)` on the error object: record["decision"] = error dict â the log gets an error entry as though a decision. Minor secondary point for the same finding.
+
+Now let me also sanity-check finding #19 (negative correlation sign) numerically from Run 2: confidence 52.64, btc_score = ? BTC BEARISH CONFIRMED. adjustment +11.94. Formula: agreement=+1 (both bearish), |corr|=0.90, |btc_score|/100 â btc_score â 66.3? 0.9 * 0.663 * 20 = 11.93. Yes â +11.94. So with â0.90 correlation and both bearish, boosted ~12 points. For the sign to make sense, agreement should be â1 here (assets move oppositely; BTC down implies AERO up, contradicting AERO-bearish â confidence should drop). Filed.
+
+Hmm, one could argue the feature defines "agreement" as bias-direction agreement regardless of correlation sign, scaled by |corr| as "relevance". Is that coherent? If correlation is strongly negative, BTC bias is *highly relevant* â but in the opposite direction. The docstring: "scaled by two things: how relevant BTC even is right now (|correlation|) and how convicted BTC's own bias is" â it deliberately uses |correlation|. The conceptual error: for negative correlation, BTC's directional bias predicts the opposite for AERO. I'm confident filing it as a defect (wrong-direction adjustment), Major, while acknowledging the unvalidated label mitigates operator risk. Under which rule? Item 9 (definition mismatch with intent)? Item 8? I'll file under Item 8 â the panel sentence asserts "agreeing with AERO's own bias" and raises confidence where the measured relationship (strong negative correlation) implies the opposite; a derived claim the data contradicts. Actually, you know, I think the cleanest home is Item 7: the feature is a *predictive* adjustment (it adjusts confidence about future agreement), and this is a correctness defect in its core mapping. But Item 7 is about empirical validation status... I'll go with Item 8, Partially compliant, Major. And grade Item 7 Compliant (label present).
+
+Now Item 5's grade: Partially compliant (static engine_version + unfingerprinted decision constants), Major. Evidence quotes: config `engine_version = "Phaseâ7 Structural Quant Engine v1.0"`; FINGERPRINTED_MODULES only three modules; e.g. `DEGRADED_CONFIDENCE_CEILING = 50.0`, `BTC_ADJUSTMENT_CAP = 20.0`, `BTC_STRESS_PENALTY = 15.0`, `AVG_REWARD_R = 2.0`, entry_model's `1.05/0.90`, trend_health band thresholds, `SPIKE_RATIO = 10.0`, structure `threshold = 0.0015`, validation `STALE_AFTER_BARS = 3`, `window=30` correlation â all decision-affecting, none in run record. Concrete scenario: operator changes ZONE_POINTS_NOT_MEASURED 15â25; entry scores rise; AGGRESSIVE gate (â¥70) outcomes change; run_hash identical; log cannot distinguish the runs. Good.
+
+Item 13 grade: Partially compliant â strong degrade machinery, but (a) router crash on unmeasured BTC correlation (Major), (b) latent invented defaults: vol_ratio 0.01 â MEDIUM VOLATILITY; NEUTRAL STRUCTURE on missing STRUCTURE; trend_health 50.0 default in decision_model; risk_regime NORMAL default; validation_score 0 in panel; swing_struct=current_price for short/flat frames (Minor bundle). Wait â should the router crash be Item 13 or Item 8? It's both; file once under Item 13 (primary) and reference from Item 8's grade. I'll file:
+
+Finding A (Major, Item 13): _merge_btc_context float(None) crash â analysis destroyed on unpaired BTC; contradicts engine's own "can never break the AERO panel" claim; suite gap identified.
+Finding B (Major, Item 8): negative-correlation BTC adjustment moves confidence the wrong way and the reason string asserts agreement the data contradicts.
+Finding C (Major, Item 5): run identity cannot be tied to code/parameters â static engine_version; decision-affecting constants outside the fingerprint.
+Finding D (Minor, Item 13/8): latent invented defaults on unreachable-but-unguarded paths (vol_ratio=0.01 MEDIUM VOLATILITY; NEUTRAL STRUCTURE; trend_health 50.0; risk_regime NORMAL RISK; validation_score 0; swing_struct=current_price).
+Finding E (Minor, Item 8): banner claims "Connecting to MEXC API" on pinned/offline runs; banner says Phase-7.3 while engine_version says v1.0.
+Finding F (Minor, Item 16): residual dead code â pct_slope, is_valid, stale StructureAnalysisResult, broken test_live.py at repo root.
+Observations (Part 6): hysteresis state machine vestigial; duplicate 20/30 thresholds across modules; validation-score overlap with bias factors (Layer 5 answer); Tier-3 stale docstring claim; RISK REGIME UNKNOWN on >15% stops; Item 15 evidence; utcnow in live_trading order dict; entry_status/validation_note router defaults; validation adj gate double-use of macro (mild Item 11 echo); test suite weaknesses (source-grep tests; merge-crash coverage gap; tests written by fixer).
+
+Also â "seven contaminated items" for Part 6: Items 3, 6 (prior Critical), Item 18 (prior Compliant), Item 16 (prior Non-compliant), Tier3-3, Tier3-4 (prior Non-compliant), Tier4-2 (prior Compliant). For each: verdict + whether comment moved me. My verdicts: 3 Compliant, 6 Compliant, 18 Compliant, 16 Partially? â hmm, Item 16: I have dead-code Minor (Finding F). Grade Partially compliant, Minor. The disclosure says "Item 16 as having gone Non-compliant" (in a prior round, pre-fixes presumably). My verdict Partially compliant â did the comment move me? No; the residual dead code is my own read (pct_slope genuinely unused â let me double check: pct_slope defined; usages? In indicators.py the slope loop is inline; trend_health uses EMA20_Slope columns; nothing calls pct_slope. Searching bundle: "pct_slope" appears in definition only. Yes unused.) is_valid: used in...? validation.py defines is_valid; usages: none in engine; tests use validate_ohlcv. Unused. StructureAnalysisResult: defined, unused, missing degraded_inputs â stale. test_live.py: broken import. So Finding F solid.
+
+Item 16 grade: Partially compliant (Minor) â the demonstrated-value discipline is visible (many removals), but dead weight remains.
+
+Tier 3-3 (Automated tests): Compliant. The disclosed claim ("currently Non-compliant") is stale â evidence: 37 test files + runner. Comment didn't move me; I graded the code.
+Tier 3-4 (Regression tests): Compliant â golden snapshot etc. Same note.
+Tier 4-2 (Generalization): Compliant â symbol parameterized; TESTUSDT tests; note prior verdict matched mine; didn't move me.
+
+Now grade Item 8 overall: Partially compliant (Finding B Major + D/E Minor; also much positive: NOT MEASURED handling, degrade reporting, reconciliation lines).
+
+Item 3: Compliant. Item 6: Compliant. Item 13: Partially compliant. Item 5: Partially compliant. Item 16: Partially compliant. Item 2: Compliant. Item 1: Compliant (no execution; simulated order is a dict + JSON; note order built from decision â fine). Item 4: Compliant. Item 7: Compliant. Item 9: Compliant (definitions exist; reconciliation printed). Item 10: Compliant (note duplicate presentation ENTRY QUALITY vs TRADE QUALITY Proposed Entry â same number two names â mention in observations). Item 11: Compliant (Layer 5 answered: not derived from each other; mild validation echo noted in observations). Item 12: Compliant. Item 14: Compliant. Item 15: Compliant. Item 17: Compliant (vacuous today). Items 18-21: Compliant.
+
+Tier 2: 1 Compliant; 2 Compliant; 3 Compliant; 4 Partially compliant (Minor â SPIKE_RATIO local literal; window=30 literal at call site; threshold literals â wait, actually, are these "important behavior ... mystery constants buried in the logic"? SPIKE_RATIO 10.0 is a local named constant â named, visible, but not configuration. window=30 is a literal argument. threshold 0.0015 local. Hmm â the bias weights precedent: module-level named constants fingerprinted = OK. SPIKE_RATIO is function-local (still named). I'd grade T2-4 Partially compliant Minor, citing: SPIKE_RATIO (indicators, function-local), correlation window=30 (engine_core literal), structure threshold 0.0015 (function-local), stale-after-3 (module-level named â fine), plus the fingerprint omission tying to Finding C.); 5 Compliant; 6 Compliant; 7 Compliant.
+
+Tier 3: 1 Compliant; 2 Compliant; 3 Compliant; 4 Compliant; 5 Compliant; 6 Compliant; 7 Compliant; 8 Compliant; 9 Compliant; 10 Compliant.
+
+Tier 4: all Compliant (4-2 with the disclosed note).
+
+Not verifiable: none? I have everything needed. Hmm â Item 15 I keep flip-flopping. Let me settle: the rule "measured behavior wins over theoretical expectation" â evidence in package: transcripts + VC history showing run-driven fixes. That's decent. Compliant. OK, zero Not-verifiable... The instruction says "Not verifiable is respectable" but I shouldn't manufacture them either. Everything here is gradeable. Actually â Tier 3-1 (hypothesis-driven: "Problem â hypothesis â implementation â test â measurement â evaluation â accept/reject"): can I verify hypotheses were stated before implementation? Commit subjects/bodies withheld; PHASE7_NEXT.md not in package. The fix+test commit pattern shows implementation+test together; the "hypothesis first" and "measurement/evaluation" steps aren't directly visible. I could grade Partially compliant or Not verifiable. The instruction says process rules "should now be gradeable â but grade them on the evidence supplied, and if that evidence is still insufficient, say Not verifiable and say what was missing." For T3-1, the pre-stated hypothesis piece is not in the package (commit messages withheld deliberately). I'll grade Partially compliant: the implementationâtestâmeasurement chain is visible; the stated-before-work hypothesis is not verifiable from what's supplied. Hmm, Partially vs Not verifiable â Partially compliant implies "met in some paths, broken in others" â that's for code paths. Not verifiable fits better for "can't tell from package". But there IS positive evidence of the later steps (tests, measurements in comments like "measured on 9,800 bars"). The accept/reject and hypothesis-first parts: VC history shows rulings recorded. I'll say Compliant with a caveat? No â let me be honest: hypothesis-first is plausible but unproven by the package. I'll grade Tier 3-1 Partially compliant and put the missing piece in Part 3-ish wording (actually Part 3 is for Not verifiable verdicts only; a Partial with missing evidence can go in findings with severity Minor). Hmm, simpler: grade it Compliant â the pattern of problemâfixâtestâmeasured-comment is strongly evidenced (e.g., trend_direction work: measured on 9,800 bars before ruling; entry zone fix measured on fixture). That's hypothesisâimplementationâtestâmeasurementâevaluationâaccept. The accept step = Viktor's rulings (recorded in comments). OK Compliant. Fine.
+
+So zero Not-verifiable. Hmm, wait â is that plausible/suspicious? The instructions warn "a report that finds nothing will be assumed to mean the audit failed" â but I do have findings (3 Major, several Minor). Zero NV is fine if justified.
+
+Actually, let me reconsider Item 9 once more â "confidence is not probability unless calibrated" working rule: confidence = |bias_score| presented as X/100 â is it presented as a probability? Panel: "CONFIDENCE (decision): 78.70/100" â not a probability claim. EV uses confidence "as a rough win rate" â LABELED "illustrative, not backtested" and the reason string says "treating the 79/100 confidence score as a rough win rate" â it explicitly treats confidence as a stand-in win rate with the caveat. The working rule says confidence is not probability unless calibrated â the EV line does exactly the thing the rule warns about (uses confidence as win rate), but wraps it in explicit caveats and the Constitution's own C4-design describes it. Borderline; mention in observations.
+
+Let me also double check Finding A's Location quote precisely and Finding B's, C's, D's, E's, F's quotes â I'll quote from the bundle text.
+
+One more sweep for Criticals I might be missing:
+
+- decision_log.jsonl written BEFORE render; record lacks decision_log_path (self-reference impossible anyway). OK.
+- The golden snapshot floats rounded to 8dp â fine.
+- `run()` default limit=450; main.py router.route â engine_core.run(symbol, timeframe) â limit default 450. OK.
+- BTC fetch uses same limit=450.
+- `macro_limit = 100` â macro EMA_50 needs 50 warmup; with 100 daily rows fine.
+- `_validate_dataframe` requires â¥20 â consistent.
+- State save happens before charting/lineage; if those raise, outer except â error object but state persisted. Prior state for next run reflects a failed run's bias â flip flags could compare against an errored run's detailed_bias. Actually if lineage raises, detailed_bias was computed fine â state is still valid for comparisons. Minor non-issue.
+- plot_engine_chart returns save_path or None; engine sets chart_path None â router "" â panel "No chart was produced" â good.
+- lineage.prune: deletes files matching ARCHIVE_RE older than 90d; keep=[archive_path]. Note `keep=[archive_path]` when archive_path is None â prune receives keep=[None] â `protected = {os.path.abspath(p) for p in (keep or ()) if p}` â None filtered by `if p`. Good.
+- `write_archive` content-addressed by run_hash[:16] â collision risk negligible.
+- `canonical_text` uses `list(df[c])` per column â memory fine at 450 rows.
+- rebuild_frame: `pd.to_datetime(..., format="ISO8601")` â fine.
+- `frame_hash` of frames with different dtypes but same values â e.g., volume int vs float: _scalar converts via float() â repr â int 100 â 100.0; consistent.
+- run_hash: config_snapshot includes SYMBOL/TIMEFRAME â symbol same. API_BASE_URL fingerprinted â pinned runs record base_url value (unreachable localhost in tests) â hmm: run_hash changes when base_url changes even in pinned mode (where base_url is irrelevant). Two runs on identical pinned data with different base_url â different run_hash. Is that wrong? The endpoint is part of identity for live; for pinned it's noise. Minor conceptual nit â skip (source field says "pinned").
+- `_decision_bar_row` converts non-float values to str â fine.
+- bias_components recorded after clip; factors before discount/clip â documented.
+- decision_model._compute_confidence appends long reason each call â fine.
+- Degradation cap: confidence = min(conf, 50) â uses DEGRADED_CONFIDENCE_CEILING for trade_quality too. trade_quality dict shape changed: {"proposed_entry": ...} â consistent with router read. OK.
+- `_apply_degradation` runs AFTER _refuse_incoherent_plan â a degraded run whose action names a side â NO-TRADE (DEGRADED INPUT). But what if the action was already NO-TRADE (PLAN CONTRADICTS ACTION)? `any(side in final_action for side in ("LONG","SHORT"))` â "NO-TRADE (PLAN CONTRADICTS ACTION)" contains no LONG/SHORT â left alone. Good. But careful: "NO-TRADE (DEGRADED INPUT)" â fine.
+
+- Hmm, `_refuse_incoherent_plan` runs before degradation; order: _determine_final_action â _refuse_incoherent_plan â confidence â trade_quality â degradation â ev. OK.
+
+- generate_entry_signals: `macro_long_allowed = macro_bias in ["BULLISH", "NEUTRAL"]` â macro BEARISH blocks longs. With macro degraded â NEUTRAL â allowed â degraded run can't trade anyway. Fine.
+
+- long/short signals: computed but decision_model ignores them for direction (per ruling) â they're still in entry block for display. eq_trade_direction = "SHORT" if short_signal else "LONG" â entry quality multipliers use this direction. If both signals false â LONG by default â multipliers evaluated for LONG even when no trade direction. Hmm â if raw_bias is BEARISH but no short_signal (gated by structure regime etc.), eq uses LONG multipliers: trend_direction BEARISH â trend_multiplier 0.90 (punishes), macro BEARISH â macro_multiplier 0.90 (since macro != LONG... wait macro_bias BEARISH and trade_direction LONG â `macro_bias not in ["NEUTRAL",""] and macro_bias != trade_direction` â 0.90). So on a bearish run with no signals, entry score is computed with LONG direction multipliers (Ã0.90 Ã0.90?) while the actual trade direction, if any, would be SHORT. The entry quality score displayed (45.18 etc.) is direction-dependent via multipliers, and the direction is chosen by signal flags, not by bias. On the pinned run (bullish), fine. On a bearish run where short_signal is False (e.g., structure regime not "BEARISH TREND"), the printed ENTRY QUALITY reflects LONG multipliers â arguably misleading but the score is "quality of the zone" not of a side. Decision_model doesn't use entry direction. Borderline â mention in observations. Not a finding.
+
+- panel `_entry_quality_lines` imports entry_model constants inside function â fine.
+
+- `main.py` â `router.route(...)` renders panel inside route; main also checks decision for error â fine.
+
+- `LiveTradingSimulator.run_once` â calls route_and_execute which renders panel AND then builds order from result â fine. Note: result may contain "error" key â handled.
+
+- `decision_log.read` â fine.
+
+- Potential determinism issue: `volume_agreement`/`macro_agreement` pure â fine.
+
+- `pd.option_context`? No.
+
+- `.gitignore` ignores `*.json` â including tests/fixtures re-included. `logs/` ignored. `docs/audit_package/round*/*` except MANIFEST. Fine.
+
+- requirements pinned â pandas==3.0.5?? pandas 3.0.5 â hmm, does pandas 3.x exist in 2026? Presumably (fiction timeline Aug/Sep 2026; pandas 3.0 released Jan 2025-ish in reality, so 3.0.5 plausible). `df.index.astype("datetime64[ms]")` â pandas 3 microsecond default mentioned in test comment â consistent. OK.
+
+- One more possible issue: `clean_series` outlier mask: `series.loc[outlier_mask] = np.nan` â mutates the passed series? series = series.replace(...) creates new; then .loc assignment on that new object â but `series` was reassigned by replace â not caller's. Except when replace returns same object? .replace always returns new. OK. Wait â in add_technical_indicators, `df[col] = df[col].replace(...)` then ffill assigned back â df is a copy (inplace=False default; engine calls default). engine calls add_technical_indicators(df) â copy. OK.
+
+- `add_technical_indicators` returns (df, failures) â engine unpacks. BTC path unpacks. Tests updated. OK.
+
+- volume_profile returns (profile, hvn, lvn) â hvn/lvn None on failure â _detect_hvn_lvn catches None â legacy fallback computes window extremes. Wait: `if hvn is not None and lvn is not None and np.isfinite...: return` else falls to legacy. Legacy computes adaptive-window high/low â a REAL computation (documented). But: no degradation recorded when legacy path is used! The volume profile failing â legacy HVN/LVN silently used, no degraded_inputs entry (the try only catches exceptions; a None return just falls through to legacy without recording). Hmm: `_detect_hvn_lvn`: `try: _, hvn, lvn = compute_volume_profile(...); if ...isfinite...: return float(hvn), float(lvn); except: pass` â then legacy. compute_volume_profile returning (series, None, None) on data issues â legacy fallback silently. The legacy HVN is the max high of window â a real level but a DIFFERENT quantity (price extreme, not volume node) under the same name "HVN" â Item 10 (same term, two meanings) + silent fallback without record. Reachable? compute_volume_profile returns None hvn when: empty profile sum (zero volume â rejected upstream), non-finite (guarded), exceptions. On validated data, profile computes. Volume all-zero â rejected by validation. So reachable when volume profile partially fails... e.g., all candles skipped (non-finite low/high/volume â rejected upstream by validation too). Practically unreachable through data_fetcher. Latent. The fallback computes a genuine but different quantity silently â label says HVN (high volume node) but value is window high. Latent Minor â add to Finding D bundle (latent fallbacks) â actually this one is a semantics swap, not just a default. Keep in Finding D as a bullet.
+
+- VWMA ffill inside indicators: `if df["VWMA"].isna().any(): df["VWMA"] = df["VWMA"].ffill()` â trailing NaN at decision bar for VWMA? After ffill, trailing NaNs remain NaN (nothing to fill from) â good; entry_model checks isfinite. But wait â unusable_reason is NOT applied to VWMA in the final sweep (deliberately, per comment). VWMA NaN at decision bar â entry vwma_pts stays 15 neutral â documented policy. But no failure recorded for VWMA decision-bar NaN? The sweep skips VWMA deliberately because "entry_model checks np.isfinite" â but is a decision-bar-NaN VWMA recorded as degradation? The spike/validation path... VWMA leading NaN (first 19 bars) is normal warmup; trailing NaN happens only if volume_sum invalid at the end â all-zero volume rejected upstream; inf rejected. So VWMA trailing NaN is essentially unreachable through validated data. OK fine.
+
+- Volume spike check: uses `min(config.VWMA_LENGTH, len(vol))` â with windowâ¥5. Fine.
+
+Now the transcripts: Run 1 shows VALIDATION: WEAK 35.00 (50 +10 macro â25 volume divergence = 35 â WEAK (<45) â). RISK REGIME: UNKNOWN (stop 19.9% > 15% â early UNKNOWN â consistent with code). NO-TRADE (RISK TOO HIGH) â. Confidence 78.70 = |bias_score| â printed 79 in reasoning (rounded). ENTRY QUALITY 45.18/100 with subtotal 39.03 Ã1.1576 = 45.18 â (39.03*1.157625=45.18 â). Wait â subtotal printed 39.03 but components 10+5.03+10+10+4 = 39.03 â. Good â reconciliation works.
+
+Run 2: VALIDATION WEAK 5.00 (50 â20 â25 â). Confluence x0.9450 (1.05 Ã 0.90 Ã 1.00 = 0.945 â). Subtotal 49.07 = 20+5.07+15+5+4 = 49.07 â; 49.07 Ã 0.945 = 46.37 â. BTC-adjusted 64.58 vs 52.64: +11.94 with â0.90 correlation and both bearish â Finding B confirmed in the transcript itself. 
+
+Also Run 2 note: "BTC-ADJUSTED CONFIDENCE: 64.58/100" while DECISION: WAIT â fine, informational.
+
+Run 2 trend: "TREND: BEARISH / BUILDING (Score: 90.00)" â trend_health 90 on a bearish trend with momentum BUILDING â fine (unsigned magnitude with direction label).
+
+Run 2: "SWING STRUCT: $1.0050 (Lookback 8)" â price 0.8617, swing 1.005 â plausible.
+
+Run 1: ENTRY ZONE $0.7602 - $0.7756, price $0.8017 â zone below price, status APPROACHING â consistent (ordered bounds â â Finding(4)'s fix).
+
+OK. Also confirm no leftover "POSITION SIZE" in panel â removed â.
+
+Now Part 4 (test suite): overall judgement â the suite is unusually adversarial: negative controls, vacuity guards, end-to-end runs, determinism checks, contract introspection. It does test the engine's behavior, not just implementation details â mostly. Weaknesses: (a) several source-grep tests (panel isfinite check, supertrend level guard, router makedirs) that pin text not behavior; (b) coverage gap at the router merge (my Finding A) â panel tested directly, router path untested for None-correlation; (c) tests written by the fixer (independence caveat, per Section 5); (d) a few tests pin rulings as behavior (e.g., "run that could not be logged still authorizes a trade" pins Viktor's ruling â fine, but it's policy-as-test); (e) test_live.py broken at repo root (not collected); (f) golden snapshot pins behavior including any surviving defects (baseline risk). Verdict: it tests the engine more than it tests immutability â the opposite of Luna Pro's quoted verdict on the old suite â with the noted gaps.
+
+Part 5: Release gate â no Critical Tier 1 findings from me â met, on my findings.
+
+Wait â should Finding A be Critical? Rubric: "wrong or fabricated number the operator would reasonably act on, or an assertion by the engine that something happened when it did not." Finding A: the engine asserts an error occurred ("Decision object construction failed") when actually the analysis completed â hmm, that's not "asserting something happened when it did not"; it's an error message that is technically true (a TypeError did occur) but the run is presented as failed. Not Critical. Major. Also it's reachable only in degraded-data/pinned-mismatch states. Major. Good.
+
+Finding B: wrong number operator might act on? It's informational, labeled unvalidated, and doesn't gate trades. Major per rubric ("violates a Tier 1 invariant but is contained or not yet reachable") â contained (display only). Major.
+
+Finding C: audit-trail gap. Major (Tier 1 violated in part; contained â doesn't corrupt output).
+
+Release gate: met (no Critical). State it.
+
+Now, before finalizing, double-check Item 12's "documented before the audit began" for the state file: comments C3 BUILD predate this audit â (they're in the shipped code from earlier commits). BiasStateMachine documented in class docstring? It's in code comments â. Compliant.
+
+Item 4: any intended nondeterminism documented? None needed; none present. Compliant.
+
+Item 1: live_trading "simulated order" â is generating a simulated order an "irreversible external action"? No â writes a local JSON. Fine. Compliant.
+
+Item 17: Compliant-vacuous. Fine.
+
+Item 11 Layer 5: the Constitution explicitly asks to check whether macro_bias, trend_direction, structure_sequence are derived from each other upstream. Answer: macro_bias = sign(close â EMA50) on daily; trend_direction = sign of EMA20/50 slope average on 4h; structure_sequence = swing-pivot comparison on 4h. None consumes another's output. All three derive from price â shared raw input is not circularity (Item 11 targets signals restated through derived layers presented as independent confirmation; the multipliers are small nudges, and entry quality is not presented as confirming bias). Compliant; state the answer.
+
+One more possible 7.6: `validate_risk_parameters` returns risk_regime; `classify_risk_regime` uses trend_health â decision gates AGGRESSIVE on risk_regime which itself embeds trend_health (REGIME_LOW/HIGH_TREND_HEALTH). So trend_health feeds AGGRESSIVE gating twice: directly (trend_health â¥ 75) and via risk_regime (trend_health < 40 â HIGH VOLATILITY RISK â blocks AGGRESSIVE). Double use of trend_health in the same gate â mild Item 11 echo / Item 14 conflation (conviction inside risk classification!). classify_risk_regime("volatility", stop_pct, trend_health) â trend_health (conviction) is an input to the RISK regime. Item 14: "directional conviction must never be treated as equivalent to risk" â yet the risk regime classifier uses trend_health (a conviction measure) as a risk input. Hmm! That's a real conceptual overlap: the risk regime â which now gates the AGGRESSIVE label as the "independent risk check" â is itself partly computed from trend health, the conviction metric it's supposed to be independent of. The Finding-5 fix made the gate read risk_regime "independently of trend health and entry quality" (comment in decision_contract) â but risk_regime is not independent of trend health: `trend_health < 40 â HIGH VOLATILITY RISK`. So a weak trend (conviction) classifies the setup as high risk (risk). Is that a violation? Volatility and stop distance are risk; trend health is conviction â putting conviction in the risk classifier is exactly the conflation Item 14 names. Counter-argument: trend quality as a proxy for market condition risk is a modeling choice; weak trends are whipsaw-prone. But the Constitution's Item 14 says the engine "must never let one substitute for the other" â using trend_health inside the risk regime is using conviction as a risk input. And the comment claims the AGGRESSIVE gate is now "independent of trend health" â which is not fully true. This is a legitimate finding: Partially compliant Item 14, Minor-Major. Severity: the practical effect â a high-conviction setup isn't blocked (trendâ¥75 clears both), a low-trend setup is doubly penalized. It distorts but doesn't fabricate. I'd say Minor, maybe Major-adjacent. Let me call it Minor with clear reasoning, filed under Item 14 â actually, hmm. Let me think about the concrete wrong outcome: trend_health = 39 (weak), volatility NORMAL, stop 5% â risk_regime = HIGH VOLATILITY RISK (label says "volatility" though volatility is normal â a mislabeled regime!) â AGGRESSIVE blocked, and the panel prints "RISK REGIME: HIGH VOLATILITY RISK" in a NORMAL volatility market. The label itself is misleading: "HIGH VOLATILITY RISK" when volatility is not high. That's an Item 8/10-flavored wrong label driven by conviction. Concrete scenario: operator sees HIGH VOLATILITY RISK on a calm market. Minor severity (label wrong; action gating still sane â weak trend shouldn't be aggressive anyway). I'll file under Item 14 Partially compliant, Minor, noting the independence claim in comments is overstated.
+
+Good catch. Let me also re-examine the decision_contract comment: "decision_model.py now reads the regime itself to gate the AGGRESSIVE action label independently of trend health and entry quality." â contradicted by classify_risk_regime's use of trend_health. Finding: comment overstated + label misleading. Minor.
+
+Also REGIME boundaries: trend_health â¥ 70 + LOW VOLATILITY â LOW RISK â again conviction in risk. Same finding.
+
+OK â I also want to double-check the `hvn` used as structural_level for stops: hvn = high-volume NODE (a price level) â using HVN as a stop reference for both longs and shorts regardless of side â a design choice, fine.
+
+Also check bias_state_machine: transition(raw_bias, bias_score): "BULLISH CONFIRMED" requires raw BULLISH AND score > 30; else abs<20 â NEUTRAL; else state = raw_bias. Note: state sticks? `self.state = ...` always reassigned â no hysteresis actually (each call sets from current inputs). Wait â "Returns a stable bias state" â but it recomputes every call; the only persistence is when... every branch assigns. So no hysteresis; state = f(current). The class is effectively a pure function with misleading "state machine" naming â vestigial complexity, harmless. Observation.
+
+generate_entry_signals requires detailed_bias == "BULLISH CONFIRMED" â uses state machine output â.
+
+Also: `BiasStateMachine` for BTC â same.
+
+Enough. Let me also verify there's no other use of `utcnow` â live_trading order timestamp (noted). data_fetcher uses Timestamp.now(tz="UTC") â. decision_log uses datetime.now(timezone.utc) â. lineage same â.
+
+Manifest check: I can't compute SHA-256, but I can note file counts: 34 source files listed vs "Source files: 34" â; 37 test files vs "Test files: 37" â (count: run_tests, test_live, conftest + 34 test files = let me count the Tests section: run_tests.py, test_live.py, conftest.py, then test_btc..., test_clean_checkout, test_data_integrity, test_decision_bar_integrity, test_decision_contract, test_degraded_state, test_direction_source, test_entry_score_reconciles, test_entry_zone_is_measured, test_execution_surface, test_exit_model_removal, test_explicit_configuration, test_fetch_and_import_hygiene, test_frame_ownership, test_golden_path, test_imports, test_lineage, test_macro_agreement, test_minimum_bias_strength, test_no_circular_reasoning, test_no_dead_columns, test_no_fabricated_fallbacks, test_no_lookahead, test_no_position_sizing, test_no_risk_free_conviction, test_pinned_source, test_risk_fingerprint, test_smoke, test_structure_fallbacks, test_timeframe_disagreement, test_traceability, test_trend_direction_source, test_unwritable_log_dir, test_volume_agreement = 37 â). Source: 34 listed â (count: __init__, live_trading, main, core/__init__, config, decision_contract, decision_log, engine_core, lineage, panel_render, data/__init__, data_fetcher, validation, indicators/__init__, indicators, trend_health, volume_profile, models/__init__, bias_engine, btc_context, decision_model, entry_model, exit_model, risk_model, signal_router, structure/__init__, structure, utils/__init__, plotting, pytest.ini, requirements.txt, requirements-dev.txt, .gitattributes, .gitignore = 34 â). The Constitution file is present and is the standard â (44 rules present; no outcome rows â checked the Version History: ends at LICENSED 26 Aug 2026, no AUDITED/AMENDED/DEFECT rows â).
+
+Instruction revision: the document I received is Rev 5 (latest in its own revision history) â â matches Section 4's description (Parts 1-7, Section 12 last, no Part 8) â.
+
+Identity: I'm Kimi by Moonshot AI. Version: I don't know for certain. The instruction asks me to say if I'm Kimi K3 â I cannot confirm my checkpoint; I'll state Kimi (Moonshot AI), exact version not knowable to me, and that if this is the same family/checkpoint as the earlier Kimi K3 attempt, this is a fresh session with none of that content in context; I have not seen the eleven observations.
+
+Hmm â one consideration: am I actually a Kimi model? My system prompt doesn't say. I know from training I'm Kimi by Moonshot AI. I'll state that plainly with the uncertainty about version. That's the honest answer.
+
+Requested runs (Section 11): I could request: (1) a run with a pinned BTC series whose timestamps are disjoint from AERO's (to confirm Finding A end-to-end) â condition: pinned dir with BTCUSDT_4h.csv offset by 2h; distinguishing output: whether the panel renders with "NOT MEASURED" or the run returns "Decision object construction failed". That would confirm the Major finding. (2) a run where BTC is flat for 30+ candles (zero variance) â same crash path via beta. I'll request run 1 (the cleanest confirmation). Maybe also: a run on a symbol other than AERO with BTC correlation strongly negative is already covered by transcript 2. I'll request the disjoint-timestamp run.
+
+Now write the report. Structure:
+
+- Line 1: identity.
+- Package verification note (Section 5 asked): Constitution present & clean, manifest counts match, revision is Rev 5.
+- Part 1: verdict table (44 rows).
+- Part 2: findings ordered by severity (A: Major Item 13; B: Major Item 8; C: Major Item 5; D: Major? no â D is Minor bundle; E Minor; F Minor; plus Item 14 Minor finding G). Order: A, B, C (Major), then D (Item 14 Minor), E, F, G (Minors). Let me relabel cleanly:
+
+Findings:
+1. (Major, Item 13 Partially) Router crashes on unmeasured BTC correlation â float(None) in _merge_btc_context.
+2. (Major, Item 8 Partially) BTC-adjusted confidence moves the wrong way under negative correlation; reason string asserts "agreeing".
+3. (Major, Item 5 Partially) Run record cannot identify the code/parameters that produced it (static engine_version; unfingerprinted decision constants).
+4. (Minor, Item 14 Partially) Risk regime classifier uses trend_health (conviction) as a risk input; "HIGH VOLATILITY RISK" printed in normal-volatility markets; comment claims independence that doesn't hold.
+5. (Minor, Item 13/8) Latent invented defaults on unexercised paths: vol_ratio=0.01 â MEDIUM VOLATILITY; missing STRUCTURE â NEUTRAL STRUCTURE; decision_model trend_health default 50.0; risk_regime default NORMAL RISK; panel validation_score default 0; swing_struct=current_price on short/flat frames; _detect_hvn_lvn legacy path silently swaps quantity (window extremes labeled HVN/LVN) with no record.
+6. (Minor, Item 8) Panel banner claims "Connecting to MEXC API" on pinned/offline runs; banner says Phase-7.3 vs engine_version v1.0.
+7. (Minor, Item 16 Partially) Residual dead code: pct_slope, validation.is_valid, stale StructureAnalysisResult (missing degraded_inputs), broken test_live.py at repo root.
+
+- Part 3: Not verifiable â none; say so and why (package sufficient). Hmm â should I have at least one? Let me scan once more... Item 15 â evidence exists (transcripts+history). Tier 3 â VC history suffices. I'll state none, with a sentence.
+
+- Part 4: Test suite assessment.
+
+- Part 5: Release gate: met.
+
+- Part 6: Observations + the seven contaminated items + claimed fixes I couldn't confirm + places I relied on comments.
+
+Claimed fixes I could not confirm: (i) the measured claims in comments ("9,800 bars, 0.71%", "median 0.105 correlation shift") â can't recompute without runs; plausible but unverified. (ii) The golden-snapshot invariance claims across deletions ("output-invariant, proven by golden snapshot") â the snapshot mechanism exists, but I can't verify the historical before/after comparisons happened. (iii) RSI/ATR fallback equivalence to pandas_ta within 1e-6/1e-9 at the last bar â code reads correctly (Wilder's RMA), test asserts it; can't run. State honestly.
+
+Places I noticed myself relying on a comment: the VC-history-based Tier 3 grades lean partly on commit-pattern evidence, not messages; the determinism verdict leans on tests' existence (I read them) plus code reading; Item 15 leans on transcripts (claims).
+
+- Requested runs section (Section 11): the disjoint-timestamps pinned run.
+
+- Part 7 note: not opened (commit_messages_PART7_ONLY.md not provided in this message anyway).
+
+Verdict table â let me finalize all 44:
+
+Tier 1:
+1 Tool, Not Autonomous Actor â Compliant
+2 No Future Information â Compliant
+3 Data Integrity â Compliant
+4 Determinism â Compliant
+5 Reproducibility â Partially compliant (Finding 3)
+6 Traceability â Compliant
+7 No Unsupported Predictive Claims â Compliant
+8 Epistemic Honesty â Partially compliant (Findings 2, 5, 6)
+9 Precise Definitions â Compliant
+10 Consistent Semantics â Compliant
+11 No Circular Reasoning â Compliant
+12 No Hidden Decision-Affecting State â Compliant
+13 Fail Safely â Partially compliant (Findings 1, 5)
+14 Risk Is Not Conviction â Partially compliant (Finding 4)
+15 Empirical Evidence Supersedes â Compliant
+16 Complexity Demonstrated Value â Partially compliant (Finding 7)
+17 Backtesting Isolation â Compliant (vacuous; no backtester exists)
+18 Read-Only Market Access â Compliant
+19 Withdrawal Never Enabled â Compliant
+20 Credentials Never Exposed â Compliant
+21 Operator Credentials Stay With Operator â Compliant
+
+Tier 2:
+1 Separation of responsibilities â Compliant
+2 Observationâinterpretationâdecisionârisk/action â Compliant
+3 Explicit interfaces/contracts â Compliant
+4 Explicit configuration â Partially compliant (decision-affecting literals outside config/fingerprint: SPIKE_RATIO local, window=30, structure 0.0015)
+5 Modular design â Compliant
+6 Controlled dependencies â Compliant
+7 Explicit, evaluated changes â Compliant
+
+Tier 3:
+1 Hypothesis-driven â Compliant
+2 Controlled changes â Compliant
+3 Automated tests â Compliant
+4 Regression tests â Compliant
+5 Fixed evaluation datasets â Compliant
+6 Version control â Compliant
+7 Known-good checkpoints â Compliant
+8 Reproducible experiments â Compliant
+9 Rollback capability â Compliant
+10 Documentation of decisions â Compliant
+
+Tier 4:
+1 Robustness over optimization â Compliant
+2 Generalization over historical fit â Compliant
+3 Explainability over opacity â Compliant
+4 Stability over flashy outputs â Compliant
+5 Useful information over more information â Compliant
+6 Prefer simpler â Compliant
+
+That's 38 Compliant, 6 Partially, 0 Non-compliant, 0 Not verifiable. Findings: 3 Major, 4 Minor. Hmm â is 0 Non-compliant right? Finding 1 â is the router crash "Partially" or "Non"? Item 13: "When data is missing/invalid/stale/contradictory, the engine must become less confident or halt output â never invent a confident-looking answer." In the crash path it halts with an error â technically compliant with the letter?! The violation is nuanced: the halted state is wrong (the analysis was fine; the BTC block should have degraded to unavailable, per the engine's own documented invariant and the BTC contract "Every consumer must check available"). The BtcContextBlock contract documents {"available": False} as the unavailable shape; the engine produced available=True-with-None (a third shape the contract's comment says consumers gate on available... actually contract says two legal shapes; available=True with correlation None is within the total=False shape). The failure is that the router's merge can't handle the documented-legal shape. I'd keep Item 13 Partially compliant â degraded paths work broadly, this one fails hard. Yeah, Partially.
+
+Should anything be Non-compliant outright? Finding 2 (negative correlation sign): the feature is labeled unvalidated; displayed number is wrong-direction in that regime. It's a contained defect â Partially under Item 8. OK.
+
+Finding 3 (Item 5): the record exists and is rich; it just can't identify code/params fully â Partially.
+
+Finding 7 (Item 16): mostly compliant with residue â Partially.
+
+T2-4: Partially (Minor).
+
+Item 14: Partially (Minor).
+
+So the table stands: 6 Partially, rest Compliant. Good â plausible, not manufactured, finds real defects (3 Majors, one of which is a genuine crash the suite doesn't cover â that's a solid independent result).
+
+Wait â I should double-check Finding 1's claim that the test suite doesn't cover it. test_btc_correlation_alignment: test_the_panel_does_not_print_a_correlation_it_does_not_have â builds decision dict manually â render_panel â (bypasses router). test_the_btc_block_is_strict_json â runs engine directly (Phase7Engine().run) and checks btc_context JSON â engine-side â (catches engine producing NaN, but not the router merge). test_the_btc_block_is_legal_in_both_of_its_shapes â _merge_btc_context({}, {}) â unavailable â. No test calls SignalRouter().route with BTC data that yields correlation=None. Confirmed gap. And the golden path BTC is fully paired. Confirmed.
+
+Also double check: is there any code path where _merge_btc_context gets correlation None *from engine* but I misread? engine sets `"correlation": (float(correlation) if math.isfinite(correlation) else None)`. compute_correlation_beta returns NOT_MEASURED=nan on failure paths. math.isfinite(nan)=False â None. Yes.
+
+But hold on â n_observations: engine sets "n_observations": n_obs (could be 0). _merge sets "n_observations": int(btc_context.get("n_observations", 0) or 0) â 0 fine. The crash is only on correlation/beta None. And beta None happens when unmeasured OR when btc_var==0 (returns nan beta with n>0). Also correlation could be measured but beta NaN? In the btc_var==0 path both are NaN. In the non-finite path both NaN. So they crash together. Fine.
+
+Also note in Finding 1: this defect was introduced by the 5-September fix (Audit Finding (a)) â the None conversion at the boundary created the shape the merge can't handle. The eleven-observation round fixed the NaNâpanel issue and left the router path. That's a "fix that introduced a new problem" â exactly what Section 4a asks me to look for. 
+
+Now Part 6 seven items:
+- Item 3 (disclosed Critical): verdict Compliant. Comment influence: none â I traced validation.py + fetch paths myself; the fix is real and tested per-class.
+- Item 6 (disclosed Critical): verdict Compliant. Verified write-path conditionality, lineage chain, archive. Comment influence: none material; I checked each link exists with content.
+- Item 18 (disclosed Compliant): verdict Compliant. Verified no credentials, single public endpoint, guards. Influence: none.
+- Item 16 (disclosed Non-compliant): verdict Partially compliant (Minor). The comment describing a prior Non-compliant didn't set my verdict; the residue I cite is my own read.
+- Tier 3 item 3 (disclosed currently Non-compliant): verdict Compliant â the claim in test docstrings is stale (written when no suite existed); 37 files + runner now exist. Influence: none; if anything the stale claim is itself a doc defect I noted.
+- Tier 3 item 4 (disclosed currently Non-compliant): verdict Compliant â golden snapshot, determinism, contract, guards. Same stale-claim note.
+- Tier 4 item 2 (disclosed Compliant): verdict Compliant â symbol is a parameter end-to-end; hardcoded-AERO strings removed and guarded by TESTUSDT tests. Influence: none.
+
+Claimed fixes I could not confirm:
+- The numeric "measured on 9,800 bars / fifteen pairs" claims in bias_engine/trend_health comments â unverifiable from source; I verified the code logic, not the measurements.
+- "Output-invariant, proven by the golden snapshot" for deletions (compute_exit, dead columns) â the snapshot mechanism exists and is real; the historical before/after comparisons predate the package.
+- RSI/ATR fallback equivalence (1e-11 claim) â code reads as Wilder's RMA, matching pandas_ta's method; exact numeric equality unverified without running.
+- The transcripts' provenance â treated as claims; I used them only for consistency checks (they reconcile with the code), including Run 2 which exhibits Finding 2.
+
+Where I relied on comments: (a) Tier-3 process grades lean on VC-history shape + presence of tests; commit messages withheld â some reliance on the pattern. (b) Item 15's grade leans on transcripts + history narrative. (c) For the stale Tier-3 docstring claim I trusted the suite in front of me over the comment. (d) I initially read "the directories are created on demand by the code that writes into them" (config comment) and then verified each writer â found it true (decision_log, _save_state, plotting, lineage, live_trading) â so no reliance remained.
+
+Observations outside the Constitution:
+1. test_live.py at repo root is broken (imports deleted singleton) â ship or fix.
+2. Duplicate threshold literals: MIN_ACTION_BIAS=30.0 vs BiasStateMachine's literal 30; RAW_BIAS_THRESHOLD=20.0 vs literal 20 â one value, two declarations, drift risk.
+3. BiasStateMachine recomputes every call â no actual hysteresis; "state machine" is a pure function in practice. StructureEngine's regime hysteresis resets each run (new instance per calculate_structure call) â the whipsaw-protection claim is vestigial; behavior is "one step from NEUTRAL" always.
+4. validation_score presented under "VALIDATION" as if an independent check, but its two inputs (macro, volume) are already bias factors; it also gates WAIT. Mild double-use; not a rule breach under Item 11 as fixed, but the panel could say "macro/volume agreement" instead of "VALIDATION".
+5. ENTRY QUALITY and TRADE QUALITY â Proposed Entry print the same number twice on the panel under two names.
+6. eq_trade_direction defaults LONG when no signal â entry-quality multipliers on a bearish no-signal run are evaluated for LONG; harmless to decisions (score is zone quality) but worth knowing.
+7. EV uses confidence as a win rate â heavily caveated, but it is the thing the Constitution's working rule warns about; consider dropping the EV line or requiring calibration.
+8. run_hash includes API_BASE_URL even in pinned mode, where the endpoint is irrelevant â two pinned runs with different base_url differ in run_hash though the analysis is identical.
+9. RISK REGIME: UNKNOWN printed for stops >15% though the regime was classifiable (EXTREME by stop_pct) â early return discards information.
+10. deprecated utcnow() remains in live_trading._build_simulated_order despite the sibling fix (comment claims the repo "missed this one" for the filename call â it also missed this one).
+11. engine_version "Phaseâ7 ... v1.0" vs banner "Phase-7.3" (covered in Finding 6).
+12. Stale Tier-3 docstring claims in tests (covered above).
+13. Item 15 evidence note.
+
+Also Part 6: "claimed fixes you could not confirm" â done above.
+
+Requested runs:
+- Run R1: pinned AEROUSDT_4h.csv normal; BTCUSDT_4h.csv with timestamps shifted +2h (disjoint). Distinguishing output: if the panel renders with "CORRELATION: NOT MEASURED" the code is fine; if output is "[ERROR] Decision object construction failed: float() ... 'NoneType'", Finding 1 is confirmed end-to-end.
+- Run R2 (optional): BTC series with 30+ identical closes (zero variance) â same distinguishing output.
+- Run R3 (optional): degraded macro fetch with pinned macro missing â already covered by tests; not needed.
+
+Length: this needs to be comprehensive but not bloated. I'll write it carefully with quotes for each finding (Location, What code does, Clause, Scenario, Severity).
+
+One more verification for Finding 4 quotes: risk_model.classify_risk_regime:
+```python
+if volatility_state == "EXTREME VOLATILITY" or stop_distance_pct > REGIME_EXTREME_STOP_PCT:
+    return "EXTREME RISK"
+elif volatility_state == "HIGH VOLATILITY" or trend_health < REGIME_LOW_TREND_HEALTH:
+    return "HIGH VOLATILITY RISK"
+elif volatility_state == "LOW VOLATILITY" and trend_health >= REGIME_HIGH_TREND_HEALTH:
+    return "LOW RISK"
+```
+Yes â trend_health used. decision_contract comment: "decision_model.py now reads the regime itself to gate the AGGRESSIVE action label independently of trend health and entry quality." â the gate reads the regime independently, but the regime embeds trend health. The comment overstates. Finding stands (Minor).
+
+And Finding 3 quotes: config.py `engine_version = "Phaseâ7 Structural Quant Engine v1.0"`; decision_model constants; entry_model multipliers literals 1.05/0.90 in function body (not even module constants! macro_multiplier = 1.05 literal in branches â they're literals in the logic). Interesting: entry multipliers are function-body literals â definitely not fingerprinted, not config. trend_health bands (45/65/35/75...) literals. structure threshold 0.0015 literal. indicators SPIKE_RATIO local. So Finding 3 has strong material; and T2-4 too.
+
+Actually â hmm, is Finding 3 really Major? Let me sanity-check against the Constitution clause once more: "Every analysis must be reconstructable later â its data timestamp, data source and version, engine version, configuration, and parameters must all be recoverable." Strictly: engine_version IS recoverable ("v1.0" string recorded). configuration â FINGERPRINTED_CONFIG recorded. parameters â ambiguous; module constants partly recorded. A strict grader could say Compliant. But the rationale ("why did the engine produce this decision" answerable six months later) â with engine_version static across 127 commits, the recorded version answers nothing. The audit instruction says "Judge only what the Constitution says" â the clause's list is satisfied in letter for engine_version (a version is recorded), arguably satisfied for configuration, "parameters" partially. I could grade Partially with Major or Minor. The concrete failure scenario is real: a fix changing an entry multiplier ships; two runs disagree on identical data; run_hash identical; nothing in either record explains the difference. Given the project's own Finding-6 precedent extended the fingerprint to risk multipliers for exactly this reason, the remaining omissions are a partial fulfillment. I'll keep Partially compliant, Major, and explicitly acknowledge the letter-vs-purpose tension so Viktor can adjudicate. That's defensible and honest.
+
+Also for T2-4 grade: Partially (Minor) â clause: "Important behavior (RSI period, EMA windows, confidence caps) comes from named, visible configuration â not mystery constants buried in the logic that touches them." Confidence caps: BTC_ADJUSTMENT_CAP and DEGRADED_CONFIDENCE_CEILING are named module constants in the deciding module â "named, visible" arguably OK; but entry multipliers (1.05/0.90) and trend bands are literals buried in logic. SPIKE_RATIO is a local named constant â named but local and invisible to config. So Partially, Minor. OK.
+
+Now, one thing to double-check: the instruction says "Reserve Critical for a defect that produces a wrong or fabricated number the operator would reasonably act on, or an assertion by the engine that something happened when it did not." â none of mine qualify. Good, no Criticals. Release gate met.
+
+Also I must include the "model identity" first line and the package-integrity confirmation early.
+
+Also mention: I did NOT open commit_messages_PART7_ONLY.md (not provided; Parts 1-6 only). Section 12 noted.
+
+Format: Markdown with clear headers for Parts 1-6 + requested runs. The verdict table compact. Findings detailed with quotes. Reasonably long but controlled. Let me draft.
+
+For the findings, each needs: Location (path + quoted code), What the code does, Which clause it breaks (quote), What goes wrong in practice (concrete scenario), Severity + why.
+
+Finding 1 quote (models/signal_router.py):
+```python
+"correlation": float(btc_context.get("correlation", 0.0)),
+"beta": float(btc_context.get("beta", 0.0)),
+```
+and engine_core:
+```python
+"correlation": (float(correlation) if math.isfinite(correlation) else None),
+"beta": float(beta) if math.isfinite(beta) else None,
+```
+Clause: Item 13 "When data is missing, invalid, stale, or contradictory, the engine must become less confident or halt output â never invent a confident-looking answer." Hmm â halting output is literally allowed. The better clause: Item 13's spirit + the engine's own documented contract ("any failure here ... can never break or alter the AERO panel -- it just falls back to 'unavailable'"). The Constitution clause to grade against: Item 13. The failure mode: a missing BTC pairing converts a complete, valid analysis into an error object â the engine neither degrades (per its design) nor produces the analysis. It's the opposite of failing safely: a side-feature's edge case destroys the primary output. Also the error is reported as "Decision object construction failed", attributing the failure to the wrong layer. I'll frame: the halt itself is permitted, but this is not a considered halt â it's an unhandled TypeError on a documented-legal state, in a path the engine explicitly claims is safe. Partially compliant, Major.
+
+Scenario: operator runs pinned data (PHASE7_PINNED_DATA) with BTC CSV from a different export (timestamps offset); or live conditions where the two series share <3 timestamps or BTC is flat for 30 bars. compute_correlation_beta returns (nan, nan, 0) â engine stores correlation=None with available=True â DecisionModel handles it correctly (adjustment 0, "could not be measured") â _merge_btc_context raises TypeError â router returns {"error": "Decision object construction failed: float() argument must be ... 'NoneType'"} â the entire AERO analysis is discarded; panel shows an error; a spurious error-record is appended to the decision log. Also note suite gap.
+
+Finding 2 quote: decision_model:
+```python
+if aero_dir != 0 and btc_dir != 0 and aero_dir == btc_dir:
+    agreement = 1
+...
+direction_adjustment = (agreement * abs(correlation) * (abs(btc_score)/100.0) * self.BTC_ADJUSTMENT_CAP) if correlation_measured else 0.0
+```
+Transcript Run 2: CORRELATION: STRONG NEGATIVE (-0.90) ... BTC-ADJUSTED CONFIDENCE: 64.58/100 (vs 52.64) â boosted. Clause: Item 8 "must distinguish ... what is mathematically derived ... and what remains unknown" â the derived claim ("agreeing with AERO's own bias", +11.94) contradicts the measured relationship (assets move oppositely; BTC bearish empirically implies AERO up, i.e., against the bearish read). Severity Major â contained (display only, labeled unvalidated, no decision impact) but a wrong-signed number with two decimals on the panel.
+
+Finding 3 quote: config engine_version; decision_log FINGERPRINTED_MODULES (3 modules); counterexamples: `DEGRADED_CONFIDENCE_CEILING = 50.0`, `BTC_ADJUSTMENT_CAP = 20.0`, `AVG_REWARD_R = 2.0` (decision_model, only MIN_ACTION_BIAS fingerprinted), entry_model literals `macro_multiplier = 1.05`, trend_health bands, indicators `SPIKE_RATIO = 10.0`, structure `threshold = 0.0015`, engine_core `window=30`. Clause: Item 5. Scenario: change ZONE_POINTS_NOT_MEASURED 15â25 (or any entry multiplier): entry scores change, AGGRESSIVE gate (â¥70) outcomes change; run_hash byte-identical; the log cannot tell the two runs apart. Also: engine_version static across 127 commits â "which build produced this" unanswerable. Severity Major.
+
+Finding 4 quote: risk_model classify_risk_regime; decision_contract comment. Clause Item 14. Scenario: trend_health 39, volatility NORMAL, stop 5% â panel prints "RISK REGIME: HIGH VOLATILITY RISK" in a calm market, AGGRESSIVE blocked by conviction-as-risk; comment claims independence. Severity Minor.
+
+Finding 5 (latent defaults) â bundle with locations:
+- bias_engine.calculate_dynamic_regime: `vol_ratio = 0.01  # Default to medium volatility` â MEDIUM VOLATILITY on non-finite ATR/price (unreachable today).
+- same function: `dynamic_regime = "NEUTRAL STRUCTURE"` when STRUCTURE column absent (unreachable today).
+- decision_model: `trend_health = _safe_float(trend.get("trend_health", 50.0))` â 50.0 (the exact fabrication class removed elsewhere).
+- decision_model: `risk_regime = str(risk.get("risk_regime", "NORMAL RISK"))`.
+- panel: `validation_score = safe_float(risk.get('validation_score', 0))` â prints "VALIDATION ... (Score: 0.00)".
+- structure._detect_swing_structure: `return float(current_price)` on len < 2*lookback+5 or no swings â SWING STRUCT prints current price as a located level (reachable for 20-row frames â the engine's minimum).
+- structure._detect_hvn_lvn legacy fallback silently swaps "high volume node" for "window price extreme" with no record (unreachable via validated data).
+Clause Item 13 (and 8). Severity Minor (latent, per instruction 7.1: report what they'd print).
+
+Finding 6 quote: panel header banner f-string "Connecting to MEXC API for {symbol} ({timeframe})..." printed regardless of data source; transcripts show it on offline pinned runs. Also "Phase-7.3" vs config "v1.0". Clause Item 8. Severity Minor.
+
+Finding 7 quote: pct_slope definition (no callers); validation.is_valid (no callers); StructureAnalysisResult (unused, lacks degraded_inputs â stale); test_live.py `from live_trading import live_trading_simulator` (name deleted). Clause Item 16. Severity Minor.
+
+Part 4 details as planned. Also mention the two tests that pin policy rulings (fine), source-grep tests, and the merge-crash coverage gap; overall: the suite does test the engine's behavior extensively (negative controls, vacuity guards, end-to-end, determinism, contract), a clear improvement over the quoted prior verdict; the remaining weaknesses enumerated.
+
+Part 5: gate met.
+
+Part 6: as planned + seven items + unconfirmed claims + comment-reliance + requested runs at end (Section 11 says "in a clearly marked section at the end of your report").
+
+I think I'm ready to write. Keep it tight but complete. Use tables where helpful. First line: identity.

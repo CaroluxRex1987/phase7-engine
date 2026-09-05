@@ -1,0 +1,81 @@
+{
+  "model": "moonshotai/kimi-k3",
+  "provider_pinned": "moonshotai",
+  "max_output_tokens": 200000,
+  "package_dir": "D:\\phase7_engine\\docs\\audit_package\\round4\\UPLOAD_THESE",
+  "files": [
+    {
+      "name": "item16_review_instruction_rev5.md",
+      "bytes": 42210,
+      "sha256": "6953b429d305aeef38d87218f0dcb94e27f38cb192d99e4c878e134a7a9f393f"
+    },
+    {
+      "name": "Phase7_Constitution_v1.0_RATIFIED_AUDITCOPY.txt",
+      "bytes": 107216,
+      "sha256": "08f663a3b591c50e9ac0c62a3512c2a96c00ffb5234a5ed40814c52015aea700"
+    },
+    {
+      "name": "phase7_engine_source.md",
+      "bytes": 445895,
+      "sha256": "0ccbe2f1d97b698657fc985a5db31ab5aa3604081539153eee2a7f9b2f9d0e0e"
+    },
+    {
+      "name": "phase7_test_suite.md",
+      "bytes": 441474,
+      "sha256": "d070398bd93322d68c3f0ae24491666fd978ce31735d13e9faefc885ae040f38"
+    },
+    {
+      "name": "MANIFEST.md",
+      "bytes": 8636,
+      "sha256": "927d0c98e80facfbf0f204cd979c0550567f636c12d31b14a0ab5430391b0885"
+    },
+    {
+      "name": "version_control_history.md",
+      "bytes": 28755,
+      "sha256": "8def5e5b0511f10eb7330dfef93055ac2f9ff0522f23c4f31d330b99eb408f0c"
+    },
+    {
+      "name": "execution_transcripts.md",
+      "bytes": 10330,
+      "sha256": "42f0419d8827514ef6d987aee948254c01d154354b1a56466015db90c4de2e38"
+    }
+  ],
+  "payload_sha256": "dd3d21d19b0a4115878c7b9156c80a2706c62882a549f72e497102fe2d1e4a8e",
+  "payload_bytes": 1085418,
+  "estimated_prompt_tokens": 270582,
+  "data_collection": "deny",
+  "started_utc": "2026-09-05T16:24:02.746925+00:00",
+  "finished_utc": "2026-09-05T16:41:29.943677+00:00",
+  "elapsed_seconds": 1047.2,
+  "generation_id": "gen-1788625445-Qw2zxNCm031hBTThejce",
+  "finish_reason": "stop",
+  "usage": {
+    "prompt_tokens": 251485,
+    "completion_tokens": 41861,
+    "total_tokens": 293346,
+    "cost": 1.38237,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 1.38237,
+      "upstream_inference_prompt_cost": 0.754455,
+      "upstream_inference_completions_cost": 0.627915
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 33931,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  },
+  "report_chars": 33490,
+  "reasoning_chars": 146394,
+  "provider_reported": "Moonshot AI",
+  "native_tokens_prompt": 251485,
+  "native_tokens_completion": 41861,
+  "total_cost_usd": 1.38237
+}

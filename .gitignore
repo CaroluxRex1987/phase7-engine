@@ -73,3 +73,17 @@ API KEY FROM OPEN CODE.txt
 # applied to the audit itself.
 docs/audit_package/round*/*
 !docs/audit_package/round*/MANIFEST.md
+
+# ============================
+# REVIEWER RESPONSES
+# ============================
+# Responses are kept, not regenerated: they are what an auditor actually
+# returned, and nothing else can reproduce them. The blanket *.json and *.csv
+# rules above would swallow a run's metadata and any exported billing rows --
+# and an ignored file does NOT appear in `git status --short`, which is exactly
+# how the responses saved under docs/audit_package/round*/ went unnoticed.
+#
+# ** matches zero or more directories, so these cover both
+# docs/audit_reports/x.json and docs/audit_reports/<run>/x.json.
+!docs/audit_reports/**/*.json
+!docs/audit_reports/**/*.csv
