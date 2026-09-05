@@ -1848,6 +1848,279 @@ story.extend(entry_box(56, "September 3, 2026",
     "PROCESS — RECORDED", STEEL))
 
 
+story.extend(entry_box(57, "September 4–5, 2026",
+    "The Trend the Bias Engine Could Not See",
+    "Continuation was zero, so the trend was flat — whatever the trend was doing.",
+    "Ruling 3, and patch I. <font face=\"Courier\">bias_engine</font> was never told which "
+    "way the trend pointed. It inferred direction from the sign of "
+    "<font face=\"Courier\">continuation_strength</font>, so whenever continuation came out "
+    "at zero the engine read the trend as flat — silently, and regardless of what the trend "
+    "actually was. <font face=\"Courier\">indicators/trend_health.py</font> had computed the "
+    "direction all along and thrown it away. It is now exposed as "
+    "<font face=\"Courier\">trend_direction</font> and "
+    "<font face=\"Courier\">trend_direction_sign</font>, and the sign is a <b>required</b> "
+    "parameter of the bias engine, validated against (-1, 0, 1) and raising rather than "
+    "defaulting — an inferred value replaced by a declared one. <b>The order in which this "
+    "was decided is the entry.</b> How often the engine silently flattened a real trend is a "
+    "question with an answer in the data, and the answer was obtained across 9,800 live bars "
+    "<i>before</i> the ruling was made, not afterwards to justify it. Earned rule 36 was "
+    "written from this: a ruling made first and measured second is a hypothesis with a "
+    "decision attached to it.",
+    "DECISION — ADOPTED", GREEN))
+
+story.extend(entry_box(58, "September 5, 2026",
+    "A Magnitude Offered as a Direction, and a Lean Too Small to Act On",
+    "A magnitude was being cited as evidence for a direction it cannot indicate.",
+    "Rulings 1 and 2, both in patch K. <b>Ruling 1:</b> the reason strings the engine writes "
+    "for a BULLISH or BEARISH call cited trend health as supporting evidence. Trend health is "
+    "a magnitude; it says how strong, never which way. Sitting in a directional sentence it "
+    "read as directional support that it was not. It now prints as "
+    "<font face=\"Courier\">trend strength 78/100 (rising)</font>, with the direction word "
+    "coming from the sign patch I had just exposed — ruling 1 was only buildable because "
+    "ruling 3 landed first. <b>A correction to the record:</b> Claude had claimed the panel's "
+    "TREND line carried the same defect. It does not. It prints two true facts side by side "
+    "and asserts no relationship between them; only the reason strings made the claim. "
+    "<b>Ruling 2:</b> an ACTION could be issued off a bias that barely leaned at all. "
+    "<font face=\"Courier\">MIN_ACTION_BIAS = 30.0</font> now floors it, and is fingerprinted "
+    "so it enters the run's identity. Claude first argued for folding it into the existing "
+    "<font face=\"Courier\">RAW_BIAS_THRESHOLD</font> and reversed that while building it: "
+    "one asks <i>does the blend lean far enough to call a side</i>, the other asks <i>is that "
+    "lean strong enough to act on</i>, and one number tuned for both makes one of the two "
+    "answers an accident of the other. Seven fixtures that built a bias with no score at all "
+    "were <b>completed</b> rather than worked around — relaxing a floor to accommodate "
+    "incomplete test data is how a floor stops meaning anything. Patch J, alongside, "
+    "extracted <font face=\"Courier\">volume_agreement</font> into a module-level function "
+    "for the same reason patch D extracted <font face=\"Courier\">macro_agreement</font>: "
+    "logic reachable only through a full run cannot be tested in isolation.",
+    "DECISION — ADOPTED", GREEN))
+
+story.extend(entry_box(59, "September 5, 2026",
+    "Three Patches Built on a Base That Had Already Moved",
+    "The staged copy is a snapshot, not a view.",
+    "Patch J was generated against an <font face=\"Courier\">engine_core.py</font> staged "
+    "before patch I landed, and failed 39 tests. Patch K was rebuilt twice against a "
+    "<font face=\"Courier\">decision_log.py</font> missing an anchor added hours earlier. "
+    "None of the three patches was wrong; the base each was diffed against was. <b>The "
+    "failure mode is asymmetric, which is why it earned a rule.</b> A patch built on a stale "
+    "base fails loudly if you are lucky and applies cleanly if you are not — and the clean "
+    "application is the one that reaches the repository. Earned rule 35: re-stage every base "
+    "file immediately before generating a diff. Recorded alongside it, because it is the same "
+    "week and the same shape: a test written in this batch asserted on the substring "
+    "<font face=\"Courier\">\"support\"</font> against a note that quotes a label reading "
+    "BULLISH VOLUME SUPPORT. Earned rule 30 had been written three days earlier about exactly "
+    "that, and was violated in a test written to guard its cousin. Rule 37 came from this: "
+    "knowing a rule and applying it are different acts, and the rules that repeat are "
+    "candidates for a mechanical check rather than a firmer intention.",
+    "PROCESS — RECORDED", STEEL))
+
+story.extend(entry_box(60, "September 5, 2026",
+    "Explaining in the Right Place",
+    "A long thread pays for its own history on every turn.",
+    "Viktor asked Claude to decide and implement how to reduce token usage, on one explicit "
+    "condition: it must not weaken the engineering. Two changes, decided by Claude and "
+    "accepted. <b>First, when a patch ships with a commit message, the chat reply carries "
+    "only the predictions to check and the commands to run.</b> What the fix does, why, the "
+    "weights, the verification and the mistakes made along the way are already in the message "
+    "he is about to read; saying it twice is pure waste, and the chat copy is the one that "
+    "does not survive the session. <b>Second, a thread is closed and a fresh one started "
+    "once a piece of work has finished</b> — “Continue Phase 7” is enough to resume, and the "
+    "handover check of Entry #56 is what makes that safe rather than reckless. What was "
+    "explicitly <b>not</b> cut: negative controls, golden checks, equivalence runs, and "
+    "naming every consequence of a change before it is made. Those are the reason the patches "
+    "have held, and they were the condition. This must not become a reason to explain less. "
+    "It is a reason to explain where the explanation survives.",
+    "DECISION — ADOPTED", GREEN))
+
+story.extend(entry_box(61, "September 5, 2026",
+    "Unreachable Is Not the Same as Safe",
+    "Nothing could reach it — which is exactly why two audit passes left it there.",
+    "Patch L, finding 6. Two fabrication constants survived in "
+    "<font face=\"Courier\">engine_core.py</font> after item 9a removed their siblings from "
+    "<font face=\"Courier\">indicators.py</font> and Finding 3 removed them from "
+    "<font face=\"Courier\">entry_model.py</font>: a substitute trend dict "
+    "<font face=\"Courier\">{\"trend_health\": 50.0, …}</font>, and "
+    "<font face=\"Courier\">atr_val = … else current_price * 0.02</font>. Both were "
+    "unreachable. <font face=\"Courier\">compute_trend_health</font> is total, so nothing "
+    "could reach the first handler; section 2 halts when ATR is absent, so nothing could "
+    "reach the second. <b>The trend one was worse than a fabrication, and only the negative "
+    "control showed it.</b> Its substitute dict has no "
+    "<font face=\"Courier\">trend_direction_sign</font>, which the next stage reads by "
+    "subscript <i>outside</i> the try. Run against pre-fix code, a broken trend contract does "
+    "not degrade the run — it dies with "
+    "<font face=\"Courier\">KeyError: 'trend_direction_sign'</font>, reported as neither a "
+    "trend failure nor a bias failure. Found by running the test, not by reading the code.",
+    "FINDINGS — FROM EXECUTION", MAROON))
+
+story.extend(entry_box(62, "September 5, 2026",
+    "A Fallback That Claimed an Equivalence It Did Not Have",
+    "A test had asserted, on that claim, that these paths cost nothing.",
+    "Patch L, finding 5. The RSI and ATR fallbacks smoothed with a simple moving average; "
+    "<font face=\"Courier\">pandas_ta</font> smooths both with Wilder's RMA. So the sentence "
+    "in <font face=\"Courier\">add_technical_indicators</font>' own docstring — “recomputes "
+    "the same quantity by another route” — was false, and it was the stated grounds on which "
+    "<font face=\"Courier\">test_degraded_state</font> asserts these paths are <b>not</b> "
+    "degradations. On the pinned fixture, final bar: RSI 84.45 against "
+    "<font face=\"Courier\">pandas_ta</font>'s 69.14, and an ATR 1.80% low. That test had "
+    "been passing on a false premise for as long as it existed. <b>The choice was Claude's, "
+    "and was made by reading the repository rather than by preference.</b> Viktor: <i>“None "
+    "needs a ruling from me.”</i> Match the smoothing, or record which path ran? Recording "
+    "the path leaves <font face=\"Courier\">test_degraded_state</font>'s assertion false and "
+    "adds a flag to explain why. Matching makes the assertion true. The repository already "
+    "contained the argument; the job was to find it, not to have an opinion.",
+    "DECISION — ADOPTED", GREEN))
+
+story.extend(entry_box(63, "September 5, 2026",
+    "The Run That Reported Two Errors and Ran Nothing",
+    "“2 errors” — and the result for the other 251 tests was unobtainable.",
+    "Both of these were found because the verification step ran, not because anyone was "
+    "looking for them. <b>The <font face=\"Courier\">pandas_ta</font>-free control could not "
+    "run at all.</b> <font face=\"Courier\">test_macro_agreement</font> and "
+    "<font face=\"Courier\">test_volume_agreement</font> import a pure function whose module "
+    "chain reaches <font face=\"Courier\">pandas_ta</font>, so both errored at collection; "
+    "pytest reported two errors and executed nothing. That had been silently true since those "
+    "files were written, and the degraded-dependency result nobody could obtain was the one "
+    "the fallback work depended on. <font face=\"Courier\">pytest.importorskip</font> makes "
+    "it the skip it should always have been — 0 errors, 159 passed, 88 skipped. <b>And a "
+    "module-level object defeated a deliberate lazy import.</b> "
+    "<font face=\"Courier\">SignalRouter.__init__</font> imports "
+    "<font face=\"Courier\">engine_core</font> inside the function, which is what lets "
+    "<font face=\"Courier\">live_trading</font> be imported without "
+    "<font face=\"Courier\">pandas_ta</font>. A module-scope "
+    "<font face=\"Courier\">LiveTradingSimulator()</font> called that constructor at import "
+    "time and undid it. Verified in both directions rather than argued: pre-fix, "
+    "<font face=\"Courier\">import live_trading</font> raises "
+    "<font face=\"Courier\">ModuleNotFoundError</font>; post-fix it succeeds.",
+    "FINDINGS — FROM EXECUTION", MAROON))
+
+story.extend(entry_box(64, "September 5, 2026",
+    "Two Series Paired by Position, Correct by Accident",
+    "The printed label changed in 4 of 31 positions, and the evidence line gave no tell.",
+    "Patch O, finding (a). Correlation and beta between AERO and BTC were computed by pairing "
+    "the two series <b>by position</b> after both timestamp indexes had been discarded. In "
+    "the ordinary case both fetches return the same 450 candles, so positional pairing is "
+    "timestamp pairing and the code is right by accident — which is why it survived, and why "
+    "the golden snapshot did not move when it was fixed. On the pinned fixtures the two "
+    "indexes share all 450 timestamps and old and new agree to the last decimal. <b>It stops "
+    "being harmless the moment the series differ by one bar</b>: a candle closing between two "
+    "sequential API calls, an exchange gap, a stale feed. Measured on the fixtures by dropping "
+    "one BTC bar from inside the window, at all 31 positions: correlation moved by a median "
+    "of 0.105, beta by 0.135, and the printed label changed in 4 of the 31. "
+    "<font face=\"Courier\">n_observations</font> read 30 either way, so the panel's own "
+    "evidence line could not reveal it. The join is now on the timestamp index, and the "
+    "observation count is the count of the aligned pairs.",
+    "DECISION — ADOPTED", GREEN))
+
+story.extend(entry_box(65, "September 5, 2026",
+    "A Zone Whose Lower Bound Was Above Its Upper, and a Price Nobody Read",
+    "ENTRY ZONE : $0.4981 - $0.4918",
+    "Patch P closed finding (4) and a display defect that was not on any list. <b>The "
+    "display defect was found by reading the panel.</b> "
+    "<font face=\"Courier\">engine_core</font> assigned EMA_20 to "
+    "<font face=\"Courier\">zone_lower</font> and EMA_50 to "
+    "<font face=\"Courier\">zone_upper</font> unconditionally, so in an uptrend they printed "
+    "inverted. <font face=\"Courier\">entry_model</font> swaps them before scoring, so the "
+    "arithmetic was correct the whole time and only the display was wrong — which is why no "
+    "test could have caught it. Every test asserted on the numbers. <b>Finding (4) was the "
+    "familiar shape</b>: <font face=\"Courier\">close * 0.99 / close * 1.01</font> for a "
+    "missing EMA pair, reachable only when an EMA is missing, which a healthy run never is. "
+    "Five fabricated constants across two files, and the worst was not on the list — a close "
+    "price that could not be read became <font face=\"Courier\">$1.00</font>, so a run with "
+    "no data at all reported ACTIVE ENTRY ZONE, 30 of 30, against a price nobody had read. "
+    "<b>Three of this project's defects have now been found by running the engine and looking "
+    "at the output.</b> It remains the cheapest detector the project has. Left open and "
+    "written down rather than assumed: whether any other reader of the zone is missing the "
+    "same swap.",
+    "FINDINGS — FROM EXECUTION", MAROON))
+
+story.extend(entry_box(66, "September 5, 2026",
+    "Five Components Summing to 39, Under a Total of 45.18",
+    "Not wrong, unexplained — and for a number an operator acts on, that is its own defect.",
+    "Patch Q. The entry-quality panel had been printing a total its own component list did "
+    "not add up to, recorded on 2 September as “not wrong, unexplained”. An operator meant to "
+    "act on that number either works the gap out themselves or stops trusting the number, and "
+    "both are failures. Three causes, none visible anywhere: sub-scores rounded for display "
+    "while the total was not, three confluence multipliers applied after the sum, and a clip "
+    "at 100. <b>And a fourth thing the clip was hiding.</b> The five components add to "
+    "<b>102, not 100</b>, while the docstring directly above the list said 100. With full "
+    "confluence a perfect setup reaches 118.08 and loses the difference silently — the clip "
+    "was concealing an arithmetic error in the scoring definition itself, not merely bounding "
+    "an output. The panel now prints the subtotal out of 102, the multiplier broken into its "
+    "three factors, and a Clipped line when the clip actually fires. The column adds up.",
+    "DECISION — ADOPTED", GREEN))
+
+story.extend(entry_box(67, "September 5, 2026",
+    "One Fact Declared in Four Places",
+    "Nine new fields vanished between the engine and the panel, with no error and no failing test.",
+    "Recorded, not fixed. <font face=\"Courier\">signal_router.py</font> rebuilds the entry "
+    "block <b>field by field</b>. Anything the engine adds that its list does not name is "
+    "dropped before the panel or the decision log ever sees it — silently. Patch Q's nine new "
+    "reconciliation fields disappeared exactly that way on the first attempt: the lines simply "
+    "did not appear, and nothing failed. The entry block's shape is now declared in four "
+    "places — <font face=\"Courier\">entry_model</font>'s return, "
+    "<font face=\"Courier\">engine_core</font>'s dict, "
+    "<font face=\"Courier\">signal_router</font>'s rebuild, and "
+    "<font face=\"Courier\">decision_contract</font>'s TypedDict — four copies of one fact, "
+    "which is the defect class this project has recorded more often than any other. "
+    "<b>Restructuring it is larger than any single finding warranted, so it is written down "
+    "here instead of being done quietly at the end of a patch about something else.</b> "
+    "Earned rule 24 in a different costume: the fix that belongs in its own commit does not "
+    "get smuggled into one that has already made its claim.",
+    "OBSERVATION — FILED FOR THE RECORD", MAROON))
+
+story.extend(entry_box(68, "September 5, 2026",
+    "Four for Four: the Fabrications That Survive Audits Are the Unreachable Ones",
+    "Nothing tests a path a healthy run never takes, and nothing else notices it is wrong.",
+    "Item 9a, Finding 3, Finding 6 and Finding 4 were four separate findings across three "
+    "weeks, and all four removed fabricated constants from code paths that a healthy run "
+    "never reaches. That is not a coincidence and it is now the strongest generalisation this "
+    "project has produced. <b>A constant on a live path is checked by every run and every "
+    "fixture. A constant on a dead path is checked by nothing</b> — not by the suite, which "
+    "cannot enter the state, and not by a reader, who sees a defensive default and moves on. "
+    "So it survives audit after audit while looking exactly like prudence. Unreachable is not "
+    "safe: it is one edit to an invariant elsewhere from becoming the live path, and on the "
+    "day that happens the engine will print a fabricated number with complete confidence and "
+    "nothing in the record will say where it came from. Finding 6 proved the sharper version "
+    "— its dead branch would not merely have fabricated, it would have crashed the run with a "
+    "<font face=\"Courier\">KeyError</font> attributed to neither stage. <b>The generalisation "
+    "worth carrying to other projects:</b> when auditing for invented values, search the "
+    "unreachable branches first, not last.",
+    "OBSERVATION — FILED FOR THE RECORD", MAROON))
+
+story.extend(entry_box(69, "September 5, 2026",
+    "A Test Suite That Could Reach the Internet",
+    "Two rejected CONNECTs to an exchange, from a run in which every route was pointed at a dead port.",
+    "During a full-suite run the sandbox's egress proxy logged two rejected CONNECT attempts "
+    "to <font face=\"Courier\">api.mexc.com:443</font>. Every test that routes or fetches "
+    "sets <font face=\"Courier\">base_url</font> to a dead local port first, and each of them "
+    "was checked; the source of the two attempts was not identified. <b>Recorded rather than "
+    "chased, and recorded rather than dismissed.</b> The attempts were blocked, so nothing "
+    "reached the network and no result depended on what an exchange returned — this run. A "
+    "suite that <i>can</i> reach the internet is a suite whose result depends on the network "
+    "on some other run, on a machine with no proxy in front of it, and the failure would "
+    "arrive as an unexplained flake rather than as an error naming its cause. It is written "
+    "here so that the next unexplained flake has somewhere to start, which is what this log "
+    "is for.",
+    "OBSERVATION — FILED FOR THE RECORD", STEEL))
+
+story.extend(entry_box(70, "September 5, 2026",
+    "The Table Is Empty and the Gate Is Still Shut",
+    "Every queued fix has landed. That is not the same as a clean report.",
+    "Between 3 and 5 September the suite went from 226 tests to <b>319 passing</b>, and the "
+    "“What is left to fix” table in "
+    "<font face=\"Courier\">PHASE7_NEXT.md</font> reached zero rows — three rulings built, "
+    "and all seven queued findings closed, across patches I, J, K, L, M, O, P and Q. "
+    "<b>The release gate "
+    "stays shut, and the distinction is the entry.</b> Unresolved in this project means fixed "
+    "<i>and</i> re-audited; every one of these fixes was written by the party under audit, "
+    "and a fix nobody independent has seen is a claim, not a verdict. What stands between "
+    "here and the re-audit is the five-item pre-audit checklist, and the first two items on "
+    "it are the two that were skipped last round: rebuild the package against current code so "
+    "the auditor grades what exists, and commit everything before building it, so the "
+    "packaged files match a commit rather than a working tree. <b>A completed audit is not an "
+    "open gate either.</b> If the report returns a Critical, the gate stays shut and the "
+    "cycle repeats. The milestone is a clean report, not a finished one.",
+    "MILESTONE — RECORDED", GREEN))
+
 # ---------- DOCUMENT HISTORY ----------
 hist_rows = [
     ["Version", "Date", "Notes"],
@@ -2011,6 +2284,7 @@ hist_rows = [
      "by all 226 tests. #56 the handover check, and the project goal split into a tagged "
      "portfolio milestone and a later finished engine. Suite 196 to 226. Register "
      "unchanged at 21 / 7 / 10 / 6. Earned rules 30 through 34 written the same day."],
+    ["v1.20", "September 5, 2026", "Entries #57 through #70 added, covering 4–5 September — the three open rulings built and the whole of the “What is left to fix” table closed, across eight patches. #57 ruling 3, the bias engine inferring trend direction from the sign of continuation strength and reading a real trend as flat, measured across 9,800 live bars before the ruling rather than after. #58 rulings 1 and 2 — trend health, a magnitude, offered in reason strings as directional support, and a minimum bias strength kept as its own fingerprinted constant rather than folded into an existing threshold. #59 three patches diffed against a base that had already moved, and earned rule 30 violated in a test written to guard its own class. #60 the usage discipline Viktor delegated: reasoning goes where it survives, verification is not cut. #61 two fabrication constants that survived two passes because they were unreachable, one of which would have killed the run rather than degraded it. #62 a fallback whose docstring claimed an equivalence it did not have, and the test that had asserted on that claim for as long as it existed. #63 a degraded-dependency control that reported two errors and executed nothing, and a module-level object that defeated a deliberate lazy import. #64 correlation and beta paired by position after both timestamp indexes were discarded — correct by accident, and the printed label moving in 4 of 31 measured positions once the series differ by one bar. #65 an entry zone printed with its lower bound above its upper, found by reading the panel, and a close price that could not be read becoming $1.00. #66 five entry sub-scores summing to 39 under a printed total of 45.18, and the clip that was hiding a component list adding to 102 against a docstring saying 100. #67 the entry block's shape declared in four places, recorded rather than restructured inside a patch about something else. #68 the four-for-four generalisation: the fabrications that survive audits are the ones on paths a healthy run never takes. #69 two rejected CONNECTs to an exchange from a suite in which every route was pointed at a dead port, source unidentified, recorded rather than chased. #70 suite 226 to 319 passing and the fix table empty, with the release gate still shut because unresolved means fixed and re-audited. Register unchanged at 21 / 7 / 10 / 6. Earned rules 35, 36 and 37 written across the same two days."],
 ]
 th = Table(wrap_table(hist_rows), colWidths=[0.9 * inch, 1.4 * inch, 4.2 * inch])
 th.setStyle(row_style)
