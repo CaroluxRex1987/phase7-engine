@@ -228,7 +228,14 @@ class DataFetcher:
         }
 
         try:
-            response = requests.get(url, params=params)
+            # AUDIT FINDING (c), 5 September 2026. This call had no timeout.
+            # requests' default is None, which means wait forever: a server
+            # that accepts the connection and then never answers hangs the run
+            # indefinitely, with no error and no log line. See
+            # config.API_TIMEOUT_SECONDS for the value and why it is not
+            # fingerprinted.
+            response = requests.get(url, params=params,
+                                    timeout=config.API_TIMEOUT_SECONDS)
             response.raise_for_status()
             data = response.json()
 
@@ -241,30 +248,54 @@ class DataFetcher:
         # ============================================================
         # CORRECT MEXC FORMAT (8 fields)
         # ============================================================
+        #
+        # AUDIT FINDING (c), second half. Everything from here to
+        # set_index used to sit OUTSIDE the try above, so the handler covered
+        # only the network call. The shape check two lines up rejects a
+        # response that is not a non-empty list, and nothing else.
+        #
+        # A response that IS a list and is wrong in any other way raised out of
+        # this method uncaught: 8 columns declared against a different number
+        # of fields (ValueError), a null where a price should be, a string
+        # that is not a number (both from .astype(float)), a timestamp out of
+        # range (pd.to_datetime). Every other failure in this class returns
+        # {"error": ...}, which get_tf and the engine know how to report; these
+        # ones escaped that contract and surfaced as an unhandled exception
+        # attributed to whatever stage happened to be running.
+        #
+        # A malformed API response is a data defect, and data defects are
+        # reported, not raised.
+        try:
+            df = pd.DataFrame(data, columns=[
+                "timestamp",        # open time (ms)
+                "open",
+                "high",
+                "low",
+                "close",
+                "volume",
+                "close_time",       # close time (ms)
+                "quote_volume"
+            ])
 
-        df = pd.DataFrame(data, columns=[
-            "timestamp",        # open time (ms)
-            "open",
-            "high",
-            "low",
-            "close",
-            "volume",
-            "close_time",       # close time (ms)
-            "quote_volume"
-        ])
+            # Keep only OHLCV
+            df = df[["timestamp", "open", "high", "low", "close", "volume"]]
 
-        # Keep only OHLCV
-        df = df[["timestamp", "open", "high", "low", "close", "volume"]]
+            # Convert types
+            df["timestamp"] = pd.to_datetime(df["timestamp"], unit="ms")
+            df["open"] = df["open"].astype(float)
+            df["high"] = df["high"].astype(float)
+            df["low"] = df["low"].astype(float)
+            df["close"] = df["close"].astype(float)
+            df["volume"] = df["volume"].astype(float)
 
-        # Convert types
-        df["timestamp"] = pd.to_datetime(df["timestamp"], unit="ms")
-        df["open"] = df["open"].astype(float)
-        df["high"] = df["high"].astype(float)
-        df["low"] = df["low"].astype(float)
-        df["close"] = df["close"].astype(float)
-        df["volume"] = df["volume"].astype(float)
+            df.set_index("timestamp", inplace=True)
 
-        df.set_index("timestamp", inplace=True)
+        except Exception as e:
+            return {"error": (
+                f"API response for {symbol} {timeframe} was correctly shaped "
+                f"at the top level and malformed inside it: "
+                f"{type(e).__name__}: {e}"
+            )}
 
         # SEQUENCE ITEM 8: live data is validated too, and this is the one
         # path that DOES claim to be current — so it is the one that passes a

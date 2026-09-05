@@ -36,10 +36,22 @@ class LiveTradingSimulator:
     # derived from config.LOG_DIR now, so the simulator writes beside the rest
     # of the engine's output instead of into a directory that differs from it
     # by case on Linux.
+    #
+    # AUDIT FINDING (d), 5 September 2026: the os.makedirs call was here, and
+    # the module ended with `live_trading_simulator = LiveTradingSimulator()`.
+    # Between them, IMPORTING this module created a directory on disk. The
+    # test suite imports every engine module to check that they import, so
+    # `pytest` created logs/LiveSim/ on any machine that ran it, whether or
+    # not the simulator was ever used.
+    #
+    # config.py already states the rule this broke: "the directories are
+    # created on demand by the code that writes into them (engine_core's state
+    # file, decision_log, plotting)". This was the one exception. The makedirs
+    # has moved to _log_simulated_trade, which is the code that writes into
+    # it, matching decision_log.log_decision.
     def __init__(self, log_dir=None):
         self.log_dir = log_dir if log_dir is not None else os.path.join(
             config.LOG_DIR, "LiveSim")
-        os.makedirs(self.log_dir, exist_ok=True)
         self.router = SignalRouter()
 
     # ============================================================
@@ -135,7 +147,19 @@ class LiveTradingSimulator:
         Save simulated trade to JSON file.
         """
 
-        timestamp = datetime.datetime.utcnow().strftime("%Y-%m-%d_%H-%M-%S")
+        # AUDIT FINDING (d): created here, by the code that writes into it,
+        # rather than in __init__ where importing the module was enough to
+        # make a directory appear. Same shape as decision_log.log_decision.
+        os.makedirs(self.log_dir, exist_ok=True)
+
+        # 5 September 2026: was datetime.datetime.utcnow(), which is
+        # deprecated and scheduled for removal. The repo fixed the same call
+        # in data_fetcher.py on 2 September and missed this one. Both forms
+        # produce the same UTC wall clock, so the filename is unchanged --
+        # utcnow() returns it naive, this returns it aware, and strftime with
+        # this format reads neither the tzinfo nor the offset.
+        timestamp = datetime.datetime.now(
+            datetime.timezone.utc).strftime("%Y-%m-%d_%H-%M-%S")
         filepath = os.path.join(self.log_dir, f"sim_trade_{timestamp}.json")
 
         with open(filepath, "w") as f:
@@ -145,7 +169,32 @@ class LiveTradingSimulator:
 
 
 # ============================================================
-# GLOBAL SAFE LIVE-TRADING SIMULATOR
+# SAFE LIVE-TRADING SIMULATOR — BUILT ON DEMAND
 # ============================================================
+#
+# AUDIT FINDING (d), 5 September 2026. This was:
+#
+#     live_trading_simulator = LiveTradingSimulator()
+#
+# a module-level instance, so importing this module ran __init__, which ran
+# os.makedirs and constructed a SignalRouter. Two side effects of an import,
+# neither of them asked for, and nothing in the repository read the name.
+#
+# Deleted rather than made lazy-and-global, because the singleton was not
+# serving anything. data_fetcher's module-level singleton is a different case
+# and stays: it is shared state that engine_core and the tests deliberately
+# patch as one object, and tests/test_imports.py asserts exactly that. This
+# one had no second reader to agree with.
+#
+# An accessor is provided so a caller that wants one instance can have one,
+# and pays for it when it asks rather than when it imports.
 
-live_trading_simulator = LiveTradingSimulator()
+_simulator = None
+
+
+def get_live_trading_simulator():
+    """The process-wide simulator, constructed on first use."""
+    global _simulator
+    if _simulator is None:
+        _simulator = LiveTradingSimulator()
+    return _simulator

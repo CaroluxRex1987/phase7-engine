@@ -34,6 +34,25 @@ MACRO_TIMEFRAME = "1d"      # Macro Higher Timeframe for MTF Confluence
 # Base URL for MEXC REST API
 API_BASE_URL = "https://api.mexc.com"
 
+# AUDIT FINDING (c), 5 September 2026. data_fetcher.fetch_ohlc called
+# requests.get with no timeout at all. requests' default is to wait FOREVER:
+# a server that accepts the connection and then sends nothing hangs the run
+# with no error, no log line and no way to tell it from a slow market.
+#
+# 15 seconds. A 450-candle klines response is well under a second on a normal
+# link, so this is roughly twenty times the expected worst case -- long enough
+# that a slow connection is not mistaken for a dead one, short enough that a
+# hung socket ends the run instead of owning it.
+#
+# NOT fingerprinted, deliberately. FINGERPRINTED_CONFIG is the set of knobs
+# that can change WHAT a run decided; this one can only change whether the
+# fetch succeeded at all. A run that returns candles returns the same candles
+# at any value of it.
+#
+# requests applies this separately to the connect and the read phase, so the
+# real worst case is 30 seconds, not 15.
+API_TIMEOUT_SECONDS = 15.0
+
 
 # ============================================================
 # LOGGING & STORAGE
