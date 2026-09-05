@@ -572,6 +572,12 @@ class Phase7Engine:
                 reversal_direction=trend.get("reversal_direction"),
                 reversal_strength=trend.get("reversal_strength", 0),
                 continuation_strength=trend.get("continuation_strength"),
+                # 4 SEPTEMBER 2026: the trend direction now travels explicitly
+                # rather than being inferred from continuation_strength's sign
+                # inside bias_engine. Read with [] rather than .get(): a missing
+                # key here means trend_health did not run, and defaulting it to
+                # 0 would zero a 30% weight -- the exact defect this closes.
+                trend_direction_sign=trend["trend_direction_sign"],
                 structure_regime=structure_regime,
                 volume_sentiment=volume_sentiment,
                 supertrend_direction=supertrend_direction,
@@ -652,6 +658,7 @@ class Phase7Engine:
                             reversal_direction=btc_trend.get("reversal_direction"),
                             reversal_strength=btc_trend.get("reversal_strength", 0),
                             continuation_strength=btc_trend.get("continuation_strength"),
+                            trend_direction_sign=btc_trend["trend_direction_sign"],
                             structure_regime=btc_structure_obj.get("regime", "NEUTRAL STRUCTURE"),
                             volume_sentiment=btc_structure_obj.get("volume_sentiment", "NEUTRAL VOLUME"),
                             supertrend_direction=btc_supertrend_direction,

@@ -33,6 +33,9 @@ def compute_trend_health(df: Optional[pd.DataFrame]) -> Dict[str, Any]:
         "reversal_strength": 0.0,
         # New: explicit trend direction label — see section 1b below.
         "trend_direction": "NEUTRAL",
+        # 4 SEPTEMBER 2026: the same direction as a NUMBER, for consumers that
+        # need to sign a magnitude. See the return block below for why.
+        "trend_direction_sign": 0,
     }
 
     if df is None or not isinstance(df, pd.DataFrame) or df.empty or len(df) < 20:
@@ -410,6 +413,31 @@ def compute_trend_health(df: Optional[pd.DataFrame]) -> Dict[str, Any]:
             "reversal_direction": str(reversal_direction),
             "reversal_strength": float(reversal_strength),
             "trend_direction": str(trend_direction),
+
+            # 4 SEPTEMBER 2026. The direction, as a number, taken from the same
+            # slope test that produced the label three lines up -- not
+            # recomputed, just exposed.
+            #
+            # It exists because models/bias_engine.py had been INFERRING this
+            # from the sign of continuation_strength, and continuation_strength
+            # is a magnitude with a floor at zero. When a trend decelerates hard
+            # enough that raw_continuation goes negative, the floor makes
+            # continuation_strength exactly 0.0 -- correctly, because the trend
+            # is not continuing -- and the inferred direction went to 0 with it.
+            # bias_engine then multiplied trend_health by that zero, so a 30%
+            # weight silently vanished while the panel still printed
+            # TREND: BULLISH.
+            #
+            # Measured across 9,800 bars on fifteen pairs: it fired on 0.71% of
+            # them, with a median effect of 21.3 points on a -100..100 score
+            # where 20 decides direction. 52 of 70 firings exceeded that
+            # threshold. Zero of them were sign disagreements -- the floor never
+            # corrected a direction, it only deleted a factor.
+            #
+            # Direction and continuation answer different questions. Which way is
+            # the trend pointing, and is it still going. Deriving the first from
+            # the second is what coupled them.
+            "trend_direction_sign": int(direction),
         }
 
     except Exception as e:

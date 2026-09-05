@@ -83,6 +83,7 @@ def calculate_dynamic_bias(
     reversal_direction,
     reversal_strength,
     continuation_strength,
+    trend_direction_sign,
     structure_regime="NEUTRAL STRUCTURE",
     volume_sentiment="NEUTRAL VOLUME",
     supertrend_direction=0.0,
@@ -171,10 +172,38 @@ def calculate_dynamic_bias(
     # SEQUENCE ITEM 6: the caller-frame cleaning block was here. See the
     # docstring above for what it did and why deleting it was the fix.
 
-    # Trend direction proxy: continuation_strength's sign is B1's dedicated
-    # signed-direction signal, so it's used here to sign trend_health (an
-    # unsigned magnitude on its own -- see A4's original fix).
-    trend_direction = 1 if continuation_strength > 0 else (-1 if continuation_strength < 0 else 0)
+    # 4 SEPTEMBER 2026: this line read
+    #
+    #     trend_direction = 1 if continuation_strength > 0 else (
+    #         -1 if continuation_strength < 0 else 0)
+    #
+    # inferring the trend's DIRECTION from the sign of a MAGNITUDE. Those are
+    # different quantities. continuation_strength floors at zero by design --
+    # a trend that is not continuing scores zero continuation, which is
+    # correct, and factor 6 below reflects it. But the inferred direction went
+    # to zero with it, and the next line multiplies trend_health by that.
+    # A 30% weight disappeared, silently, while the panel still printed a
+    # direction from the very same slope test.
+    #
+    # Measured on 9,800 bars across fifteen pairs: 0.71% of bars, median
+    # effect 21.3 points where 20 decides direction, and 52 of 70 firings past
+    # that threshold. It concentrated on the daily timeframe (1.20% against
+    # 0.22% on 4h) and on downtrends, better than two to one.
+    #
+    # The direction now arrives from indicators/trend_health.py, which computes
+    # it from the slope and always did. NO DEFAULT: this parameter is required.
+    # A default would be the same shape as the copy_df parameter sequence item 6
+    # removed -- a safe setting that every caller declines to take, restoring
+    # the defect in silence.
+    #
+    # Across those same 9,800 bars the two sources never disagreed in sign, so
+    # this changes nothing except where the floor had been deleting a factor.
+    trend_direction = int(trend_direction_sign)
+    if trend_direction not in (-1, 0, 1):
+        raise ValueError(
+            f"trend_direction_sign must be -1, 0 or 1, got {trend_direction_sign!r}. "
+            f"It signs a 30% weight; a wrong value here is a wrong bias score."
+        )
 
     # ============================================================
     # FACTOR 1: TREND HEALTH (30%)
