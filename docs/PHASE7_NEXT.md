@@ -1857,10 +1857,24 @@ who can make it honestly. On the evening of 5 September he handed it over — *"
 reading those reports. You read them and suggest updates/upgrades. If there is something i
 need to decide on. You tell me."* — so what follows was written by Claude, the party that
 wrote the code both reviewers graded. Sections below that state what the reports say, and
-what the source says, can be checked. The comparative judgement of the two reviewers' quality
-is deliberately **not** in this repository: it is Claude ranking the reviewers who graded
-Claude, it is unruled, and this repository is public. It exists as a PDF outside version
-control, on the same reasoning as `Feedback_Phase7_Engine.pdf`.
+what the source says, can be checked.
+
+The fuller write-up, including Claude's comparative judgement of the two reviewers' quality,
+is in this repository at `Claude outputs/round3_vs_round4_comparison.md` and its PDF.
+**It got there by accident and was then ratified, and the distinction matters.** The
+intention had been to keep it out — it is Claude ranking the reviewers who graded Claude,
+and it was unruled — but `git add -A` swept the folder into commit `bd79800`, which was
+pushed to a public repository before anyone noticed. Viktor's ruling on being told: keep it.
+The reasoning he accepted is that the code is already public so describing a defect in it
+adds nothing; the engine holds no credentials and cannot trade; the document discloses its
+own conflict in its first paragraph; and removing it from the tip would not remove it from
+history at `bd79800` in any case.
+
+Claude's earlier reasoning for keeping it out — *"the same reasoning as
+`Feedback_Phase7_Engine.pdf`"* — was too broad, and is withdrawn. That document is candid
+criticism of Viktor himself and stays outside version control. This one assesses two model
+reports. The two are not the same kind of document and should not have been given the same
+rule.
 
 | | Round 3 — GLM 5.3 Flash | Round 4 — Kimi K3 |
 |---|---|---|
