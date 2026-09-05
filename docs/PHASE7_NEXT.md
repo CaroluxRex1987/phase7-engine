@@ -1850,13 +1850,129 @@ may now be renamed: the package has been sent, and Section 5 did its work with n
 front of it. The comment in `build_audit_package.py` where `PRIOR_OBSERVATIONS` used to be
 should go with the rename.
 
-**Open.**
+### The round-3 versus round-4 comparison, 5 September
 
-1. The **GLM-versus-Kimi comparison**, from the two reports, by Viktor. No finding is
-   acted on before it, and nothing about the round-3 run was disclosed to this reviewer.
-2. Section 11: the reviewer asked for **one engine run** — a synthetic BTC series whose
-   correlation cannot be measured — to confirm or kill Finding 1 end to end. Not yet run.
-3. The Engineering Notes are current through Entry #82 and do not yet cover this run.
+The comparison was reserved for Viktor by design, on the reasoning that he is the only party
+who can make it honestly. On the evening of 5 September he handed it over — *"I am not
+reading those reports. You read them and suggest updates/upgrades. If there is something i
+need to decide on. You tell me."* — so what follows was written by Claude, the party that
+wrote the code both reviewers graded. Sections below that state what the reports say, and
+what the source says, can be checked. The comparative judgement of the two reviewers' quality
+is deliberately **not** in this repository: it is Claude ranking the reviewers who graded
+Claude, it is unruled, and this repository is public. It exists as a PDF outside version
+control, on the same reasoning as `Feedback_Phase7_Engine.pdf`.
+
+| | Round 3 — GLM 5.3 Flash | Round 4 — Kimi K3 |
+|---|---|---|
+| Compliant | 26 | 38 |
+| Partially compliant | 13 | 6 |
+| Not verifiable | 1 (Item 17) | 0 |
+| Non-compliant | 0 | 0 |
+| Findings | 11, all Minor | 7 — three Major, four Minor |
+| Release gate, on own findings | met | met |
+| Output tokens | 11,475, no reasoning spend | 41,861 (33,931 reasoning) |
+
+The tallies and the findings point in opposite directions. GLM marks more rules imperfect and
+rates every defect Minor; Kimi marks fewer imperfect and raises three Majors. They are not
+the same audit at two strictness settings — they looked at different things.
+
+**The one place they read the same three lines.** `models/signal_router.py`,
+`_merge_btc_context`, lines 478-481. GLM filed it as F-4, Minor: the merge invents defaults
+for fields that may be absent, but "engine_core currently always populates these keys when
+available is True, so the defaults never fire." Kimi filed the same lines as Finding 1,
+Major, because the failure mode is not a missing key: `core/engine_core.py` line 771 builds
+the block with `"available": True` and line 784 writes `"correlation": None` when the
+correlation is not finite. The key is present with the value `None`, so `.get(key, 0.0)`
+returns `None`, `float(None)` raises `TypeError`, `_build_decision_object`'s broad `try`
+converts a complete analysis into an error dict, and that is what reaches the decision log
+and the panel.
+
+Verified at source on 5 September, all four sites read: the producer's `"available": True`
+with a `None` correlation (`engine_core.py` 771-788), the consumer's `float(...get(...))`
+(`signal_router.py` 478-481), and `decision_model._compute_btc_adjusted` handling the same
+state correctly via `correlation_raw is not None` (line 693). The asymmetry is real — the
+5 September fix taught `decision_model` and `panel_render` about `None` and did not teach
+`signal_router`. Not verified: the end-to-end run, which is what Kimi's Section 11 requests.
+
+**Found by Kimi only.** Finding 2, Major — `_compute_btc_adjusted` derives `agreement` from
+the signs of the two bias scores and multiplies by `abs(correlation)`, discarding the
+correlation's sign, so on a negative correlation "BTC bearish" scores as confirming "AERO
+bearish"; verified at source (lines 700-717) and exhibited in the project's own shipped
+transcript at −0.90 with confidence raised 52.64 → 64.58 and the sentence "agreeing".
+Finding 3, Major — Item 5: `engine_version` is a static string unchanged across every commit,
+and `FINGERPRINTED_MODULES` omits decision-affecting constants (`DEGRADED_CONFIDENCE_CEILING`,
+`BTC_ADJUSTMENT_CAP`, the entry multipliers, the trend bands, `SPIKE_RATIO`, `window=30`,
+`0.0015`), so two runs on different code record identical hashes. Finding 4, Minor —
+`classify_risk_regime` takes `trend_health` as an input, and `decision_contract.py` carries a
+comment claiming that gate is independent of trend health. Finding 5 item 6, Minor and
+reachable — `_detect_swing_structure` returns the current price as a structural level on
+frames shorter than 21 rows, and the engine's minimum is 20. Finding 6, Minor — the panel
+prints "Connecting to MEXC API…" on offline pinned runs, and the banner says Phase-7.3 while
+`engine_version` says v1.0.
+
+**Found by GLM only.** F-3 — `calculate_structure` writes STRUCTURE/HVN/LVN both onto its
+returned frame and into its dict, and `engine_core` reads both routes. F-6 — BTC-side
+`compute_trend_health` degradations are not propagated into the AERO run's degradation list.
+F-7 — the permissive `risk_valid` default, which Claude found on 5 September to be
+under-scoped: the same default sits on the trade-authorization path in
+`decision_model._determine_final_action`, which GLM's severity argument does not cover.
+F-8 and F-9 — two tests whose stated method and actual method diverge. F-11 — `exit_model`'s
+`or 0.0` on hvn/lvn is dead code that is safe only because `NaN > 0` is False.
+
+**Agreed by both.** `pct_slope` is unconsumed dead code; the confidence and entry-quality
+labels overlap more than the panel admits; the suite tests behaviour rather than merely
+pinning it, reversing the earlier auditor's judgement; and neither found a Critical.
+
+**The structural observation, and it is a fact about the two reports rather than an opinion
+about the two models.** Nine of GLM's eleven findings do not appear in Kimi's report and five
+of Kimi's seven do not appear in GLM's. The union is roughly sixteen distinct items with two
+real overlaps — nearly twice either report. Both reviewers concluded the release gate is met
+*on their own findings*, and each was reasoning from a list the other proves incomplete. The
+gate language ("no Critical Tier 1 finding stands unresolved") is in practice evaluated
+against whatever one reviewer happened to reach.
+
+**Suggested fix order** (engineering, Claude's unless overruled): Kimi Finding 1 first, and
+the real fix is the missing test at the router seam rather than the merge line; then GLM F-7
+as extended, because wrong polarity on an authorization gate outranks what follows; then Kimi
+Finding 2; then Kimi Finding 5 item 6; then Kimi Finding 3, the largest of the Majors and the
+least urgent because it degrades the record rather than the output; then the latent and Minor
+items as one sweep; then GLM F-8/F-9 for test hygiene.
+
+### Open — decisions
+
+These are Viktor's, and none was made on 5 September.
+
+1. **Does the release gate open?** Both reviewers say met on their own findings. The standing
+   ruling is that unresolved means fixed *and* re-audited, and three Majors stand unfixed.
+2. **Item 14.** Kimi says feeding `trend_health` into `classify_risk_regime` makes conviction
+   an input to risk and breaks Item 14; GLM graded Item 14 Compliant. This is a reading of
+   the Constitution, not a code question. Either way, `decision_contract.py`'s comment
+   claiming independence from trend health is false about the code beside it.
+3. **Kimi Finding 2 — fix or accept as a recorded limitation?** Display-only, labelled
+   unvalidated, cannot reach a gate. Claude recommends fixing: it is a wrong number an
+   operator reads, and "contained" is the argument that has failed twice here.
+4. **Does the divergence change the independence policy?** If a two-reviewer union is twice
+   either report, one clean reviewer per round is under-powered — which makes the ledger's
+   scarcity problem worse rather than better. Viktor has said he wants to write his own
+   position on this one before hearing Claude's.
+5. **Part 7.** `commit_messages_PART7_ONLY.md` was never sent; both reviewers confirmed they
+   finalised without it. Over the API it means resending the package plus the report to a
+   fresh instance, about $1.40, and it is not the same thing as a conversation continuing.
+6. **Disclosure.** The round-3 run was not disclosed to Kimi, deliberately and on the record.
+   If any of this comparison reaches the portfolio document, the non-disclosure and its
+   reason travel with it.
+
+### Open — work
+
+1. Section 11: the confirmation run for Finding 1 — a pinned BTC series with every timestamp
+   shifted by +2 hours so the two indexes share nothing, network unreachable. Completed panel
+   with `CORRELATION: NOT MEASURED` kills the finding; `[ERROR] Decision object construction
+   failed` confirms it. **Run it before fixing anything**, so the defect is observed rather
+   than argued.
+2. The fixes, in the order above, once the decisions above are made.
+3. The Engineering Notes are current through Entry #82 and do not cover the round-4 run or
+   this comparison.
+4. The four `qwen_reasoning_*.txt` may now be renamed; the hold is discharged.
 
 ## Working practice
 

@@ -60,7 +60,13 @@ edited after the fact.
 
 The report was checked for structure only before being filed: all 44 rules carry a
 verdict, Parts 1-6 are present, Part 7 was not begun. It was not graded or acted on before
-Viktor's own comparison against the round-3 (GLM 5.3 Flash) report.
+the comparison against the round-3 (GLM 5.3 Flash) report.
+
+That comparison was made later the same evening. It was reserved for Viktor by design; he
+handed it to Claude instead, so it was written by the party whose code both reviewers
+graded. It is in `docs/PHASE7_NEXT.md` under "The round-3 versus round-4 comparison", with
+the reviewer-quality judgement deliberately left outside this repository. No finding from
+either report had been acted on at the time of writing.
 
 The reviewer stated its identity unprompted, as Section 5 asks — Kimi, made by Moonshot AI
 — and disclosed that it cannot name its own checkpoint from the inside, so it cannot
