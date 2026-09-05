@@ -15,7 +15,7 @@ from your willingness to say what you actually find.
 | 1 | 30 August 2026 | Issued for the first independent re-audit. |
 | 2 | 2 September 2026 | Reissued for a second round on a different model. Section 5 rewritten with the independence position stated honestly, including a disclosure that Rev 1's audit was run on a model that was not on the clean list. Section 4 gains version-control history, a generated manifest, project files and execution transcripts. New Section 4a states plainly what this round can and cannot be. New check 7.6. Section 11 explains how to request runs. |
 | 3 | 2 September 2026 | Reissued after two attempts at Round 2 ended without a report. The Constitution now ships as text rather than PDF, because the second attempt reached a model that could see the file's name and none of its contents (Section 2). Section 2's stop condition is scoped, resolving a contradiction with Section 9 that a reviewer raised. Section 5 gains a model-identity check and a fourth disclosure covering the two failed attempts. |
-| 4 | 5 September 2026 | Reissued after a further attempt which ran, but was given a superseded revision of this document and a file bearing the Constitution's name whose contents were the engine source bundle. It refused to grade the 44 rules, correctly, ran Section 7's checks anyway, and returned eleven observations; all eleven were verified against source and fixed before this reissue. Section 4a states that decision — fix first, then compare — and what it costs you. Section 5's fourth disclosure is rewritten around a packaging failure this project had recorded imprecisely, and now asks you to verify your own package before grading. Section 7.1 gains the unreachable-branch instruction and 7.6 a second worked example, both from defects found since Rev 3. Section 9's counts are updated. New Section 13 and a new Part 8: a second withheld document, opened only after Parts 1–6 are saved. |
+| 4 | 5 September 2026 | Reissued after a further attempt which ran, but was given a superseded revision of this document and a file bearing the Constitution's name whose contents were the engine source bundle. It refused to grade the 44 rules, correctly, ran Section 7's checks anyway, and returned eleven observations; all eleven were verified against source and fixed before this reissue. Section 4a states that decision — fix first, then compare — and what it costs you. Section 5's fourth disclosure is rewritten around a packaging failure this project had recorded imprecisely, and now asks you to verify your own package before grading. Section 7.1 gains the unreachable-branch instruction and 7.6 a second worked example, both from defects found since Rev 3. Section 9's counts are updated. New Section 13 and a new Part 8: a second withheld document, opened only after Parts 1–6 are saved. **Amended the same day, before issue:** Section 2's stop condition, which Rev 3 had extended to the two code bundles, fired on the package this revision ships with — the bundles state a prior verdict for seven of the forty-four rules. The condition is now scoped to the Constitution file, and what the bundles contain is counted and disclosed instead. Rev 4 had not been issued to any reviewer when this was corrected. |
 
 Revs 1, 2 and 3 are preserved unedited at `docs/audit_package/item16_review_instruction.md`,
 `item16_review_instruction_rev2.md` and `item16_review_instruction_rev3.md` in the same
@@ -78,18 +78,62 @@ unedited. The Version History rows that remain are all dated on or before ratifi
 record no outcomes.
 
 An earlier attempt at this audit was correctly refused because the full document was
-supplied by mistake. If you find outcome language **in the Constitution file, or in either
-of the two code bundles** — a named prior auditor, a count of Compliant and Non-compliant
-items, or a list of Critical findings — **stop and say so, as that refusal did.** You will
-not be penalised for refusing. You would be doing the job.
+supplied by mistake. **If you find outcome language in the Constitution file — a Version
+History row recording verdicts, a count of Compliant and Non-compliant items, or a list of
+Critical findings — stop and say so, as that refusal did.** You will not be penalised for
+refusing. You would be doing the job.
 
-That scope is deliberate and it matters. *This* document refers to earlier rounds openly:
-Section 4a explains what they cost you, Section 5 names the model that ran Rev 1, and
-Section 9 gives raw counts of what previous rounds returned. None of that is a leak and
-none of it should stop you — the instruction is allowed to tell you that findings existed,
-because knowing a number tells you nothing about which rules failed. What must not reach
-you before you have graded is the *content*: which item, which verdict, which severity. If
-you find that anywhere, in any file, stop.
+*This* document refers to earlier rounds openly, and that is not a leak: Section 4a explains
+what they cost you, Section 5 names the model that ran Rev 1, and Section 9 gives raw counts
+of what previous rounds returned. Knowing that findings existed, and how many, tells you
+nothing about which rules failed.
+
+### The two code bundles are a different case, and Rev 3 was wrong about them
+
+Rev 3 extended that stop condition to the source and test bundles as well. It should not
+have. The bundles contain prior-audit outcome language in quantity, so a reviewer following
+Rev 3 to the letter would have had to stop before grading anything — and would have been
+right to. Three attempts at this round have already ended without a report, two of them
+because of what was in the package rather than what was in the code. A fourth on these
+grounds would have been this document's fault. It was found by searching the built package,
+not by reading the instruction.
+
+Here is what is in them, counted rather than characterised:
+
+- **Seven of the forty-four rules have a prior verdict stated in a comment or docstring.**
+  Items 3 and 6 are described as rated Critical; Item 18 as kept Compliant; Item 16 as
+  having gone Non-compliant; Tier 3 items 3 and 4 as currently Non-compliant; and Tier 4
+  item 2 as rated Compliant, with the previous auditor's reasoning quoted.
+- **Three separate counts of Critical findings** appear — "five Criticals", "four
+  Criticals", "the third Critical".
+- **Two prior reviewers are named**, Luna Pro and GLM, one with its conclusion about the
+  test suite quoted directly. Section 7.3 puts that same conclusion in front of you
+  deliberately, so it is disclosed twice rather than hidden once.
+
+**Why it was not removed.** Section 4 makes the argument in full and it has not changed:
+the comments are part of the artifact, and stripping them would be the party under audit
+editing its own evidence before handing it over. It would also destroy the thing Item 8
+exists to test — whether what this codebase says about itself is true. A comment claiming a
+defect was fixed is a claim you can check against the code beside it; a bundle with the
+claims removed cannot be checked at all.
+
+**What to do about it.** Grade all forty-four. On those seven you are not blind and cannot
+pretend to be, so do the honest version instead: reach your own verdict from the code, and
+in Part 6 say for each whether the comment moved you — **including "I don't know", which is
+worth more than a confident answer.** If you would rather grade those seven last, after the
+other thirty-seven, do that. It costs nothing and it keeps the contaminated items from
+colouring the rest.
+
+This is a known, disclosed weakness of this round and the project has recorded it as one.
+It is being fixed at the source — the audit narrative is moving out of code comments and
+into the project's Engineering Notes — but that is a change too large to make inside the
+audit it would affect, and making it now would hand you a codebase edited to look better
+for its grader.
+
+**What must still not reach you before you have graded, in any file, is the previous
+audit's report itself** — its verdict table, its findings, its severities as a set. That is
+an answer key rather than an artifact, it is withheld deliberately, and if you find it,
+stop.
 
 Three things in it are flagged by the document itself, before any auditing, and you should
 treat them as open questions rather than settled ones:

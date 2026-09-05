@@ -2121,6 +2121,78 @@ story.extend(entry_box(70, "September 5, 2026",
     "cycle repeats. The milestone is a clean report, not a finished one.",
     "MILESTONE — RECORDED", GREEN))
 
+story.extend(entry_box(71, "September 5, 2026",
+    "The Bill Knew, Again",
+    "Three Qwen calls, then Kimi. The record has the last two attempts the wrong way round.",
+    "Earned rule 29 says to reconstruct a factual record from the provider's billing log rather "
+    "than from memory, because every provider bills per request and the bill cannot be mistaken "
+    "about what was called. It was written on 2 September after the independence ledger turned "
+    "out to have been written from recollection. Applied a second time, to the question of which "
+    "model ran which attempt at round 2, it found three things. <b>One: the order is wrong.</b> "
+    "The log for 2 September reads Qwen 10:53, Qwen 15:38, Qwen 15:42, Kimi K3 15:58. Entry #50 "
+    "records attempt 2 as Kimi and attempt 3 as Qwen; Kimi ran last, after all three Qwen calls, "
+    "so the eleven observations of Entry #51 came from a Qwen run that preceded it. Viktor's "
+    "recollection — “we ran Qwen three times” — was exactly right. <b>Two: Claude's own reasoning "
+    "was wrong, and in a way worth naming.</b> Having found that those transcripts cite a "
+    "superseded revision of the reviewer instruction, Claude offered the files' modification "
+    "times as evidence that the correct package existed before the run and was not used. A "
+    "modification time records when a transcript was <i>saved</i>, not when a model <i>ran</i>. "
+    "Ordering of writes was presented as ordering of events; the claim was withdrawn. <b>What the "
+    "clock does establish, once both sets of times sit on one axis, is stronger:</b> the "
+    "<font face=\"Courier\">UPLOAD_THESE</font> folder was written at 16:47:56 and every one of "
+    "the four calls predates it. <b>No attempt at this round has ever received it.</b> Nobody "
+    "uploaded the wrong folder — the folder did not yet exist, and the eleven observations came "
+    "from a run holding rev 2 and a file named for the Constitution whose contents were the "
+    "engine source bundle. Two distinct payloads confirm the shape: 213,581 input tokens in the "
+    "morning, then 196,283 for all three afternoon calls across two providers — one upload, "
+    "retried. <b>Three: a model named in this log was never called.</b> Entry #22 records Run 1 "
+    "as a blind review by DeepSeek V4 <i>Pro</i>. The bill says DeepSeek V4 <b>Flash 0731</b>. "
+    "Independence is tracked at the laboratory, so the ledger's verdict is unchanged and DeepSeek "
+    "is spent either way — but the record names a checkpoint that was never billed, which is the "
+    "same error rule 29 was written about. <b>Left open rather than resolved:</b> the log shows "
+    "nine Luna Pro calls between 27 August and 3 September, considerably more than this "
+    "document's account of Luna Pro accounts for, and three of them on 3 September map to nothing "
+    "recorded anywhere. Kimi K3's 2 September call returned 36,085 output tokens, which is not "
+    "the truncated stub the record describes when it leaves Kimi's spent status undecided. Both "
+    "are noted here so the next reader starts from the discrepancy rather than rediscovering it. "
+    "<b>The generalisation, now paid for twice:</b> where a project keeps a record of what "
+    "happened, ask whether some system already recorded it as a side effect of doing its own job, "
+    "and prefer that system. This project's account of one failure was built first from a "
+    "truncated screenshot, then from file timestamps, and only the bill settled it.",
+    "PROCESS — RECORDED", STEEL))
+
+story.extend(entry_box(72, "September 5, 2026",
+    "The Instruction Told the Reviewer to Stop, and It Would Have Been Right",
+    "Seven of the forty-four rules carry their previous verdict in a code comment.",
+    "The round-3 package was built and then <b>searched</b> before it was sent — the step that "
+    "the previous two rounds did not take. Section 2 of the reviewer instruction told the "
+    "auditor, in as many words, to stop if it found a named prior auditor, a count of Compliant "
+    "and Non-compliant items, or a list of Critical findings <i>in either of the two code "
+    "bundles</i>. The bundles contain all three. Items 3 and 6 described as rated Critical; Item "
+    "18 as kept Compliant; Item 16 as having gone Non-compliant; Tier 3 items 3 and 4 as "
+    "currently Non-compliant; Tier 4 item 2 as rated Compliant with the previous auditor's "
+    "reasoning quoted. Three separate counts of Criticals. Luna Pro and GLM named. <b>A reviewer "
+    "obeying the instruction would have refused to grade, and that would have been the fourth "
+    "attempt at this round to end without a report and the third in a row killed by the package "
+    "rather than by the code.</b> The contradiction had been half-seen already: Rev 3 records "
+    "scoping this same stop condition to resolve a clash with Section 9, and that scoping drew "
+    "the line at <i>the instruction may tell you counts, the artifact must not tell you "
+    "content</i>. Nobody then checked whether the artifact told content. <b>Viktor's ruling:</b> "
+    "scope the condition to the Constitution file, count and disclose exactly what the bundles "
+    "hold, and ask the reviewer to grade all forty-four and say in Part 6 — “I don't know” "
+    "included — whether a comment moved it. The comments are not stripped: Section 4's argument "
+    "stands, that removing them is the audited party editing its own evidence and destroying "
+    "what Item 8 exists to test. <b>And separately, the structural fix, deferred on purpose:</b> "
+    "the audit narrative moves out of code comments and into this document, but not inside the "
+    "audit it would affect — doing it now would hand the auditor a codebase edited to look "
+    "better for its grader. <b>The reason this matters more than a fixed contradiction:</b> a "
+    "reviewer that stops tells us loudly. The failure one step over is silent — a reviewer that "
+    "does not stop, reads “Item 18, kept Compliant”, and grades Item 18 Compliant. Nothing in "
+    "its report would reveal that, and the report would look entirely ordinary. That is earned "
+    "rule 28's test applied to the audit process itself, and it is why the same instruction now "
+    "asks the reviewer to search its own package before grading.",
+    "DECISION — ADOPTED", GREEN))
+
 # ---------- DOCUMENT HISTORY ----------
 hist_rows = [
     ["Version", "Date", "Notes"],
@@ -2285,6 +2357,7 @@ hist_rows = [
      "portfolio milestone and a later finished engine. Suite 196 to 226. Register "
      "unchanged at 21 / 7 / 10 / 6. Earned rules 30 through 34 written the same day."],
     ["v1.20", "September 5, 2026", "Entries #57 through #70 added, covering 4–5 September — the three open rulings built and the whole of the “What is left to fix” table closed, across eight patches. #57 ruling 3, the bias engine inferring trend direction from the sign of continuation strength and reading a real trend as flat, measured across 9,800 live bars before the ruling rather than after. #58 rulings 1 and 2 — trend health, a magnitude, offered in reason strings as directional support, and a minimum bias strength kept as its own fingerprinted constant rather than folded into an existing threshold. #59 three patches diffed against a base that had already moved, and earned rule 30 violated in a test written to guard its own class. #60 the usage discipline Viktor delegated: reasoning goes where it survives, verification is not cut. #61 two fabrication constants that survived two passes because they were unreachable, one of which would have killed the run rather than degraded it. #62 a fallback whose docstring claimed an equivalence it did not have, and the test that had asserted on that claim for as long as it existed. #63 a degraded-dependency control that reported two errors and executed nothing, and a module-level object that defeated a deliberate lazy import. #64 correlation and beta paired by position after both timestamp indexes were discarded — correct by accident, and the printed label moving in 4 of 31 measured positions once the series differ by one bar. #65 an entry zone printed with its lower bound above its upper, found by reading the panel, and a close price that could not be read becoming $1.00. #66 five entry sub-scores summing to 39 under a printed total of 45.18, and the clip that was hiding a component list adding to 102 against a docstring saying 100. #67 the entry block's shape declared in four places, recorded rather than restructured inside a patch about something else. #68 the four-for-four generalisation: the fabrications that survive audits are the ones on paths a healthy run never takes. #69 two rejected CONNECTs to an exchange from a suite in which every route was pointed at a dead port, source unidentified, recorded rather than chased. #70 suite 226 to 319 passing and the fix table empty, with the release gate still shut because unresolved means fixed and re-audited. Register unchanged at 21 / 7 / 10 / 6. Earned rules 35, 36 and 37 written across the same two days."],
+    ["v1.21", "September 5, 2026", "Entries #71 and #72 added, both corrections to this project's own record rather than to its code. #71 applies earned rule 29 a second time: the provider's billing log shows three Qwen calls followed by Kimi K3 on 2 September, so Entry #50 has the last two attempts of round 2 in the wrong order and the eleven observations of Entry #51 came from a Qwen run that preceded Kimi rather than followed it. The same log establishes that no attempt at round 2 ever received the UPLOAD_THESE folder — it was written after the last of the four calls — and corrects Entry #22, which names a DeepSeek checkpoint the bill says was never called. Claude's own inference from file modification times is withdrawn in the entry. Luna Pro's call count and Kimi K3's spent status are recorded as open questions, not resolved. #72 records a defect found by searching the round-3 package before sending it: Section 2 of the reviewer instruction told the auditor to stop if the code bundles contained prior-audit outcomes, and they contain a stated verdict for seven of the forty-four rules, three counts of Criticals, and two named prior reviewers. Viktor ruled the condition scoped to the Constitution file and the bundles' contents counted and disclosed, with the audit narrative to move out of code comments into this document later — not inside the audit it would affect. Register unchanged at 21 / 7 / 10 / 6. The release gate remains shut."],
 ]
 th = Table(wrap_table(hist_rows), colWidths=[0.9 * inch, 1.4 * inch, 4.2 * inch])
 th.setStyle(row_style)

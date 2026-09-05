@@ -965,6 +965,8 @@ the sentence above them.
 
 ### Before the audit can be sent — do not skip these
 
+Status as of the end of 5 September is in the section at the foot of this file.
+
 1. **Rebuild the package** with `docs/build/build_audit_package.py`, so the
    auditor grades current code rather than last week's.
 2. **Commit everything first.** The working tree was dirty when the round-2
@@ -975,6 +977,10 @@ the sentence above them.
 4. **Package the holdout.** The `qwen_reasoning_*` observations become a second
    Part 7 document, opened only after Parts 1–6 are written and saved.
 5. **Bring the Engineering Notes current.** They stop before any of this.
+6. **Search the built package before sending it.** Added 5 September, after a
+   grep of round 3 found the instruction's own stop condition firing on the
+   bundles it ships with. Not a reading task — a mechanical search for outcome
+   language, prior auditor names, and severity words.
 
 **A completed audit is not an open gate.** If the report returns a Critical,
 the gate stays shut and the cycle repeats. The milestone is a clean report,
@@ -1013,12 +1019,22 @@ not a finished one.
 15. ✅ Patches I, J, K — rulings 1, 2 and 3, 4–5 September. See that section.
 16. ✅ Patches L, M, O, P, Q — the whole of "What is left to fix", 5 September. See
     "Patches O, P and Q" at the end of this file, and "Patches L and M" above it.
-17. ⬜ **Next: the pre-audit checklist**, in "Before the audit can be sent" above. Five
-    items, and the first two are the ones that were skipped last time — rebuild the
-    package against current code, and commit everything before building it.
-18. ⬜ Rev 4 of the reviewer instruction, and the re-audit itself.
+17. ◐ **The pre-audit checklist**, in "Before the audit can be sent" above. Items 2, 3,
+    4, 5 and 6 are closed; item 1 is one command away and waits only on the package
+    being rebuilt against the corrected rev 4. See the section at the foot of this file.
+18. ⬜ The re-audit itself. Which model runs it is still Viktor's to rule.
 
 ## Not on the roadmap, worth revisiting
+
+- **Move the audit narrative out of code comments.** Ruled 5 September, deferred on
+  purpose. The source and test files carry, in comments and docstrings, a stated prior
+  verdict for seven of the forty-four rules, three counts of Critical findings, and two
+  named prior reviewers. That is why every packaging round has to reason about what the
+  artifact discloses, and why one round got it wrong. The narrative belongs in the
+  Engineering Notes, beside the rest of the project's history. It is **not** done before
+  the re-audit: editing the comments now hands the auditor a codebase altered to look
+  better for its grader, which is the objection Section 4 of the reviewer instruction
+  makes against stripping them at packaging time. Do it after a report comes back.
 
 - **A database for decision history.** Raised by Viktor, 1 September 2026. Every run's
   reasoning currently lands in flat files — `logs/phase7_decision_log_*.jsonl` and
@@ -1344,6 +1360,88 @@ Not the gate. The pre-audit checklist in "Before the audit can be sent", above �
 items, and the first two are the ones skipped last time: rebuild the package against
 current code, and commit everything before building it. The Engineering Notes are still
 in arrears and now stop twelve patches back.
+
+## The pre-audit checklist — five of six closed, 5 September 2026
+
+`ab531d7` — the Engineering Notes brought current, entries #57–#70
+`1489b43` — rev 4 of the reviewer instruction, and the builder pointed at round 3
+
+Suite 319 throughout; none of this touches engine code.
+
+### What closed
+
+**Item 5, the Notes.** They stopped at Entry #56 on 3 September while three rulings and
+eight patches landed. Entries #57–#70 cover 4–5 September; #71 and #72 cover this
+afternoon. 47 pages to 58.
+
+**Item 3, rev 4.** New file; revs 1–3 preserved. It carries the fix-first-then-compare
+ruling in Section 4a, an honest account of the failed attempts in Section 5, the
+unreachable-branch instruction in 7.1, a paired-series example in 7.6, and a new
+Section 13.
+
+**Item 4, the holdout.** `_prior_observations()` concatenates the four
+`qwen_reasoning_*.txt` verbatim into `PART7_LATER/prior_observations_PART8_ONLY.md`.
+The reviewer is asked for a **Part 8** reconciling its own findings against those
+eleven, including where its method did not reach one, and is told plainly that the
+comparison measures the review process rather than marking it.
+
+**Item 2, commit first.** Both commits landed on a clean tree, so the manifest records a
+HEAD that actually contains what it packaged.
+
+**Item 6, search the package.** New, and it is the reason item 1 is not closed yet.
+
+### The builder now writes round 3
+
+`ROUND = "round3"`. `round2/` is the only record of what the previous attempts were
+given, and it is the baseline a new report gets compared against; rebuilding over it
+would have destroyed that while contradicting the script's own docstring. A missing
+input now refuses the build **before anything is written** — the first version of that
+check refused from inside the copy loop, after five files had reached `UPLOAD_THESE/`,
+which is the exact populated-but-incomplete state the folder layout exists to prevent.
+Found by the negative control, not by reading it.
+
+### The finding that stopped the send
+
+Section 2 told the reviewer to stop if the **code bundles** contained a named prior
+auditor, a count of Compliant and Non-compliant items, or a list of Critical findings.
+They contain all three: verdicts for Items 3, 6, 16, 18, Tier 3 items 3 and 4, and Tier
+4 item 2; the phrases "five Criticals", "four Criticals" and "the third Critical"; and
+Luna Pro and GLM by name. A reviewer following the instruction would have refused — a
+fourth attempt ended by the package, the third in a row.
+
+Ruled: scope the condition to the Constitution file, count and disclose what the bundles
+hold, ask for the reviewer's own verdict on all forty-four with a Part 6 note on whether
+a comment moved it. The comments stay, on Section 4's argument. The structural fix is
+above, under "worth revisiting", and is deliberately after the re-audit.
+
+**The part worth carrying:** a reviewer that stops tells you loudly. The failure one step
+over is silent — a reviewer that reads "Item 18, kept Compliant" and grades Item 18
+Compliant produces a report that looks entirely ordinary. Rule 28's test, applied to the
+audit process rather than to the code.
+
+### The record corrected from the bill
+
+Rule 29 a second time. The provider log for 2 September reads Qwen 10:53, Qwen 15:38,
+Qwen 15:42, Kimi K3 15:58. Entry #50 has the last two the wrong way round, so the eleven
+observations came from a Qwen run **before** Kimi. `UPLOAD_THESE/` was written at
+16:47:56, after all four calls: no attempt at round 2 has ever received it, which is now
+proved rather than inferred. Entry #22 names DeepSeek V4 **Pro**; the bill says **Flash
+0731**.
+
+Claude's own error, withdrawn in Entry #71: file modification times were offered as
+evidence of when a model ran. They record when a transcript was saved.
+
+Open, and not chased: nine Luna Pro calls between 27 August and 3 September, more than
+the record accounts for, three of them on 3 September mapping to nothing; and Kimi K3's
+2 September call returning 36,085 output tokens, which is not the truncated stub the
+record describes when leaving its spent status undecided.
+
+### What comes next
+
+1. Rebuild round 3 against the corrected rev 4, search it, then commit it.
+2. Viktor rules which model runs the re-audit. The Qwen-versus-Qwen confound on the
+   Part 8 comparison is in the message of 5 September and is not resolved.
+3. Send it. The gate opens on a clean report, not a finished one.
 
 ## Working practice
 
