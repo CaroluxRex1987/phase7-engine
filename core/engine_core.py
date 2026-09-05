@@ -58,6 +58,67 @@ logger = logging.getLogger(__name__)
 # Extracted to a function so the four cases can be tested directly. Inline,
 # the only way to reach the false branch was to find market data that
 # produced a neutral bias under a directional macro.
+# AUDIT FINDING (5 September 2026), found by running the engine.
+#
+# The panel printed VOLUME : STRONG BEARISH DISTRIBUTION and, in the same
+# run, under Validation Notes: "Volume sentiment is supportive of current
+# momentum." The bias was BULLISH CONFIRMED.
+#
+# The test was `if "STRONG" in volume_sentiment.upper()`. It matched the word
+# and ignored the direction, so strongly BEARISH volume scored +15 towards a
+# BULLISH validation and printed as support. On the run that exposed it, that
+# +15 is what made VALIDATION read STRONG at exactly 75.00 -- 50 baseline,
+# +10 macro agreeing, +15 volume "supporting".
+#
+# Third instance of one class: a direction-blind test producing a directional
+# claim. The macro note was the first (macro_agreement below, 3 September),
+# and bias_engine signing trend_health from the sign of a magnitude was the
+# second (4 September).
+#
+# models/bias_engine.py already had this right. _VOLUME_SENTIMENT_SCORES maps
+# STRONG BEARISH DISTRIBUTION to -100. One quantity computed correctly in one
+# module and wrongly in another -- exactly what check 7.6 of the auditor
+# instruction asks a reviewer to look for.
+#
+# No weight is invented. +15 for volume supporting the bias, as before; -25
+# for volume against it, which is the weight this same block already used for
+# its disconfirming branch. Strong volume against the bias is disconfirming.
+def volume_agreement(volume_sentiment, raw_bias):
+    """
+    How the volume reading stands relative to this run's bias.
+
+    Returns (score_delta, note). Extracted so every case can be tested
+    directly; inline, the false branch needed market data that happened to
+    pair strong counter-trend volume with an opposing bias.
+    """
+    v = str(volume_sentiment).upper()
+    vol_up = "BULLISH" in v
+    vol_down = "BEARISH" in v
+    bias_up = raw_bias == "BULLISH"
+    bias_down = raw_bias == "BEARISH"
+
+    if "DIVERGENCE" in v or "WEAK" in v or "EXHAUSTION" in v:
+        return -25.0, "Volume divergence or weakness detected."
+
+    if not (vol_up or vol_down):
+        return 0.0, "Volume sentiment is neutral."
+
+    if (vol_up and bias_up) or (vol_down and bias_down):
+        return 15.0, "Volume sentiment supports this bias."
+
+    if (vol_up and bias_down) or (vol_down and bias_up):
+        return -25.0, (
+            f"Volume sentiment ({volume_sentiment}) runs AGAINST this bias."
+        )
+
+    # Volume has a direction and the bias does not. Naming the reading lets
+    # the operator check this line against the VOLUME line above it.
+    return 0.0, (
+        f"The bias is neutral, so volume sentiment ({volume_sentiment}) "
+        f"neither supports nor opposes it."
+    )
+
+
 def macro_agreement(macro_bias, raw_bias):
     """
     How the higher timeframe stands relative to this run's bias.
@@ -814,14 +875,9 @@ class Phase7Engine:
             val_score += macro_delta
             val_notes.append(macro_note)
 
-            if "STRONG" in volume_sentiment.upper() or "EXPANSION" in volume_sentiment.upper():
-                val_score += 15
-                val_notes.append("Volume sentiment is supportive of current momentum.")
-            elif "DIVERGENCE" in volume_sentiment.upper() or "WEAK" in volume_sentiment.upper():
-                val_score -= 25
-                val_notes.append("Volume divergence or weakness detected.")
-            else:
-                val_notes.append("Volume sentiment is neutral.")
+            volume_delta, volume_note = volume_agreement(volume_sentiment, raw_bias)
+            val_score += volume_delta
+            val_notes.append(volume_note)
 
             # The three "Trend health is robust / moderate / degrading" notes
             # that used to live here are gone with the rest: they restated the
