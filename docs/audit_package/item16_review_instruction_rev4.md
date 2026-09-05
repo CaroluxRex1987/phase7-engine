@@ -15,7 +15,7 @@ from your willingness to say what you actually find.
 | 1 | 30 August 2026 | Issued for the first independent re-audit. |
 | 2 | 2 September 2026 | Reissued for a second round on a different model. Section 5 rewritten with the independence position stated honestly, including a disclosure that Rev 1's audit was run on a model that was not on the clean list. Section 4 gains version-control history, a generated manifest, project files and execution transcripts. New Section 4a states plainly what this round can and cannot be. New check 7.6. Section 11 explains how to request runs. |
 | 3 | 2 September 2026 | Reissued after two attempts at Round 2 ended without a report. The Constitution now ships as text rather than PDF, because the second attempt reached a model that could see the file's name and none of its contents (Section 2). Section 2's stop condition is scoped, resolving a contradiction with Section 9 that a reviewer raised. Section 5 gains a model-identity check and a fourth disclosure covering the two failed attempts. |
-| 4 | 5 September 2026 | Reissued after a further attempt which ran, but was given a superseded revision of this document and a file bearing the Constitution's name whose contents were the engine source bundle. It refused to grade the 44 rules, correctly, ran Section 7's checks anyway, and returned eleven observations; all eleven were verified against source and fixed before this reissue. Section 4a states that decision — fix first, then compare — and what it costs you. Section 5's fourth disclosure is rewritten around a packaging failure this project had recorded imprecisely, and now asks you to verify your own package before grading. Section 7.1 gains the unreachable-branch instruction and 7.6 a second worked example, both from defects found since Rev 3. Section 9's counts are updated. New Section 13 and a new Part 8: a second withheld document, opened only after Parts 1–6 are saved. **Amended the same day, before issue:** Section 2's stop condition, which Rev 3 had extended to the two code bundles, fired on the package this revision ships with — the bundles state a prior verdict for seven of the forty-four rules. The condition is now scoped to the Constitution file, and what the bundles contain is counted and disclosed instead. Rev 4 had not been issued to any reviewer when this was corrected. |
+| 4 | 5 September 2026 | Reissued after a further attempt which ran, but was given a superseded revision of this document and a file bearing the Constitution's name whose contents were the engine source bundle. It refused to grade the 44 rules, correctly, ran Section 7's checks anyway, and returned eleven observations; all eleven were verified against source and fixed before this reissue. Section 4a states that decision — fix first, then compare — and what it costs you. Section 5's fourth disclosure is rewritten around a packaging failure this project had recorded imprecisely, and now asks you to verify your own package before grading. Section 7.1 gains the unreachable-branch instruction and 7.6 a second worked example, both from defects found since Rev 3. Section 9's counts are updated. New Section 13 and a new Part 8: a second withheld document, opened only after Parts 1–6 are saved. **Amended the same day, before issue:** Section 2's stop condition, which Rev 3 had extended to the two code bundles, fired on the package this revision ships with — the bundles state a prior verdict for seven of the forty-four rules. The condition is now scoped to the Constitution file, and what the bundles contain is counted and disclosed instead. Rev 4 had not been issued to any reviewer when this was corrected. **Amended a second time, still before issue:** that counted disclosure was itself wrong. It named three Critical-count phrases where the bundles hold five, two named AI parties where they hold three, and it covered only the two code bundles when a third package file, `version_control_history.md`, also carries prior-round filenames. It was found by running the package search a second time rather than by re-reading this document — which is the only way it was going to be found, since the error was in the counting and not in the prose. Rev 4 had still not been issued to any reviewer. |
 
 Revs 1, 2 and 3 are preserved unedited at `docs/audit_package/item16_review_instruction.md`,
 `item16_review_instruction_rev2.md` and `item16_review_instruction_rev3.md` in the same
@@ -98,17 +98,33 @@ because of what was in the package rather than what was in the code. A fourth on
 grounds would have been this document's fault. It was found by searching the built package,
 not by reading the instruction.
 
-Here is what is in them, counted rather than characterised:
+Here is what is in them, counted rather than characterised. The counts below were
+produced by searching the built package, not by recalling what was written into it, and
+the first version of this list was wrong in three places when checked that way:
 
 - **Seven of the forty-four rules have a prior verdict stated in a comment or docstring.**
   Items 3 and 6 are described as rated Critical; Item 18 as kept Compliant; Item 16 as
   having gone Non-compliant; Tier 3 items 3 and 4 as currently Non-compliant; and Tier 4
   item 2 as rated Compliant, with the previous auditor's reasoning quoted.
-- **Three separate counts of Critical findings** appear — "five Criticals", "four
-  Criticals", "the third Critical".
-- **Two prior reviewers are named**, Luna Pro and GLM, one with its conclusion about the
-  test suite quoted directly. Section 7.3 puts that same conclusion in front of you
-  deliberately, so it is disclosed twice rather than hidden once.
+- **Five distinct count-or-ordinal phrases for Critical findings** appear — "five
+  Criticals", "four Criticals", "the first Critical", "the third Critical" and "the last
+  Critical". Between them they tell you that a previous audit rated five items Critical
+  and that the fixes were sequenced. They do not tell you which five rules those were,
+  and you are not asked to reconstruct it.
+- **Three AI parties are named.** Luna Pro and GLM are prior reviewers, one of them with
+  its conclusion about the test suite quoted directly; Section 7.3 puts that same
+  conclusion in front of you deliberately, so it is disclosed twice rather than hidden
+  once. Claude is named as the party that proposed and implemented the fixes, twice as
+  having been overruled by the project owner. Treat all three the same way: as claims by
+  the party under audit about what someone else said, never as findings.
+- **A third file in the package carries prior-round filenames, and it is not a code
+  bundle.** `version_control_history.md` lists every file each commit touched, so it
+  shows `docs/audit_package/luna_pro_audit_report.md` and four `qwen_reasoning_*.txt` by
+  name. Neither reaches you before you grade: the audit report is withheld from this
+  package entirely, and the qwen transcripts are the Part 8 document of Section 13,
+  opened only after Parts 1-6 are saved. Knowing that those files exist is not the same
+  as reading them, and the stop condition above is scoped to the Constitution file — a
+  filename in a diff-stat does not trigger it.
 
 **Why it was not removed.** Section 4 makes the argument in full and it has not changed:
 the comments are part of the artifact, and stripping them would be the party under audit
