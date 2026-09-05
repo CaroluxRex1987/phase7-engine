@@ -1,11 +1,13 @@
 # Next step — read this first
 
-*Updated 5 September 2026. **Every Critical the Luna Pro audit raised has a fix that has
-landed. Nine patches have now gone in — four on 3 September, three on 4–5 September, and
-patches L and M on 5 September.** The section to read first is "Patches L and M" at the
-end of this file. The release gate is still shut, because "unresolved" means no fix has
-landed **and been re-audited**, and the re-audit has now failed three times without ever
-reaching a verdict. Suite: 270 passing, 0 failed, at `0603dff`.*
+*Updated 5 September 2026, late. **"What is left to fix" is empty. All eleven verified
+findings and both run-the-engine observations now have a fix that has landed.** Twelve
+patches — four on 3 September, three on 4–5 September, and L, M, O, P and Q on
+5 September. The section to read first is "Patches O, P and Q" at the end of this file.
+The release gate is **still shut**, because "unresolved" means no fix has landed **and
+been re-audited**, and the re-audit has now failed three times without ever reaching a
+verdict. What comes next is the pre-audit checklist, not the gate. Suite: 319 passing,
+0 failed, at `127d947`.*
 
 *Eleven defects found by an audit run that never produced a report, all verified against
 source, four fixed. Two more found by running the engine and reading the panel — including
@@ -947,14 +949,19 @@ boundary must not read the difference as a change in the market data.
 | ~~HTTP timeout, `DataFrame` inside the `try` (#c)~~ | done | patch M, 5 Sept |
 | ~~directory created at import (#d)~~ | done | patch M, 5 Sept |
 | ~~RSI/ATR smoothing (#5)~~ | done | patch L, 5 Sept — smoothing matched |
-| entry sub-scores vs printed total | small | panel only |
-| entry-zone fabrication (#4) | medium | two files; entry scoring must handle an absent zone |
-| correlation alignment (#a) | medium | changes a printed number, so the golden snapshot moves |
+| ~~entry sub-scores vs printed total~~ | done | patch Q, 5 Sept |
+| ~~entry-zone fabrication (#4)~~ | done | patch P, 5 Sept — plus the inverted display |
+| ~~correlation alignment (#a)~~ | done | patch O, 5 Sept |
 | ~~continuation floor (#b)~~ | done | ruling 3, patch I, 4 Sept |
 
-**Three left, and all three change printed numbers**, so each needs a golden re-baseline
-and a live run before it commits. Note that the table said "four or five patches" when it
-had seven rows; the count was never right and is not the thing to trust — the rows are.
+**The table is empty.** Five patches closed the seven rows in one day, three of them
+moving printed numbers and two of those requiring a golden re-baseline. Every one shipped
+with its prediction stated before the run and checked afterwards.
+
+Two counting notes, kept because they are the kind of error that hides work: this table
+once said "four or five patches" above seven rows, and on 5 September a session summary
+said "six queued fixes" against the same seven. The rows are the thing to trust, never
+the sentence above them.
 
 ### Before the audit can be sent — do not skip these
 
@@ -1003,8 +1010,13 @@ not a finished one.
 13. ✅ Patch C — the structure engine records its sub-routine failures instead of
     substituting the current price for a level it could not locate.
 14. ✅ Patch D — the panel no longer calls a directional macro neutral.
-15. ⬜ The remaining eight items, sized in "What is left to fix" above.
-16. ⬜ Rev 4, the package rebuild, and the re-audit itself.
+15. ✅ Patches I, J, K — rulings 1, 2 and 3, 4–5 September. See that section.
+16. ✅ Patches L, M, O, P, Q — the whole of "What is left to fix", 5 September. See
+    "Patches O, P and Q" at the end of this file, and "Patches L and M" above it.
+17. ⬜ **Next: the pre-audit checklist**, in "Before the audit can be sent" above. Five
+    items, and the first two are the ones that were skipped last time — rebuild the
+    package against current code, and commit everything before building it.
+18. ⬜ Rev 4 of the reviewer instruction, and the re-audit itself.
 
 ## Not on the roadmap, worth revisiting
 
@@ -1224,6 +1236,114 @@ Three rows, all of which change printed numbers:
 3. correlation alignment by timestamp (#a)
 
 Each needs its own patch, a golden re-baseline, and a live run before it commits.
+
+## Patches O, P and Q — the table is empty, 5 September 2026
+
+The last three rows, in three commits. Suite 270 → **319**.
+
+`2bbb40e` — patch O, finding (a), the BTC correlation
+`95b1002` — patch P, finding (4), the entry zone
+`127d947` — patch Q, the entry sub-scores
+
+Full reasoning is in the three commit messages. What belongs here is what outlives them.
+
+### Two of the three were latent, and that is the pattern of this whole batch
+
+Finding (a): correlation and beta were computed by pairing AERO and BTC **by position**
+after both series' timestamp indexes were discarded. In the ordinary case both fetches
+return the same 450 candles, so positional pairing IS timestamp pairing and the code is
+correct by accident. On the pinned fixtures the two indexes share all 450 timestamps and
+old and new agree to the last decimal — which is why the golden snapshot did not move.
+
+It stops being harmless the moment the series differ by one bar: a candle closing between
+two sequential API calls, an exchange gap, a stale feed. Measured on the fixtures by
+dropping one BTC bar from inside the window, all 31 positions: the printed correlation
+moved by a median of 0.105, beta by 0.135, and **the printed label changed in 4 of 31**.
+`n_observations` read 30 either way, so the panel's own evidence line gave no tell.
+
+Finding (4): the same shape. `close * 0.99 / close * 1.01` for a missing EMA pair is only
+ever reached when an EMA is missing, which does not happen on a healthy run. Five
+fabricated constants across two files, and the worst was not on the list — a close price
+that could not be read became `$1.00`, so a run with no data at all reported ACTIVE ENTRY
+ZONE, 30 of 30, against a price nobody read.
+
+**The lesson to carry, and it is now four for four:** the fabrications that survive
+audits are the unreachable ones. Item 9a, Finding 3, Finding 6 and Finding 4 all removed
+constants from paths that no healthy run takes. Unreachable is not safe — it is one edit
+to an invariant elsewhere from being the live path, and nothing tests it in the meantime.
+
+### The one that was neither latent nor listed
+
+Patch P also fixed a display defect found by **reading the panel**, not the code:
+`ENTRY ZONE : $0.4981 - $0.4918`, the lower bound above the upper, because `engine_core`
+put EMA_20 in `lower` and EMA_50 in `upper` unconditionally. `entry_model` swaps them
+before scoring, so the arithmetic was right the whole time and only the display was
+wrong. No test could have caught it; every test asserted on the numbers.
+
+Three of this project's defects have now been found by running the engine and looking at
+the output. That remains the cheapest detector it has.
+
+### What patch Q was actually about
+
+    ENTRY QUALITY : 45.18/100
+        |-- ... five components summing to 39
+
+Recorded on 2 September as "not wrong, unexplained". For a number an operator is meant to
+act on, unexplained is its own defect: they either work out the gap themselves or stop
+trusting the number.
+
+Three causes, none of them visible anywhere — sub-scores rounded for display while the
+total was not, three confluence multipliers applied after the sum, and a clip at 100. And
+a fourth thing the clip was hiding: **the five components add to 102, not 100**, while the
+docstring said 100 directly above the list. With full confluence a perfect setup reaches
+118.08 and loses the difference silently.
+
+The panel now prints the subtotal out of 102, the multiplier broken into its three
+factors, and a Clipped line when the clip actually fires. The column adds up.
+
+### A structural problem this exposed, recorded not fixed
+
+`signal_router.py` rebuilds the entry block **field by field**. Anything the engine adds
+that its list does not name is dropped before the panel or the decision log sees it —
+silently, with no error and no failing test. Patch Q's nine new fields vanished exactly
+that way on the first attempt; the reconciliation lines simply did not appear.
+
+The entry block's shape is now declared in four places: `entry_model`'s return,
+`engine_core`'s dict, `signal_router`'s rebuild, and `decision_contract`'s TypedDict.
+Four copies of one fact, and this is the defect class the project has recorded most
+often. Restructuring it is larger than any one finding warranted, so it is written down
+here instead of done quietly.
+
+### Mistakes made building these three
+
+- **A verify tree built on a stale base.** Patch O was first verified against a copy taken
+  before patch M landed and reported 279 tests instead of 291. The patch itself was fine
+  — M touches none of O's files — but the verification was not. Caught by the arithmetic,
+  not by remembering rule 35.
+- **Rule 30, twice more.** A panel assertion matched `SWING STRUCT`'s own "not located
+  this run", and another matched the panel *title* because it contains the words "ENTRY
+  QUALITY". Both were substring checks that could not see the shape of what they matched.
+  The rule was written on 3 September and has now been violated on 4, 5 and 5 September.
+  It is a candidate for a mechanical check, per rule 37.
+- **A test that passed against pre-fix code.** Patch Q's denominator check looked for
+  `"/30` — the literal preceded by a quote — which the old code never contained, because
+  the denominators sat inside f-strings. It was caught only because the negative control
+  came back eleven red and one green, and the green one was wrong. This is the vacuous
+  assertion from 3 September, and the negative control is the only reason it did not ship.
+
+### One more thing, observed and not chased
+
+During a full-suite run the sandbox's egress proxy logged two rejected CONNECTs to
+`api.mexc.com:443`. Every test that routes or fetches sets `base_url` to a dead local port
+first, and each was checked; the source was not identified. Recorded because a suite that
+can reach the internet is a suite whose result depends on the network.
+
+### What comes next
+
+Not the gate. The pre-audit checklist in "Before the audit can be sent", above — five
+items, and the first two are the ones skipped last time: rebuild the package against
+current code, and commit everything before building it. The Engineering Notes are still
+in arrears and now stop twelve patches back.
 
 ## Working practice
 
