@@ -354,6 +354,56 @@ def render_panel(decision):
         box_mid = f"========================================================================={reset}\n\n" if COLORAMA_AVAILABLE else "=========================================================================\n\n"
         divider = f"{dim}-------------------------------------------------------------------------{reset}\n" if COLORAMA_AVAILABLE else "-------------------------------------------------------------------------\n"
 
+        def _correlation_lines(btc, colorize_val):
+            """
+            AUDIT FINDING (a), 5 September 2026. These two lines were:
+
+                CORRELATION   : {label} ({correlation:+.2f}) over last {n} candles
+                BTC SENSITIVITY (beta): {beta:.2f}x
+
+            with both numbers passed through safe_float(..., 0.0). When the
+            relationship could not be measured, that printed
+
+                CORRELATION   : WEAK / NO CLEAR RELATIONSHIP (+0.00) over last 0 candles
+                BTC SENSITIVITY (beta): 0.00x
+
+            -- a stated finding about two assets, a coefficient, and a
+            sensitivity, from nothing. "over last 0 candles" was the only tell,
+            and it sits at the end of a sentence that has already made the
+            claim.
+
+            btc_context now returns NaN for an unmeasured relationship and
+            engine_core stores it as None, with n_observations at 0. Either is
+            enough to take this branch.
+            """
+            n_obs = int(btc.get("n_observations", 0) or 0)
+            correlation = btc.get("correlation")
+            beta = btc.get("beta")
+
+            unmeasured = (
+                n_obs <= 0
+                or correlation is None
+                or not math.isfinite(safe_float(correlation, float("nan")))
+            )
+
+            if unmeasured:
+                return (
+                    f"CORRELATION   : {colorize_val('NOT MEASURED')} "
+                    f"— AERO and BTC could not be paired by timestamp this run\n"
+                    f"BTC SENSITIVITY (beta): not measured\n"
+                )
+
+            beta_text = (
+                f"{safe_float(beta, 0.0):.2f}x"
+                if (beta is not None and math.isfinite(safe_float(beta, float("nan"))))
+                else "not measured"
+            )
+            return (
+                f"CORRELATION   : {colorize_val(btc.get('correlation_label', 'NOT MEASURED'))} "
+                f"({safe_float(correlation, 0.0):+.2f}) over last {n_obs} candles\n"
+                f"BTC SENSITIVITY (beta): {beta_text}\n"
+            )
+
         # BTC MARKET CONTEXT (new feature, V1) -- built as its own block
         # here so the conditional (available vs. not) stays readable,
         # rather than trying to branch inside the big f-string below.
@@ -369,9 +419,7 @@ def render_panel(decision):
                 f"BTC BIAS      : {colorize_val(btc.get('detailed', 'NEUTRAL'))}\n"
                 f"BTC REGIME    : {colorize_val(btc.get('regime', 'NEUTRAL STRUCTURE'))} | "
                 f"Vol: {colorize_val(btc.get('volatility', 'NORMAL'))}\n"
-                f"CORRELATION   : {colorize_val(btc.get('correlation_label', 'WEAK / NO CLEAR RELATIONSHIP'))} "
-                f"({safe_float(btc.get('correlation', 0.0)):+.2f}) over last {int(btc.get('n_observations', 0))} candles\n"
-                f"BTC SENSITIVITY (beta): {safe_float(btc.get('beta', 0.0)):.2f}x\n"
+                f"{_correlation_lines(btc, colorize_val)}"
                 f"BROAD MARKET STRESS: {colorize_val('YES' if btc.get('broad_market_stress') else 'No')}\n"
                 f"BTC-ADJUSTED CONFIDENCE: {safe_float(btc.get('btc_adjusted_confidence', 0.0)):.2f}/100 "
                 f"(vs {confidence_score:.2f}/100 unadjusted)\n"

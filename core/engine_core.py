@@ -775,9 +775,17 @@ class Phase7Engine:
                             "regime": btc_dynamic_regime,
                             "volatility": btc_volatility_mode,
                             "trend_health": float(btc_trend["trend_health"]),
-                            "correlation": correlation,
+                            # AUDIT FINDING (a), 5 September 2026. NaN means
+                            # "not measured" inside btc_context; None is how
+                            # this file already spells it in the record (see
+                            # risk_inputs' atr and structural_level below), and
+                            # it is what serialises to JSON null. n_observations
+                            # is the flag the panel and decision model gate on.
+                            "correlation": (
+                                float(correlation)
+                                if math.isfinite(correlation) else None),
                             "correlation_label": classify_correlation(correlation),
-                            "beta": beta,
+                            "beta": float(beta) if math.isfinite(beta) else None,
                             "broad_market_stress": classify_stress(btc_volatility_mode),
                             "n_observations": n_obs,
                         }

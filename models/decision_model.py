@@ -676,9 +676,25 @@ class DecisionModel:
         try:
             aero_score = _safe_float(bias.get("score"), 0.0)
             btc_score = _safe_float(btc_context.get("score"), 0.0)
-            correlation = _safe_float(btc_context.get("correlation"), 0.0)
-            correlation_label = str(btc_context.get("correlation_label", "WEAK / NO CLEAR RELATIONSHIP"))
+            # AUDIT FINDING (a), 5 September 2026. This was
+            # _safe_float(..., 0.0), so an unmeasured relationship arrived here
+            # as a correlation of exactly zero -- which is a measurement, and
+            # one that a real pair of independent assets produces. The
+            # arithmetic below happened to survive it (a zero correlation
+            # yields a zero adjustment), but the REASON STRING did not: it
+            # printed "AERO and BTC have a weak / no clear relationship
+            # (correlation +0.00 over the last 0 candles)" as a finding.
+            #
+            # correlation is None and n_obs is 0 when nothing was measured.
+            correlation_raw = btc_context.get("correlation")
+            correlation = _safe_float(correlation_raw, float("nan"))
             n_obs = int(btc_context.get("n_observations", 0) or 0)
+            correlation_measured = (
+                correlation_raw is not None
+                and n_obs > 0
+                and math.isfinite(correlation)
+            )
+            correlation_label = str(btc_context.get("correlation_label", "NOT MEASURED"))
             stress = bool(btc_context.get("broad_market_stress", False))
             btc_detailed = str(btc_context.get("detailed", "NEUTRAL"))
 
@@ -692,7 +708,13 @@ class DecisionModel:
             else:
                 agreement = 0
 
-            direction_adjustment = agreement * abs(correlation) * (abs(btc_score) / 100.0) * self.BTC_ADJUSTMENT_CAP
+            # AUDIT FINDING (a): an unmeasured correlation contributes
+            # nothing rather than contributing abs(nan). The stress penalty
+            # below does not depend on the pairing and still applies.
+            direction_adjustment = (
+                agreement * abs(correlation) * (abs(btc_score) / 100.0)
+                * self.BTC_ADJUSTMENT_CAP
+            ) if correlation_measured else 0.0
             stress_penalty = self.BTC_STRESS_PENALTY if stress else 0.0
             net_adjustment = direction_adjustment - stress_penalty
 
@@ -728,10 +750,25 @@ class DecisionModel:
             if not label.endswith("relationship"):
                 label = f"{label} relationship"
 
+            if correlation_measured:
+                relationship_phrase = (
+                    f"{asset} and BTC have a {label} (correlation "
+                    f"{correlation:+.2f} over the last {n_obs} candles)"
+                )
+            else:
+                # AUDIT FINDING (a). The sentence this replaces asserted a
+                # relationship and a coefficient. Saying which is missing is
+                # the point -- "no adjustment was made" without the reason
+                # reads as a decision rather than an absence.
+                relationship_phrase = (
+                    f"the {asset}/BTC relationship could not be measured this "
+                    f"run (the two series share no paired timestamps), so no "
+                    f"correlation adjustment was applied"
+                )
+
             reason = (
                 f"BTC-adjusted confidence: {btc_adjusted_confidence:.0f}/100 (vs {confidence:.0f}/100 unadjusted, "
-                f"never replacing it). {asset} and BTC have a {label} (correlation "
-                f"{correlation:+.2f} over the last {n_obs} candles), and {agree_phrase}."
+                f"never replacing it). {relationship_phrase}, and {agree_phrase}."
             )
             if stress:
                 reason += " BTC itself is in an elevated-volatility regime right now, a broad market-stress signal."
