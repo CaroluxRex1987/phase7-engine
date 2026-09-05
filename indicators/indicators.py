@@ -262,6 +262,15 @@ def add_technical_indicators(df: pd.DataFrame, inplace: bool = False):
     measurement is. Recorded so the distinction is deliberate rather than an
     oversight.
 
+    The RSI and ATR fallbacks make the same claim, and until 5 September 2026
+    it was not true of them. Both smoothed with a simple moving average where
+    pandas_ta uses Wilder's RMA, so "the same quantity by another route" was
+    a different quantity under the same column name — 15.3 RSI points and 1.8%
+    of ATR apart on this repo's own fixture. Audit Finding 5. Both now use
+    Wilder's smoothing; see the notes at each fallback. The distinction this
+    section draws is only worth drawing if the equivalence it rests on is
+    checked, so tests/test_no_fabricated_fallbacks.py checks it.
+
     RUNS THAT DEGRADE DO NOT HALT
 
     Viktor ruled on 29 August that a failed indicator degrades rather than
@@ -392,9 +401,34 @@ def add_technical_indicators(df: pd.DataFrame, inplace: bool = False):
         df["RSI"] = rsi
     except Exception as primary:
         try:
+            # AUDIT FINDING 5, 5 September 2026. These two lines used
+            # `.rolling(window=config.RSI_LENGTH).mean()` — a SIMPLE moving
+            # average of the gains and losses. pandas_ta's RSI smooths them
+            # with Wilder's RMA, which is a different average, so the "second
+            # route" this fallback claims to be was computing a different
+            # indicator under the same column name.
+            #
+            # Measured on this repo's pinned AEROUSDT 4h fixture (450 bars):
+            # on the final bar pandas_ta reads 69.14 and the SMA version read
+            # 84.45 — 15.3 points apart, across the 70 line that entry_model
+            # scores RSI extension against. The largest divergence anywhere in
+            # the frame was 38.9 points. Nothing reported it, because
+            # test_degraded_state asserts this path is NOT a degradation, on
+            # the stated grounds that it "recomputes the same quantity by
+            # another route". That claim was false. It is true now.
+            #
+            # Wilder's RMA is an EWM with alpha = 1/length and no adjustment.
+            # Same fixture, same bar: this version reads 69.140344 against
+            # pandas_ta's 69.140344. The two seed differently over the first
+            # bars — pandas_ta seeds from an SMA of the first `length` — so
+            # early values still differ; the gap is under 1e-6 by bar 216 of
+            # 450 and under 5.2e-8 across the last 200. The engine reads
+            # .iloc[-1] of a 300-bar frame, so the bar that decides is
+            # identical to about 1e-11.
             delta = df["close"].diff()
-            gain = delta.where(delta > 0, 0).rolling(window=config.RSI_LENGTH).mean()
-            loss = (-delta.where(delta < 0, 0)).rolling(window=config.RSI_LENGTH).mean()
+            _rsi_alpha = 1.0 / float(config.RSI_LENGTH)
+            gain = delta.where(delta > 0, 0).ewm(alpha=_rsi_alpha, adjust=False).mean()
+            loss = (-delta.where(delta < 0, 0)).ewm(alpha=_rsi_alpha, adjust=False).mean()
             rs = gain / loss.replace(0, np.nan)
             rsi = clean_series(100 - (100 / (1 + rs)), method="forward_fill")
             unusable = unusable_reason(rsi, "the manual RSI")
@@ -554,7 +588,28 @@ def add_technical_indicators(df: pd.DataFrame, inplace: bool = False):
             tr2 = (df["high"] - df["close"].shift(1)).abs()
             tr3 = (df["low"] - df["close"].shift(1)).abs()
             tr = pd.concat([tr1, tr2, tr3], axis=1).max(axis=1, skipna=True)
-            atr = clean_series(tr.rolling(window=config.ATR_LENGTH).mean(),
+            # AUDIT FINDING 5, 5 September 2026 — the same defect as the RSI
+            # fallback above, in the indicator where it costs the most. This
+            # was `tr.rolling(window=config.ATR_LENGTH).mean()`, a simple
+            # average of the true range; pandas_ta's ATR uses Wilder's RMA.
+            #
+            # On the pinned fixture the final bar read 0.01036334 against
+            # pandas_ta's 0.01055373 — 1.80% low, with a worst case of 29.8%
+            # earlier in the frame. ATR sets the stop distance and all three
+            # targets, so that is the risk plan measured with a different
+            # instrument, silently, on any run where pandas_ta's ATR failed.
+            #
+            # With Wilder's smoothing the final bar reads 0.01055373 — equal to
+            # pandas_ta to the printed precision. See the RSI note above for
+            # the seeding difference over the first bars.
+            #
+            # One mechanical consequence: `rolling(window=n)` left the first
+            # n-1 bars NaN and `ewm(adjust=False)` does not, so on this
+            # fallback path the column now carries values from bar 1. Only
+            # .iloc[-1] is read for the decision; the change is visible to
+            # anything that plots or slices the early frame.
+            atr = clean_series(tr.ewm(alpha=1.0 / float(config.ATR_LENGTH),
+                                      adjust=False).mean(),
                                method="forward_fill")
             unusable = unusable_reason(atr, "the manual true range")
             if unusable:

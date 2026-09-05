@@ -43,7 +43,30 @@ these are those four cases.
 import os
 import sys
 
+import pytest
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+# 5 SEPTEMBER 2026, found while running the suite in a pandas_ta-free
+# virtualenv — the second half of this project's own verification step, which
+# exists because a test that ERRORS at collection looks nothing like a test
+# that skips.
+#
+# This file errored. `macro_agreement` is a pure module-level function that
+# needs no market data library at all, but importing it pulls in
+# core.engine_core, which imports indicators.indicators, which imports
+# pandas_ta at module level. Two files errored this way and took the whole
+# collection down with them: `pytest` reported "2 errors" and ran NOTHING,
+# so the pandas_ta-free run could not report on any of the other 251 tests.
+#
+# importorskip turns that into the skip it should always have been. It does
+# not make the function importable without pandas_ta — that would mean
+# restructuring engine_core's imports, which is a larger change than the
+# defect warrants and is recorded here rather than done quietly.
+pytest.importorskip(
+    "pandas_ta",
+    reason="core.engine_core imports indicators.indicators, which imports "
+           "pandas_ta at module level. macro_agreement itself needs neither.")
 
 from core.engine_core import macro_agreement
 

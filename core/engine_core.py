@@ -596,22 +596,54 @@ class Phase7Engine:
                 return decision_object
 
             # 4. TREND HEALTH ENGINE
-            try:
-                trend = compute_trend_health(df_struct)
-                if not isinstance(trend, dict) or "trend_health" not in trend:
-                    raise ValueError("Trend health engine returned invalid format")
-                # SEQUENCE ITEM 9a: trend_health names the inputs it scored
-                # without. Those are degradations of this run, not of that
-                # module, so they join the same list.
-                degradation.extend(trend.get("degraded_inputs", []))
-            except Exception as e:
-                logger.error(f"Trend health analysis failed: {e}")
-                trend = {
-                    "trend_health": 50.0,
-                    "trend_exhaustion": False,
-                    "momentum_mode": "NEUTRAL",
-                    "momentum_divergence": False
+            #
+            # AUDIT FINDING 6 (the surviving fabrication constants), 5 September
+            # 2026. This stage used to wrap the call in a try whose handler
+            # substituted {"trend_health": 50.0, ...}. Three things were wrong
+            # with that, and they compound:
+            #
+            #   1. 50.0 is the exact centre of the scale. It is the value
+            #      sequence item 9a deleted from trend_health.py's OWN default,
+            #      for the reason recorded there — it is a reading a real
+            #      market can produce, so nothing downstream can tell it from a
+            #      measurement. Deleting it in the module and leaving a copy in
+            #      the caller left the fabrication one stage further out.
+            #   2. It could not run. compute_trend_health is total: every path
+            #      through it returns a dict containing "trend_health",
+            #      including its own `except`, which returns 0.0 and names the
+            #      failure in degraded_inputs. There is nothing that function
+            #      can do that reaches a handler here.
+            #   3. If it ever HAD run, it would not have degraded the run — it
+            #      would have killed it. The substitute dict has no
+            #      "trend_direction_sign", and the bias engine call below reads
+            #      that key by subscript OUTSIDE the try. The run would die of
+            #      a KeyError at the next stage, reported as neither a trend
+            #      failure nor a bias failure.
+            #
+            # A module breaking its own return contract is a defect in this
+            # program, not a condition of the market, so "degrade, don't halt"
+            # does not apply: there is no partial trend health to carry
+            # forward, and no honest number to carry it with. It is reported as
+            # the failure it is, in the same shape sections 2 and 3 already use.
+            trend = compute_trend_health(df_struct)
+            if not isinstance(trend, dict) or "trend_health" not in trend:
+                logger.error("Trend health engine returned an invalid format")
+                decision_object = {
+                    "symbol": symbol,
+                    "timeframe": timeframe,
+                    "error": (
+                        "Trend health analysis failed: compute_trend_health "
+                        "returned an invalid format. That is a contract "
+                        "violation in indicators/trend_health.py, not a market "
+                        "condition, so no substitute score is invented for it."
+                    ),
                 }
+                return decision_object
+
+            # SEQUENCE ITEM 9a: trend_health names the inputs it scored
+            # without. Those are degradations of this run, not of that
+            # module, so they join the same list.
+            degradation.extend(trend.get("degraded_inputs", []))
 
             # 5. BIAS ENGINE
             # Roadmap Layer 2: bias_engine.py's weighted blend now uses three
@@ -805,7 +837,35 @@ class Phase7Engine:
 
             # 8. RISK MODEL & VALIDATION ENGINE
             current_price = float(df_struct["close"].iloc[-1])
-            atr_val = float(df_struct["ATR"].iloc[-1]) if "ATR" in df_struct.columns else (current_price * 0.02)
+            # AUDIT FINDING 6, 5 September 2026. This line ended in
+            #     ... else (current_price * 0.02)
+            # — the same flat 2%-of-price constant sequence item 9a removed
+            # from indicators.py and Finding 3 removed from entry_model.py,
+            # still alive in the third consumer of the ATR column. On this
+            # repo's pinned fixture the real ATR is 0.010554 and that
+            # substitute is 0.016035: a 52% overstatement of how far this
+            # instrument moves, and it sets the stop distance and all three
+            # targets.
+            #
+            # It was also unreachable, which is how it survived two passes that
+            # deleted its siblings. Section 2 above returns an error object
+            # when ATR is absent from `df`, and structure.py's
+            # calculate_structure works on a .copy() of that frame, so ATR is
+            # present in df_struct on every path that reaches this line.
+            #
+            # Unreachable is not the same as safe: it is one edit to either of
+            # those two facts away from being the live path. The invariant is
+            # asserted rather than silently substituted.
+            if "ATR" not in df_struct.columns:
+                raise ValueError(
+                    "ATR is absent from the structure frame. Section 2 "
+                    "guarantees it on df and structure.py returns a copy of "
+                    "that frame, so reaching this means one of those two "
+                    "invariants has broken. No stop distance is invented in "
+                    "its place — see section 2 for why a risk plan has no "
+                    "degraded form."
+                )
+            atr_val = float(df_struct["ATR"].iloc[-1])
 
             atr_stop, t1, t2, t3 = self.risk_model.calculate_stop_targets(
                 detailed_bias=detailed_bias,
