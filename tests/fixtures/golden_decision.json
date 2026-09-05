@@ -40,8 +40,8 @@
     "short_signal": false,
     "struct_pts": 4.0,
     "vwma_pts": 10.0,
-    "zone_lower": 0.77559759,
-    "zone_upper": 0.76017364
+    "zone_lower": 0.76017364,
+    "zone_upper": 0.77559759
   },
   "exit": {
     "action": "NO-TRADE (RISK TOO HIGH)",

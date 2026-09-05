@@ -354,6 +354,42 @@ def render_panel(decision):
         box_mid = f"========================================================================={reset}\n\n" if COLORAMA_AVAILABLE else "=========================================================================\n\n"
         divider = f"{dim}-------------------------------------------------------------------------{reset}\n" if COLORAMA_AVAILABLE else "-------------------------------------------------------------------------\n"
 
+        def _entry_zone_lines(entry, c_cyan, reset):
+            """
+            AUDIT FINDING (4), 5 September 2026. These two lines were:
+
+                ENTRY ZONE    : ${zone_lower:.4f} - ${zone_upper:.4f}
+                ZONE DISTANCE : {distance_from_zone:.2f}% away from zone
+
+            with every value passed through safe_float(..., 0.0). A run that
+            could not locate the zone printed "$0.0000 - $0.0000" and
+            "0.00% away from zone" -- price sitting exactly on a zone that was
+            never found. Zero is a price, and 0.00% is the strongest possible
+            statement this line can make.
+
+            entry_model now returns NaN for both when there is no zone, which
+            is how this engine already spells "not located" (structure.py's
+            hvn, lvn and swing_struct). Printed as such.
+            """
+            lower = safe_float(entry.get("zone_lower"), float("nan"))
+            upper = safe_float(entry.get("zone_upper"), float("nan"))
+            distance = safe_float(entry.get("distance_from_zone"), float("nan"))
+
+            if math.isfinite(lower) and math.isfinite(upper):
+                zone_line = f"ENTRY ZONE    : {c_cyan}${lower:.4f} - ${upper:.4f}{reset}\n"
+            else:
+                zone_line = (
+                    f"ENTRY ZONE    : not located "
+                    f"(EMA_20/EMA_50 unavailable this run)\n"
+                )
+
+            if math.isfinite(distance):
+                distance_line = f"ZONE DISTANCE : {distance:.2f}% away from zone\n"
+            else:
+                distance_line = "ZONE DISTANCE : not measured\n"
+
+            return zone_line + distance_line
+
         def _correlation_lines(btc, colorize_val):
             """
             AUDIT FINDING (a), 5 September 2026. These two lines were:
@@ -463,8 +499,7 @@ def render_panel(decision):
             f"MACRO TREND: {colorize_val(macro_bias)}\n\n"
             f"{divider}"
             f"CURRENT PRICE : {ORANGE}${current_price:.4f}{reset}\n"
-            f"ENTRY ZONE    : {c_cyan}${safe_float(entry.get('zone_lower', 0)):.4f} - ${safe_float(entry.get('zone_upper', 0)):.4f}{reset}\n"
-            f"ZONE DISTANCE : {safe_float(entry.get('distance_from_zone', 0.0)):.2f}% away from zone\n"
+            f"{_entry_zone_lines(entry, c_cyan, reset)}"
             f"STATUS        : {colorize_val(entry.get('entry_status', 'ACTIVE ENTRY ZONE'))}\n"
             f"{swing_struct_line}\n"
             f"STOP LOSS     : {c_red}${stop_loss:.4f}{reset}\n"

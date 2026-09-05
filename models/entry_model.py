@@ -1,6 +1,23 @@
 import numpy as np
 from typing import Dict, Any, Tuple, Optional
 
+# AUDIT FINDING (4), 5 September 2026. What a sub-score is worth when the
+# thing it scores could not be measured.
+#
+# Named rather than written as a bare 15.0 in four places, because this is a
+# policy and it should be possible to find every application of it. The policy
+# is this file's own, established by Finding 3 on 1 September: a missing input
+# leaves its component at a neutral value and does NOT lower the score by
+# itself. Lowering conviction is the degraded-run flag's job -- engine_core
+# records the missing input, and a run carrying degraded inputs cannot
+# authorise a trade regardless of what it scored. Scoring the absence twice
+# would make a degraded run look like a bad setup instead of an unmeasured one.
+#
+# Both are the midpoint of their component's reachable range, so neither can
+# be mistaken for one of the bands below it.
+ZONE_POINTS_NOT_MEASURED = 15.0     # of 30
+ATR_POINTS_NOT_MEASURED = 15.0      # of 25
+
 def calculate_entry_quality(
     df: Optional[Any],
     zone_lower: float,
@@ -35,7 +52,11 @@ def calculate_entry_quality(
         "rsi_pts": 0,
         "struct_pts": 0,
         "entry_status": "NO DATA",
-        "distance_from_zone": 0.0
+        # AUDIT FINDING (4), 5 September 2026: this was 0.0, which the panel
+        # printed as "0.00% away from zone" -- price sitting exactly on a zone
+        # that does not exist, on a run that had no data at all. NaN is how
+        # this engine spells "not located"; panel_render prints it as such.
+        "distance_from_zone": float("nan")
     }
 
     if df is None or getattr(df, "empty", True):
@@ -51,39 +72,89 @@ def calculate_entry_quality(
         except (ValueError, TypeError):
             return fallback
 
-    close = safe_float(df["close"].iloc[-1] if "close" in df.columns and not df["close"].empty else None, 1.0)
-    zone_lower = safe_float(zone_lower, close * 0.99)
-    zone_upper = safe_float(zone_upper, close * 1.01)
+    # AUDIT FINDING (4), 5 September 2026. These three lines were:
+    #
+    #     close      = safe_float(..., 1.0)
+    #     zone_lower = safe_float(zone_lower, close * 0.99)
+    #     zone_upper = safe_float(zone_upper, close * 1.01)
+    #
+    # Three fabrications in three lines, and the worst of them is the first: a
+    # close price that could not be read became $1.00, and every distance,
+    # ratio and percentage below is measured against it.
+    #
+    # The zone pair is the finding proper. A missing zone became a band one
+    # percent either side of the last price -- a number with no relationship
+    # to this instrument, to its EMAs, or to anything that was measured. It
+    # then scored the 30-point EMA position component AND, through
+    # dist_to_mid, the 25-point ATR distance component: 55 of 100 derived from
+    # a constant. engine_core supplied the same fabrication from the other
+    # side, which is why this took two files to fix.
+    close = safe_float(
+        df["close"].iloc[-1]
+        if "close" in df.columns and not df["close"].empty else None,
+        float("nan"))
 
-    # Ensure zone bounds are logical
-    if zone_lower > zone_upper:
+    if not np.isfinite(close) or close <= 0:
+        # No price, no distances, no percentages. This is what
+        # default_response exists for, and it was being bypassed by the 1.0.
+        return dict(default_response)
+
+    zone_lower = safe_float(zone_lower, float("nan"))
+    zone_upper = safe_float(zone_upper, float("nan"))
+    zone_available = bool(np.isfinite(zone_lower) and np.isfinite(zone_upper))
+
+    # Ensure zone bounds are logical. Kept as a guard even though engine_core
+    # now orders them before calling: this function is public and takes the
+    # two bounds as separate arguments, so it cannot assume its caller did.
+    if zone_available and zone_lower > zone_upper:
         zone_lower, zone_upper = zone_upper, zone_lower
 
     # ============================================================
     # 1. EMA ZONE POSITION SCORING (Max 30)
     # ============================================================
-    zone_mid = (zone_lower + zone_upper) / 2.0
-    zone_width = abs(zone_upper - zone_lower)
-
-    if zone_width <= 1e-8 or not np.isfinite(zone_width):
-        zone_width = close * 0.01  # Default to 1% of current price
-
-    dist_to_mid = abs(close - zone_mid)
-
-    if dist_to_mid <= zone_width:
-        ema_pos_pts = 30
-        entry_status = "ACTIVE ENTRY ZONE"
-    elif dist_to_mid <= zone_width * 2.0:
-        ema_pos_pts = 20
-        entry_status = "NEAR ZONE"
-    elif dist_to_mid <= zone_width * 3.5:
-        ema_pos_pts = 10
-        entry_status = "APPROACHING ZONE"
+    if not zone_available:
+        # dist_to_mid is what section 2 measures the ATR distance with, so an
+        # absent zone neutralises that component too. Set to NaN here and
+        # handled there; a number would be a distance from a zone that was
+        # never located.
+        dist_to_mid = float("nan")
+        ema_pos_pts = ZONE_POINTS_NOT_MEASURED
+        entry_status = "ZONE NOT AVAILABLE"
+        distance_from_zone = float("nan")
     else:
-        ema_pos_pts = 5
-        entry_status = "AWAY FROM ZONE"
+        zone_mid = (zone_lower + zone_upper) / 2.0
+        zone_width = abs(zone_upper - zone_lower)
+        dist_to_mid = abs(close - zone_mid)
+        distance_from_zone = float((dist_to_mid / close) * 100.0)
 
-    distance_from_zone = float((dist_to_mid / close) * 100.0)
+        if zone_width <= 1e-8:
+            # AUDIT FINDING (4), the third fabrication: this line was
+            #     zone_width = close * 0.01   # Default to 1% of current price
+            # A zero-width zone is a REAL state -- the two EMAs have crossed
+            # and coincide -- and one percent of price is not a measurement of
+            # it. Substituting a width also silently re-scaled all three bands
+            # below, which are multiples of that width.
+            #
+            # There is no proportional band to place price in when the zone has
+            # no width, so the component is not scored. Whether a coincident
+            # pair of EMAs should instead be banded on distance as a
+            # PERCENTAGE of price is a design question, not a defect, and is
+            # left open rather than decided here. distance_from_zone above is
+            # still real and still printed.
+            ema_pos_pts = ZONE_POINTS_NOT_MEASURED
+            entry_status = "ZONE HAS NO WIDTH"
+        elif dist_to_mid <= zone_width:
+            ema_pos_pts = 30
+            entry_status = "ACTIVE ENTRY ZONE"
+        elif dist_to_mid <= zone_width * 2.0:
+            ema_pos_pts = 20
+            entry_status = "NEAR ZONE"
+        elif dist_to_mid <= zone_width * 3.5:
+            ema_pos_pts = 10
+            entry_status = "APPROACHING ZONE"
+        else:
+            ema_pos_pts = 5
+            entry_status = "AWAY FROM ZONE"
 
     # ============================================================
     # 2. ATR DISTANCE SCORING (Max 25)
@@ -102,7 +173,11 @@ def calculate_entry_quality(
     atr = safe_float(df["ATR"].iloc[-1] if "ATR" in df.columns and not df["ATR"].empty else None,
                      float("nan"))
 
-    if np.isfinite(atr) and atr > 0:
+    # AUDIT FINDING (4): dist_to_mid is NaN when the zone could not be
+    # located, and this component measures a distance TO that zone. Without
+    # one there is nothing to divide by ATR. Previously unreachable, because
+    # the zone was always fabricated into existence above.
+    if np.isfinite(atr) and atr > 0 and np.isfinite(dist_to_mid):
         try:
             atr_ratio = dist_to_mid / atr
             if np.isfinite(atr_ratio):
@@ -110,11 +185,11 @@ def calculate_entry_quality(
                 atr_dist_pts = float(25 * np.exp(-atr_ratio * 0.5))
                 atr_dist_pts = max(5.0, min(25.0, atr_dist_pts))  # Bounded between 5-25
             else:
-                atr_dist_pts = 15.0
+                atr_dist_pts = ATR_POINTS_NOT_MEASURED
         except (ZeroDivisionError, OverflowError):
-            atr_dist_pts = 15.0
+            atr_dist_pts = ATR_POINTS_NOT_MEASURED
     else:
-        atr_dist_pts = 15.0
+        atr_dist_pts = ATR_POINTS_NOT_MEASURED
 
     # ============================================================
     # 3. VWMA DISTANCE SCORING (Max 20)

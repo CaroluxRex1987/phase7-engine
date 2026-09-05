@@ -803,8 +803,55 @@ class Phase7Engine:
                 macro_bias=macro_bias,
             )
 
-            entry_zone_lower = float(df_struct["EMA_20"].iloc[-1]) if "EMA_20" in df_struct.columns else float(df_struct["close"].iloc[-1] * 0.99)
-            entry_zone_upper = float(df_struct["EMA_50"].iloc[-1]) if "EMA_50" in df_struct.columns else float(df_struct["close"].iloc[-1] * 1.01)
+            # AUDIT FINDING (4), 5 September 2026. These two lines were:
+            #
+            #   entry_zone_lower = float(EMA_20) if present else close * 0.99
+            #   entry_zone_upper = float(EMA_50) if present else close * 1.01
+            #
+            # TWO defects, and only one of them was on the list.
+            #
+            # The listed one: a missing EMA produced a band one percent either
+            # side of the last price. That is not a measurement of anything --
+            # not of this instrument, not of its moving averages -- and it fed
+            # the 30-point EMA position score, the 25-point ATR distance score
+            # (which measures distance to this zone), the entry status and the
+            # ZONE DISTANCE percentage. entry_model.py held the mirror image
+            # of the same constants, which is why the fix takes two files.
+            #
+            # The unlisted one, seen on the live run at fa68197 and recorded
+            # in PHASE7_NEXT: EMA_20 went to `lower` and EMA_50 to `upper`
+            # unconditionally. In an uptrend the fast EMA is ABOVE the slow
+            # one, so the panel printed
+            #
+            #     ENTRY ZONE    : $0.4981 - $0.4918
+            #
+            # with the lower bound above the upper. entry_model swaps them
+            # before scoring, so the arithmetic was right the whole time and
+            # only the display was wrong -- which is why no test caught it and
+            # why reading the panel did. The bound named "lower" is now the
+            # lower of the two.
+            if ("EMA_20" in df_struct.columns and "EMA_50" in df_struct.columns):
+                ema_fast = float(df_struct["EMA_20"].iloc[-1])
+                ema_slow = float(df_struct["EMA_50"].iloc[-1])
+                if math.isfinite(ema_fast) and math.isfinite(ema_slow):
+                    entry_zone_lower = min(ema_fast, ema_slow)
+                    entry_zone_upper = max(ema_fast, ema_slow)
+                else:
+                    entry_zone_lower = float("nan")
+                    entry_zone_upper = float("nan")
+                    degradation.append(
+                        "entry zone (EMA_20/EMA_50 present but not finite)")
+            else:
+                # NaN, not a fabricated band. entry_model scores the position
+                # component neutrally and reports ZONE NOT AVAILABLE, and the
+                # absence is named here so the run reports itself degraded --
+                # which is what stops it authorising a trade.
+                entry_zone_lower = float("nan")
+                entry_zone_upper = float("nan")
+                missing = [c for c in ("EMA_20", "EMA_50")
+                           if c not in df_struct.columns]
+                degradation.append(
+                    f"entry zone ({'/'.join(missing)} unavailable)")
 
             # A6-adjacent FIX: calculate_entry_quality() accepts macro_bias and
             # trade_direction to apply its macro-confluence multiplier, but neither
