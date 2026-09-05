@@ -3,11 +3,12 @@
 *Updated 5 September 2026, late. **"What is left to fix" is empty. All eleven verified
 findings and both run-the-engine observations now have a fix that has landed.** Twelve
 patches — four on 3 September, three on 4–5 September, and L, M, O, P and Q on
-5 September. The section to read first is "Patches O, P and Q" at the end of this file.
-The release gate is **still shut**, because "unresolved" means no fix has landed **and
-been re-audited**, and the re-audit has now failed three times without ever reaching a
-verdict. What comes next is the pre-audit checklist, not the gate. Suite: 319 passing,
-0 failed, at `127d947`.*
+5 September. The section to read first is "The pre-audit checklist" at the end of this
+file. The release gate is **still shut**, because "unresolved" means no fix has landed
+**and been re-audited**, and the re-audit has now failed three times without ever reaching
+a verdict. The pre-audit checklist is now closed on all six items, and exactly one thing
+stands between here and sending the package: Viktor rules which model runs the re-audit.
+Suite: 319 passing, 0 failed, at `c4d6969`. HEAD `1083dc5`, pushed.*
 
 *Eleven defects found by an audit run that never produced a report, all verified against
 source, four fixed. Two more found by running the engine and reading the panel — including
@@ -1361,10 +1362,14 @@ items, and the first two are the ones skipped last time: rebuild the package aga
 current code, and commit everything before building it. The Engineering Notes are still
 in arrears and now stop twelve patches back.
 
-## The pre-audit checklist — five of six closed, 5 September 2026
+## The pre-audit checklist — all six closed, 5 September 2026
 
 `ab531d7` — the Engineering Notes brought current, entries #57–#70
 `1489b43` — rev 4 of the reviewer instruction, and the builder pointed at round 3
+`5c0d42d` — Section 2 scoped to the Constitution file, entries #71–#72
+`2674d7c` — the regenerated round 3 manifest committed
+`c4d6969` — rev 4's own disclosure corrected, after item 6 was run against the package
+`1083dc5` — the manifest rebuilt at `c4d6969`, all 71 hashes unchanged
 
 Suite 319 throughout; none of this touches engine code.
 
@@ -1388,7 +1393,9 @@ comparison measures the review process rather than marking it.
 **Item 2, commit first.** Both commits landed on a clean tree, so the manifest records a
 HEAD that actually contains what it packaged.
 
-**Item 6, search the package.** New, and it is the reason item 1 is not closed yet.
+**Item 6, search the package.** New. Run for the first time against
+`round3/UPLOAD_THESE/`, and it found three errors in rev 4's own disclosure — see below.
+It is now a standing pre-send step rather than a one-off.
 
 ### The builder now writes round 3
 
@@ -1419,6 +1426,82 @@ over is silent — a reviewer that reads "Item 18, kept Compliant" and grades It
 Compliant produces a report that looks entirely ordinary. Rule 28's test, applied to the
 audit process rather than to the code.
 
+### Item 6, first run — what the search found
+
+The package is clean where it matters, and this was checked rather than assumed:
+
+- The Constitution audit copy is 29 pages with 29 form feeds and no Version History row
+  recording an outcome. Every Compliant / Non-compliant / Unknown in it is rubric text
+  defining the schema. The 38-to-29-page truncation holds.
+- `MANIFEST.md` against the two bundles: 71 files in both, path lists identical, and all
+  71 SHA-256 values recomputed from the bundle bytes and matching. The manifest is not a
+  claim taken on trust.
+- The seven-rules-with-a-prior-verdict count is correct as stated.
+- `execution_transcripts.md` carries no reviewer name, no verdict, no count.
+
+Rev 4's counted disclosure was wrong in three places, all fixed in `c4d6969`:
+
+1. **Five** distinct Critical-count phrases in the bundles, not three. "the first
+   Critical" and "the last Critical" were missed.
+2. **Three** named AI parties, not two. Claude is named in both bundles, twice as having
+   been overruled by Viktor — the implementing party rather than a reviewer, which is why
+   the sentence did not cover it, and the same class of exposure regardless.
+3. The disclosure covered only the two code bundles. `version_control_history.md` is a
+   third file in the package and names `luna_pro_audit_report.md` and the four
+   `qwen_reasoning_*.txt` by filename. Neither's contents reach the reviewer before
+   grading, and a filename in a diff-stat does not trip the stop condition — but leaving
+   it undisclosed, after three attempts died on the package, was not a risk worth taking.
+
+**Found by grepping the artifact, not by re-reading the instruction**, which could not
+have found it: the prose was internally consistent and the error was in the counting.
+That is the second time in two days the artifact caught what reading did not, and it is
+the argument for item 6 being standing rather than a one-off.
+
+### Found by the search, and deliberately not fixed
+
+Two code comments cite `claude/phase7-rulings.md` as where a ruling is recorded — once in
+the source bundle, once in a test docstring. There is no `claude/` directory in the
+repository. It is a traceability claim pointing at nothing, and it goes to the auditor as
+it stands: the ruling of 5 September defers moving the audit narrative out of code
+comments until after the re-audit, on the grounds that editing the codebase now hands the
+auditor an artifact groomed for its grader. Correcting this would be exactly that.
+
+Separately, from the generated history and **not verified by running git**:
+`version_control_history.md` reports 117 commits authored "Your Name" on 58 and "unknown"
+on 59. No commit on the branch carries a configured identity. The builder prints `%an`
+verbatim, so this is a fact about the repository rather than a defect in the package.
+Left alone — rewriting authorship across 117 commits to look better for an audit is worse
+than the finding.
+
+### Ruled 5 September: round3/README.md gets no .gitignore exception
+
+Claude's call, delegated. `MANIFEST.md` is excepted from `round*/*` because it is the
+provenance record — it names the commit the bundle was built from and hashes every file
+in it. `README.md` carries no provenance the manifest does not: its build timestamp and
+commit hash are the manifest's first two lines, and every sentence of its prose is
+already tracked, in `docs/build/build_audit_package.py` lines 550–562, where it is
+generated. So the "which folder to upload" note does reach the repo — as the builder
+source that writes it. Committing the README would store the same content a third time
+and add a must-not-be-hand-edited file to a repository whose tracked files exist to be
+edited.
+
+The safeguard against uploading the wrong folder was never that note in any case. It is
+the `UPLOAD_THESE/` and `PART7_LATER/` split, which puts the safe action in the directory
+name, and the builder emptying both folders on every build so a stale file cannot survive
+into a package.
+
+### A prediction that did not hold
+
+The rev 4 commit predicted the commit count would go 117 to 118. It went to 119. `2674d7c`
+had landed at 12:37, between the 10:29 build and the patch — the manifest commit, the
+checklist item that was owed and had already been done. The 117 came from the
+`version_control_history.md` built at 10:29 and was stale by the time it was used.
+
+A number read off a generated artifact and treated as current. The same shape as Entry
+#71's withdrawn claim about file modification times, and as the finding that the record
+of the audit attempts had to be corrected from the provider's bill. Recorded because it
+is the third instance, not the first.
+
 ### The record corrected from the bill
 
 Rule 29 a second time. The provider log for 2 September reads Qwen 10:53, Qwen 15:38,
@@ -1438,10 +1521,16 @@ record describes when leaving its spent status undecided.
 
 ### What comes next
 
-1. Rebuild round 3 against the corrected rev 4, search it, then commit it.
-2. Viktor rules which model runs the re-audit. The Qwen-versus-Qwen confound on the
-   Part 8 comparison is in the message of 5 September and is not resolved.
-3. Send it. The gate opens on a clean report, not a finished one.
+The checklist is closed. Two steps remain, and the first is a decision.
+
+1. **Viktor rules which model runs the re-audit.** The Qwen-versus-Qwen confound on the
+   Part 8 comparison is not resolved: the eleven prior observations in
+   `prior_observations_PART8_ONLY.md` came from Qwen, so sending round 3 to Qwen again
+   asks a model to reconcile its own family's earlier reasoning. His decision, and his
+   practice is to write his own position first and have it argued against.
+2. **Send it.** Everything in `round3/UPLOAD_THESE/`, and nothing else. `PART7_LATER/`
+   goes only after Parts 1–6 are written and saved. The gate opens on a clean report,
+   not a finished one.
 
 ## Working practice
 
