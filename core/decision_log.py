@@ -143,6 +143,11 @@ FINGERPRINTED_MODULES = {
     # these on the RiskModel INSTANCE, where module_snapshot() cannot
     # see them, so there was nothing here to name. The constants moved
     # to module level in the same change that added this entry.
+    # 5 September 2026: MIN_ACTION_BIAS decides whether a directional lean is
+    # strong enough to act on. Changing it changes which runs authorise a
+    # trade, so it belongs inside run_hash by the same argument that put the
+    # risk multipliers there.
+    "models.decision_model": ["MIN_ACTION_BIAS"],
     "models.risk_model": [
         "ATR_STOP_MULT", "TARGET1_MULT", "TARGET2_MULT", "TARGET3_MULT",
         "VOL_MULT_HIGH", "VOL_MULT_LOW", "VOL_MULT_EXTREME",

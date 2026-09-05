@@ -50,14 +50,26 @@ from models.risk_model import RiskModel
 HIGH_CONVICTION_TREND_HEALTH = 80.0
 HIGH_CONVICTION_ENTRY_SCORE = 75.0
 
+# 5 SEPTEMBER 2026: these fixtures never supplied a bias SCORE, only the
+# label -- which worked because _determine_final_action read only the label.
+# Viktor's ruling of that date added MIN_ACTION_BIAS, so an absent score now
+# reads as 0 and every case here returned WAIT.
+#
+# Completing the fixture rather than relaxing the floor: a decision object
+# with no bias score is malformed, and refusing to act on one is the correct
+# behaviour. These tests are about the risk regime gating AGGRESSIVE, so the
+# score just needs to be past the floor and out of their way.
+HIGH_CONVICTION_BIAS_SCORE = 60.0
+
 
 def _final_action(raw_bias, risk_regime, risk_valid=True,
                    long_signal=False, short_signal=False, macro_bias="NEUTRAL"):
     reasons = []
     action = DecisionModel()._determine_final_action(
-        bias={"raw": raw_bias},
+        bias={"raw": raw_bias, "score": HIGH_CONVICTION_BIAS_SCORE},
         trend={
             "trend_health": HIGH_CONVICTION_TREND_HEALTH,
+            "trend_direction_sign": 1 if raw_bias == "BULLISH" else -1,
             "momentum_divergence": False,
         },
         entry={

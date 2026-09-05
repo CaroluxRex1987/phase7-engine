@@ -15,6 +15,34 @@ def _safe_float(value: Any, default: float = 0.0) -> float:
         return default
 
 
+# 5 SEPTEMBER 2026 -- VIKTOR'S RULING, and the mechanism chosen for it.
+#
+# HIS RULING: a directional action must require a minimum bias strength.
+# _determine_final_action read only the raw_bias STRING, so a bias_score of 21
+# -- barely past bias_engine's RAW_BIAS_THRESHOLD of 20 -- could return
+# AGGRESSIVE LONG, printed directly above CONFIDENCE 21/100.
+#
+# THE MECHANISM. A separate constant rather than raising RAW_BIAS_THRESHOLD to
+# 30, because the two answer different questions and both are needed:
+#
+#   RAW_BIAS_THRESHOLD (20)  does the blend lean far enough to CALL a side?
+#                            It sets the label, and risk_model builds the plan
+#                            shape from the sign either way.
+#   MIN_ACTION_BIAS    (30)  is that lean strong enough to ACT on?
+#
+# Raising the first to 30 would have collapsed both into one number and lost
+# the distinction between leaning bullish and being bullish enough to trade.
+# The risk of two thresholds is the item-14 defect -- a constant nothing reads
+# -- so tests/test_minimum_bias_strength.py holds both to being live, and this
+# one is fingerprinted in core/decision_log.py so a change to it changes
+# run_hash.
+#
+# 30 matches bias_engine's CONFIRMED threshold, where the state machine
+# already draws the line between a lean and a conviction. Viktor named that
+# value; making it a separate constant is Claude's call.
+MIN_ACTION_BIAS = 30.0
+
+
 class DecisionModel:
     """
     Phase-7 central decision seam (Roadmap Layer 1: "Core Architecture").
@@ -309,6 +337,23 @@ class DecisionModel:
 
             raw_bias = str(bias.get("raw", "NEUTRAL"))
 
+            # 5 SEPTEMBER 2026: the magnitude, not only the label.
+            bias_strength = abs(_safe_float(bias.get("score"), 0.0))
+
+            # 5 SEPTEMBER 2026 -- VIKTOR'S RULING. trend_health is an UNSIGNED
+            # magnitude: a strong DOWNtrend also scores 90. The reason strings
+            # below read "Bias is bullish with strong trend health (90/100)",
+            # offering a direction-blind number as support for a direction --
+            # the same 90 would have appeared if the trend ran the other way.
+            #
+            # trend_direction_sign arrived on 4 September for exactly this
+            # reason. Used here, the sentence can no longer imply support the
+            # number does not give: it names the direction beside the magnitude
+            # and lets the reader see when the two disagree.
+            trend_sign = int(_safe_float(trend.get("trend_direction_sign"), 0.0))
+            _dir_word = "up" if trend_sign > 0 else ("down" if trend_sign < 0 else "flat")
+            trend_note = f"trend strength {trend_health:.0f}/100 ({_dir_word})"
+
             # VIKTOR'S RULING, 2 September 2026: bias is the sole direction
             # source. This block used to read
             #
@@ -352,32 +397,40 @@ class DecisionModel:
                 )
                 return "WAIT"
 
+            # VIKTOR'S RULING, 5 September 2026: a lean is not a case.
+            if raw_bias in ("BULLISH", "BEARISH") and bias_strength < MIN_ACTION_BIAS:
+                reasons.append(
+                    f"Bias leans {raw_bias.lower()} but only at {bias_strength:.0f}/100, "
+                    f"below the {MIN_ACTION_BIAS:.0f} needed to act on a direction — WAIT."
+                )
+                return "WAIT"
+
             if raw_bias == "BULLISH":
                 if trend_health >= 75 and entry_score >= 70 and not divergence:
                     if entry_active and aggressive_allowed:
                         reasons.append(
-                            f"Bias is bullish with strong trend health ({trend_health:.0f}/100) and a "
+                            f"Bias is bullish, {trend_note}, with a "
                             f"high-quality, active entry ({entry_score:.0f}/100), with no momentum divergence "
                             f"and a {risk_regime.lower()} — AGGRESSIVE LONG."
                         )
                         return "AGGRESSIVE LONG"
                     if entry_active and not aggressive_allowed:
                         reasons.append(
-                            f"Bias is bullish with strong trend health ({trend_health:.0f}/100) and a "
+                            f"Bias is bullish, {trend_note}, with a "
                             f"high-quality, active entry ({entry_score:.0f}/100) would otherwise qualify as "
                             f"AGGRESSIVE, but the risk regime is {risk_regime} — directional conviction does "
                             f"not override risk, so this stays LONG."
                         )
                         return "LONG"
                     reasons.append(
-                        f"Bias is bullish with strong trend health ({trend_health:.0f}/100) and a high-quality "
+                        f"Bias is bullish, {trend_note}, with a high-quality "
                         f"entry ({entry_score:.0f}/100), with no momentum divergence — LONG."
                     )
                     return "LONG"
                 elif trend_health >= 50 and macro_bias == "BULLISH":
                     reasons.append(
-                        f"Bias is bullish and the broader macro trend agrees, with decent trend health "
-                        f"({trend_health:.0f}/100), but the entry quality ({entry_score:.0f}/100) isn't strong "
+                        f"Bias is bullish and the broader macro trend agrees, {trend_note}, "
+                        f"but the entry quality ({entry_score:.0f}/100) isn't strong "
                         f"enough — CONSERVATIVE LONG."
                     )
                     return "CONSERVATIVE LONG"
@@ -386,34 +439,34 @@ class DecisionModel:
                 if trend_health >= 75 and entry_score >= 70 and not divergence:
                     if entry_active and aggressive_allowed:
                         reasons.append(
-                            f"Bias is bearish with strong trend health ({trend_health:.0f}/100) and a "
+                            f"Bias is bearish, {trend_note}, with a "
                             f"high-quality, active entry ({entry_score:.0f}/100), with no momentum divergence "
                             f"and a {risk_regime.lower()} — AGGRESSIVE SHORT."
                         )
                         return "AGGRESSIVE SHORT"
                     if entry_active and not aggressive_allowed:
                         reasons.append(
-                            f"Bias is bearish with strong trend health ({trend_health:.0f}/100) and a "
+                            f"Bias is bearish, {trend_note}, with a "
                             f"high-quality, active entry ({entry_score:.0f}/100) would otherwise qualify as "
                             f"AGGRESSIVE, but the risk regime is {risk_regime} — directional conviction does "
                             f"not override risk, so this stays SHORT."
                         )
                         return "SHORT"
                     reasons.append(
-                        f"Bias is bearish with strong trend health ({trend_health:.0f}/100) and a high-quality "
+                        f"Bias is bearish, {trend_note}, with a high-quality "
                         f"entry ({entry_score:.0f}/100), with no momentum divergence — SHORT."
                     )
                     return "SHORT"
                 elif trend_health >= 50 and macro_bias == "BEARISH":
                     reasons.append(
-                        f"Bias is bearish and the broader macro trend agrees, with decent trend health "
-                        f"({trend_health:.0f}/100), but the entry quality ({entry_score:.0f}/100) isn't strong "
+                        f"Bias is bearish and the broader macro trend agrees, {trend_note}, "
+                        f"but the entry quality ({entry_score:.0f}/100) isn't strong "
                         f"enough — CONSERVATIVE SHORT."
                     )
                     return "CONSERVATIVE SHORT"
 
             reasons.append(
-                f"No side has a strong enough, well-aligned case right now (trend health {trend_health:.0f}/100, "
+                f"No side has a strong enough, well-aligned case right now ({trend_note}, "
                 f"entry quality {entry_score:.0f}/100) — waiting for a better setup."
             )
             return "WAIT"
