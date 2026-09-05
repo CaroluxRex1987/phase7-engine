@@ -657,6 +657,17 @@ training-on-conversations is off. Training and lineage exposure never clear. Whe
 be established whether a session fed training — a consumer chat interface, unknown
 retention — treat it as permanent, because a wrong guess in that direction cannot be undone.
 
+**What this ruling is not.** It is not a compromise, and it did not weigh a model's
+capability against its contamination. The argument is about mechanism: if nothing carries
+between sessions, nothing carries. Had a mechanism been found, Kimi K3 would stay out
+regardless of its rank — and if Kimi were ranked fortieth rather than fourth, the ruling
+would be word for word identical.
+
+The distinction matters well beyond this decision. A rule reading "an exception was made
+because the model was valuable" is one anyone can invoke later to justify anything. A rule
+reading "session exposure has no mechanism of harm under these conditions" can be
+attacked, tested and overturned on its merits.
+
 **Consequences.**
 
 - Viktor's "relatively OK" grade on the Luna Pro Step 8 stands, and for the right reason.
