@@ -949,7 +949,7 @@ boundary must not read the difference as a change in the market data.
 | entry sub-scores vs printed total | small | panel only |
 | entry-zone fabrication (#4) | medium | two files; entry scoring must handle an absent zone |
 | correlation alignment (#a) | medium | changes a printed number, so the golden snapshot moves |
-| continuation floor (#b) | unknown | see ruling 3 above |
+| ~~continuation floor (#b)~~ | done | ruling 3, patch I, 4 Sept |
 
 Four or five patches. Three change printed numbers, so those need a golden
 re-baseline and a live run before they commit.
@@ -1037,6 +1037,105 @@ commit explains it, check this file's environment note before assuming the engin
 After reinstalling: Python 3.12.0 (Viktor's machine is now on 3.12.10; both have verified
 identical, correct results), git, `pip install -r requirements.txt -r requirements-dev.txt`,
 and re-link the Claude desktop app to `D:\phase7_engine`.
+
+## Rulings 1, 2 and 3 — built and landed, 4–5 September 2026
+
+The three rulings left open on 3 September were all built. Suite 226 → **251 passing**.
+
+### Ruling 3 — the silent continuation zeroing (patch I)
+
+`bias_engine` never knew which way the trend pointed. It inferred direction from the
+sign of `continuation_strength`, which meant that whenever continuation was zero the
+engine silently read the trend as flat — regardless of what the trend actually was.
+
+`indicators/trend_health.py` had computed the direction all along and thrown it away.
+Patch I exposes it (`trend_direction`, `trend_direction_sign`) and makes
+`trend_direction_sign` a **required** parameter of the bias engine, validated to
+`(-1, 0, 1)`, rather than an inferred one:
+
+```python
+trend_direction = int(trend_direction_sign)
+if trend_direction not in (-1, 0, 1):
+    raise ValueError(...)
+```
+
+The ruling was made **after** the behaviour was measured across 9,800 live bars, not
+before. That order is the point — see rule 36.
+
+### Ruling 1 — a direction-blind number was being offered as directional support (patch K)
+
+Reason strings said `"with strong trend health ({trend_health:.0f}/100)"`. Trend health
+is a magnitude; it says nothing about which way. Offered as a reason for a BULLISH or
+BEARISH call, it read as directional evidence that it was not. Replaced with:
+
+```python
+trend_note = f"trend strength {trend_health:.0f}/100 ({_dir_word})"
+```
+
+where `_dir_word` comes from `trend_direction_sign` — which only exists because of
+patch I. A correction to the record: Claude had claimed the panel's `TREND` line carried
+the same defect. It does not. It prints two true facts side by side and asserts no
+relationship between them. Only the reason strings made the claim.
+
+### Ruling 2 — a hard minimum bias strength (patch K)
+
+An ACTION could be issued off a bias that leaned barely at all. `MIN_ACTION_BIAS = 30.0`
+in `models/decision_model.py`, added to `FINGERPRINTED_MODULES`:
+
+```python
+if raw_bias in ("BULLISH", "BEARISH") and bias_strength < MIN_ACTION_BIAS:
+    reasons.append(...)
+    return "WAIT"
+```
+
+Claude first argued for collapsing this into the existing `RAW_BIAS_THRESHOLD` and
+reversed that while building it. They answer different questions: `RAW_BIAS_THRESHOLD`
+asks *does the blend lean far enough to call a side*; `MIN_ACTION_BIAS` asks *is that
+lean strong enough to act on*. One number cannot be tuned for both without one of the
+two answers becoming an accident of the other.
+
+Seven existing fixtures in `test_no_risk_free_conviction.py` built `bias={"raw": ...}`
+with no score at all. They were **completed**, not worked around — the alternative was
+relaxing a floor to accommodate incomplete test data, which is how a floor stops meaning
+anything.
+
+### Patch J — `volume_agreement` extracted
+
+Same treatment as `macro_agreement` in patch D: a four-branch module-level function in
+`core/engine_core.py`, so agreement logic is testable in isolation rather than only
+observable through a full run. Eight tests.
+
+### What went wrong while building these
+
+- **Three stale-base rebuilds.** Patch J was generated against `engine_core.py` staged
+  before patch I landed (39 failures). Patch K was rebuilt twice against a
+  `decision_log.py` missing the `models.risk_model` anchor. See rule 35.
+- **A too-crude substring assertion in Claude's own volume test** — asserting on
+  `"support"` in a note that quotes a label reading `BULLISH VOLUME SUPPORT`. Rule 30 was
+  written three days earlier, about exactly this, and was still violated in a test written
+  to guard its cousin. Knowing a rule and applying it are different acts.
+
+### The golden diff, patch K
+
+Predicted five fields and produced exactly five: `run_hash` ×2, `archive_path` ×2 (it
+derives from `run_hash[:16]` — rule 33), and `module_constants` gaining
+`models.decision_model.MIN_ACTION_BIAS = 30.0`. Nothing else moved. Re-baselined; live
+run confirmed the new wording and a `bias_score` of 56.72 clearing the floor.
+
+### Usage discipline, adopted 5 September
+
+Chat context is charged in full on every turn, so a long thread pays for its own history
+repeatedly. Two changes, decided by Claude and accepted by Viktor:
+
+1. **When a patch ships with a commit message, the chat reply is only the predictions to
+   check and the commands to run.** The reasoning belongs in this file, where it is
+   cheaper and where it survives.
+2. **Start a fresh session when a thread has served its purpose.** "Continue Phase 7" is
+   sufficient to resume — provided the handover check has run, which is what makes this
+   safe rather than reckless.
+
+This must not become a reason to explain less. It is a reason to explain in the right
+place.
 
 ## Working practice
 
@@ -1234,3 +1333,22 @@ and re-link the Claude desktop app to `D:\phase7_engine`.
     practice, run by Claude at the end of every session rather than requested. The general
     form: where continuity depends on someone remembering to preserve something, move the
     remembering into the process and give it to the party that does not get tired.
+35. **Re-stage every base file immediately before generating a diff.** Three patches on
+    4–5 September were built against files staged before an earlier patch had landed —
+    patch J against a pre-patch-I `engine_core.py` (39 failures), patch K twice against a
+    `decision_log.py` missing an anchor added hours earlier. The staged copy is a snapshot,
+    not a view, and the moment another patch commits it is silently wrong. A patch built on
+    a stale base fails loudly if you are lucky and applies cleanly if you are not.
+36. **Measure the behaviour before ruling on it, not after.** Ruling 3 concerned how often
+    the engine silently read a real trend as flat. That question has an answer in the data,
+    and it was obtained — 9,800 live bars — before the ruling was made rather than used
+    afterwards to justify it. A ruling made first and measured second is not a ruling, it
+    is a hypothesis with a decision attached to it. Where the cost of measuring is an hour
+    and the cost of being wrong is a defect in a release-gated engine, measure.
+37. **Knowing a rule is not applying it.** Rule 30 — a substring assertion cannot see the
+    shape of what it matched — was written on 3 September after it let a defect through.
+    On 5 September Claude wrote a test asserting on `"support"` against a note that quotes
+    a label containing the word SUPPORT: the same class of error, in a test written to
+    guard the same class of error, two days after writing the rule about it. Rules in this
+    file do not fire on their own. The ones that repeat are candidates for a mechanical
+    check, not a firmer intention.
