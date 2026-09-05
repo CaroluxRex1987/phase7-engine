@@ -2193,6 +2193,220 @@ story.extend(entry_box(72, "September 5, 2026",
     "asks the reviewer to search its own package before grading.",
     "DECISION — ADOPTED", GREEN))
 
+story.extend(entry_box(73, "September 5, 2026",
+    "The Disclosure That Counted Wrong",
+    "Re-reading the instruction could not have found this. The error was in the counting.",
+    "Entry #72 records the ruling that the code bundles' prior-audit content be counted and "
+    "disclosed rather than made a reason to stop. Rev 4 carried that count. The count was "
+    "wrong in three places, and wrong in the direction that matters: it under-stated what the "
+    "package leaks. <b>Five</b> distinct Critical-count phrases are in the bundles, not three "
+    "— “the first Critical” and “the last Critical” were missed. <b>Three</b> AI parties are "
+    "named, not two: Claude appears in both bundles, twice as having been overruled by Viktor. "
+    "And the disclosure covered only the two code bundles, while a third file in the upload "
+    "folder, <font face='Courier'>version_control_history.md</font>, lists every file each "
+    "commit touched and so names the previous audit report and the four prior transcripts by "
+    "filename. <b>How it was found:</b> by grepping the built package, which is the pre-send "
+    "step Entry #72's ruling created. Re-reading the instruction could not have found it — the "
+    "prose was internally consistent and the defect was arithmetic. <b>What was checked and "
+    "came back clean in the same pass:</b> the Constitution audit copy is 29 pages with no "
+    "Version History row recording an outcome, every Compliant / Non-compliant in it being "
+    "rubric text; and all 71 SHA-256 values in the manifest were recomputed from the bundle "
+    "bytes and matched, so the manifest is not a claim taken on trust. <b>Why this is an entry "
+    "rather than a fix:</b> the step was created one day and earned its keep the first time it "
+    "ran, against the document written by the party that created it.",
+    "PROCESS — RECORDED", STEEL))
+
+story.extend(entry_box(74, "September 5, 2026",
+    "A Number Read Off a Generated File",
+    "117 was true when it was generated and stale when it was used.",
+    "The commit that landed Entry #73's fix predicted the repository's commit count would go "
+    "117 to 118. It went to 119. The 117 came from the "
+    "<font face='Courier'>version_control_history.md</font> generated three hours earlier; a "
+    "commit had landed in between. <b>The shape, for the third time in this project:</b> a "
+    "figure taken from an artifact that recorded it correctly at the moment it was written, "
+    "and treated as current afterwards. Entry #71 withdrew an inference from file modification "
+    "times on the same grounds. Here the artifact was one this project generates on purpose, "
+    "which makes it more trustworthy-looking and no more current. <b>Why it was caught:</b> "
+    "because the prediction was stated as a number before the command was run. An unpredicted "
+    "line can only stop the work if the prediction was complete enough to be contradicted.",
+    "OBSERVATION — FILED FOR THE RECORD", MAROON))
+
+story.extend(entry_box(75, "September 5, 2026",
+    "The Transcripts Were Kimi's All Along",
+    "It said it was not Qwen, in the section written to make it say so, and the sentence never reached the repository.",
+    "The largest correction this project has had to make. The four files in the repository root "
+    "named <font face='Courier'>qwen_reasoning_1.txt</font> through "
+    "<font face='Courier'>_4.txt</font> are a <b>Kimi K3</b> transcript. Verified rather than "
+    "inferred: with whitespace stripped, the repository copy and the copy saved from the Kimi "
+    "room of 2 September are identical for <b>57,631 characters from the first byte</b>. Two "
+    "models do not coincide on 57,000 characters. So the eleven prior observations, and the "
+    "Part 8 document built from them, are Kimi's work. <b>Why it went unnoticed for three "
+    "days:</b> the repository copy is lossy, roughly 60,000 characters shorter than the room "
+    "copy, and one of the passages in the gap is the model identifying itself — “the "
+    "instruction says I'm Qwen3.8-Max — I'm not; I'm Kimi (Moonshot AI) … if the ledger records "
+    "Qwen3.8-Max but the actual reviewer is Kimi, the ledger is wrong.” Section 5 of the "
+    "instruction was written to elicit exactly that sentence. It was produced, and it did not "
+    "survive being saved. <b>What inherited the wrong name:</b> Entry #50, the attempts table, "
+    "the Part 8 document, the correction made from the bill in Entry #71, and a ruling made and "
+    "withdrawn the same day. <b>The instructive part is Entry #71's own reasoning.</b> It "
+    "argued from call timestamps — Qwen at 15:42 before Kimi at 15:58 — to the conclusion that "
+    "the eleven came from Qwen. The inference was valid and the conclusion was false, because "
+    "the bill records <i>what was called</i> and not <i>which output was saved under which "
+    "name</i>. Earned rule 29 says prefer the system that recorded the fact as a side effect of "
+    "doing its own job. Applied correctly, that system here is the transcript, not the invoice "
+    "— and it had been sitting in the repository under the wrong name the entire time.",
+    "OBSERVATION — FILED FOR THE RECORD", MAROON))
+
+story.extend(entry_box(76, "September 5, 2026",
+    "An Accident That Produced a Report",
+    "The Chatroom tab was left on Auto Router, and the round-3 package went out.",
+    "The router chose <font face='Courier'>z-ai/glm-5.3-flash-20260826</font>, served by "
+    "BaseTen: 251,148 input against 11,475 output, $0.0434, 102 seconds. It returned a complete "
+    "Parts 1-6 — <b>26 Compliant, 13 Partially, 1 Not verifiable, 0 Non-compliant, eleven "
+    "findings all rated Minor</b> — so the round happened whether or not it was intended, and "
+    "Viktor ruled it <b>is</b> round 3 rather than discarding it. Its model-identity check "
+    "fired correctly: its first line states it is not Qwen3.8-Max. <b>Three findings were "
+    "verified against source and all three confirmed</b>, and one is under-scoped by the report "
+    "in a way that matters. F-7, the permissive <font face='Courier'>risk_valid</font> default, "
+    "was filed against the simulated-order module and rated Minor on the grounds that nothing "
+    "there authorises a trade. The same default sits in "
+    "<font face='Courier'>decision_model._determine_final_action</font> — the authorization "
+    "gate — where a risk block missing that key reads as risk-passed. The severity argument does "
+    "not reach it. <b>What the run measures beyond its findings:</b> 11,475 output tokens with "
+    "no reasoning spend, against Kimi's 36,085 tokens of reasoning on a smaller package that "
+    "never reached a report at all. Depth of read is visible in the bill. The strongest part of "
+    "the report is its Part 6b, which names three places where a comment led its reasoning "
+    "before the code confirmed it, unprompted beyond the instruction asking.",
+    "AUDIT RUN D — RECORDED", MAROON))
+
+story.extend(entry_box(77, "September 5, 2026",
+    "The Ledger Rebuilt From 723 Rows",
+    "Second family the ledger had wrong, and the reviewer that ran was not independent.",
+    "The full provider activity export, 723 requests. <b>All 723 are "
+    "<font face='Courier'>variant=standard</font></b> — no free endpoint, ever — so the "
+    "no-training conclusion the 2 September independence ruling rests on holds unchanged. Two "
+    "things it corrected. <b>Z.ai is not clean.</b> <font face='Courier'>z-ai/glm-5.3</font> ran "
+    "on 28 August: 104,394 in, 55,179 out, a full substantive session on this project eleven "
+    "days before GLM 5.3 Flash audited it. Under the lab-not-checkpoint rule the reviewer that "
+    "produced Entry #76's report was <b>not independent</b>. Its findings stand on their own "
+    "evidence; the caveat travels with the comparison permanently. That is the second family "
+    "this ledger had listed clean and wrong, after Mistral in Entry #48. <b>Kimi clears, on the "
+    "check that mattered.</b> Every Aider call in the history — 681 of them — carries the Aider "
+    "app key, across exactly the five models the corrected record names. All fourteen Kimi calls "
+    "are Chatroom. Kimi never worked on the codebase, so its exposure is session-level, which "
+    "the 2 September ruling clears. But it is far larger than the record said: eight substantive "
+    "reads on 27 August of 93K-110K input each, roughly 100,000 tokens of output about this "
+    "engine, plus 36,085 on 2 September. “A Step 3 attempt that truncated” described one row of "
+    "thirteen. <b>And outputs this project paid for and never saved:</b> four completed Kimi "
+    "runs on 27 August totalling 60,537 tokens; Qwen's 2 September call returning 11,964 tokens, "
+    "of which no transcript exists under any name, so what Qwen actually said is lost; three "
+    "Luna Pro calls totalling 393,663; and one row with no model recorded at all.",
+    "PROCESS — RECORDED", STEEL))
+
+story.extend(entry_box(78, "September 5, 2026",
+    "The Handover Check Was Blind to Ignored Files",
+    "A check that looks for untracked files that matter cannot see files the repository was told to ignore.",
+    "Both evidence sets — the Kimi transcript and the GLM report — were first saved under "
+    "<font face='Courier'>docs/audit_package/round*/</font>, which "
+    "<font face='Courier'>.gitignore</font> excludes except for the manifest. That rule is right "
+    "for generated package bytes and wrong for reviewer responses, which are primary evidence "
+    "and cannot be regenerated. <b>The part worth carrying to other projects:</b> ignored files "
+    "do not appear in <font face='Courier'>git status --short</font>, so the standing "
+    "end-of-session handover check could not have caught it. The check asks whether untracked "
+    "files that matter are present, and the one class of file most likely to be lost is the "
+    "class the check is structurally unable to see. <b>Structural fix, not an instruction to be "
+    "careful:</b> reviewer responses now live in "
+    "<font face='Courier'>docs/audit_reports/&lt;round&gt;_&lt;model&gt;_&lt;date&gt;/</font>, "
+    "which is tracked by default. No exception list to maintain and no judgment required at the "
+    "moment of saving, because the safe location is the only one on offer. "
+    "<font face='Courier'>round*/</font> stays ignored for the generated packages the rule was "
+    "written for.",
+    "PROCESS — RECORDED", STEEL))
+
+story.extend(entry_box(79, "September 5, 2026",
+    "Rev 5, and Part 8 Removed",
+    "The instruction had been telling the reviewer who it was, and getting it wrong.",
+    "Two changes and nothing else. <b>Section 5 no longer asserts the reviewer's identity.</b> "
+    "Rev 4 told the reader it was Qwen3.8-Max and that one clean-list slot had been spent on an "
+    "earlier attempt at this same audit — a sentence which, sent to Kimi, describes Kimi as "
+    "somebody else. It now asks the reviewer to state its own identity and says what is known "
+    "about who ran what. <b>Part 8 and Section 13 are removed entirely.</b> Their comparison "
+    "document was the transcript of Entry #75, so asking Kimi to reconcile its findings against "
+    "it would have been a model grading its own earlier reasoning, and asking anyone else to "
+    "reconcile against a document this project had misattributed was not worth doing either. "
+    "The comparison it existed to produce is made outside the instruction, between two reports, "
+    "by Viktor. <b>What did not move:</b> what is graded, how it is graded, the severity rubric, "
+    "Section 7's checks, and everything handed over besides Part 8. GLM ran against rev 4, so "
+    "the revision history names the delta and the comparison carries its own caveat.",
+    "DECISION — ADOPTED", GREEN))
+
+story.extend(entry_box(80, "September 5, 2026",
+    "Three PDFs in a Downloads Folder",
+    "Two were preserved. One held a paragraph that existed nowhere else.",
+    "Viktor found three documents in his Downloads folder and asked whether he could delete "
+    "them. Each was checked against the repository rather than recognised by name. <b>The Gemini "
+    "review of the Constitution</b> hashes to exactly the SHA-256 recorded in "
+    "<font face='Courier'>docs/constitution_reviews/gemini_2026-09-03.md</font>, and its "
+    "extracted text matches that file word for word, 390 words each. Fully preserved; deleted. "
+    "<b>The independence ruling</b> was preserved except for one section: the argument that the "
+    "ruling turned on <i>mechanism</i> rather than on the value of the model it freed — that had "
+    "a mechanism been found, Kimi would have stayed out regardless of rank, and that a rule "
+    "reading “an exception was made because the model was valuable” is one anyone can invoke "
+    "later to justify anything, where a rule about mechanism can be attacked and overturned on "
+    "its merits. That paragraph was recovered into "
+    "<font face='Courier'>docs/PHASE7_NEXT.md</font> before the file was deleted. <b>The third "
+    "document</b> is Claude's candid criticism of Viktor's own role in the project. Viktor ruled "
+    "it does not enter the repository, because the repository is public. It is kept outside "
+    "version control by decision, and that is recorded here so a later reader knows it exists "
+    "and why it is absent rather than assuming it was lost. <b>The generalisation:</b> the "
+    "conclusion had survived in the record and the reasoning that makes it challengeable had "
+    "not, which is the failure this document exists to prevent.",
+    "PROCESS — RECORDED", STEEL))
+
+story.extend(entry_box(81, "September 5, 2026",
+    "“Could Not Run It” Was Two Claims, and Only One Was True",
+    "The impossible case was stated where the merely-undone one belonged.",
+    "The patch pointing the package builder at round 4 shipped with a commit message saying the "
+    "build itself had not been run, and offering a reason: the builder executes the engine and "
+    "there is no engine in the sandbox. Viktor asked why, and the question found the defect. "
+    "<b>Two claims had been folded into one.</b> True: it cannot be run against <i>this</i> "
+    "repository from the sandbox, because the file bridge copies files and not the "
+    "<font face='Courier'>.git</font> object store, so the real history never arrives and "
+    "neither the version-control history nor the commit messages can be generated. Not true: "
+    "that the builder could not be run at all. A scaffolded repository — two commits, stub "
+    "modules, the real instruction, a placeholder Constitution — exercises every changed line, "
+    "costs minutes, and was then done: it produced a round-4 directory with seven files in the "
+    "upload folder, one in the withheld folder, and no Part 8 document anywhere. <b>The shape, "
+    "and it is the same one this project keeps finding:</b> a conclusion carrying more "
+    "confidence than the check behind it. Here it took a new costume — a genuine impossibility "
+    "placed where an undone task belonged, which reads as a limit rather than as a gap and so "
+    "does not invite the question that would expose it.",
+    "OBSERVATION — FILED FOR THE RECORD", MAROON))
+
+story.extend(entry_box(82, "September 5, 2026",
+    "Kimi Runs Round 4, and the Reason That Was Rejected",
+    "Model quality is a preference. Scarcity of clean reviewers is a fact about the ledger.",
+    "Viktor's ruling, argued and then narrowed. <b>What stands.</b> Kimi K3 has graded <b>none "
+    "of the forty-four rules</b>: its earlier attempt could not read the standard, refused to "
+    "grade, and ran Section 7's checks instead — so on the question this round asks, it is "
+    "blind, and “self-review” overstates what it is. And it is the last high-ranked model clean "
+    "on both independence lists, so a round that does not spend it spends a worse reviewer or "
+    "none. <b>What was rejected.</b> “Kimi K3 is a very important model to use.” That is the "
+    "shape the 2 September independence ruling warned against in its own words — the paragraph "
+    "recovered in Entry #80 — and admitting it here would leave a precedent anyone can invoke "
+    "later. Both readings pick Kimi, which is exactly why the distinction is worth making: the "
+    "decision is unchanged and the rule it leaves behind is not. <b>What is disclosed rather "
+    "than solved.</b> Eleven of Kimi's own observations are already fixed in this code, with "
+    "comments describing them. The exposure is not that it repeats a verdict — it has none — but "
+    "that it may accept a fix to its own diagnosis more readily than a stranger would. Small, "
+    "real, not removable without spending a different reviewer, and accepted rather than argued "
+    "away. <b>A hold that outlives this entry:</b> the four transcripts keep their wrong "
+    "filenames until the package has been sent. A rename is a commit, commits appear in the "
+    "version-control history, and that file ships inside the upload folder — so correcting the "
+    "name now would put “kimi” in front of Kimi before Section 5 has asked it to identify itself "
+    "unprompted.",
+    "DECISION — ADOPTED", GREEN))
+
 # ---------- DOCUMENT HISTORY ----------
 hist_rows = [
     ["Version", "Date", "Notes"],
@@ -2358,6 +2572,7 @@ hist_rows = [
      "unchanged at 21 / 7 / 10 / 6. Earned rules 30 through 34 written the same day."],
     ["v1.20", "September 5, 2026", "Entries #57 through #70 added, covering 4–5 September — the three open rulings built and the whole of the “What is left to fix” table closed, across eight patches. #57 ruling 3, the bias engine inferring trend direction from the sign of continuation strength and reading a real trend as flat, measured across 9,800 live bars before the ruling rather than after. #58 rulings 1 and 2 — trend health, a magnitude, offered in reason strings as directional support, and a minimum bias strength kept as its own fingerprinted constant rather than folded into an existing threshold. #59 three patches diffed against a base that had already moved, and earned rule 30 violated in a test written to guard its own class. #60 the usage discipline Viktor delegated: reasoning goes where it survives, verification is not cut. #61 two fabrication constants that survived two passes because they were unreachable, one of which would have killed the run rather than degraded it. #62 a fallback whose docstring claimed an equivalence it did not have, and the test that had asserted on that claim for as long as it existed. #63 a degraded-dependency control that reported two errors and executed nothing, and a module-level object that defeated a deliberate lazy import. #64 correlation and beta paired by position after both timestamp indexes were discarded — correct by accident, and the printed label moving in 4 of 31 measured positions once the series differ by one bar. #65 an entry zone printed with its lower bound above its upper, found by reading the panel, and a close price that could not be read becoming $1.00. #66 five entry sub-scores summing to 39 under a printed total of 45.18, and the clip that was hiding a component list adding to 102 against a docstring saying 100. #67 the entry block's shape declared in four places, recorded rather than restructured inside a patch about something else. #68 the four-for-four generalisation: the fabrications that survive audits are the ones on paths a healthy run never takes. #69 two rejected CONNECTs to an exchange from a suite in which every route was pointed at a dead port, source unidentified, recorded rather than chased. #70 suite 226 to 319 passing and the fix table empty, with the release gate still shut because unresolved means fixed and re-audited. Register unchanged at 21 / 7 / 10 / 6. Earned rules 35, 36 and 37 written across the same two days."],
     ["v1.21", "September 5, 2026", "Entries #71 and #72 added, both corrections to this project's own record rather than to its code. #71 applies earned rule 29 a second time: the provider's billing log shows three Qwen calls followed by Kimi K3 on 2 September, so Entry #50 has the last two attempts of round 2 in the wrong order and the eleven observations of Entry #51 came from a Qwen run that preceded Kimi rather than followed it. The same log establishes that no attempt at round 2 ever received the UPLOAD_THESE folder — it was written after the last of the four calls — and corrects Entry #22, which names a DeepSeek checkpoint the bill says was never called. Claude's own inference from file modification times is withdrawn in the entry. Luna Pro's call count and Kimi K3's spent status are recorded as open questions, not resolved. #72 records a defect found by searching the round-3 package before sending it: Section 2 of the reviewer instruction told the auditor to stop if the code bundles contained prior-audit outcomes, and they contain a stated verdict for seven of the forty-four rules, three counts of Criticals, and two named prior reviewers. Viktor ruled the condition scoped to the Constitution file and the bundles' contents counted and disclosed, with the audit narrative to move out of code comments into this document later — not inside the audit it would affect. Register unchanged at 21 / 7 / 10 / 6. The release gate remains shut."],
+    ["v1.22", "September 5, 2026", "Entries #73 through #82 added, covering the afternoon and evening of 5 September — the day's second half, in which nothing in the engine changed and most of what this project believed about its own audit did. #73 the package-search step created by Entry #72 finding, on its first run, that Entry #72's own disclosure had under-counted what the bundles leak, in three separate ways. #74 a commit count read off a generated file three hours after it was generated: the third instance of a figure treated as current because the artifact holding it looked trustworthy. #75 the largest correction this project has made — the four transcripts named for Qwen are Kimi's, identical for 57,631 characters, and the passage where the model says so never reached the repository, so Entry #71's own correction was valid reasoning to a false conclusion. #76 an Auto Router left on by accident sending the round-3 package to GLM 5.3 Flash, which returned a complete report; ruled to be round 3 rather than discarded, with one finding verified as under-scoped in a way that reaches the trade-authorization gate. #77 the ledger rebuilt from all 723 provider rows: Z.ai not clean and so the reviewer that ran was not independent, Kimi cleared on the check that mattered with its exposure thirteen times larger than recorded, and several paid-for outputs that were never saved. #78 the handover check's structural blind spot — ignored files do not appear in git status — and reviewer responses moved to a tracked directory where the safe location is the only one on offer. #79 rev 5: the instruction stops telling the reviewer who it is, and Part 8 is removed because its comparison document was the reviewer's own reasoning. #80 three PDFs checked against the repository before deletion, one holding a paragraph of ruling reasoning that existed nowhere else. #81 a commit message stating an impossibility where an undone task belonged, found because Viktor asked why. #82 Kimi ruled for round 4 on two grounds, with a third — that it is an important model — argued out and recorded as rejected. Register unchanged at 21 / 7 / 10 / 6. The release gate remains shut, and the round-4 package is built and waiting to be sent."],
 ]
 th = Table(wrap_table(hist_rows), colWidths=[0.9 * inch, 1.4 * inch, 4.2 * inch])
 th.setStyle(row_style)
