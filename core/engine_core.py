@@ -888,6 +888,21 @@ class Phase7Engine:
                 "struct_pts": eq_metrics["struct_pts"],
                 "entry_status": eq_metrics["entry_status"],
                 "distance_from_zone": eq_metrics["distance_from_zone"],
+
+                # 5 September 2026: the reconciliation between the five
+                # sub-scores and the printed total. Every one of these was a
+                # local variable inside calculate_entry_quality that vanished
+                # when it returned, so neither the panel nor the decision log
+                # could explain why 10+5+10+10+4 was printed under 45.18.
+                "base_score": eq_metrics["base_score"],
+                "component_max_points": eq_metrics["component_max_points"],
+                "macro_multiplier": eq_metrics["macro_multiplier"],
+                "trend_multiplier": eq_metrics["trend_multiplier"],
+                "structure_multiplier": eq_metrics["structure_multiplier"],
+                "combined_multiplier": eq_metrics["combined_multiplier"],
+                "scaled_score": eq_metrics["scaled_score"],
+                "score_ceiling": eq_metrics["score_ceiling"],
+                "score_clipped": eq_metrics["score_clipped"],
             }
 
             # 8. RISK MODEL & VALIDATION ENGINE

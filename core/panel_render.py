@@ -354,6 +354,88 @@ def render_panel(decision):
         box_mid = f"========================================================================={reset}\n\n" if COLORAMA_AVAILABLE else "=========================================================================\n\n"
         divider = f"{dim}-------------------------------------------------------------------------{reset}\n" if COLORAMA_AVAILABLE else "-------------------------------------------------------------------------\n"
 
+        def _entry_quality_lines(entry, entry_score):
+            """
+            5 September 2026 — the entry sub-scores did not add up to the
+            printed total, and nothing on the panel said why.
+
+                ENTRY QUALITY : 45.18/100
+                    |-- EMA Zone Position : 10/30
+                    |-- ATR Distance      : 5/25
+                    |-- VWMA Distance     : 10/20
+                    |-- RSI Extension     : 10/15
+                    |-- Structure         : 4/12
+
+            39 printed under 45.18. Three things made up the gap and none of
+            them appeared anywhere: the sub-scores were rounded to whole
+            numbers while the total was not (ATR distance was 5.0297), three
+            confluence multipliers are applied after the sum, and the result
+            is clipped to 100 — which a perfect setup exceeds, since the five
+            components reach 102 before any multiplier.
+
+            The subtotal, the multiplier and its three factors are printed, so
+            the arithmetic can be followed. The clip is announced only when it
+            actually fired; a line saying "not clipped" on every run is noise.
+
+            The denominators come from entry_model's constants rather than
+            being written here again — they were literals in this file, in the
+            band logic, and in the docstring, three copies of one fact.
+
+            Absent fields print as "n/a". They used to default to 22, 10, 20,
+            15 and 2 — plausible sub-scores, invented by this renderer, for a
+            run that reported none.
+            """
+            from models.entry_model import (ATR_DISTANCE_MAX_POINTS,
+                                            EMA_ZONE_MAX_POINTS,
+                                            RSI_MAX_POINTS,
+                                            STRUCTURE_MAX_POINTS,
+                                            VWMA_MAX_POINTS)
+
+            def component(label, key, maximum):
+                value = entry.get(key)
+                shown = (f"{safe_float(value, float('nan')):.2f}"
+                         if value is not None
+                         and math.isfinite(safe_float(value, float("nan")))
+                         else "n/a")
+                return f"    |-- {label:<18}: {shown}/{maximum:.0f}\n"
+
+            lines = (
+                f"ENTRY QUALITY : {entry_score:.2f}/"
+                f"{safe_float(entry.get('score_ceiling'), 100.0):.0f}\n"
+                + component("EMA Zone Position", "ema_pos_pts", EMA_ZONE_MAX_POINTS)
+                + component("ATR Distance", "atr_dist_pts", ATR_DISTANCE_MAX_POINTS)
+                + component("VWMA Distance", "vwma_pts", VWMA_MAX_POINTS)
+                + component("RSI Extension", "rsi_pts", RSI_MAX_POINTS)
+                + component("Structure", "struct_pts", STRUCTURE_MAX_POINTS)
+            )
+
+            base = safe_float(entry.get("base_score"), float("nan"))
+            maximum = safe_float(entry.get("component_max_points"), float("nan"))
+            combined = safe_float(entry.get("combined_multiplier"), float("nan"))
+
+            if math.isfinite(base) and math.isfinite(maximum):
+                lines += (f"    |-- {'Subtotal':<18}: {base:.2f}/{maximum:.0f}\n")
+
+            if math.isfinite(combined):
+                macro = safe_float(entry.get("macro_multiplier"), float("nan"))
+                trend = safe_float(entry.get("trend_multiplier"), float("nan"))
+                struct = safe_float(entry.get("structure_multiplier"), float("nan"))
+                factors = ""
+                if all(math.isfinite(v) for v in (macro, trend, struct)):
+                    factors = (f"  (macro x{macro:.2f}, trend x{trend:.2f}, "
+                               f"structure x{struct:.2f})")
+                lines += (f"    |-- {'Confluence':<18}: "
+                          f"x{combined:.4f}{factors}\n")
+
+            if entry.get("score_clipped"):
+                scaled = safe_float(entry.get("scaled_score"), float("nan"))
+                ceiling = safe_float(entry.get("score_ceiling"), 100.0)
+                if math.isfinite(scaled):
+                    lines += (f"    |-- {'Clipped':<18}: {scaled:.2f} "
+                              f"exceeded the {ceiling:.0f} ceiling\n")
+
+            return lines + "\n"
+
         def _entry_zone_lines(entry, c_cyan, reset):
             """
             AUDIT FINDING (4), 5 September 2026. These two lines were:
@@ -507,12 +589,7 @@ def render_panel(decision):
             f"TARGET 2 (Norm): {c_green}${t2:.4f}{reset} | R:R 1 : {rr_t2:.2f}\n"
             f"TARGET 3 (Aggr): {c_green}${t3:.4f}{reset} | R:R 1 : {rr_t3:.2f}\n\n"
             f"{divider}"
-            f"ENTRY QUALITY : {entry_score:.2f}/100\n"
-            f"    |-- EMA Zone Position : {safe_float(entry.get('ema_pos_pts', 22)):.0f}/30\n"
-            f"    |-- ATR Distance      : {safe_float(entry.get('atr_dist_pts', 10)):.0f}/25\n"
-            f"    |-- VWMA Distance     : {safe_float(entry.get('vwma_pts', 20)):.0f}/20\n"
-            f"    |-- RSI Extension     : {safe_float(entry.get('rsi_pts', 15)):.0f}/15\n"
-            f"    |-- Structure         : {safe_float(entry.get('struct_pts', 2)):.0f}/12\n\n"
+            f"{_entry_quality_lines(entry, entry_score)}"
             f"{divider}"
             f"CONFIDENCE (decision): {confidence_score:.2f}/100\n"
             f"TRADE QUALITY :\n"

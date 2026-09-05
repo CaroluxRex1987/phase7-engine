@@ -320,7 +320,30 @@ class SignalRouter:
                     "atr_dist_pts": float(entry.get("atr_dist_pts", 0.0)),
                     "vwma_pts": float(entry.get("vwma_pts", 0.0)),
                     "rsi_pts": float(entry.get("rsi_pts", 0.0)),
-                    "struct_pts": float(entry.get("struct_pts", 0.0))
+                    "struct_pts": float(entry.get("struct_pts", 0.0)),
+
+                    # 5 September 2026. This block rebuilds the entry section
+                    # field by field, so anything the engine adds and this
+                    # list does not name is silently dropped before the panel
+                    # or the decision log ever sees it -- which is what
+                    # happened to these nine on the first attempt at this fix:
+                    # the reconciliation lines simply did not appear, with no
+                    # error.
+                    #
+                    # They are how the five sub-scores above become `score`:
+                    # they sum to base_score (out of component_max_points,
+                    # which is 102, not 100), that is multiplied by
+                    # combined_multiplier, and the result is clipped to
+                    # score_ceiling.
+                    "base_score": float(entry.get("base_score", 0.0)),
+                    "component_max_points": float(entry.get("component_max_points", 0.0)),
+                    "macro_multiplier": float(entry.get("macro_multiplier", 1.0)),
+                    "trend_multiplier": float(entry.get("trend_multiplier", 1.0)),
+                    "structure_multiplier": float(entry.get("structure_multiplier", 1.0)),
+                    "combined_multiplier": float(entry.get("combined_multiplier", 1.0)),
+                    "scaled_score": float(entry.get("scaled_score", 0.0)),
+                    "score_ceiling": float(entry.get("score_ceiling", 100.0)),
+                    "score_clipped": bool(entry.get("score_clipped", False)),
                 },
 
                 "risk": {

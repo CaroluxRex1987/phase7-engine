@@ -134,6 +134,20 @@ class EntryBlock(TypedDict):
     vwma_pts: float
     rsi_pts: float
     struct_pts: float
+    # 5 September 2026: how the five sub-scores above become `score`. They sum
+    # to base_score (out of component_max_points, which is 102 and not 100),
+    # that is multiplied by combined_multiplier to give scaled_score, and the
+    # result is clipped to score_ceiling. Without these the panel printed five
+    # numbers and a total they did not add up to.
+    base_score: float
+    component_max_points: float
+    macro_multiplier: float
+    trend_multiplier: float
+    structure_multiplier: float
+    combined_multiplier: float
+    scaled_score: float
+    score_ceiling: float
+    score_clipped: bool
 
 
 class RiskBlock(TypedDict):

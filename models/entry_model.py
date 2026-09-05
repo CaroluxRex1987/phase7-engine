@@ -18,6 +18,36 @@ from typing import Dict, Any, Tuple, Optional
 ZONE_POINTS_NOT_MEASURED = 15.0     # of 30
 ATR_POINTS_NOT_MEASURED = 15.0      # of 25
 
+
+# 5 September 2026, the "entry sub-scores do not sum to the printed total"
+# observation. The five component maxima, declared once.
+#
+# They were literals in three places: the band values in this function, the
+# "/30 /25 /20 /15 /12" denominators in panel_render.py, and the docstring.
+# Three copies of one fact, which is the defect this project has now recorded
+# four times. Each constant is used to award its own component's top band, so
+# changing one changes the engine rather than only the label.
+EMA_ZONE_MAX_POINTS = 30.0
+ATR_DISTANCE_MAX_POINTS = 25.0
+VWMA_MAX_POINTS = 20.0
+RSI_MAX_POINTS = 15.0
+STRUCTURE_MAX_POINTS = 12.0
+
+# 102, not 100. The docstring below said "Max points: 100" while listing five
+# components that add to 102, and the final clip to 100 hid the discrepancy.
+# Summed rather than written out, so it cannot disagree with the five above.
+COMPONENT_MAX_POINTS = (EMA_ZONE_MAX_POINTS + ATR_DISTANCE_MAX_POINTS
+                        + VWMA_MAX_POINTS + RSI_MAX_POINTS
+                        + STRUCTURE_MAX_POINTS)
+
+# The ceiling the final score is clipped to, after the confluence multipliers.
+# With all three multipliers at their maximum a perfect setup reaches
+# 102 x 1.05^3 = 118.08, so this clip discards real headroom on the best
+# setups. That is a deliberate choice -- the score is presented out of 100 --
+# but it was invisible, so the result now carries score_clipped and the panel
+# says when it fired.
+SCORE_CEILING = 100.0
+
 def calculate_entry_quality(
     df: Optional[Any],
     zone_lower: float,
@@ -30,12 +60,35 @@ def calculate_entry_quality(
     """
     Calculates real, quantitative sub-scores and total score for entry quality,
     fully integrated with Macro Trend Confluence and comprehensive NaN handling.
-    Max points: 100
+
     - EMA Zone Position : 30 pts
     - ATR Distance      : 25 pts
     - VWMA Distance     : 20 pts
     - RSI Extension     : 15 pts
     - Structure         : 12 pts
+                          ------
+    subtotal              102 pts, then x confluence, then clipped to 100
+
+    5 SEPTEMBER 2026. This said "Max points: 100" directly above five
+    components that add to 102, and the panel printed a total the five printed
+    sub-scores did not add up to. On the pinned fixture: 10 + 5 + 10 + 10 + 4
+    = 39 printed under a total of 45.18. Not wrong -- unexplained, which for a
+    number an operator is meant to act on is its own defect.
+
+    Three things made up the gap and none of them was on the panel:
+
+      1. The sub-scores were rounded to whole numbers for display while the
+         total was computed from the unrounded values. ATR distance was
+         5.0297, printed as 5.
+      2. Three confluence multipliers (macro, trend, structure) are applied
+         AFTER the sum, each 0.90, 1.00 or 1.05. On that run all three were
+         1.05, so the subtotal of 39.03 became 45.18.
+      3. The result is clipped to 100, and the components plus the maximum
+         multipliers reach 118.08, so the clip is not decorative.
+
+    The sub-scores are returned unrounded, so they sum to base_score exactly,
+    and base_score, the three multipliers, their product and score_clipped are
+    all returned and printed. The arithmetic now reconciles on the panel.
     (Macro alignment, trend direction, and structure sequence each act as a
     small multiplier/adjuster -- see section 6 below. Roadmap Layer 5: this
     was previously just the single macro multiplier; trend_direction and
@@ -52,6 +105,15 @@ def calculate_entry_quality(
         "rsi_pts": 0,
         "struct_pts": 0,
         "entry_status": "NO DATA",
+        "base_score": 0.0,
+        "component_max_points": float(COMPONENT_MAX_POINTS),
+        "macro_multiplier": 1.0,
+        "trend_multiplier": 1.0,
+        "structure_multiplier": 1.0,
+        "combined_multiplier": 1.0,
+        "scaled_score": 0.0,
+        "score_ceiling": float(SCORE_CEILING),
+        "score_clipped": False,
         # AUDIT FINDING (4), 5 September 2026: this was 0.0, which the panel
         # printed as "0.00% away from zone" -- price sitting exactly on a zone
         # that does not exist, on a run that had no data at all. NaN is how
@@ -144,7 +206,7 @@ def calculate_entry_quality(
             ema_pos_pts = ZONE_POINTS_NOT_MEASURED
             entry_status = "ZONE HAS NO WIDTH"
         elif dist_to_mid <= zone_width:
-            ema_pos_pts = 30
+            ema_pos_pts = EMA_ZONE_MAX_POINTS
             entry_status = "ACTIVE ENTRY ZONE"
         elif dist_to_mid <= zone_width * 2.0:
             ema_pos_pts = 20
@@ -182,8 +244,10 @@ def calculate_entry_quality(
             atr_ratio = dist_to_mid / atr
             if np.isfinite(atr_ratio):
                 # Smooth exponential decay instead of hard thresholds
-                atr_dist_pts = float(25 * np.exp(-atr_ratio * 0.5))
-                atr_dist_pts = max(5.0, min(25.0, atr_dist_pts))  # Bounded between 5-25
+                atr_dist_pts = float(ATR_DISTANCE_MAX_POINTS
+                                     * np.exp(-atr_ratio * 0.5))
+                atr_dist_pts = max(5.0, min(ATR_DISTANCE_MAX_POINTS,
+                                            atr_dist_pts))
             else:
                 atr_dist_pts = ATR_POINTS_NOT_MEASURED
         except (ZeroDivisionError, OverflowError):
@@ -219,7 +283,7 @@ def calculate_entry_quality(
                 vwma_diff = abs(close - vwma) / close
                 if np.isfinite(vwma_diff):
                     if vwma_diff < 0.01:
-                        vwma_pts = 20.0
+                        vwma_pts = VWMA_MAX_POINTS
                     elif vwma_diff < 0.025:
                         vwma_pts = 15.0
                     elif vwma_diff < 0.05:
@@ -249,7 +313,7 @@ def calculate_entry_quality(
         if not np.isfinite(rsi):
             pass  # neutral default stands; nothing was measured to score
         elif 40.0 <= rsi <= 60.0:
-            rsi_pts = 15.0
+            rsi_pts = RSI_MAX_POINTS
         elif 30.0 <= rsi < 40.0 or 60.0 < rsi <= 70.0:
             rsi_pts = 10.0
         else:
@@ -277,7 +341,7 @@ def calculate_entry_quality(
                 hvn_dist = abs(close - hvn) / close
                 if np.isfinite(hvn_dist):
                     if hvn_dist < 0.015:
-                        struct_pts = 12.0
+                        struct_pts = STRUCTURE_MAX_POINTS
                     elif hvn_dist < 0.03:
                         struct_pts = 8.0
                     else:
@@ -336,17 +400,42 @@ def calculate_entry_quality(
             structure_multiplier = 0.90
 
     combined_multiplier = macro_multiplier * trend_multiplier * structure_multiplier
-    total_score = float(min(100.0, max(0.0, base_score * combined_multiplier)))
+    scaled_score = base_score * combined_multiplier
+    total_score = float(min(SCORE_CEILING, max(0.0, scaled_score)))
 
+    # 5 September 2026: the five sub-scores were returned as int() and
+    # int(round()) while total_score was computed from the unrounded values,
+    # so the printed components could not add up to the printed total even
+    # before the multipliers were applied. ATR distance was the one that
+    # showed it -- 5.0297 printed as 5.
+    #
+    # Returned unrounded. They now sum to base_score exactly, and the panel
+    # formats them for display rather than the model rounding on its behalf.
+    # (The panel prints two decimals, so the displayed values can still differ
+    # from the displayed subtotal in the last digit by ordinary rounding; the
+    # exact values are here and in the decision log.)
     return {
         "score": float(total_score),
-        "ema_pos_pts": int(ema_pos_pts),
-        "atr_dist_pts": int(round(atr_dist_pts)),
-        "vwma_pts": int(vwma_pts),
-        "rsi_pts": int(rsi_pts),
-        "struct_pts": int(struct_pts),
+        "ema_pos_pts": float(ema_pos_pts),
+        "atr_dist_pts": float(atr_dist_pts),
+        "vwma_pts": float(vwma_pts),
+        "rsi_pts": float(rsi_pts),
+        "struct_pts": float(struct_pts),
         "entry_status": str(entry_status),
-        "distance_from_zone": float(distance_from_zone)
+        "distance_from_zone": float(distance_from_zone),
+
+        # The reconciliation, so the panel does not have to reconstruct it and
+        # the decision log carries it. Every one of these was previously a
+        # local variable that vanished when the function returned.
+        "base_score": float(base_score),
+        "component_max_points": float(COMPONENT_MAX_POINTS),
+        "macro_multiplier": float(macro_multiplier),
+        "trend_multiplier": float(trend_multiplier),
+        "structure_multiplier": float(structure_multiplier),
+        "combined_multiplier": float(combined_multiplier),
+        "scaled_score": float(scaled_score),
+        "score_ceiling": float(SCORE_CEILING),
+        "score_clipped": bool(scaled_score > SCORE_CEILING or scaled_score < 0.0),
     }
 
 
