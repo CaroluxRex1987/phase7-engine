@@ -1752,7 +1752,26 @@ report, three files, with its ledger row and verification status).
 - **The GLM report is round 3.** Not discarded, not acted on. No finding in it is
   fixed before the next round. It exists to be compared against round 4's report on
   the same unmodified code.
-- **Kimi K3 runs round 4**, on that same unmodified code.
+- **Kimi K3 runs round 4**, on that same unmodified code. Ruled on two grounds, with a
+  third rejected. First, it has graded **none of the forty-four rules**: its earlier
+  attempt could not read the standard, refused to grade, and returned Section 7 check
+  results instead — so on the question this round actually asks, it is blind. "Self-review"
+  overstates what it is. Second, it is the last high-ranked model clean on both
+  independence lists, so a round that does not spend it spends a worse reviewer or none.
+
+  **Rejected as a ground: that Kimi is an important model to use.** That is the exact shape
+  the 2 September independence ruling warned against — a rule reading "an exception was
+  made because the model was valuable" is one anyone can invoke later to justify anything,
+  where a rule about mechanism can be attacked and overturned on its merits. Scarcity of
+  clean reviewers is a fact about the ledger. Model quality is a preference, and it is
+  doing no work in this decision.
+
+  **Disclosed and accepted:** eleven of Kimi's own observations are already fixed in this
+  code, with comments describing them. The exposure is not that it repeats a verdict — it
+  has none — but that it may accept a fix to its own diagnosis more readily than a stranger
+  would. Small, real, and not removable without spending a different reviewer. Accepted
+  rather than argued away, and recorded here so a later reader can weigh it against
+  whatever the report turns out to say.
 - **Part 8 is dropped from the Kimi run entirely.** Its comparison set is Kimi's own
   reasoning. Parts 1-6, Part 7 optional. Viktor does the GLM-versus-Kimi comparison
   himself from the two reports, which keeps both fully independent and puts the
@@ -1764,14 +1783,23 @@ report, three files, with its ledger row and verification status).
 
 ## What comes next
 
-1. **Rev 5 of the reviewer instruction.** Section 5 currently tells the reviewer "You
-   are Qwen3.8-Max… You are on the clean list… one was spent on an earlier attempt at
-   this same audit." Sent to Kimi, that last clause describes Kimi as someone else.
-   Section 13 and the Part 8 file come out.
-2. **Rebuild the package** with `python docs/build/build_audit_package.py`.
-3. **Send to Kimi K3** — named model, named provider, pinned. Not Auto Router. Output
-   ceiling raised before the call.
-4. **Then** the GLM-versus-Kimi comparison.
+Rev 5 landed as `c82f5b3`; the builder was pointed at round 4 in `417cadf` and the package
+rebuilt from it. `round4/UPLOAD_THESE/` holds seven files with rev 5 in place of rev 4,
+`PART7_LATER/` holds one, `round3/` is untouched, and the round-3 and round-4 manifests
+differ in three lines — Built, HEAD, Round — so all 71 file hashes are unchanged.
+
+1. **Send to Kimi K3** — named model, named provider, pinned. Not Auto Router; that is
+   what turned round 3 into an accident. Output ceiling raised before the call: the last
+   Kimi run stopped at 36,085 output tokens, mid-sentence.
+2. **Then** the GLM-versus-Kimi comparison, from the two reports, by Viktor.
+
+**Do not rename the four `qwen_reasoning_*.txt` until the package has been sent.** The
+builder no longer reads them, so the rename has become possible; it is still wrong. A
+rename is a commit, commits appear in `version_control_history.md`, and that file ships
+inside `UPLOAD_THESE` — so renaming now puts the string "kimi" in front of Kimi before
+Section 5 has had the chance to ask it to state its own identity unprompted. A comment in
+`build_audit_package.py`, where `PRIOR_OBSERVATIONS` used to be, says the same thing to
+anyone who goes looking for why the wrong names are still there.
 
 Still owed from the morning and not done: the Engineering Notes stop at Entry #72 and
 now also miss everything above.
