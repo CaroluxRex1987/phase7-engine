@@ -1519,19 +1519,69 @@ the record accounts for, three of them on 3 September mapping to nothing; and Ki
 2 September call returning 36,085 output tokens, which is not the truncated stub the
 record describes when leaving its spent status undecided.
 
+### Ruled 5 September: Kimi K3 runs round 3
+
+Viktor's call, delegated to Claude on the evening of 5 September — he had reserved the
+model choice for himself, then handed it over and set the confound aside. Recorded here
+because it is his to reverse.
+
+**The ruling. Kimi K3 audits round 3.** The model choice and the Part 8 confound are one
+decision, not two: choosing a non-Qwen auditor is what dissolves the confound, and
+choosing Qwen is what would have required handling it.
+
+**Why.**
+
+1. **Part 8 becomes informative.** The eleven prior observations in
+   `prior_observations_PART8_ONLY.md` came from the Qwen run at 15:42 on 2 September —
+   established from the provider's bill, not from recollection. Part 8 asks the auditor
+   whether a prior observation moved its grade. Asked of Qwen, agreement cannot be
+   distinguished from family consistency and disagreement cannot be distinguished from
+   drift, so the answer carries no information in either direction. Cross-family,
+   agreement is evidence.
+2. **Round 3 is a first look.** Qwen has now read an earlier build of this source and
+   produced eleven findings on it. A fourth Qwen pass is a re-read. Kimi has never
+   completed a pass on this codebase.
+3. **Rank.** Kimi K3 sits fourth on the coding leaderboards, above Qwen3.8-Max — as the
+   2 September record holds it. Not re-verified here; the leaderboard may have moved in
+   three days.
+4. **Independence is not the discriminator, and does not block Kimi.** Every request in
+   the provider history is `variant=standard` with training routing off, so Kimi's
+   27 August truncation and its 2 September stop are both session exposure, which the
+   2 September ruling clears with a fresh call. The same rule is what keeps Qwen
+   eligible. This is the removal of an objection to Kimi, not an argument for it.
+
+**The strongest case against this ruling, which is the case for Qwen.** The step has
+failed three times. The package was built for Qwen and the instruction was written with
+it in mind. Changing the model changes a fourth variable on a step that has never once
+completed, and the discipline this project runs on is to change one thing at a time. The
+answer is that all three failures were the PDF, the PDF is fixed, and the model was never
+the variable under test — but the objection is real, and it is recorded rather than
+dismissed.
+
+**What could reverse reason 2.** The provider log shows Kimi's 2 September call returning
+36,085 output tokens. The attempts table describes that attempt as receiving an unreadable
+PDF, saying so, and stopping — which is not 36,000-token behaviour. Either the table is
+wrong about what Kimi did that day, or that row is something else. It was not resolved. If
+Kimi did in fact grade the round-2 bundle, it has read an earlier build of the source and
+round 3 is not a first look for it either. That does not change eligibility, because
+session exposure still clears, and it does not change the ruling, because reasons 1 and 3
+stand without it. It is recorded because the reasoning above is weaker than it reads if
+that row is what it might be.
+
+**Two conditions on the run, both from this project's own record.**
+
+- **Set the max-output ceiling before the call.** Kimi is the model that burned a full
+  input charge at `finish=length`, 16,384 tokens, on 27 August. Check it, every run.
+- **Through the API, not a chat interface.** Session exposure demonstrably clears only
+  where the training opt-out is a matter of record.
+
 ### What comes next
 
-The checklist is closed. Two steps remain, and the first is a decision.
+The checklist is closed and the auditor is chosen. One step remains, and it is Viktor's.
 
-1. **Viktor rules which model runs the re-audit.** The Qwen-versus-Qwen confound on the
-   Part 8 comparison is not resolved: the eleven prior observations in
-   `prior_observations_PART8_ONLY.md` came from Qwen, so sending round 3 to Qwen again
-   asks a model to reconcile its own family's earlier reasoning. His decision, and his
-   practice is to write his own position first and have it argued against.
-2. **Send it.** Everything in `round3/UPLOAD_THESE/`, and nothing else. `PART7_LATER/`
-   goes only after Parts 1–6 are written and saved. The gate opens on a clean report,
-   not a finished one.
-
+1. **Send it.** Everything in `round3/UPLOAD_THESE/`, and nothing else, to Kimi K3
+   through the API with the output ceiling raised. `PART7_LATER/` goes only after Parts
+   1–6 are written and saved. The gate opens on a clean report, not a finished one.
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then
