@@ -1,18 +1,19 @@
 # Next step — read this first
 
-*Updated 6 September 2026, early morning. **Rounds 3 and 4 are both in. Two reports,
+*Updated 6 September 2026, second session. **Rounds 3 and 4 are both in. Two reports,
 sixteen distinct items between them, two real overlaps.** Round 3 was GLM 5.3 Flash (by
 accident, and it stands as round 3 on the record rather than discarded); round 4 was Kimi
 K3 through the API, the first complete report in four attempts. Kimi's Section 11
 confirmation run was made on 6 September against unmodified code and **confirmed Finding 1
-end to end**, and the fix for it has now landed. Suite: **331 passing, 0 failed**.
-Everything pushed.*
+end to end**, and the fix for it has landed. **GLM F-7 as extended has now landed too, at
+`26a05dc`** — and it turned out to be reachable rather than latent, which the 5 September
+note did not know. Suite: **363 passing, 0 failed**. Everything pushed.*
 
 *The release gate is **still shut**. "Unresolved" means no fix has landed **and been
-re-audited**, and two Majors from round 4 plus most of round 3's eleven stand unfixed. Six
-decisions are open and all six are Viktor's — see "Open — decisions" near the end of this
-file, which is the section to read first, together with "The round-3 versus round-4
-comparison" above it.*
+re-audited**, and nothing landed since round 4 has been re-audited by anyone. Two Majors
+from round 4 plus most of round 3's eleven stand unfixed. Eight decisions are open and all
+eight are Viktor's — see "Open — decisions" near the end of this file, which is the section
+to read first, together with "The round-3 versus round-4 comparison" above it.*
 
 *The earlier state of this block — "what is left to fix is empty", suite 319, one thing
 standing between here and sending the package — was true on the evening of 5 September. It
@@ -1955,9 +1956,10 @@ against whatever one reviewer happened to reach.
 
 **Suggested fix order** (engineering, Claude's unless overruled): ~~Kimi Finding 1 first,
 and the real fix is the missing test at the router seam rather than the merge line~~ —
-**DONE 6 September, see "Finding 1 fixed" below**; then **GLM F-7 as extended, which is the
-next piece of work**, because wrong polarity on an authorization gate outranks what follows;
-then Kimi Finding 2 (blocked on decision 3); then Kimi Finding 5 item 6; then Kimi Finding 3,
+**DONE 6 September, see "Finding 1 fixed" below**; then ~~GLM F-7 as extended, because wrong
+polarity on an authorization gate outranks what follows~~ — **DONE 6 September at `26a05dc`,
+see "GLM F-7 as extended" below**; then Kimi Finding 2 (blocked on decision 3); **then Kimi
+Finding 5 item 6, which is the next piece of work and needs no decision first**; then Kimi Finding 3,
 the largest of the Majors and the least urgent because it degrades the record rather than the
 output; then the latent and Minor items as one sweep; then GLM F-8/F-9 for test hygiene.
 
@@ -1984,6 +1986,29 @@ These are Viktor's, and none was made on 5 September.
 6. **Disclosure.** The round-3 run was not disclosed to Kimi, deliberately and on the record.
    If any of this comparison reaches the portfolio document, the non-disclosure and its
    reason travel with it.
+7. **The three synthetic records in the live decision log.** Records 10, 11 and 12 of
+   `logs/phase7_decision_log_aerousdt.jsonl`, written by the first version of the Section 11
+   harness before it was repointed at a temporary directory. Prune or keep? The standing
+   practice of recording wrong turns rather than tidying them argues for keeping; it is his
+   record either way. Written up in "Two wrong turns" below since 6 September and promoted
+   to this list on the same day, because a decision recorded only in prose is a decision
+   nobody is tracking.
+8. **Two holes in the delivery and handover mechanism, found on 6 September.** Both are
+   process rather than code, both have a structural fix available, and neither is ruled.
+   See "What the handover found, and could not have found" below for the evidence.
+   - *The handover check has no question that would catch a staged-but-uncommitted commit.*
+     Its six questions ask about untracked files and loose patch files. The 6 September doc
+     rewrite was neither: a fully staged index with its message file beside it, prepared and
+     never committed, which survived a handover check and a whole session. A seventh
+     question — does `git status --short` show anything in the INDEX column — would have
+     caught it.
+   - *The delivery filenames are generic and keep coming back.* `COMMIT_MSG.txt` was swept
+     into `77d822f` by `git add -A`, deleted again in `76150d0`, and re-armed a third time
+     on 6 September. A `.gitignore` entry would close it; Viktor ruled on 5 September that
+     `round3/README.md` gets no `.gitignore` exception, and there is a recorded `.gitignore`
+     blind spot above, so this is a ruling and not a tidy-up. The interim mitigation is
+     already in the working practice below: a delivered file gets a name unique to its
+     version, which is the only reason the 6 September delivery files could be reset by name.
 
 ### Open — work
 
@@ -1991,12 +2016,13 @@ These are Viktor's, and none was made on 5 September.
    confirmed end to end, on unmodified code, before any fix.** See "The Section 11
    confirmation run" below, which also records what the run found beyond the finding and two
    wrong turns made getting there.
-2. ~~The fixes, in the order above.~~ **Kimi Finding 1 is fixed and pushed (6 September).
-   GLM F-7 as extended is the next one, and it needs no decision from Viktor first.** The
-   rest of the order stands; Kimi Finding 2 is blocked on decision 3 above.
+2. ~~The fixes, in the order above.~~ **Kimi Finding 1 and GLM F-7 as extended are both
+   fixed and pushed (6 September, `76150d0` and `26a05dc`). Kimi Finding 5 item 6 is the
+   next one, and it needs no decision from Viktor first.** The rest of the order stands;
+   Kimi Finding 2 is blocked on decision 3 above.
 3. The Engineering Notes are current through Entry #82 and do not cover the round-4 run,
-   the round-3 versus round-4 comparison, the Section 11 confirmation run, or the Finding 1
-   fix. Four entries owed.
+   the round-3 versus round-4 comparison, the Section 11 confirmation run, the Finding 1
+   fix, or the F-7 fix. **Five entries owed** — it was four before F-7 landed.
 4. The four `qwen_reasoning_*.txt` may now be renamed; the hold is discharged.
 5. Observed in the live run of 6 September and NOT investigated: the panel printed
    `BTC BIAS : BULLISH` directly above `BTC REGIME : BEARISH TREND`. Those come from two
@@ -2163,6 +2189,150 @@ were unverified until the Windows run. Stated at delivery rather than after the 
   it reachable means computing the BTC block before `evaluate()`. That is a restructure,
   it is a real gap in a standing ruling, and it is written down here rather than left in a
   patch comment.
+
+## 6 September 2026 — GLM F-7 as extended, and it was reachable
+
+Landed at `26a05dc`, pushed. Suite 331 → **363 passing, 0 failed**. Golden snapshot did not
+move, predicted before the run and confirmed by `git diff` on
+`tests/fixtures/golden_decision.json` rather than only by the test passing.
+
+### The finding got worse on being read
+
+The 5 September note called this a permissive default sitting in three places, and rated the
+extension over GLM's Minor on the strength of one of them being the authorization gate. That
+was right and it was incomplete. **The defect was reachable, not latent.**
+
+`signal_router._validate_engine_output` checked that the key `"risk"` was PRESENT as a
+section and never once looked at what was under it. So an engine output whose risk block was
+`{}` passed validation, satisfied `_determine_final_action`'s `isinstance(risk, dict)` guard,
+and reached a gate whose `.get("risk_valid", True)` supplied the authorization the engine had
+never computed. `_refuse_incoherent_plan` does not catch that case either — an empty block
+has no targets, `_plan_direction` returns None, and the action passes through untouched.
+
+Measured against pre-fix code, on the conviction fixture from
+`tests/test_no_risk_free_conviction.py`:
+
+```
+risk = {}                      ->  AGGRESSIVE LONG
+risk = {"risk_valid": "OK"}    ->  AGGRESSIVE LONG
+risk = {"risk_valid": None}    ->  NO-TRADE (RISK TOO HIGH),
+                                   reasoning "Risk check failed (OK)"
+```
+
+The first two are the maximum-intensity authorization this engine can issue, on a run where
+risk was never assessed. The third is the right refusal for the wrong reason, printing a
+sentence about a check that never ran.
+
+**A validator that checks presence plus a consumer that defaults permissively is the
+composition, and neither half looks wrong on its own.** That is the transferable part. Both
+lines read as ordinary defensive code; the hole is in the space between them, which is the
+same place Kimi Finding 1 lived — the producer was tested, the consumer was tested, and the
+seam was not.
+
+### What changed
+
+`models/risk_model.py` — new `read_risk_verdict(risk)`. Returns the verdict, or None when
+there is not one. Absent, present-as-None and present-as-not-a-boolean are one state — risk
+was not assessed — and none of them is a pass. One function rather than three corrected call
+sites, on rule 3: a defect found once is usually a class, and three correct copies are three
+things to keep correct. Deliberately strict about the type, so an unrecognised verdict shape
+fails closed. `validate_risk_parameters()` is the only producer and all six of its return
+paths hand back a Python `bool` literal — verified by running the engine on the pinned
+fixtures and reading the type off the result, not from the source alone.
+
+`models/decision_model.py` — the gate refuses instead of assuming, with its own action
+string, **`NO-TRADE (RISK NOT ASSESSED)`**. Not reusing `NO-TRADE (RISK TOO HIGH)`: a check
+that ran and failed has a reason and gives it; an absent check does not and must not borrow
+one. A bare flip of the default to `False` would have printed "Risk check failed (OK)",
+because `risk_reason` defaults to `"OK"` — the same fabrication wearing the opposite sign.
+
+`models/signal_router.py` — `_validate_engine_output` now rejects an engine output whose
+risk block carries no verdict, which is what closes the reachable route;
+`_build_decision_object` records the verdict that was read rather than an invented `True`.
+
+`live_trading.py` — GLM's own site, reading through the same function. Records None rather
+than False when there is no verdict: the order log is a record of what the engine said, and
+"no verdict" is what it said.
+
+`tests/test_risk_verdict_is_read_not_assumed.py` — new, 32 tests.
+
+**The contract kept `risk_valid: bool` rather than becoming `Optional[bool]`, and that is a
+decision worth having on the record.** Optional looked like the honest declaration and is the
+weaker fix: `tests/test_decision_contract.py`'s `_type_ok` returns True for any Union, so the
+field would have stopped being type-checked at all. Rejecting the no-verdict shape at the
+validator instead makes `bool` a guarantee rather than a hope. Noted as a live hole in that
+test regardless — *every* Optional field the contract declares is currently unchecked.
+
+### Evidence against pre-fix code
+
+**14 failed, 18 passed**, and the split is the point:
+
+- **11 behavioural** — the gate authorizing on an unassessed block, the validator accepting
+  one, the router turning one into a decision, the recorded verdict, the simulated order.
+- **3 source-text** — the guard that keeps the default from coming back.
+- **0 ImportError, 0 collection errors.**
+
+That last figure needed a harness and it is stated rather than glossed. The new tests import
+`read_risk_verdict`, so run plainly against pre-fix code the whole file collapses into one
+collection error — which would prove only that the file is new, the exact trap the Finding 1
+write-up names. The pre-fix run was made with `read_risk_verdict` grafted into
+`risk_model.py` **alone**, a pure function nothing calls, with all three defective call sites
+and the permissive validator left exactly as they were.
+
+7 of the 18 pre-fix passes are negative controls, named as such in the file. The one that
+matters most is `test_negative_control_an_assessed_pass_still_authorizes`: a gate made to
+refuse unconditionally would satisfy every refusal test in that file.
+
+### Verification, and where it went further than last time
+
+`pandas_ta` 0.4.71b0 **does** install in a Linux sandbox on Python 3.12 — the Finding 1
+write-up recorded it as impossible, and that was a fact about a Python 3.11 interpreter
+rather than about the package. So unlike Finding 1, the end-to-end tests and the golden
+snapshot were verified before delivery instead of deferred to the Windows run.
+
+Both ways: **363 passed / 0 failed** with `pandas_ta`; **252 passed / 100 skipped / 0
+errors** without it, against a 222 / 98 / 0 pre-patch baseline on the same tree. Patch
+applies clean to a pristine checkout seeded from Viktor's own byte-exact CRLF files; all five
+changed files md5-match what was built; suite figures are from the applied tree.
+
+Not verified: a live run against the MEXC API, and the panel rendering of the new action
+string. **The engine has not been run on live data since this landed** — it touches the
+decision path, so that run is owed before the fix is treated as closed.
+
+### Not fixed, and why
+
+- `_compute_confidence` appends "the risk check above is what's blocking the trade" to any
+  action starting with `NO-TRADE`, including `PLAN CONTRADICTS ACTION` and `DEGRADED INPUT`,
+  where the risk check is not what blocked it. Pre-existing, not introduced here.
+- `tests/test_pinned_source.py::test_manifest_hashes_match_the_files` hashes the raw bytes of
+  the pinned CSVs, and the manifest holds their CRLF form. It therefore **fails on any LF
+  checkout** — every Linux or macOS clone of this repository — and passes only on a Windows
+  working tree. It failed on the clone this patch was built from and was worked around
+  locally. A clean-checkout test that passes on one platform is a guard with a blind spot.
+- The other invented defaults in the same two assemblies still stand: `"NORMAL RISK"`,
+  `"NEUTRAL"`, `50.0`, `"OK"`. None is an authorization, which is why they were left; the
+  same "the producer always sets it" reasoning has now been wrong twice in two days.
+
+### What the handover found, and could not have found
+
+Two process holes, both recorded as decision 8 above rather than fixed on Claude's own
+initiative.
+
+**The 6 September doc rewrite was never committed.** The head block, the Section 11 section
+and the Finding 1 section existed only in Viktor's working tree through an entire session,
+staged, with their message file `COMMIT_MSG.txt` sitting beside them — a complete prepared
+commit that was never run. The head block asserted *"Everything pushed."* That sentence was
+false about the document containing it. It landed as `038bbfa`, immediately before the F-7
+commit, on its own prepared message.
+
+The handover check ran at the end of the session that prepared it and did not catch it. That
+is not the check being ignored; it is the check having no question that would fire. Items 3
+and 5 ask about *untracked* files and *loose patch* files, and this was neither.
+
+**`COMMIT_MSG.txt` has been swept into a commit once already.** `git add -A` put it into
+`77d822f`; `76150d0` deleted it; a third copy was armed on 6 September and caught only
+because the `git status --short` step exists and Viktor pasted it. The generic filename is
+the mechanism.
 
 ## Working practice
 
