@@ -2025,7 +2025,14 @@ so a defect that manufactures untraceable records inside it is not a display con
 reproducible from tracked bytes: `isolated_phase7_decision_log_aerousdt.jsonl` in the
 evidence directory holds all three records, one healthy and two error.
 
-Whether this is folded into the Finding 1 fix or raised as its own item is open.
+Whether this is folded into the Finding 1 fix or raised as its own item is Viktor's call.
+Claude's position is fold it in: the discarded analysis and the discarded lineage are the
+same broad `except` at `signal_router.py` 446-452, so two items would mean two patches
+touching one block, and the second would be reviewed against a codebase the first had
+already changed underneath it. The argument for splitting is that they fail different
+rules — Finding 1 is availability, the lineage loss is Item 6 — and that a Critical-item
+defect found by a confirmation run deserves its own entry rather than a paragraph inside
+someone else's finding.
 
 ### Two wrong turns, recorded rather than cleaned up
 
@@ -2085,6 +2092,12 @@ substance held; the enumeration did not.
   downstream of confidence moving with it, nothing else. That is exactly what the diff
   showed.
 - **Never `device_stage_files` back into the sandbox working copy**; it overwrites edits.
+- **A delivered file gets a staged name unique to its version.** Reusing one staged
+  filename for two versions of the same file shipped the older bytes on 6 September with
+  no error reported anywhere.
+- **Verify a delivery by reading the file back off the device and diffing it** against the
+  intended bytes. Compiling the copy that was sent proves syntax, not identity — both
+  versions compiled.
 - **Run the handover check before the session ends — Claude initiates it, Viktor does not
   have to remember.** A session does not persist. Whatever was established in it and not
   written down has to be rediscovered, slowly and incompletely, and the parts that came

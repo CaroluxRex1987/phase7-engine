@@ -1,0 +1,27 @@
+Handover: file two delivery rules and the fold-or-split position
+
+The end-of-session check found both of these written down in the wrong place,
+which is the same as not written down.
+
+The two delivery rules from 6 September -- a staged name unique to each
+version, and verifying a delivery by reading the file back off the device and
+diffing it -- were in the narrative of the Section 11 section but not in the
+Working practice list, where the other delivery rules already live (deliver as
+a .patch, restore CRLF before diffing, never stage back into the sandbox copy).
+A reader consulting that list before the next delivery would not have seen
+them, and the failure they prevent reports no error when it happens.
+
+The untraceable error record was recorded as an open question without the
+position on it. Now recorded: Claude's recommendation is to fold it into the
+Finding 1 fix, because the discarded analysis and the discarded lineage are the
+same broad except at signal_router.py 446-452, and two patches touching one
+block means the second is reviewed against a codebase the first has already
+changed underneath it. The argument for splitting is recorded beside it -- they
+fail different rules, and a Critical-item defect found by a confirmation run
+may deserve its own entry rather than a paragraph inside someone else's
+finding. The decision is Viktor's and is not made here.
+
+No engine code is changed by this commit. The suite is untouched.
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01KXFx5qe1kvTK7dT5qFrbAF
