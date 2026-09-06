@@ -149,10 +149,10 @@ story.append(P("A Practical Companion to the Engineering Constitution — Record
 story.append(Spacer(1, 10))
 story.append(HRFlowable(width="100%", thickness=1.2, color=STEEL))
 story.append(Spacer(1, 14))
-story.append(P("Status: <b>Working Standard, v1.0 — in effect immediately</b>", "MetaLine"))
-story.append(P("Date: <b>August 25, 2026</b>", "MetaLine"))
+story.append(P("Status: <b>Working Standard, v1.1 — in effect immediately</b>", "MetaLine"))
+story.append(P("Date: <b>August 25, 2026; corrected September 6, 2026</b>", "MetaLine"))
 story.append(P("Relationship to the Constitution: <b>a separate, practical companion document — "
-    "not an edit to the Constitution's frozen 17 / 7 / 10 / 6 rules</b>. See the closing section "
+    "not an edit to the Constitution's frozen 21 / 7 / 10 / 6 rules</b>. See the closing section "
     "for exactly why that distinction is being kept.", "MetaLine"))
 story.append(Spacer(1, 24))
 story.append(P(
@@ -385,12 +385,20 @@ story.extend(section_header("Relationship to the Constitution",
 ))
 story.append(P(
     "This standard is deliberately <b>not</b> an edit to the Engineering Constitution. The "
-    "Constitution's scope — 17 Tier 1 invariants, 7 Tier 2 principles, 10 Tier 3 process items, "
+    "Constitution's scope — 21 Tier 1 invariants, 7 Tier 2 principles, 10 Tier 3 process items, "
     "6 Tier 4 preferences — is frozen, on purpose, until the audit described in its Next Steps "
     "section actually runs. Adding a new rule to that document right now, even a good one, "
     "would break the exact discipline the Constitution's own “Scope Freeze” section exists to "
     "protect. Viktor's own instruction when this came up was explicit: this doesn't need to go "
     "into the Constitution right now.", "Body"
+))
+story.append(P(
+    "<b>Corrected 6 September 2026:</b> this section originally said 17 Tier 1 invariants "
+    "(40 total). That was accurate on this document's own 25 August dateline and became "
+    "false the next day — the Constitution was ratified 26 August at Revision 6, which added "
+    "four Tier 1 invariants (Items 18-21), making the register 21/7/10/6 = 44. Found by the "
+    "semantic half of the 6 September document audit; corrected here rather than silently, "
+    "per this project's own practice of recording what changed and why.", "Body"
 ))
 story.append(P(
     "What this document does instead is operationalize principles the Constitution already "
@@ -410,6 +418,10 @@ version_rows = [
      "Initial version, written directly from Viktor's stated concern about selling a "
      "documented, certified product rather than an undocumented one. Not part of the "
      "Constitution's frozen scope; usable starting today."],
+    ["v1.1", "September 6, 2026", "Correction — register count",
+     "Fixed two mentions of the Constitution's scope as 17 Tier 1 invariants (40 total); "
+     "the Constitution was ratified the day after this document was written and added four "
+     "Tier 1 items, making it 21/7/10/6 = 44. Found by the semantic document audit."],
 ]
 tv = Table(wrap_table(version_rows), colWidths=[0.8 * inch, 1.3 * inch, 2.0 * inch, 2.4 * inch])
 tv.setStyle(row_style)

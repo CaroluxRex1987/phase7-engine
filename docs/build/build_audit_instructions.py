@@ -206,10 +206,44 @@ story = []
 story.append(P("Phase-7 Structural Quant Engine", "ReportSubtitle"))
 story.append(P("Audit Execution Instructions", "ReportTitle"))
 story.append(P("Written August 27, 2026 — the procedure for running Step 3", "MetaLine"))
-story.append(P("Status: <b>working document.</b> Changes no rule, records no finding.", "MetaLine"))
+story.append(P("Status: <b>working document, partly superseded.</b> See the notice below "
+    "before using anything past this page. Changes no rule, records no finding.", "MetaLine"))
 story.append(Spacer(1, 12))
 story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#c7cfda")))
 story.append(Spacer(1, 10))
+
+story.extend(box([
+    P("<b>Corrected 6 September 2026 — Run 2 no longer happens the way this document "
+      "describes it.</b>", "H2"),
+    P("Everything from “1. Materials” onward describes the procedure as designed "
+      "27 August: a browser chat, five files including two PDFs, Max Tokens set by hand to "
+      "64,000. That is preserved below as the historical record — this project records wrong "
+      "turns and superseded designs rather than quietly rewriting them — but it is not what "
+      "round 4 (Kimi K3, 5 September) actually did, and following it as written would "
+      "misconfigure a round 5.", "Body"),
+    P("What actually runs Run 2 today is <font face=\"Courier\">docs/build/send_audit_round.py</font>, "
+      "an API script written after round 3 went to the wrong reviewer. Four concrete "
+      "differences from the procedure below: <b>(1)</b> the model and the serving provider "
+      "are pinned in the request itself (<font face=\"Courier\">\"only\": [provider], "
+      "\"allow_fallbacks\": False</font>) — this is what a round 5 needs instead of picking a "
+      "model from a chat dropdown, because that dropdown is exactly what silently substituted "
+      "GLM 5.3 Flash for the intended reviewer on round 3, a failure this document's own "
+      "Contamination Rules (Section 4) do not name. <b>(2)</b> the output ceiling is 200,000 "
+      "tokens, not 64,000 — the script's own comment records that 64,000 had already failed "
+      "once, on 2 September, producing 36,085 tokens of reasoning and no report. <b>(3)</b> "
+      "the materials are seven plain-text files (one instruction plus six attachments, "
+      "assembled by <font face=\"Courier\">build_audit_package.py</font>), not the five files "
+      "— two of them PDF or zip — this document's Materials section lists; the byte counts "
+      "and “19 source files” given there are 27 August figures and the source tree "
+      "has grown since. <b>(4)</b> the response streams to disk under "
+      "<font face=\"Courier\">docs/audit_reports/</font>, tracked in git, as it arrives — not "
+      "left to exist only in a chat window.", "Body"),
+    P("Found by the semantic half of the 6 September document audit. Not rewritten below: "
+      "doing that properly means re-deriving what a round 5 should actually look like, which "
+      "is real work and only matters when a round 5 is imminent, not before.", "Body"),
+], border_color=MAROON, bg=colors.HexColor("#fbf3f3")))
+
+story.append(PageBreak())
 
 story.extend(box([
     P("<b>What this document is for.</b>", "H2"),
