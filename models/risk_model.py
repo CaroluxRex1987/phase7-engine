@@ -56,6 +56,67 @@ MAX_STOP_DISTANCE_PCT = 15.0   # wider than this is not a stop, it is a hope
 MIN_STOP_DISTANCE_PCT = 0.2    # tighter than this sits inside market noise
 
 
+# ==================================================================
+# READING THE VERDICT — GLM F-7, extended. 6 September 2026.
+#
+# Every consumer of the risk block used to read the pass/fail with
+#
+#     risk.get("risk_valid", True)
+#
+# in three places: decision_model._determine_final_action (the trade
+# authorization gate), signal_router._build_decision_object (the
+# field that reaches the decision log and the panel), and
+# live_trading._build_simulated_order. GLM filed only the third and
+# argued Minor on the grounds that the module writes a simulated
+# order log. The severity argument does not cover the first.
+#
+# The default is the defect. A risk block that is a dict but carries
+# no `risk_valid` is a block on which risk was NEVER ASSESSED, and
+# the gate read that state as "assessed, and it passed" -- the one
+# direction an authorization gate must never fail in.
+#
+# It was reachable, not merely latent. signal_router's
+# _validate_engine_output checked that the key "risk" was PRESENT as
+# a section and never what it contained, so an engine output whose
+# risk block was `{}` passed validation, satisfied
+# _determine_final_action's isinstance(risk, dict) guard, and could
+# return LONG or SHORT with no risk assessment behind it.
+# _refuse_incoherent_plan does not catch that case either: an empty
+# block has no targets, so _plan_direction returns None and the
+# action is passed through untouched.
+#
+# This function is the one place a verdict is read, for the same
+# reason _optional_number is the one place an optional measurement
+# is read (signal_router.py, 6 September): a defect found in three
+# call sites is a class, and three corrected call sites are three
+# things to keep correct.
+# ==================================================================
+
+def read_risk_verdict(risk) -> Optional[bool]:
+    """
+    The risk block's pass/fail verdict, or None when there is no verdict.
+
+    Total by construction. Absent, present as None, and present as
+    something that is not a boolean are all one state -- risk was not
+    assessed -- and none of them is a pass. The caller decides what to do
+    about it; this function will not decide for them by inventing one.
+
+    Deliberately strict about the type. validate_risk_parameters() below
+    is the only producer and every one of its six return paths hands back
+    a Python bool literal, so nothing legitimate is rejected here. Should
+    some future path emit a numpy bool or a truthy string instead, this
+    returns None and the callers refuse the trade: an unrecognised verdict
+    fails closed, which is the direction this whole function exists to
+    protect.
+    """
+    if not isinstance(risk, dict):
+        return None
+    value = risk.get("risk_valid")
+    if isinstance(value, bool):
+        return value
+    return None
+
+
 class RiskModel:
     """
     Core institutional risk engine for Phase-7.

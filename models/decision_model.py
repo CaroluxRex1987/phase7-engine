@@ -2,6 +2,11 @@ from typing import Dict, Any, List, Tuple, Optional
 import logging
 import math
 
+# GLM F-7, extended -- 6 September 2026. The verdict is read through one
+# total function rather than with a permissive default at each call site.
+# See models/risk_model.py's read_risk_verdict().
+from models.risk_model import read_risk_verdict
+
 logger = logging.getLogger(__name__)
 
 
@@ -295,6 +300,7 @@ class DecisionModel:
         - LONG / CONSERVATIVE LONG / AGGRESSIVE LONG
         - SHORT / CONSERVATIVE SHORT / AGGRESSIVE SHORT
         - WAIT
+        - NO-TRADE (RISK NOT ASSESSED)
         - NO-TRADE (RISK TOO HIGH)
         """
         try:
@@ -303,7 +309,32 @@ class DecisionModel:
                 reasons.append("Some of the engine's inputs came back malformed, so no decision could be made safely — waiting.")
                 return "WAIT"
 
-            risk_valid = bool(risk.get("risk_valid", True))
+            # GLM F-7 AS EXTENDED, 6 September 2026. This line read
+            #
+            #     risk_valid = bool(risk.get("risk_valid", True))
+            #
+            # and this is the authorization gate. A risk block with no
+            # verdict in it means risk was never assessed, and the default
+            # turned that into a pass -- the engine's own permission to
+            # trade, granted by the absence of the check.
+            #
+            # Two states, two answers, and they are not the same NO-TRADE.
+            # "RISK TOO HIGH" says the check ran and failed, and the reason
+            # string names what failed. An unassessed block has no such
+            # reason to give, and printing "Risk check failed (OK)" -- which
+            # is what a bare flip of the default to False would have printed,
+            # since risk_reason defaults to "OK" -- would be the same
+            # fabrication wearing the opposite sign.
+            risk_verdict = read_risk_verdict(risk)
+            if risk_verdict is None:
+                reasons.append(
+                    "REFUSED: the risk block carries no pass/fail verdict, so "
+                    "risk was never assessed on this run. An unassessed check "
+                    "is not a passed check, and no trade is authorized on one."
+                )
+                return "NO-TRADE (RISK NOT ASSESSED)"
+
+            risk_valid = risk_verdict
             risk_reason = str(risk.get("risk_reason", "OK"))
             if not risk_valid:
                 reasons.append(f"Risk check failed ({risk_reason}), so no trade is allowed right now.")

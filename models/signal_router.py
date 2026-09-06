@@ -9,6 +9,8 @@ import math
 from core import config, decision_log
 from core.panel_render import render_panel
 from models.decision_model import DecisionModel
+# GLM F-7, extended -- 6 September 2026. See models/risk_model.py.
+from models.risk_model import read_risk_verdict
 
 logger = logging.getLogger(__name__)
 
@@ -55,6 +57,28 @@ class SignalRouter:
 
         if missing_sections:
             logger.error(f"Engine output missing required sections: {missing_sections}")
+            return False
+
+        # GLM F-7 AS EXTENDED, 6 September 2026. This function checked that
+        # the key "risk" was PRESENT and never what was under it, so
+        # {"bias": ..., "risk": {}} passed here, satisfied
+        # _determine_final_action's isinstance(risk, dict) guard, and reached
+        # a gate whose default turned an unassessed block into a pass. That
+        # composition -- a validator that checks presence, a consumer that
+        # defaults permissively -- is what made the defect reachable rather
+        # than latent.
+        #
+        # Rejecting here rather than only refusing downstream, because the
+        # engine output IS malformed and this is the function whose job is to
+        # say so. The refusal in decision_model.py stays as well: DecisionModel
+        # is called directly by tests and is a public class, so a caller that
+        # never passes through here must still not be able to buy a pass by
+        # omission.
+        if read_risk_verdict(raw_output.get("risk")) is None:
+            logger.error(
+                "Engine output's risk section carries no pass/fail verdict "
+                "(risk_valid absent or not a boolean); risk was not assessed"
+            )
             return False
 
         return True
@@ -350,7 +374,22 @@ class SignalRouter:
                 "risk": {
                     "atr_stop": float(risk.get("atr_stop", 0.0)),
                     "targets": (float(targets[0]), float(targets[1]), float(targets[2])),
-                    "risk_valid": bool(risk.get("risk_valid", True)),
+                    # GLM F-7 AS EXTENDED, 6 September 2026. This read
+                    # bool(risk.get("risk_valid", True)) and wrote the
+                    # invented True into the decision log and the panel, so
+                    # the permanent record of a run on which risk was never
+                    # assessed said risk passed.
+                    #
+                    # The contract still declares this bool rather than
+                    # Optional[bool], and that is now a guarantee rather than
+                    # a hope: _validate_engine_output above rejects an engine
+                    # output whose risk block carries no verdict, so nothing
+                    # reaching this assembly can produce None here. Declaring
+                    # it Optional would have been the weaker fix --
+                    # tests/test_decision_contract.py's _type_ok returns True
+                    # for any Union, so the field would have stopped being
+                    # type-checked at all.
+                    "risk_valid": read_risk_verdict(risk),
                     "risk_reason": str(risk.get("risk_reason", "OK")),
                     # ITEM 14 RE-AUDIT (Finding 5): risk_model.py's
                     # classify_risk_regime() always computed this; only its

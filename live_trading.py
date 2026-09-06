@@ -3,6 +3,7 @@ import os
 import json
 
 from models.signal_router import SignalRouter
+from models.risk_model import read_risk_verdict
 from core import config
 
 
@@ -125,7 +126,21 @@ class LiveTradingSimulator:
             "risk": {
                 "atr_stop": risk.get("atr_stop", 0.0),
                 "targets": risk.get("targets", (0.0, 0.0, 0.0)),
-                "risk_valid": risk.get("risk_valid", True),
+                # GLM F-7, the site GLM actually filed -- 6 September 2026.
+                # This read risk.get("risk_valid", True), so an order object
+                # built from a result with no risk block at all recorded a
+                # passed risk check. run_once() above returns early on an
+                # error result, which is why this was latent rather than
+                # live; _build_simulated_order is called directly by tests
+                # and is not private, so latent is not the same as safe.
+                #
+                # None rather than False when there is no verdict. The order
+                # log is a record of what the engine said, and "no verdict"
+                # is what it said; False would claim a check ran and failed.
+                # Nothing types this object -- it is neither of the two shapes
+                # core/decision_contract.py declares -- so it can carry the
+                # honest third value that the decision object cannot.
+                "risk_valid": read_risk_verdict(risk),
                 "risk_reason": risk.get("risk_reason", "OK")
             },
             "signals": {
