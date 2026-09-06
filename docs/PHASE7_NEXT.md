@@ -1,6 +1,6 @@
 # Next step — read this first
 
-*Updated 6 September 2026, third session. **Rounds 3 and 4 are both in. Two reports,
+*Updated 6 September 2026, fourth session. **Rounds 3 and 4 are both in. Two reports,
 sixteen distinct items between them, two real overlaps.** Round 3 was GLM 5.3 Flash (by
 accident, and it stands as round 3 on the record rather than discarded); round 4 was Kimi
 K3 through the API, the first complete report in four attempts. Kimi's Section 11
@@ -9,16 +9,20 @@ end to end**, and the fix for it has landed. **GLM F-7 as extended landed at `26
 and it turned out to be reachable rather than latent, which the 5 September note did not
 know. **Kimi Finding 5 item 6 landed at `4678f45`**, and it too was reachable: the swing
 detector needs 21 rows and the engine admits 20, so a 20-row frame got its own price back
-as a structural level. Suite: **377 passing, 0 failed**. Everything pushed.*
+as a structural level. **Kimi Finding 3, the largest of the Majors, landed at `1045748`** —
+the record now carries a hash of the source itself, because six of the seven settings that
+finding named cannot be held by a list of constant names at all. Suite: **400 passing,
+0 failed**. Everything pushed.*
 
-***The live run owed for F-7 has been made** — AEROUSDT 4h, 6 September 10:04, on the tree
-with both fixes applied and before the second commit. The gate read a real verdict and
-refused for a real reason. Nothing on the decision path is now sitting unrun. See "Kimi
-Finding 5 item 6" at the end of this file for the panel and for what a live run
-structurally cannot reach.*
+***Two live runs are on the record**, both AEROUSDT 4h on 6 September. 10:04 discharged the
+run owed for F-7. 10:51 was made on the tree carrying the Finding 3 fix, before that commit,
+and it found something neither reviewer did: the BTC block raised confidence and explained
+it with a sentence its own label contradicts — by a mechanism that is **not** the one Kimi
+Finding 2 describes. Nothing on the decision path is sitting unrun. See "Kimi Finding 3" at
+the end of this file; the new observation is input to decision 3 and is not itself ruled.*
 
 *The release gate is **still shut**. "Unresolved" means no fix has landed **and been
-re-audited**, and nothing landed since round 4 has been re-audited by anyone. Two Majors
+re-audited**, and nothing landed since round 4 has been re-audited by anyone. One Major
 from round 4 plus most of round 3's eleven stand unfixed. Eight decisions are open and all
 eight are Viktor's — see "Open — decisions" near the end of this file, which is the section
 to read first, together with "The round-3 versus round-4 comparison" above it.*
@@ -1968,10 +1972,11 @@ and the real fix is the missing test at the router seam rather than the merge li
 polarity on an authorization gate outranks what follows~~ — **DONE 6 September at `26a05dc`,
 see "GLM F-7 as extended" below**; then Kimi Finding 2 (blocked on decision 3); ~~then Kimi
 Finding 5 item 6~~ — **DONE 6 September at `4678f45`, see "Kimi Finding 5 item 6" below**;
-**then Kimi Finding 3, which is now the next piece of work** — the largest of the Majors and
-the least urgent because it degrades the record rather than the output, and it needs no
-decision from Viktor first; then the latent and Minor items as one sweep; then GLM F-8/F-9
-for test hygiene. Kimi Finding 2 remains the only item in this order blocked on a ruling.
+~~then Kimi Finding 3~~ — **DONE 6 September at `1045748`, see "Kimi Finding 3" below**;
+**then the latent and Minor items as one sweep, which is now the next piece of work** and
+needs no decision first; then GLM F-8/F-9 for test hygiene. **Kimi Finding 2 is the only
+item in this order blocked on a ruling, and it is the only round-4 Major left.** The
+10:51 live run added a second, independent mechanism to it — see decision 3.
 
 ### Open — decisions
 
@@ -1986,6 +1991,19 @@ These are Viktor's, and none was made on 5 September.
 3. **Kimi Finding 2 — fix or accept as a recorded limitation?** Display-only, labelled
    unvalidated, cannot reach a gate. Claude recommends fixing: it is a wrong number an
    operator reads, and "contained" is the argument that has failed twice here.
+   **Strengthened on 6 September by the 10:51 live run, and the new part is a second
+   mechanism rather than a second example.** Kimi's finding is that `abs(correlation)`
+   discards the correlation's sign, and its exhibit is a −0.90 pairing. At 10:51 the
+   correlation was **+0.51** — the sign was never in question — and the panel still printed
+   *"BTC is also neutral, agreeing with AERO's own bias"* over a BULLISH CONFIRMED AERO,
+   while raising confidence 73.86 → 75.80. Cause, verified at `decision_model.py` 704-768:
+   `agreement` is decided by the SIGN of `btc_score` and the words come from
+   `btc_detailed`, the LABEL. Those disagree for any score that is non-zero but below the
+   labelling threshold. So the function produces false sentences by two independent routes,
+   one of which is reachable on exactly the positive correlations the suite already covers —
+   and Kimi's own note that the tests cannot see the inverted case is true of this one too,
+   for a different reason: nothing asserts the sentence against the label. Full write-up
+   under "Kimi Finding 3" below, including what was inferred rather than checked.
 4. **Does the divergence change the independence policy?** If a two-reviewer union is twice
    either report, one clean reviewer per round is under-powered — which makes the ledger's
    scarcity problem worse rather than better. Viktor has said he wants to write his own
@@ -2033,14 +2051,18 @@ These are Viktor's, and none was made on 5 September.
    confirmed end to end, on unmodified code, before any fix.** See "The Section 11
    confirmation run" below, which also records what the run found beyond the finding and two
    wrong turns made getting there.
-2. ~~The fixes, in the order above.~~ **Kimi Finding 1, GLM F-7 as extended and Kimi
-   Finding 5 item 6 are all fixed and pushed (6 September, `76150d0`, `26a05dc` and
-   `4678f45`). Kimi Finding 3 is the next one, and it needs no decision from Viktor
-   first.** The rest of the order stands; Kimi Finding 2 is blocked on decision 3 above.
+2. ~~The fixes, in the order above.~~ **Kimi Finding 1, GLM F-7 as extended, Kimi Finding 5
+   item 6 and Kimi Finding 3 are all fixed and pushed (6 September, `76150d0`, `26a05dc`,
+   `4678f45` and `1045748`). The sweep of latent and Minor items is the next one, and it
+   needs no decision from Viktor first.** The rest of the order stands; Kimi Finding 2 is
+   blocked on decision 3 above and is the last round-4 Major.
 3. The Engineering Notes are current through Entry #82 and do not cover the round-4 run,
    the round-3 versus round-4 comparison, the Section 11 confirmation run, the Finding 1
-   fix, the F-7 fix, or the Finding 5 item 6 fix. **Six entries owed** — it was five
-   before item 6 landed, and the gap grows by one with every fix that ships.
+   fix, the F-7 fix, the Finding 5 item 6 fix, or the Finding 3 fix. **Seven entries owed**
+   — it was five before item 6 landed and six before Finding 3, and the gap grows by one
+   with every fix that ships. This is the item that has grown at every handover for three
+   sessions; it is a candidate for the structural treatment rule 28 describes rather than
+   for being carried forward an eighth time.
 4. The four `qwen_reasoning_*.txt` may now be renamed; the hold is discharged.
 5. Observed in the live run of 6 September and NOT investigated: the panel printed
    `BTC BIAS : BULLISH` directly above `BTC REGIME : BEARISH TREND`. Those come from two
@@ -2052,6 +2074,16 @@ These are Viktor's, and none was made on 5 September.
    BULLISH CONFIRMED` over `BTC REGIME : NEUTRAL STRUCTURE`. That is consistent with a
    legitimate state and is not evidence of one — two runs is not a sample, and the two
    functions are still unread.
+   **Third observation, 10:51 the same day: `BTC BIAS : NEUTRAL` over `BTC REGIME :
+   BEARISH TREND`.** Two of three runs show the two fields disagreeing. Still not a
+   finding and still not investigated — but the 10:51 run gives a partial and UNVERIFIED
+   explanation for the bias half: the BTC bias score at 10:51 was just under 19 (inferred
+   from the panel arithmetic, not observed), which is below the threshold that would have
+   labelled it BULLISH, so a positive score printed as NEUTRAL. Whether BTC's label comes
+   from `RAW_BIAS_THRESHOLD = 20.0` has NOT been checked — `calculate_dynamic_bias` is
+   still unread. If it does, the divergence is a labelling band and not a disagreement,
+   and this item closes cheaply. Reading those two functions is now the obvious next move
+   on it, and it is the same reading that decision 3 needs.
 6. This file's own head block was stale for most of 5 September and was rewritten on the
    6th. Worth re-reading it against reality at the end of each session rather than only at
    the end of each phase.
@@ -2497,6 +2529,238 @@ was already false by the time the amend happened, because the run had been made 
 Replaced by `_v2` carrying the panel. **A commit message is written before the last thing
 happens, and it is the thing that has to be re-read before it is used**, which the amend
 made cheap and would not have been after a push.
+
+## 6 September 2026 — Kimi Finding 3, and a sentence the live run found
+
+Landed at `1045748`, pushed. Suite 377 → **400 passing, 0 failed**. The golden snapshot DID
+move, was predicted to move in exactly five fields before the run, and moved in exactly
+those five.
+
+### The list could not be fixed by extending the list
+
+That is the whole finding, and the obvious remedy is the wrong one. Kimi names seven
+decision-affecting settings missing from `FINGERPRINTED_MODULES`, and `module_snapshot()`
+reads a name with `getattr(module, name)`:
+
+| setting | what it actually is |
+|---|---|
+| `DEGRADED_CONFIDENCE_CEILING` | a class attribute of `DecisionModel` |
+| `BTC_ADJUSTMENT_CAP` | a class attribute of `DecisionModel` |
+| `SPIKE_RATIO` | a local variable inside a function |
+| the entry multipliers | bare literals in an if/elif ladder |
+| the trend bands | bare literals in comparisons |
+| `window=30` | a keyword literal at a call site |
+| `0.0015` | a bare literal assigned to a local |
+
+`getattr` on a module reaches none of the last five. **Six of the seven are not omissions
+from a list. They are things a list of that shape cannot hold.**
+
+And the finding is narrower than the defect. An enumeration of constants cannot see a
+changed comparison operator, a reordered branch, or a new term in a formula — all of which
+change what the engine decides, and all of which left the record byte-identical. Rule 11
+(a list of names decays), rule 16 (a guard built from examples inherits their gaps) and
+rule 28 (change the structure, do not write an instruction to be careful) all point the
+same way: adding seven names satisfies the finding's letter and leaves the mechanism that
+produced it intact, ready to be short by seven more.
+
+### What changed
+
+`core/code_fingerprint.py` — new. For every `.py` file under the repository root that is not
+in an excluded **directory**: read bytes → `ast.parse` → strip docstrings → `ast.dump` →
+SHA-256, and `code_hash` is a SHA-256 over the sorted (path, digest) pairs. 32 files, about
+100 ms per run. No list of constants and no list of modules, so a constant written tomorrow
+is covered the moment it exists.
+
+The parse tree rather than the text, deliberately: this repository rewrites its explanatory
+comments in nearly every commit, and a fingerprint that always differs carries exactly as
+much information as one that never does — which is the defect being fixed.
+
+`core/engine_core.py` — takes the fingerprint in the lineage block, writes `code_hash` into
+provenance and the whole fingerprint including per-file digests into the archive meta. The
+decision log gets one line per run forever; the archive is gzipped and written once per
+distinct run, which is where thirty-two digests belong. Wrapped in `try/except` on the same
+argument as the archive block beside it.
+
+`core/decision_log.py` — `module_snapshot()` resolves dotted names through classes, so the
+two `DecisionModel` constants are in the readable record for the first time.
+`models.entry_model` gains an entry: its point budget decides every entry score the engine
+prints and was never fingerprinted at all.
+
+`core/decision_contract.py` declares `code_hash`. `tests/test_golden_path.py` adds it to
+`VOLATILE`. `tests/test_code_fingerprint.py` — new, 23 tests.
+
+### What it deliberately does not do, and this one is reversible
+
+`code_hash` is **not** folded into `run_hash`. Folding it in would move `run_hash` on every
+commit touching any engine file — and `run_hash` is pinned by the golden snapshot and is the
+archive's filename, so every commit would fail the golden test and need a re-baseline.
+**Re-baselining is the step where a real change gets waved through alongside the expected
+one.** That check has caught more defects here than any other, and spending it to buy a
+property the record already carries in a separate field is a bad trade.
+
+So `run_hash` keeps its documented meaning — which inputs, under which settings — and
+`code_hash` sits beside it saying which code. Held by a named test that asserts on the
+**parse tree** of the `run_hash` call site rather than on its text, because the comment
+beside that call discusses `code_id` at length and a substring search would read the
+explanation as the thing it warns against (rule 16, and rule 37 — knowing a rule is not
+applying it). The test's own failure message says what to do if the trade should go the
+other way.
+
+This was Claude's call under the delegation, not Viktor's, and it is one line to reverse.
+
+### Evidence against pre-fix code
+
+23 tests against an unmodified checkout of `eeb351d`: **21 failed, 2 passed.**
+
+**The honest number is 7** — the behavioural failures, from the half of the file that
+imports nothing this patch adds and therefore runs against the old engine exactly as
+written: provenance carries no code identity; the stored log record carries none; the
+archive meta carries no per-file digests; `ProvenanceBlock` does not declare the field; the
+degraded-confidence ceiling is not in the record; the BTC adjustment cap is not in the
+record; `models.entry_model` is not fingerprinted at all.
+
+The other **14 fail with `ModuleNotFoundError`** and prove the module is new, not that the
+defect was real. Rule 23, and the file says so where those tests begin. The 2 that pass
+pre-fix are named for what they are: a regression guard, and the decision guard above.
+
+Three negative controls, named in the file: a comment does not move the hash, a docstring
+does not move it, and the same source as CRLF and as LF hashes identically. The third earns
+its place here specifically — `test_pinned_source.py` already fails on any LF checkout
+because a hash was taken over bytes that carry line endings.
+
+The positive side edits the finding's own constants at their own lines in throwaway copies
+of the real files — `0.0015`, `SPIKE_RATIO`, `DEGRADED_CONFIDENCE_CEILING`, `window=30` —
+plus `>=` becoming `>` on a trend band, which is not one of the seven and is the reason the
+fix is a source hash rather than a longer list.
+
+### The golden re-baseline, predicted before it was run
+
+Adding constants to `FINGERPRINTED_MODULES` changes `module_snapshot`, which is inside
+`run_hash`, which is inside the archive filename. Predicted as five fields across two
+top-level keys, and that is what the diff showed:
+
+- `provenance.module_constants` — gains `DecisionModel.BTC_ADJUSTMENT_CAP`,
+  `DecisionModel.DEGRADED_CONFIDENCE_CEILING`, and the `models.entry_model` block (9 names)
+- `provenance.run_hash` — `a655ec56…` → `c8e207a1…`
+- `lineage.run_hash` — the same value
+- `provenance.archive_path` — `testusdt_4h_a655ec562938e176.json.gz` →
+  `testusdt_4h_c8e207a1d852aac4.json.gz`
+- `lineage.archive.path` — the same path
+
+The archive filename is the mechanical consequence rule 33 was written about: it is built
+from `run_hash[:16]` and moves with it. **Nothing else moved.** Every decision field is
+byte-identical — bias components, indicators at the decision bar, risk inputs, entry, risk,
+exit watch. `code_hash` does not appear in the snapshot at all, which is `VOLATILE` doing
+its job.
+
+### Figures, from the applied tree rather than the working copy
+
+| | before | after |
+|---|---|---|
+| pytest, `pandas_ta` installed | 377 / 0 | **400 passed, 0 failed** |
+| pytest, `pandas_ta` absent | 266 / 100 | **286 passed, 103 skipped, 0 errors** |
+| `run_tests.py` (no pytest) | 310 / 0 / 29 | **333 passed, 0 failed, 29 errors** |
+
+The error count under `run_tests.py` is **unchanged**: none of the 23 new tests takes a
+pytest fixture. 20 of the 23 run without `pandas_ta`; the 3 that skip are the ones that run
+the engine end to end.
+
+### The live run — AEROUSDT 4h, 6 September 10:51
+
+Made on the tree carrying this fix, after the patch was applied and before the commit.
+
+```
+CURRENT PRICE : $0.5451
+SWING STRUCT  : $0.5063 (Lookback 8)
+CONFIDENCE (decision): 73.86/100
+DECISION      : NO-TRADE (RISK TOO HIGH)
+Risk check failed (Risk regime classified as EXTREME RISK.)
+```
+
+The panel is unchanged in shape — no new line, no missing line — and no
+`Source fingerprint could not be taken` warning appeared, so the new `try/except` was not
+exercised and the fingerprint was taken on live data.
+
+**The hash matched the sandbox bit for bit.** `44e085cfa1fa0b5bb48ccd7a917b3f8db578619dc39d1386d333dcd3d9c49994`
+on Viktor's Windows machine under Python 3.12.10 against a CRLF checkout, and the identical
+value in a Linux sandbox under Python 3.12.3 against an LF checkout. The prediction made
+before the run was weaker than this — it claimed only that the file set matched, having
+enumerated the 31 `.py` files over the device bridge. Platform-independence, line-ending
+independence and 3.12-minor-version independence of `ast.dump` all fell out together and
+are now observed rather than assumed. **Not** observed: any interpreter outside 3.12.
+
+### What the run found that neither report contains
+
+The BTC block raised confidence 73.86 → 75.80 and explained it:
+
+```
+BTC BIAS      : NEUTRAL
+CORRELATION   : MODERATE POSITIVE (+0.51) over last 30 candles
+BTC-ADJUSTED CONFIDENCE: 75.80/100 (vs 73.86/100 unadjusted)
+ - BTC is also neutral, agreeing with AERO's own bias.
+```
+
+AERO reads `BULLISH CONFIRMED`. A neutral BTC cannot be "also" what a bullish AERO is, and
+it cannot be agreeing.
+
+**Verified**, `decision_model.py` 704-768: `agreement` is decided by the SIGN of `btc_score`,
+and the words in `agree_phrase` come from `btc_detailed`, the LABEL. Those disagree whenever
+the score is non-zero but below the labelling threshold. The arithmetic is sound —
+73.86 + 1.94 = 75.80 requires `agreement = +1` at the printed +0.51, which puts `btc_score`
+just under 19. **The number is behaving as designed; the sentence is false.**
+
+**Not verified**: that BTC's label threshold is `RAW_BIAS_THRESHOLD = 20.0`. The ~19 is
+inferred from the panel arithmetic, not observed, and `calculate_dynamic_bias` is unread.
+
+**Why it is not simply Kimi Finding 2.** Finding 2's title says "*and the reason string
+asserts agreement the data contradicts*", so this falls inside its title. But Finding 2's
+body and its exhibit are entirely about `abs(correlation)` discarding the correlation's
+sign, at −0.90. Here the correlation is **positive** and the sign was never in question, so
+that mechanism did not fire. This is a second, independent route to the same class of false
+sentence, reachable on exactly the positive correlations the suite already covers — and
+Kimi's note that the tests cannot see the inverted case is true of this one too, for a
+different reason: **nothing asserts the sentence against the label.**
+
+Rule 3: a defect found once is usually a class. Filed as input to decision 3 rather than
+fixed, because whether Finding 2 is fixed or accepted as a recorded limitation is Viktor's
+ruling and this changes what he is ruling on.
+
+Rule 25 again — reading finds what is written, running finds what happens. This survived two
+independent reviewers and every pass over that function, and surfaced on the first live run
+that happened to land in the band.
+
+### Not fixed, and why
+
+- **`engine_version` is still the static string.** It is a release label maintained by hand
+  and is now documented as one, in the contract and at the site that writes it. Making it
+  move automatically would put a second computed value beside `code_hash` carrying the same
+  information, and the banner/version mismatch it is tangled up with is Kimi Finding 6.
+- **`code_hash` depends on the interpreter.** `ast.dump` gains node fields between CPython
+  versions. Recorded rather than worked around: `python` is carried beside the hash in the
+  archive meta, and a test asserts it is there. Observed identical across 3.12.3 and
+  3.12.10; untested outside 3.12.
+- **The entry multipliers, the trend bands, `SPIKE_RATIO`, `window=30` and `0.0015` are
+  still unnamed literals.** Covered by the source hash, absent from the readable snapshot.
+  Naming them means moving them to module level, which is a change to the decision path;
+  this patch changed the record. Worth doing as its own item with its own golden diff.
+- **A rerun on identical inputs after a code change still overwrites the earlier archive.**
+  The archive is content-addressed by `run_hash`, which does not move on a code change. The
+  frames are byte-identical so nothing about the inputs is lost; what is lost is the earlier
+  run's `meta.code`. It follows directly from the `run_hash` decision and belongs beside it.
+- **The other invented defaults in the router assembly** named at `4678f45` still stand.
+
+### What went right delivering it, for once
+
+The candidate structural fix recorded under decision 8 on 6 September — **one numbered
+command list per delivery, issued once and never renumbered** — was used here for the first
+time. Nineteen steps, with the live run at step 7 and an explicit instruction to stop there,
+paste the panel, and resume at step 8 under the same numbers. Nothing was lost between the
+two halves; `git status --short` showed seven entries in the INDEX column before the commit
+and the commit reported seven files changed, both predicted in advance.
+
+That is one delivery, not evidence. But it is the first delivery since the rule was written
+where a run had to be inserted mid-list, which is the exact shape that lost a `git add` at
+`4678f45`. Decision 8 remains unruled.
 
 ## Working practice
 
