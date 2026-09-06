@@ -1,36 +1,32 @@
 # Next step — read this first
 
-*Updated 6 September 2026, sixth session. **Two of Claude's three recommended pieces of
-work are now done.** Engineering Notes entries #83-90 published, landed at `cdf9025` — the
-eight entries owed since the build-script fix are now in
-`docs/build/build_engineering_notes.py` and the rebuilt `docs/Phase7_Engineering_Notes.pdf`
-(63 → 72 pages, Document History row v1.23), confirmed rendering on Viktor's own Windows
-machine. **The semantic half of the document audit is also done** — all eight PDFs read
-against tip `0f8e04a`. It found one process-document staleness on the scale the mechanical
-half predicted (the Audit Execution Instructions describe a procedure nobody follows
-anymore), plus two smaller new findings (a stale Constitution register count in the
-Documentation Standard; a real crash/miscounting bug in `run_tests.py` under a genuine
-no-pytest environment), and reconfirmed several already-tracked items with exact code
-citations. Nothing found touches the decision path or the release gate. See "Open — work"
-below, item 3, now closed, "Engineering Notes entries #83-90 published" and "the semantic
-half of the document audit", both near the end of this file. Docs-only both times:
-`code_hash` unchanged at `44e085cfa1fa…`, confirmed rather than assumed.*
+*Updated 6 September 2026, sixth session. **All three of Claude's recommended pieces of
+work are done, and so are the three findings the semantic audit turned up.** Engineering
+Notes entries #83-90 published (`cdf9025`); the semantic half of the document audit done,
+all eight PDFs read against tip `0f8e04a` (`0f8e04a`, `fc4b8fc`); its three new findings —
+a stale procedure in the Audit Execution Instructions (partially closed: a correction
+notice added, the rewrite itself still owed and only matters before a round 5), a stale
+register count in the Documentation Standard (closed), and a crash bug in `run_tests.py`
+under a genuine no-pytest environment (closed) — all fixed and landed `8051f5f`. See "Open
+— work" below, item 3, and the three dated sections near the end of this file for each
+piece. **`code_hash` moved with the `run_tests.py` fix, predicted and confirmed:
+`6c4ef720baf991a020284fc7dfd81486ed2814fa6daafdbf84fbe2981a20a338`** — `run_tests.py` is
+deliberately fingerprinted (its own test pins that). Suite confirmed unmoved on Viktor's
+own machine: 412 passed/0 failed with `pandas_ta`, `run_tests.py` 345 passed/0
+failed/29 errors, both checked before and after the `run_tests.py` patch.*
 
 ***Nothing has been ruled this session.*** *All eight items in "Open — decisions" are still
 open and still Viktor's, decision 3 and decision 7 included. The release gate is still shut,
 and nothing that has landed since round 4 has been re-audited by anyone.*
 
-***Where the next session starts.*** *All three of Claude's recommended pieces of work are
-now done or read-only-complete. What's left, not a ruling, Viktor's choice:*
+***Where the next session starts.*** *Everything from Claude's recommended order and the
+semantic audit's findings is done. What's left is the fourteen-item sweep, assembled in
+"The sweep of latent and Minor items" — the only piece of open work that touches the
+decision path: three patches, three golden predictions, live runs owed. Not a ruling —
+still Claude's own recommendation, and still Viktor's call whether or when.*
 
-1. *__The fourteen-item sweep__, assembled in "The sweep of latent and Minor items" — the
-   only piece of open work that touches the decision path: three patches, three golden
-   predictions, live runs owed.*
-2. *__The three new findings from the semantic audit__ — none touches the decision path;
-   the Audit Execution Instructions one only matters before a round 5 is run.*
-
-*__Against either order:__ if the goal is opening the release gate, neither moves it. That
-runs through decision 3 (Kimi Finding 2) and a re-audit, both of which are Viktor's.*
+*__If the goal is opening the release gate, the sweep doesn't move it either.__ That runs
+through decision 3 (Kimi Finding 2) and a re-audit, both of which are Viktor's.*
 
 *__Environment note, 6 September:__ `reportlab` is installed on Viktor's machine and has now
 rebuilt `Phase7_Engineering_Notes.pdf` there successfully. It is deliberately not in
@@ -3250,6 +3246,12 @@ before a round 5 is actually run. Recorded as a finding rather than scheduled, s
 Major as a process document: following it as written would misconfigure a future round
 without warning about the one failure mode that has already cost one.
 
+**PARTIALLY CLOSED 6 September 2026.** Not rewritten — that is still owed, and only
+matters once a round 5 is imminent — but a prominent correction notice now sits at the top
+of the document, before "1. Materials", naming all four divergences above with citations to
+`send_audit_round.py`. A person picking this document up to run round 5 now sees the
+correction before the stale procedure rather than following it blind. Landed `8051f5f`.
+
 ### New: the Documentation and Change Log Standard states the wrong register size
 
 `Phase7_Documentation_and_Change_Log_Standard.pdf` says twice, including in its own
@@ -3261,6 +3263,10 @@ this file itself has used everywhere else since. The Roadmap and the Audit Execu
 Instructions both correctly say 21/7/10/6. A document about documentation discipline
 misstating the size of the register it sits beside, uncorrected for at least twelve days,
 is Moderate and mildly ironic rather than dangerous. Not fixed here.
+
+**CLOSED 6 September 2026.** Both mentions corrected to 21/7/10/6, a correction paragraph
+added rather than a silent edit, and a Version History row (v1.1) — the document's first
+revision since v1.0. Landed `8051f5f`.
 
 ### New: `run_tests.py`'s "works without pytest" claim doesn't hold under a genuine no-pytest environment
 
@@ -3281,6 +3287,19 @@ document never states that precondition. Severity Minor/Moderate: does not touch
 decision path, and Viktor's own Windows/3.12.10 machine always has both, but it is a live
 bug in the project's own test tooling on exactly the axis (dependency/interpreter variance)
 this project is otherwise careful about. Not fixed here.
+
+**CLOSED 6 September 2026.** Both call sites (`_run_one()` and `main()`'s `load()` call)
+now catch `BaseException` rather than `Exception`, re-raising `KeyboardInterrupt` and
+`SystemExit`. Reproduced fixed in both problem environments: pytest-without-pandas_ta no
+longer crashes (240 passed / 1 failed / 122 errors, a real if different count rather than
+no count at all); the module-level `importorskip` crash is fixed too, a second call site
+the original report did not separately name. The docstring's "no pytest, no plugins" claim
+is corrected to what was actually verified. `code_hash` moves, predicted and confirmed:
+`44e085cfa1fa…` → `6c4ef720baf9…` — `run_tests.py` is deliberately fingerprinted (its own
+test says so). In the project's real environment (pytest + `pandas_ta`), before and after
+are byte-identical, run twice: 344 passed / 1 failed (the known LF-clone artifact,
+unrelated) / 29 errors — confirming the fix is inert where it needs to be. Landed `8051f5f`.
+**Head-block `code_hash` below is now the new value.**
 
 ### Confirmed, not new — restated with exact current-code citations
 
@@ -3321,10 +3340,11 @@ allowlisting) are followed — none of these are checkable from a static read. T
 Constitution's own Items 15 and 17 (backtesting isolation, empirical-over-theoretical) stay
 correctly "Unknown" — there is no backtesting code in the tree to check against.
 
-**Nothing here is fixed and nothing is ruled.** Three new findings (Audit Execution
-Instructions, Documentation Standard's register count, `run_tests.py`'s no-pytest crash)
-join the fourteen-item sweep as candidates for the same kind of pass, at Viktor's call on
-priority — none blocks the release gate, none touches the decision path.
+**All three new findings are now fixed, 6 September 2026, landed `8051f5f`.** Two
+docs-only (register count, the audit-instructions correction notice); one real code
+change (`run_tests.py`), which moved `code_hash` — predicted, confirmed, and recorded in
+the head block. None of this touched the decision path, and nothing here was a ruling —
+the fourteen-item sweep is the only piece of open work left that touches it.
 
 ## The sweep of latent and Minor items — assembled 6 September 2026
 
