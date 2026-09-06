@@ -7,9 +7,22 @@ pytest is the intended way to run this suite:
     pip install -r requirements-dev.txt
     pytest -v
 
-This script exists so the suite also runs on a machine with nothing but a
-Python interpreter — no pytest, no plugins, no virtualenv. It discovers
-test_*.py files in tests/, calls every test_* function, and reports.
+This script exists so the suite also runs without pytest as the driver — it
+discovers test_*.py files in tests/, calls every test_* function directly with
+no fixtures, and reports.
+
+CORRECTED 6 September 2026 -- what "without pytest" actually means. Verified
+in this project's own environment (pytest installed, pandas_ta installed --
+the pair recorded in the head block of docs/PHASE7_NEXT.md), this runner
+reproduces the project's baseline figures exactly. It does NOT run on "a
+machine with nothing but a Python interpreter", the earlier claim here: most
+test_*.py files `import pytest` at module scope for `pytest.mark.parametrize`,
+`pytest.skip`, `pytest.approx` and similar, so with pytest genuinely absent
+roughly half the test files fail to import at all, and the result is nothing
+like the 29-errors figure this project actually watches. What this script
+buys is independence from pytest as the *test driver* -- no collection, no
+fixtures, no plugins -- while pytest itself still needs to be on the path for
+`import pytest` to resolve inside the test files that use it.
 
 Usage:
     python run_tests.py              # everything
@@ -91,7 +104,16 @@ def _run_one(fn, capture):
         return "pass", "", buf.getvalue()
     except AssertionError as e:
         return "fail", str(e), buf.getvalue()
-    except Exception as e:
+    except (KeyboardInterrupt, SystemExit):
+        raise
+    except BaseException as e:
+        # Not `except Exception`. pytest.skip() raises Skipped, which pytest
+        # deliberately makes a BaseException subclass rather than an Exception
+        # subclass -- found 6 September 2026, the semantic document audit:
+        # `except Exception` here let a skip crash the whole run instead of
+        # counting as one file's problem, the first time a test skipped with
+        # pytest importable but pandas_ta absent. This runner has no notion of
+        # "skipped"; it becomes an error, same as a fixture-taking test does.
         return "error", f"{type(e).__name__}: {e}", buf.getvalue()
 
 
@@ -131,7 +153,13 @@ def main(argv):
         rel = os.path.relpath(path, ROOT)
         try:
             mod = load(path)
-        except Exception as e:
+        except (KeyboardInterrupt, SystemExit):
+            raise
+        except BaseException as e:
+            # Not `except Exception` -- a module-level `pytest.importorskip()`
+            # or `pytest.skip()` raises Skipped during this exec_module call,
+            # and Skipped is a BaseException subclass for the same reason
+            # noted in _run_one() above. Found alongside that one, same audit.
             errors.append((rel, f"could not load: {type(e).__name__}: {e}", ""))
             print(f"{RED}ERROR{RESET}  {rel}  (could not load: {e})")
             continue
