@@ -21,6 +21,24 @@ it with a sentence its own label contradicts — by a mechanism that is **not** 
 Finding 2 describes. Nothing on the decision path is sitting unrun. See "Kimi Finding 3" at
 the end of this file; the new observation is input to decision 3 and is not itself ruled.*
 
+***The test suite was destroying the engine's decision record, and had already done it.**
+Found on 6 September by running the suite against a clean clone and watching the
+filesystem. Twenty-eight tests wrote real decision records into the live log; one deleted
+`logs/` outright. The 10:04 run's raw record and the three synthetic Section 11 records
+were lost that way before anyone noticed. A pristine checkout of `717ea30`, seeded with
+marker files, came out of a **400-passing** suite run with every marker gone. **Fixed and
+landed at `fc35a2f`**, after the first attempt failed on Windows for a reason worth
+reading — see "The suite was destroying the decision record" near the end of this file.
+**Decision 7 has been restated as a consequence and still needs your ruling.***
+
+***The document set was audited end to end on 6 September**, and the mechanical half is
+clean where it matters: all three audit-package manifests verify byte-for-byte against
+their recorded build commits, so what each reviewer graded is provable. Two structural
+problems came out of it — no build script can write into the repository, which is why the
+Engineering Notes gap has grown at every handover; and this file carried false statements
+about the decision log. The semantic half, reading the eight PDFs against the current
+state, has NOT been done. See "The document audit" below.*
+
 *The release gate is **still shut**. "Unresolved" means no fix has landed **and been
 re-audited**, and nothing landed since round 4 has been re-audited by anyone. One Major
 from round 4 plus most of round 3's eleven stand unfixed. Eight decisions are open and all
@@ -1954,6 +1972,30 @@ under-scoped: the same default sits on the trade-authorization path in
 F-8 and F-9 — two tests whose stated method and actual method diverge. F-11 — `exit_model`'s
 `or 0.0` on hvn/lvn is dead code that is safe only because `NaN > 0` is False.
 
+**Two more, added 6 September, and the omission is the point.** The paragraph above named
+six GLM-only findings. GLM filed eleven (F-1 to F-11; F-12 is a summary, not a finding),
+with two real overlaps — F-4 against Kimi Finding 1, and F-2's `pct_slope` against Kimi
+Finding 7 — so nine should be listed here and six were. F-5 turns up under "Agreed by
+both" below. **F-1 and F-10 appeared nowhere in this comparison at all**, which means the
+sweep assembled from the sections this file names would have silently dropped them:
+
+- **F-1** — two `.bfill()` calls survive in `indicators/indicators.py::pct_slope`. GLM
+  verified it is not a live leak: the analysis happens at the last bar of a 450-row frame
+  and the contaminated rows sit ~400 bars behind every window the decision reads. It is an
+  Item 2 residual on a path a backtest harness walking the decision timestamp backwards
+  would reach with no code change. It dies with `pct_slope` if F-2 is fixed by deletion.
+- **F-10** — `module_snapshot()` swallows import failures and records
+  `{"<import failed>": str(exc)}` **inside the run-hash payload**, and nothing documents
+  that. Two runs on identical data, one where `models.decision_model` fails to import,
+  produce different `run_hash` values with no field-level signal distinguishing an
+  environment failure from a deliberate setting change. Item 5: recoverable, yes;
+  distinguishable, no. Not fixed by the `code_hash` work, which answers a different
+  question.
+
+This is the same defect class the comparison itself describes one paragraph down — a
+reviewer reasoning from a list another source proves incomplete — occurring in the
+comparison. Rule 11: a list of names decays, including this one.
+
 **Agreed by both.** `pct_slope` is unconsumed dead code; the confidence and entry-quality
 labels overlap more than the panel admits; the suite tests behaviour rather than merely
 pinning it, reversing the earlier auditor's judgement; and neither found a Critical.
@@ -2004,6 +2046,22 @@ These are Viktor's, and none was made on 5 September.
    and Kimi's own note that the tests cannot see the inverted case is true of this one too,
    for a different reason: nothing asserts the sentence against the label. Full write-up
    under "Kimi Finding 3" below, including what was inferred rather than checked.
+
+   **The inference is now VERIFIED, and the band is wider than the write-up assumed.**
+   `calculate_dynamic_bias` and `calculate_dynamic_regime` were read on 6 September, which
+   is what closed this. BTC's label does come from `RAW_BIAS_THRESHOLD = 20.0`:
+   `engine_core.py` line 748 computes BTC's bias through `calculate_dynamic_bias`, and
+   `bias_engine.py` 355-360 requires `bias_score > 20.0` strictly to call a side.
+   `engine_core.py` 765 then passes that through `BiasStateMachine.transition`, which
+   requires `abs(score) < 20` for NEUTRAL — so both gates agree at the ~19 the panel
+   arithmetic implied. `decision_model.py` 708 reads `btc_context["score"]`, the same
+   blend score, and takes its SIGN.
+
+   So the false-sentence band is **0 < |btc_score| ≤ 20**, not a narrow neighbourhood of
+   19. Every score in it has a non-zero sign and a NEUTRAL label. The 10:51 run did not
+   land in an unlucky corner; it landed in a twenty-point-wide dead zone that the suite's
+   own positive correlations reach routinely. That strengthens the case for fixing rather
+   than accepting, and it is the last input this decision was waiting on.
 4. **Does the divergence change the independence policy?** If a two-reviewer union is twice
    either report, one clean reviewer per round is under-powered — which makes the ledger's
    scarcity problem worse rather than better. Viktor has said he wants to write his own
@@ -2014,13 +2072,41 @@ These are Viktor's, and none was made on 5 September.
 6. **Disclosure.** The round-3 run was not disclosed to Kimi, deliberately and on the record.
    If any of this comparison reaches the portfolio document, the non-disclosure and its
    reason travel with it.
-7. **The three synthetic records in the live decision log.** Records 10, 11 and 12 of
-   `logs/phase7_decision_log_aerousdt.jsonl`, written by the first version of the Section 11
-   harness before it was repointed at a temporary directory. Prune or keep? The standing
-   practice of recording wrong turns rather than tidying them argues for keeping; it is his
-   record either way. Written up in "Two wrong turns" below since 6 September and promoted
-   to this list on the same day, because a decision recorded only in prose is a decision
-   nobody is tracking.
+7. **What the live decision log is for, now that most of it is test output.**
+   **RESTATED 6 September 2026 — the previous wording is preserved below because it is a
+   decision that could not have been ruled on as written.**
+
+   It used to read: "the three synthetic records in the live decision log — records 10, 11
+   and 12 of `logs/phase7_decision_log_aerousdt.jsonl`, written by the first version of the
+   Section 11 harness before it was repointed at a temporary directory. Prune or keep?"
+
+   Those three records no longer exist, and neither does the file they were in. Acting on
+   that wording against the log as it now stands would have deleted **record 11, the 10:51
+   live run**, and found no record 12. A decision that names rows by position in an append
+   log is a decision with an expiry date nobody wrote down.
+
+   What the file actually holds: eleven records, all stamped 08:51 UTC on 6 September
+   inside a single minute. Records 1-10 are a **test suite run** — identical
+   `run_hash 3a68572a83`, identical bias score 78.6973, one error record carrying no
+   `code_hash`. Record 11 is the 10:51 AEROUSDT run at 73.859. Reproduced exactly in a
+   sandbox: one full suite run writes those same ten records. So **one of eleven records
+   in the engine's permanent record is a decision anybody made.**
+
+   The suite no longer writes there (see "The suite was destroying the decision record"),
+   so the file is stable from here. The question that remains is Viktor's and it is
+   larger than pruning:
+
+   - Do the ten suite records get pruned, leaving one real run, or does the log keep them
+     as the evidence of what was happening to it? The standing practice of recording wrong
+     turns rather than tidying them argues for keeping — but that practice was written for
+     wrong turns somebody took, not for output a green test suite deposited.
+   - Does a log that has been rebuilt from test output serve as the Item 5 / Item 6 record
+     the release gate leans on, or does that record start again from the next live run?
+   - `logs/` is gitignored, so the record still has no second copy anywhere. Whether that
+     changes is part of the same ruling.
+
+   Nothing here is urgent in the sense of blocking work, and nothing should be deleted
+   before it is ruled on. It is his record either way.
 8. **Two holes in the delivery and handover mechanism, found on 6 September.** Both are
    process rather than code, both have a structural fix available, and neither is ruled.
    See "What the handover found, and could not have found" below for the evidence.
@@ -2056,6 +2142,12 @@ These are Viktor's, and none was made on 5 September.
    `4678f45` and `1045748`). The sweep of latent and Minor items is the next one, and it
    needs no decision from Viktor first.** The rest of the order stands; Kimi Finding 2 is
    blocked on decision 3 above and is the last round-4 Major.
+
+   **The sweep is now assembled — fourteen items, in "The sweep of latent and Minor items"
+   near the end of this file.** It was spread across six sources and no section held it,
+   and two of its items (GLM F-1 and F-10) were missing from the comparison that was
+   supposed to list them. **One thing jumped ahead of it on 6 September**: the test suite
+   was destroying the decision record, which outranks fourteen latent items and is fixed.
 3. The Engineering Notes are current through Entry #82 and do not cover the round-4 run,
    the round-3 versus round-4 comparison, the Section 11 confirmation run, the Finding 1
    fix, the F-7 fix, the Finding 5 item 6 fix, or the Finding 3 fix. **Seven entries owed**
@@ -2063,6 +2155,22 @@ These are Viktor's, and none was made on 5 September.
    with every fix that ships. This is the item that has grown at every handover for three
    sessions; it is a candidate for the structural treatment rule 28 describes rather than
    for being carried forward an eighth time.
+
+   **The structural cause was found on 6 September, and it is not discipline.** All ten
+   PDF builders under `docs/build/` hardcode their output to `/tmp/outputs/` — an absolute
+   Linux path that does not exist on Viktor's machine and is nowhere in this repository.
+   **No build script can write into the repository.** Every PDF in `docs/` was produced in
+   a sandbox and carried across by hand. So "regenerate the Notes" is not one command; it
+   is run in a sandbox, find the file in `/tmp`, move it over the device bridge, commit —
+   which is exactly the shape of task that does not get done at the end of a session.
+   Pointing `OUTPUT_PATH` at `docs/` makes the safe action the only available one. That is
+   its own patch and its own commit; it is Claude's under the delegation and is not done
+   yet. **Eight entries owed** counting 6 September's document audit.
+
+   Two of the ten are worse and cannot be fixed by repointing alone:
+   `build_findings_bundle.py` and `build_remediation_plan.py` also READ from
+   `/tmp/outputs/audit_raw/`, source material that is not in this repository. Neither
+   document can be regenerated by anyone, from here, at all.
 4. The four `qwen_reasoning_*.txt` may now be renamed; the hold is discharged.
 5. Observed in the live run of 6 September and NOT investigated: the panel printed
    `BTC BIAS : BULLISH` directly above `BTC REGIME : BEARISH TREND`. Those come from two
@@ -2084,6 +2192,27 @@ These are Viktor's, and none was made on 5 September.
    still unread. If it does, the divergence is a labelling band and not a disagreement,
    and this item closes cheaply. Reading those two functions is now the obvious next move
    on it, and it is the same reading that decision 3 needs.
+
+   **CLOSED 6 September 2026 — not a finding, and verified rather than inferred.** Both
+   functions were read. They do not measure the same thing and were never expected to
+   agree. `calculate_dynamic_regime` (`bias_engine.py` 369-416) returns
+   `df["STRUCTURE"].iloc[-1]` verbatim — the raw structural label, nothing else.
+   `calculate_dynamic_bias` is a six-factor weighted blend in which that same label enters
+   as `structure_regime` at weight **0.20** (`bias_engine.py` 51, 216-218), alongside
+   trend health 0.30, volume sentiment 0.15, SuperTrend 0.15, macro 0.10 and
+   reversal/continuation 0.10. The result is thresholded at ±20 and then passed through
+   `BiasStateMachine`, which needs ±30 to say CONFIRMED. The panel's BTC BIAS line is that
+   state machine's output (`engine_core.py` 765), not the raw label at all.
+
+   A `BEARISH TREND` structure carrying a fifth of the weight can be outvoted by the other
+   four fifths. `BTC BIAS : NEUTRAL` over `BTC REGIME : BEARISH TREND` is a legitimate
+   state, and two of three runs showing the two fields disagreeing is the expected shape
+   rather than a symptom. Three runs was never a sample; it did not need to be.
+
+   What it leaves, and it is presentation rather than correctness: the panel prints the two
+   adjacently with nothing saying they are different quantities measured at different
+   scales. Same class as GLM F-5 — a label that overlaps another more than the panel
+   admits. Recorded there, not reopened here.
 6. This file's own head block was stale for most of 5 September and was rewritten on the
    6th. Worth re-reading it against reality at the end of each session rather than only at
    the end of each phase.
@@ -2155,6 +2284,18 @@ is unchanged at 90,277 bytes and its modification time did not move.
 The three synthetic records still sit in the live decision log. Left for Viktor to rule on;
 the standing practice of recording wrong turns rather than tidying them argues for keeping
 them, but it is his record.
+
+**CORRECTION, 6 September 2026 — the paragraph above is now false about the file, and is
+kept because it was true when written and the correction is the point.** The three
+synthetic records are gone, and so is the twelve-record, 90,277-byte file they were in.
+`test_lineage.py`'s archive-path spelling test deleted `logs/` outright on a later suite
+run, and the suite then rebuilt the log out of its own test output. See "The suite was
+destroying the decision record" below, and decision 7, which has been restated because it
+named those records by position.
+
+The harness fix described above was correct and remains correct. It repointed **one**
+caller while the same defect sat in twenty-eight tests and one `rmtree`, and nobody asked
+whether the class was larger. Rule 3, and this is where the two halves of it meet.
 
 **The delivery mechanism shipped the wrong version silently.** The corrected harness was
 staged for the device bridge under the same filename as the version it replaced, and the
@@ -2761,6 +2902,346 @@ and the commit reported seven files changed, both predicted in advance.
 That is one delivery, not evidence. But it is the first delivery since the rule was written
 where a run had to be inserted mid-list, which is the exact shape that lost a `git add` at
 `4678f45`. Decision 8 remains unruled.
+
+## 6 September 2026 — the suite was destroying the decision record
+
+Landed at `fc35a2f`, pushed. Suite 400 → **406 passing, 0 failed**. No engine
+source file touched, so no live run was owed and `code_hash` did not move.
+
+### How it was found, and why neither reviewer could have
+
+Not by reading. By running the suite against a clean clone and listing `logs/` before and
+after. Every individual line involved is unremarkable; the damage exists only at runtime.
+Rule 25, and this is the sharpest example the project has produced: two independent
+reviewers read these files, one of them filed a finding about the very test that does the
+worst of it, and the mechanism survived both.
+
+### Four routes into the engine's own record, and the fourth surfaced after the first fix shipped
+
+**1. Twenty-eight tests, across ELEVEN files, ran the engine against the real
+`config.LOG_DIR`.** Nothing repointed it. A full suite run appended nine real decision
+records to `logs/phase7_decision_log_aerousdt.jsonl`, plus one error record, and wrote an
+archive, a chart and the cross-run state file. The writers include `test_traceability.py`
+and `test_code_fingerprint.py` — the two files whose entire subject is what the permanent
+record contains. `test_the_code_hash_survives_into_the_permanent_log_not_just_the_return`
+asserts against a log it wrote itself moments earlier.
+
+**2. A twelfth file deleted the directory.** `test_lineage.py`'s archive-path spelling
+test passed the relative literal `"logs/"` to `lineage.write_archive` and then called
+`shutil.rmtree("logs", ignore_errors=True)` in a `finally`. Resolved against the
+repository root, that is the engine's real log directory: decision log, every archive, the
+charts, the state file.
+
+**3. A thirteenth created it as a side effect.** `test_imports.py` purges and re-imports
+every engine module, which re-executes `core/config.py` and undoes any redirection;
+`main.py` then opens a `logging.FileHandler` in `config.LOG_DIR` at module scope. The test
+whose subject is whether modules import was creating the engine's log directory.
+
+**4. A fourteenth wrote into it through the CAPITALISED spelling.**
+`test_frame_ownership.py` saved two PNGs to `REPO_ROOT/Logs/Charts/`. On Linux that is a
+stray second directory; on Windows, where the filesystem does not distinguish the two
+names, it is the engine's live chart directory, beside the chart of the last real run.
+This is exactly the defect `test_no_module_hardcodes_a_path_config_declares` was written
+about — in a file that test does not scan, because it checks modules and these two lines
+are in a test.
+
+### The first patch was wrong, and the way it was wrong is the lesson
+
+v1 was built, verified in a Linux sandbox, delivered, applied — and **failed on Viktor's
+machine at the first test run**, with two failures.
+
+The guard watched the directory named exactly `logs`. Route 4 writes to `Logs`. On Linux
+those are two directories, so the guard reported clean and the sandbox verification said
+405 passing. On Windows they are one directory and the guard fired immediately. **A guard
+whose result depends on which platform it ran on is not a guard**, and the platform it was
+verified on was not the platform it runs on.
+
+The second failure was a negative control asserting that writing `"one\n"` produces a
+4-byte file. Text mode on Windows produces 5. A hardcoded byte count that ignored line
+endings — the third time this repository has been bitten by that exact thing, after
+`test_pinned_source.py`'s manifest and the audit package's normalisation.
+
+Both are recorded here rather than quietly fixed because the first one changes how
+verification should be read from now on: **a result from the Linux sandbox is evidence
+about Linux until something makes it evidence about Windows.** The guard now scans by
+lowercased directory name so a Linux run sees what a Windows run would, and that
+behaviour has its own test. Confirmed by reverting only the route-4 fix: the guard then
+fails on Linux, where v1's passed.
+
+v1 also said "twenty-eight tests across twelve files". Twenty-eight is right; eleven files
+write and the twelfth deletes. Caught by recounting the evidence, not by review.
+
+So the suite did not merely pollute the record. It destroyed it and partially rebuilt it
+out of test output, and `logs/` is gitignored, so nothing anywhere held a second copy.
+
+### It had already happened, and this is what was lost
+
+The live log holds eleven records. Ten are a suite run at 08:51 UTC — one `run_hash`,
+`3a68572a83`, one bias score, 78.6973, and one error record with no `code_hash`. The
+eleventh is the 10:51 AEROUSDT run at 73.859. Reproduced in a sandbox: a single full suite
+run writes exactly those ten, error record included, plus
+`logs/archive/aerousdt_4h_3a68572a835705c5.json.gz` and
+`logs/charts/chart_AEROUSDT_4h.png`.
+
+**Gone:** the 10:04 run's raw record and its archive, and the three synthetic Section 11
+records this file spent a section describing. The 10:04 run now survives only as the panel
+pasted into this document. The statement above that both runs' raw records "are only on my
+disk" was true when written and is no longer true of 10:04.
+
+The append-only writer (`decision_log.py:294`, `open(path, "a")`) means records cannot
+vanish by writing. The `rmtree` is how they vanished. What cannot be recovered from here
+is the contents; if a second `phase7_decision_log_aerousdt.jsonl` exists elsewhere on
+disk, they are in it.
+
+### Evidence against pre-fix code
+
+A pristine checkout of `717ea30`, seeded with three marker records, a marker archive, a
+marker chart and a marker state file, then run:
+
+**400 passed — and every marker was gone.** Three records replaced by ten test records.
+`aerousdt_4h_deadbeefdeadbeef.json.gz` deleted. Chart and state file overwritten.
+
+A green suite destroyed the evidence. That is the defect executed rather than argued.
+
+The same experiment on the patched tree, through all three configurations: **406 / 292 /
+339 passing**, and
+`logs/phase7_decision_log_aerousdt.jsonl` came through with sha256
+`c6000cb40613a8f0fafb7b45826f069f2d627f40c52eeaf5b81d842ebf1e9ec3` unchanged, all four
+seeded files intact, through all three test configurations.
+
+### What changed
+
+`tests/conftest.py` points `config.LOG_DIR` and `config.CHART_DIR` at a temporary
+directory **at import time** — not as a pytest fixture, because `run_tests.py` never calls
+a fixture but does import this module. One place, both runners. The shipped values are
+kept so a guard can prove this is a redirection rather than a change to what a real run
+does.
+
+`tests/test_lineage.py` runs the archive-path test in a working directory of its own. The
+argument stays the relative literal `"logs/"` deliberately: the defect it pins is a
+separator inside a path built from that argument, so normalising the argument would test
+something else.
+
+`tests/test_golden_path.py` gets its own workspace and keeps the relative log spellings,
+so `provenance.archive_path`, `lineage.archive.path` and `decision_log_path` still record
+as `logs/...`. **The golden snapshot did not move and was not re-baselined.** Adding those
+three fields to `VOLATILE` was the easy fix and was rejected — it would have retired the
+cross-platform path-spelling coverage that caught a real defect on Viktor's machine.
+`_state_path()` now resolves against that workspace rather than `REPO_ROOT`.
+
+`tests/test_imports.py` gets a working directory too. Purging and re-importing every
+module re-executes `core/config.py`, undoing the redirection, and `main.py` opens a
+`FileHandler` in `config.LOG_DIR` at module scope — so the test whose subject is whether
+modules import was creating the real `logs/` as a side effect. Redirecting config again
+after the purge would be a race against import order; moving the working directory is not.
+
+`tests/test_explicit_configuration.py`'s `.gitignore` check reads the shipped values, since
+the live ones are now a temp directory during a run. The question it asks is about what a
+real run does on a clone.
+
+`tests/test_frame_ownership.py`'s two plotting tests write their PNG to a temporary
+directory instead of `REPO_ROOT/Logs/Charts/`. Neither test cares where the file lands;
+both care what happens to the frame and to the log while it is written.
+
+`tests/test_real_log_directory_untouched.py` — new, 6 tests. Two earn their place
+specifically: a negative control proving the snapshot comparison can report a difference at
+all, since it returns early when nothing exists on either side; and one pinning the
+case-insensitive scan, which is the thing v1 got wrong.
+
+### Where the verification stopped
+
+The third guard — that the real `logs/` came through unaltered — is **order-dependent**,
+and its docstring says so. It sees only damage done by tests that ran before it, and it
+cannot see a test that deletes the directory and rebuilds it byte for byte. The guarantee
+is the redirection; that test is the alarm for when the redirection stops working.
+Confirmed non-vacuous: with the two redirection lines commented out, both config guards
+fail.
+
+### Figures
+
+| | before | after |
+|---|---|---|
+| pytest, `pandas_ta` installed | 400 / 0 | **406 passed, 0 failed** |
+| pytest, `pandas_ta` absent | 286 / 103 | **292 passed, 103 skipped** |
+| `run_tests.py` (no pytest) | 333 / 0 / 29 | **339 passed, 0 failed, 29 errors** |
+
+Error count unchanged at 29: none of the six new tests takes a pytest fixture, and all six
+run without `pandas_ta`. `code_hash` unchanged at `44e085cfa1fa…`, computed on both
+trees rather than assumed — `core/code_fingerprint.py` excludes `tests` by name.
+
+### Rule 3, for the third time in four days
+
+The Section 11 harness was fixed for this exact defect four commits earlier, by repointing
+`config.LOG_DIR` for the duration. That fix was applied to one caller and nobody asked
+whether anything else did the same thing. `test_code_fingerprint.py`, added at `1045748`
+the day before this was found, shipped a new instance of it — and the predictions written
+for that patch did not name the write.
+
+GLM F-8 saw the visible edge of this and read it as test hygiene: `test_golden_path.py`
+controlling the C3 state file by deleting it. It is still open, and it is now deleting a
+file in a temporary directory.
+
+### Not fixed, and why
+
+- **Where the lost records went is not recoverable from here.** Nothing in the repository
+  can rebuild them.
+- **`logs/` is still gitignored**, so the record still has no second copy and the next
+  accident still costs everything in it. That is part of decision 7.
+- **The suite still writes decision records**; they land somewhere harmless now. Nothing
+  asserts that a test which runs the engine meant to write one.
+- **`test_no_module_hardcodes_a_path_config_declares` still scans modules only.** Extending
+  it to `tests/` would have caught route 4 by reading rather than by running, and is the
+  structural answer to that route specifically. Left out deliberately: it is a source-text
+  check, this repository has been burned by those before, and the behavioural guard added
+  here covers the same class on both platforms. Recorded as a candidate, not adopted.
+- **`test_golden_path.py::_clear_state()` still controls the C3 state file by deleting it**
+  — GLM F-8, still open. It now deletes a file in a temporary directory, which removes the
+  blast radius but not the finding.
+
+## 6 September 2026 — the document audit
+
+Prompted by nothing in particular, which is the point: the last time this document set was
+read end to end, on 2 September, it found a whole Critical that had never been entered
+into any roadmap.
+
+### The audit-package record is intact, and this is the good news
+
+All three manifests verify **byte-for-byte** against their recorded build commits:
+round 2 60/60 at `390a7945`, round 3 71/71 at `c4d6969c`, round 4 71/71 at `417cadf7`.
+Zero missing, zero mismatched. What each reviewer actually graded is provable, which is
+the property `build_audit_package.py` was written to give and it holds.
+
+They verify against an **LF** checkout, and the reason is worth recording:
+`build_audit_package.py` reads text-mode (line 159) and writes `newline="\n"` (481, 503),
+so the bundle is normalised. `tests/test_pinned_source.py` hashes raw bytes and does not.
+**Two hashing schemes over the same repository with opposite line-ending behaviour** — and
+the non-normalising one is the one that fails on every non-Windows checkout and has been
+worked around locally twice. That argues for fixing it by normalising rather than by
+working around it a third time. It belongs with GLM F-8/F-9 in the test-hygiene pass.
+
+### One suspicion, checked and wrong
+
+`docs/audit_package/phase7_engine_source.md` and `phase7_test_suite.md` are dated
+30 August, and `item16_review_instruction_rev5.md` cites both by name as "every module the
+engine runs, complete." That reads like a stale-bundle trap. It is not:
+`build_audit_package.py` documents them as the round-1 record kept deliberately and copies
+fresh bundles into `round*/UPLOAD_THESE`. Recorded because a checked-and-wrong suspicion
+is worth exactly as much as a confirmed one, and costs the next reader the same hour if it
+is not written down.
+
+### No build script can write into this repository
+
+Covered under "Open — work" item 3 above, because it is the answer to why the Engineering
+Notes gap grows. Repeated here for the reader who arrives at the document audit first: all
+ten `docs/build/build_*.py` scripts hardcode `/tmp/outputs/`, and two of them also read
+source material from `/tmp/outputs/audit_raw/` that is not in the repository at all.
+
+### A dangling reference in the front door
+
+`README.md` and `docs/build/README.md` both cite `docs/Phase7_Audit_Findings_Complete.pdf`.
+It does not exist anywhere in the repository. `build_findings_bundle.py` builds it — to
+`/tmp/outputs/`, from a source directory that is also not here.
+
+Every other dangling reference found is benign: gitignored build outputs
+(`commit_messages_PART7_ONLY.md`, `execution_transcripts.md`,
+`version_control_history.md`, `prior_observations_PART8_ONLY.md`), or already recorded as
+dangling in this file (`claude/phase7-*`, `Phase7_Engineering_Constitution_v1.0_Rev6.pdf`).
+
+### What this audit did NOT do
+
+The eight PDFs — Constitution, Roadmap, Engineering Notes, Remediation Plan, Documentation
+and Change Log Standard, Tier 0 Companion, Credential Security Protocol, Audit Execution
+Instructions — were **not opened**. The mechanical half of the audit is done; the semantic
+half, reading each against the current state of the project, is not. That is where a
+second Finding 3 would be, and saying so plainly is the only thing that keeps it from
+being quietly assumed done.
+
+## The sweep of latent and Minor items — assembled 6 September 2026
+
+The next piece of engineering work, and it needs no ruling first. **No single section of
+this file contained it**: it is assembled from the "Not fixed, and why" subsection of each
+of the four 6 September fix write-ups, plus the GLM-only and Kimi-only lists in the
+round-3 versus round-4 comparison — and, as recorded there, that comparison was itself
+short by two, so F-1 and F-10 come from the round-3 report directly.
+
+Fourteen items. Duplicates across sources are merged and noted.
+
+**Invented defaults and fabricated readings — one class, and the largest part**
+
+1. `_merge_btc_context`'s remaining defaults: `"NEUTRAL"`, `"NORMAL"`, `0.0` for
+   `trend_health`. *(Finding 1, not fixed)*
+2. The router's structure assembly: `hvn`/`lvn` → `0.0`, `regime` → `"NEUTRAL"`,
+   `sequence` → `"NONE"`, `volume_sentiment` → `"NEUTRAL VOLUME"`. *(Finding 5 item 6,
+   not fixed — named there specifically so this sweep would have them)*
+3. The same two assemblies: `"NORMAL RISK"`, `"NEUTRAL"`, `50.0`, `"OK"`. *(F-7, not
+   fixed. Overlaps items 5.3 and 5.4 below on `"NORMAL RISK"` and `50.0`.)*
+4. `float(structure.get("swing_struct", …))` raises `TypeError` when the key is present
+   with the value `None` — Kimi Finding 1's exact shape on a different field. Latent only
+   because `engine_core` never writes `None` there, and "the producer always sets it" has
+   now been the wrong argument three times. *(Finding 5 item 6, not fixed)*
+5. Kimi Finding 5's remaining items, 1-5 and 7 — item 6 is fixed:
+   `calculate_dynamic_regime`'s `vol_ratio = 0.01` default printing an invented
+   `MEDIUM VOLATILITY`; the same function's `"NEUTRAL STRUCTURE"` when the STRUCTURE
+   column is absent; `decision_model`'s `trend.get("trend_health", 50.0)` midpoint
+   fabrication; its `risk.get("risk_regime", "NORMAL RISK")`; `panel_render`'s
+   `risk.get("validation_score", 0)`; and `_detect_hvn_lvn` returning adaptive-window
+   price extremes **as** HVN/LVN with nothing appended to `degraded_inputs`.
+
+**Dead code, and one stale contract**
+
+6. GLM F-2 and Kimi Finding 7 together: `pct_slope` unconsumed; `data/validation.py`'s
+   `is_valid` unconsumed; `StructureAnalysisResult` declared as the formal return contract,
+   never used as an annotation, and **stale** — it lacks the `degraded_inputs` key
+   `analyze()` now returns, so the one formal contract in the file describes a shape the
+   function no longer produces; `test_live.py` at the repository root imports a name that
+   was deleted and dies on import.
+7. GLM F-11: `exit_model.build_exit_watch`'s `or 0.0` treats `0.0` and `NaN` identically,
+   safe only because `NaN > 0` is False.
+8. GLM F-1: the second `clean_series` call inside `pct_slope`. Dies with item 6 if
+   `pct_slope` goes.
+
+**Statements the code does not support**
+
+9. Kimi Finding 6: the banner asserts "Connecting to MEXC API…" on offline pinned runs, and
+   says Phase-7.3 while `engine_version` says v1.0.
+10. Kimi Finding 4, the separable half: `decision_contract.py`'s comment claiming the risk
+    gate is independent of trend health is false about the code beside it. **The comment
+    is a sweep item; whether the coupling itself breaks Item 14 is decision 2** and is not
+    touched here.
+11. GLM F-6: BTC-side `compute_trend_health` degradations are not propagated into the AERO
+    run's degradation list.
+12. GLM F-10: `module_snapshot` records `{"<import failed>": str(exc)}` into the run-hash
+    payload, undocumented.
+13. `_compute_confidence` appends "the risk check above is what's blocking the trade" to
+    every `NO-TRADE` action, including `PLAN CONTRADICTS ACTION` and `DEGRADED INPUT`,
+    where the risk check is not what blocked it. Pre-existing. *(F-7, not fixed)*
+
+**Structural**
+
+14. GLM F-3: `calculate_structure` writes STRUCTURE/HVN/LVN both onto its returned frame
+    and into its dict, and `engine_core` reads both routes.
+
+**Deliberately NOT in the sweep, and why**
+
+- Kimi Finding 2 and the second mechanism the 10:51 run found — decision 3.
+- The Item 14 coupling — decision 2. The false comment above is separable and is in.
+- The merge-time degradation gap: `decision_model.evaluate()` is called before the BTC
+  block is assembled, so a degradation discovered at merge time cannot reach the model
+  that reads the degradation list. That is a restructure and a real hole in the 29 August
+  ruling, not a sweep item.
+- The unnamed literals — entry multipliers, trend bands, `SPIKE_RATIO`, `window=30`,
+  `0.0015`. Already ruled to get their own item and their own golden diff, because naming
+  them means moving them to module level, which is a change to the decision path.
+- `engine_version` as a static string — tangled with Kimi Finding 6; do them together.
+- `code_hash`'s interpreter dependence, and the archive overwrite on a rerun after a code
+  change. Both accepted and recorded.
+- `test_pinned_source.py`'s LF-checkout failure, and GLM F-8/F-9. Test hygiene, which is
+  the pass after this one — now with the line-ending argument from the document audit
+  attached to it.
+
+**Suggested split, Claude's call unless overruled:** three patches by class — the invented
+defaults, the dead code, the false statements plus F-3 — because they need three different
+golden predictions and only the first touches what the record contains.
 
 ## Working practice
 
