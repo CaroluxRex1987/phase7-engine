@@ -1,45 +1,38 @@
 # Next step — read this first
 
-*Updated 6 September 2026, sixth session. **The document build scripts can write into this
-repository.** `docs/build/_output.py` resolves output paths from `__file__` and the nine
-builders import it; seven now write their PDF into `docs/` and the two whose source
-material was never in this repository fail early and say so. That was the structural cause
-of the Engineering Notes falling behind at four consecutive handovers — **the eight entries
-are still owed**, and they are content inside `build_engineering_notes.py`, so publishing
-them is now one command and writing them is still writing. The document audit's "all ten"
-was **nine**: `build_audit_package.py` already resolved repo-relative, which is why its
-manifests verify. **Suite: 412 passing, 0 failed** — 298 passed / 103 skipped without
-`pandas_ta`, and `run_tests.py` 345 passed, 0 failed, **29 errors**, which is the number to
-watch. No engine source was touched: `code_hash` unchanged at `44e085cfa1fa…`, golden
-snapshot unmoved, no live run owed. See "the build scripts can write into the repository"
-at the end of this file.*
+*Updated 6 September 2026, sixth session. **Engineering Notes entries #83-90 are published,
+landed at `cdf9025`.** The eight entries owed since the build-script fix — the Section 11
+confirmation run, the four round-4 fixes, the decision-record-destruction fix, the document
+audit, and the build-scripts fix itself — are now in `docs/build/build_engineering_notes.py`
+and in the rebuilt `docs/Phase7_Engineering_Notes.pdf` (63 → 72 pages), plus a new Document
+History row, v1.23. Docs-only: no engine file touched, `code_hash` unchanged at
+`44e085cfa1fa…`, confirmed on three separate trees rather than assumed. The rebuild ran on
+Viktor's own machine as part of applying the patch, so reportlab rendering of this content
+is now confirmed on Windows, not only in the sandbox. See "Open — work" below, item 3, now
+closed, and "Engineering Notes entries #83-90 published" near the end of this file.*
 
-***Nothing was ruled this session.*** *All eight items in "Open — decisions" are still open
-and still Viktor's, decision 3 and decision 7 included. The release gate is still shut, and
-nothing that has landed since round 4 has been re-audited by anyone.*
+***Nothing has been ruled this session.*** *All eight items in "Open — decisions" are still
+open and still Viktor's, decision 3 and decision 7 included. The release gate is still shut,
+and nothing that has landed since round 4 has been re-audited by anyone.*
 
-***Where the next session starts.*** *Claude's recommended order — a recommendation, not a
-ruling, and the choice is Viktor's:*
+***Where the next session starts.*** *One of Claude's three recommended pieces of work is
+now done. The remaining two — a recommendation, not a ruling, and the choice is Viktor's:*
 
-1. *__The eight Engineering Notes entries.__ Everything they need to say is already written
-   up in this file, commit by commit. Publishing is `python docs/build/build_engineering_notes.py`,
-   which now writes into `docs/`. Doing this first means the document audit below reads a
-   current Notes rather than one already known to be eight entries behind.*
-2. *__The semantic half of the document audit__ — the eight PDFs read against the current
+1. *__The semantic half of the document audit__ — the eight PDFs read against the current
    state of the project. Read-only, no tree risk, and it is where a second Finding 3 would
    be. The mechanical half was done on 6 September; see "The document audit".*
-3. *__The fourteen-item sweep__, assembled in "The sweep of latent and Minor items". The
-   only one of the three that touches the decision path: three patches, three golden
+2. *__The fourteen-item sweep__, assembled in "The sweep of latent and Minor items". The
+   only one of the two that touches the decision path: three patches, three golden
    predictions, live runs owed.*
 
-*__Against that order:__ if the goal is opening the release gate, none of the three moves
+*__Against that order:__ if the goal is opening the release gate, neither of the two moves
 it. That runs through decision 3 (Kimi Finding 2) and a re-audit, both of which are
 Viktor's.*
 
-*__Environment note, 6 September:__ `reportlab` is installed on Viktor's machine. It is
-deliberately not in `requirements.txt` — `docs/build/README.md` carries its own install
-line — so a fresh clone still needs `pip install reportlab` before any document can be
-rebuilt.*
+*__Environment note, 6 September:__ `reportlab` is installed on Viktor's machine and has now
+rebuilt `Phase7_Engineering_Notes.pdf` there successfully. It is deliberately not in
+`requirements.txt` — `docs/build/README.md` carries its own install line — so a fresh clone
+still needs `pip install reportlab` before any document can be rebuilt.*
 
 *The block below was written in the fifth session and is kept as written; it says "fourth
 session", which is one of the small counting slips this project records rather than tidies.
@@ -2223,6 +2216,18 @@ These are Viktor's, and none was made on 5 September.
    here, at all. They now say exactly that and exit 2 before doing any work, instead of
    failing with a bare `FileNotFoundError` naming a directory in `/tmp`. That is an honest
    failure, not a fixed script.
+
+   **CLOSED 6 September 2026 — the eight entries are published.** Entries #83-90 landed at
+   commit `cdf9025`, covering the round-4 run, the round-3/round-4 comparison, the Section
+   11 confirmation run, and the Finding 1, F-7, Finding 5 item 6, Finding 3 and
+   decision-record-destruction fixes, plus the build-scripts fix itself — all eight, so the
+   count does not carry a ninth item forward. `code_hash` confirmed unchanged on three
+   separate trees (pristine, hand-verified, independently cloned-and-patched); suite
+   unmoved in all three configurations. Not verified: this exact content rendering through
+   reportlab on Windows specifically — every prior entry in this builder has rendered there,
+   and nothing new uses an unproven construct, but that is a structural argument, not a
+   Windows observation. See "6 September 2026 — Engineering Notes entries #83-90 published"
+   near the end of this file.
 4. The four `qwen_reasoning_*.txt` may now be renamed; the hold is discharged.
 5. Observed in the live run of 6 September and NOT investigated: the panel printed
    `BTC BIAS : BULLISH` directly above `BTC REGIME : BEARISH TREND`. Those come from two
@@ -3414,6 +3419,49 @@ as a candidate, alongside the same-shaped candidate from the suite-log fix.
   carries its own install line and that is the intended arrangement.
 - **The nine scripts still execute at module scope with no `main()`.** Untouched; it is
   not what was wrong with them.
+
+## 6 September 2026 — Engineering Notes entries #83-90 published
+
+**What changed.** `docs/build/build_engineering_notes.py` gains eight entries, #83-90, and
+a new Document History row (v1.23). This is the item "Open — work" 3 above tracked as
+growing at every handover for three sessions; it is now closed rather than carried
+forward. Each entry is drawn only from the corresponding write-up already in this file —
+the Section 11 confirmation run, the Finding 1 fix, GLM F-7 as extended, Kimi Finding 5
+item 6, Kimi Finding 3, the fix for the suite destroying the decision record, the document
+audit, and the build-scripts-can-write-into-the-repository fix itself — matched to the
+builder's existing entries for format, tag vocabulary, and tone. No fact in the new
+entries was invented; commit hashes, suite figures, line numbers, and panel output are
+copied from the record above, not re-derived. Landed at commit `cdf9025`, pushed the same
+session.
+
+**Verified rather than asserted.** The diff is purely additive: 330 insertions, 0
+deletions, one file. Confirmed by diffing the text of pages 1-57 of a PDF built from the
+pre-change script against the same pages from the post-change script — byte-identical, the
+first difference exactly at page 58, where Entry #83 begins. `code_hash` was computed, not
+assumed, on three separate trees — the pristine pre-change tree, the hand-verified applied
+tree, and a third, independently cloned-and-patched tree — all three
+`44e085cfa1fa0b5bb48ccd7a917b3f8db578619dc39d1386d333dcd3d9c49994`, matching the value the
+head block already carried, because `core/code_fingerprint.py` excludes `docs/` by
+directory. The golden snapshot was not touched — no test or engine file is in this diff.
+The suite was checked on the independently patched clone, not only the working copy: 412
+passed / 0 failed with `pandas_ta`; 298 passed / 103 skipped without it; `run_tests.py` 345
+passed / 0 failed / 29 errors, the error count unmoved.
+
+**Which platform this is evidence about.** Linux — the sandbox where the patch was built
+and verified. The built PDF grows from 63 to 72 pages; that page count and the diff above
+are both Linux results. Windows evidence followed separately: Viktor rebuilt the PDF on
+his own machine after applying the patch, and it rendered — the first confirmation that
+reportlab handles this builder's full output, old and new entries together, outside the
+sandbox. Nothing about the new entries uses a construct absent from the older ones (no
+Unicode sub/superscripts, no new fonts, no table shape beyond the existing history table),
+which was the structural argument made before the Windows run; it is now also an
+observation, not only an argument.
+
+**Not fixed, or not owed by this patch.** None of the eight open decisions is touched. The
+semantic half of the document audit (the eight PDFs read against current state) and the
+fourteen-item sweep are both still open — this was Claude's own recommended first of the
+three pieces of work, and Viktor's instruction was "you decide," not a ruling on the order
+itself. No engine or decision-path file was touched, so no live run is owed for this patch.
 
 ## Working practice
 
