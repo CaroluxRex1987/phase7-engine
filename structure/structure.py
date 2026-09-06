@@ -358,9 +358,38 @@ class StructureEngine:
         bias engine runs after this -- so this returns whichever confirmed
         swing point is closest, rather than picking "support" vs.
         "resistance" by direction.)
+
+        KIMI FINDING 5, ITEM 6 (round 4), fixed 6 September 2026. Both
+        not-located paths below returned `current_price` -- the price the
+        engine is being asked about, handed back as the structural level it
+        had failed to find. A level equal to the current price is the
+        strongest statement this field can make, and it was made on the runs
+        that had located nothing at all.
+
+        It was reachable rather than latent. The guard needs 2 * lookback + 5
+        rows, which is 21 at the default lookback of 8 (config.STRUCT_LOOKBACK),
+        and engine_core._validate_dataframe admits any frame of 20 rows or
+        more. A 20-row frame passed validation, ran the whole pipeline, and
+        got its own price back as structure.
+
+        This is the same defect this module's header describes: the consumer's
+        fallback was fixed on 1 September (entry_model) and on 2 September
+        (panel_render's `.get('swing_struct', current_price)`), and the
+        producer went on handing down a finite number equal to the price.
+        Closed the door, left the window -- twice on the same field. A level
+        that could not be located is NaN, which panel_render already prints as
+        "not located this run".
+
+        No degraded_inputs entry is appended for this. Not-enough-data is an
+        ordinary return in this module -- _detect_regime under 15 rows,
+        _detect_sequence under 6 * lookback + 10 -- and degraded_inputs feeds
+        engine_core's run degradation list, which drives the confidence
+        ceiling and the final action. swing_struct reaches nothing but the
+        panel and the decision record, so it must not be able to move an
+        authorization. The absence is reported where it is read.
         """
         if df is None or len(df) < (2 * lookback + 5):
-            return float(current_price)
+            return float("nan")
 
         highs = df['high'].values
         lows = df['low'].values
@@ -368,7 +397,7 @@ class StructureEngine:
         swing_highs, swing_lows = self._find_confirmed_swings(highs, lows, lookback, max_each=1)
 
         if not swing_highs and not swing_lows:
-            return float(current_price)
+            return float("nan")
         if not swing_highs:
             return float(swing_lows[0][1])
         if not swing_lows:

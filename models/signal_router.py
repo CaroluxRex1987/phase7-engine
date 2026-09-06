@@ -330,7 +330,22 @@ class SignalRouter:
                     "hvn": float(structure.get("hvn", 0.0)),
                     "lvn": float(structure.get("lvn", 0.0)),
                     "volume_sentiment": str(structure.get("volume_sentiment", "NEUTRAL VOLUME")),
-                    "swing_struct": float(structure.get("swing_struct", exit_data.get("current_price", 0.0)))
+                    # KIMI FINDING 5 ITEM 6, 6 September 2026. This default was
+                    #
+                    #     exit_data.get("current_price", 0.0)
+                    #
+                    # the consumer half of the fabrication fixed in
+                    # structure.py this commit, on the same field: a structure
+                    # block that carried no swing level got the current price
+                    # written in as one, into the panel and into the decision
+                    # log. It is reachable by the same composition as GLM F-7 --
+                    # _validate_engine_output checks that "structure" is
+                    # PRESENT, so an engine output whose structure block is {}
+                    # passes validation and arrives here, where the default
+                    # fires. An absent price level is NaN, which is what
+                    # engine_core's own .get default on this field already
+                    # uses and what panel_render prints as "not located".
+                    "swing_struct": float(structure.get("swing_struct", float("nan")))
                 },
 
                 "entry": {
