@@ -22,7 +22,9 @@ from reportlab.platypus import (
     PageBreak, HRFlowable, KeepTogether
 )
 
-OUTPUT_PATH = "/tmp/outputs/Phase7_Tier0_Companion.pdf"
+import _output
+
+OUTPUT_PATH = _output.output_path("Phase7_Tier0_Companion.pdf")
 
 # ============================================================
 # STYLES (shared house style, consistent with the rest of the family)

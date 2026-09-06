@@ -20,7 +20,9 @@ from reportlab.platypus import (
     PageBreak, HRFlowable, KeepTogether, Preformatted
 )
 
-OUTPUT_PATH = "/tmp/outputs/Phase7_Audit_Execution_Instructions.pdf"
+import _output
+
+OUTPUT_PATH = _output.output_path("Phase7_Audit_Execution_Instructions.pdf")
 
 styles = getSampleStyleSheet()
 

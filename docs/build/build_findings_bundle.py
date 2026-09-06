@@ -19,8 +19,15 @@ from reportlab.platypus import (
     SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak, HRFlowable
 )
 
-OUT = "/tmp/outputs/Phase7_Audit_Findings_Complete.pdf"
-SRC = "/tmp/outputs/audit_raw"
+import _output
+
+OUT = _output.output_path("Phase7_Audit_Findings_Complete.pdf")
+SRC = _output.source_path("audit_raw")
+_output.require_source(
+    SRC,
+    "Phase7_Audit_Findings_Complete.pdf",
+    "the four verbatim round-1 auditor outputs are not in this repository",
+)
 
 FILES = [
     ("Run 1 — DeepSeek V4 Pro", "Blind review: source code only, no Constitution, no register",

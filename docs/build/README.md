@@ -26,12 +26,22 @@ pip install reportlab
 python build_engineering_notes.py
 ```
 
-Each script writes to a hardcoded `OUTPUT_PATH` at the top — change it to wherever you
-want the PDF. They have no other dependencies and no network access.
+Every script writes its PDF into `docs/`, beside the sources that describe it. The path
+comes from `_output.py`, which resolves it from `__file__` — so it is the same path whether
+you run the script from here or from the repository root, and no script carries an output
+path of its own to point somewhere else. They have no other dependencies and no network
+access.
+
+Until 6 September 2026 nine of them hardcoded `/tmp/outputs/`. No build script could write
+into the repository, every PDF in `docs/` was built in a sandbox and carried across by
+hand, and the Engineering Notes fell eight entries behind that way. See
+`docs/PHASE7_NEXT.md`, "the build scripts can write into the repository".
 
 `build_findings_bundle.py` and `build_remediation_plan.py` additionally read markdown
-source files from an `audit_raw/` directory (the verbatim auditor outputs). Those are
-inputs, not generated.
+source files from a `docs/audit_raw/` directory (the verbatim round-1 auditor outputs).
+That material is not in this repository and never has been, so **neither document can be
+regenerated from here.** Both exit 2 with a message saying so rather than failing part-way
+through.
 
 ## House style
 

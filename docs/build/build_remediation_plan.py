@@ -20,8 +20,15 @@ from reportlab.platypus import (
     HRFlowable, KeepTogether
 )
 
-OUT = "/tmp/outputs/Phase7_Remediation_Plan.pdf"
-SRC = "/tmp/outputs/audit_raw/Step5_GLM53_remediation_sequence.md"
+import _output
+
+OUT = _output.output_path("Phase7_Remediation_Plan.pdf")
+SRC = _output.source_path("audit_raw", "Step5_GLM53_remediation_sequence.md")
+_output.require_source(
+    SRC,
+    "Phase7_Remediation_Plan.pdf",
+    "GLM 5.3's remediation sequence is not in this repository",
+)
 
 styles = getSampleStyleSheet()
 NAVY = colors.HexColor("#1a2b4a")

@@ -22,7 +22,9 @@ from reportlab.platypus import (
     PageBreak, HRFlowable, KeepTogether
 )
 
-OUTPUT_PATH = "/tmp/outputs/Phase7_Credential_Security_Protocol.pdf"
+import _output
+
+OUTPUT_PATH = _output.output_path("Phase7_Credential_Security_Protocol.pdf")
 
 # ============================================================
 # STYLES (shared house style, consistent with the rest of the family)

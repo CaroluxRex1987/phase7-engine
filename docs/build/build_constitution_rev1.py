@@ -62,7 +62,9 @@ from reportlab.platypus import (
     PageBreak, HRFlowable, KeepTogether
 )
 
-OUTPUT_PATH = "/tmp/outputs/Phase7_Engineering_Constitution_v1.0_RATIFIED.pdf"
+import _output
+
+OUTPUT_PATH = _output.output_path("Phase7_Engineering_Constitution_v1.0_RATIFIED.pdf")
 
 # ============================================================
 # STYLES
