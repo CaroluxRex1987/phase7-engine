@@ -26,7 +26,9 @@ both currently Non-compliant.
 import importlib
 import os
 import py_compile
+import shutil
 import sys
+import tempfile
 
 import pytest
 
@@ -121,9 +123,26 @@ def test_every_module_imports():
     saved = {m: sys.modules[m] for m in _affected()}
     pandas_ta_ready = _engine_available()
 
+    # A WORKING DIRECTORY OF ITS OWN, added 6 September 2026.
+    #
+    # This test purges and re-imports every engine module, which re-executes
+    # core/config.py -- undoing the log redirection tests/conftest.py installs
+    # at import time. `main` is then imported with the shipped relative
+    # LOG_DIR back in force, and main.py creates the log directory and opens a
+    # FileHandler in it at module scope. On a repository-root working
+    # directory that is the engine's REAL logs/, created by a test whose
+    # subject is whether modules import.
+    #
+    # Redirecting config again after the purge would be a race against import
+    # order. Moving the working directory is not: a relative path cannot reach
+    # the repository from here no matter which module resolves it.
+    original_cwd = os.getcwd()
+    scratch = tempfile.mkdtemp(prefix="phase7_imports_")
+
     failures = []
     skipped_no_pandas_ta = []
     try:
+        os.chdir(scratch)
         for mod in ENGINE_MODULES:
             for cached in [m for m in sys.modules if m == mod or m.startswith(mod + ".")]:
                 del sys.modules[cached]
@@ -142,6 +161,9 @@ def test_every_module_imports():
                 else:
                     failures.append(f"{mod}: {type(e).__name__}: {e}")
     finally:
+        os.chdir(original_cwd)
+        shutil.rmtree(scratch, ignore_errors=True)
+
         # Put the original module objects back, so every later test sees one
         # consistent set of modules rather than a mixture.
         #

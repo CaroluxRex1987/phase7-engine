@@ -61,14 +61,40 @@ Item 6 stops them writing into frames they do not own; sequence item 9 is where
 the fallbacks are given honest semantics. Recorded as riders there.
 """
 
+import atexit
 import ast
 import inspect
 import os
+import shutil
+import tempfile
+
 import pytest
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PINNED_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                           "fixtures", "pinned")
+
+# The two plotting tests below need somewhere to write a PNG. They used to
+# write to os.path.join(REPO_ROOT, "Logs", "Charts", ...) -- the capitalised
+# spelling config does not use.
+#
+# On Linux that silently created a second, stray Logs/ directory beside the
+# engine's real logs/, which .gitignore does not cover in that case. On
+# Windows, where the filesystem is case-insensitive, "Logs\Charts" IS
+# "logs\charts": both files landed in the engine's live chart directory, next
+# to the chart of the last real run.
+#
+# This is the defect
+# test_explicit_configuration.py::test_no_module_hardcodes_a_path_config_declares
+# was written about, in a file that test does not scan -- it checks modules,
+# and these two lines are in a test. Found 6 September 2026 when the new
+# real-log guard failed on Viktor's machine and passed in a Linux sandbox,
+# which is the case difference exactly.
+#
+# Neither test cares where the file lands. Both care about what happens to the
+# frame and to the log while it is being written.
+_CHART_TMP = tempfile.mkdtemp(prefix="phase7_ownership_charts_")
+atexit.register(shutil.rmtree, _CHART_TMP, True)
 
 
 def _engine_available():
@@ -180,7 +206,7 @@ def test_plot_engine_chart_does_not_touch_the_callers_frame():
         df=df,
         entry_data={"entry_zone_lower": 100.0, "entry_zone_upper": 105.0},
         risk_data={"atr_stop": 95.0, "targets": (110.0, 115.0, 120.0)},
-        save_path=os.path.join(REPO_ROOT, "Logs", "Charts", "_ownership_test.png"),
+        save_path=os.path.join(_CHART_TMP, "_ownership_test.png"),
     )
 
     assert _unchanged(before, df), (
@@ -235,7 +261,7 @@ def test_plotting_does_not_swallow_a_broken_repair_path():
             df=_dirty_frame(),
             entry_data={"entry_zone_lower": 0.75, "entry_zone_upper": 0.78},
             risk_data={"atr_stop": 0.64, "targets": (0.96, 1.12, 1.28)},
-            save_path=os.path.join(REPO_ROOT, "Logs", "Charts", "_repair_test.png"),
+            save_path=os.path.join(_CHART_TMP, "_repair_test.png"),
         )
     finally:
         plotting_logger.removeHandler(handler)

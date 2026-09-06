@@ -101,6 +101,8 @@ repair had been raising and being swallowed for as long as anyone can tell, and
 a baseline taken the day before would now be the standard.
 """
 
+import atexit
+import contextlib
 import json
 import os
 import pytest
@@ -215,10 +217,50 @@ def _write_pinned_set(directory):
 # The C3 state file
 # ============================================================
 
-def _state_path(symbol=SYMBOL, timeframe=TIMEFRAME):
+# The golden runs need a log directory spelled RELATIVELY, because the
+# snapshot pins the paths the engine records -- `logs/archive/...` and
+# `logs/phase7_decision_log_testusdt.jsonl` -- and an absolute path would put
+# a machine-specific string into a file that must be identical everywhere.
+# That spelling is the subject of its own test in test_lineage.py, and it is
+# not something to give up.
+#
+# Until 6 September 2026 the relative path was resolved against the repository
+# root, so the golden runs wrote their decision records, archives, charts and
+# state file into the engine's REAL logs/. This gives them a working directory
+# of their own instead: same relative spelling, same recorded strings, nothing
+# written where the engine keeps its record.
+GOLDEN_ROOT = tempfile.mkdtemp(prefix="phase7_golden_root_")
+atexit.register(shutil.rmtree, GOLDEN_ROOT, True)
+
+GOLDEN_LOG_DIR = "logs/"
+GOLDEN_CHART_DIR = "logs/charts/"
+
+
+@contextlib.contextmanager
+def _golden_workspace():
+    """
+    Run with GOLDEN_ROOT as the working directory and the engine's relative
+    log spellings in force. Restores both, whatever happens.
+    """
     from core import config
-    log_dir = config.LOG_DIR
-    return os.path.join(REPO_ROOT, log_dir,
+
+    original_cwd = os.getcwd()
+    original_log, original_chart = config.LOG_DIR, config.CHART_DIR
+    try:
+        os.chdir(GOLDEN_ROOT)
+        config.LOG_DIR = GOLDEN_LOG_DIR
+        config.CHART_DIR = GOLDEN_CHART_DIR
+        yield
+    finally:
+        os.chdir(original_cwd)
+        config.LOG_DIR, config.CHART_DIR = original_log, original_chart
+
+
+def _state_path(symbol=SYMBOL, timeframe=TIMEFRAME):
+    # Resolved against GOLDEN_ROOT rather than REPO_ROOT so seeding and
+    # clearing the C3 state reach the same file the runs above write, and no
+    # file the engine owns.
+    return os.path.join(GOLDEN_ROOT, "logs",
                         f"phase7_state_{symbol}_{timeframe}.json")
 
 
@@ -261,7 +303,8 @@ def _run(seed=None):
         _write_pinned_set(tmp)
         data_fetcher.base_url = UNREACHABLE
         DataFetcher.set_pinned_source(tmp)
-        return SignalRouter().route(symbol=SYMBOL, timeframe=TIMEFRAME)
+        with _golden_workspace():
+            return SignalRouter().route(symbol=SYMBOL, timeframe=TIMEFRAME)
     finally:
         DataFetcher.clear_pinned_source()
         data_fetcher.base_url = original_url
@@ -365,7 +408,8 @@ def _run_without(filename):
         os.remove(os.path.join(tmp, filename))
         data_fetcher.base_url = UNREACHABLE
         DataFetcher.set_pinned_source(tmp)
-        return SignalRouter().route(symbol=SYMBOL, timeframe=TIMEFRAME)
+        with _golden_workspace():
+            return SignalRouter().route(symbol=SYMBOL, timeframe=TIMEFRAME)
     finally:
         DataFetcher.clear_pinned_source()
         data_fetcher.base_url = original_url

@@ -716,24 +716,37 @@ def test_the_recorded_archive_path_is_spelled_the_same_on_every_platform():
     from core import lineage
     import pandas as pd
 
+    # The log directory is passed as the RELATIVE literal "logs/" on purpose:
+    # the defect being pinned is a separator inside a path built from that
+    # argument, so normalising the argument would test something else.
+    #
+    # A relative path resolves against the working directory, which used to be
+    # the repository root -- so this test wrote its throwaway archive into the
+    # engine's real logs/ and then deleted that whole directory in its finally
+    # block: decision log, archives, charts and cross-run state file included.
+    # Found 6 September 2026 by running the suite and watching the filesystem.
+    #
+    # The fix moves the working directory rather than changing the argument,
+    # which leaves the assertion below testing the exact spelling it was
+    # written to test.
     work = tempfile.mkdtemp(prefix="phase7_path_")
+    original_cwd = os.getcwd()
     try:
+        os.chdir(work)
         idx = pd.date_range("2026-01-01", periods=5, freq="4h", tz="UTC")
         df = pd.DataFrame({"close": [1.0, 2.0, 3.0, 4.0, 5.0]}, index=idx)
         path = lineage.write_archive(
             {"struct": df}, "logs/", "TESTUSDT", "4h", "e" * 64)
-        try:
-            assert path is not None
-            assert "\\" not in path, (
-                f"the recorded archive path {path!r} contains a backslash. On "
-                f"another platform the same run records a different string for "
-                f"the same file."
-            )
-            assert path.startswith("logs/archive/")
-            # And the spelling must still open the file it names.
-            assert os.path.exists(path)
-            assert lineage.verify_archive(path) == {"struct": True}
-        finally:
-            shutil.rmtree("logs", ignore_errors=True)
+        assert path is not None
+        assert "\\" not in path, (
+            f"the recorded archive path {path!r} contains a backslash. On "
+            f"another platform the same run records a different string for "
+            f"the same file."
+        )
+        assert path.startswith("logs/archive/")
+        # And the spelling must still open the file it names.
+        assert os.path.exists(path)
+        assert lineage.verify_archive(path) == {"struct": True}
     finally:
+        os.chdir(original_cwd)
         shutil.rmtree(work, ignore_errors=True)

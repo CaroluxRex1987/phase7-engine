@@ -256,17 +256,28 @@ def test_the_log_directories_are_the_ones_git_ignores():
     so a clone that runs the engine finds its own run artifacts staged for
     commit.
     """
-    from core import config
+    # The SHIPPED values, not the live ones. Since 6 September 2026
+    # tests/conftest.py repoints config.LOG_DIR and config.CHART_DIR at a
+    # temporary directory for the duration of the suite, so that no test can
+    # write into the engine's real record. The live values during a test run
+    # are therefore somewhere under the system temp directory, which is not in
+    # .gitignore and has no reason to be.
+    #
+    # The question this test asks is about what a REAL run does on a clone:
+    # does the engine write its output where git is told to ignore it. That is
+    # the value config.py declares, which conftest captured before overriding.
+    from conftest import SHIPPED_CHART_DIR, SHIPPED_LOG_DIR
 
     with open(os.path.join(REPO_ROOT, ".gitignore"), encoding="utf-8") as f:
         ignored = {l.strip().rstrip("/") for l in f if l.strip()
                    and not l.startswith("#")}
 
-    for name in ("LOG_DIR", "CHART_DIR"):
-        value = getattr(config, name).replace("\\", "/").strip("/")
+    for name, shipped in (("LOG_DIR", SHIPPED_LOG_DIR),
+                          ("CHART_DIR", SHIPPED_CHART_DIR)):
+        value = shipped.replace("\\", "/").strip("/")
         root = value.split("/")[0]
         assert root in ignored, (
-            f"config.{name} is {getattr(config, name)!r}, whose top-level "
+            f"config.{name} ships as {shipped!r}, whose top-level "
             f"directory {root!r} is not in .gitignore. Engine output would be "
             f"offered for commit. .gitignore ignores: {sorted(ignored)[:8]}..."
         )
