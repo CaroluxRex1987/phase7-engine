@@ -1,0 +1,9 @@
+=== RUN B_shift — BTC timestamps +2h — zero shared timestamps
+=== pinned source: C:\Users\MSI-PC\AppData\Local\Temp\phase7_section11_twx2n6hy\B_shift
+=== config.LOG_DIR redirected to: C:\Users\MSI-PC\AppData\Local\Temp\phase7_section11_twx2n6hy\logs\
+
+
+[31m[ERROR] Decision object construction failed: float() argument must be a string or a real number, not 'NoneType'[0m
+
+=== returned object ===
+{'symbol': 'AEROUSDT', 'timeframe': '4h', 'error': "Decision object construction failed: float() argument must be a string or a real number, not 'NoneType'", 'decision_log_path': 'C:\\Users\\MSI-PC\\AppData\\Local\\Temp\\phase7_section11_twx2n6hy\\logs\\phase7_decision_log_aerousdt.jsonl'}

@@ -1978,15 +1978,93 @@ These are Viktor's, and none was made on 5 September.
 
 ### Open — work
 
-1. Section 11: the confirmation run for Finding 1 — a pinned BTC series with every timestamp
-   shifted by +2 hours so the two indexes share nothing, network unreachable. Completed panel
-   with `CORRELATION: NOT MEASURED` kills the finding; `[ERROR] Decision object construction
-   failed` confirms it. **Run it before fixing anything**, so the defect is observed rather
-   than argued.
+1. ~~Section 11: the confirmation run for Finding 1.~~ **DONE, 6 September 2026 — Finding 1
+   confirmed end to end, on unmodified code, before any fix.** See "The Section 11
+   confirmation run" below, which also records what the run found beyond the finding and two
+   wrong turns made getting there.
 2. The fixes, in the order above, once the decisions above are made.
 3. The Engineering Notes are current through Entry #82 and do not cover the round-4 run or
    this comparison.
 4. The four `qwen_reasoning_*.txt` may now be renamed; the hold is discharged.
+
+## 6 September 2026 — the Section 11 confirmation run
+
+Kimi's round-4 report asked for exactly one run, and this is it. It was made **before any
+fix**, on unmodified code, so that Finding 1 is observed rather than argued. The harness and
+its outputs are at
+`docs/audit_reports/round4_kimi-k3_2026-09-05/section11_confirmation/`.
+
+Three runs, all offline (`requests.get`/`.post`/`Session.request` replaced with functions
+that raise), all served from the committed pinned fixtures:
+
+| | variant | result |
+|---|---|---|
+| A | fixtures exactly as committed — negative control | completed, `correlation +0.2326`, `n_observations 30` |
+| B | `BTCUSDT_4h` with every timestamp shifted +2h — zero shared timestamps | `Decision object construction failed: float() argument must be a string or a real number, not 'NoneType'` |
+| C | BTC's last 60 candles flat — the optional zero-variance variant | same message (secondary; a flat series also moves BTC-side ATR and volatility, so it has more than one possible cause) |
+
+**Finding 1 is confirmed end to end.** B produced the exact string Kimi named as the
+distinguishing output, and A completing on the same harness is what makes B's failure mean
+something. The chain had already been verified by reading all four sites — `engine_core`
+771-788 writing `"available": True` beside `"correlation": None`, `signal_router`
+478-481 doing `float(...get("correlation", 0.0))`, the broad `except` at 451, and
+`compute_correlation_beta` returning `(NaN, NaN, 0)` on an empty inner join. What was
+missing was the observation, and it is no longer missing.
+
+### What the run found that the report does not contain
+
+The decision log record written when the merge fails is
+`{"error": ..., "symbol": ..., "timeframe": ..., "decision_log_path": ...}` and nothing
+else. The healthy record beside it carries `lineage` and `provenance`, with `input_hashes`,
+`run_hash` and the flag saying the run was pinned. The error record carries none of them.
+
+That is wider than Finding 1 as written. The broad `except` does not only discard a healthy
+analysis — it discards the run's lineage, and `decision_log.write` then stores a record that
+Item 6 cannot trace to any input. Item 6 is the Critical that keeps the release gate shut,
+so a defect that manufactures untraceable records inside it is not a display concern. It is
+reproducible from tracked bytes: `isolated_phase7_decision_log_aerousdt.jsonl` in the
+evidence directory holds all three records, one healthy and two error.
+
+Whether this is folded into the Finding 1 fix or raised as its own item is open.
+
+### Two wrong turns, recorded rather than cleaned up
+
+**The first version of the harness wrote into the engine's permanent record.** It ran with
+`config.LOG_DIR` untouched, so its three runs appended three records to
+`logs/phase7_decision_log_aerousdt.jsonl` — records 10, 11 and 12 of 12, two of them error
+records — and overwrote `logs/phase7_state_AEROUSDT_4h.json`, leaving the persisted bias
+state machine holding `BULLISH CONFIRMED` derived from a fixture. A diagnostic wrote into
+the record the audit is about. Claude's prediction for that run named the decision-log
+writes for the completing runs only, and did not name the error-path write or the state file
+at all.
+
+The fix is structural rather than a warning: the harness now repoints `config.LOG_DIR` at a
+temporary directory for the duration, so it cannot reach the real log, and copies the record
+its own runs produced into the evidence directory afterwards. That copy is where the
+untraceable-record evidence above comes from. Verified after the second run: the real log
+is unchanged at 90,277 bytes and its modification time did not move.
+
+The three synthetic records still sit in the live decision log. Left for Viktor to rule on;
+the standing practice of recording wrong turns rather than tidying them argues for keeping
+them, but it is his record.
+
+**The delivery mechanism shipped the wrong version silently.** The corrected harness was
+staged for the device bridge under the same filename as the version it replaced, and the
+commit wrote the *older* bytes. It failed with `ModuleNotFoundError: No module named 'core'`,
+which is v1's path logic running from a directory v1 was never meant to run from. Nothing
+reported an error. The `py_compile` check passed and was worthless as a guard, because both
+versions compile — it tested syntax when the question was identity.
+
+Two rules taken from it: a delivered file gets a staged name unique to its version, and a
+delivery is verified by reading the file back off the device and diffing it against the
+intended bytes, not by compiling the copy that was sent.
+
+### A prediction that was close and not exact
+
+The error object's keys were predicted as `['error', 'symbol', 'timeframe']`. They are
+`['decision_log_path', 'error', 'symbol', 'timeframe']` — `route_and_execute` adds
+`decision_log_path` after the write, to the error dict as readily as to a healthy one. The
+substance held; the enumeration did not.
 
 ## Working practice
 
