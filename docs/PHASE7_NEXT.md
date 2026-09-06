@@ -1,33 +1,36 @@
 # Next step — read this first
 
-*Updated 6 September 2026, sixth session. **Engineering Notes entries #83-90 are published,
-landed at `cdf9025`.** The eight entries owed since the build-script fix — the Section 11
-confirmation run, the four round-4 fixes, the decision-record-destruction fix, the document
-audit, and the build-scripts fix itself — are now in `docs/build/build_engineering_notes.py`
-and in the rebuilt `docs/Phase7_Engineering_Notes.pdf` (63 → 72 pages), plus a new Document
-History row, v1.23. Docs-only: no engine file touched, `code_hash` unchanged at
-`44e085cfa1fa…`, confirmed on three separate trees rather than assumed. The rebuild ran on
-Viktor's own machine as part of applying the patch, so reportlab rendering of this content
-is now confirmed on Windows, not only in the sandbox. See "Open — work" below, item 3, now
-closed, and "Engineering Notes entries #83-90 published" near the end of this file.*
+*Updated 6 September 2026, sixth session. **Two of Claude's three recommended pieces of
+work are now done.** Engineering Notes entries #83-90 published, landed at `cdf9025` — the
+eight entries owed since the build-script fix are now in
+`docs/build/build_engineering_notes.py` and the rebuilt `docs/Phase7_Engineering_Notes.pdf`
+(63 → 72 pages, Document History row v1.23), confirmed rendering on Viktor's own Windows
+machine. **The semantic half of the document audit is also done** — all eight PDFs read
+against tip `0f8e04a`. It found one process-document staleness on the scale the mechanical
+half predicted (the Audit Execution Instructions describe a procedure nobody follows
+anymore), plus two smaller new findings (a stale Constitution register count in the
+Documentation Standard; a real crash/miscounting bug in `run_tests.py` under a genuine
+no-pytest environment), and reconfirmed several already-tracked items with exact code
+citations. Nothing found touches the decision path or the release gate. See "Open — work"
+below, item 3, now closed, "Engineering Notes entries #83-90 published" and "the semantic
+half of the document audit", both near the end of this file. Docs-only both times:
+`code_hash` unchanged at `44e085cfa1fa…`, confirmed rather than assumed.*
 
 ***Nothing has been ruled this session.*** *All eight items in "Open — decisions" are still
 open and still Viktor's, decision 3 and decision 7 included. The release gate is still shut,
 and nothing that has landed since round 4 has been re-audited by anyone.*
 
-***Where the next session starts.*** *One of Claude's three recommended pieces of work is
-now done. The remaining two — a recommendation, not a ruling, and the choice is Viktor's:*
+***Where the next session starts.*** *All three of Claude's recommended pieces of work are
+now done or read-only-complete. What's left, not a ruling, Viktor's choice:*
 
-1. *__The semantic half of the document audit__ — the eight PDFs read against the current
-   state of the project. Read-only, no tree risk, and it is where a second Finding 3 would
-   be. The mechanical half was done on 6 September; see "The document audit".*
-2. *__The fourteen-item sweep__, assembled in "The sweep of latent and Minor items". The
-   only one of the two that touches the decision path: three patches, three golden
+1. *__The fourteen-item sweep__, assembled in "The sweep of latent and Minor items" — the
+   only piece of open work that touches the decision path: three patches, three golden
    predictions, live runs owed.*
+2. *__The three new findings from the semantic audit__ — none touches the decision path;
+   the Audit Execution Instructions one only matters before a round 5 is run.*
 
-*__Against that order:__ if the goal is opening the release gate, neither of the two moves
-it. That runs through decision 3 (Kimi Finding 2) and a re-audit, both of which are
-Viktor's.*
+*__Against either order:__ if the goal is opening the release gate, neither moves it. That
+runs through decision 3 (Kimi Finding 2) and a re-audit, both of which are Viktor's.*
 
 *__Environment note, 6 September:__ `reportlab` is installed on Viktor's machine and has now
 rebuilt `Phase7_Engineering_Notes.pdf` there successfully. It is deliberately not in
@@ -3211,10 +3214,117 @@ dangling in this file (`claude/phase7-*`, `Phase7_Engineering_Constitution_v1.0_
 
 The eight PDFs — Constitution, Roadmap, Engineering Notes, Remediation Plan, Documentation
 and Change Log Standard, Tier 0 Companion, Credential Security Protocol, Audit Execution
-Instructions — were **not opened**. The mechanical half of the audit is done; the semantic
-half, reading each against the current state of the project, is not. That is where a
-second Finding 3 would be, and saying so plainly is the only thing that keeps it from
-being quietly assumed done.
+Instructions — were **not opened** at the time this section was written. **They have since
+been — see "The semantic half of the document audit" below, done the same day.**
+
+## 6 September 2026 — the semantic half of the document audit
+
+Read each of the eight PDFs against the current repository (tip `0f8e04a`) — the pass the
+mechanical half above said would be where a second Finding 3 turns up, if one is there. It
+found one candidate for that class, plus two smaller, genuinely new discrepancies —
+everything else it turned up was already tracked, now with exact code citations.
+
+### New: the Audit Execution Instructions describe a procedure nobody follows anymore
+
+`Phase7_Audit_Execution_Instructions.pdf`, frozen since 29 August, is the one document in
+this set explicitly meant to survive being put down and picked up again — it is what a
+future round 5 would be run from. It still describes a manual, browser-based OpenRouter
+chat procedure: open a chat, pick the model from a dropdown, set Max Tokens 64,000, upload
+four files (Constitution PDF, source `.txt`/`.zip`, an audit-package PDF, an evidence
+`.zip`).
+
+Nothing about that is how round 3 or round 4 actually ran. Round 4 ran through
+`docs/build/send_audit_round.py`, a script that pins model *and* provider explicitly
+(`"only": [PROVIDER_SLUG], "allow_fallbacks": False`) — because round 3 went to GLM 5.3
+Flash by accident when a chat UI's Auto Router silently substituted it, the exact failure
+this document's own "Contamination Rules" section does not name. The script sets
+`MAX_OUTPUT_TOKENS = 200_000`, not 64,000 — and its own comment records that even 64,000
+had already failed once (`LARGEST_PRIOR_RESPONSE = 36_085  # Kimi K3, 2 September 2026, no
+report produced`). It sends seven plain-text files including `item16_review_instruction_rev5.md`,
+not the doc's "four files" of PDF/zip. And the materials-count table
+(`docs/build/build_audit_instructions.py:260-261`) hardcodes "19 source files, 207,625
+bytes"; the repository has 23 `.py` files outside `tests/` and `docs/` today.
+
+Not fixed here — rewriting it is real work, not a one-line correction, and it only matters
+before a round 5 is actually run. Recorded as a finding rather than scheduled, severity
+Major as a process document: following it as written would misconfigure a future round
+without warning about the one failure mode that has already cost one.
+
+### New: the Documentation and Change Log Standard states the wrong register size
+
+`Phase7_Documentation_and_Change_Log_Standard.pdf` says twice, including in its own
+scope-freeze sentence, that the Constitution is frozen at 17 Tier 1 / 7 Tier 2 / 10 Tier 3
+/ 6 Tier 4 invariants — 40 total. That was true on the document's own 25 August dateline and
+became false the next day: the Constitution ratified 26 August at
+Revision 6 added four Tier 1 items (18-21), making the register 21/7/10/6 = 44 — the count
+this file itself has used everywhere else since. The Roadmap and the Audit Execution
+Instructions both correctly say 21/7/10/6. A document about documentation discipline
+misstating the size of the register it sits beside, uncorrected for at least twelve days,
+is Moderate and mildly ironic rather than dangerous. Not fixed here.
+
+### New: `run_tests.py`'s "works without pytest" claim doesn't hold under a genuine no-pytest environment
+
+Engineering Notes entries #86-87 (and `run_tests.py`'s own framing) describe it as the
+runner that works without pytest installed. Reproduced two ways with pytest actually
+absent: with pytest fully uninstalled, 33 of roughly 66 test files fail to import at all
+(most use `pytest.mark.parametrize`, `pytest.skip`, `pytest.approx` at module scope), giving
+55 passed / 1 failed / 33 errors — not the 29-errors figure the Notes report anywhere. With
+pytest installed but `pandas_ta` absent (a real combination, since `pandas_ta==0.4.71b0`
+needs Python ≥3.12 and nothing stops an older clone from having pytest without it),
+`run_tests.py` crashes outright: `pytest.skip()` raises `Skipped`, which subclasses
+`BaseException` rather than `Exception`, so the runner's own `except Exception` in
+`_run_one()` does not catch it — first hit is
+`tests/test_code_fingerprint.py::test_the_archive_meta_says_which_file_changed_not_only_that_one_did`,
+added by commit `1045748`. The 29-errors figure the Notes cite is real, but only in the one
+environment the project actually runs (pytest **and** pandas_ta both installed) — the
+document never states that precondition. Severity Minor/Moderate: does not touch the
+decision path, and Viktor's own Windows/3.12.10 machine always has both, but it is a live
+bug in the project's own test tooling on exactly the axis (dependency/interpreter variance)
+this project is otherwise careful about. Not fixed here.
+
+### Confirmed, not new — restated with exact current-code citations
+
+Everything else the eight documents were checked against was either accurate today or was
+already tracked in this file. Worth having on record with citations rather than only as a
+restated claim:
+
+- **Item 10 (Consistent Semantics) is still violated, still contained.** `engine_core.py`
+  1042 emits `confidence_score` as `trend["trend_health"]` (an unsigned magnitude);
+  `signal_router.py` 423 emits the same field name for the real computed confidence.
+  Confirmed unreachable: `SignalRouter` reads `dm_result["confidence"]`, never the
+  mismatched field, so the panel is not affected. This is the already-tracked Finding 9.
+- **The `decision_contract.py` "independently of trend health" comment is confirmed false,
+  with the exact mechanism**: `risk_model.py:323`'s `classify_risk_regime` takes
+  `trend_health` as a direct parameter and branches on it at lines 329 and 331. Already
+  open decision 2; no change to its characterization.
+- **The Roadmap (Revision 4, 29 August) still presents a sixteen-item sequence as pending
+  that is now mostly done** — items 5, 8, 10, 12 and 13 of that sequence all verified
+  present in current code (`indicators.py`'s deletions, `data/validation.py`,
+  `decision_contract.py`, `decision_log.py`, the position-sizing removal). Its compliance
+  table (21/17/6 of 44, from the single 27 August audit) predates three further rounds.
+  Already known; now quantified against code rather than only asserted stale.
+- **Tier 0 Companion and Credential Security Protocol both still point at
+  `Phase7_Engineering_Constitution_v1.0_Rev6.pdf`**, which does not exist. Already recorded
+  as a dangling reference in this file; confirmed still unfixed at tip, source is
+  `build_tier0_companion.py:170` and `build_credential_protocol.py:168`.
+- **The audit-package manifests still verify byte-for-byte** (round 2 60/60, round 3
+  71/71, round 4 71/71) and the Remediation Plan, correctly self-labelled a frozen 29
+  August snapshot, asserts nothing about today's repo that is false.
+
+### What this pass could not check
+
+Whether OpenRouter's pricing and procedure claims still hold (external, not this repo);
+the "Item 20 amendment... blocked on Gemini and Copilot refusing to ingest the Constitution
+PDF" sub-thread in the Roadmap (not traced to ground truth, not asserted either way);
+whether Credential Security Protocol's operational practices (key rotation, IP
+allowlisting) are followed — none of these are checkable from a static read. The
+Constitution's own Items 15 and 17 (backtesting isolation, empirical-over-theoretical) stay
+correctly "Unknown" — there is no backtesting code in the tree to check against.
+
+**Nothing here is fixed and nothing is ruled.** Three new findings (Audit Execution
+Instructions, Documentation Standard's register count, `run_tests.py`'s no-pytest crash)
+join the fourteen-item sweep as candidates for the same kind of pass, at Viktor's call on
+priority — none blocks the release gate, none touches the decision path.
 
 ## The sweep of latent and Minor items — assembled 6 September 2026
 
