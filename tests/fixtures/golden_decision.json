@@ -70,7 +70,7 @@
   },
   "lineage": {
     "archive": {
-      "path": "logs/archive/testusdt_4h_a655ec562938e176.json.gz",
+      "path": "logs/archive/testusdt_4h_c8e207a1d852aac4.json.gz",
       "pruned_this_run": 0,
       "retention_days": 90
     },
@@ -196,11 +196,11 @@
       "trend_health": 95.34758422,
       "volatility_state": "MEDIUM VOLATILITY"
     },
-    "run_hash": "a655ec562938e1764c8c68ab4e206ec71060e8b882d9157077f48c77db3f32f1"
+    "run_hash": "c8e207a1d852aac4ce08ec294a700646f6959ee514f4e926790f2a3aa1704097"
   },
   "macro_bias": "BULLISH",
   "provenance": {
-    "archive_path": "logs/archive/testusdt_4h_a655ec562938e176.json.gz",
+    "archive_path": "logs/archive/testusdt_4h_c8e207a1d852aac4.json.gz",
     "canonical_format": 1,
     "engine_version": "Phase\u20117 Structural Quant Engine v1.0",
     "fetch": {
@@ -230,7 +230,20 @@
         "WEIGHT_VOLUME_SENTIMENT": 0.15
       },
       "models.decision_model": {
+        "DecisionModel.BTC_ADJUSTMENT_CAP": 20.0,
+        "DecisionModel.DEGRADED_CONFIDENCE_CEILING": 50.0,
         "MIN_ACTION_BIAS": 30.0
+      },
+      "models.entry_model": {
+        "ATR_DISTANCE_MAX_POINTS": 25.0,
+        "ATR_POINTS_NOT_MEASURED": 15.0,
+        "COMPONENT_MAX_POINTS": 102.0,
+        "EMA_ZONE_MAX_POINTS": 30.0,
+        "RSI_MAX_POINTS": 15.0,
+        "SCORE_CEILING": 100.0,
+        "STRUCTURE_MAX_POINTS": 12.0,
+        "VWMA_MAX_POINTS": 20.0,
+        "ZONE_POINTS_NOT_MEASURED": 15.0
       },
       "models.risk_model": {
         "ATR_STOP_MULT": 1.2,
@@ -251,7 +264,7 @@
     },
     "prior_state": {},
     "row_count": 450,
-    "run_hash": "a655ec562938e1764c8c68ab4e206ec71060e8b882d9157077f48c77db3f32f1",
+    "run_hash": "c8e207a1d852aac4ce08ec294a700646f6959ee514f4e926790f2a3aa1704097",
     "source": "pinned"
   },
   "risk": {

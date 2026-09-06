@@ -123,6 +123,33 @@ def config_snapshot(config):
 # until someone edits one of them -- the defect this project has now recorded
 # three times (seven dead config constants at sequence item 14, a guard list
 # short by three indicators at Finding 3, a stale docstring at 2be405f).
+#
+# KIMI FINDING 3, ROUND 4 -- WHAT THIS DICT IS FOR NOW, AND WHAT IT IS NOT
+#
+# The finding is that two runs on different code recorded identical hashes,
+# and it names seven decision-affecting settings this dict does not contain.
+# Six of the seven cannot be added to it at all: SPIKE_RATIO is a function
+# local, and the entry multipliers, the trend bands, 0.0015 and window=30 are
+# bare literals. `getattr(module, name)` reaches none of those. Extending an
+# enumeration was never available as the fix -- and an enumeration cannot see
+# a changed operator or a reordered branch in any case, both of which change
+# what the engine decides.
+#
+# core/code_fingerprint.py closes the finding by hashing the parse tree of
+# every source file. It needs no list, so it cannot fall behind the code.
+#
+# This dict is KEPT, and its job has narrowed to the half a hash cannot do:
+# saying WHICH knob a run used, in numbers a person can read, without
+# reconstructing the tree from an archive. A hash says two runs differ; this
+# says the stop multiplier was 1.2. Both are in the record because they answer
+# different questions, and neither is a substitute for the other.
+#
+# 6 September 2026: the two DecisionModel constants below are the only two of
+# the seven that are nameable, and naming them needed module_snapshot() to
+# learn dotted paths -- see there. models.entry_model was never fingerprinted
+# despite its scoring constants deciding entry quality on every run; it is
+# added here because those constants are module-level and therefore readable,
+# not because the code hash needs the help.
 FINGERPRINTED_MODULES = {
     "models.bias_engine": [
         "WEIGHT_TREND_HEALTH", "WEIGHT_STRUCTURE_REGIME",
@@ -147,7 +174,35 @@ FINGERPRINTED_MODULES = {
     # strong enough to act on. Changing it changes which runs authorise a
     # trade, so it belongs inside run_hash by the same argument that put the
     # risk multipliers there.
-    "models.decision_model": ["MIN_ACTION_BIAS"],
+    #
+    # KIMI FINDING 3: the two dotted names are class attributes of
+    # DecisionModel, not module-level constants, so they were unreachable by
+    # the plain getattr this dict was built around. DEGRADED_CONFIDENCE_CEILING
+    # is the ceiling a degraded run's confidence is clipped to and
+    # BTC_ADJUSTMENT_CAP bounds how far BTC context can move that confidence --
+    # both decide numbers an operator reads and both were invisible in the
+    # record. models/risk_model.py answered the same problem in September by
+    # moving its constants to module level; these stay where they are and
+    # module_snapshot() learned to walk to them instead, because moving a
+    # constant is a change to the decision path and this patch is a change to
+    # the record.
+    "models.decision_model": [
+        "MIN_ACTION_BIAS",
+        "DecisionModel.DEGRADED_CONFIDENCE_CEILING",
+        "DecisionModel.BTC_ADJUSTMENT_CAP",
+    ],
+    # KIMI FINDING 3 names "the entry multipliers", which are the bare 1.05 and
+    # 0.90 literals in generate_entry_signals' confluence ladder and are not
+    # nameable here. These are the module-level constants of the same module --
+    # the point budget every entry score is built out of. They were never
+    # fingerprinted, and changing STRUCTURE_MAX_POINTS from 12 to 20 moves every
+    # entry score the engine produces.
+    "models.entry_model": [
+        "EMA_ZONE_MAX_POINTS", "ATR_DISTANCE_MAX_POINTS",
+        "VWMA_MAX_POINTS", "RSI_MAX_POINTS", "STRUCTURE_MAX_POINTS",
+        "COMPONENT_MAX_POINTS", "SCORE_CEILING",
+        "ZONE_POINTS_NOT_MEASURED", "ATR_POINTS_NOT_MEASURED",
+    ],
     "models.risk_model": [
         "ATR_STOP_MULT", "TARGET1_MULT", "TARGET2_MULT", "TARGET3_MULT",
         "VOL_MULT_HIGH", "VOL_MULT_LOW", "VOL_MULT_EXTREME",
@@ -159,6 +214,27 @@ FINGERPRINTED_MODULES = {
 }
 
 
+def _resolve(module, dotted):
+    """
+    Walk a dotted name from a module to the value at the end of it.
+
+    KIMI FINDING 3. "MIN_ACTION_BIAS" is one hop and behaves exactly as the
+    plain getattr did. "DecisionModel.DEGRADED_CONFIDENCE_CEILING" is two, and
+    two hops is what the original could not do -- a constant held on a class
+    recorded as MISSING, which is a record saying a knob was not defined when
+    it was defined and being read on every run.
+
+    A name that does not resolve returns MISSING, unchanged: the caller's
+    contract is that a name it asked for always appears in the output.
+    """
+    value = module
+    for part in dotted.split("."):
+        value = getattr(value, part, MISSING)
+        if value is MISSING:
+            return MISSING
+    return value
+
+
 def module_snapshot():
     """
     The decision-affecting constants that live in modules rather than config.
@@ -167,6 +243,10 @@ def module_snapshot():
     omitted, for the same reason config_snapshot records a missing name: a
     record that looks complete and is not gives the reader no way to tell an
     absent value from one that was never asked for.
+
+    This is the readable half of the code record and no longer the whole of it.
+    The complete half is core/code_fingerprint.py, which covers the constants
+    no dict of names can hold. See the comment on FINGERPRINTED_MODULES.
     """
     out = {}
     for module_name, names in FINGERPRINTED_MODULES.items():
@@ -176,7 +256,7 @@ def module_snapshot():
             out[module_name] = {"<import failed>": str(exc)}
             continue
         out[module_name] = {
-            name: getattr(module, name, MISSING) for name in names
+            name: _resolve(module, name) for name in names
         }
     return out
 

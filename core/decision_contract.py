@@ -264,6 +264,23 @@ class ProvenanceBlock(TypedDict):
     fetch: Dict[str, Any]         # requested vs effective parameters
     prior_state: Dict[str, Any]   # what the previous run left for Exit Watch
     module_constants: Dict[str, Any]   # bias weights and threshold
+
+    # KIMI FINDING 3, round 4 (Item 5). `engine_version` above is a release
+    # label maintained by hand and unchanged across every commit in this
+    # repository, and `module_constants` is an enumeration that six of the
+    # seven settings the finding names structurally cannot appear in -- they
+    # are function locals, class attributes and bare literals. This is a
+    # SHA-256 over the docstring-stripped parse tree of every source file, so
+    # two runs made on different code are distinguishable in the record
+    # whatever it was that changed.
+    #
+    # NOT the same thing as run_hash, deliberately: run_hash says which inputs
+    # under which settings, this says which code. See the call site in
+    # core/engine_core.py for why they are two fields and not one.
+    #
+    # None when the fingerprint could not be taken -- recorded rather than
+    # omitted, the same argument archive_path below makes.
+    code_hash: Any                # str, or None if the fingerprint failed
     archive_path: Any             # str, or None when nothing was written
 
 

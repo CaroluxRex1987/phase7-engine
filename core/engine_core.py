@@ -21,6 +21,7 @@ from models.entry_model import generate_entry_signals, calculate_entry_quality
 from models.exit_model import build_exit_watch
 from core import lineage
 from core import decision_log
+from core import code_fingerprint
 from models.btc_context import compute_correlation_beta, classify_correlation, classify_stress
 from utils.plotting import plot_engine_chart
 
@@ -1122,10 +1123,48 @@ class Phase7Engine:
             config_fingerprint = decision_log.config_snapshot(config)
             module_fingerprint = decision_log.module_snapshot()
 
+            # KIMI FINDING 3 (Item 5). The two fingerprints above are lists of
+            # names, and the finding is that the lists are short: six of the
+            # seven settings it names cannot be held by a dict of module
+            # attributes at all. This one is not a list -- it is a hash of the
+            # parse tree of every source file, so a constant added tomorrow is
+            # covered the moment it is written. See core/code_fingerprint.py.
+            #
+            # Wrapped, for the reason the archive block below is wrapped:
+            # an audit-side concern must not be able to destroy an analysis
+            # that was computed correctly. A run whose fingerprint could not be
+            # taken records why instead of failing.
+            try:
+                code_id = code_fingerprint.code_fingerprint()
+            except Exception as exc:
+                logger.warning(
+                    f"Source fingerprint could not be taken ({exc}). The "
+                    f"analysis is unaffected; this run records no code identity."
+                )
+                code_id = {"format": code_fingerprint.CODE_FORMAT,
+                           "code_hash": None, "error": str(exc), "files": {}}
+
             # The run's identity: the data AND the settings that decide what
             # is computed from it. Neither alone identifies a run -- the same
             # candles under different indicator lengths are a different
             # analysis, and so are different candles under the same settings.
+            #
+            # KIMI FINDING 3, AND THE ONE THING THIS PATCH DELIBERATELY DOES
+            # NOT DO. `code_id` is NOT folded in here. Folding it in would make
+            # run_hash move on every commit that touches any engine file, and
+            # run_hash is pinned by tests/fixtures/golden_decision.json and is
+            # the archive's filename -- so every commit would fail the golden
+            # test and require a re-baseline. Re-baselining is the step where a
+            # real change gets waved through, and making it routine would spend
+            # the check that has caught more defects here than any other to buy
+            # a property the record already has in a separate field.
+            #
+            # run_hash keeps its documented meaning -- which inputs, under
+            # which settings. `code_hash` beside it says which code. Two runs
+            # on different code are distinguishable in the record, which is
+            # what the finding asked for. Held by
+            # tests/test_code_fingerprint.py so a later change to this is
+            # visible rather than silent.
             run_id = lineage.run_hash(
                 input_hashes,
                 {"config": config_fingerprint, "modules": module_fingerprint},
@@ -1152,6 +1191,15 @@ class Phase7Engine:
                         "engine_version": config.engine_version,
                         "config": config_fingerprint,
                         "modules": module_fingerprint,
+                        # KIMI FINDING 3. The whole fingerprint, including the
+                        # per-file digests, goes here rather than into the
+                        # decision record: the archive is written once per
+                        # distinct run and gzipped, so thirty-two digests cost
+                        # nothing, while the decision log gets one line per run
+                        # forever. The record carries the combined hash, which
+                        # answers "is this the same code"; this answers "which
+                        # file changed", which is the question you ask next.
+                        "code": code_id,
                     },
                 )
                 # Retention is Viktor's ruling of 2 September 2026: ninety days
@@ -1288,6 +1336,15 @@ class Phase7Engine:
                     # reconstruction.
                     "prior_state": prior_state,
                     "module_constants": module_fingerprint,
+                    # KIMI FINDING 3 (Item 5). engine_version above is a
+                    # release label maintained by hand and has not changed
+                    # across any commit in this repository, so it never
+                    # identified the code a run was made on. This does: a
+                    # SHA-256 over the parse tree of every source file. The
+                    # per-file digests are in the archive meta, not here -- one
+                    # log line per run forever is the wrong place for
+                    # thirty-two hashes.
+                    "code_hash": code_id.get("code_hash"),
                     "archive_path": archive_path,
                 },
                 "exit_watch": exit_watch,

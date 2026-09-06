@@ -125,7 +125,19 @@ UNREACHABLE = "http://127.0.0.1:1"
 
 # Fields excluded from comparison because they legitimately differ between runs
 # on identical input. Anything not listed here is expected to be stable.
-VOLATILE = {"chart_path", "timestamp", "generated_at"}
+#
+# KIMI FINDING 3, 6 September 2026: code_hash is a SHA-256 over the parse tree
+# of every source file, so it moves on every commit that changes any of them --
+# including the commit that adds it. Pinning it would fail this test on every
+# future commit and make re-baselining routine, and re-baselining is the step
+# where a real change to a decision gets waved through. It is excluded here for
+# the same reason chart_path is: it is not a decision, and this file's subject
+# is what the engine decided.
+#
+# The value is not untested. tests/test_code_fingerprint.py asserts it is
+# present, well-formed, stable across two runs on identical code, and that it
+# moves when a constant changes.
+VOLATILE = {"chart_path", "timestamp", "generated_at", "code_hash"}
 
 
 def _engine_available():
