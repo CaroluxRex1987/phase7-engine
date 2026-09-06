@@ -1,13 +1,21 @@
 # Next step — read this first
 
-*Updated 6 September 2026, second session. **Rounds 3 and 4 are both in. Two reports,
+*Updated 6 September 2026, third session. **Rounds 3 and 4 are both in. Two reports,
 sixteen distinct items between them, two real overlaps.** Round 3 was GLM 5.3 Flash (by
 accident, and it stands as round 3 on the record rather than discarded); round 4 was Kimi
 K3 through the API, the first complete report in four attempts. Kimi's Section 11
 confirmation run was made on 6 September against unmodified code and **confirmed Finding 1
-end to end**, and the fix for it has landed. **GLM F-7 as extended has now landed too, at
-`26a05dc`** — and it turned out to be reachable rather than latent, which the 5 September
-note did not know. Suite: **363 passing, 0 failed**. Everything pushed.*
+end to end**, and the fix for it has landed. **GLM F-7 as extended landed at `26a05dc`** —
+and it turned out to be reachable rather than latent, which the 5 September note did not
+know. **Kimi Finding 5 item 6 landed at `4678f45`**, and it too was reachable: the swing
+detector needs 21 rows and the engine admits 20, so a 20-row frame got its own price back
+as a structural level. Suite: **377 passing, 0 failed**. Everything pushed.*
+
+***The live run owed for F-7 has been made** — AEROUSDT 4h, 6 September 10:04, on the tree
+with both fixes applied and before the second commit. The gate read a real verdict and
+refused for a real reason. Nothing on the decision path is now sitting unrun. See "Kimi
+Finding 5 item 6" at the end of this file for the panel and for what a live run
+structurally cannot reach.*
 
 *The release gate is **still shut**. "Unresolved" means no fix has landed **and been
 re-audited**, and nothing landed since round 4 has been re-audited by anyone. Two Majors
@@ -1958,10 +1966,12 @@ against whatever one reviewer happened to reach.
 and the real fix is the missing test at the router seam rather than the merge line~~ —
 **DONE 6 September, see "Finding 1 fixed" below**; then ~~GLM F-7 as extended, because wrong
 polarity on an authorization gate outranks what follows~~ — **DONE 6 September at `26a05dc`,
-see "GLM F-7 as extended" below**; then Kimi Finding 2 (blocked on decision 3); **then Kimi
-Finding 5 item 6, which is the next piece of work and needs no decision first**; then Kimi Finding 3,
-the largest of the Majors and the least urgent because it degrades the record rather than the
-output; then the latent and Minor items as one sweep; then GLM F-8/F-9 for test hygiene.
+see "GLM F-7 as extended" below**; then Kimi Finding 2 (blocked on decision 3); ~~then Kimi
+Finding 5 item 6~~ — **DONE 6 September at `4678f45`, see "Kimi Finding 5 item 6" below**;
+**then Kimi Finding 3, which is now the next piece of work** — the largest of the Majors and
+the least urgent because it degrades the record rather than the output, and it needs no
+decision from Viktor first; then the latent and Minor items as one sweep; then GLM F-8/F-9
+for test hygiene. Kimi Finding 2 remains the only item in this order blocked on a ruling.
 
 ### Open — decisions
 
@@ -2009,6 +2019,13 @@ These are Viktor's, and none was made on 5 September.
      blind spot above, so this is a ruling and not a tidy-up. The interim mitigation is
      already in the working practice below: a delivered file gets a name unique to its
      version, which is the only reason the 6 September delivery files could be reset by name.
+   - *A third instance, found the same day and not a new decision — evidence for these two.*
+     The Finding 5 item 6 delivery was issued as a numbered command list, then reissued with
+     the same steps renumbered when the live run was inserted. One `git add` was lost between
+     the two numberings and the commit went in without its test file, caught only by reading
+     `2 files changed` in the commit output. Amended before pushing. The candidate structural
+     fix is one numbered list per delivery, issued once and never renumbered; it is recorded
+     here rather than adopted, because it is the same kind of process ruling as the two above.
 
 ### Open — work
 
@@ -2016,13 +2033,14 @@ These are Viktor's, and none was made on 5 September.
    confirmed end to end, on unmodified code, before any fix.** See "The Section 11
    confirmation run" below, which also records what the run found beyond the finding and two
    wrong turns made getting there.
-2. ~~The fixes, in the order above.~~ **Kimi Finding 1 and GLM F-7 as extended are both
-   fixed and pushed (6 September, `76150d0` and `26a05dc`). Kimi Finding 5 item 6 is the
-   next one, and it needs no decision from Viktor first.** The rest of the order stands;
-   Kimi Finding 2 is blocked on decision 3 above.
+2. ~~The fixes, in the order above.~~ **Kimi Finding 1, GLM F-7 as extended and Kimi
+   Finding 5 item 6 are all fixed and pushed (6 September, `76150d0`, `26a05dc` and
+   `4678f45`). Kimi Finding 3 is the next one, and it needs no decision from Viktor
+   first.** The rest of the order stands; Kimi Finding 2 is blocked on decision 3 above.
 3. The Engineering Notes are current through Entry #82 and do not cover the round-4 run,
    the round-3 versus round-4 comparison, the Section 11 confirmation run, the Finding 1
-   fix, or the F-7 fix. **Five entries owed** — it was four before F-7 landed.
+   fix, the F-7 fix, or the Finding 5 item 6 fix. **Six entries owed** — it was five
+   before item 6 landed, and the gap grows by one with every fix that ships.
 4. The four `qwen_reasoning_*.txt` may now be renamed; the hold is discharged.
 5. Observed in the live run of 6 September and NOT investigated: the panel printed
    `BTC BIAS : BULLISH` directly above `BTC REGIME : BEARISH TREND`. Those come from two
@@ -2030,6 +2048,10 @@ These are Viktor's, and none was made on 5 September.
    `calculate_dynamic_regime`), so it may be a legitimate state — a bullish bias inside a
    bearish structural regime — and the downstream reason string reads only the bias half.
    Neither function has been read. Recorded as an observation, not as a finding.
+   **It did not reproduce in the 10:04 run of the same day**, which read `BTC BIAS :
+   BULLISH CONFIRMED` over `BTC REGIME : NEUTRAL STRUCTURE`. That is consistent with a
+   legitimate state and is not evidence of one — two runs is not a sample, and the two
+   functions are still unread.
 6. This file's own head block was stale for most of 5 September and was rewritten on the
    6th. Worth re-reading it against reality at the end of each session rather than only at
    the end of each phase.
@@ -2295,9 +2317,14 @@ errors** without it, against a 222 / 98 / 0 pre-patch baseline on the same tree.
 applies clean to a pristine checkout seeded from Viktor's own byte-exact CRLF files; all five
 changed files md5-match what was built; suite figures are from the applied tree.
 
-Not verified: a live run against the MEXC API, and the panel rendering of the new action
-string. **The engine has not been run on live data since this landed** — it touches the
-decision path, so that run is owed before the fix is treated as closed.
+Not verified at the time: a live run against the MEXC API, and the panel rendering of the
+new action string. **That run has since been made — 6 September 10:04, AEROUSDT 4h**, on
+the tree carrying this fix and the Finding 5 item 6 fix together, and it is written up in
+"Kimi Finding 5 item 6" below. The gate refused with `NO-TRADE (RISK TOO HIGH)` and the
+reason "Risk regime classified as EXTREME RISK", so `validate_risk_parameters` returned a
+genuine `bool` on live data and the gate read it. The `NO-TRADE (RISK NOT ASSESSED)` string
+this fix introduced has still never been rendered on live data, and should not be: it
+exists for a state that must not occur.
 
 ### Not fixed, and why
 
@@ -2333,6 +2360,143 @@ and 5 ask about *untracked* files and *loose patch* files, and this was neither.
 `77d822f`; `76150d0` deleted it; a third copy was armed on 6 September and caught only
 because the `git status --short` step exists and Viktor pasted it. The generic filename is
 the mechanism.
+
+## 6 September 2026 — Kimi Finding 5 item 6, and the live run that was owed
+
+Landed at `4678f45`, pushed. Suite 363 → **377 passing, 0 failed**. Golden snapshot did not
+move, predicted before the run with a checkable reason and confirmed by the fixture's
+absence from `git status` rather than only by the test passing.
+
+### The margin was one row
+
+`_detect_swing_structure` returned `current_price` on both of its not-located paths — the
+price the engine is being asked about, handed back as the structural level it had failed to
+find. On the panel that reads `SWING STRUCT : $<price>`: a located level sitting exactly on
+the current price, which is the strongest statement that field can make, made on precisely
+the runs that located nothing.
+
+`2 * lookback + 5` is 21 at `config.STRUCT_LOOKBACK = 8`.
+`engine_core._validate_dataframe` rejects frames below 20 rows. **The two minimums disagree
+by one, and on the wrong side** — so a 20-row frame passed validation, ran the whole
+pipeline, and got its own price back as structure. Kimi graded it Minor and reachable, and
+reachable was right.
+
+The second return is not about length: a frame of any size in which no pivot can be
+confirmed takes the same path. A clean monotonic run does it.
+
+### Third time on the same field
+
+`signal_router._build_decision_object` built the field as
+`float(structure.get("swing_struct", exit_data.get("current_price", 0.0)))`, so a structure
+block carrying no swing level got the current price written in as one — into the panel and
+into the permanent decision-log record. Reachable by the composition GLM F-7 named two
+commits earlier: `_validate_engine_output` checks that `"structure"` is PRESENT and never
+what is under it, so `{}` passes validation and arrives there.
+
+Both halves fixed together, under rule 3. `entry_model`'s fallback for this class was fixed
+on 1 September and `panel_render`'s identical `.get('swing_struct', current_price)` on
+2 September, and the producer went on inventing through both. **Closing the door and leaving
+the window, twice on one field, is what made this the third fix rather than the first.**
+
+### What changed
+
+`structure/structure.py` — both not-located returns are `float("nan")`. `current_price`
+stays a parameter; it is still what the nearest-of-high-or-low comparison measures against.
+
+`models/signal_router.py` — the assembly default is `float("nan")`, matching the default
+`engine_core` already uses when it reads the field out of the structure object.
+
+`tests/test_swing_structure_is_not_invented.py` — new, 14 tests.
+
+**No `degraded_inputs` entry, and that is a decision rather than an oversight.** Held by a
+named test so a later change to it is visible. Not-enough-data is an ordinary return in that
+module (`_detect_regime` under 15 rows, `_detect_sequence` under `6 * lookback + 10`), and
+`degraded_inputs` feeds the run's degradation list, which drives the confidence ceiling and
+can reach the final action. `swing_struct` is read by nothing but the panel and the record —
+not by entry scoring, not by `risk_model`'s stop, not by any gate. A display-only field that
+can move an authorization is a worse defect than the one being fixed, even in the safe
+direction.
+
+### Evidence against pre-fix code
+
+**9 failed, 5 passed.** 7 behavioural, 2 source-text, **0 ImportError and 0 collection
+errors — with no harness this time**, which is worth the sentence because the F-7 patch
+needed one: these tests import no new name, so they run against pre-fix code exactly as
+written. Nothing was grafted.
+
+3 of the 5 pre-fix passes are negative controls, named as such in the file. A producer
+rewritten to return NaN unconditionally would satisfy every "does not invent" test in that
+file and destroy the field.
+
+Both source guards match on the **parse tree** rather than on text, per rule 16: the
+explanatory comments in both files quote the old expressions verbatim, so a substring search
+would read the comments as the defect.
+
+Figures both ways, from the applied tree rather than the working copy: **377 / 0** with
+`pandas_ta`; **266 passed / 100 skipped / 0 errors** without it, from a 252 / 100 baseline —
+all 14 new tests run in both configurations and none skips. `run_tests.py`, the runner that
+works without pytest: 296 → **310 passed, 0 failed, 29 errors, the error count unchanged**.
+That last figure is why the two router tests take no `monkeypatch` fixture — every
+`render_panel` call in `signal_router.py` is inside `route_and_execute`, so a direct
+`_build_decision_object` call needs nothing silenced, and a fixture-taking test is an error
+under that runner. There are 29 of those already; this added none.
+
+### The live run — AEROUSDT 4h, 6 September 10:04
+
+Made on the tree carrying this fix, after the patch was applied and before the commit, and
+it **discharges the run owed for F-7** as well.
+
+```
+CURRENT PRICE : $0.5437
+SWING STRUCT  : $0.5063 (Lookback 8)
+DECISION      : NO-TRADE (RISK TOO HIGH)
+Risk check failed (Risk regime classified as EXTREME RISK.)
+```
+
+A located level that is not the current price — the unchanged branch behaving as before.
+And the F-7 half: the refusal names a real reason rather than `NO-TRADE (RISK NOT ASSESSED)`
+or the `Risk check failed (OK)` fabrication, so `validate_risk_parameters` returned a genuine
+`bool` on live data and the gate read it instead of assuming it.
+
+**What the run did not exercise, and structurally cannot.** A 300-bar live frame locates a
+swing, so neither changed branch was reached. The NaN paths are covered by the suite only.
+Reaching them on live data would need a symbol or timeframe with fewer than 21 candles of
+history. This is stated because "ran it live" is otherwise read as covering the change,
+and here it covers the absence of a regression rather than the fix itself.
+
+### Not fixed, and why
+
+- **The other invented defaults in the same router assembly still stand:** `hvn` and `lvn`
+  default to `0.0`, `regime` to `"NEUTRAL"`, `sequence` to `"NONE"`, `volume_sentiment` to
+  `"NEUTRAL VOLUME"`. Same class — zero is a price and NEUTRAL is a reading — and latent by
+  the same argument that turned out to be wrong for `swing_struct`: an empty structure block
+  reaches all six lines, not just the one. None is an authorization. They belong to the
+  sweep of latent and Minor items in the fix order, and are named here so the sweep has them.
+- `float(structure.get("swing_struct", ...))` still raises `TypeError` if the key is present
+  with the value `None` — the exact shape of Kimi Finding 1 on a different field. Latent:
+  `engine_core` never writes `None` there. Named because **"the producer always sets it" has
+  now been the wrong argument three times in three days.**
+- `tests/test_pinned_source.py::test_manifest_hashes_match_the_files` still fails on any LF
+  checkout, as recorded with F-7. Worked around locally; nothing in this patch touches the
+  fixtures.
+
+### What went wrong delivering it
+
+The command list was issued once, then reissued with the same steps renumbered when the live
+run was inserted between the suite and the commit. **One `git add` was lost between the two
+numberings** and the commit went in without its test file — two files instead of three,
+caught by reading `2 files changed` in the commit output rather than by any check. Amended
+before pushing, so the pushed history is clean and no force push was needed.
+
+Recorded as a third instance under decision 8 rather than fixed on Claude's own initiative.
+The candidate structural fix is one numbered list per delivery, issued once and never
+renumbered.
+
+Second, smaller: the commit message delivered as `_v1` said "Not verified: a live run" and
+was already false by the time the amend happened, because the run had been made in between.
+Replaced by `_v2` carrying the panel. **A commit message is written before the last thing
+happens, and it is the thing that has to be re-read before it is used**, which the amend
+made cheap and would not have been after a push.
 
 ## Working practice
 
