@@ -4,6 +4,7 @@
 # time removing from this codebase.
 from typing import Dict, Any, Optional, List
 import logging
+import math
 
 from core import config, decision_log
 from core.panel_render import render_panel
@@ -445,11 +446,79 @@ class SignalRouter:
 
         except Exception as e:
             logger.error(f"Failed to build decision object layout: {e}")
+            # AUDIT, Item 6. Found by the Section 11 confirmation run on
+            # 6 September 2026, and by neither reviewer: this record used to be
+            # {symbol, timeframe, error} and nothing else, while the healthy
+            # record beside it in the same log carries `lineage` and
+            # `provenance` -- input_hashes, run_hash, and the flag saying
+            # whether the run was pinned. decision_log.write() serialises
+            # whatever it is handed, so every failed assembly stored a record
+            # that cannot be traced to any input, inside the one item this
+            # project raised to Critical.
+            #
+            # A run that failed still has a lineage. Losing the analysis is not
+            # a reason to also lose the identity of the inputs that produced
+            # it -- that is the difference between a defect and a defect nobody
+            # can reconstruct. Both names are already normalised to dicts above
+            # the try, so they are defined here however the assembly failed.
             return {
                 "symbol": symbol,
                 "timeframe": timeframe,
-                "error": f"Decision object construction failed: {str(e)}"
+                "error": f"Decision object construction failed: {str(e)}",
+                "provenance": provenance,
+                "lineage": lineage_record,
             }
+
+    @staticmethod
+    def _optional_number(value: Any) -> Optional[float]:
+        """
+        A quantity the producer may legitimately not have, passed through
+        rather than replaced.
+
+        KIMI ROUND 4, FINDING 1 (Major), confirmed end to end by the Section 11
+        run on 6 September 2026 before this fix was written. The two call sites
+        below read
+
+            float(btc_context.get("correlation", 0.0))
+
+        which looks like a default for a missing key and is not one. The key is
+        always present: engine_core writes it with the value None when the
+        quantity could not be measured (engine_core.py 771-788, the same
+        spelling that file already uses for atr and structural_level, and the
+        one that serialises to JSON null). So the default never fired,
+        float(None) raised TypeError, and _build_decision_object's broad except
+        turned a complete and correct AERO analysis into an error dict because
+        an OPTIONAL Bitcoin number was unavailable. Two indexes sharing no
+        timestamps is enough to reach it: one candle closing between two API
+        calls, an exchange gap, a stale feed.
+
+        None is returned rather than 0.0 deliberately. A correlation of 0.00 is
+        a measurement -- it is what a real pair of independent assets produces
+        -- so substituting it would report a finding the engine does not have.
+        That is the defect this codebase already removed from btc_context.py's
+        (0.0, 0.0, 0), from trend_health's 50.0 and from RSI's 50.0, and
+        reintroducing it at the merge would put it back one layer down.
+
+        panel_render (its _correlation_lines) and decision_model (its
+        correlation_measured test) both already read None as "not measured".
+        This is the third module agreeing with them instead of crashing on
+        them.
+
+        NOT changed, and stated rather than left to be found: the other fields
+        in the merge below still carry invented defaults -- "NEUTRAL",
+        "NORMAL", 0.0 for trend_health. They are not covered here because they
+        are not optional measurements; engine_core computes them
+        unconditionally. That is the same "the producer always sets it"
+        argument that was made about this line and was wrong, so it is recorded
+        as an open question rather than as a guarantee.
+        """
+        if value is None:
+            return None
+        try:
+            number = float(value)
+        except (TypeError, ValueError):
+            return None
+        return number if math.isfinite(number) else None
 
     def _merge_btc_context(
         self,
@@ -476,9 +545,12 @@ class SignalRouter:
             "regime": str(btc_context.get("regime", "NEUTRAL STRUCTURE")),
             "volatility": str(btc_context.get("volatility", "NORMAL")),
             "trend_health": float(btc_context.get("trend_health", 0.0)),
-            "correlation": float(btc_context.get("correlation", 0.0)),
+            # KIMI ROUND 4, FINDING 1 -- see _optional_number below. These two
+            # were float(...get(key, 0.0)) and raised TypeError on the value
+            # engine_core actually writes.
+            "correlation": self._optional_number(btc_context.get("correlation")),
             "correlation_label": str(btc_context.get("correlation_label", "WEAK / NO CLEAR RELATIONSHIP")),
-            "beta": float(btc_context.get("beta", 0.0)),
+            "beta": self._optional_number(btc_context.get("beta")),
             "broad_market_stress": bool(btc_context.get("broad_market_stress", False)),
             "n_observations": int(btc_context.get("n_observations", 0) or 0),
             "btc_adjusted_confidence": float(btc_adjusted.get("btc_adjusted_confidence", 0.0)),
