@@ -13,7 +13,9 @@ piece. **`code_hash` moved with the `run_tests.py` fix, predicted and confirmed:
 `6c4ef720baf991a020284fc7dfd81486ed2814fa6daafdbf84fbe2981a20a338`** — `run_tests.py` is
 deliberately fingerprinted (its own test pins that). Suite confirmed unmoved on Viktor's
 own machine: 412 passed/0 failed with `pandas_ta`, `run_tests.py` 345 passed/0
-failed/29 errors, both checked before and after the `run_tests.py` patch.*
+failed/29 errors, both checked before and after the `run_tests.py` patch. **Caught by the
+end-of-session handover check: the Engineering Notes gap is open again** — four entries
+owed (the audit and its three fixes), stopped at #90. See "Open — work" item 3.*
 
 ***Nothing has been ruled this session.*** *All eight items in "Open — decisions" are still
 open and still Viktor's, decision 3 and decision 7 included. The release gate is still shut,
@@ -2227,6 +2229,16 @@ These are Viktor's, and none was made on 5 September.
    and nothing new uses an unproven construct, but that is a structural argument, not a
    Windows observation. See "6 September 2026 — Engineering Notes entries #83-90 published"
    near the end of this file.
+
+   **REOPENED the same session, end-of-session handover check, 6 September 2026.** The
+   Notes stop at Entry #90 and do not cover what landed after: the semantic half of the
+   document audit, or its three findings' fixes (the Documentation Standard correction, the
+   Audit Execution Instructions correction notice, the `run_tests.py` crash fix — commits
+   `0f8e04a`, `fc4b8fc`, `8051f5f`, `6f219ef`). **Four entries owed.** Flagged here rather
+   than left to be found next session, per the standing handover check — this is the same
+   growing-gap pattern rule 28 and the structural fix above were about; it is back after one
+   session's use because publishing the Notes is still a deliberate step, not an automatic
+   one, even now that it is a single command.
 4. The four `qwen_reasoning_*.txt` may now be renamed; the hold is discharged.
 5. Observed in the live run of 6 September and NOT investigated: the panel printed
    `BTC BIAS : BULLISH` directly above `BTC REGIME : BEARISH TREND`. Those come from two
