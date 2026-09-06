@@ -1,5 +1,50 @@
 # Next step — read this first
 
+*Updated 6 September 2026, sixth session. **The document build scripts can write into this
+repository.** `docs/build/_output.py` resolves output paths from `__file__` and the nine
+builders import it; seven now write their PDF into `docs/` and the two whose source
+material was never in this repository fail early and say so. That was the structural cause
+of the Engineering Notes falling behind at four consecutive handovers — **the eight entries
+are still owed**, and they are content inside `build_engineering_notes.py`, so publishing
+them is now one command and writing them is still writing. The document audit's "all ten"
+was **nine**: `build_audit_package.py` already resolved repo-relative, which is why its
+manifests verify. **Suite: 412 passing, 0 failed** — 298 passed / 103 skipped without
+`pandas_ta`, and `run_tests.py` 345 passed, 0 failed, **29 errors**, which is the number to
+watch. No engine source was touched: `code_hash` unchanged at `44e085cfa1fa…`, golden
+snapshot unmoved, no live run owed. See "the build scripts can write into the repository"
+at the end of this file.*
+
+***Nothing was ruled this session.*** *All eight items in "Open — decisions" are still open
+and still Viktor's, decision 3 and decision 7 included. The release gate is still shut, and
+nothing that has landed since round 4 has been re-audited by anyone.*
+
+***Where the next session starts.*** *Claude's recommended order — a recommendation, not a
+ruling, and the choice is Viktor's:*
+
+1. *__The eight Engineering Notes entries.__ Everything they need to say is already written
+   up in this file, commit by commit. Publishing is `python docs/build/build_engineering_notes.py`,
+   which now writes into `docs/`. Doing this first means the document audit below reads a
+   current Notes rather than one already known to be eight entries behind.*
+2. *__The semantic half of the document audit__ — the eight PDFs read against the current
+   state of the project. Read-only, no tree risk, and it is where a second Finding 3 would
+   be. The mechanical half was done on 6 September; see "The document audit".*
+3. *__The fourteen-item sweep__, assembled in "The sweep of latent and Minor items". The
+   only one of the three that touches the decision path: three patches, three golden
+   predictions, live runs owed.*
+
+*__Against that order:__ if the goal is opening the release gate, none of the three moves
+it. That runs through decision 3 (Kimi Finding 2) and a re-audit, both of which are
+Viktor's.*
+
+*__Environment note, 6 September:__ `reportlab` is installed on Viktor's machine. It is
+deliberately not in `requirements.txt` — `docs/build/README.md` carries its own install
+line — so a fresh clone still needs `pip install reportlab` before any document can be
+rebuilt.*
+
+*The block below was written in the fifth session and is kept as written; it says "fourth
+session", which is one of the small counting slips this project records rather than tidies.
+Where it says 400 or 406 passing, those figures are historical.*
+
 *Updated 6 September 2026, fourth session. **Rounds 3 and 4 are both in. Two reports,
 sixteen distinct items between them, two real overlaps.** Round 3 was GLM 5.3 Flash (by
 accident, and it stands as round 3 on the record rather than discarded); round 4 was Kimi
