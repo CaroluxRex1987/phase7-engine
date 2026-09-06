@@ -1,14 +1,22 @@
 # Next step — read this first
 
-*Updated 5 September 2026, late. **"What is left to fix" is empty. All eleven verified
-findings and both run-the-engine observations now have a fix that has landed.** Twelve
-patches — four on 3 September, three on 4–5 September, and L, M, O, P and Q on
-5 September. The section to read first is "The pre-audit checklist" at the end of this
-file. The release gate is **still shut**, because "unresolved" means no fix has landed
-**and been re-audited**, and the re-audit has now failed three times without ever reaching
-a verdict. The pre-audit checklist is now closed on all six items, and exactly one thing
-stands between here and sending the package: Viktor rules which model runs the re-audit.
-Suite: 319 passing, 0 failed, at `c4d6969`. HEAD `1083dc5`, pushed.*
+*Updated 6 September 2026, early morning. **Rounds 3 and 4 are both in. Two reports,
+sixteen distinct items between them, two real overlaps.** Round 3 was GLM 5.3 Flash (by
+accident, and it stands as round 3 on the record rather than discarded); round 4 was Kimi
+K3 through the API, the first complete report in four attempts. Kimi's Section 11
+confirmation run was made on 6 September against unmodified code and **confirmed Finding 1
+end to end**, and the fix for it has now landed. Suite: **331 passing, 0 failed**.
+Everything pushed.*
+
+*The release gate is **still shut**. "Unresolved" means no fix has landed **and been
+re-audited**, and two Majors from round 4 plus most of round 3's eleven stand unfixed. Six
+decisions are open and all six are Viktor's — see "Open — decisions" near the end of this
+file, which is the section to read first, together with "The round-3 versus round-4
+comparison" above it.*
+
+*The earlier state of this block — "what is left to fix is empty", suite 319, one thing
+standing between here and sending the package — was true on the evening of 5 September. It
+is kept in the history rather than in this paragraph.*
 
 *Eleven defects found by an audit run that never produced a report, all verified against
 source, four fixed. Two more found by running the engine and reading the panel — including
@@ -1945,12 +1953,13 @@ real overlaps — nearly twice either report. Both reviewers concluded the relea
 gate language ("no Critical Tier 1 finding stands unresolved") is in practice evaluated
 against whatever one reviewer happened to reach.
 
-**Suggested fix order** (engineering, Claude's unless overruled): Kimi Finding 1 first, and
-the real fix is the missing test at the router seam rather than the merge line; then GLM F-7
-as extended, because wrong polarity on an authorization gate outranks what follows; then Kimi
-Finding 2; then Kimi Finding 5 item 6; then Kimi Finding 3, the largest of the Majors and the
-least urgent because it degrades the record rather than the output; then the latent and Minor
-items as one sweep; then GLM F-8/F-9 for test hygiene.
+**Suggested fix order** (engineering, Claude's unless overruled): ~~Kimi Finding 1 first,
+and the real fix is the missing test at the router seam rather than the merge line~~ —
+**DONE 6 September, see "Finding 1 fixed" below**; then **GLM F-7 as extended, which is the
+next piece of work**, because wrong polarity on an authorization gate outranks what follows;
+then Kimi Finding 2 (blocked on decision 3); then Kimi Finding 5 item 6; then Kimi Finding 3,
+the largest of the Majors and the least urgent because it degrades the record rather than the
+output; then the latent and Minor items as one sweep; then GLM F-8/F-9 for test hygiene.
 
 ### Open — decisions
 
@@ -1982,10 +1991,22 @@ These are Viktor's, and none was made on 5 September.
    confirmed end to end, on unmodified code, before any fix.** See "The Section 11
    confirmation run" below, which also records what the run found beyond the finding and two
    wrong turns made getting there.
-2. The fixes, in the order above, once the decisions above are made.
-3. The Engineering Notes are current through Entry #82 and do not cover the round-4 run or
-   this comparison.
+2. ~~The fixes, in the order above.~~ **Kimi Finding 1 is fixed and pushed (6 September).
+   GLM F-7 as extended is the next one, and it needs no decision from Viktor first.** The
+   rest of the order stands; Kimi Finding 2 is blocked on decision 3 above.
+3. The Engineering Notes are current through Entry #82 and do not cover the round-4 run,
+   the round-3 versus round-4 comparison, the Section 11 confirmation run, or the Finding 1
+   fix. Four entries owed.
 4. The four `qwen_reasoning_*.txt` may now be renamed; the hold is discharged.
+5. Observed in the live run of 6 September and NOT investigated: the panel printed
+   `BTC BIAS : BULLISH` directly above `BTC REGIME : BEARISH TREND`. Those come from two
+   different functions on the same BTC frame (`calculate_dynamic_bias` and
+   `calculate_dynamic_regime`), so it may be a legitimate state — a bullish bias inside a
+   bearish structural regime — and the downstream reason string reads only the bias half.
+   Neither function has been read. Recorded as an observation, not as a finding.
+6. This file's own head block was stale for most of 5 September and was rewritten on the
+   6th. Worth re-reading it against reality at the end of each session rather than only at
+   the end of each phase.
 
 ## 6 September 2026 — the Section 11 confirmation run
 
@@ -2072,6 +2093,76 @@ The error object's keys were predicted as `['error', 'symbol', 'timeframe']`. Th
 `['decision_log_path', 'error', 'symbol', 'timeframe']` — `route_and_execute` adds
 `decision_log_path` after the write, to the error dict as readily as to a healthy one. The
 substance held; the enumeration did not.
+
+## 6 September 2026 — Finding 1 fixed, and the seam it was hiding in
+
+Landed as a patch against unmodified code, after the Section 11 confirmation run above had
+already reproduced the defect. Suite 319 → **331 passing, 0 failed**. Golden snapshot did
+not move, which was predicted before the run and is the same claim as the negative-control
+test: on the pinned fixtures the correlation is measured (+0.2326 over 30 observations), so
+every value the snapshot records goes through the unchanged path.
+
+### What changed
+
+`models/signal_router.py`, two things:
+
+1. A new `_optional_number()` helper, and the two call sites that read
+   `float(btc_context.get(key, 0.0))` now pass through what the producer wrote. None stays
+   None; a non-finite number becomes None; a measured number is unchanged. **None rather
+   than 0.0 deliberately** — a correlation of 0.00 is a measurement, the one a real pair of
+   independent assets produces, so substituting it would report a finding the engine does
+   not have. That is the defect already removed from `btc_context.py`'s `(0.0, 0.0, 0)`,
+   from `trend_health`'s 50.0 and from RSI's 50.0. `panel_render` and `decision_model`
+   already read None as "not measured"; this is the third module agreeing with them instead
+   of crashing on them.
+
+2. The record written when the assembly fails now carries the run's `lineage` and
+   `provenance`. That is the Item 6 defect the confirmation run found and neither reviewer
+   filed.
+
+`tests/test_router_btc_seam.py`, new: twelve tests written **at the seam** rather than as
+one more assertion about either side of it. That is the actual lesson — the producer was
+tested, the decision model was tested, the panel was tested, and the place where one
+module's output becomes another's input was not. The pinned fixtures share all 450
+timestamps, so nothing in the suite had ever made the producer emit its not-measured shape
+and handed it to this consumer.
+
+### Evidence against pre-fix code
+
+Run against the unmodified engine: **8 failed, 2 passed, 2 skipped**, and all eight
+failures are behavioural — `TypeError` raised from `signal_router.py`'s own `float()` line,
+and `KeyError: 'lineage'` on the failed record. No `ImportError`, no collection error:
+nothing failed merely because the module is new. The split matters, because a new module
+that fails to import proves only that it is new.
+
+The two that pass pre-fix are there on purpose.
+`test_a_measured_relationship_passes_through_unchanged` is the negative control and must
+pass both before and after; `test_the_lineage_survives_into_the_written_record` exercises
+`decision_log`, which the patch does not touch.
+
+### Where the verification stopped
+
+The patch was built and verified in a Linux sandbox on the pinned dependency versions —
+applies clean to a pristine checkout, both changed files md5-match what was built, suite
+from the applied tree 222 passed / 98 skipped / 0 failed against a 212 / 96 / 0 pre-patch
+baseline on the same tree. But `pandas_ta` cannot be installed there, so that was the
+`pandas_ta`-free run only: the two end-to-end tests in the new file and the golden snapshot
+were unverified until the Windows run. Stated at delivery rather than after the fact.
+
+### Not fixed, and why
+
+- The other fields in the same merge still carry invented defaults — `"NEUTRAL"`,
+  `"NORMAL"`, `0.0` for `trend_health`. Not covered, because they are not optional
+  measurements. That is the same "the producer always sets it" argument that was made about
+  the correlation line and was wrong, so it is recorded in the helper's docstring as an
+  open question rather than as a guarantee.
+- **A failure inside the merge still cannot degrade rather than halt.** The 29 August
+  ruling says a failed input caps confidence instead of stopping the run, but
+  `decision_model.evaluate()` is called *before* the merge is assembled, so a degradation
+  discovered at merge time cannot reach the model that reads the degradation list. Making
+  it reachable means computing the BTC block before `evaluate()`. That is a restructure,
+  it is a real gap in a standing ruling, and it is written down here rather than left in a
+  patch comment.
 
 ## Working practice
 
