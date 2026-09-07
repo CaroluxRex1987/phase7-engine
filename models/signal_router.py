@@ -299,11 +299,11 @@ class SignalRouter:
                 "macro_bias": macro_bias,
 
                 "bias": {
-                    "raw": str(bias.get("raw", "NEUTRAL")),
-                    "detailed": str(bias.get("detailed", "NEUTRAL")),
-                    "score": float(bias.get("score", 0.0)),
-                    "regime": str(bias.get("regime", "NEUTRAL STRUCTURE")),
-                    "volatility": str(bias.get("volatility", "NORMAL"))
+                    "raw": str(bias.get("raw", "UNKNOWN")),
+                    "detailed": str(bias.get("detailed", "UNKNOWN")),
+                    "score": self._finite_or_nan(bias.get("score")),
+                    "regime": str(bias.get("regime", "UNKNOWN STRUCTURE")),
+                    "volatility": str(bias.get("volatility", "UNKNOWN"))
                 },
 
                 "trend": {
@@ -315,21 +315,19 @@ class SignalRouter:
                     # short names except decision_model.py, which preferred
                     # them, so a change to the canonical field would have gone
                     # unnoticed there.
-                    "trend_health": float(trend.get("trend_health", 0.0)),
+                    "trend_health": self._finite_or_nan(trend.get("trend_health")),
                     "exhaustion": bool(trend.get("trend_exhaustion", False)),
-                    "momentum_mode": str(trend.get("momentum_mode", "HEALTHY")),
+                    "momentum_mode": str(trend.get("momentum_mode", "UNKNOWN")),
                     "momentum_divergence": bool(trend.get("momentum_divergence", False)),
-                    # New: explicit BULLISH/BEARISH/NEUTRAL direction label
-                    # from trend_health.py, passed straight through.
-                    "trend_direction": str(trend.get("trend_direction", "NEUTRAL")),
+                    "trend_direction": str(trend.get("trend_direction", "UNKNOWN")),
                 },
 
                 "structure": {
-                    "regime": str(structure.get("regime", "NEUTRAL")),
-                    "sequence": str(structure.get("sequence", "NONE")),
-                    "hvn": float(structure.get("hvn", 0.0)),
-                    "lvn": float(structure.get("lvn", 0.0)),
-                    "volume_sentiment": str(structure.get("volume_sentiment", "NEUTRAL VOLUME")),
+                    "regime": str(structure.get("regime", "UNKNOWN STRUCTURE")),
+                    "sequence": str(structure.get("sequence", "UNKNOWN")),
+                    "hvn": self._finite_or_nan(structure.get("hvn")),
+                    "lvn": self._finite_or_nan(structure.get("lvn")),
+                    "volume_sentiment": str(structure.get("volume_sentiment", "UNKNOWN VOLUME")),
                     # KIMI FINDING 5 ITEM 6, 6 September 2026. This default was
                     #
                     #     exit_data.get("current_price", 0.0)
@@ -345,7 +343,7 @@ class SignalRouter:
                     # fires. An absent price level is NaN, which is what
                     # engine_core's own .get default on this field already
                     # uses and what panel_render prints as "not located".
-                    "swing_struct": float(structure.get("swing_struct", float("nan")))
+                    "swing_struct": self._finite_or_nan(structure.get("swing_struct"))
                 },
 
                 "entry": {
@@ -405,7 +403,7 @@ class SignalRouter:
                     # for any Union, so the field would have stopped being
                     # type-checked at all.
                     "risk_valid": read_risk_verdict(risk),
-                    "risk_reason": str(risk.get("risk_reason", "OK")),
+                    "risk_reason": str(risk.get("risk_reason", "UNKNOWN")),
                     # ITEM 14 RE-AUDIT (Finding 5): risk_model.py's
                     # classify_risk_regime() always computed this; only its
                     # EXTREME-RISK/not boolean reached risk_valid above.
@@ -413,7 +411,7 @@ class SignalRouter:
                     # whether an AGGRESSIVE action label may be used --
                     # directional conviction is no longer the only thing
                     # deciding it.
-                    "risk_regime": str(risk.get("risk_regime", "NORMAL RISK")),
+                    "risk_regime": str(risk.get("risk_regime", "UNKNOWN RISK")),
                     # ROADMAP LAYER 1 FIX: confidence_score and the two
                     # trade_quality_* fields are now DecisionModel's real,
                     # multi-factor outputs (see models/decision_model.py)
@@ -422,9 +420,9 @@ class SignalRouter:
                     # panel_render.py needs no changes to consume them.
                     "confidence_score": float(confidence),
                     "trade_quality_proposed": float(trade_quality["proposed_entry"]),
-                    "validation_state": str(risk.get("validation_state", "NEUTRAL")),
-                    "validation_score": float(risk.get("validation_score", 50.0)),
-                    "validation_note": str(risk.get("validation_note", "Standard validation review.")),
+                    "validation_state": str(risk.get("validation_state", "UNKNOWN")),
+                    "validation_score": self._finite_or_nan(risk.get("validation_score")),
+                    "validation_note": str(risk.get("validation_note", "No validation note supplied.")),
 
                     # SEQUENCE ITEM 13: the five position-sizing fields were
                     # removed here under Viktor's ruling of 29 August 2026.
@@ -524,6 +522,18 @@ class SignalRouter:
             }
 
     @staticmethod
+    @staticmethod
+    def _finite_or_nan(value: Any) -> float:
+        """Measurement level: None/non-finite -> NaN; real finite kept. Sweep 1-5."""
+        if value is None:
+            return float("nan")
+        try:
+            number = float(value)
+        except (TypeError, ValueError):
+            return float("nan")
+        return number if math.isfinite(number) else float("nan")
+
+    @staticmethod
     def _optional_number(value: Any) -> Optional[float]:
         """
         A quantity the producer may legitimately not have, passed through
@@ -594,11 +604,11 @@ class SignalRouter:
 
         return {
             "available": True,
-            "raw": str(btc_context.get("raw", "NEUTRAL")),
-            "detailed": str(btc_context.get("detailed", "NEUTRAL")),
-            "regime": str(btc_context.get("regime", "NEUTRAL STRUCTURE")),
-            "volatility": str(btc_context.get("volatility", "NORMAL")),
-            "trend_health": float(btc_context.get("trend_health", 0.0)),
+            "raw": str(btc_context.get("raw", "UNKNOWN")),
+            "detailed": str(btc_context.get("detailed", "UNKNOWN")),
+            "regime": str(btc_context.get("regime", "UNKNOWN STRUCTURE")),
+            "volatility": str(btc_context.get("volatility", "UNKNOWN")),
+            "trend_health": self._finite_or_nan(btc_context.get("trend_health")),
             # KIMI ROUND 4, FINDING 1 -- see _optional_number below. These two
             # were float(...get(key, 0.0)) and raised TypeError on the value
             # engine_core actually writes.
@@ -607,6 +617,6 @@ class SignalRouter:
             "beta": self._optional_number(btc_context.get("beta")),
             "broad_market_stress": bool(btc_context.get("broad_market_stress", False)),
             "n_observations": int(btc_context.get("n_observations", 0) or 0),
-            "btc_adjusted_confidence": float(btc_adjusted.get("btc_adjusted_confidence", 0.0)),
+            "btc_adjusted_confidence": self._finite_or_nan(btc_adjusted.get("btc_adjusted_confidence")),
             "reasons": list(btc_adjusted.get("reasons", [])),
         }

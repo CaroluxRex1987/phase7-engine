@@ -352,15 +352,15 @@ class DecisionModel:
             # instead of one number standing in for both, per the audit's
             # required action: "directional conviction must never be treated
             # as equivalent to risk."
-            risk_regime = str(risk.get("risk_regime", "NORMAL RISK"))
-            aggressive_allowed = risk_regime not in ("HIGH VOLATILITY RISK", "EXTREME RISK")
+            risk_regime = str(risk.get("risk_regime", "UNKNOWN RISK"))
+            aggressive_allowed = risk_regime in ("NORMAL RISK", "LOW RISK")
 
             validation_state = str(risk.get("validation_state", "NEUTRAL"))
             # SEQUENCE ITEM 13: this read trend["health"] first and fell back
             # to trend["trend_health"]. Both held the same number, but the
             # duplicate was the preferred one, so the canonical field could have
             # been changed here without any effect. "health" is now gone.
-            trend_health = _safe_float(trend.get("trend_health", 50.0))
+            trend_health = _safe_float(trend.get("trend_health", float("nan")), default=float("nan"))
             entry_score = _safe_float(entry.get("score", 0.0))
             entry_status = str(entry.get("entry_status", ""))
             divergence = bool(trend.get("momentum_divergence", False))

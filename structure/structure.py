@@ -306,46 +306,28 @@ class StructureEngine:
         degrades gracefully instead of failing outright.
         """
         if df is None or df.empty:
-            return 0.0, 0.0
+            raise RuntimeError(
+                "volume node detection refused: empty frame "
+                "(will not invent HVN/LVN from price extremes)"
+            )
 
         try:
             _, hvn, lvn = compute_volume_profile(df, num_bins=self._volume_profile_bins)
             if hvn is not None and lvn is not None and np.isfinite(hvn) and np.isfinite(lvn):
                 return float(hvn), float(lvn)
-        except Exception:
-            pass  # fall through to legacy method below
+        except Exception as exc:
+            raise RuntimeError(
+                f"volume profile unavailable ({exc}); "
+                "refusing to invent HVN/LVN from price extremes"
+            ) from exc
 
-        # ------------------------------------------------------------
-        # LEGACY FALLBACK: adaptive TR-based high/low window
-        # ------------------------------------------------------------
-        high_values = df['high'].values
-        low_values = df['low'].values
-        close_values = df['close'].values
-        df_len = len(df)
+        raise RuntimeError(
+            "volume profile returned no usable HVN/LVN; "
+            "refusing to invent levels from price extremes"
+        )
 
-        if df_len > 14:
-            prev_closes = np.roll(close_values, 1)
-            prev_closes[0] = close_values[0]
-            tr = np.maximum(
-                high_values - low_values,
-                np.maximum(np.abs(high_values - prev_closes), np.abs(low_values - prev_closes))
-            )
+        # legacy path removed (sweep item 5)
 
-            recent_tr = np.mean(tr[-14:])
-            recent_price = close_values[-1]
-
-            vol_pct = (recent_tr / recent_price) if recent_price > 0 else 0.01
-            base_lookback = 20
-            vol_factor = vol_pct / 0.01
-            adaptive_window = int(base_lookback / max(0.5, min(2.0, vol_factor)))
-
-            lookback = max(5, min(df_len, adaptive_window))
-        else:
-            lookback = df_len
-
-        hvn = float(high_values[-lookback:].max())
-        lvn = float(low_values[-lookback:].min())
-        return hvn, lvn
 
     def _detect_swing_structure(self, df: pd.DataFrame, current_price: float, lookback: int = 8) -> float:
         """

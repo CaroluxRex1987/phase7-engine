@@ -163,11 +163,11 @@ def render_panel(decision):
         # local and dropped it — and the comment claimed it was still used for
         # CONFIDENCE, which reads confidence_score. The field itself is removed
         # from the decision object; bias.score is where that number lives.
-        validation_score = safe_float(risk.get('validation_score', 0))
+        validation_score = safe_float(risk.get('validation_score'), default=float('nan'))
         entry_score = safe_float(entry.get('score', 0))
         confidence_score = safe_float(risk.get('confidence_score', 0))
         tq_proposed = safe_float(risk.get('trade_quality_proposed', 0))
-        trend_health_score = safe_float(trend.get('trend_health', 0))
+        trend_health_score = safe_float(trend.get('trend_health'), default=float('nan'))
 
         # C4 BUILD: position size and the standalone EV line were both
         # dropped from the panel per Viktor's request -- the underlying

@@ -385,7 +385,7 @@ def calculate_dynamic_regime(df):
         if np.isfinite(atr) and np.isfinite(price) and price > 0:
             vol_ratio = atr / price
         else:
-            vol_ratio = 0.01  # Default to medium volatility
+            vol_ratio = None  # unmeasured — do not invent MEDIUM
 
         # BUG FIX (found while cross-checking Option A's "volatility modes
         # are consistent" point): risk_model.py has a real "EXTREME
@@ -394,7 +394,9 @@ def calculate_dynamic_regime(df):
         # only place volatility_state is ever produced -- topped out at
         # "HIGH VOLATILITY" and could never emit "EXTREME VOLATILITY".
         # That entire risk tier was dead code. Added the missing tier.
-        if vol_ratio > 0.04:
+        if vol_ratio is None:
+            volatility_mode = "UNKNOWN"
+        elif vol_ratio > 0.04:
             volatility_mode = "EXTREME VOLATILITY"
         elif vol_ratio > 0.02:
             volatility_mode = "HIGH VOLATILITY"
@@ -411,7 +413,7 @@ def calculate_dynamic_regime(df):
     if "STRUCTURE" in df.columns:
         dynamic_regime = df["STRUCTURE"].iloc[-1]
     else:
-        dynamic_regime = "NEUTRAL STRUCTURE"
+        dynamic_regime = "UNKNOWN STRUCTURE"
 
     return dynamic_regime, volatility_mode
 
