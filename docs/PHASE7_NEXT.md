@@ -1,5 +1,28 @@
 # Next step — read this first
 
+*Updated 7–8 September 2026 (Grok session). **Sweep items 1–5 (Invented defaults and
+fabricated readings) are done and committed at `22afea2`.** Five files:
+`models/signal_router.py`, `models/decision_model.py`, `models/bias_engine.py`,
+`structure/structure.py`, `core/panel_render.py`. **code_hash on Viktor's machine after
+commit: `a64b48e468d35c8648e9f740aef5bdc9b886aec827a5931cd3693de52848957a`.** Suite:
+345 passed / 0 failed / 29 errors. Golden: 8/8, snapshot unchanged (blast radius limited
+to absent-key / failure paths). Wrong turn recorded: Part B insert omitted
+@staticmethod on _optional_number; fixed before commit. Full chronological record:
+`Claude outputs/Grok_session_2026-09-07_sweep_1-5_log.md` (if present) / session log.
+Remaining sweep: items 6–14. **Independence: Grok has written code against the
+Constitution; it is no longer a clean independent reviewer of this code.***
+
+***Nothing ruled this session.*** *All eight items in "Open — decisions" remain Viktor's.
+Release gate still shut.*
+
+***Where the next session starts.*** *Sweep items 1–5 closed at `22afea2`. Next is items
+6–14 (dead code, then false statements + structural), or cleanup of fingerprint
+pollution from `Claude outputs/backup_pre_sweep_1_5/` (.py files not excluded).*
+
+---
+*Prior head block (6 September) kept below for history.*
+
+
 *Updated 6 September 2026, sixth session. **All three of Claude's recommended pieces of
 work are done, and so are the three findings the semantic audit turned up.** Engineering
 Notes entries #83-90 published (`cdf9025`); the semantic half of the document audit done,
@@ -3370,8 +3393,7 @@ Fourteen items. Duplicates across sources are merged and noted.
 
 **Invented defaults and fabricated readings — one class, and the largest part**
 
-1. `_merge_btc_context`'s remaining defaults: `"NEUTRAL"`, `"NORMAL"`, `0.0` for
-   `trend_health`. *(Finding 1, not fixed)*
+~~1. `_merge_btc_context` remaining defaults~~ **DONE 7–8 Sep 2026 (Grok), `22afea2`.**
 2. The router's structure assembly: `hvn`/`lvn` → `0.0`, `regime` → `"NEUTRAL"`,
    `sequence` → `"NONE"`, `volume_sentiment` → `"NEUTRAL VOLUME"`. *(Finding 5 item 6,
    not fixed — named there specifically so this sweep would have them)*
