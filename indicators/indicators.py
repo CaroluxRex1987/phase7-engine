@@ -192,24 +192,6 @@ def unusable_reason(series, name: str = "the series"):
     return None
 
 
-def pct_slope(series: pd.Series) -> pd.Series:
-    """Return the normalized percentage slope of a series with NaN handling."""
-    if series is None or len(series) < 2:
-        return pd.Series(dtype=float, index=series.index if series is not None else [])
-
-    # Clean input series first
-    series = clean_series(series, method="forward_fill")
-
-    # Calculate slope with zero division protection
-    prev_values = series.shift(1)
-    slope = (series.diff() / prev_values) * 100
-
-    # Handle division by zero cases
-    slope = slope.replace([np.inf, -np.inf], 0.0)
-
-    return clean_series(slope, method="forward_fill")
-
-
 def add_technical_indicators(df: pd.DataFrame, inplace: bool = False):
     """
     Add the core technical indicators, and report anything that could not be

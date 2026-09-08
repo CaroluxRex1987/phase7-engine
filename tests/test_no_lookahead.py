@@ -113,7 +113,7 @@ def _clean_series():
     src = open(os.path.join(REPO_ROOT, "indicators", "indicators.py"),
                encoding="utf-8").read()
     start = src.index("def clean_series")
-    end = src.index("def pct_slope")
+    end = src.index("def add_technical_indicators")
     ns = {"pd": pd, "np": np}
     exec(src[start:end], ns)
     return ns["clean_series"]

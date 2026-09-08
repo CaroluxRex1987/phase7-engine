@@ -1,6 +1,6 @@
-from live_trading import live_trading_simulator
+from live_trading import get_live_trading_simulator
 
-result = live_trading_simulator.run_once("AEROUSDT", "4h")
+result = get_live_trading_simulator().run_once("AEROUSDT", "4h")
 
 print()
 print("=====================================")

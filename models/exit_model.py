@@ -79,8 +79,19 @@ def build_exit_watch(
         raw_bias = str(bias.get("raw", "NEUTRAL"))
         detailed_bias = str(bias.get("detailed", "NEUTRAL"))
         sequence = str(structure.get("sequence", "NONE"))
-        hvn = float(structure.get("hvn", 0.0) or 0.0)
-        lvn = float(structure.get("lvn", 0.0) or 0.0)
+        # SWEEP ITEM 7, 8 September 2026. `or 0.0` invented a real price of
+        # zero when the level was missing/None. NaN means not located; the
+        # proximity checks below already require hvn > 0 / lvn > 0.
+        def _level(v):
+            try:
+                if v is None:
+                    return float("nan")
+                x = float(v)
+                return x if x == x else float("nan")  # NaN check
+            except (TypeError, ValueError):
+                return float("nan")
+        hvn = _level(structure.get("hvn"))
+        lvn = _level(structure.get("lvn"))
         current_price = float(current_price) if current_price else 0.0
 
         # --- Trend-quality warnings (no prior-run comparison needed) ---

@@ -6,13 +6,15 @@ from indicators.volume_profile import compute_volume_profile
 
 # Step 8: Formal Return Contract Type Definition for strict static analysis
 class StructureAnalysisResult(TypedDict):
+    # SWEEP ITEM 6, 8 September 2026. Was missing degraded_inputs (which
+    # analyze() returns) and listed df (which only calculate_structure adds).
     regime: str
     sequence: str
     hvn: float
     lvn: float
     swing_struct: float
     volume_sentiment: str
-    df: Optional[pd.DataFrame]
+    degraded_inputs: List[str]
 
 
 class StructureEngine:

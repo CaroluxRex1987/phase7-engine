@@ -281,7 +281,3 @@ def validate_ohlcv(df, timeframe=None, now=None):
 
     return None
 
-
-def is_valid(df, timeframe=None, now=None):
-    """Convenience wrapper for callers that want a boolean."""
-    return validate_ohlcv(df, timeframe=timeframe, now=now) is None
