@@ -347,7 +347,16 @@ def render_panel(decision):
             reset = ""
 
         # Constructing layout strings cleanly
-        header_banner = f"\n{c_cyan}Connecting to MEXC API for {symbol} ({timeframe}) - Phase-7.3 Structural Quant Engine...{reset}\n\n" if COLORAMA_AVAILABLE else f"\nConnecting to MEXC API for {symbol} ({timeframe}) - Phase-7.3 Structural Quant Engine...\n\n"
+        # SWEEP ITEM 9, 8 September 2026. Previous banner claimed "Connecting
+        # to MEXC API" on every run including offline pinned, and said
+        # Phase-7.3 while config.engine_version is v1.0.
+        from core import config as _cfg
+        _ver = getattr(_cfg, "engine_version", "Phase-7 Structural Quant Engine")
+        header_banner = (
+            f"\n{c_cyan}{_ver} — {symbol} ({timeframe}){reset}\n\n"
+            if COLORAMA_AVAILABLE
+            else f"\n{_ver} — {symbol} ({timeframe})\n\n"
+        )
 
         box_top = f"{c_magenta}=========================================================================\n" if COLORAMA_AVAILABLE else "=========================================================================\n"
         title_line = f"    PHASE-7 STRUCTURAL DYNAMIC ENTRY QUALITY ENGINE\n"

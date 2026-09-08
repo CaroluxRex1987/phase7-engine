@@ -158,8 +158,10 @@ class RiskBlock(TypedDict):
     # ITEM 14 RE-AUDIT (Finding 5): risk_model.classify_risk_regime() always
     # computed this; only a boolean comparison against "EXTREME RISK" used to
     # reach risk_valid above. decision_model.py now reads the regime itself
-    # to gate the AGGRESSIVE action label independently of trend health and
-    # entry quality.
+    # as one input to whether AGGRESSIVE is allowed. SWEEP ITEM 10 (8 Sep 2026):
+    # the previous wording claimed this gate is independent of trend health;
+    # that is false about the code (trend_health thresholds still apply).
+    # Whether the coupling itself is a Constitution issue is open decision 2.
     risk_regime: str
     # `risk_score` and `signal_strength` both held bias_score and were removed
     # at sequence item 13. bias.score is that number's one home.

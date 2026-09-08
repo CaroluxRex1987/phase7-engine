@@ -567,10 +567,18 @@ class DecisionModel:
         # When the risk-regime gate has already blocked the trade, make clear this
         # confidence score describes how the picture lines up, not a green light --
         # otherwise a high number here right after "NO-TRADE" reads as contradictory.
+        # SWEEP ITEM 13, 8 September 2026. Previous text blamed "the risk
+        # check above" on every NO-TRADE, including PLAN CONTRADICTS ACTION
+        # and DEGRADED INPUT. Only attach that clause when the action itself
+        # names risk.
         qualifier = (
             " This reflects how the picture lines up, not a green light — the risk check above is what's blocking the trade."
-            if final_action.startswith("NO-TRADE")
-            else ""
+            if final_action.startswith("NO-TRADE") and "RISK" in final_action.upper()
+            else (
+                " This reflects how the picture lines up, not a green light — the trade is blocked for the reason named in the action."
+                if final_action.startswith("NO-TRADE")
+                else ""
+            )
         )
 
         reasons.append(

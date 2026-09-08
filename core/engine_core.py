@@ -694,8 +694,12 @@ class Phase7Engine:
             # 2 SEPTEMBER 2026: both fallbacks were 0.0. A structural level of
             # zero is finite, so risk_model would have accepted it and placed
             # a long's stop at $0.0000. NaN is what "not located" means here.
-            hvn = float(df_struct["HVN"].iloc[-1]) if "HVN" in df_struct.columns else float(structure_obj.get("hvn", float("nan")))
-            lvn = float(df_struct["LVN"].iloc[-1]) if "LVN" in df_struct.columns else float(structure_obj.get("lvn", float("nan")))
+            # SWEEP ITEM 14, 8 September 2026. calculate_structure writes HVN/LVN
+            # onto the frame and into the dict; the engine used to read both.
+            # One path: the dict is the analysis result; the frame columns are
+            # a downstream convenience for indicators that need a series.
+            hvn = float(structure_obj.get("hvn", float("nan")))
+            lvn = float(structure_obj.get("lvn", float("nan")))
 
             structure = {
                 "regime": structure_regime,
@@ -740,6 +744,11 @@ class Phase7Engine:
                         )
                         df_btc_struct = btc_structure_obj.get("df", df_btc)
                         btc_trend = compute_trend_health(df_btc_struct)
+                        # SWEEP ITEM 11, 8 September 2026. BTC-side trend
+                        # degradations were computed and discarded; AERO's
+                        # degradation list never saw them.
+                        for _d in btc_trend.get("degraded_inputs", []) or []:
+                            degradation.append(f"BTC {_d}")
 
                         btc_supertrend_direction = (
                             float(df_btc_struct["ST_Direction"].iloc[-1])

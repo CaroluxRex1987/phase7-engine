@@ -253,6 +253,11 @@ def module_snapshot():
         try:
             module = __import__(module_name, fromlist=["_"])
         except Exception as exc:
+            # SWEEP ITEM 12, 8 September 2026. Documented shape: when a
+            # fingerprinted module cannot be imported, the snapshot records
+            # a single key "<import failed>" whose value is the exception
+            # text, instead of the constant names. Callers must tolerate
+            # this key; it is part of the run-hash payload by design.
             out[module_name] = {"<import failed>": str(exc)}
             continue
         out[module_name] = {
