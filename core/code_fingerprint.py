@@ -148,6 +148,10 @@ EXCLUDED_DIR_NAMES = frozenset({
     "venv", "env", "aider-env", ".venv",
     "Backup",
     "logs", "Logs",
+    # 9 September 2026. Session backups and handoff patches under this name
+    # carried .py copies into the walk and moved code_hash without any engine
+    # change (Grok sweep session). Not engine source.
+    "Claude outputs",
 })
 
 PARSE_FAILED = "<parse failed: {}>"
