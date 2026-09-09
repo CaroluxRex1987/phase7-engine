@@ -1,5 +1,7 @@
 # Next step — read this first
 
+*9 September 2026 — **Kimi Finding 2 / decision 3 closed at `5e2e9f3`.** BTC agreement uses RAW_BIAS_THRESHOLD (label band) and signed correlation; golden re-baselined (btc_context only). Suite 345/0/29. Viktor ruled fix.*
+
 *Updated 7–8 September 2026 (Grok session). **Sweep items 1–5 (Invented defaults and
 fabricated readings) are done and committed at `22afea2`.** Five files:
 `models/signal_router.py`, `models/decision_model.py`, `models/bias_engine.py`,
