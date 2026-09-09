@@ -737,8 +737,22 @@ class DecisionModel:
             stress = bool(btc_context.get("broad_market_stress", False))
             btc_detailed = str(btc_context.get("detailed", "NEUTRAL"))
 
-            aero_dir = 1 if aero_score > 0 else (-1 if aero_score < 0 else 0)
-            btc_dir = 1 if btc_score > 0 else (-1 if btc_score < 0 else 0)
+            # KIMI FINDING 2, 9 September 2026.
+            # Agreement used the bare sign of the score (>0 / <0) while the
+            # panel sentence used btc_detailed, which stays NEUTRAL until
+            # |score| exceeds RAW_BIAS_THRESHOLD (20). A score of +5 produced
+            # "BTC is also neutral, agreeing with AERO's own bias" — false.
+            # Direction for agreement uses the same band as the label.
+            from models.bias_engine import RAW_BIAS_THRESHOLD
+            def _side(score: float) -> int:
+                if score > RAW_BIAS_THRESHOLD:
+                    return 1
+                if score < -RAW_BIAS_THRESHOLD:
+                    return -1
+                return 0
+
+            aero_dir = _side(aero_score)
+            btc_dir = _side(btc_score)
 
             if aero_dir != 0 and btc_dir != 0 and aero_dir == btc_dir:
                 agreement = 1
@@ -750,8 +764,13 @@ class DecisionModel:
             # AUDIT FINDING (a): an unmeasured correlation contributes
             # nothing rather than contributing abs(nan). The stress penalty
             # below does not depend on the pairing and still applies.
+            #
+            # KIMI FINDING 2 (same day): abs(correlation) discarded the sign
+            # of the relationship. Signed correlation participates: same-side
+            # agreement with a negative correlation reduces the adjustment
+            # rather than treating |r| as always supportive.
             direction_adjustment = (
-                agreement * abs(correlation) * (abs(btc_score) / 100.0)
+                agreement * correlation * (abs(btc_score) / 100.0)
                 * self.BTC_ADJUSTMENT_CAP
             ) if correlation_measured else 0.0
             stress_penalty = self.BTC_STRESS_PENALTY if stress else 0.0

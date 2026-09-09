@@ -10,14 +10,14 @@
     "available": true,
     "beta": -0.04925435,
     "broad_market_stress": false,
-    "btc_adjusted_confidence": 78.13506618,
+    "btc_adjusted_confidence": 79.25947441,
     "correlation": -0.0426301,
     "correlation_label": "WEAK / NO CLEAR RELATIONSHIP",
     "detailed": "BEARISH CONFIRMED",
     "n_observations": 30,
     "raw": "BEARISH",
     "reasons": [
-      "BTC-adjusted confidence: 78/100 (vs 79/100 unadjusted, never replacing it). TEST and BTC have a weak / no clear relationship (correlation -0.04 over the last 30 candles), and BTC is bearish confirmed, disagreeing with TEST's own bias."
+      "BTC-adjusted confidence: 79/100 (vs 79/100 unadjusted, never replacing it). TEST and BTC have a weak / no clear relationship (correlation -0.04 over the last 30 candles), and BTC is bearish confirmed, disagreeing with TEST's own bias."
     ],
     "regime": "BEARISH TREND",
     "trend_health": 97.0,
