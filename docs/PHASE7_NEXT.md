@@ -2126,6 +2126,14 @@ These are Viktor's, and none was made on 5 September.
    land in an unlucky corner; it landed in a twenty-point-wide dead zone that the suite's
    own positive correlations reach routinely. That strengthens the case for fixing rather
    than accepting, and it is the last input this decision was waiting on.
+
+   **CLOSED 9 September 2026 — Viktor ruled fix.** Landed at `5e2e9f3` (docs `179f4f9`).
+   `agreement` now reads BTC's own label band (`RAW_BIAS_THRESHOLD`) rather than the raw
+   score's sign alone, and the sentence is built from the signed correlation instead of
+   `abs(correlation)`. Golden re-baselined on `btc_context` only — adjusted confidence
+   78.14 → 79.26 on pinned TESTUSDT, no other field moved. Suite 345/0/29, unmoved. This
+   was Grok's patch, in the same session as the sweep; Grok is not independent for any
+   re-audit of it.
 4. **Does the divergence change the independence policy?** If a two-reviewer union is twice
    either report, one clean reviewer per round is under-powered — which makes the ledger's
    scarcity problem worse rather than better. Viktor has said he wants to write his own
@@ -2212,6 +2220,16 @@ These are Viktor's, and none was made on 5 September.
    and two of its items (GLM F-1 and F-10) were missing from the comparison that was
    supposed to list them. **One thing jumped ahead of it on 6 September**: the test suite
    was destroying the decision record, which outranks fourteen latent items and is fixed.
+
+   **CLOSED 7–8 September 2026 (Grok session).** All fourteen items landed, split by class
+   exactly as suggested: items 1–5 (invented defaults) at `22afea2`, items 6–8 (dead code)
+   at `4d56f2a`, items 9–14 (false statements plus the F-3 structural fix) at `c3b0d43` —
+   docs commits `029c510`, `e528475`, `c56f969`. Suite 345/0/29 after each code commit;
+   golden 8/8, unmoved, because the sweep only touched absent-key and failure paths. A
+   separate fix, `ef00765`, excludes `Claude outputs/` from the `code_hash` walk after
+   Grok's own backup files were found polluting it. Recorded at Engineering Notes #91–#93
+   (v1.24). Grok wrote all of this code and is therefore not independent for any future
+   re-audit of it — see the per-item checklist below, now updated to match.
 3. The Engineering Notes are current through Entry #82 and do not cover the round-4 run,
    the round-3 versus round-4 comparison, the Section 11 confirmation run, the Finding 1
    fix, the F-7 fix, the Finding 5 item 6 fix, or the Finding 3 fix. **Seven entries owed**
@@ -3396,16 +3414,16 @@ Fourteen items. Duplicates across sources are merged and noted.
 **Invented defaults and fabricated readings — one class, and the largest part**
 
 ~~1. `_merge_btc_context` remaining defaults~~ **DONE 7–8 Sep 2026 (Grok), `22afea2`.**
-2. The router's structure assembly: `hvn`/`lvn` → `0.0`, `regime` → `"NEUTRAL"`,
+~~2.~~ **DONE 7–8 Sep 2026 (Grok), `22afea2`.** The router's structure assembly: `hvn`/`lvn` → `0.0`, `regime` → `"NEUTRAL"`,
    `sequence` → `"NONE"`, `volume_sentiment` → `"NEUTRAL VOLUME"`. *(Finding 5 item 6,
-   not fixed — named there specifically so this sweep would have them)*
-3. The same two assemblies: `"NORMAL RISK"`, `"NEUTRAL"`, `50.0`, `"OK"`. *(F-7, not
-   fixed. Overlaps items 5.3 and 5.4 below on `"NORMAL RISK"` and `50.0`.)*
-4. `float(structure.get("swing_struct", …))` raises `TypeError` when the key is present
+   was not fixed at 6 September — named there specifically so this sweep would have them)*
+~~3.~~ **DONE 7–8 Sep 2026 (Grok), `22afea2`.** The same two assemblies: `"NORMAL RISK"`, `"NEUTRAL"`, `50.0`, `"OK"`. *(F-7,
+   was not fixed at 6 September. Overlapped items 5.3 and 5.4 below on `"NORMAL RISK"` and `50.0`.)*
+~~4.~~ **DONE 7–8 Sep 2026 (Grok), `22afea2`.** `float(structure.get("swing_struct", …))` raised `TypeError` when the key was present
    with the value `None` — Kimi Finding 1's exact shape on a different field. Latent only
-   because `engine_core` never writes `None` there, and "the producer always sets it" has
-   now been the wrong argument three times. *(Finding 5 item 6, not fixed)*
-5. Kimi Finding 5's remaining items, 1-5 and 7 — item 6 is fixed:
+   because `engine_core` never writes `None` there, and "the producer always sets it" had
+   been the wrong argument three times before this fix. *(Finding 5 item 6)*
+~~5.~~ **DONE 7–8 Sep 2026 (Grok), `22afea2`.** Kimi Finding 5's remaining items, 1-5 and 7 — item 6 was fixed 6 September:
    `calculate_dynamic_regime`'s `vol_ratio = 0.01` default printing an invented
    `MEDIUM VOLATILITY`; the same function's `"NEUTRAL STRUCTURE"` when the STRUCTURE
    column is absent; `decision_model`'s `trend.get("trend_health", 50.0)` midpoint
@@ -3415,37 +3433,36 @@ Fourteen items. Duplicates across sources are merged and noted.
 
 **Dead code, and one stale contract**
 
-6. GLM F-2 and Kimi Finding 7 together: `pct_slope` unconsumed; `data/validation.py`'s
-   `is_valid` unconsumed; `StructureAnalysisResult` declared as the formal return contract,
-   never used as an annotation, and **stale** — it lacks the `degraded_inputs` key
-   `analyze()` now returns, so the one formal contract in the file describes a shape the
-   function no longer produces; `test_live.py` at the repository root imports a name that
-   was deleted and dies on import.
-7. GLM F-11: `exit_model.build_exit_watch`'s `or 0.0` treats `0.0` and `NaN` identically,
+~~6.~~ **DONE 7–8 Sep 2026 (Grok), `4d56f2a`.** GLM F-2 and Kimi Finding 7 together: `pct_slope` was unconsumed; `data/validation.py`'s
+   `is_valid` was unconsumed; `StructureAnalysisResult` was declared as the formal return contract,
+   never used as an annotation, and **stale** — it lacked the `degraded_inputs` key
+   `analyze()` now returns, so the one formal contract in the file described a shape the
+   function no longer produced; `test_live.py` at the repository root imported a name that
+   had been deleted and died on import.
+~~7.~~ **DONE 7–8 Sep 2026 (Grok), `4d56f2a`.** GLM F-11: `exit_model.build_exit_watch`'s `or 0.0` treated `0.0` and `NaN` identically,
    safe only because `NaN > 0` is False.
-8. GLM F-1: the second `clean_series` call inside `pct_slope`. Dies with item 6 if
-   `pct_slope` goes.
+~~8.~~ **DONE 7–8 Sep 2026 (Grok), `4d56f2a`.** GLM F-1: the second `clean_series` call inside `pct_slope` — removed with item 6.
 
 **Statements the code does not support**
 
-9. Kimi Finding 6: the banner asserts "Connecting to MEXC API…" on offline pinned runs, and
-   says Phase-7.3 while `engine_version` says v1.0.
-10. Kimi Finding 4, the separable half: `decision_contract.py`'s comment claiming the risk
-    gate is independent of trend health is false about the code beside it. **The comment
-    is a sweep item; whether the coupling itself breaks Item 14 is decision 2** and is not
+~~9.~~ **DONE 7–8 Sep 2026 (Grok), `c3b0d43`.** Kimi Finding 6: the banner asserted "Connecting to MEXC API…" on offline pinned runs, and
+   said Phase-7.3 while `engine_version` said v1.0.
+~~10.~~ **DONE 7–8 Sep 2026 (Grok), `c3b0d43`.** Kimi Finding 4, the separable half: `decision_contract.py`'s comment claiming the risk
+    gate is independent of trend health was false about the code beside it — comment corrected.
+    **Whether the coupling itself breaks Item 14 is still decision 2** and was not
     touched here.
-11. GLM F-6: BTC-side `compute_trend_health` degradations are not propagated into the AERO
+~~11.~~ **DONE 7–8 Sep 2026 (Grok), `c3b0d43`.** GLM F-6: BTC-side `compute_trend_health` degradations were not propagated into the AERO
     run's degradation list.
-12. GLM F-10: `module_snapshot` records `{"<import failed>": str(exc)}` into the run-hash
-    payload, undocumented.
-13. `_compute_confidence` appends "the risk check above is what's blocking the trade" to
+~~12.~~ **DONE 7–8 Sep 2026 (Grok), `c3b0d43`.** GLM F-10: `module_snapshot` recorded `{"<import failed>": str(exc)}` into the run-hash
+    payload, undocumented — now documented.
+~~13.~~ **DONE 7–8 Sep 2026 (Grok), `c3b0d43`.** `_compute_confidence` appended "the risk check above is what's blocking the trade" to
     every `NO-TRADE` action, including `PLAN CONTRADICTS ACTION` and `DEGRADED INPUT`,
-    where the risk check is not what blocked it. Pre-existing. *(F-7, not fixed)*
+    where the risk check was not what blocked it.
 
 **Structural**
 
-14. GLM F-3: `calculate_structure` writes STRUCTURE/HVN/LVN both onto its returned frame
-    and into its dict, and `engine_core` reads both routes.
+~~14.~~ **DONE 7–8 Sep 2026 (Grok), `c3b0d43`.** GLM F-3: `calculate_structure` wrote STRUCTURE/HVN/LVN both onto its returned frame
+    and into its dict, and `engine_core` read both routes — now one route.
 
 **Deliberately NOT in the sweep, and why**
 
@@ -3468,6 +3485,10 @@ Fourteen items. Duplicates across sources are merged and noted.
 **Suggested split, Claude's call unless overruled:** three patches by class — the invented
 defaults, the dead code, the false statements plus F-3 — because they need three different
 golden predictions and only the first touches what the record contains.
+
+**Followed, 7–8 September 2026 (Grok).** Three commits, exactly this split: `22afea2`,
+`4d56f2a`, `c3b0d43`. Fourteen-item sweep complete; docs recorded at `029c510`, `e528475`,
+`c56f969`.
 
 ## 6 September 2026 — the build scripts can write into the repository
 
