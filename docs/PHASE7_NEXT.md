@@ -1,5 +1,44 @@
 # Next step — read this first
 
+*11 September 2026 — **Item 14 / decision 2 is RULED and CLOSED at `0c7dec5`.** The risk
+regime now classifies itself from ADX instead of from `trend_health`, so the "independent"
+risk gate no longer reads the same number that is 0.30 of `bias_score`. Viktor ruled:
+replace the coupling rather than delete the heuristic. `REGIME_LOW_TREND_HEALTH`/
+`REGIME_HIGH_TREND_HEALTH` became `REGIME_CHOP_ADX = 20.0` / `REGIME_STRONG_ADX = 25.0`,
+both thresholds already load-bearing in `indicators/trend_health.py` for the same two
+market states. **`code_hash` moved, predicted and confirmed on three trees:
+`47bc557119bb0350…` → `2741062fae070f61…`.** Suite on Viktor's own machine: 421 passed /
+0 failed under pytest, 354 passed / 0 failed / **29 errors** under `run_tests.py` — the
+watched error count unmoved. Golden re-baselined at six sites, all enumerated in
+`0c7dec5`'s commit message; no decision field moved. Full reasoning, the incomplete
+prediction and two wrong turns are in that commit message rather than repeated here.*
+
+*__The live run did NOT reach the new code, and that is recorded rather than counted as
+validation.__ AEROUSDT 4h, 11 September 22:50: stop distance 17.6% exceeded the 15%
+maximum, so `validate_risk_parameters` returned early with `UNKNOWN` and never called
+`classify_risk_regime`; volatility was EXTREME, which would have short-circuited it
+anyway. The ADX branches are still unobserved on live data. The next run that lands in
+them should be read with that in mind.*
+
+*__Found by reading that panel, not fixed:__ the panel prints `RISK REGIME` but never
+prints ADX — the number that now decides it is invisible to the operator, where
+`trend_health` used to be visible on the TREND line. Still fully in the record
+(`lineage.risk_inputs.adx`). Panel-only transparency regression, same class as GLM F-5.
+Viktor's call whether the panel gains a line.*
+
+*__Also landed 11 September, housekeeping:__ `bb6d222` moved the four `qwen_reasoning_*.txt`
+into `docs/`; `4705d03` reconciled this file's body with `76380ec` after the Grok session
+updated only the head block; `e75f7be` committed
+`docs/Phase7_Sweep_Session_Commands.pdf`, which had been sitting untracked.*
+
+***Five rulings were made on 11 September and only one of them is in a commit message.***
+*They are written out under "Rulings, 11 September 2026" near the end of this file. The
+release gate is still shut and nothing landed since round 4 has been re-audited.*
+
+*__Engineering Notes stop at #93__ and do not cover `bb6d222`, `4705d03`, `e75f7be` or
+`0c7dec5`. Up to four entries owed, two or three if grouped. Third session running that
+this gap has reopened; the builder fix made publishing one command, not automatic.*
+
 *9 September 2026 — **Kimi Finding 2 / decision 3 closed at `5e2e9f3`.** BTC agreement uses RAW_BIAS_THRESHOLD (label band) and signed correlation; golden re-baselined (btc_context only). Suite 345/0/29. Viktor ruled fix.*
 
 *Updated 7–8 September 2026 (Grok session). **Sweep items 1–5 (Invented defaults and
@@ -2094,6 +2133,21 @@ These are Viktor's, and none was made on 5 September.
    an input to risk and breaks Item 14; GLM graded Item 14 Compliant. This is a reading of
    the Constitution, not a code question. Either way, `decision_contract.py`'s comment
    claiming independence from trend health is false about the code beside it.
+
+   **RULED AND CLOSED 11 September 2026, at `0c7dec5`.** Viktor ruled that the risk regime
+   determines itself, which dissolves the reading rather than settling it: with
+   `trend_health` no longer an input, the question of whether that coupling breaks Item 14
+   stops being live. Asked whether to drop the "weak trend is itself a risk factor"
+   heuristic or replace it, he ruled replace — so `classify_risk_regime` reads ADX, which
+   `trend_health` is computed FROM rather than derived from. Note this turned out NOT to be
+   "a reading of the Constitution, not a code question": the ruling made it a code change,
+   and the sentence above was wrong about that. The `decision_contract.py` comment was
+   already corrected by sweep item 10; the code underneath it is now true as well.
+
+   Honest limit, carried over from the commit message: ADX still reaches `bias_score`
+   indirectly through `continuation_strength`'s `adx_component`. What it is no longer is
+   the same value read twice. Whether ADX is the *correct* risk proxy is empirical and
+   cannot be settled before backtesting, which sits behind the release gate.
 3. **Kimi Finding 2 — fix or accept as a recorded limitation?** Display-only, labelled
    unvalidated, cannot reach a gate. Claude recommends fixing: it is a wrong number an
    operator reads, and "contained" is the argument that has failed twice here.
@@ -2327,6 +2381,32 @@ These are Viktor's, and none was made on 5 September.
 6. This file's own head block was stale for most of 5 September and was rewritten on the
    6th. Worth re-reading it against reality at the end of each session rather than only at
    the end of each phase.
+
+   **It happened again, in a new shape, and was fixed on 11 September.** The 7-9 September
+   Grok session updated the head block and the Engineering Notes but not this file's body,
+   so "Open — decisions" #3 and "Open — work" #2 still described the sweep and Kimi
+   Finding 2 as open work after both had landed. Reconciled at `4705d03`. The lesson is
+   narrower than "re-read the head block": a session that closes an item has to close it
+   in the tracking sections too, because those are what the next session acts on.
+7. **Engineering Notes stop at Entry #93 (v1.24, 9 September).** Not covered: the qwen
+   rename (`bb6d222`), this file's body reconciliation (`4705d03`), the sweep-commands PDF
+   (`e75f7be`), and Item 14 (`0c7dec5`). Up to four entries owed, two or three if grouped
+   sensibly. Publishing them is one command since the builder fix, but it is still a
+   deliberate step rather than an automatic one, which is why this keeps reopening.
+8. **The decision-log backup practice is ruled but not built** — see "Rulings, 11 September
+   2026" item 2. First concrete step is committing
+   `Claude outputs/phase7_decision_log_aerousdt_20260906_backup.jsonl`, currently the only
+   second copy of the 6 September record, into a committed location outside any ignored
+   directory.
+9. **Should the panel print ADX?** Since `0c7dec5` the panel shows `RISK REGIME` without
+   showing the quantity that decides it, where `trend_health` used to be visible on the
+   TREND line. The record is unaffected. Panel-only change if taken, no decision-path
+   effect, and it is Viktor's call rather than a defect to repair.
+10. **The ADX branches have never been observed deciding a live run.** The 11 September
+    22:50 run exited on the 15% max-stop check before reaching them. Worth watching the
+    first run that produces a sub-15% stop in non-extreme volatility: ADX below 20 should
+    read HIGH VOLATILITY RISK even when volatility looks calm, and LOW RISK should appear
+    only with low volatility and ADX at 25 or above.
 
 ## 6 September 2026 — the Section 11 confirmation run
 
@@ -3649,6 +3729,66 @@ semantic half of the document audit (the eight PDFs read against current state) 
 fourteen-item sweep are both still open — this was Claude's own recommended first of the
 three pieces of work, and Viktor's instruction was "you decide," not a ruling on the order
 itself. No engine or decision-path file was touched, so no live run is owed for this patch.
+
+## Rulings, 11 September 2026
+
+Five rulings, made in one session. Only the first reached a commit message; the rest are
+written here because otherwise they existed only in a chat window.
+
+**1. Item 14 — the risk regime determines itself.** Ruled, built and landed the same day at
+`0c7dec5`. Full detail under "Open — decisions" item 2 above and in the commit message.
+Claude asked whether to drop the weak-trend heuristic or replace it with something
+risk-native; Viktor ruled replace.
+
+**2. The live decision log — keep the records, tag them, and back them up.** Decision 7 is
+settled in principle. Viktor's position: what the log holds now is build-and-test-phase
+data, and it matters most once the project is finished. So the ten suite-written records
+are NOT pruned — they stay as the evidence of what the suite was doing to the log, which is
+this project's standing practice of recording rather than tidying, and they get tagged as
+suite output rather than deleted. Claude argued for keeping on exactly that ground.
+
+*Not yet built.* Viktor chose committed dated snapshots (option B) over an
+ad-hoc manual step, and asked for automation if it is available. The open design question
+is where they live: `logs/` is gitignored, so snapshots need their own committed location,
+and if `Claude outputs/` is ever gitignored (see ruling 5) that location must sit outside
+it. `Claude outputs/phase7_decision_log_aerousdt_20260906_backup.jsonl` already exists as
+an ad-hoc precedent and is still untracked — it is currently the only second copy of the
+6 September record, and committing it is the first concrete step.
+
+**3. Part 7 — fold it into round 5 rather than resending it.** `commit_messages_PART7_ONLY.md`
+was never sent to rounds 3 or 4. Rather than pay ~$1.40 to resend the package to fresh
+instances purely to learn whether it would have changed verdicts, round 5's package carries
+the full commit messages from the start, and rounds 3 and 4 stand as what they were.
+Claude's recommendation, accepted: the only thing separate resending buys is evidentiary
+completeness for two reports a new round is about to supersede.
+
+**4. Disclosure of round 3 to Kimi — document it, do not undo it.** Keeping round 4 blind to
+round 3 was methodologically right; that is what makes round 4 an independent data point
+rather than an anchored one, and it cannot be un-happened now in any case. The obligation is
+that when this comparison reaches the portfolio document, the non-disclosure and its reason
+are written beside it rather than quietly omitted. Delegated to Claude and ruled on that
+basis; decision 6 closes here with no engineering work attached.
+
+**5. The handover and delivery-filename holes — sort them out.** Decision 8 accepted in
+principle: the handover check gains a seventh question (does `git status --short` show
+anything in the INDEX column, which would catch a staged-but-uncommitted commit), and the
+generic-delivery-filename problem gets closed properly. *Not yet built.* The structural
+option on the table is a `.gitignore` entry for `Claude outputs/`, which would stop it
+reappearing in every listing and remove the `git add -A` hazard permanently — flagged as a
+ruling rather than done, because Viktor ruled against a `.gitignore` exception for
+`round3/README.md` on 5 September and this is the same shape of question.
+
+**And a position, not yet a ruling: GPT-6 Astra for the next audit.** OpenAI released it on
+3 September; it is on OpenRouter, which `send_audit_round.py` already pins model and
+provider through, at roughly $10/$50 per million tokens standard. Viktor considers it worth
+the stretch on the same principle that cleared Kimi. **It is blocked on one check he has not
+run yet:** OpenAI is not on the clean list, because Luna Pro (GPT-5.6) ran both the hostile
+Constitution review and Step 8. Whether that exposure clears depends on whether those two
+sessions appear in the OpenRouter billing export under `variant=standard` with no training
+routing — the same check that cleared Kimi and caught Mistral. If they do, the lab clears by
+the existing ruling and Astra is the strongest option available. If those sessions ran
+outside OpenRouter through a consumer interface, the standing rule is "treat it as
+permanent" and Astra is out. The check decides it; the model's capability does not.
 
 ## Working practice
 
