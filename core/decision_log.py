@@ -207,8 +207,13 @@ FINGERPRINTED_MODULES = {
         "ATR_STOP_MULT", "TARGET1_MULT", "TARGET2_MULT", "TARGET3_MULT",
         "VOL_MULT_HIGH", "VOL_MULT_LOW", "VOL_MULT_EXTREME",
         "TREND_FACTOR_DIVISOR", "BIAS_FACTOR_DIVISOR",
-        "REGIME_EXTREME_STOP_PCT", "REGIME_LOW_TREND_HEALTH",
-        "REGIME_HIGH_TREND_HEALTH",
+        # ITEM 14, 11 September 2026: REGIME_LOW_TREND_HEALTH and
+        # REGIME_HIGH_TREND_HEALTH were renamed to these when the risk regime
+        # stopped reading trend_health. Renaming a fingerprinted constant
+        # without updating this list drops it out of the run-hash payload
+        # silently, which is the decay rule 11 warns about.
+        "REGIME_EXTREME_STOP_PCT", "REGIME_CHOP_ADX",
+        "REGIME_STRONG_ADX",
         "MAX_STOP_DISTANCE_PCT", "MIN_STOP_DISTANCE_PCT",
     ],
 }

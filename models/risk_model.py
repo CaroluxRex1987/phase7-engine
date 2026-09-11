@@ -47,9 +47,33 @@ TREND_FACTOR_DIVISOR = 200.0
 BIAS_FACTOR_DIVISOR = 300.0
 
 # Risk regime boundaries.
+#
+# ITEM 14, 11 September 2026. REGIME_LOW_TREND_HEALTH (40.0) and
+# REGIME_HIGH_TREND_HEALTH (70.0) stood here and were read against
+# trend_health. Kimi Finding 4 named the consequence: trend_health is
+# WEIGHT_TREND_HEALTH = 0.30 of bias_score, the largest single factor in the
+# engine's conviction number, and it was ALSO the number deciding the risk
+# regime that Item 14 requires to be an INDEPENDENT check on conviction. One
+# reading moved both gates in the same direction at once -- a strong trend
+# raised confidence and lowered assessed risk simultaneously -- so the second
+# gate could not do the job the Constitution gives it.
+#
+# Viktor ruled 11 September 2026: the risk regime determines itself. The
+# thresholds below read ADX instead, which is an INPUT to trend_health rather
+# than something derived from it, and both values are the ones this codebase
+# already uses for the same two market states in indicators/trend_health.py:
+# ADX < 20 is its "MEAN REVERTING / CHOP" boundary and ADX >= 25 its
+# "STRONG TREND" confirmation. Nothing here is a new calibration -- the two
+# numbers were already load-bearing one module over.
+#
+# Honest limit, recorded rather than glossed: ADX is not wholly absent from
+# bias_score -- it reaches it through continuation_strength's adx_component.
+# What it is no longer is the same value read twice, which is the defect
+# Item 14 names, and that is the same standard the Item 11 fix applied when
+# it kept ADX inside continuation_strength while removing trend_health.
 REGIME_EXTREME_STOP_PCT = 8.0
-REGIME_LOW_TREND_HEALTH = 40.0
-REGIME_HIGH_TREND_HEALTH = 70.0
+REGIME_CHOP_ADX = 20.0
+REGIME_STRONG_ADX = 25.0
 
 # Hard validity limits on the stop distance.
 MAX_STOP_DISTANCE_PCT = 15.0   # wider than this is not a stop, it is a hope
@@ -320,15 +344,33 @@ class RiskModel:
     # RISK REGIME CLASSIFICATION & VALIDATION
     # ============================================================
 
-    def classify_risk_regime(self, volatility_state: str, stop_distance_pct: float, trend_health: float) -> str:
+    def classify_risk_regime(self, volatility_state: str, stop_distance_pct: float, adx: Optional[float]) -> str:
         """
         Classifies current setup into a distinct risk regime profile.
+
+        ITEM 14, 11 September 2026: the third parameter was trend_health and
+        is now ADX. See the constants block at the top of this file for the
+        ruling and the reasoning.
+
+        `adx` is Optional because indicators.py drops a column it could not
+        compute rather than inventing one, so ADX genuinely can be absent.
+        Absent means neither the chop test nor the strong-trend test can be
+        evaluated, and NEITHER is assumed: an unmeasured ADX does not push the
+        regime up to HIGH VOLATILITY RISK (that would assert chop nobody
+        measured) and does not let it down to LOW RISK (that would assert a
+        strong trend nobody measured). It falls through to NORMAL RISK, with
+        volatility_state and the stop distance still fully in force. That is
+        the same "missing means missing" rule the rest of this engine follows
+        after sequence item 9a.
         """
         if volatility_state == "EXTREME VOLATILITY" or stop_distance_pct > REGIME_EXTREME_STOP_PCT:
             return "EXTREME RISK"
-        elif volatility_state == "HIGH VOLATILITY" or trend_health < REGIME_LOW_TREND_HEALTH:
+
+        adx_is_measured = adx is not None and np.isfinite(adx)
+
+        if volatility_state == "HIGH VOLATILITY" or (adx_is_measured and adx < REGIME_CHOP_ADX):
             return "HIGH VOLATILITY RISK"
-        elif volatility_state == "LOW VOLATILITY" and trend_health >= REGIME_HIGH_TREND_HEALTH:
+        elif volatility_state == "LOW VOLATILITY" and adx_is_measured and adx >= REGIME_STRONG_ADX:
             return "LOW RISK"
         else:
             return "NORMAL RISK"
@@ -338,11 +380,32 @@ class RiskModel:
         current_price: float,
         atr_stop: float,
         volatility_state: str = "NORMAL",
-        trend_health: float = 50.0,
+        adx: Optional[float] = None,
         **kwargs
     ) -> Tuple[bool, str, str]:
         """
         Validates whether risk parameters are within safe operational thresholds.
+
+        ITEM 14, 11 September 2026: the trend_health parameter is gone and ADX
+        takes its place -- see the constants block at the top of this file.
+
+        Two deliberate details in that swap:
+
+        * The old default was `trend_health: float = 50.0`. A hardcoded 50.0 is
+          the exact fabrication class the 7-8 September sweep removed everywhere
+          else, and the A6 comment in engine_core.py records that this default
+          was once live for every run. The new default is None, which
+          classify_risk_regime() reads as "not measured" rather than as a
+          middling market.
+
+        * `trend_health` is REJECTED rather than ignored, below. This function
+          takes **kwargs, so a caller left on the old signature would have had
+          its trend_health silently swallowed and ADX silently defaulted to
+          None -- the run would keep working and quietly stop being able to
+          reach LOW RISK. That is precisely the A6 defect (a bogus kwarg
+          absorbed by **kwargs, doing nothing) that this same function already
+          carries a comment about. A structural fix rather than a note telling
+          the next person to be careful.
 
         ITEM 14 RE-AUDIT (Finding 5): now returns the risk regime alongside
         the pass/fail, rather than computing it and discarding everything but
@@ -359,6 +422,16 @@ class RiskModel:
         already fail risk_valid, so decision_model.py never reaches the
         AGGRESSIVE-gating logic for them regardless of this string.
         """
+        if "trend_health" in kwargs:
+            raise TypeError(
+                "validate_risk_parameters() no longer accepts trend_health: the "
+                "risk regime is classified from ADX, independently of the "
+                "conviction pipeline (Item 14, ruled 11 September 2026). Pass "
+                "adx=<value or None>. Raised rather than ignored because "
+                "**kwargs would otherwise absorb it silently and default ADX "
+                "to None, which changes which regimes are reachable."
+            )
+
         try:
             if not (np.isfinite(current_price) and np.isfinite(atr_stop)):
                 return False, "Price or stop level is not a finite number.", "UNKNOWN"
@@ -375,7 +448,7 @@ class RiskModel:
             if stop_dist_pct < MIN_STOP_DISTANCE_PCT:
                 return False, "Stop distance too tight (risk of market noise liquidation).", "UNKNOWN"
 
-            risk_regime = self.classify_risk_regime(volatility_state, stop_dist_pct, trend_health)
+            risk_regime = self.classify_risk_regime(volatility_state, stop_dist_pct, adx)
             if risk_regime == "EXTREME RISK":
                 return False, "Risk regime classified as EXTREME RISK.", risk_regime
 

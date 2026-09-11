@@ -203,13 +203,17 @@ def test_validate_risk_parameters_returns_the_risk_regime():
     """
     model = RiskModel()
 
-    # Wide stop distance (10%), NORMAL volatility, decent trend health ->
-    # NORMAL RISK: not low vol + high health (LOW RISK), not high/extreme vol
-    # or low health (HIGH VOLATILITY RISK), not >8% stop or EXTREME vol
-    # (EXTREME RISK).
+    # Wide stop distance (10%), NORMAL volatility, ADX in trending territory
+    # -> NORMAL RISK: not low vol + strong ADX (LOW RISK), not high/extreme
+    # vol or chop-grade ADX (HIGH VOLATILITY RISK), not >8% stop or EXTREME
+    # vol (EXTREME RISK).
+    #
+    # ITEM 14, 11 September 2026: this call passed trend_health=60.0 until
+    # the risk regime stopped reading trend_health. adx=30.0 is the same
+    # market state expressed in the input the regime now actually reads.
     valid, reason, regime = model.validate_risk_parameters(
         current_price=100.0, atr_stop=93.0,  # 7% stop
-        volatility_state="NORMAL", trend_health=60.0,
+        volatility_state="NORMAL", adx=30.0,
     )
     assert valid is True
     assert regime == "NORMAL RISK", f"expected NORMAL RISK, got {regime!r} ({reason})"
@@ -221,19 +225,19 @@ def test_validate_risk_parameters_regime_across_volatility_tiers():
 
     _, _, low_vol = model.validate_risk_parameters(
         current_price=100.0, atr_stop=99.0,  # 1% stop, comfortably inside bounds
-        volatility_state="LOW VOLATILITY", trend_health=80.0,
+        volatility_state="LOW VOLATILITY", adx=30.0,
     )
     assert low_vol == "LOW RISK", low_vol
 
     _, _, high_vol = model.validate_risk_parameters(
         current_price=100.0, atr_stop=95.0,  # 5% stop
-        volatility_state="HIGH VOLATILITY", trend_health=80.0,
+        volatility_state="HIGH VOLATILITY", adx=30.0,
     )
     assert high_vol == "HIGH VOLATILITY RISK", high_vol
 
     valid, reason, extreme_vol = model.validate_risk_parameters(
         current_price=100.0, atr_stop=95.0,  # 5% stop
-        volatility_state="EXTREME VOLATILITY", trend_health=80.0,
+        volatility_state="EXTREME VOLATILITY", adx=30.0,
     )
     assert extreme_vol == "EXTREME RISK", extreme_vol
     assert valid is False, (
@@ -251,12 +255,12 @@ def test_validate_risk_parameters_regime_across_stop_widths():
     # own threshold, regardless of volatility_state.
     _, _, wide = model.validate_risk_parameters(
         current_price=100.0, atr_stop=91.5,  # 8.5% stop
-        volatility_state="NORMAL", trend_health=80.0,
+        volatility_state="NORMAL", adx=30.0,
     )
     assert wide == "EXTREME RISK", wide
 
     _, _, tight = model.validate_risk_parameters(
         current_price=100.0, atr_stop=99.5,  # 0.5% stop
-        volatility_state="NORMAL", trend_health=80.0,
+        volatility_state="NORMAL", adx=30.0,
     )
     assert tight in ("NORMAL RISK", "LOW RISK"), tight

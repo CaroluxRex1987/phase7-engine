@@ -20,6 +20,17 @@ def compute_trend_health(df: Optional[pd.DataFrame]) -> Dict[str, Any]:
     # read as conviction the way 50.0 could.
     default_response = {
         "trend_health": 0.0,
+        # ITEM 14, 11 September 2026. ADX was read here as an input to
+        # trend_health and never left this function. models/risk_model.py now
+        # classifies the risk regime from ADX instead of from trend_health, so
+        # it has to be reachable by the caller.
+        #
+        # None rather than a number: this branch means the function could not
+        # run at all, and every other field beside it is already an admission
+        # of that rather than a reading. classify_risk_regime() treats None as
+        # "not measured" and declines to infer a regime from it in either
+        # direction.
+        "adx": None,
         "degraded_inputs": ["trend health could not be computed at all"],
         "trend_exhaustion": False,
         "momentum_mode": "NEUTRAL",
@@ -400,6 +411,16 @@ def compute_trend_health(df: Optional[pd.DataFrame]) -> Dict[str, Any]:
 
         return {
             "trend_health": float(trend_health),
+
+            # ITEM 14, 11 September 2026. The raw ADX this function already
+            # read, now exposed instead of only being folded into
+            # trend_health's adx_strength term. models/risk_model.py reads it
+            # to classify the risk regime independently of the conviction
+            # pipeline. None when the column was absent or unreadable -- the
+            # same value _read() returned -- so the risk model can tell an
+            # unmeasured ADX from a measured low one, which is the whole
+            # difference between "chop" and "we don't know".
+            "adx": (float(adx_val) if adx_val is not None else None),
             # SEQUENCE ITEM 9a: names every input this score was computed
             # WITHOUT. Empty means the score used everything it claims to.
             "degraded_inputs": list(degraded_inputs),

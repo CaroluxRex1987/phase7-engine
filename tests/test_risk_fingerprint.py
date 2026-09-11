@@ -226,9 +226,12 @@ def test_the_volatility_multipliers_are_read(monkeypatch):
 def test_the_regime_boundaries_are_read(monkeypatch):
     model = RiskModel()
 
-    assert model.classify_risk_regime("NORMAL", 9.0, 80.0) == "EXTREME RISK"
+    # ITEM 14, 11 September 2026: the third argument was trend_health and is
+    # now ADX. 30.0 is trending territory, above REGIME_STRONG_ADX -- chosen
+    # so this test still exercises REGIME_EXTREME_STOP_PCT and nothing else.
+    assert model.classify_risk_regime("NORMAL", 9.0, 30.0) == "EXTREME RISK"
     monkeypatch.setattr(risk_model, "REGIME_EXTREME_STOP_PCT", 20.0)
-    assert model.classify_risk_regime("NORMAL", 9.0, 80.0) != "EXTREME RISK", (
+    assert model.classify_risk_regime("NORMAL", 9.0, 30.0) != "EXTREME RISK", (
         "REGIME_EXTREME_STOP_PCT is fingerprinted but classify_risk_regime "
         "does not read it"
     )

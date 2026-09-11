@@ -965,11 +965,18 @@ class Phase7Engine:
             # third value -- see models/risk_model.py. Carried into the risk
             # dict below so decision_model.py can gate the AGGRESSIVE label
             # on it, independently of trend health and entry quality.
+            #
+            # ITEM 14, 11 September 2026: "independently of trend health" was
+            # false about the line below it until today -- trend_health was
+            # what classify_risk_regime() read. It now reads ADX, which
+            # trend_health is computed FROM rather than the other way round,
+            # so the sentence above is finally true of the call beneath it.
+            # Viktor's ruling; see models/risk_model.py's constants block.
             risk_valid, risk_reason, risk_regime = self.risk_model.validate_risk_parameters(
                 current_price=current_price,
                 atr_stop=atr_stop,
                 volatility_state=volatility_mode,
-                trend_health=trend["trend_health"],
+                adx=trend.get("adx"),
             )
 
             # SEQUENCE ITEM 13 — position sizing removed.
@@ -1268,7 +1275,15 @@ class Phase7Engine:
                         float(hvn) if (hvn is not None and math.isfinite(hvn)) else None),
                     "bias_score": bias_score,
                     "detailed_bias": detailed_bias,
-                    "trend_health": trend["trend_health"],
+                    # ITEM 14, 11 September 2026: trend_health stood here and
+                    # no longer does, because this block records what actually
+                    # fed the risk decision and trend_health no longer does.
+                    # Leaving it would make the lineage assert an input that
+                    # is not one -- the same class of false statement the
+                    # 7-8 September sweep closed elsewhere. trend_health is
+                    # still recorded in full under `trend` and inside
+                    # bias_components, so nothing is lost from the record.
+                    "adx": trend.get("adx"),
                     "volatility_state": volatility_mode,
                     "risk_regime": risk_regime,
                 },
