@@ -222,6 +222,12 @@ class BtcContextBlock(_BtcContextRequired, total=False):
     n_observations: int
     btc_adjusted_confidence: float
     reasons: List[str]
+    # RULING, 12 September 2026 (Viktor). BTC's own indicator failures
+    # (compute_trend_health's degraded_inputs) are recorded here for the
+    # decision log, and deliberately go no further: never appended to the
+    # top-level `degradation` block, never read by panel_render.py. See
+    # engine_core.py's comment at the btc_context assembly for why.
+    degraded_inputs: List[str]
 
 
 class DegradationBlock(TypedDict):

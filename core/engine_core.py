@@ -744,11 +744,34 @@ class Phase7Engine:
                         )
                         df_btc_struct = btc_structure_obj.get("df", df_btc)
                         btc_trend = compute_trend_health(df_btc_struct)
-                        # SWEEP ITEM 11, 8 September 2026. BTC-side trend
-                        # degradations were computed and discarded; AERO's
-                        # degradation list never saw them.
-                        for _d in btc_trend.get("degraded_inputs", []) or []:
-                            degradation.append(f"BTC {_d}")
+                        # RULING, 12 September 2026 (Viktor). SWEEP ITEM 11 (8
+                        # September) fed BTC-side trend degradations into
+                        # AERO's OWN degradation list -- the one
+                        # DecisionModel.evaluate() reads to cap confidence at
+                        # DEGRADED_CONFIDENCE_CEILING and gate
+                        # trading_authorized. A BTC-only indicator failure
+                        # (ADX, in the case that surfaced this) then capped
+                        # AERO's confidence and blocked trading on an AERO
+                        # analysis that was itself complete -- the opposite of
+                        # this block's own stated purpose two screens up:
+                        # "This NEVER changes BIAS, DECISION, entry, risk, or
+                        # targets above." Viktor ruled: BTC context is
+                        # informational, a bonus to consider, and must not
+                        # gate AERO's own confidence or trading authorization
+                        # -- the same relationship btc_adjusted_confidence
+                        # already has with the main confidence_score (a
+                        # separate, clearly-labelled number, never a gate).
+                        #
+                        # Item 11's own motivation stands, though: a BTC
+                        # indicator failure should not be silently dropped
+                        # with nothing but a log line. So it is recorded
+                        # below, inside btc_context itself (reaches the
+                        # decision log for anyone auditing a run later) --
+                        # never appended to the shared `degradation` list, and
+                        # never rendered on the live panel (panel_render.py
+                        # does not read this field; confirmed nothing there
+                        # needs to change).
+                        btc_degraded_inputs = list(btc_trend.get("degraded_inputs", []) or [])
 
                         btc_supertrend_direction = (
                             float(df_btc_struct["ST_Direction"].iloc[-1])
@@ -798,6 +821,13 @@ class Phase7Engine:
                             "beta": float(beta) if math.isfinite(beta) else None,
                             "broad_market_stress": classify_stress(btc_volatility_mode),
                             "n_observations": n_obs,
+                            # RULING, 12 September 2026 (Viktor) -- see the
+                            # comment at btc_trend above. Recorded here, not
+                            # in `degradation`: visible to an auditor reading
+                            # the decision log, invisible to AERO's own
+                            # confidence/trading_authorized gate and to the
+                            # live panel.
+                            "degraded_inputs": btc_degraded_inputs,
                         }
             except Exception as e:
                 logger.warning(f"BTC context analysis failed (AERO analysis above is unaffected): {e}")

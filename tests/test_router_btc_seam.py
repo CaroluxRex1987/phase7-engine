@@ -92,6 +92,7 @@ def _producer_shape(**over):
         "beta": None,
         "broad_market_stress": False,
         "n_observations": 0,
+        "degraded_inputs": [],
     }
     base.update(over)
     return base

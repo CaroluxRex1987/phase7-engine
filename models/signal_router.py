@@ -619,4 +619,9 @@ class SignalRouter:
             "n_observations": int(btc_context.get("n_observations", 0) or 0),
             "btc_adjusted_confidence": self._finite_or_nan(btc_adjusted.get("btc_adjusted_confidence")),
             "reasons": list(btc_adjusted.get("reasons", [])),
+            # RULING, 12 September 2026 (Viktor). Carried through for the
+            # decision log's sake, same as every other btc_context field
+            # here -- never read by panel_render.py, never fed into the
+            # top-level `degradation` block.
+            "degraded_inputs": list(btc_context.get("degraded_inputs", []) or []),
         }
