@@ -1,5 +1,82 @@
 # Next step — read this first
 
+*12 September 2026 (eighth patch, one commit) — **All five of requested-run 6's
+mutant-escape findings fixed, verified, and landed at `044b055`.** Viktor: "we go with
+number 1" (fix these five ahead of round 6's re-audit of F1/F2/F3). Touches five test files
+and `run_tests.py` only; no production module in `core/`, `models/`, `indicators/`,
+`structure/`, `data/` or `utils/` changed — each fix strengthens an existing test's own
+assertions to check what its docstring already claimed to check.
+
+- **Fix 1 — `test_trend_direction_source.py`.** Added the `assert sign == expect` its own
+  loop header had computed and never read, closing the always-neutral
+  `compute_trend_health` escape. Verifying it surfaced a second, pre-existing defect in the
+  same test: the fixture handed raw OHLCV straight to `compute_trend_health`, which needs
+  `EMA20_Slope`/`EMA50_Slope`/`ADX`/`RSI` — columns only `add_technical_indicators()`
+  computes — so the original fixture returned NEUTRAL/0/0.0 on real, unmutated code for
+  both slope directions. Fixed by routing the fixture through
+  `add_technical_indicators()` -> `calculate_structure()`, the same order
+  `core/engine_core.py` uses, before calling `compute_trend_health`.
+- **Fix 2 — `test_timeframe_disagreement.py`.** Added an assertion on
+  `decision["exit"]["action"]` (substring `"LONG"`), closing the always-WAIT
+  `_determine_final_action` escape the test's own docstring already claimed to guard
+  against but never checked.
+- **Fix 3 — `test_frame_ownership.py`.** Both tests now assert the rendered chart file
+  exists and exceeds 1024 bytes, closing the no-op `plot_engine_chart` escape (previously
+  checked only frame-ownership and log-level side effects, both trivially satisfied by a
+  function that draws nothing).
+- **Fix 4 — `test_smoke.py`.** Added `assert "error" not in first` plus a check that
+  `first["exit"]["action"]` is truthy, closing the canned-identical-error-dict
+  `SignalRouter.route` escape (previously checked only that two calls agreed with each
+  other, not that either reached a real decision).
+- **Fix 5 — `run_tests.py` + new `tests/test_run_tests_filter_matching.py`.** Section 7.3's
+  finding: a filter matching zero test files exited 0 — a green exit code for a run that
+  tested nothing. `main()` now checks, before the run loop, whether a given filter matched
+  no files, and exits 2 if so. Three new subprocess-based tests, including a negative
+  control using a throwaway always-passing file (an existing test file was tried first and
+  rejected — `test_imports.py`'s `pytest.skip()` becomes an "error" under `run_tests.py`,
+  which would have made the control's assumptions environment-dependent).
+
+All five verified non-vacuously: named mutant reproduced in-process, old test confirmed to
+pass against it (matching requested-run 6), new test confirmed to FAIL against the same
+mutant naming the actual defect, then confirmed to PASS against real code.
+
+**Test counts, split by kind, combined with both prior fixes this session (`2387717`,
+`88e47e9`) already included:**
+
+    pytest with pandas_ta:     437 -> 440 passed, 0 failed
+    pytest without pandas_ta:  315p/111s -> 317p/112s (net +2 passed/+1 skipped, not +3/+0:
+                                fix 1's new pandas_ta guard flips one previously-passing
+                                test to skip under this configuration)
+    run_tests.py:               366 -> 369 passed, 0 failed, 32 errors unchanged
+
+**Golden snapshot** — predicted unmoved, confirmed: none of the five fixes touch the
+decision-object shape, `engine_core.py`, `signal_router.py`, or any indicator;
+`test_golden_path.py` (8 tests) passes unchanged.
+
+**`code_hash` moved, predicted (one file, `run_tests.py`; `tests/` excluded by directory)
+and confirmed:** `099f84ae...c57` -> `4d6f8196...127` (built on `b087875`).
+
+**Not fixed by this patch.** Round 6's re-audit of F1/F2/F3 is still unrun. **New since this
+patch, not yet ruled:** none of the three post-round-5 fix commits (`2387717`, `88e47e9`,
+`044b055`) has had any independent review — Claude's recommendation is to batch all three
+into round 6's package alongside F1/F2/F3 rather than run a separate pass later, since none
+of the three touches anything F1/F2/F3 didn't already touch. **Round 6's model is not yet
+chosen.** Viktor ruled out ChatGPT and Gemini as future channels (12 September) and
+delegated the pick to Claude. Claude's recommendation, reasoning in the 12 September chat
+session, not yet in a commit or a ruling: `meta/muse-spark-1.2` on OpenRouter — chosen over
+`x-ai/grok-4.6` primarily for context-window headroom (1.05M vs 500K against a package that
+was already 435,612 prompt tokens at round 5, before batching in three more commits) and for
+being single-provider (no auto-router substitution risk, the round-3 failure mode). Pending
+Viktor's ruling; nothing sent.
+
+**Platform.** Built and verified in the Linux sandbox — evidence about Linux, not yet
+Windows. No production module changed, so no live-data run is being recommended before this
+lands (unlike the BTC-decoupling and RSI-fallback fixes in the block below).
+
+---
+*Prior head block (12 September, seventh patch) kept below for history.*
+
+
 *12 September 2026 (seventh patch, two commits) — **Both requested-run 4 and 5 findings
 fixed, verified, and landed. Requested-run 6's five mutant-escape findings remain unfixed;
 release gate stays shut.** Viktor ruled on both new findings the sixth patch (below) recorded,
