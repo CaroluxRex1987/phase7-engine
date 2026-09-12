@@ -1,5 +1,28 @@
 # Next step — read this first
 
+*12 September 2026 (third patch) — **The GPT-6 Astra ruling's evidence upgraded from two
+named sessions to all nine, and a 2 September hedge closed for good.** Docs only, no code
+touched. The round-5 ruling (below) rested on Viktor checking that Luna Pro's hostile
+Constitution review and Step 8 both show `variant=standard` with no training routing. Doing
+that check together surfaced something the ruling had glossed over: those two sessions were
+never actually pinned to specific rows in the OpenRouter log — "Open, and not chased" already
+said as much about all nine Luna Pro calls in that window. Rather than guess which two rows
+were which, Viktor confirmed every Luna Pro call this project has made went through
+OpenRouter (no consumer interface, so the "unknowable retention" branch of the 2 September
+ruling is never reached) and then checked every one of the nine generations in the log
+himself. All nine: `openai/gpt-5.6-luna-pro`, no `/flex` or `/fast` suffix, "No data
+training." Which two of the nine carry the hostile-review and Step-8 names is still
+unmapped and this does not map it — it no longer needs to be, for independence purposes.
+Closes the 2 September hedge in "Independence — what kind of exposure, and what clears it"
+("probably clean, not provably" → provably) and strengthens the round-5 ruling's own
+paragraph with the same evidence. See both, further down this file, for the closures in
+full.*
+
+---
+*Prior head block (12 September, second patch) kept below for history.*
+
+
+
 *12 September 2026 (second patch) — **GPT-6 Astra RULED and selected as round 5's auditor;
 round-5 audit-package prep delivered, nothing sent.** Viktor ran the OpenRouter
 billing-export check the "position, not yet a ruling" note below was waiting on: both of
@@ -905,6 +928,19 @@ attacked, tested and overturned on its merits.
 - Viktor's "relatively OK" grade on the Luna Pro Step 8 stands, and for the right reason.
   The only thing short of fully fine is that the hostile review may have run somewhere that
   retains conversations, which is now unknowable. Probably clean, not provably.
+
+  **CLOSED 12 September 2026 — provably, not just probably.** Viktor confirmed every Luna
+  Pro call the project has made ran through OpenRouter, not a consumer interface, so the
+  "somewhere unknowable" case above does not apply and the ruling's own default (unknowable
+  retention, treat as permanent) is never reached. He then checked every Luna Pro generation
+  in the OpenRouter log himself — not only Step 8's, all of them, since which exact call was
+  the hostile review was never pinned down (see "Open, and not chased" below) and no longer
+  needs to be: each one shows `openai/gpt-5.6-luna-pro` with no `/flex` or `/fast` suffix and
+  a data policy of "No data training." Checked directly this time, three of them read from
+  the log together in a working session (Sep 3, 06:37 AM / 05:20 AM / 05:00 AM — Model ID
+  and data policy confirmed identical on all three), the rest checked by Viktor and reported
+  clean. This is the check the round-5 head block's GPT-6 Astra ruling already rested on;
+  this closure makes its evidence exhaustive rather than assumed.
 - **Kimi K3 is available again.** Its exposure was session-level and its Step 3 attempt
   truncated before completing. It ranks fourth on the current coding leaderboards, above
   Qwen3.8-Max — and its truncated run found two material Item 14 defects that neither
@@ -1761,6 +1797,14 @@ Open, and not chased: nine Luna Pro calls between 27 August and 3 September, mor
 the record accounts for, three of them on 3 September mapping to nothing; and Kimi K3's
 2 September call returning 36,085 output tokens, which is not the truncated stub the
 record describes when leaving its spent status undecided.
+
+**The independence half of the Luna Pro gap no longer needs chasing — see "Independence —
+what kind of exposure, and what clears it," Consequences, CLOSED 12 September 2026.** Which
+specific call was the hostile review and which was Step 8 is still not mapped, and this
+does not map it. What changed is that the mapping stopped mattering for independence: every
+one of the nine calls was checked and every one shows no training routing, so it is moot
+which of them carries which name. The mapping itself — if anyone ever wants it, for a
+reason other than independence — is exactly as unchased as this paragraph already said.
 
 ### Ruled 5 September: Kimi K3 runs round 3 — WITHDRAWN THE SAME DAY
 
@@ -3939,6 +3983,16 @@ is session-level, not lineage-level, so by the existing rule it does not carry t
 separate OpenAI model. Round-5 package prep (`send_audit_round.py`, `build_audit_package.py`,
 new `item16_review_instruction_rev6.md`) follows in the same patch — see the head block at
 the top of this file. Nothing sent; that step is Viktor's, on his machine.
+
+**Strengthened the same day, in a separate follow-up: not just those two sessions.** Viktor
+confirmed every Luna Pro call this project has ever made went through OpenRouter — no
+consumer interface, so the "unknowable retention" branch above is never reached — and then
+checked every one of the nine Luna Pro generations in the log himself, not only the two this
+ruling names. All nine show `openai/gpt-5.6-luna-pro` (no `/flex` or `/fast` suffix) and "No
+data training." See "Independence — what kind of exposure, and what clears it," Consequences,
+CLOSED 12 September 2026, for the full closure — including of a hedge ("probably clean, not
+provably") that section had carried since 2 September. This ruling was already sound on the
+narrower check; it now rests on the exhaustive one.
 
 ## Working practice
 
