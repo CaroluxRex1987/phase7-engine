@@ -1,0 +1,93 @@
+You're picking up work on an existing project — "Phase-7," a market-analysis engine.
+Read everything below before touching anything.
+
+WHAT THIS IS
+A Python decision-support engine for crypto markets. It analyzes and produces a
+recommendation; it never executes trades or takes any external action itself. It is
+governed by a 44-rule "Engineering Constitution" the owner (Viktor) ratified, split into
+four tiers (21 Tier 1 invariants, 7 Tier 2, 10 Tier 3, 6 Tier 4). The entry-point document
+is docs/PHASE7_NEXT.md, attached — read its head block first, then "Open — decisions" and
+"Open — work". That document is the single source of truth for project state, above
+anything I say here or anything in this chat's later history.
+
+HOW THIS PROJECT IS RUN — please follow this, it is not optional style
+- Every change is delivered as a diff Viktor applies himself (he uses `git apply` on
+  Windows). Do not describe changes only in prose and do not ask him to retype code by
+  hand from a chat window.
+- Before making any change, state out loud what you're touching: which files, which
+  functions, which callers, which tests, and why that scope is enough. One line, not a
+  full essay.
+- Before running anything, predict every consequence of the change, including mechanical
+  ones (what moves, what doesn't, and why) — not just the interesting part. State the
+  prediction, then check it, then say plainly whether it held.
+- If a check ran in one environment but needs to hold somewhere else (e.g. you're on Linux,
+  Viktor runs Windows) — say which environment your result is actually evidence about.
+  Do not imply a result that was only checked one place is true everywhere.
+- This project has three specific invariants to check on any change that could plausibly
+  touch them: `code_hash` (from core/code_fingerprint.py — excludes tests/ and docs/ by
+  directory, everything else is fingerprinted), the golden regression snapshot at
+  tests/fixtures/golden_decision.json, and the integrity of the live decision log. Predict
+  whether each moves before running anything, then confirm rather than assume.
+- The repo is CRLF line endings. If you're generating a diff programmatically, make sure
+  you're not silently converting the file to LF — this has corrupted patches before.
+- After anything lands, bring docs/PHASE7_NEXT.md current yourself — both the head block
+  (what a fresh reader sees first) and the relevant section in the body: what changed, what
+  was verified vs. only asserted, what's still open, whether anything was ruled. This step
+  is what makes it possible for a different AI (including the one that was working on this
+  before you, and whichever one resumes after you) to pick the project back up accurately.
+  Do not skip it or leave it for later.
+- Do not silently correct or delete a wrong turn — record it. This project keeps a record
+  of mistakes made along the way, not just the final clean state.
+- Nothing here authorizes you to decide open governance/architecture questions on Viktor's
+  behalf. docs/PHASE7_NEXT.md lists which open items are explicitly his to rule on ("Open —
+  decisions") — treat those as off-limits for you to resolve, only to inform.
+
+WHAT'S OPEN RIGHT NOW (as of the attached PHASE7_NEXT.md — verify this is still current)
+The only piece of recommended engineering work left is "the sweep of latent and Minor
+items" — assembled already in the document with the source of each item; do not re-derive
+it, and do not add items of your own to it without saying so explicitly. Read the full
+write-up in the document (it has the exact code citations and what's deliberately excluded
+and why) before starting; the list below is a summary, not a substitute. Fourteen items,
+suggested split three patches by class:
+
+Invented defaults and fabricated readings (1-5, the largest group):
+1. `_merge_btc_context`'s remaining defaults: "NEUTRAL", "NORMAL", 0.0 for trend_health.
+2. The router's structure assembly: hvn/lvn -> 0.0, regime -> "NEUTRAL", sequence ->
+   "NONE", volume_sentiment -> "NEUTRAL VOLUME".
+3. The same two assemblies: "NORMAL RISK", "NEUTRAL", 50.0, "OK".
+4. float(structure.get("swing_struct", ...)) raises TypeError when the key is present but
+   None.
+5. Kimi Finding 5's remaining items (1-5 and 7): a fabricated MEDIUM VOLATILITY default, a
+   fabricated "NEUTRAL STRUCTURE", a midpoint-fabricated trend_health, a fabricated
+   "NORMAL RISK", a fabricated validation_score of 0, and _detect_hvn_lvn returning price
+   extremes as if they were real HVN/LVN with nothing flagged as degraded.
+
+Dead code, and one stale contract (6-8):
+6. Unconsumed pct_slope; unconsumed is_valid; a stale StructureAnalysisResult contract
+   that no longer matches what analyze() returns; a root-level test_live.py that imports a
+   name that's been deleted.
+7. exit_model.build_exit_watch's `or 0.0` treats 0.0 and NaN as the same thing.
+8. A second, redundant clean_series call inside pct_slope (goes away if item 6 does).
+
+Statements the code doesn't support (9-13):
+9. The panel banner claims "Connecting to MEXC API..." on offline runs, and states the
+   wrong version number.
+10. A code comment claims the risk gate is independent of trend health -- it isn't,
+    provably. The comment is the sweep item; whether the underlying coupling breaks a
+    Constitution item is a separate open decision -- do not touch the coupling itself.
+11. BTC-side degradations aren't propagated into AERO's own degradation list.
+12. A failed-import placeholder gets written into the run-hash payload, undocumented.
+13. Every NO-TRADE gets the same blame line ("the risk check above is what's blocking the
+    trade") even when the risk check isn't what blocked it.
+
+Structural (14):
+14. calculate_structure writes the same data two different ways (onto the returned frame
+    and into a dict), and the engine reads both.
+
+Everything else recommended this cycle is already done. Eight decisions are Viktor's and
+open; do not resolve them, just flag if your work bears on one.
+
+ONE MORE THING, SPECIFIC TO HIM
+He tracks which AI model has seen which documents, because a model that has read the
+Constitution or written code against it is no longer an independent reviewer of that same
+code later. If you make code changes here, say so plainly — don't let that get lost.

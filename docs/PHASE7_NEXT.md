@@ -1,5 +1,89 @@
 # Next step — read this first
 
+*12 September 2026 (fourth patch) — **Round 5 sent and graded; release gate stays shut on
+three newly confirmed Criticals; all three RULED to fix.** Docs only, no code touched.
+`python docs\build\send_audit_round.py --send` ran twice: a first attempt failed with HTTP
+401 ("User not found" — an API-key problem, not a package or provider problem) before ever
+opening `report.md`; the second attempt completed cleanly. `finish_reason=stop`, provider
+`OpenAI` (matches the pin), 435,612 prompt tokens / 17,681 completion tokens (5,696 of them
+reasoning), cost **$12.21636** — confirmed twice over, in `generation.json`/`run_metadata.json`
+and independently in Viktor's own OpenRouter dashboard (transaction
+`gen-1789201256-vlxCpCbrWwF2bnTxMClf`). The cost is real, not a sign of a broken run: it is
+roughly 2.5x the script's $10/$50-per-M estimate because the 435,612-token prompt crosses
+GPT-6 Astra's long-context pricing threshold (reported elsewhere at 272,000 tokens) and
+`cache_write_tokens` shows the near-entire prompt paid a cache-write premium on top —
+`send_audit_round.py`'s cost estimator accounts for neither and should before round 6.
+
+GPT-6 Astra's report (`docs/audit_reports/round5_gpt-6-astra_2026-09-12/report.md`, 1,106
+lines, ends cleanly on a "Bottom line" paragraph, not truncated) found three Critical Tier-1
+defects, none previously on record:
+
+- **F1** — measured volatility never reaches `calculate_stop_targets()`. The production call
+  (`engine_core.py:950`) omits `volatility_state`, so stop/target geometry always uses the
+  NORMAL multiplier regardless of actual conditions. The sibling call three lines below
+  (`validate_risk_parameters`) does receive it.
+- **F2** — entry quality can be scored for LONG while the actual plan and action are SHORT.
+  `eq_trade_direction` is set from `short_signal`, which `generate_entry_signals()` zeroes for
+  reasons that have nothing to do with direction (a reversal warning, macro disagreement, a
+  gate miss) — so a fully bearish-confirmed setup can still get scored as a long entry, and
+  `decision_model.py`'s BEARISH branch uses that score without ever checking `short_signal`
+  itself.
+- **F3** — an unavailable current-bar VWMA silently becomes the prior bar's reading.
+  `indicators.py` correctly marks a zero-volume rolling window as NaN, then forward-fills it
+  before anything downstream sees the absence; `validate_ohlcv` only rejects a series that is
+  zero for its *entire* length, not a trailing zero-volume window, so nothing upstream catches
+  it either.
+
+**All three independently reproduced against live code this session, not just re-read from
+the report.** Cloned `HEAD de7d1357b5e8425067c627915f1d9b5a90264642` (matches `MANIFEST.md`
+exactly — also spot-checked 4 individual file hashes against the manifest, all matched), built
+a Python 3.12 sandbox, and ran the actual functions:
+
+- F1: the production call shape reproduces the report's own numbers exactly —
+  `(95.968, 104.032, 108.064, 112.096)` vs `(94.5568, 105.4432, 110.8864, 116.3296)` if
+  volatility were passed.
+- F2: `generate_entry_signals()` really does return `(False, False)` on a fully
+  `BEARISH CONFIRMED` setup carrying a small positive reversal warning; the same market state
+  scores `82.62` through the actual (wrong) LONG path versus `100.00` through a direct SHORT
+  calculation.
+- F3: fed a 300-bar series with the last 20 volumes zeroed — `validate_ohlcv` accepted it,
+  `add_technical_indicators` reported zero failures, and the decision-bar VWMA was genuinely
+  NaN pre-fill, then silently carried forward. Also found: the code's own comment above the
+  fill (`indicators.py`, around lines 766-771) claims this is "an honest absence already
+  handled at the reader, not a silent one" — that claim is false about the code beside it,
+  since the fill happens before the reader ever sees NaN. Same shape as the
+  `decision_contract.py` comment this project has already caught being wrong once.
+
+**RULED, 12 September 2026 — fix all three.** No decision to accept any as a limitation; all
+three are confirmed, release-gate-blocking, and have a clear required action.
+
+- F1: pass `volatility_state=volatility_mode` into `calculate_stop_targets()`, matching what
+  the sibling call already receives.
+- F2: **RULED** — derive `eq_trade_direction` from `raw_bias`/`detailed_bias` directly (the
+  same signal `decision_model.py` already uses to pick the final action), not from
+  `short_signal`.
+- F3: **RULED** — route a decision-bar VWMA miss through the existing `failed(...)`/
+  degraded-inputs path, the same treatment every other indicator failure gets. Accepted
+  consequence, stated explicitly rather than discovered in a diff: a run that currently comes
+  back clean can start showing DEGRADED and lose AGGRESSIVE eligibility once this lands.
+
+Not yet done: any of the three fixes themselves. This patch is docs only — `code_hash` and the
+golden snapshot are unmoved, and all three suite configurations are unmoved, since nothing
+under `core/`, `models/`, `indicators/`, `data/`, `structure/`, or `utils/` was touched.
+
+**Engineering Notes gap widens further.** Already owed entries for `4d99cdb` (GPT-6 Astra
+ruling + round-5 prep) and `de7d135` (Luna Pro independence check made exhaustive); now also
+owes one for round 5's actual send, its independent verification, and today's fix ruling.
+Batch all of it into one entry pass once the three fixes land, rather than writing four
+separate ones.
+
+Requested-runs 4-6 from GPT-6 Astra's report (BTC-only failures, fallback equivalence,
+test-effectiveness — all Major, not Critical) have not been run.*
+
+---
+*Prior head block (12 September, third patch) kept below for history.*
+
+
 *12 September 2026 (third patch) — **The GPT-6 Astra ruling's evidence upgraded from two
 named sessions to all nine, and a 2 September hedge closed for good.** Docs only, no code
 touched. The round-5 ruling (below) rested on Viktor checking that Luna Pro's hostile

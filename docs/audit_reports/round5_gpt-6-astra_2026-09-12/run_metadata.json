@@ -1,0 +1,86 @@
+{
+  "model": "openai/gpt-6-astra",
+  "provider_pinned": "openai",
+  "max_output_tokens": 100000,
+  "package_dir": "D:\\phase7_engine\\docs\\audit_package\\round5\\UPLOAD_THESE",
+  "files": [
+    {
+      "name": "item16_review_instruction_rev6.md",
+      "bytes": 48095,
+      "sha256": "db385e31ca7a2f23f1f80068fc51daa9d2ef0357bbea586d18d717b8cf0e2479"
+    },
+    {
+      "name": "Phase7_Constitution_v1.0_RATIFIED_AUDITCOPY.txt",
+      "bytes": 107216,
+      "sha256": "08f663a3b591c50e9ac0c62a3512c2a96c00ffb5234a5ed40814c52015aea700"
+    },
+    {
+      "name": "phase7_engine_source.md",
+      "bytes": 497957,
+      "sha256": "c0d7a932281f1c17516a3d03c9628958f338ddfc22c2b41a2cad72ca8f62fc62"
+    },
+    {
+      "name": "phase7_test_suite.md",
+      "bytes": 556774,
+      "sha256": "bfcf58a572689a2dc523c587d0c972ebae0f86a4982353315134e072bedc787d"
+    },
+    {
+      "name": "MANIFEST.md",
+      "bytes": 9918,
+      "sha256": "0d3fe65e8a2ac852cf8d97ab76c54e2ba85ae41098f870cb6031ccdc22ad4401"
+    },
+    {
+      "name": "version_control_history.md",
+      "bytes": 38106,
+      "sha256": "3c98bdeaf0e9ea80401ab1a52b7ee3a3e3deb66840cdffde8d8d897edb78ba84"
+    },
+    {
+      "name": "execution_transcripts.md",
+      "bytes": 10284,
+      "sha256": "4aca5b8fcdf89eeba85af3f8241790ee92c7a808023ab9e802f43243015dc3c9"
+    },
+    {
+      "name": "commit_messages_PART7_ONLY.md",
+      "bytes": 568325,
+      "sha256": "8e6108f220a260d7686b01073c6eea27575d1af00a1dbb8d1f7a0a9d02cf32b6"
+    }
+  ],
+  "payload_sha256": "9436d0cafedfcb4e51bee19b7fc69e5fab84a6f0ab8b365743985a9a7e7e75db",
+  "payload_bytes": 1837687,
+  "estimated_prompt_tokens": 458479,
+  "data_collection": "deny",
+  "started_utc": "2026-09-12T08:20:55.604671+00:00",
+  "finished_utc": "2026-09-12T08:26:44.804465+00:00",
+  "elapsed_seconds": 349.2,
+  "generation_id": "gen-1789201256-vlxCpCbrWwF2bnTxMClf",
+  "finish_reason": "stop",
+  "usage": {
+    "prompt_tokens": 435612,
+    "completion_tokens": 17681,
+    "total_tokens": 453293,
+    "cost": 12.21636,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 435609,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 12.21636,
+      "upstream_inference_prompt_cost": 10.890285,
+      "upstream_inference_completions_cost": 1.326075
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 5696,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  },
+  "report_chars": 57519,
+  "reasoning_chars": 2122,
+  "provider_reported": "OpenAI",
+  "native_tokens_prompt": 435612,
+  "native_tokens_completion": 17681,
+  "total_cost_usd": 12.21636
+}

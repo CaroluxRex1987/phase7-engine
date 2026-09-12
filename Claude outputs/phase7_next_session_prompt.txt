@@ -1,0 +1,66 @@
+Continue Phase 7 — read-only for now, do not start any work.
+
+I'm loading context today but not working again until Friday. Read everything below and
+confirm you've got it, but do not build, patch, or deliver anything yet, and do not ask me
+to choose between the sweep and anything else — just orient and wait. I'll say when to
+start.
+
+Read `docs/PHASE7_NEXT.md` from the top — the head block was rewritten on 6 September in
+the sixth session and is accurate. Then read, in this order: "Open — decisions", "Open —
+work", "The sweep of latent and Minor items", "the semantic half of the document audit",
+and "6 September 2026 — Engineering Notes entries #83-90 published". The repo is
+`D:\phase7_engine`; you'll need folder access. There is no shell on my machine — you
+deliver, I run.
+
+Where it stands: tip is `1b6ae2b`, tree clean, everything pushed. Six patches landed on 6
+September in this same session, on top of the fourteen from earlier that day: Engineering
+Notes entries #83-90; the semantic document audit written up; two documentation fixes
+(Documentation and Change Log Standard's register count, a correction notice on the Audit
+Execution Instructions); a real code fix in `run_tests.py`; and this handover note. Suite
+412 passing, 0 failed with `pandas_ta`; 298 passed, 103 skipped without it; `run_tests.py`
+345 passed, 0 failed, 29 errors — that error count must not move. All confirmed on my
+machine, not only in a sandbox. `code_hash` is `6c4ef720baf9…` — it moved this session
+because `run_tests.py` is deliberately fingerprinted, and the move was predicted and
+confirmed before it shipped.
+
+Nothing was ruled this session. Eight decisions are mine and none is made: whether the
+release gate opens; Item 14; Kimi Finding 2 fixed or accepted (the false-sentence band is
+verified as 0 < |btc_score| ≤ 20, and this is the last input that decision was waiting on);
+whether the round-3 / round-4 divergence changes the one-clean-reviewer-per-round policy —
+I want to write my own position on that one before hearing yours; Part 7; disclosure of the
+non-disclosure; decision 7; and the process holes filed as decision 8.
+
+One piece of work is open and it is the only one left of Claude's original three-item
+recommendation: the fourteen-item sweep, the only one that touches the decision path. It is
+already assembled in the document — fourteen items with the source of each, and what is
+deliberately excluded with reasons. Do not re-derive it. The suggested split is three
+patches by class.
+
+Two things came out of tonight's work and are not yet closed:
+- The Engineering Notes gap is open again — four entries owed (the document audit and its
+  three fixes), stopped at #90. Flagged in "Open — work" item 3 rather than left implicit.
+- The Audit Execution Instructions document still describes an abandoned manual audit
+  procedure; it now carries a correction notice at the top, but the actual rewrite is real
+  work and only matters once a round 5 is imminent. Not scheduled.
+
+Also still open: a `patch-delivery` skill improvement was proposed via a review card this
+session (a task-classification section, invariant-checking reminders folded from the
+workflow-strategy report) — I have not said whether I saved it. Check before assuming
+either way. The four `qwen_reasoning_*.txt` may now be renamed; the hold on that is
+discharged and has been for a while.
+
+Working rules that cost us time when they slipped: changes arrive as a `.patch` I apply
+myself; one command per code block, never chained; commit messages via `-F` to a file,
+never `-m`; delivered files get a name unique to their version; predict every consequence
+of a change including the mechanical ones before I run it; verify a delivered file by
+reading it back off my disk and diffing it; and one numbered command list per delivery,
+issued once and never renumbered. Your `patch-delivery` skill carries the sandbox setup —
+clone URL, `core.autocrlf=true`, the two Python 3.12 virtualenvs, the three test
+configurations, and how `code_hash` behaves. Read it before building anything.
+
+One lesson that changes how you verify: a green sandbox run is evidence about Linux until
+something makes it evidence about Windows. Say which platform a result came from, and
+prefer checks that cannot come out differently on the two.
+
+Budget: tell me up front if a piece of work cannot be done properly within the remaining
+budget, and I will decide whether to start it or wait.
