@@ -648,13 +648,27 @@ def add_technical_indicators(df: pd.DataFrame, inplace: bool = False):
         # left the one that quietly succeeds.
         #
         # Forward fill only, and no substitution. A VWMA that has no value has
-        # no value. This is also what now carries a genuinely all-invalid
-        # window forward from the last window that did have usable volume —
-        # and entry_model.py's own consumption of a still-NaN VWMA (the
-        # leading edge, before any window has ever been valid) is fixed
-        # separately; see models/entry_model.py.
+        # no value. This carries a genuinely all-invalid window forward from
+        # the last window that did have usable volume -- and entry_model.py's
+        # own consumption of a still-NaN VWMA (the leading edge, before any
+        # window has ever been valid) is fixed separately; see
+        # models/entry_model.py.
+        #
+        # F3 FIX, 12 September 2026, GPT-6 Astra round 5: this used to fill
+        # every gap with no trailing-edge exception -- the same defect item
+        # 15 and the Finding-3 re-audit already fixed for every OTHER
+        # indicator in this file (see clean_series and the OHLCV loop above).
+        # A decision bar with no usable volume window came back holding the
+        # PREVIOUS bar's VWMA, indistinguishable from a real measurement, and
+        # np.isfinite (both here and in entry_model.py) could never catch it.
+        # Interior gaps still fill forward; nothing follows the trailing edge.
+        last_valid = df["VWMA"].last_valid_index()
         if df["VWMA"].isna().any():
             df["VWMA"] = df["VWMA"].ffill()
+        if last_valid is not None:
+            trailing = df.index > last_valid
+            if trailing.any():
+                df.loc[trailing, "VWMA"] = np.nan
     except Exception as e:
         # SEQUENCE ITEM 9a: was df["VWMA"] = close_prices.
         #
@@ -765,16 +779,27 @@ def add_technical_indicators(df: pd.DataFrame, inplace: bool = False):
     #
     # (1) The list gained SuperTrend and ST_Direction. Both are read at the
     #     decision bar -- ST_Direction by bias_engine and Exit Watch, the level
-    #     by plotting -- and neither was swept. VWMA is deliberately NOT here:
-    #     item 3 made it NaN for exactly the windows with no usable volume, and
-    #     entry_model checks np.isfinite before scoring it. That is an honest
-    #     absence already handled at the reader, not a silent one.
+    #     by plotting -- and neither was swept.
     #
     # (2) The test is the shared guard rather than `.isna().all()`, so a column
     #     whose only missing value is at the decision bar is caught here too --
     #     the same defect this sweep was written to catch, one row over.
+    #
+    # F3 FIX, 12 September 2026, GPT-6 Astra round 5: VWMA now belongs here
+    # too. This comment used to say VWMA was "deliberately NOT here: item 3
+    # made it NaN for exactly the windows with no usable volume, and
+    # entry_model checks np.isfinite before scoring it. That is an honest
+    # absence already handled at the reader, not a silent one." That claim
+    # was false about the code beside it: VWMA's own forward-fill, a few
+    # lines above in this same function, ran with no trailing-edge exception,
+    # so a decision-bar miss became the prior bar's reading before
+    # np.isfinite ever saw it -- the identical shape of wrong comment this
+    # project already caught once in decision_contract.py. Fixed at the
+    # source above, so the miss now survives to reach this sweep, and VWMA
+    # gets the same failed()/degraded-inputs treatment every other critical
+    # indicator gets.
     critical_indicators = ["EMA_20", "EMA_50", "RSI", "ATR", "ADX",
-                           "SuperTrend", "ST_Direction"]
+                           "SuperTrend", "ST_Direction", "VWMA"]
     for indicator in critical_indicators:
         if indicator not in df.columns:
             continue
