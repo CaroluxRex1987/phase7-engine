@@ -947,6 +947,11 @@ class Phase7Engine:
                 )
             atr_val = float(df_struct["ATR"].iloc[-1])
 
+            # F1 FIX, 12 September 2026, GPT-6 Astra round 5: measured volatility
+            # never reached this call, so stop/target geometry always used the
+            # NORMAL (1.0x) multiplier regardless of actual conditions. Now passes
+            # the same volatility_mode the sibling validate_risk_parameters call
+            # three lines below already receives.
             atr_stop, t1, t2, t3 = self.risk_model.calculate_stop_targets(
                 detailed_bias=detailed_bias,
                 trend_health=trend["trend_health"],
@@ -954,6 +959,7 @@ class Phase7Engine:
                 atr_val=atr_val,
                 structural_level=hvn,
                 bias_score=bias_score,
+                volatility_state=volatility_mode,
             )
 
             # A6 FIX: previously called with a bogus reference_price=current_price
