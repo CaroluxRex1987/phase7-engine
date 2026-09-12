@@ -1,5 +1,124 @@
 # Next step — read this first
 
+*12 September 2026 (sixth patch, docs only) — **Requested-runs 4-6 from GPT-6 Astra's
+round-5 report executed and reported. No code touched. Two new candidate defects found;
+neither fixed. Release gate stays shut.** Per Viktor's instruction this session: run
+requested-runs 4-6 (BTC-only failures, fallback equivalence, test effectiveness/isolation —
+all Major, not Critical, in the round-5 report) rather than commissioning round 6 yet. All
+three run against the live tip (`83f9d2d`) in the Linux sandbox; not yet evidence about
+Windows. Scripts used are not part of this patch (throwaway, run from outside the tree).
+
+**Run 4 — BTC-only failures.** Independently failed BTC's own ADX, SuperTrend, ATR and
+structure (AERO's and the macro frame's own indicator calls left real, via call-count-based
+mocks, plus one genuine-data scenario: BTC's final candle NaN'd on `high`/`low`/`close`).
+AERO's own action and `confidence_score` stayed byte-identical to the healthy control for
+BTC SuperTrend failure, BTC ATR failure (primary raised; the manual fallback recovered it,
+so ATR alone could not be forced to fail outright this way), BTC structure failure (whole
+`btc_context` correctly falls to `{"available": false}`, panel correctly prints "unavailable
+this run"), and the genuine BTC-feed-corruption scenario (`_validate_dataframe` rejects it
+before it reaches indicators; `btc_context` again `{"available": false}`).
+
+**BTC ADX failure did not stay isolated.** With only the 3rd `ta.adx` call (BTC's) mocked to
+raise — AERO's own `trend_health` unaffected at 95.35, matching the control — AERO's own
+`confidence_score` dropped from 78.70 to exactly 50.0 (`DecisionModel.DEGRADED_CONFIDENCE_CEILING`)
+and `degradation.trading_authorized` flipped `true`→`false`, with `missing_inputs` reading
+`["BTC ADX (column absent)"]` — nothing AERO-side. This is the opposite of what
+`engine_core.py`'s own comment at the BTC context block promises: *"This NEVER changes BIAS,
+DECISION, entry, risk, or targets above... BTC context is additive, never a replacement or
+distortion of the AERO-only analysis."* Traced to `SWEEP ITEM 11` (8 Sep 2026, `c3b0d43`,
+GLM F-6): that fix made BTC's own `compute_trend_health` `degraded_inputs` (previously
+silently discarded) get appended, as `f"BTC {d}"`, into the *same* `degradation` list
+`DecisionModel.evaluate()` reads to cap AERO's confidence and gate `trading_authorized` —
+so a fix aimed at "these BTC degradations were being silently dropped" landed by routing
+them into the one list that is not supposed to hear from BTC at all. RSI shares the same
+`compute_trend_health` degraded_inputs channel and was not tested here (outside run 4's
+named scope of ADX/SuperTrend/ATR/structure) but is presumably the same shape. **Not fixed.
+Whether the comment or the code is wrong is Viktor's call** — GLM F-6/item 11 was ruled
+7-8 September as a real fix for a real problem (BTC degradations going unreported), and
+undoing it un-fixes that; the alternative is a second, BTC-only degradation channel that
+DecisionModel never reads. Full reproduction in the session transcript.
+
+**Run 5 — fallback equivalence.** Forced `ta.ema`/`ta.rsi`/`ta.atr` to raise (manual
+pandas fallback takes over) and compared the final-bar value against the real pandas_ta
+computation, at frame lengths 20/50/75/100/300/450, on a random walk, a monotonic series,
+and an early-large-move series, plus altered indicator lengths (EMA 9/21, RSI 7, ATR 21).
+Confirms the round-5 report's suspicion that `tests/test_no_fabricated_fallbacks.py`'s
+single 300-bar/default-length check does not represent the general case:
+
+| n   | worst \|rel diff\| seen (random walk, default lengths) |
+|-----|----------------------------------------------------|
+| 20  | RSI 12.78%, ATR 16.06%, EMA_20 0.06%                |
+| 50  | EMA_50 1.20%, RSI 2.11%, ATR 0.47%                  |
+| 75  | EMA_50 0.18%                                        |
+| 100 | all under 0.13%                                     |
+| 300–450 | all under 1e-4% (matches the existing 300-bar/default-length test) |
+
+Altered lengths (n=50, EMA 9/21 RSI 7 ATR 21) reproduced the same shape: ATR 9.74% off,
+consistent with shorter effective histories amplifying the two algorithms' different
+warm-up seeding (documented in the fallback's own comments) rather than any new mechanism.
+
+**New: the manual RSI fallback fails outright, not just divergently, on a purely monotonic
+price series.** A strictly-increasing 100-bar close series has zero down-bars, so the
+fallback's `loss.replace(0, np.nan)` — written to dodge division by zero — turns the
+*entire* loss series to NaN, `rs = gain / NaN` is NaN throughout, `unusable_reason` correctly
+sees an all-NaN series and raises, and RSI is recorded as failed for the whole run. pandas_ta,
+on the identical input, correctly returns 100.0 (the mathematically right answer: all gains,
+no losses). So a real, sustained monotonic move — exactly the condition where an overbought
+RSI reading matters most — is precisely where the fallback goes silently missing instead of
+reading the extreme value, if pandas_ta is ever unavailable (a configuration this project
+ships and tests: the 315+106-skip suite). **Not fixed** — the fallback needs a `loss == 0`
+special case (RSI 100, or 50 if gain is also 0) rather than the blanket NaN-out. Also
+confirmed, as the report asked: a successful fallback is never recorded anywhere in the
+returned failures/degradation object — a run using the manual EMA/RSI/ATR path is
+indistinguishable, in every field but the indicator's own number, from one that used
+pandas_ta.
+
+**Run 6 — test effectiveness and isolation.** Built and ran all four mutants named in F11's
+"Verification" line, in-process, against their named tests. **All four escaped detection,
+exactly as GPT-6 Astra predicted:**
+
+- always-neutral `compute_trend_health` (returns NEUTRAL/0 unconditionally) —
+  `test_trend_direction_source.py::test_trend_health_reports_a_sign_that_matches_its_own_label`
+  — **passed**.
+- always-WAIT `DecisionModel._determine_final_action` — `test_timeframe_disagreement.py::
+  test_the_engine_still_reaches_a_side_when_the_timeframes_agree` — **passed** (that test
+  never asserts the action itself, only `bias.raw`/`macro_bias`, exactly as F11 item 3 says).
+- no-op `plot_engine_chart` (returns the save path, draws nothing, logs nothing) — both
+  `test_frame_ownership.py::test_plot_engine_chart_does_not_touch_the_callers_frame` and
+  `::test_plotting_does_not_swallow_a_broken_repair_path` — **passed**.
+- `SignalRouter.route` always returning the identical canned error dict —
+  `test_smoke.py::test_the_smoke_run_is_reproducible` — **passed**.
+
+Also checked, as requested: a filtered `run_tests.py` invocation whose filter matches zero
+files exits 0 with "0 passed 0 failed 0 errors" — a silently green result for a run that
+tested nothing, confirming that Section 7.3 claim directly. And, a genuinely reassuring
+negative result: a sentinel file placed in a real `logs/` directory at the repo root
+survived byte-for-byte across a fresh-process, non-empty-filter `run_tests.py` invocation —
+`conftest.py`'s import-time `LOG_DIR` redirect (the fix for the 6 September decision-log
+incident) holds under the dependency-free runner too, not just under pytest. **None of the
+five mutant/isolation findings were fixed this session** — run 6 was a measurement, and
+GPT-6 Astra's own report already carries the required action (real preconditions, assert
+the actual outcome, perturb through real consumers).
+
+**`code_hash` confirmed unmoved by this patch**, independently computed before and after
+touching only this file: `00c8d4ea4858bb2b8f5dfabcfbeac8ceeda23a4513c11adcb5c8ce1f1025854b`
+— matches the value on record at `83f9d2d` exactly. (One false alarm on the way: the
+sandbox's own throwaway verification scripts, written at the repo root rather than outside
+the tree, transiently changed the computed hash by being picked up as source files — caught
+by recomputing after moving them out, not by assuming the invariant held.)
+
+**Release gate stays shut.** Nothing in this patch fixes anything. Two new candidate defects
+(the BTC-degradation cross-contamination above, and the monotonic-series RSI-fallback
+failure) and the confirmed F11 mutant-escape findings are recorded here for **Viktor to
+rule on** — whether each is worth its own fix, and if so at what priority against round 6's
+re-audit. Requested-runs 1-3 (volatility propagation, entry-scoring direction, trailing
+zero-volume window) were the ones behind F1/F2/F3, already fixed and landed; 4-6 are now
+done. Round 6's re-audit of the F1/F2/F3 fixes is still unrun and is not this session's job.
+
+---
+*Prior head block (12 September, fifth patch) kept below for history.*
+
+
 *12 September 2026 (fifth patch) — **All three round-5 Criticals fixed, verified, and
 landed. Docs pass batched as promised.** Each fix was its own patch, per Viktor's
 instruction, delivered and verified individually per the patch-delivery skill before the
