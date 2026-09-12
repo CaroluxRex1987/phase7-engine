@@ -874,7 +874,26 @@ class Phase7Engine:
             # above as trend_sequence) through, so entry quality's own multipliers
             # can factor in whether the granular trend/structure context actually
             # supports this specific trade direction.
-            eq_trade_direction = "SHORT" if short_signal else "LONG"
+            #
+            # F2 FIX, 12 September 2026, GPT-6 Astra round 5: this was
+            # `"SHORT" if short_signal else "LONG"` -- short_signal is False for
+            # reasons that have nothing to do with direction (a reversal warning,
+            # macro disagreement, a structure/trend-health gate miss), so a fully
+            # BEARISH CONFIRMED setup could still be scored as a LONG entry, and
+            # decision_model.py's BEARISH branch used that wrong-direction score
+            # without ever checking short_signal itself. decision_model.py picks
+            # the final action from raw_bias alone (VIKTOR'S RULING, 2 September:
+            # bias is the sole direction source) -- entry quality's direction now
+            # follows the same source, for the same reason: an entry-zone signal
+            # that can score a direction against the engine's own bias is the
+            # identical defect wearing a different name. long_signal/short_signal
+            # are unchanged in `entry` below; they no longer choose this direction.
+            if raw_bias == "BULLISH":
+                eq_trade_direction = "LONG"
+            elif raw_bias == "BEARISH":
+                eq_trade_direction = "SHORT"
+            else:
+                eq_trade_direction = "LONG" if bias_score >= 0 else "SHORT"
             eq_metrics = calculate_entry_quality(
                 df_struct,
                 entry_zone_lower,
