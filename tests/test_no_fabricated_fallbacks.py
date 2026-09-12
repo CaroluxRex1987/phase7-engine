@@ -284,6 +284,98 @@ def test_the_fallback_computes_what_pandas_ta_computes(indicator, column, tolera
     )
 
 
+def _synthetic_frame(kind, length=300):
+    """
+    A minimal OHLCV frame built to force one zero-average-loss edge case, not
+    fetched or pinned data. The pinned AEROUSDT fixture never holds Wilder's
+    average loss at exactly zero -- real market data doesn't -- so it cannot
+    exercise either case below; these frames exist to reach them directly.
+
+    kind:
+        "monotonic" -- price rises every bar, so average loss is zero for the
+                       whole series. This is requested-run 5's finding.
+        "flat"      -- price never changes, so average gain AND average loss
+                       are both zero.
+    """
+    import numpy as np
+    import pandas as pd
+
+    if kind == "monotonic":
+        close = pd.Series(100.0 + np.arange(length, dtype=float))
+    elif kind == "flat":
+        close = pd.Series([100.0] * length)
+    else:
+        raise ValueError(kind)
+
+    high = close + 0.5
+    low = close - 0.5
+    open_ = close.shift(1).fillna(close.iloc[0])
+    volume = pd.Series([1000.0] * length)
+
+    return pd.DataFrame({
+        "open": open_, "high": high, "low": low, "close": close,
+        "volume": volume,
+    })
+
+
+def _fallback_frame_on(df, indicator):
+    """As _fallback_frame, but on a caller-supplied frame rather than the
+    pinned fixture -- the zero-average-loss edge cases below need frames the
+    pinned fixture cannot produce."""
+    import indicators.indicators as ind
+
+    def explode(*a, **k):
+        raise RuntimeError(f"simulated {indicator} failure")
+
+    original = getattr(ind.ta, indicator)
+    try:
+        setattr(ind.ta, indicator, explode)
+        frame, failures = ind.add_technical_indicators(df)
+    finally:
+        setattr(ind.ta, indicator, original)
+    return frame, failures
+
+
+@pytest.mark.parametrize("kind,expected", [
+    ("monotonic", 100.0),
+    ("flat", 50.0),
+])
+def test_the_rsi_fallback_resolves_zero_average_loss_instead_of_failing(kind, expected):
+    """
+    RULING, 12 September 2026 (Viktor): fix the RSI fallback.
+
+    requested-run 5 (GPT-6 Astra's round-5 report) found that a purely
+    monotonic price run -- a real, if rare, market condition -- drives the
+    manual RSI fallback's average loss to zero for the whole series, and
+    `loss.replace(0, np.nan)` turned that into an all-NaN column:
+    unusable_reason then failed the fallback OUTRIGHT, so RSI went missing
+    for the whole run instead of reading the mathematically correct value.
+    pandas_ta itself reads 100.0 there (all gains, no losses -- the textbook
+    definition). A flat price (zero gain AND zero loss) is neither
+    overbought nor oversold and reads the conventional neutral 50, the same
+    "no opinion" value RSI's centre already means elsewhere in this file.
+
+    Forcing pandas_ta's ta.rsi to raise, as _fallback_frame does above, is
+    what makes this exercise the manual path rather than the primary one.
+    """
+    if not _engine_available():
+        pytest.skip("pandas_ta not installed")
+
+    df = _synthetic_frame(kind)
+    frame, failures = _fallback_frame_on(df, "rsi")
+
+    assert "RSI" in frame.columns, (
+        f"RSI is absent for the {kind} case — the fallback failed outright "
+        f"instead of resolving the zero-average-loss case. "
+        f"Failures: {[f.indicator for f in failures]}"
+    )
+    got = float(frame["RSI"].iloc[-1])
+    assert got == pytest.approx(expected), (
+        f"the {kind} case's manual RSI fallback reads {got!r} at the "
+        f"decision bar, expected {expected!r}"
+    )
+
+
 def test_the_fallbacks_do_not_use_a_simple_moving_average():
     """
     The defect in its own words, so a future edit back to `.rolling().mean()`

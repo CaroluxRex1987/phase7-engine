@@ -411,8 +411,33 @@ def add_technical_indicators(df: pd.DataFrame, inplace: bool = False):
             _rsi_alpha = 1.0 / float(config.RSI_LENGTH)
             gain = delta.where(delta > 0, 0).ewm(alpha=_rsi_alpha, adjust=False).mean()
             loss = (-delta.where(delta < 0, 0)).ewm(alpha=_rsi_alpha, adjust=False).mean()
+            # RULING, 12 September 2026 (Viktor): fix the RSI fallback.
+            # AUDIT (requested-run 5, GPT-6 Astra's round-5 report, 12
+            # September). A purely monotonic price run -- a real, if rare,
+            # market condition, and the one where an overbought/oversold RSI
+            # reading matters most -- has zero down-bars, so `loss` is zero
+            # throughout. `loss.replace(0, np.nan)` turned that into rs = NaN
+            # everywhere, so `unusable_reason` correctly saw an all-NaN series
+            # and this fallback failed OUTRIGHT: RSI went missing for the
+            # whole run rather than reading the mathematically correct value.
+            # pandas_ta, given the identical input, returns 100.0 (all gains,
+            # no losses -- the textbook definition). Restoring that: `rs`
+            # still avoids the literal division by zero, and the two cases
+            # `replace(0, np.nan)` had silently made unusable are resolved
+            # explicitly afterward -- zero loss with any gain is maximally
+            # overbought (100), zero loss AND zero gain is a flat price with
+            # no information (the conventional 50, the same "no opinion"
+            # value RSI's centre already means elsewhere in this file).
+            # Verified this does not move the pinned 450-bar fixture's RSI at
+            # any bar: real market data does not hold a Wilder-smoothed
+            # average loss at exactly zero, so `zero_loss` is False
+            # throughout it and both `.mask()` calls below are no-ops there.
             rs = gain / loss.replace(0, np.nan)
-            rsi = clean_series(100 - (100 / (1 + rs)), method="forward_fill")
+            rsi = 100 - (100 / (1 + rs))
+            zero_loss = loss == 0
+            rsi = rsi.mask(zero_loss & (gain > 0), 100.0)
+            rsi = rsi.mask(zero_loss & (gain == 0), 50.0)
+            rsi = clean_series(rsi, method="forward_fill")
             unusable = unusable_reason(rsi, "the manual RSI")
             if unusable:
                 raise ValueError(unusable)
