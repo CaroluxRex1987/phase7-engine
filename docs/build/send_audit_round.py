@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
 """Send a built audit package to a named reviewer model through the OpenRouter API.
 
-Written for round 4 (Kimi K3). Three failures in this project's audit history are
+Written for round 4 (Kimi K3), repointed for round 5 (GPT-6 Astra) on 12 September
+2026 after Viktor's OpenRouter billing-export check cleared OpenAI: GPT-5.6 Luna
+Pro's hostile-Constitution-review and Step-8 sessions both show variant=standard
+with no training routing, so under the project's own rule -- session exposure ends
+with the session, training and lineage exposure never does -- that lab-level
+exposure does not carry to Astra. Three failures in this project's audit history are
 what this script exists to make impossible:
 
   * a run that went to whatever the Auto Router picked (round 3, GLM 5.3 Flash) --
@@ -38,27 +43,41 @@ from pathlib import Path
 API_URL = "https://openrouter.ai/api/v1/chat/completions"
 GENERATION_URL = "https://openrouter.ai/api/v1/generation"
 
-MODEL = "moonshotai/kimi-k3"
-PROVIDER_SLUG = "moonshotai"
-PROVIDER_DISPLAY_NAME = "Moonshot AI"
+MODEL = "openai/gpt-6-astra"
+PROVIDER_SLUG = "openai"
+PROVIDER_DISPLAY_NAME = "OpenAI"
 
-# Verified against openrouter.ai/api/v1/models/moonshotai/kimi-k3/endpoints on
-# 5 September 2026: the Moonshot AI endpoint serves 1,048,576 context and
-# 943,718 max completion tokens. Other endpoints of the same model do NOT --
-# DeepInfra caps completions at 16,384, which is the exact ceiling that killed
-# the 27 August run, and Chutes at 65,535. That is why the provider is pinned.
-MAX_OUTPUT_TOKENS = 200_000
+# Verified by web search on 12 September 2026 (GPT-6 Astra postdates this
+# project's training cutoff, so this could not be answered from memory):
+# openrouter.ai lists the standard-tier endpoint, served under the bare
+# "openai" provider slug, with 1,048,576 context and a 128,000 max-completion
+# ceiling. The flex ("openai/flex") and fast ("openai/fast") service-tier
+# variants are separate slugs with their own pricing and are NOT matched by a
+# bare "openai" pin -- confirmed by checking the endpoints list rather than
+# assumed, since a bare slug silently matching the wrong tier is exactly the
+# kind of thing this project's provider-pinning already guards against.
+# MAX_OUTPUT_TOKENS is set well under that 128,000 ceiling, not against it.
+MAX_OUTPUT_TOKENS = 100_000
 LARGEST_PRIOR_RESPONSE = 36_085  # Kimi K3, 2 September 2026, no report produced
 
-# Moonshot AI endpoint pricing at the time of writing, USD per token.
-PRICE_IN = 3.0 / 1_000_000
-PRICE_OUT = 15.0 / 1_000_000
+# OpenAI standard-tier endpoint pricing at the time of writing, USD per token.
+PRICE_IN = 10.0 / 1_000_000
+PRICE_OUT = 50.0 / 1_000_000
 
 # The order the reviewer instruction itself uses in section 4, "What you will be
 # given". The instruction is item 1 and goes first; the rest follow as it lists
 # them. The set is asserted exactly: an extra or missing file aborts the run,
 # because several rounds' directories carry the same filenames.
-INSTRUCTION_FILE = "item16_review_instruction_rev5.md"
+#
+# commit_messages_PART7_ONLY.md is new here. Ruling 3, 11 September 2026: it
+# was never actually sent to rounds 3 or 4 despite being described in the
+# instruction document as available for an optional Part 7 pass -- so round 5's
+# package carries it from the start rather than describing a promise the send
+# script has never kept. It goes last, matching Section 4's own ordering in
+# rev6, and its own header still tells the reviewer not to open it before Parts
+# 1-6 are written and saved; that is a reading discipline the reviewer is asked
+# to keep, not a withholding mechanism this script enforces by omission.
+INSTRUCTION_FILE = "item16_review_instruction_rev6.md"
 ATTACHMENT_FILES = [
     "Phase7_Constitution_v1.0_RATIFIED_AUDITCOPY.txt",
     "phase7_engine_source.md",
@@ -66,14 +85,16 @@ ATTACHMENT_FILES = [
     "MANIFEST.md",
     "version_control_history.md",
     "execution_transcripts.md",
+    "commit_messages_PART7_ONLY.md",
 ]
 EXPECTED_FILES = [INSTRUCTION_FILE] + ATTACHMENT_FILES
 
 DELIVERY_NOTE = (
-    "The review instruction follows in full, and after it the six files it lists "
-    "in section 4, each delimited by a BEGIN FILE / END FILE marker carrying the "
-    "file's name. The files are supplied as text in a single message because this "
-    "is an API call and not a chat interface; their bytes are unmodified.\n"
+    "The review instruction follows in full, and after it the seven files it "
+    "lists in section 4, each delimited by a BEGIN FILE / END FILE marker "
+    "carrying the file's name. The files are supplied as text in a single "
+    "message because this is an API call and not a chat interface; their bytes "
+    "are unmodified.\n"
 )
 
 
@@ -145,7 +166,7 @@ def build_request_body(payload: str, allow_data_collection: bool) -> dict:
 
 def _open_run_dir(repo_root: Path, force: bool) -> Path:
     stamp = _utc_now().strftime("%Y-%m-%d")
-    run_dir = repo_root / "docs" / "audit_reports" / f"round4_kimi-k3_{stamp}"
+    run_dir = repo_root / "docs" / "audit_reports" / f"round5_gpt-6-astra_{stamp}"
     report = run_dir / "report.md"
     if report.exists() and report.stat().st_size > 0 and not force:
         raise SystemExit(
@@ -326,7 +347,7 @@ def send(body: dict, api_key: str, run_dir: Path, metadata: dict) -> int:
 
 def main(argv: list[str] | None = None) -> int:
     repo_root = Path(__file__).resolve().parents[2]
-    default_package = repo_root / "docs" / "audit_package" / "round4" / "UPLOAD_THESE"
+    default_package = repo_root / "docs" / "audit_package" / "round5" / "UPLOAD_THESE"
 
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--package-dir", type=Path, default=default_package)
@@ -354,16 +375,17 @@ def main(argv: list[str] | None = None) -> int:
     print(f"payload        {len(payload_bytes):,} bytes, {len(payload):,} chars, "
           f"sha256 {_sha256(payload_bytes)}")
     print(f"estimated in   ~{estimated_prompt_tokens:,} tokens "
-          f"(round 3's same package billed 251,148)")
+          f"(rounds 3-4's six-file package billed 251,148; this round's package "
+          f"is larger -- it adds commit_messages_PART7_ONLY.md)")
     print(f"model          {MODEL}")
     print(f"provider       {PROVIDER_SLUG} only, fallbacks off, data_collection "
           f"{'allow' if args.allow_data_collection else 'deny'}")
     print(f"max output     {MAX_OUTPUT_TOKENS:,} tokens "
           f"(largest prior response {LARGEST_PRIOR_RESPONSE:,})")
     low = estimated_prompt_tokens * PRICE_IN + 40_000 * PRICE_OUT
-    high = estimated_prompt_tokens * PRICE_IN + 120_000 * PRICE_OUT
+    high = estimated_prompt_tokens * PRICE_IN + 90_000 * PRICE_OUT
     print(f"cost estimate  ${low:.2f} - ${high:.2f} "
-          f"(input plus 40k-120k output at $3/$15 per M)")
+          f"(input plus 40k-90k output at $10/$50 per M)")
 
     metadata = {
         "model": MODEL,

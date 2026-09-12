@@ -1,5 +1,59 @@
 # Next step — read this first
 
+*12 September 2026 (second patch) — **GPT-6 Astra RULED and selected as round 5's auditor;
+round-5 audit-package prep delivered, nothing sent.** Viktor ran the OpenRouter
+billing-export check the "position, not yet a ruling" note below was waiting on: both of
+GPT-5.6 Luna Pro's exposed sessions (the hostile Constitution review and Step 8 itself) show
+`variant=standard` with no training routing. By the existing rule — session exposure ends
+with the session, training and lineage exposure never does — that limits OpenAI's exposure
+to those two sessions rather than tainting the lab as a whole, so GPT-6 Astra is not
+disqualified by them. **RULED: GPT-6 Astra selected.**
+
+`docs/build/send_audit_round.py` repointed at `openai/gpt-6-astra` / provider slug `openai`
+(the bare slug pins the standard tier and excludes the flex/fast variants, which need
+explicit opt-in — verified by web search on 12 September since Astra postdates training
+data, not assumed): `$10/$50` per million tokens, `MAX_OUTPUT_TOKENS` at 100,000 against
+Astra's own 128,000 ceiling (the historical cross-round floor, 36,085, is unchanged).
+`docs/build/build_audit_package.py` moved to `ROUND = "round5"` and, per **ruling 3, 11
+September** ("fold Part 7 into round 5 rather than resending it"), folds
+`commit_messages_PART7_ONLY.md` into the single upload set for the first time — the
+two-folder `UPLOAD_THESE`/`PART7_LATER` split rounds 3 and 4 used is gone, since the file
+was never actually attached by `send_audit_round.py` under either round and the split was
+withholding nothing real. **Closes "Open — decisions" item 5.** Dry-run verified in the
+sandbox: `build_audit_package.py` produces exactly 8 files in one folder (no `PART7_LATER`);
+`send_audit_round.py`'s dry run shows the correct model, provider, pricing and a
+$6.53–$9.03 cost estimate (up from round 3/4's package — the commit-messages file roughly
+doubles it) and refuses to run further without `--send`.
+
+New `docs/audit_package/item16_review_instruction_rev6.md`: lists the commit-messages file
+as item 8, actually supplied (Section 4); fixes a dangling reference to the removed Section
+13 inside Section 4a (found while reading the document for this revision, not previously
+caught); corrects a stale claim in Section 5 that no attempt at this round had produced a
+graded report — two later attempts, after Rev 5 was actually issued, returned complete
+Parts 1-6 reports (GLM 5.3 Flash under Rev 4 / round3, Kimi K3 under Rev 5 / round4), and
+the correction is explicit that neither report's content is disclosed to round 5's reviewer;
+and adds a fifth disclosure naming GPT-6 Astra's lab relationship to Luna Pro (Rev 1's
+compromised auditor) and how the billing-export check above resolves it, including what
+that check can and cannot show. **This disclosure rewrite is audit-integrity prose, not
+mechanics — Viktor may want to read Section 5 himself before it goes out.**
+
+**Nothing was sent to OpenRouter.** `--send` was not passed and `OPENROUTER_API_KEY` was
+not touched anywhere in this session; sending is Viktor's own action, on his machine, same
+as every round before this one. All three suite configurations unmoved (429 / 315+103
+skipped / 362-0-29) and `code_hash` unmoved (`e774b93d2b42bc41…`) — every file this patch
+touches is under `docs/`, excluded by directory. Decision-log integrity checked directly: no
+`logs/` directory was created by the suite runs used to verify this patch.
+
+`docs/audit_package/round5/MANIFEST.md` is not shipped in this patch — like every prior
+round's manifest, it is a build artifact with a build timestamp in it, produced by actually
+running `python docs/build/build_audit_package.py`, which the command list below has Viktor
+do himself before committing.
+
+---
+*Prior head block (12 September, first patch) kept below for history.*
+
+
+
 *12 September 2026 — **Engineering Notes gap discharged, decision-log backup mechanism
 built, handover check gained its 7th question.** Three no-decision items from “Open —
 work” and ruling 5, delivered as one patch. Entries #94 through #97 (`bb6d222`, `4705d03`,
@@ -2231,6 +2285,13 @@ These are Viktor's, and none was made on 5 September.
 5. **Part 7.** `commit_messages_PART7_ONLY.md` was never sent; both reviewers confirmed they
    finalised without it. Over the API it means resending the package plus the report to a
    fresh instance, about $1.40, and it is not the same thing as a conversation continuing.
+
+   **CLOSED 11 September 2026 — see "Rulings, 11 September 2026" item 3.** Not resent to
+   rounds 3 or 4; folded into round 5's package from the start instead. **BUILT 12 September
+   2026**: `docs/build/build_audit_package.py` now includes `commit_messages_PART7_ONLY.md`
+   in the single upload set, and `docs/build/send_audit_round.py`'s `ATTACHMENT_FILES`
+   carries it — the first round for which that file is actually reachable by an API call,
+   rather than described as available and never attached.
 6. **Disclosure.** The round-3 run was not disclosed to Kimi, deliberately and on the record.
    If any of this comparison reaches the portfolio document, the non-disclosure and its
    reason travel with it.
@@ -2471,6 +2532,14 @@ These are Viktor's, and none was made on 5 September.
     first run that produces a sub-15% stop in non-extreme volatility: ADX below 20 should
     read HIGH VOLATILITY RISK even when volatility looks calm, and LOW RISK should appear
     only with low volatility and ADX at 25 or above.
+11. **Round 5 is built, not sent.** `docs/build/send_audit_round.py` and
+    `docs/build/build_audit_package.py` point at GPT-6 Astra / `round5`, and
+    `item16_review_instruction_rev6.md` is written and dry-run-verified end to end (see the
+    head block above). What is left, and it is entirely Viktor's: run
+    `python docs/build/build_audit_package.py` to produce `UPLOAD_THESE/` and commit the new
+    `round5/MANIFEST.md`, sanity-check `python docs/build/send_audit_round.py`'s dry-run
+    output on his own machine, set `OPENROUTER_API_KEY`, and re-run with `--send` when he is
+    ready to spend the roughly $6.50-$9 this round now costs.
 
 ## 6 September 2026 — the Section 11 confirmation run
 
@@ -3863,6 +3932,13 @@ routing — the same check that cleared Kimi and caught Mistral. If they do, the
 the existing ruling and Astra is the strongest option available. If those sessions ran
 outside OpenRouter through a consumer interface, the standing rule is "treat it as
 permanent" and Astra is out. The check decides it; the model's capability does not.
+
+**RULED, 12 September 2026 — GPT-6 Astra selected.** The check came back clear: both of
+Luna Pro's exposed sessions show `variant=standard` with no training routing. The exposure
+is session-level, not lineage-level, so by the existing rule it does not carry to a later,
+separate OpenAI model. Round-5 package prep (`send_audit_round.py`, `build_audit_package.py`,
+new `item16_review_instruction_rev6.md`) follows in the same patch — see the head block at
+the top of this file. Nothing sent; that step is Viktor's, on his machine.
 
 ## Working practice
 

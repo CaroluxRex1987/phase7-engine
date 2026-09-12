@@ -56,7 +56,18 @@ REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 # graded on 5 September, by accident, and returned a complete Parts 1-6 against
 # -- so it is the artifact behind a real report, not a record of an attempt that
 # failed. The round-4 comparison is that report against this one.
-ROUND = "round4"
+#
+# round4/ is what Kimi K3 actually graded and returned a second complete Parts
+# 1-6 report against. round5/ is the first package built after Viktor's ruling
+# of 11 September ("fold Part 7 into round 5 rather than resending it"): the
+# UPLOAD_DIR/PART7_DIR split that rounds 3 and 4 used is gone, and
+# commit_messages_PART7_ONLY.md now ships inside the single upload set --
+# because that split had a real defect underneath it. The instruction document
+# described the file as available after Parts 1-6 were saved, but the file was
+# never in send_audit_round.py's ATTACHMENT_FILES for either round, so no
+# reviewer could ever actually reach it. Folding it in fixes that for the first
+# time rather than continuing to describe a promise the send step never kept.
+ROUND = "round5"
 PACKAGE_DIR = os.path.join(REPO, "docs", "audit_package")
 OUT_DIR = os.path.join(PACKAGE_DIR, ROUND)
 
@@ -69,12 +80,18 @@ OUT_DIR = os.path.join(PACKAGE_DIR, ROUND)
 # files are named the same thing.
 #
 # So the files that go to the auditor are copied into one folder containing
-# nothing else, including the instruction and the Constitution, and the
-# withheld material goes in a separate folder. "Upload everything in this
-# folder" is then literally correct and requires no judgment at the moment
-# where a mistake cannot be undone.
+# nothing else, including the instruction and the Constitution. "Upload
+# everything in this folder" is then literally correct and requires no
+# judgment at the moment where a mistake cannot be undone.
+#
+# Rounds 3 and 4 also split off a PART7_LATER folder, withheld from the upload
+# set, for commit_messages_PART7_ONLY.md. That split is gone as of round 5 (see
+# the ROUND comment above): the file was never actually attached by
+# send_audit_round.py under either name, so the second folder was not
+# withholding anything real -- it was just where a file nobody sent happened to
+# sit. One folder now, and the file's own header is what asks the reviewer not
+# to open it before Parts 1-6 are saved.
 UPLOAD_DIR = os.path.join(OUT_DIR, "UPLOAD_THESE")
-PART7_DIR = os.path.join(OUT_DIR, "PART7_LATER")
 
 # Copied in from docs/audit_package/ rather than referenced, so the upload
 # folder is complete on its own.
@@ -92,7 +109,7 @@ PART7_DIR = os.path.join(OUT_DIR, "PART7_LATER")
 # claiming to be the standard, which is the same defect check 7.6 asks the
 # auditor to look for.
 HAND_WRITTEN = [
-    "item16_review_instruction_rev5.md",
+    "item16_review_instruction_rev6.md",
     "Phase7_Constitution_v1.0_RATIFIED_AUDITCOPY.txt",
 ]
 
@@ -462,7 +479,7 @@ def main():
     # Rebuilt from empty each time. A stale file left behind in the upload
     # folder from a previous build is the same hazard this layout exists to
     # remove, one level down.
-    for directory in (UPLOAD_DIR, PART7_DIR):
+    for directory in (UPLOAD_DIR,):
         shutil.rmtree(directory, ignore_errors=True)
         os.makedirs(directory, exist_ok=True)
 
@@ -472,8 +489,12 @@ def main():
         "MANIFEST.md": "\n".join(manifest),
         "version_control_history.md": _history_metadata(),
         "execution_transcripts.md": _transcripts(),
+        # Ruling 3, 11 September 2026: folded into the single upload set from
+        # round 5 on, rather than staying in a second folder nothing ever sent.
+        # The file's own header (see _full_messages()) still tells the reviewer
+        # not to open it before Parts 1-6 are written and saved.
+        "commit_messages_PART7_ONLY.md": _full_messages(),
     }
-    withheld = {"commit_messages_PART7_ONLY.md": _full_messages()}
 
     print("\nUPLOAD_THESE/ -- give the auditor everything in this folder:")
     for name, text in upload.items():
@@ -497,23 +518,16 @@ def main():
         copied += 1
         print(f"  {name:38} {os.path.getsize(source):>9,} bytes")
 
-    print("\nPART7_LATER/ -- do NOT upload until Parts 1-6 are written and saved:")
-    for name, text in withheld.items():
-        with open(os.path.join(PART7_DIR, name), "w",
-                  encoding="utf-8", newline="\n") as fh:
-            fh.write(text)
-        print(f"  {name:38} {len(text.encode('utf-8')):>9,} bytes")
-
     with open(os.path.join(OUT_DIR, "MANIFEST.md"), "w",
               encoding="utf-8", newline="\n") as fh:
         fh.write("\n".join(manifest))
 
-    # A round directory contains an upload folder, a withheld folder, and -- in
-    # round2, from an older layout -- loose copies of the upload files at its root
-    # under the same names. An earlier attempt at this audit went out carrying a
-    # superseded revision of the reviewer instruction, and nothing in its report
-    # revealed that. So each round says, in its own directory, which folder is the
-    # one to send.
+    # A round directory contains an upload folder and -- in round2, from an
+    # older layout, and in round3/round4, which also split off a withheld
+    # PART7_LATER folder -- loose copies or a second folder at its root. An
+    # earlier attempt at this audit went out carrying a superseded revision of
+    # the reviewer instruction, and nothing in its report revealed that. So
+    # each round says, in its own directory, which folder is the one to send.
     with open(os.path.join(OUT_DIR, "README.md"), "w",
               encoding="utf-8", newline="\n") as fh:
         fh.write(
@@ -522,8 +536,12 @@ def main():
             "**Upload every file in `UPLOAD_THESE/`, and nothing else.** Not the files\n"
             "at this directory's root, and not anything from another round directory:\n"
             "several carry the same filenames and differ only by size and date.\n\n"
-            "`PART7_LATER/` is withheld. It goes to the reviewer only after Parts 1-6\n"
-            "of the report are written and saved.\n\n"
+            "There is no separate withheld folder as of this round (see the `ROUND`\n"
+            "comment at the top of `build_audit_package.py`). `UPLOAD_THESE/` includes\n"
+            "`commit_messages_PART7_ONLY.md`; its own header, and Section 12 of the\n"
+            "reviewer instruction, ask the reviewer not to open it before Parts 1-6 of\n"
+            "the report are written and saved -- that is now a reading discipline the\n"
+            "instruction asks for, not something this build withholds by omission.\n\n"
             "Regenerate with `python docs/build/build_audit_package.py`. Do not edit\n"
             "anything in here by hand: `MANIFEST.md` is computed from the bytes that\n"
             "were written, and a hand edit makes it a false claim.\n")
