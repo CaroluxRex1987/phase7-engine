@@ -1,5 +1,78 @@
 # Next step — read this first
 
+*12 September 2026 (seventh patch, two commits) — **Both requested-run 4 and 5 findings
+fixed, verified, and landed. Requested-run 6's five mutant-escape findings remain unfixed;
+release gate stays shut.** Viktor ruled on both new findings the sixth patch (below) recorded,
+each landed as its own commit per the established one-fix-per-commit pattern, each
+independently verified before and after combining, exactly as F1/F2/F3 were.
+
+- **BTC-degradation decoupling**, landed at `2387717`. Viktor ruled: "BTC only indicator fail
+  should not degrade AERO's independent current actual confidence/trading-authorization. The
+  information about the BTC price movement is just there as a bonus and something to
+  consider." `engine_core.py`'s BTC-context block now captures `btc_trend`'s
+  `degraded_inputs` into a local variable instead of appending them to the shared
+  `degradation` list `DecisionModel.evaluate()` reads to cap confidence and gate
+  `trading_authorized` — SWEEP ITEM 11's motivation (don't silently drop a BTC indicator
+  failure) is preserved by recording it in `btc_context["degraded_inputs"]` instead, a new
+  optional field on `decision_contract.py`'s `BtcContextBlock`, carried through
+  `signal_router.py`'s `_merge_btc_context`. Reaches the decision log for an auditor; never
+  reaches the `degradation` list, `DecisionModel`, or the live panel — confirmed
+  `panel_render.py`'s BTC section needs no change, resolving Viktor's separate concern that
+  new panel text (e.g. "BTC ADX unavailable") could read to a new user as something wrong
+  with the engine itself, rather than an absent bonus number. Three new tests in
+  `tests/test_btc_degradation_stays_informational.py`, confirmed to fail against pre-fix code.
+- **RSI-fallback zero-average-loss fix**, landed at `88e47e9`. Viktor ruled: "We need to fix
+  the RSI-Fallback" — the sixth patch's finding that a purely monotonic price series drives
+  the manual RSI fallback's average loss to zero for the whole series, which
+  `loss.replace(0, np.nan)` turned into an all-NaN column and an outright fallback failure
+  rather than the mathematically correct RSI 100. `indicators.py`'s fallback now special-cases
+  `loss == 0`: RSI 100 when gain is positive (pandas_ta's own answer), RSI 50 when gain is
+  also zero (a flat price, the same neutral centre-of-scale value this file already uses
+  elsewhere). Two new parametrized tests in `tests/test_no_fabricated_fallbacks.py`
+  (`monotonic`→100, `flat`→50), confirmed to fail against pre-fix code.
+
+**Golden snapshot** — predicted to move only for the BTC fix (a schema addition, since the
+pinned fixtures never fail a BTC indicator or hold a zero Wilder average loss), confirmed:
+re-baselined, diffed field-by-field against the prior snapshot, exactly one key added
+(`btc_context.degraded_inputs: []`) — every other field, and every field the RSI fix could
+have touched, byte-identical. All 8 `test_golden_path.py` tests pass.
+
+**`code_hash` moved, predicted and confirmed**, isolated per fix and combined:
+
+| tree | code_hash |
+|---|---|
+| `d69235d` (base) | `00c8d4ea4858bb2b8f5dfabcfbeac8ceeda23a4513c11adcb5c8ce1f1025854b` |
+| BTC fix alone | `7398e96d74fd749209d998f4fd13f7765f7567a2098da45c02cf386fd9376702` |
+| RSI fix alone | `07e0da8cd751514928857681e25b68f8f8a1f1289dde0c5a964c7cee0a7a6c53` |
+| both combined | `099f84aefff87ef8742484601039e959bbd905bc8170ad8832db7a5b1c417c57` |
+
+**Test counts, split by kind, base → BTC-alone / RSI-alone → combined:**
+
+    pytest with pandas_ta:     432 → 435 / 434 → 437 passed, 0 failed throughout
+    pytest without pandas_ta:  315p/106s → 315p/109s / 315p/108s → 315p/111s, 0 failed
+    run_tests.py:              365p/0f/29e → 366p/0f/31e / 365p/0f/30e → 366p/0f/32e
+
+The `run_tests.py` error-count increases are the runner's own known limitation (calling
+parametrized/fixture-taking tests with no arguments) picking up the new tests — same shape as
+every pre-existing entry in that list, not a new kind of problem; diffed to confirm no
+pre-existing entry's identity changed.
+
+**Not fixed by this patch.** Requested-run 6's five mutant-escape findings (`compute_trend_health`,
+`_determine_final_action`, `plot_engine_chart`, `SignalRouter.route`, and the empty-filter
+`run_tests.py` result) remain exactly as the sixth patch recorded them — GPT-6 Astra's own
+report already names the required action (real preconditions, assert the actual outcome,
+perturb through real consumers) and nothing here has started that work. **Release gate stays
+shut** on that basis, and round 6's re-audit of F1/F2/F3 is still unrun.
+
+**Platform.** Built and verified in the Linux sandbox, same as F1/F2/F3 and the sixth patch —
+evidence about Linux. Applied and committed by Viktor on his own Windows machine via the
+device bridge (no shell there this session); both commits landed cleanly (`2387717`, `88e47e9`)
+on top of `d69235d`. Not yet evidence that the suite passes on Windows — recommend running the
+engine once on live data before trusting a decision from it, same as recommended for F3.
+
+---
+*Prior head block (12 September, sixth patch) kept below for history.*
+
 *12 September 2026 (sixth patch, docs only) — **Requested-runs 4-6 from GPT-6 Astra's
 round-5 report executed and reported. No code touched. Two new candidate defects found;
 neither fixed. Release gate stays shut.** Per Viktor's instruction this session: run
