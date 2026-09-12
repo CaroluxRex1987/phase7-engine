@@ -147,6 +147,22 @@ def main(argv):
     if filters:
         files = [f for f in files if any(k in os.path.basename(f) for k in filters)]
 
+        # ROUND 6 MUTANT ESCAPE (GPT-6 Astra), 12 September 2026, Section 7.3.
+        # A filter matching zero files fell straight through the loop below
+        # with passed=0, failed=[], errors=[] -- `1 if (failed or errors)
+        # else 0` at the bottom then returns 0. A typo'd filter, in a CI step
+        # or a habit of running `run_tests.py <name>` while renaming a file,
+        # produced "0 passed 0 failed 0 errors" and a green exit code: a run
+        # that tested nothing looks identical, to anything reading the exit
+        # code alone, to a run where everything passed. Caught here, before
+        # the loop, rather than by inference from the printed counts after it
+        # -- the loop has no way to distinguish "ran zero tests because
+        # nothing failed" from "ran zero tests because nothing matched".
+        if not files:
+            print(f"{RED}No test files matched filter: "
+                  f"{' '.join(filters)}{RESET}")
+            return 2
+
     passed, failed, errors = 0, [], []
 
     for path in files:

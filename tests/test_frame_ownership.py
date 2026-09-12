@@ -202,17 +202,36 @@ def test_plot_engine_chart_does_not_touch_the_callers_frame():
 
     df = _dirty_frame()
     before = df.copy(deep=True)
+    chart_path = os.path.join(_CHART_TMP, "_ownership_test.png")
     plot_engine_chart(
         df=df,
         entry_data={"entry_zone_lower": 100.0, "entry_zone_upper": 105.0},
         risk_data={"atr_stop": 95.0, "targets": (110.0, 115.0, 120.0)},
-        save_path=os.path.join(_CHART_TMP, "_ownership_test.png"),
+        save_path=chart_path,
     )
 
     assert _unchanged(before, df), (
         "plot_engine_chart modified the frame it was given.\n"
         "engine_core passes df_struct to it — the frame the whole analysis was "
         "computed from. A renderer must not edit what it renders."
+    )
+
+    # ROUND 6 MUTANT ESCAPE (GPT-6 Astra), 12 September 2026. A no-op
+    # plot_engine_chart -- returns save_path, draws nothing, logs nothing --
+    # never touches df at all, so the assertion above is trivially satisfied
+    # by a function that does no work. An unmodified frame is not evidence a
+    # chart was drawn; the file on disk is. A candlestick chart with EMAs,
+    # entry zone, stop and three targets is tens of kilobytes at minimum on
+    # this fixture -- 1KB is well below any real render and well above what
+    # an empty or header-only file would be.
+    assert os.path.exists(chart_path), (
+        "plot_engine_chart returned without writing a file at save_path."
+    )
+    assert os.path.getsize(chart_path) > 1024, (
+        f"the chart file at {chart_path} is only "
+        f"{os.path.getsize(chart_path)} bytes -- too small to be a real "
+        "rendered candlestick chart. plot_engine_chart may not be drawing "
+        "anything."
     )
 
 
@@ -256,12 +275,13 @@ def test_plotting_does_not_swallow_a_broken_repair_path():
     plotting_logger = logging.getLogger("utils.plotting")
     handler = _Collect()
     plotting_logger.addHandler(handler)
+    chart_path = os.path.join(_CHART_TMP, "_repair_test.png")
     try:
         plot_engine_chart(
             df=_dirty_frame(),
             entry_data={"entry_zone_lower": 0.75, "entry_zone_upper": 0.78},
             risk_data={"atr_stop": 0.64, "targets": (0.96, 1.12, 1.28)},
-            save_path=os.path.join(_CHART_TMP, "_repair_test.png"),
+            save_path=chart_path,
         )
     finally:
         plotting_logger.removeHandler(handler)
@@ -275,6 +295,20 @@ def test_plotting_does_not_swallow_a_broken_repair_path():
         "downgrades failures to log lines, so the chart is still written and "
         "still returned — just missing whatever failed. A chart with no price "
         "candles looks like a chart."
+    )
+
+    # ROUND 6 MUTANT ESCAPE (GPT-6 Astra), 12 September 2026. The same no-op
+    # mutant this file's sibling test now checks for (draws nothing, logs
+    # nothing) also satisfies "no ERROR records" trivially -- an empty log is
+    # not evidence of a healthy render, only of no attempt at all. Same
+    # file-on-disk check as the ownership test above.
+    assert os.path.exists(chart_path), (
+        "plot_engine_chart returned without writing a file at save_path."
+    )
+    assert os.path.getsize(chart_path) > 1024, (
+        f"the chart file at {chart_path} is only "
+        f"{os.path.getsize(chart_path)} bytes -- too small to be a real "
+        "rendered candlestick chart."
     )
 
 

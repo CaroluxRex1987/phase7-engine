@@ -349,3 +349,21 @@ def test_the_engine_still_reaches_a_side_when_the_timeframes_agree():
     assert decision["macro_bias"] == "BULLISH", (
         "the two timeframes are supposed to AGREE in this control."
     )
+
+    # ROUND 6 MUTANT ESCAPE (GPT-6 Astra), 12 September 2026. Both asserts
+    # above check bias.raw and macro_bias, which are computed upstream of
+    # DecisionModel._determine_final_action -- an always-WAIT
+    # _determine_final_action left them both untouched and this test passed
+    # regardless. This module's own docstring says the point of this control
+    # is "the engine must still be willing to be bullish about it" -- that
+    # claim was never actually checked. exit.action is the field
+    # _determine_final_action's result reaches (signal_router.py's
+    # "exit": {"action": final_action, ...}); checking for "LONG" rather than
+    # an exact string tolerates AGGRESSIVE LONG / LONG / CONSERVATIVE LONG,
+    # whichever the risk regime picks, while still failing outright on WAIT
+    # or any NO-TRADE variant.
+    assert "LONG" in decision["exit"]["action"], (
+        f"bias and macro agree BULLISH, but exit.action came back "
+        f"{decision['exit']['action']!r} -- not a LONG decision of any kind. "
+        "An uninterrupted rally with agreeing timeframes must reach a side."
+    )

@@ -127,6 +127,21 @@ def test_the_smoke_run_is_reproducible():
         first = stable(SignalRouter().route(symbol=SYMBOL, timeframe=TIMEFRAME))
         second = stable(SignalRouter().route(symbol=SYMBOL, timeframe=TIMEFRAME))
 
+        # ROUND 6 MUTANT ESCAPE (GPT-6 Astra), 12 September 2026. `first ==
+        # second` is satisfied just as well by two calls that both return the
+        # same canned {"error": ...} dict as by two calls that both did the
+        # real analysis -- a SignalRouter.route that always returns one fixed
+        # error object is "reproducible" by this test's own definition. These
+        # two checks require the thing the docstring already claims this test
+        # establishes: that a genuine decision was reached, twice, not merely
+        # that whatever came back was consistent with itself.
+        assert "error" not in first, (
+            f"the run produced an error instead of a decision: {first.get('error')}"
+        )
+        assert "exit" in first and "action" in first["exit"] and first["exit"]["action"], (
+            f"the run completed without a real decision shape: {sorted(first)}"
+        )
+
         if first != second:
             differing = sorted(
                 k for k in set(first) | set(second)

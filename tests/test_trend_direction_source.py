@@ -50,6 +50,14 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from models.bias_engine import calculate_dynamic_bias, WEIGHT_TREND_HEALTH
 
 
+def _engine_available():
+    try:
+        import pandas_ta  # noqa: F401
+        return True
+    except Exception:
+        return False
+
+
 def _bias(**over):
     kw = dict(
         trend_sequence="NONE",
@@ -147,20 +155,60 @@ def test_trend_health_reports_a_sign_that_matches_its_own_label():
     The producer's end. The number and the label come from one slope test and
     must never disagree -- 9,800 measured bars found zero disagreements, and
     this keeps it that way.
+
+    ROUND 6 FOLLOW-ON, 12 September 2026. Adding the `expect` assertion below
+    surfaced a second, pre-existing defect in THIS TEST's own fixture, found
+    while verifying the assertion actually catches the named mutant rather
+    than a fixture artifact: a raw OHLCV frame handed straight to
+    compute_trend_health is missing EMA20_Slope, EMA50_Slope, ADX and RSI --
+    columns compute_trend_health reads by name and which only
+    add_technical_indicators() computes. Every input showed
+    "(column absent)" in degraded_inputs, so the ORIGINAL (weaker) version of
+    this test was passing on a frame that could never produce anything but
+    NEUTRAL/0 -- it always took the `else` branch, on real code, on both
+    slopes, which is exactly how it also passed unchanged under the
+    always-neutral mutant. Fixed by running the frame through the same
+    add_technical_indicators -> calculate_structure pipeline
+    core/engine_core.py uses before it ever calls compute_trend_health,
+    rather than calling compute_trend_health directly on raw OHLCV.
     """
+    if not _engine_available():
+        pytest.skip("pandas_ta not installed")
+
     import numpy as np
     import pandas as pd
+
+    from core import config
+    from indicators.indicators import add_technical_indicators
     from indicators.trend_health import compute_trend_health
+    from structure.structure import calculate_structure
 
     for slope, expect in ((+1.0, 1), (-1.0, -1)):
-        n = 120
+        n = 200
         close = 100.0 + slope * np.arange(n) * 0.5
         df = pd.DataFrame({
             "open": close, "high": close * 1.002, "low": close * 0.998,
             "close": close, "volume": np.full(n, 1000.0),
         }, index=pd.date_range("2025-01-01", periods=n, freq="4h"))
 
-        out = compute_trend_health(df)
+        df, failures = add_technical_indicators(df)
+        assert not failures, (
+            f"add_technical_indicators reported failures on a clean synthetic "
+            f"series: {[str(f) for f in failures]} -- this test needs a real "
+            f"indicator frame, not a degraded one, to mean anything."
+        )
+        structure_obj = calculate_structure(
+            df, lookback=config.STRUCT_LOOKBACK,
+            volume_profile_bins=config.VOLUME_PROFILE_BINS,
+        )
+        df_struct = structure_obj.get("df", df)
+
+        out = compute_trend_health(df_struct)
+        assert not out.get("degraded_inputs"), (
+            f"compute_trend_health degraded on a fully-indicatored series: "
+            f"{out.get('degraded_inputs')} -- the fixture is still not "
+            f"reaching a real reading."
+        )
         label = str(out.get("trend_direction", "")).upper()
         sign = out.get("trend_direction_sign")
 
@@ -171,3 +219,21 @@ def test_trend_health_reports_a_sign_that_matches_its_own_label():
             assert sign == -1, f"label {label} but sign {sign}"
         else:
             assert sign == 0, f"label {label} but sign {sign}"
+
+        # ROUND 6 MUTANT ESCAPE (GPT-6 Astra), 12 September 2026. Everything
+        # above only checks that the sign and the label agree WITH EACH
+        # OTHER -- an always-neutral compute_trend_health (label "NEUTRAL",
+        # sign 0 unconditionally, ignoring the input entirely) satisfies
+        # every assertion above for both the rising and falling series, since
+        # the neutral branch's own assertion is `sign == 0` and a constant
+        # function is internally consistent with itself. `expect` was defined
+        # in the loop header for exactly this check and never read. This is
+        # the check: the sign must match what the ACTUAL slope of the input
+        # demands, not merely agree with whatever label the function chose to
+        # attach to it.
+        assert sign == expect, (
+            f"a {'rising' if slope > 0 else 'falling'} 120-bar series produced "
+            f"trend_direction_sign={sign} (label {label!r}); expected {expect}. "
+            "If this reads 0 for both directions, compute_trend_health has "
+            "stopped reading its input."
+        )
