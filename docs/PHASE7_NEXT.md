@@ -1,5 +1,83 @@
 # Next step — read this first
 
+*12 September 2026 (fifth patch) — **All three round-5 Criticals fixed, verified, and
+landed. Docs pass batched as promised.** Each fix was its own patch, per Viktor's
+instruction, delivered and verified individually per the patch-delivery skill before the
+next was started.
+
+- **F1** landed at `83e334d`: `calculate_stop_targets()`'s production call now passes
+  `volatility_state=volatility_mode`, matching what the sibling `validate_risk_parameters`
+  call already received three lines below.
+- **F2** landed at `3f92230`: `eq_trade_direction` is now derived from `raw_bias` directly
+  (BULLISH→LONG, BEARISH→SHORT, NEUTRAL→the `bias_score` sign), not from `short_signal` —
+  the same signal `decision_model.py`'s own `decide()` already uses, and the same "bias is
+  the sole direction source" shape Viktor ruled for that function on 2 September.
+- **F3** landed at `7fcf646`, two parts in `indicators.py`: VWMA's own forward-fill now
+  stops at the trailing edge (interior gaps still fill; nothing follows the last row if that
+  row's own window had no usable volume), and `"VWMA"` was added to `critical_indicators` so
+  a genuine decision-bar miss gets the same `failed()`/degraded-inputs treatment every other
+  indicator failure gets. Three new regression tests added to
+  `tests/test_decision_bar_integrity.py`, confirmed to actually fail against pre-fix code
+  (not vacuous), mirroring the file's existing ADX test for the same class of finding.
+
+Each fix independently reproduced against live code before and after, on both a build tree
+and a separately-applied pristine-clone tree; golden snapshot predicted unmoved and
+confirmed by running it each time (none of the three exercised the pinned TESTUSDT
+fixture's specific values); `code_hash` predicted moved and confirmed on two independently
+built trees each time; all three suite configurations unmoved except F3's own three added
+tests (432/315+106-skip/365, 29 `run_tests.py` errors — same identity as before, diffed
+character-for-character). All evidence from the Linux sandbox; not yet evidence about
+Windows until Viktor applies and runs each patch there.
+
+**Observed, not fixed, out of round 5's scope:** `risk_model.py`'s own
+`calculate_stop_targets()` has a structurally similar-looking `effective_bias` fallback, but
+`detailed_bias` never holds `"LONG"`/`"SHORT"` literally (only `BiasStateMachine`'s own
+`"BULLISH CONFIRMED"`/`"BEARISH CONFIRMED"`/`"NEUTRAL"` alphabet), so the branch always falls
+through to the `bias_score`-sign tie-break regardless. Recorded because it surfaced while
+scoping F2; not part of round 5's report or ruling, and no ruling was asked for it.
+
+**Engineering Notes gap closed.** `docs/build/build_engineering_notes.py`'s Document History
+table gains a `v1.26` row, entries #98 through #103, covering `4d99cdb`, `de7d135`,
+`a12640a`, and the three fixes above (`83e334d`, `3f92230`, `7fcf646`) — following the same
+#94–97 precedent of a compact table row rather than individual `entry_box()` calls. Two
+drafts of this row failed before landing: one on a straight-quote/curly-quote mismatch
+against this file's own quoting convention (`SyntaxError`), one on being nearly double the
+longest existing row and exceeding ReportLab's page-height limit (`LayoutError` on page 75).
+The row that landed is ~2,537 characters, under the ~2,413-character precedent set by
+v1.20. Rebuilt the PDF in the sandbox afterward — 75 pages, exits clean, no `LayoutError`,
+and the new row's text confirmed present on page 75 by extracting the PDF's own text, not
+just by the exit code. **Regenerating `docs/Phase7_Engineering_Notes.pdf` from this updated
+script on your machine is still your own manual step** (`python docs\build\build_engineering_notes.py`)
+— this patch only changes the script, per the project's existing precedent that PDF
+regeneration stays a deliberate step rather than an automatic one.
+
+This patch touches only `docs/PHASE7_NEXT.md` (this file) and
+`docs/build/build_engineering_notes.py` — both under `docs/`, excluded from
+`core/code_fingerprint.py`'s hash by directory. `code_hash` confirmed unmoved
+(`00c8d4ea4858bb2b8f5dfabcfbeac8ceeda23a4513c11adcb5c8ce1f1025854b`, matching F3's own
+landed value exactly) on the tree before this patch and the tree after, computed
+separately rather than assumed from the directory-exclusion rule alone. All three suite
+configurations re-run on the patched tree and confirmed at F3's exact post-fix counts
+(432 / 315+106-skip / 365+29-errors) — no drift from a docs-only change.
+
+**Release gate stays shut.** The Constitution's bar is "landed *and* been re-audited" —
+all three of round 5's Criticals have landed but none has been re-audited yet; that is
+round 6's job, not this session's. Requested-runs 4–6 from GPT-6 Astra's report (BTC-only
+failures, fallback equivalence, test-effectiveness — all Major, not Critical) remain unrun.
+
+**Recommend running the engine on live data and reading the panel before your next commit.**
+A run whose decision-bar VWMA rolling window has no usable volume will now come back
+DEGRADED, naming VWMA in `missing_inputs`, confidence capped at 50/100, trading not
+authorized — where it previously showed a clean analysis with a stale VWMA distance score.
+That is F3 working as intended, not a new defect. The same applies more generally: any run
+where `raw_bias` disagrees with what `long_signal`/`short_signal` alone would have implied
+can now score entry quality differently than before (F2), and any run under elevated or
+reduced volatility can now get wider or narrower stops/targets than before (F1).
+
+---
+*Prior head block (12 September, fourth patch) kept below for history.*
+
+
 *12 September 2026 (fourth patch) — **Round 5 sent and graded; release gate stays shut on
 three newly confirmed Criticals; all three RULED to fix.** Docs only, no code touched.
 `python docs\build\send_audit_round.py --send` ran twice: a first attempt failed with HTTP
