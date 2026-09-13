@@ -56,11 +56,10 @@ decision-object shape, `engine_core.py`, `signal_router.py`, or any indicator;
 **`code_hash` moved, predicted (one file, `run_tests.py`; `tests/` excluded by directory)
 and confirmed:** `099f84ae...c57` -> `4d6f8196...127` (built on `b087875`).
 
-**Not fixed by this patch.** Round 6's re-audit of F1/F2/F3 is still unrun. **New since this
-patch, not yet ruled:** none of the three post-round-5 fix commits (`2387717`, `88e47e9`,
-`044b055`) has had any independent review — Claude's recommendation is to batch all three
-into round 6's package alongside F1/F2/F3 rather than run a separate pass later, since none
-of the three touches anything F1/F2/F3 didn't already touch. **Round 6's model is not yet
+**Not fixed by this patch.** Round 6's re-audit of F1/F2/F3 is still unrun. **Batching,
+ruled 13 September:** all three post-round-5 fix commits (`2387717`, `88e47e9`, `044b055`) —
+none of which has had any independent review — are folded into round 6's package alongside
+the F1/F2/F3 re-audit, rather than a separate later pass. **Round 6's model is not yet
 chosen.** Viktor ruled out ChatGPT and Gemini as future channels (12 September) and
 delegated the pick to Claude. Claude's recommendation, reasoning in the 12 September chat
 session, not yet in a commit or a ruling: `meta/muse-spark-1.2` on OpenRouter — chosen over
