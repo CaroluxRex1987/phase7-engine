@@ -60,12 +60,21 @@ and confirmed:** `099f84ae...c57` -> `4d6f8196...127` (built on `b087875`).
 ruled 13 September:** all three post-round-5 fix commits (`2387717`, `88e47e9`, `044b055`) —
 none of which has had any independent review — are folded into round 6's package alongside
 the F1/F2/F3 re-audit, rather than a separate later pass. **Round 6's model, ruled 13
-September:** `meta/muse-spark-1.2` on OpenRouter — chosen over `x-ai/grok-4.6` primarily for
-context-window headroom (1.05M vs 500K against a package that was already 435,612 prompt
-tokens at round 5, before batching in three more commits) and for being single-provider (no
-auto-router substitution risk, the round-3 failure mode). Viktor ruled out ChatGPT and Gemini
-as future channels (12 September) and delegated the pick to Claude; this was that pick,
-ruled. Round 6 itself is still unbuilt and unsent.
+September, corrected same day:** `meta/muse-spark-1.3` on OpenRouter. Originally ruled as
+`meta/muse-spark-1.2` — ChatGPT and Gemini ruled out as future channels (12 September),
+pick delegated to Claude, chosen over `x-ai/grok-4.6` for context-window headroom (1.05M vs
+500K against a package that was already 435,612 prompt tokens at round 5, before batching in
+three more commits) and single-provider safety (no auto-router substitution risk, the
+round-3 failure mode). Before building round 6, checking OpenRouter's live models API (not
+done before the original ruling) found `meta/muse-spark-1.2` no longer listed as an
+invokable endpoint -- only `meta/muse-spark-1.3`, `meta/muse-spark-1.3-contributor`, and
+`meta/muse-spark-1.2-contributor` exist now. The `-contributor` tiers were ruled out
+regardless of price: their own pages state prompts and outputs may be used to improve
+Meta's products, which would leak Phase-7's source rather than just cost more. `1.3` is the
+live, same-tier, same-price ($1.25/$4.25 per M) successor with the same 1.05M context and no
+data-sharing notice, released 2 September 2026 -- the original reasoning applies to it
+unchanged. Viktor ruled the correction same day. Round 6 itself is still unbuilt and
+unsent.
 
 **Platform.** Built and verified in the Linux sandbox — evidence about Linux, not yet
 Windows. No production module changed, so no live-data run is being recommended before this
