@@ -1,5 +1,114 @@
 # Next step — read this first
 
+*13 September 2026 (tenth patch, three commits) — **Round 6's F1/F2/F3 fixed,
+verified per-fix and combined, and landed.** Viktor ruled: "Let us fix F1 to F3." Each
+landed as its own commit, independently verified before and after combining, per the
+project's established one-fix-per-commit pattern.
+
+- **F1** — `447966b`. T2-4 Explicit Configuration. Six bare literals/function-locals
+  promoted to named constants at their existing location, value unchanged:
+  `models/entry_model.py`'s `CONFLUENCE_BOOST_MULT`/`CONFLUENCE_PENALTY_MULT`
+  (module-level), `indicators/indicators.py`'s `SPIKE_RATIO` (function-local promoted to
+  module scope), `models/btc_context.py`'s `CORRELATION_WINDOW` (now
+  `compute_correlation_beta`'s own default), `structure/structure.py`'s
+  `StructureEngine.REGIME_HYSTERESIS_THRESHOLD` (class attribute, matching
+  `DecisionModel`'s existing pattern). All four registered in `decision_log.py`'s
+  `FINGERPRINTED_MODULES`. Scope stated explicitly, narrower than the report's own F1
+  Location section: `decision_model.py`'s trend-health bands (`>=75`/`>=70`/`>=50`) and
+  the `MIN_ACTION_BIAS`/`RAW_BIAS_THRESHOLD` naming split are not touched — left open,
+  see below.
+- **F2** — `3c7e9ae`. Item 10 Consistent Semantics. `engine_core.py`'s raw `risk` dict no
+  longer carries a duplicate `confidence_score` (unsigned trend magnitude) under the same
+  dotted name `signal_router.py` gives a different meaning (bias magnitude) in the final
+  decision object. Dropped rather than renamed — the value survives intact at
+  `trend.trend_health`, a few lines below in the same return object.
+- **F3** — `9b34163`. Item 13 Fail Safely / Item 8 Epistemic Honesty, unreachable on the
+  live path today. `signal_router.py`'s `_build_decision_object` no longer substitutes a
+  finite `0.0` for six absent measurements (`zone_lower`, `zone_upper`,
+  `distance_from_zone`, `atr_stop`, `targets`, `current_price`) — all six now go through
+  `_finite_or_nan`, the same treatment `structure.hvn`/`lvn`/`swing_struct` already get.
+  Found, not fixed: three of these six reach `panel_render.py` through a still-not-NaN-
+  aware `safe_float()` call distinct from the one already fixed for the other three —
+  flagged for a separate, narrowly-scoped patch, not folded into this one (touching
+  `current_price`'s downstream arithmetic risks repeating the project's own prior "$nan"
+  print regression).
+
+**Test counts, split by kind, isolated per fix and combined (Linux sandbox, then
+reproduced on Viktor's own Windows machine while landing each commit — this is now
+Windows evidence, not just Linux):**
+
+    pytest with pandas_ta:     440 -> 443 (F1) -> 446 (F2) -> 455 (F3) passed, 0 failed
+                                throughout
+    pytest without pandas_ta:  317p/112s -> 318p/114s (F1) -> 318p/117s (F2) ->
+                                327p/117s (F3)
+    run_tests.py:              369p/0f/32e -> 372 (F1) -> 375 (F2) -> 384 (F3) passed,
+                                0 failed / 32 errors unchanged throughout
+
+**Golden snapshot** — F1 moved (predicted wrong the first pass, corrected by running the
+suite): `lineage.run_hash` folds the FULL `module_snapshot()` output into its hash, so
+registering 4 new fingerprinted names moved `run_hash` and the derived `archive_path`
+even though no decision value changed — 6 record-completeness fields moved,
+re-baselined and confirmed against the diff, zero decision fields moved. F2 and F3 both
+predicted and confirmed unmoved (byte-identical, md5 `43534cb6c506728c5869a627a24fe711`
+throughout both).
+
+**`code_hash` moved, predicted and confirmed, isolated per fix:**
+
+| tree | code_hash |
+|---|---|
+| `4e0110b` (base) | `4d6f81965109e5a206ad5ac093ba1986f6a5d455243f395408d914b82327d127` |
+| F1 alone | `2f2d03408625e34b994a064c88e81b4e508d07f036ef7e3b4c2b9f73ee9f74d5` |
+| F1+F2 | `fab0c772162cd12f386bf814d5a4a899434f8981d6d89e684b3e6b72810e6977` |
+| F1+F2+F3 | `36420c9fe3dbe6ddecacf3954224475332f0ad39f1f47f7c1989554591ba9567` |
+
+Each step confirmed to move exactly one file's own entry in the fingerprint table
+(`engine_core.py` for F1->F2, `signal_router.py` for F2->F3), not assumed from the
+top-level hash alone.
+
+**A CRLF wrinkle found while re-baselining F1's golden snapshot on Linux**, out of scope
+for this patch: `test_golden_path.py`'s `PHASE7_UPDATE_SNAPSHOT` path writes with a plain
+`open(path, "w")`, no explicit `newline=`, so it inherits the sandbox's LF rather than
+this repo's CRLF. Converted back by hand (byte-level `\n`->`\r\n`, safe because
+`json.dump` escapes embedded newlines as two characters, never a raw byte) and
+re-verified. Worth knowing if this file is ever re-baselined from a Linux sandbox again
+— `test_golden_path.py` itself is unpatched.
+
+**Platform.** Built and verified in the Linux sandbox first — three configurations, each
+fix isolated then combined. All three commits were then applied and both test
+configurations re-run by Viktor on his own Windows machine as part of landing them; the
+counts above are confirmed on both platforms, not Linux alone.
+
+**A delivery-mechanics lesson, not a code defect.** All six files (three patches, three
+commit messages) were delivered to the repo root together rather than one patch at a
+time. Every one of the three `git add -A` steps therefore swept in the not-yet-applied
+patch/message files for the *next* fix, plus a pre-existing, unrelated, already-modified
+`Claude outputs/phase7_handover_2026-09-12.md` that predates this session and was never
+touched by any of these three patches. Caught each time by reading `git status --short`
+before committing rather than trusting the numbered sequence blindly, and corrected with
+`git reset` before each commit — nothing wrong landed in any of the three commits,
+confirmed by the staged file list matching the predicted set exactly at every commit.
+Added as rule 38 below. The handover file's own stray modification is still unresolved
+— open item, see below.
+
+**Not fixed, deliberately.** `decision_model.py`'s trend-health bands and the
+`MIN_ACTION_BIAS`/`RAW_BIAS_THRESHOLD` naming split (F1's report raised these, the
+narrower scope Viktor ruled on did not include them). `panel_render.py`'s
+`atr_stop`/`targets`/`current_price` `safe_float()` calls (F3's found-not-fixed item,
+above).
+
+**Open, not yet ruled.** (1) Whether closing F1/F2/F3 needs a round-7 re-audit before this
+project counts as portfolio-ready, or whether non-Critical findings can be
+accepted/fixed without re-auditing — raised at the end of the F1/F2/F3 orientation, not
+yet answered. (2) `Claude outputs/phase7_handover_2026-09-12.md` sits modified and
+uncommitted, predating this session, unrelated to F1/F2/F3 — Viktor confirmed he made no
+edits himself; origin and disposition undetermined. (3) `panel_render.py`'s
+NaN-consistency gap found during F3. (4) `Phase7_Engineering_Notes.pdf` still reflects
+the eighth patch — regenerating it remains deferred, not forgotten.
+
+---
+*Prior head block (13 September, ninth patch) kept below for history.*
+
+
 *13 September 2026 (ninth patch, docs only) — **Round 6 sent and graded; release gate holds
 (Met, no Critical Tier-1 finding).** First `--send` attempt failed HTTP 403 (OpenRouter's
 account-level 18+ age-attestation gate, not a package or provider problem — resolved by
@@ -4505,6 +4614,10 @@ narrower check; it now rests on the exhaustive one.
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then
   `git apply`. Write the patch and message file into the repo over the device bridge,
   stage them out with explicit paths, then delete them.
+- **When several fixes are landing in the same session, deliver one patch's files at a
+  time** — write, apply, commit, delete — rather than placing more than one patch and
+  commit-message pair on disk together. `git add -A` sweeps in whatever is still sitting
+  there, staged or not (rule 38).
 - **Restore CRLF before diffing.** The repo is CRLF; Python text-mode writes produce LF.
 - **`git diff --cached` beats hand-built `diff -ruN` + sed.** Batches 1–2 built patches by
   running `diff -ruN` on two directories and rewriting the headers into `diff --git` form
@@ -4726,3 +4839,16 @@ narrower check; it now rests on the exhaustive one.
     guard the same class of error, two days after writing the rule about it. Rules in this
     file do not fire on their own. The ones that repeat are candidates for a mechanical
     check, not a firmer intention.
+
+
+38. **Delivering more than one patch's files to the repo root at once reproduces the
+    `git add -A` trap on every commit in the batch, not just the first.** The three
+    F1/F2/F3 patches and their commit messages were all placed in `D:\phase7_engine`
+    together rather than one pair at a time, 13 September 2026. `git add -A` at every one
+    of the three commit steps therefore staged not only the intended fix but the next
+    fix's still-unapplied `.patch`/`_commit_message.txt` files, and a pre-existing,
+    unrelated modification already sitting in the working tree. Nothing wrong actually
+    landed — `git status --short`, read before every commit rather than trusted from
+    the numbered command sequence, caught it each time, and `git reset` corrected it
+    before each commit. The structural fix is to deliver one patch's files at a time, so
+    the trap has nothing left on disk to sweep in.
