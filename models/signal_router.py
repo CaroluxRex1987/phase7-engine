@@ -288,10 +288,17 @@ class SignalRouter:
             btc_adjusted = dm_result["btc_adjusted"]
             explanation = dm_result["explanation"]
 
-            # Defensive normalization for targets tuple
-            targets = risk.get("targets", (0.0, 0.0, 0.0))
+            # ROUND 6 (Meta Muse Spark 1.3), F3 -- Item 13 / Item 8, Minor.
+            # This defaulted an absent or malformed targets tuple to
+            # (0.0, 0.0, 0.0) -- three finite prices this instrument never
+            # traded, presented downstream exactly like three real targets.
+            # Unreachable today (engine_core always sets "targets"), same
+            # fabrication shape as the close*0.99 / swing_struct=current_price
+            # defects already removed. NaN now, consistent with
+            # structure.hvn/lvn and _finite_or_nan below.
+            targets = risk.get("targets", (float("nan"), float("nan"), float("nan")))
             if not isinstance(targets, (list, tuple)) or len(targets) < 3:
-                targets = (0.0, 0.0, 0.0)
+                targets = (float("nan"), float("nan"), float("nan"))
 
             return {
                 "symbol": symbol,
@@ -347,12 +354,19 @@ class SignalRouter:
                 },
 
                 "entry": {
-                    "zone_lower": float(entry.get("zone_lower", 0.0)),
-                    "zone_upper": float(entry.get("zone_upper", 0.0)),
+                    # ROUND 6 (Meta Muse Spark 1.3), F3: zone_lower/zone_upper/
+                    # distance_from_zone were float(entry.get(..., 0.0)) -- an
+                    # absent zone became a located one at price zero, 0.00% away.
+                    # panel_render.py already reads these three with a NaN
+                    # default (its own "not located"/"not measured" handling),
+                    # so this was the one place still capable of fabricating
+                    # them.
+                    "zone_lower": self._finite_or_nan(entry.get("zone_lower")),
+                    "zone_upper": self._finite_or_nan(entry.get("zone_upper")),
                     "long_signal": bool(entry.get("long_signal", False)),
                     "short_signal": bool(entry.get("short_signal", False)),
                     "score": float(entry.get("score", 0.0)),
-                    "distance_from_zone": float(entry.get("distance_from_zone", 0.0)),
+                    "distance_from_zone": self._finite_or_nan(entry.get("distance_from_zone")),
                     "entry_status": str(entry.get("entry_status", "ACTIVE ENTRY ZONE")),
                     "ema_pos_pts": float(entry.get("ema_pos_pts", 0.0)),
                     "atr_dist_pts": float(entry.get("atr_dist_pts", 0.0)),
@@ -385,8 +399,13 @@ class SignalRouter:
                 },
 
                 "risk": {
-                    "atr_stop": float(risk.get("atr_stop", 0.0)),
-                    "targets": (float(targets[0]), float(targets[1]), float(targets[2])),
+                    # ROUND 6 (Meta Muse Spark 1.3), F3: atr_stop and targets
+                    # were float(..., 0.0) -- an absent stop or target set
+                    # became a real-looking price of zero. NaN-passthrough,
+                    # consistent with the targets fallback above and
+                    # structure.hvn/lvn.
+                    "atr_stop": self._finite_or_nan(risk.get("atr_stop")),
+                    "targets": tuple(self._finite_or_nan(t) for t in targets[:3]),
                     # GLM F-7 AS EXTENDED, 6 September 2026. This read
                     # bool(risk.get("risk_valid", True)) and wrote the
                     # invented True into the decision log and the panel, so
@@ -436,7 +455,10 @@ class SignalRouter:
 
                 "exit": {
                     "action": final_action,
-                    "current_price": float(exit_data.get("current_price", 0.0))
+                    # ROUND 6 (Meta Muse Spark 1.3), F3: was
+                    # float(exit_data.get("current_price", 0.0)) -- an absent
+                    # price read as a real zero rather than not measured.
+                    "current_price": self._finite_or_nan(exit_data.get("current_price"))
                 },
 
                 # C3 BUILD: advisory-only Exit Watch flags, passed straight
