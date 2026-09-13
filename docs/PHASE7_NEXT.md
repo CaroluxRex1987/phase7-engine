@@ -1,5 +1,66 @@
 # Next step — read this first
 
+*13 September 2026 (eleventh patch, four commits) — **F4 and F5 fixed, closing every
+item the tenth patch's F1-F3 left open; the stray handover file and this document's own
+head block both resolved.** Viktor's ruling on "what is next" from the tenth patch: fix
+all four raised items.
+
+- **Docs** — `1f1c935`. The (now-prior) head block below rewritten for F1/F2/F3; rule 38
+  added — always `git reset` the delivery files before `git commit`, after the
+  `git add -A` trap recurred three times during the tenth patch's own delivery.
+- **Handover file** — `da2e231`. `Claude outputs/phase7_handover_2026-09-12.md`
+  committed as-is: a complete, never-committed 12 September session handover note, found
+  stray and uncommitted, confirmed by diff not to be a Viktor edit. Closes the tenth
+  patch's open item (2).
+- **F4** — `154e534`. `core/panel_render.py`'s `atr_stop`/`targets`/`current_price` no
+  longer default to `0.0` — the same `_finite_or_nan`-style treatment F3 gave the other
+  three, one layer downstream. Closes the tenth patch's found-not-fixed item and open item
+  (3). A real `UnboundLocalError` bug (color variables referenced before definition) was
+  found and fixed while building this, caught by running the suite, not by review —
+  named honestly in the commit message. `code_hash` `36420c9f…` → `3c4ad5ca…`.
+- **F5** — `ac0a211`. `models/decision_model.py`'s AGGRESSIVE/CONSERVATIVE
+  trend-health/entry-score bands (`75`/`70`/`50`) promoted to named, fingerprinted class
+  constants (`AGGRESSIVE_TREND_HEALTH_MIN`, `AGGRESSIVE_ENTRY_SCORE_MIN`,
+  `CONSERVATIVE_TREND_HEALTH_MIN`), values unchanged. Investigated and found NOT a defect:
+  the same finding's `MIN_ACTION_BIAS` naming split against `RAW_BIAS_THRESHOLD` — both
+  already named, already fingerprinted, deliberately two different thresholds; nothing
+  changed there. Closes the tenth patch's other not-fixed item. `code_hash`
+  `3c4ad5ca…` → `13908bba…`. Golden snapshot moved (7 record-completeness fields,
+  zero decision fields) — predicted this time from the F1 precedent rather than
+  discovered by surprise.
+
+**Test counts at tip (Linux sandbox, Python 3.12.3).** pytest with `pandas_ta` 466 passed;
+pytest without `pandas_ta` 338 passed / 117 skipped; `run_tests.py` 395 passed / 0 failed /
+32 errors (32 pre-existing fixture-collection errors, unrelated to anything this batch
+touched). All four commits confirmed landed and byte-identical via fresh clone + md5 at
+the time.
+
+**Platform.** Built and verified in the Linux sandbox. Not yet independently re-run on
+Viktor's Windows machine for this specific batch, unlike the tenth patch's three commits,
+which were.
+
+**A document-integrity gap found the same session, its fix delivered separately.**
+`docs/build/build_engineering_notes.py`'s own Document History table (`v1.25`, `v1.26`
+rows) claimed Entries #94 through #103 were added, with full narrative and commit hashes
+for each, but no `entry_box(94)` through `entry_box(103)` existed anywhere in the file —
+ten entries' worth of already-recorded work existed only as history-table prose, never as
+the numbered entries those rows claimed exist. Viktor ruled: reconstruct #94-#103 from the
+history table's own text, then add new entries from #104 covering this batch's own work.
+Landed at `6900564` — Entries #94-#111, two new Document History rows (`v1.27`,
+`v1.28`), plus a three-digit entry-number column-width rendering defect found and fixed
+while rebuilding the PDF. Confirmed landed and byte-identical via fresh clone + md5;
+docs-only, `code_hash` and the golden snapshot confirmed unmoved on the pristine,
+working, patch-applied, and landed trees alike (`13908bba…`, matching tip).
+
+**Open, not yet ruled.** Whether closing F1 through F5 needs a round-7 re-audit before
+this project counts as portfolio-ready, or whether non-Critical findings can be
+accepted/fixed without re-auditing — raised at the tenth patch's own orientation, never
+re-raised, still not answered.
+
+---
+*Prior head block (13 September, tenth patch) kept below for history.*
+
+
 *13 September 2026 (tenth patch, three commits) — **Round 6's F1/F2/F3 fixed,
 verified per-fix and combined, and landed.** Viktor ruled: "Let us fix F1 to F3." Each
 landed as its own commit, independently verified before and after combining, per the

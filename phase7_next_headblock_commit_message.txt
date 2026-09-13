@@ -1,0 +1,77 @@
+docs: bring PHASE7_NEXT.md head block current for F4/F5/docs/handover
+
+WHAT THIS FIXES
+
+The tenth patch's head block (F1/F2/F3) never got updated for what landed
+right after it in the same session: the docs commit (1f1c935), the
+orphaned-handover-file commit (da2e231), F4 (154e534), and F5 (ac0a211).
+This is the tenth patch's own "Still open" item 2 from
+Claude outputs/phase7_handover_2026-09-13.md -- carried forward, not
+re-litigated.
+
+WHAT CHANGED
+
+A new top section ("eleventh patch, four commits") prepended to
+docs/PHASE7_NEXT.md's head block, the old top section wrapped as history
+per this document's own standing convention (every prior patch's head
+block is kept below a "---" / "Prior head block ... kept below for
+history." marker rather than deleted). Pure insertion: 63 lines added, 0
+removed, 0 lines of existing content touched.
+
+The new section:
+- Records the four commits (docs, handover-file, F4, F5) with their hashes,
+  code_hash transitions, and the golden-snapshot move at F5.
+- Explicitly closes four items the tenth patch's own head block had left
+  open: the stray handover file, panel_render.py's NaN-consistency gap,
+  and both of the tenth patch's "not fixed, deliberately" items
+  (decision_model.py's bands, panel_render.py's safe_float() calls).
+- Carries forward the one item that is genuinely still unresolved: whether
+  F1-F5 need a round-7 re-audit before this project counts as
+  portfolio-ready.
+- Records the Engineering Notes document-integrity gap and its fix, landed
+  earlier this same session at 6900564 -- confirmed landed and
+  byte-identical via fresh clone + md5, code_hash 13908bba... matching tip
+  on the landed tree too.
+
+This is a separate, independent patch from
+phase7_engineering_notes_reconstruction.patch -- different file, no
+overlap, applies in either order.
+
+VERIFICATION
+
+Scope: docs/PHASE7_NEXT.md only, a pure prose insertion. No engine module,
+test, or fixture touched.
+
+Test counts, pre-fix and post-fix (Linux sandbox, Python 3.12.3) --
+IDENTICAL in every configuration:
+
+    pytest with pandas_ta:     466 passed, both before and after
+    pytest without pandas_ta:  338 passed / 117 skipped, both before and after
+    run_tests.py:              395 passed / 0 failed / 32 errors, both before
+                                and after (the 32 errors are pre-existing
+                                fixture-collection TypeErrors, unrelated)
+
+code_hash: predicted unmoved (this file is not in the fingerprinted tree at
+all -- docs/ is excluded by directory), confirmed unmoved on the pristine
+and patch-applied trees:
+13908bba2ebe9a279d29acfa97876fd91a4c251b28e851631ecb8e20505d3851
+
+Golden snapshot: predicted unmoved, confirmed byte-identical,
+tests/fixtures/golden_decision.json md5 b027ac17f379255085b26bd1920a54d1
+on both trees.
+
+Patch applies cleanly (git apply --check, then apply) to a fresh pristine
+clone with the repo's real .gitattributes; the changed file verified
+byte-for-byte identical (md5) to the built version after applying.
+
+PLATFORM
+
+Linux-sandbox evidence throughout. Not yet run on Windows.
+
+NOT DONE IN THIS PATCH
+
+The round-7-re-audit-vs-accept-and-fix ruling is still open -- Viktor's
+call, not mine to make.
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01WDXbnsS17odfkvfUu8iv1m
