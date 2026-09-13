@@ -1,5 +1,65 @@
 # Next step — read this first
 
+*13 September 2026 (ninth patch, docs only) — **Round 6 sent and graded; release gate holds
+(Met, no Critical Tier-1 finding).** First `--send` attempt failed HTTP 403 (OpenRouter's
+account-level 18+ age-attestation gate, not a package or provider problem — resolved by
+Viktor at openrouter.ai/settings/preferences, no charge incurred); the second attempt
+completed cleanly. `finish_reason=stop`, provider `Meta` (matches the pin), 470,488 prompt
+tokens / 10,765 completion tokens (6,570 of them reasoning), cost **$0.63386125** — confirmed
+in `generation.json`/`run_metadata.json`.
+
+Meta Muse Spark 1.3's report (`docs/audit_reports/round6_muse-spark-1.3_2026-09-13/report.md`,
+172 lines, self-identifies correctly as "first reviewer in this project from a lab with no
+prior exposure to it," ends cleanly on Section 11's closing line, not truncated) found no
+Critical Tier-1 defect:
+
+- **F1** — T2-4 Explicit configuration, Moderate. Confluence multipliers
+  (`macro_multiplier`/`trend_multiplier`/`structure_multiplier` in `entry_model.py`),
+  `SPIKE_RATIO`, the correlation window, and `structure.py`'s `threshold = 0.0015` are bare
+  literals or function locals, not named configuration — none is readable from
+  `core/config.py`, and several have no module-scope name at all, so
+  `decision_log.module_snapshot()` cannot record them.
+- **F2** — Item 10 Consistent Semantics, Minor. `confidence_score` means unsigned trend
+  magnitude in `engine_core.py` but bias magnitude in `signal_router.py` — same dotted key,
+  two derivations; the router's overwrite means today's operator sees one value, but the
+  duplicate meaning is still live at the engine layer.
+- **F3** — Item 13/Item 8, Minor, unreachable on the live path today. `signal_router.py`'s
+  `_build_decision_object` substitutes `0.0` for a missing zone/price/target key instead of
+  NaN — the same fabrication shape as the `close*0.99` and `swing_struct=current_price`
+  defects already removed, one upstream edit away from firing.
+
+Item 15 (Empirical Evidence Supersedes Theory) stays **Not verifiable** — no backtest exists
+yet to disagree with anything, consistent with every prior round. All three batched
+post-round-5 fix commits (`2387717`, `88e47e9`, `044b055`) were reviewed from code as shipped
+and confirmed real; the pinned golden decision is unchanged except the disclosed
+`degraded_inputs: []` schema addition.
+
+**Encoding defect found and fixed the same day.** Verifying the report before acting on it
+found every non-ASCII character in `report.md` as originally written — every em dash, `±`,
+`→` — was mojibake (`â\x80\x94` for an em dash, etc.); all-ASCII content, including every
+verdict and finding above, was unaffected throughout. Root cause:
+`docs/build/send_audit_round.py` read the streamed response with
+`resp.iter_lines(decode_unicode=True)` without setting `resp.encoding` first, so `requests`
+fell back to Latin-1 (OpenRouter's response carries no explicit charset) instead of the
+API's actual UTF-8. The corruption is a deterministic, reversible byte transform; round-
+tripping the file as received (`.decode("utf-8").encode("latin-1").decode("utf-8")`)
+restores the model's exact original text with no residual mojibake — full detail, both
+files' hashes, and why `run_metadata.json` is left untouched, in
+`docs/audit_reports/round6_muse-spark-1.3_2026-09-13/ENCODING_CORRECTION.md`.
+
+**RULED, 13 September 2026 — both.** (1) `report.md` replaced with the corrected decode —
+same model output, not a content edit, original corrupted bytes hashed for the record in
+ENCODING_CORRECTION.md rather than silently discarded. (2) `send_audit_round.py` patched to
+set `resp.encoding = "utf-8"` immediately after the POST returns, before anything reads
+`resp.text` or the stream, and its docstring's list of failure modes this script exists to
+make impossible now names this as the fourth. Round 7 onward is not exposed to it.
+
+**Platform.** Docs only; no production module touched, `code_hash` unaffected.
+
+---
+*Prior head block (13 September, eighth patch) kept below for history.*
+
+
 *12 September 2026 (eighth patch, one commit) — **All five of requested-run 6's
 mutant-escape findings fixed, verified, and landed at `044b055`.** Viktor: "we go with
 number 1" (fix these five ahead of round 6's re-audit of F1/F2/F3). Touches five test files
