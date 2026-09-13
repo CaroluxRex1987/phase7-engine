@@ -191,17 +191,22 @@ FINGERPRINTED_MODULES = {
         "DecisionModel.DEGRADED_CONFIDENCE_CEILING",
         "DecisionModel.BTC_ADJUSTMENT_CAP",
     ],
-    # KIMI FINDING 3 names "the entry multipliers", which are the bare 1.05 and
-    # 0.90 literals in generate_entry_signals' confluence ladder and are not
-    # nameable here. These are the module-level constants of the same module --
-    # the point budget every entry score is built out of. They were never
-    # fingerprinted, and changing STRUCTURE_MAX_POINTS from 12 to 20 moves every
-    # entry score the engine produces.
+    # KIMI FINDING 3 names "the entry multipliers", which were the bare 1.05
+    # and 0.90 literals in generate_entry_signals' confluence ladder and were
+    # not nameable here at the time. The rest of this dict's comment still
+    # applies to the point budget below -- the entry score is built out of it.
+    #
+    # ROUND 6 (Meta Muse Spark 1.3), F1, 13 September 2026:
+    # CONFLUENCE_BOOST_MULT and CONFLUENCE_PENALTY_MULT are the six literals
+    # Kimi's finding could not name, now module-level constants in
+    # models/entry_model.py and nameable here like everything else in this
+    # list.
     "models.entry_model": [
         "EMA_ZONE_MAX_POINTS", "ATR_DISTANCE_MAX_POINTS",
         "VWMA_MAX_POINTS", "RSI_MAX_POINTS", "STRUCTURE_MAX_POINTS",
         "COMPONENT_MAX_POINTS", "SCORE_CEILING",
         "ZONE_POINTS_NOT_MEASURED", "ATR_POINTS_NOT_MEASURED",
+        "CONFLUENCE_BOOST_MULT", "CONFLUENCE_PENALTY_MULT",
     ],
     "models.risk_model": [
         "ATR_STOP_MULT", "TARGET1_MULT", "TARGET2_MULT", "TARGET3_MULT",
@@ -216,6 +221,17 @@ FINGERPRINTED_MODULES = {
         "REGIME_STRONG_ADX",
         "MAX_STOP_DISTANCE_PCT", "MIN_STOP_DISTANCE_PCT",
     ],
+    # ROUND 6 (Meta Muse Spark 1.3), F1, 13 September 2026. Three more of
+    # Kimi Finding 3's six unnameable literals, closed the same way as the
+    # entry multipliers above: promoted to a named constant at the one place
+    # each already lived, value unchanged.
+    "indicators.indicators": ["SPIKE_RATIO"],
+    "models.btc_context": ["CORRELATION_WINDOW"],
+    # The sixth and last: 0.0015 was a bare local inside
+    # StructureEngine._detect_regime, not module-level, so it needed the same
+    # two-hop ClassName.ATTR resolution _resolve() already does for
+    # DecisionModel's two class-attribute constants above.
+    "structure.structure": ["StructureEngine.REGIME_HYSTERESIS_THRESHOLD"],
 }
 
 

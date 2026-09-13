@@ -29,7 +29,17 @@ from typing import Tuple
 NOT_MEASURED = float("nan")
 
 
-def compute_correlation_beta(aero_closes: pd.Series, btc_closes: pd.Series, window: int = 30) -> Tuple[float, float, int]:
+# ROUND 6 (Meta Muse Spark 1.3), F1 -- T2-4 Explicit Configuration, Moderate.
+# core/engine_core.py called this with an explicit window=30 -- a bare
+# literal at the call site, restating this function's own default and
+# invisible to decision_log.module_snapshot() either way. Named here, at
+# the one place the number actually lives, and registered in
+# core/decision_log.py's FINGERPRINTED_MODULES; engine_core.py's call now
+# relies on this default instead of repeating the literal.
+CORRELATION_WINDOW = 30
+
+
+def compute_correlation_beta(aero_closes: pd.Series, btc_closes: pd.Series, window: int = CORRELATION_WINDOW) -> Tuple[float, float, int]:
     """
     Correlation + beta between AERO and BTC returns over the most recent
     `window` candles that BOTH series actually have.

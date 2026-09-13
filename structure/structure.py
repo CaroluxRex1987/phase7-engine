@@ -25,6 +25,16 @@ class StructureEngine:
     advanced volume sentiment metrics, and strict typing contracts.
     """
 
+    # ROUND 6 (Meta Muse Spark 1.3), F1 -- T2-4 Explicit Configuration,
+    # Moderate. Was a bare 0.0015 local inside _detect_regime, invisible to
+    # decision_log.module_snapshot() -- a bare literal inside a method has no
+    # name a getattr walk can reach. Promoted to a class attribute (the same
+    # shape decision_model.py already uses for DEGRADED_CONFIDENCE_CEILING and
+    # BTC_ADJUSTMENT_CAP, both fingerprinted via module_snapshot()'s two-hop
+    # ClassName.ATTR resolution), value unchanged, and registered in
+    # core/decision_log.py's FINGERPRINTED_MODULES.
+    REGIME_HYSTERESIS_THRESHOLD = 0.0015
+
     def __init__(self, volume_profile_bins: int = 50) -> None:
         # State tracking for regime persistence to reduce whipsaws
         self._last_regime: str = "NEUTRAL STRUCTURE"
@@ -139,7 +149,9 @@ class StructureEngine:
         ma_long = closes[-15:].mean()
 
         gap_pct = (ma_short - ma_long) / ma_long
-        threshold = 0.0015  # 0.15% buffer zone to avoid false triggers
+        # 0.15% buffer zone to avoid false triggers. Named at class scope --
+        # see REGIME_HYSTERESIS_THRESHOLD above (round 6, F1).
+        threshold = self.REGIME_HYSTERESIS_THRESHOLD
 
         current_state = self._last_regime
 

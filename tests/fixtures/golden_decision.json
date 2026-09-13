@@ -71,7 +71,7 @@
   },
   "lineage": {
     "archive": {
-      "path": "logs/archive/testusdt_4h_632d7fb6a1da8ded.json.gz",
+      "path": "logs/archive/testusdt_4h_7303e7f6be284429.json.gz",
       "pruned_this_run": 0,
       "retention_days": 90
     },
@@ -197,11 +197,11 @@
       "structural_level": 0.6421571,
       "volatility_state": "MEDIUM VOLATILITY"
     },
-    "run_hash": "632d7fb6a1da8ded4f3b512014672212ea9f979d78e0a67c3d6b0274a2a47be4"
+    "run_hash": "7303e7f6be284429c18c044543e6f4ad7e625947470bd996733b6674af00e009"
   },
   "macro_bias": "BULLISH",
   "provenance": {
-    "archive_path": "logs/archive/testusdt_4h_632d7fb6a1da8ded.json.gz",
+    "archive_path": "logs/archive/testusdt_4h_7303e7f6be284429.json.gz",
     "canonical_format": 1,
     "engine_version": "Phase\u20117 Structural Quant Engine v1.0",
     "fetch": {
@@ -221,6 +221,9 @@
     },
     "last_candle": "2025-03-16 20:00:00",
     "module_constants": {
+      "indicators.indicators": {
+        "SPIKE_RATIO": 10.0
+      },
       "models.bias_engine": {
         "RAW_BIAS_THRESHOLD": 20.0,
         "WEIGHT_MACRO_BIAS": 0.1,
@@ -229,6 +232,9 @@
         "WEIGHT_SUPERTREND_DIRECTION": 0.15,
         "WEIGHT_TREND_HEALTH": 0.3,
         "WEIGHT_VOLUME_SENTIMENT": 0.15
+      },
+      "models.btc_context": {
+        "CORRELATION_WINDOW": 30
       },
       "models.decision_model": {
         "DecisionModel.BTC_ADJUSTMENT_CAP": 20.0,
@@ -239,6 +245,8 @@
         "ATR_DISTANCE_MAX_POINTS": 25.0,
         "ATR_POINTS_NOT_MEASURED": 15.0,
         "COMPONENT_MAX_POINTS": 102.0,
+        "CONFLUENCE_BOOST_MULT": 1.05,
+        "CONFLUENCE_PENALTY_MULT": 0.9,
         "EMA_ZONE_MAX_POINTS": 30.0,
         "RSI_MAX_POINTS": 15.0,
         "SCORE_CEILING": 100.0,
@@ -261,11 +269,14 @@
         "VOL_MULT_EXTREME": 1.6,
         "VOL_MULT_HIGH": 1.35,
         "VOL_MULT_LOW": 0.85
+      },
+      "structure.structure": {
+        "StructureEngine.REGIME_HYSTERESIS_THRESHOLD": 0.0015
       }
     },
     "prior_state": {},
     "row_count": 450,
-    "run_hash": "632d7fb6a1da8ded4f3b512014672212ea9f979d78e0a67c3d6b0274a2a47be4",
+    "run_hash": "7303e7f6be284429c18c044543e6f4ad7e625947470bd996733b6674af00e009",
     "source": "pinned"
   },
   "risk": {

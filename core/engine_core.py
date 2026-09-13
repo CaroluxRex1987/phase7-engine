@@ -796,8 +796,13 @@ class Phase7Engine:
                         btc_dynamic_regime, btc_volatility_mode = calculate_dynamic_regime(df_btc_struct)
                         btc_detailed_bias = self.btc_bias_state_machine.transition(btc_raw_bias, btc_bias_score)
 
+                        # ROUND 6 (Meta Muse Spark 1.3), F1: window=30 was a
+                        # bare literal here restating compute_correlation_beta's
+                        # own default. Removed -- the function's named
+                        # CORRELATION_WINDOW constant (models/btc_context.py)
+                        # is now the one place this number lives.
                         correlation, beta, n_obs = compute_correlation_beta(
-                            df_struct["close"], df_btc_struct["close"], window=30
+                            df_struct["close"], df_btc_struct["close"]
                         )
 
                         btc_context = {

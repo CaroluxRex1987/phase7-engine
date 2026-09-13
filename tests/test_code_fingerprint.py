@@ -237,14 +237,85 @@ def test_module_snapshot_reaches_the_btc_adjustment_cap():
     assert snap[key] == DecisionModel.BTC_ADJUSTMENT_CAP
 
 
+def test_module_snapshot_reaches_spike_ratio():
+    """
+    ROUND 6 (Meta Muse Spark 1.3), F1, 13 September 2026. SPIKE_RATIO was a
+    function local inside add_technical_indicators, unreachable by
+    `getattr(module, name)`. Promoted to module scope in
+    indicators/indicators.py, value unchanged.
+
+    Skipped without pandas_ta: indicators.indicators imports it at module
+    scope, so the module -- and this constant along with it -- cannot be
+    imported at all in that configuration. See the regression guard test
+    above for the same shape.
+    """
+    if not _engine_available():
+        pytest.skip("pandas_ta not installed -- indicators.indicators cannot "
+                    "be imported")
+
+    from core.decision_log import MISSING, module_snapshot
+    from indicators import indicators
+
+    snap = module_snapshot().get("indicators.indicators", {})
+    key = "SPIKE_RATIO"
+
+    assert key in snap and snap[key] is not MISSING, (
+        "the volume spike ratio degradation threshold is not in the record"
+    )
+    assert snap[key] == indicators.SPIKE_RATIO
+
+
+def test_module_snapshot_reaches_the_correlation_window():
+    """
+    ROUND 6 (Meta Muse Spark 1.3), F1, 13 September 2026. `window=30` was a
+    bare keyword argument at engine_core.py's call site into
+    compute_correlation_beta, nameable nowhere. Named at the one place it
+    now lives: models.btc_context.CORRELATION_WINDOW, the function's own
+    default.
+    """
+    from core.decision_log import MISSING, module_snapshot
+    from models import btc_context
+
+    snap = module_snapshot().get("models.btc_context", {})
+    key = "CORRELATION_WINDOW"
+
+    assert key in snap and snap[key] is not MISSING, (
+        "the BTC correlation window is not in the record"
+    )
+    assert snap[key] == btc_context.CORRELATION_WINDOW
+
+
+def test_module_snapshot_reaches_the_structure_hysteresis_threshold():
+    """
+    ROUND 6 (Meta Muse Spark 1.3), F1, 13 September 2026. The last of the
+    six: 0.0015 was a bare local inside StructureEngine._detect_regime.
+    Promoted to a class attribute -- the same shape
+    DEGRADED_CONFIDENCE_CEILING already has -- so module_snapshot() needs
+    the same two-hop ClassName.ATTR resolution to reach it.
+    """
+    from core.decision_log import MISSING, module_snapshot
+    from structure.structure import StructureEngine
+
+    snap = module_snapshot().get("structure.structure", {})
+    key = "StructureEngine.REGIME_HYSTERESIS_THRESHOLD"
+
+    assert key in snap and snap[key] is not MISSING, (
+        "the structure regime hysteresis buffer is not in the record"
+    )
+    assert snap[key] == StructureEngine.REGIME_HYSTERESIS_THRESHOLD
+
+
 def test_the_entry_scoring_constants_are_fingerprinted():
     """
     models.entry_model had no entry at all, while every entry score the engine
     prints is built out of its point budget.
 
-    The 1.05/0.90 confluence multipliers Kimi names are bare literals in an
-    if/elif ladder and are NOT here -- they are covered by the source hash,
-    which is the division of labour this patch is built on.
+    ROUND 6 (Meta Muse Spark 1.3), F1, 13 September 2026: the 1.05/0.90
+    confluence multipliers Kimi named were bare literals in an if/elif
+    ladder and were NOT here -- covered only by the source hash. Now named
+    (CONFLUENCE_BOOST_MULT, CONFLUENCE_PENALTY_MULT) and included below like
+    every other constant in this module; the source hash still covers them
+    independently, same as everything else in this file.
     """
     from core.decision_log import MISSING, module_snapshot
 
@@ -271,7 +342,24 @@ def test_regression_guard_no_fingerprinted_name_resolves_to_missing():
     Sequence item 14's finding generalised: a name in the record that resolves
     to nothing makes the record claim a knob exists that the code does not
     have. This holds the whole dict, not one module of it.
+
+    ROUND 6 (Meta Muse Spark 1.3), F1, 13 September 2026: skipped rather than
+    held to "passes both before and after" without pandas_ta.
+    indicators.indicators (registered here for SPIKE_RATIO) hard-imports
+    pandas_ta at module scope -- no module fingerprinted before this patch
+    did. Without pandas_ta installed, module_snapshot() correctly records
+    "<import failed>" for it, exactly as its own docstring says it should;
+    that is not the sequence item 14 finding (a name silently resolving to
+    nothing on a fully-installed engine), it is the documented shape for an
+    optional dependency the engine itself already degrades around
+    elsewhere. See test_module_snapshot_reaches_spike_ratio, which skips the
+    same way for the same reason.
     """
+    if not _engine_available():
+        pytest.skip("pandas_ta not installed -- indicators.indicators cannot "
+                    "be imported, which is the documented <import failed> "
+                    "shape, not a name resolving to MISSING")
+
     from core.decision_log import MISSING, module_snapshot
 
     bad = []
@@ -339,6 +427,10 @@ MUTABLE = [
     os.path.join("indicators", "indicators.py"),
     os.path.join("models", "decision_model.py"),
     os.path.join("core", "engine_core.py"),
+    # ROUND 6 (Meta Muse Spark 1.3), F1, 13 September 2026: the correlation
+    # window moved here from a bare call-site literal in engine_core.py --
+    # see test_a_call_site_literal_moves_the_hash below.
+    os.path.join("models", "btc_context.py"),
 ]
 
 
@@ -457,12 +549,21 @@ def test_negative_control_line_endings_do_not_move_the_hash():
 
 def test_a_bare_literal_moves_the_hash():
     """
-    `0.0015` in structure.py, the seventh of the seven and the clearest case
-    that an enumeration could never have covered it: it is assigned to a local
-    and has no name anything outside the function can ask for.
+    `0.0015` in structure.py, the seventh of the seven. It was assigned to a
+    function local with no name anything outside the function could ask for,
+    the clearest case an enumeration could never have covered.
+
+    ROUND 6 (Meta Muse Spark 1.3), F1, 13 September 2026: promoted to
+    StructureEngine.REGIME_HYSTERESIS_THRESHOLD, a class attribute, and now
+    ALSO nameable in FINGERPRINTED_MODULES via module_snapshot()'s two-hop
+    resolution -- the same shape DEGRADED_CONFIDENCE_CEILING already has. It
+    stays here, retargeted at the new construct, for the same reason that
+    test kept its own name: the source hash covers it independently of
+    whether a dict also names it.
     """
     _assert_moves(
-        MUTABLE[0], "threshold = 0.0015", "threshold = 0.0016",
+        MUTABLE[0], "REGIME_HYSTERESIS_THRESHOLD = 0.0015",
+        "REGIME_HYSTERESIS_THRESHOLD = 0.0016",
         "changing the 0.15% structure buffer left the code hash identical",
     )
 
@@ -490,9 +591,19 @@ def test_a_class_attribute_moves_the_hash():
 
 
 def test_a_call_site_literal_moves_the_hash():
-    """`window=30`, a keyword argument at a call site and nameable nowhere."""
+    """
+    `window=30` was a keyword argument at engine_core.py's call site,
+    restating compute_correlation_beta's own default and nameable nowhere.
+
+    ROUND 6 (Meta Muse Spark 1.3), F1, 13 September 2026: the call-site
+    literal is gone outright rather than renamed -- engine_core.py now
+    relies on the function's own default. The number lives exactly once,
+    as models.btc_context.CORRELATION_WINDOW, ALSO nameable in
+    FINGERPRINTED_MODULES now. Retargeted at that module rather than
+    deleted, for the same reason as the test above.
+    """
     _assert_moves(
-        MUTABLE[3], "window=30", "window=45",
+        MUTABLE[4], "CORRELATION_WINDOW = 30", "CORRELATION_WINDOW = 45",
         "changing the BTC correlation window left the code hash identical",
     )
 

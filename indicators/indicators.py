@@ -6,6 +6,15 @@ import pandas_ta as ta
 
 from core import config
 
+# ROUND 6 (Meta Muse Spark 1.3), F1 -- T2-4 Explicit Configuration, Moderate.
+# Was a function local inside add_technical_indicators, invisible to
+# decision_log.module_snapshot() -- getattr(module, name) cannot reach a name
+# that only exists inside a function's own frame. Promoted to module scope,
+# value unchanged, and registered in core/decision_log.py's
+# FINGERPRINTED_MODULES. See that function's own comment for what this
+# threshold does and why 10x.
+SPIKE_RATIO = 10.0
+
 
 class IndicatorFailure(NamedTuple):
     """
@@ -737,7 +746,7 @@ def add_technical_indicators(df: pd.DataFrame, inplace: bool = False):
     if "volume" in df.columns:
         vol = pd.to_numeric(df["volume"], errors="coerce")
         window = min(config.VWMA_LENGTH, len(vol))
-        SPIKE_RATIO = 10.0
+        # SPIKE_RATIO is now module-level -- see top of file (round 6, F1).
         if window >= 5:
             recent = vol.iloc[-window:]
             finite_recent = recent[np.isfinite(recent)]

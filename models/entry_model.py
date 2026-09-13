@@ -48,6 +48,21 @@ COMPONENT_MAX_POINTS = (EMA_ZONE_MAX_POINTS + ATR_DISTANCE_MAX_POINTS
 # says when it fired.
 SCORE_CEILING = 100.0
 
+# ROUND 6 (Meta Muse Spark 1.3), F1 -- T2-4 Explicit Configuration, Moderate.
+# The confluence ladder below applied bare 1.05 / 0.90 literals six times,
+# with no name at module scope -- decision_log.module_snapshot() cannot see a
+# constant that was never bound to a name, so a run that used 0.90 and a run
+# that used 0.85 were indistinguishable in the record even though every entry
+# score, and possibly AGGRESSIVE eligibility, differs between them. RULED,
+# 13 September 2026: fix. Two named constants replace all six literals --
+# one boost, one penalty, shared by all three ladders (macro, trend,
+# structure) exactly as the six unnamed literals were. Registered in
+# core/decision_log.py's FINGERPRINTED_MODULES alongside this module's other
+# scoring constants. Values unchanged -- this names what was already there,
+# it does not change what any run decides.
+CONFLUENCE_BOOST_MULT = 1.05
+CONFLUENCE_PENALTY_MULT = 0.90
+
 def calculate_entry_quality(
     df: Optional[Any],
     zone_lower: float,
@@ -361,25 +376,25 @@ def calculate_entry_quality(
     # trade would be entering into actually support this specific direction."
     macro_multiplier = 1.0
     if macro_bias == "BULLISH" and trade_direction == "LONG":
-        macro_multiplier = 1.05
+        macro_multiplier = CONFLUENCE_BOOST_MULT
     elif macro_bias == "BEARISH" and trade_direction == "SHORT":
-        macro_multiplier = 1.05
+        macro_multiplier = CONFLUENCE_BOOST_MULT
     elif macro_bias not in ["NEUTRAL", ""] and macro_bias != trade_direction:
-        macro_multiplier = 0.90
+        macro_multiplier = CONFLUENCE_PENALTY_MULT
 
     # Trend direction alignment: trend_health.py's EMA-slope-based direction
     # label agreeing (or disagreeing) with the direction being scored here.
     trend_multiplier = 1.0
     if trade_direction == "LONG":
         if trend_direction == "BULLISH":
-            trend_multiplier = 1.05
+            trend_multiplier = CONFLUENCE_BOOST_MULT
         elif trend_direction == "BEARISH":
-            trend_multiplier = 0.90
+            trend_multiplier = CONFLUENCE_PENALTY_MULT
     elif trade_direction == "SHORT":
         if trend_direction == "BEARISH":
-            trend_multiplier = 1.05
+            trend_multiplier = CONFLUENCE_BOOST_MULT
         elif trend_direction == "BULLISH":
-            trend_multiplier = 0.90
+            trend_multiplier = CONFLUENCE_PENALTY_MULT
 
     # Structure sequence alignment: a BOS (continuation) in this trade's own
     # direction is rewarded; a CHOCH (possible reversal) against this trade's
@@ -390,14 +405,14 @@ def calculate_entry_quality(
     structure_multiplier = 1.0
     if trade_direction == "LONG":
         if structure_sequence == "BOS BULLISH (TREND CONTINUATION)":
-            structure_multiplier = 1.05
+            structure_multiplier = CONFLUENCE_BOOST_MULT
         elif structure_sequence == "CHOCH BEARISH (POSSIBLE REVERSAL)":
-            structure_multiplier = 0.90
+            structure_multiplier = CONFLUENCE_PENALTY_MULT
     elif trade_direction == "SHORT":
         if structure_sequence == "BOS BEARISH (TREND CONTINUATION)":
-            structure_multiplier = 1.05
+            structure_multiplier = CONFLUENCE_BOOST_MULT
         elif structure_sequence == "CHOCH BULLISH (POSSIBLE REVERSAL)":
-            structure_multiplier = 0.90
+            structure_multiplier = CONFLUENCE_PENALTY_MULT
 
     combined_multiplier = macro_multiplier * trend_multiplier * structure_multiplier
     scaled_score = base_score * combined_multiplier
