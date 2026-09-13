@@ -122,7 +122,7 @@ def entry_box(number, date_str, title, statement_text, rationale_text, tag_text,
             fontSize=10, textColor=colors.white, leading=12.5)),
         Paragraph(tag_text, styles["TagText"]),
     ]]
-    t = Table(header_data, colWidths=[0.42 * inch, 4.28 * inch, 1.8 * inch])
+    t = Table(header_data, colWidths=[0.56 * inch, 4.14 * inch, 1.8 * inch])
     t.setStyle(TableStyle([
         ("BACKGROUND", (0, 0), (1, -1), STEEL),
         ("BACKGROUND", (2, 0), (2, -1), accent_color),
@@ -156,7 +156,7 @@ def highlighted_entry_box(number, date_str, title, statement_text, rationale_tex
             fontSize=10, textColor=colors.white, leading=12.5)),
         Paragraph(tag_text, styles["TagText"]),
     ]]
-    t = Table(header_data, colWidths=[0.42 * inch, 4.28 * inch, 1.8 * inch])
+    t = Table(header_data, colWidths=[0.56 * inch, 4.14 * inch, 1.8 * inch])
     t.setStyle(TableStyle([
         ("BACKGROUND", (0, 0), (1, -1), NAVY),
         ("BACKGROUND", (2, 0), (2, -1), GOLD),
@@ -2758,6 +2758,117 @@ story.extend(entry_box(93, "September 9, 2026",
     "PROCESS — RECORDED", STEEL))
 
 
+story.extend(entry_box(94, "September 11, 2026",
+    "qwen_reasoning_*.txt Transcripts Relocated Into docs/",
+    "Four transcripts had sat in the repo root since round 2, under the hold recorded at Entry #93.",
+    "Commit bb6d222. The four qwen_reasoning_*.txt files move from the repository root into docs/, alongside the rest of the audit material — a rename, discharging that hold. No engine module touched; code_hash unaffected.",
+    "PROCESS — RECORDED", STEEL))
+
+story.extend(entry_box(95, "September 11, 2026",
+    "This Document's Own Body Reconciled With 76380ec, a Second Time",
+    "The 7-9 September Grok session updated this file's head block and builder but left two “Open” items describing already-landed work as still open.",
+    "Commit 4705d03. “Open — decisions” #3 and “Open — work” #2 described the fourteen-item sweep and Kimi Finding 2 (Entries #91, #92) as unresolved after both had already landed. Corrected in the same shape as the first reconciliation against 76380ec. Docs-only and code_hash-neutral by directory exclusion.",
+    "PROCESS — RECORDED", STEEL))
+
+story.extend(entry_box(96, "September 11, 2026",
+    "Phase7_Sweep_Session_Commands.pdf Committed",
+    "A generated PDF had sat untracked on Viktor's machine rather than in the repository.",
+    "Commit e75f7be. docs/Phase7_Sweep_Session_Commands.pdf committed as-is. No engine module touched.",
+    "PROCESS — RECORDED", STEEL))
+
+story.extend(entry_box(97, "September 11, 2026",
+    "Item 14 / Decision 2 Closed: Risk Regime Now Reads ADX, Not trend_health",
+    "classify_risk_regime shared its largest input (0.30 of bias_score) with the conviction number it exists to check independently.",
+    "Commit 0c7dec5. classify_risk_regime now reads ADX instead of trend_health; REGIME_LOW_TREND_HEALTH/REGIME_HIGH_TREND_HEALTH renamed to REGIME_CHOP_ADX = 20.0 / REGIME_STRONG_ADX = 25.0, values already load-bearing in trend_health.py for the same two market states. code_hash moved and was confirmed on three trees, 47bc557119bb0350… to 2741062fae070f61…, matching Viktor's own Windows value. Suite 412 to 421 passed under pytest (0 failed both sides), 345 to 354 under run_tests.py, watched 29-error count unmoved. Golden re-baselined at six sites: four predicted, two not — the archive filename, built from run_hash, should have followed the run_hash prediction mechanically and did not, recorded as an incomplete prediction rather than a defect. No decision field moved on the pinned fixture, which exits before classify_risk_regime is reached; a live run the same day (AEROUSDT 4h, 22:50) exercised neither new branch, for two independent reasons — recorded as that, not as validation. Found by reading the panel and left unfixed: RISK REGIME prints without the ADX number now deciding it, the same transparency-regression class as GLM F-5.",
+    "DECISION — ADOPTED", GREEN))
+
+
+story.extend(entry_box(98, "September 11-12, 2026",
+    "GPT-6 Astra Ruled for Round 5",
+    "Two of Luna Pro's OpenRouter sessions had been exposed to prior audit context.",
+    "Commit 4d99cdb. Viktor's billing-export check cleared both sessions as variant=standard, no training routing. send_audit_round.py and build_audit_package.py repointed to GPT-6 Astra; Part 7 folded into the single upload set per ruling 3.",
+    "DECISION — ADOPTED", GREEN))
+
+story.extend(entry_box(99, "September 11-12, 2026",
+    "The 2 September Luna Pro Hedge Closed for Good",
+    "Luna Pro's independence had stood on “probably clean” since the 2 September ledger correction.",
+    "Commit de7d135. All nine Luna Pro OpenRouter calls checked individually: all standard tier, “No data training” on each. Evidence upgraded from probably clean to provably.",
+    "PROCESS — RECORDED", STEEL))
+
+story.extend(entry_box(100, "September 11-12, 2026",
+    "Round 5 Sent to GPT-6 Astra: Three New Criticals",
+    "None of the three findings returned had been on record before.",
+    "Commit a12640a. $12.21636, 435,612 prompt tokens, confirmed twice over. F1 (volatility never reaching stop construction), F2 (entry quality scored for the wrong direction), F3 (a stale decision-bar VWMA presented as current) — all three independently reproduced against live code this session. Viktor RULED to fix all three; no limitation accepted for any.",
+    "EXTERNAL ASSESSMENT — GPT-6 ASTRA", STEEL))
+
+story.extend(entry_box(101, "September 11-12, 2026",
+    "Round 5 F1 Fixed — Volatility Reaches Stop Construction",
+    "The production call to calculate_stop_targets() omitted volatility_state, defaulting to NORMAL regardless of measured conditions.",
+    "Commit 83e334d. Now passes the same volatility_mode its sibling call already receives. Golden snapshot unmoved — the pinned fixture's own volatility state produces the same multiplier the bug's default did. code_hash e774b93d… to f8e4cc7d….",
+    "FINDINGS — FIXED", GREEN))
+
+story.extend(entry_box(102, "September 11-12, 2026",
+    "Round 5 F2 Fixed — Entry Quality Scored for the Right Direction",
+    "eq_trade_direction was derived from short_signal, which zeroes for reasons unrelated to direction, letting a fully bearish setup score as a long entry.",
+    "Commit 3f92230. Now derived from raw_bias directly, the same signal decision_model.py's own action selection reads — the identical ruling already made for that module on 2 September, one caller downstream. code_hash f8e4cc7d… to 8b0e97fd….",
+    "FINDINGS — FIXED", GREEN))
+
+story.extend(entry_box(103, "September 11-12, 2026",
+    "Round 5 F3 Fixed, Closing Round 5 — VWMA's Trailing-Edge Forward-Fill",
+    "VWMA's own forward-fill had no trailing-edge exception, so a decision-bar miss was silently carried forward from the previous bar.",
+    "Commit 7fcf646. Fixed at the source; VWMA added to the critical_indicators sweep, with three new regression tests. Accepted consequence: some currently-clean runs will now show DEGRADED, naming VWMA. code_hash 8b0e97fd… to 00c8d4ea…, confirmed on independently built trees at each of the three fixes (base e774b93d… through this one). Across F1/F2/F3: suite 429 to 432 passed under pytest, 362 to 365 under run_tests.py, watched error count unmoved; golden snapshot unmoved throughout, confirmed by running it each time. Register unchanged at 21 / 7 / 10 / 6. The release gate remains shut: fixed is not re-audited, and unresolved means both.",
+    "FINDINGS — FIXED", GREEN))
+
+
+story.extend(entry_box(104, "September 13, 2026",
+    "Round 6 (Meta Muse Spark 1.3) Sent and Graded: Release Gate Holds",
+    "No Critical Tier-1 finding returned.",
+    "Report at docs/audit_reports/round6_muse-spark-1.3_2026-09-13/report.md. Second send attempt succeeded after the first hit OpenRouter's account-level 18+ gate (Viktor resolved it; no charge incurred). finish_reason=stop, provider Meta, 470,488 prompt / 10,765 completion tokens, cost $0.63386125.",
+    "EXTERNAL ASSESSMENT — META MUSE SPARK 1.3", STEEL))
+
+story.extend(entry_box(105, "September 13, 2026",
+    "Round 6 F1 Fixed — Six Bare Literals Promoted to Named Constants",
+    "T2-4 Explicit Configuration, Moderate. Viktor ruled fix all three of Round 6's findings, narrower than the report's own F1 Location section.",
+    "Commit 447966b. Six bare literals/locals promoted to named, fingerprinted constants: CONFLUENCE_BOOST_MULT/CONFLUENCE_PENALTY_MULT, SPIKE_RATIO, CORRELATION_WINDOW, StructureEngine.REGIME_HYSTERESIS_THRESHOLD. Values unchanged. decision_model.py's trend-health bands and the panel_render.py NaN gap, both named in the report's own F1 Location section, left open — closed later this session as F4 and F5.",
+    "FINDINGS — FIXED", GREEN))
+
+story.extend(entry_box(106, "September 13, 2026",
+    "Round 6 F2 Fixed — Duplicate confidence_score Meaning Removed",
+    "Item 10 Consistent Semantics, Minor. engine_core.py's raw risk dict duplicated confidence_score under a different meaning than signal_router.py gives it.",
+    "Commit 3c7e9ae. Dropped rather than renamed — the value survives intact at trend.trend_health, a few lines below in the same return object.",
+    "FINDINGS — FIXED", GREEN))
+
+story.extend(entry_box(107, "September 13, 2026",
+    "Round 6 F3 Fixed — Six Absent Measurements No Longer Default to 0.0",
+    "Item 13 Fail Safely / Item 8 Epistemic Honesty, Minor, unreachable on the live path today.",
+    "Commit 9b34163. signal_router.py's _build_decision_object no longer substitutes a finite 0.0 for six absent measurements (zone_lower, zone_upper, distance_from_zone, atr_stop, targets, current_price) — all six now go through _finite_or_nan, the same treatment structure.hvn/lvn/swing_struct already get. Found, not fixed here: atr_stop/targets/current_price reach panel_render.py through a separate, still-not-NaN-aware safe_float() call — closed as F4, below.",
+    "FINDINGS — FIXED", GREEN))
+
+story.extend(entry_box(108, "September 13, 2026",
+    "PHASE7_NEXT.md Head Block Brought Current for F1/F2/F3; Rule 38 Added",
+    "The git add -A trap was rediscovered three more times this same session even after being documented.",
+    "Commit 1f1c935. Head block rewritten for Round 6's F1/F2/F3. Rule 38 added: always git reset the delivery files before git commit — a sequence missing that step is what let git add -A sweep in files it shouldn't have, each time.",
+    "PROCESS — RECORDED", STEEL))
+
+story.extend(entry_box(109, "September 13, 2026",
+    "The Orphaned 12 September Handover Note Committed",
+    "A complete, never-committed 12 September session handover note was found stray and uncommitted.",
+    "Commit da2e231. Claude outputs/phase7_handover_2026-09-12.md committed as-is, confirmed by diff not to be a Viktor edit.",
+    "PROCESS — RECORDED", STEEL))
+
+story.extend(entry_box(110, "September 13, 2026",
+    "F4 Fixed — panel_render.py's atr_stop/targets/current_price No Longer Default to 0.0",
+    "The gap F3 found but did not fix: three measurements reached panel_render.py through a separate, still-not-NaN-aware safe_float() call.",
+    "Commit 154e534. Same _finite_or_nan-style treatment as F3, one layer downstream. A real UnboundLocalError bug (color variables referenced before definition) was found and fixed while building this — caught by running the suite, not by review, and named honestly in the commit message. code_hash 36420c9f… to 3c4ad5ca….",
+    "FINDINGS — FIXED", GREEN))
+
+story.extend(entry_box(111, "September 13, 2026",
+    "F5 Fixed — decision_model.py's Trend-Health/Entry-Score Bands Named",
+    "The other half of Round 6 F1's own Location section, left open when F1 landed.",
+    "Commit ac0a211. AGGRESSIVE/CONSERVATIVE trend-health/entry-score bands (75/70/50) promoted to named, fingerprinted class constants: AGGRESSIVE_TREND_HEALTH_MIN, AGGRESSIVE_ENTRY_SCORE_MIN, CONSERVATIVE_TREND_HEALTH_MIN. Values unchanged. Investigated and found NOT a defect: the same finding's MIN_ACTION_BIAS naming split against RAW_BIAS_THRESHOLD — both already named, already fingerprinted, deliberately two different thresholds; nothing changed there. code_hash 3c4ad5ca… to 13908bba…. Golden snapshot moved (7 record-completeness fields, zero decision fields) — predicted this time from the F1 precedent rather than discovered by surprise. Test counts at tip (Linux sandbox): pytest+pandas_ta 466 passed; pytest without pandas_ta 338p/117s; run_tests.py 395p/0f/32e (32 pre-existing, unrelated to anything this session touched — all fixture errors on a fixture-free runner). All commits confirmed landed and byte-identical via fresh clone + md5 at the time.",
+    "FINDINGS — FIXED", GREEN))
+
+
 # ---------- DOCUMENT HISTORY ----------
 hist_rows = [
     ["Version", "Date", "Notes"],
@@ -2928,6 +3039,8 @@ hist_rows = [
     ["v1.24", "September 9, 2026", "Entries #91-#93: fourteen-item sweep, Kimi Finding 2 fix, Claude outputs fingerprint exclusion."],
     ["v1.25", "September 11, 2026", "Entries #94 through #97 added, covering the fourth commit batch of 11 September. #94 the four qwen_reasoning_*.txt transcripts moved from the repo root into docs/ (bb6d222), discharging the hold noted at Entry #93. #95 this document's own body reconciled with 76380ec a second time, in a new shape (4705d03): the 7-9 September Grok session had updated the head block and this builder but left “Open - decisions” #3 and “Open - work” #2 describing the sweep and Kimi Finding 2 as open after both had landed, docs-only and code_hash-neutral by directory exclusion. #96 docs/Phase7_Sweep_Session_Commands.pdf committed after sitting untracked on Viktor's machine (e75f7be). #97 Item 14 / decision 2 ruled and closed (0c7dec5): classify_risk_regime now reads ADX instead of trend_health, so the risk gate no longer shares its largest input (0.30 of bias_score) with the conviction number it is meant to check independently; REGIME_LOW_TREND_HEALTH/REGIME_HIGH_TREND_HEALTH renamed to REGIME_CHOP_ADX = 20.0 / REGIME_STRONG_ADX = 25.0, values already load-bearing in trend_health.py for the same two market states. code_hash moved and was confirmed on three trees, 47bc557119bb0350... to 2741062fae070f61..., matching Viktor's own Windows value. Suite 412 to 421 passed under pytest (0 failed both sides), 345 to 354 passed under run_tests.py with the watched 29-error count unmoved. Golden re-baselined at six sites: four predicted (module constants, risk_inputs, run_hash twice) and two not (the archive filename, built from run_hash, which should have followed the run_hash prediction mechanically and did not) - recorded as an incomplete prediction rather than a defect. No decision field moved on the pinned fixture, which exits before classify_risk_regime is reached; a live run the same day (AEROUSDT 4h, 22:50) did not exercise the new branches either, for two independent reasons, and is recorded as that rather than as validation. Found by reading the panel and left unfixed: RISK REGIME prints without the ADX number now deciding it, a transparency regression of the same class as GLM F-5. Register unchanged at 21 / 7 / 10 / 6. The release gate remains shut - nothing landed since round 4 has been re-audited."],
     ["v1.26", "September 11-12, 2026", "Entries #98 through #103 added, covering the round-5 send through all three Criticals landing as fixes. #98 (4d99cdb) GPT-6 Astra ruled for round 5 after Viktor's billing-export check cleared both of Luna Pro's exposed sessions as variant=standard, no training routing; send_audit_round.py and build_audit_package.py repointed, Part 7 folded into the single upload set per ruling 3. #99 (de7d135) the 2 September hedge closed for good: all nine Luna Pro OpenRouter calls checked individually, all standard tier, “No data training” -- evidence upgraded from “probably clean” to provably. #100 (a12640a) round 5 sent to GPT-6 Astra ($12.21636, 435,612 prompt tokens, confirmed twice over); three new Criticals returned, none previously on record -- F1 (volatility never reaching stop construction), F2 (entry quality scored for the wrong direction), F3 (a stale decision-bar VWMA presented as current) -- all three independently reproduced against live code this session and RULED to fix, no limitation accepted for any. #101 (83e334d) F1 fixed: the production call to calculate_stop_targets() omitted volatility_state, defaulting to NORMAL regardless of measured conditions; now passes the same volatility_mode its sibling call already receives. Golden snapshot unmoved -- the pinned fixture's own volatility state produces the same multiplier the bug's default did. #102 (3f92230) F2 fixed: eq_trade_direction was derived from short_signal, which zeroes for reasons unrelated to direction, letting a fully bearish setup score as a long entry; now derived from raw_bias directly, the same signal decision_model.py's own action selection reads -- the identical ruling already made for that module on 2 September, one caller downstream. #103 (7fcf646) F3 fixed, closing round 5: VWMA's own forward-fill had no trailing-edge exception, so a decision-bar miss was silently carried forward from the previous bar; fixed at the source and VWMA added to the critical_indicators sweep, with three new regression tests. Accepted consequence: some currently-clean runs will now show DEGRADED, naming VWMA. code_hash moved once per fix, confirmed on independently built trees at each step: e774b93d... to f8e4cc7d... to 8b0e97fd... to 00c8d4ea.... Suite 429 to 432 passed under pytest, 362 to 365 under run_tests.py, watched error count unmoved. Golden snapshot unmoved across all three fixes, confirmed by running it each time. Register unchanged at 21 / 7 / 10 / 6. The release gate remains shut: fixed is not re-audited, and unresolved means both."],
+    ["v1.27", "September 13, 2026", "Entries #94 through #103 reconstructed from the v1.25/v1.26 Document History rows' own text into entry_box() form — a document-integrity gap found where those two rows claimed the entries existed as numbered log entries and they did not."],
+    ["v1.28", "September 13, 2026", "Entries #104 through #111 added, covering 13 September: Round 6 (Meta Muse Spark 1.3) sent and graded clean, Round 6's F1/F2/F3 fixed, the docs and handover-file commits, F4 and F5 fixed. code_hash and the golden snapshot addressed per fix within the entries above; nothing in this row's own change touches either."],
 ]
 th = Table(wrap_table(hist_rows), colWidths=[0.9 * inch, 1.4 * inch, 4.2 * inch])
 th.setStyle(row_style)
