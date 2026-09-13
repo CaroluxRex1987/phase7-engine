@@ -120,14 +120,32 @@ def render_panel(decision):
                 return default
 
         # Targets with safe extraction
-        targets = risk.get("targets", (0, 0, 0))
+        #
+        # ROUND 6 F3 FOLLOW-UP, 13 September 2026: this block, current_price
+        # and stop_loss below all used to default an absent value to a
+        # finite 0.0 -- a (0, 0, 0) fallback for targets, safe_float(..., 0.0)
+        # for the other two -- the exact fabrication shape signal_router.py's
+        # own targets/atr_stop/current_price defaults were fixed to stop
+        # doing (Round 6 F3, commit 9b34163). Unreachable today for the same
+        # reason F3's fix was unreachable there -- engine_core always sets
+        # these three keys -- but nowhere else on this page makes that
+        # assumption (see swing_struct_line, _entry_zone_lines,
+        # _correlation_lines below), so this should not either. NaN now,
+        # matching every other "not located" field on this panel; every
+        # print site for these three is guarded below so a NaN never reaches
+        # an f-string price format directly -- that is exactly the "$nan"
+        # defect this file's own safe_float() docstring, above, already
+        # describes fixing once.
+        targets = risk.get("targets")
         if isinstance(targets, (list, tuple)) and len(targets) >= 3:
-            t1, t2, t3 = safe_float(targets[0]), safe_float(targets[1]), safe_float(targets[2])
+            t1 = safe_float(targets[0], float("nan"))
+            t2 = safe_float(targets[1], float("nan"))
+            t3 = safe_float(targets[2], float("nan"))
         else:
-            t1, t2, t3 = 0.0, 0.0, 0.0
+            t1 = t2 = t3 = float("nan")
 
-        current_price = safe_float(exit_data.get("current_price", 0.0))
-        stop_loss = safe_float(risk.get("atr_stop", 0.0))
+        current_price = safe_float(exit_data.get("current_price"), float("nan"))
+        stop_loss = safe_float(risk.get("atr_stop"), float("nan"))
 
         # SEQUENCE ITEM 13: this was called `risk_amount`, which is what
         # engine_core.py called a sum of money — an account balance times a
@@ -139,14 +157,30 @@ def render_panel(decision):
         # with it; the name is corrected anyway, because the removal of one
         # side of a collision is the moment the other side gets renamed or
         # never does. Zero denominator still guarded.
-        stop_distance = abs(current_price - stop_loss) if stop_loss and current_price else 0.0
-
-        if stop_distance > 0:
-            rr_t1 = abs(t1 - current_price) / stop_distance
-            rr_t2 = abs(t2 - current_price) / stop_distance
-            rr_t3 = abs(t3 - current_price) / stop_distance
+        #
+        # ROUND 6 F3 FOLLOW-UP: the guard used to be `if stop_loss and
+        # current_price` -- truthiness, not a finiteness check. NaN is
+        # truthy (any nonzero float is), so that guard alone would not have
+        # stopped a NaN input from reaching the subtraction below; explicit
+        # math.isfinite() on both inputs instead. A real, measured
+        # stop_distance of exactly 0.0 (current_price == stop_loss) still
+        # reaches the `else: rr_t* = 0.0` branch beneath it unchanged -- that
+        # is a genuine zero-distance stop, not an unknown one, the same
+        # distinction _finite_or_nan makes at the router.
+        if math.isfinite(current_price) and math.isfinite(stop_loss):
+            stop_distance = abs(current_price - stop_loss)
         else:
-            rr_t1 = rr_t2 = rr_t3 = 0.0
+            stop_distance = float("nan")
+
+        if math.isfinite(stop_distance):
+            if stop_distance > 0:
+                rr_t1 = abs(t1 - current_price) / stop_distance
+                rr_t2 = abs(t2 - current_price) / stop_distance
+                rr_t3 = abs(t3 - current_price) / stop_distance
+            else:
+                rr_t1 = rr_t2 = rr_t3 = 0.0
+        else:
+            rr_t1 = rr_t2 = rr_t3 = float("nan")
 
         # Formatted scores with safe conversion
         #
@@ -565,6 +599,37 @@ def render_panel(decision):
                 f"BTC Market Context (informational only): unavailable this run -- AERO analysis above is unaffected.\n\n"
             )
 
+        # ROUND 6 F3 FOLLOW-UP: CURRENT PRICE, STOP LOSS and the three
+        # TARGET lines (with their R:R ratios) now guard against the NaN
+        # these fields can carry per the extraction above, printing "not
+        # available" / "not computed" / "not located" instead of letting
+        # Python's own float formatting spell a missing value as the literal
+        # text "nan" in a price field. Built here, after ORANGE/c_red/
+        # c_green/reset are assigned above, not up by swing_struct_line.
+        current_price_line = (
+            f"CURRENT PRICE : {ORANGE}${current_price:.4f}{reset}\n"
+            if math.isfinite(current_price)
+            else "CURRENT PRICE : not available this run\n"
+        )
+
+        stop_loss_line = (
+            f"STOP LOSS     : {c_red}${stop_loss:.4f}{reset}\n"
+            if math.isfinite(stop_loss)
+            else "STOP LOSS     : not computed this run\n"
+        )
+
+        def _target_line(label, price, rr):
+            if not math.isfinite(price):
+                return f"TARGET {label}: not located this run\n"
+            rr_text = f"{rr:.2f}" if math.isfinite(rr) else "not computed"
+            return f"TARGET {label}: {c_green}${price:.4f}{reset} | R:R 1 : {rr_text}\n"
+
+        target_lines = (
+            _target_line("1 (Cons)", t1, rr_t1)
+            + _target_line("2 (Norm)", t2, rr_t2)
+            + _target_line("3 (Aggr)", t3, rr_t3)
+        )
+
         panel = (
             f"{header_banner}"
             f"{box_top}{title_line}{box_mid}"
@@ -589,14 +654,12 @@ def render_panel(decision):
             f"RISK REGIME: {colorize_val(risk.get('risk_regime', 'NORMAL RISK'))}\n"
             f"MACRO TREND: {colorize_val(macro_bias)}\n\n"
             f"{divider}"
-            f"CURRENT PRICE : {ORANGE}${current_price:.4f}{reset}\n"
+            f"{current_price_line}"
             f"{_entry_zone_lines(entry, c_cyan, reset)}"
             f"STATUS        : {colorize_val(entry.get('entry_status', 'ACTIVE ENTRY ZONE'))}\n"
             f"{swing_struct_line}\n"
-            f"STOP LOSS     : {c_red}${stop_loss:.4f}{reset}\n"
-            f"TARGET 1 (Cons): {c_green}${t1:.4f}{reset} | R:R 1 : {rr_t1:.2f}\n"
-            f"TARGET 2 (Norm): {c_green}${t2:.4f}{reset} | R:R 1 : {rr_t2:.2f}\n"
-            f"TARGET 3 (Aggr): {c_green}${t3:.4f}{reset} | R:R 1 : {rr_t3:.2f}\n\n"
+            f"{stop_loss_line}"
+            f"{target_lines}\n"
             f"{divider}"
             f"{_entry_quality_lines(entry, entry_score)}"
             f"{divider}"
