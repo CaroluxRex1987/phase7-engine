@@ -286,6 +286,28 @@ class DecisionModel:
     # architecturally correct place, per the roadmap's own diagnosis)
     # ============================================================
 
+    # ROUND 6 (Meta Muse Spark 1.3), F1 follow-up, 13 September 2026:
+    # promoted from bare literals inside _determine_final_action below,
+    # values unchanged. The pair (trend health >= 75, entry score >= 70)
+    # is the line between AGGRESSIVE-eligible and plain LONG/SHORT; the
+    # single 50 is the line between CONSERVATIVE and WAIT when macro
+    # agrees. Named and fingerprinted like every other decision-affecting
+    # number in this file (AVG_REWARD_R, DEGRADED_CONFIDENCE_CEILING
+    # above; BTC_ADJUSTMENT_CAP, BTC_STRESS_PENALTY below) -- see
+    # core/decision_log.py's FINGERPRINTED_MODULES entry for this class.
+    #
+    # RAW_BIAS_THRESHOLD (models/bias_engine.py) and MIN_ACTION_BIAS above
+    # were mentioned in the same audit finding, alongside these three, but
+    # neither needed this fix: both are already named module-level
+    # constants and both are already fingerprinted (see
+    # FINGERPRINTED_MODULES/FINGERPRINTED_CONFIG). They are deliberately
+    # two different thresholds answering two different questions -- see
+    # MIN_ACTION_BIAS's own comment above for why -- not a naming
+    # inconsistency to reconcile, and nothing about that pair changes here.
+    AGGRESSIVE_TREND_HEALTH_MIN = 75.0
+    AGGRESSIVE_ENTRY_SCORE_MIN = 70.0
+    CONSERVATIVE_TREND_HEALTH_MIN = 50.0
+
     def _determine_final_action(
         self,
         bias: Dict[str, Any],
@@ -437,7 +459,9 @@ class DecisionModel:
                 return "WAIT"
 
             if raw_bias == "BULLISH":
-                if trend_health >= 75 and entry_score >= 70 and not divergence:
+                if (trend_health >= self.AGGRESSIVE_TREND_HEALTH_MIN
+                        and entry_score >= self.AGGRESSIVE_ENTRY_SCORE_MIN
+                        and not divergence):
                     if entry_active and aggressive_allowed:
                         reasons.append(
                             f"Bias is bullish, {trend_note}, with a "
@@ -458,7 +482,7 @@ class DecisionModel:
                         f"entry ({entry_score:.0f}/100), with no momentum divergence — LONG."
                     )
                     return "LONG"
-                elif trend_health >= 50 and macro_bias == "BULLISH":
+                elif trend_health >= self.CONSERVATIVE_TREND_HEALTH_MIN and macro_bias == "BULLISH":
                     reasons.append(
                         f"Bias is bullish and the broader macro trend agrees, {trend_note}, "
                         f"but the entry quality ({entry_score:.0f}/100) isn't strong "
@@ -467,7 +491,9 @@ class DecisionModel:
                     return "CONSERVATIVE LONG"
 
             if raw_bias == "BEARISH":
-                if trend_health >= 75 and entry_score >= 70 and not divergence:
+                if (trend_health >= self.AGGRESSIVE_TREND_HEALTH_MIN
+                        and entry_score >= self.AGGRESSIVE_ENTRY_SCORE_MIN
+                        and not divergence):
                     if entry_active and aggressive_allowed:
                         reasons.append(
                             f"Bias is bearish, {trend_note}, with a "
@@ -488,7 +514,7 @@ class DecisionModel:
                         f"entry ({entry_score:.0f}/100), with no momentum divergence — SHORT."
                     )
                     return "SHORT"
-                elif trend_health >= 50 and macro_bias == "BEARISH":
+                elif trend_health >= self.CONSERVATIVE_TREND_HEALTH_MIN and macro_bias == "BEARISH":
                     reasons.append(
                         f"Bias is bearish and the broader macro trend agrees, {trend_note}, "
                         f"but the entry quality ({entry_score:.0f}/100) isn't strong "

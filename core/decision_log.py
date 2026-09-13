@@ -186,10 +186,17 @@ FINGERPRINTED_MODULES = {
     # module_snapshot() learned to walk to them instead, because moving a
     # constant is a change to the decision path and this patch is a change to
     # the record.
+    # ROUND 6 (Meta Muse Spark 1.3), F1 follow-up, 13 September 2026: three
+    # more of the same shape as DEGRADED_CONFIDENCE_CEILING/BTC_ADJUSTMENT_CAP
+    # above -- the AGGRESSIVE-eligibility and CONSERVATIVE trend-health bands,
+    # promoted from bare literals inside _determine_final_action.
     "models.decision_model": [
         "MIN_ACTION_BIAS",
         "DecisionModel.DEGRADED_CONFIDENCE_CEILING",
         "DecisionModel.BTC_ADJUSTMENT_CAP",
+        "DecisionModel.AGGRESSIVE_TREND_HEALTH_MIN",
+        "DecisionModel.AGGRESSIVE_ENTRY_SCORE_MIN",
+        "DecisionModel.CONSERVATIVE_TREND_HEALTH_MIN",
     ],
     # KIMI FINDING 3 names "the entry multipliers", which were the bare 1.05
     # and 0.90 literals in generate_entry_signals' confluence ladder and were

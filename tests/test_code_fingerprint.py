@@ -237,6 +237,56 @@ def test_module_snapshot_reaches_the_btc_adjustment_cap():
     assert snap[key] == DecisionModel.BTC_ADJUSTMENT_CAP
 
 
+def test_module_snapshot_reaches_the_aggressive_trend_health_min():
+    """
+    ROUND 6 (Meta Muse Spark 1.3), F1 follow-up, 13 September 2026. The
+    trend-health half of the AGGRESSIVE-eligibility band, promoted from a
+    bare `75` inside _determine_final_action -- same class-attribute shape
+    as DEGRADED_CONFIDENCE_CEILING/BTC_ADJUSTMENT_CAP above.
+    """
+    from core.decision_log import MISSING, module_snapshot
+    from models.decision_model import DecisionModel
+
+    snap = module_snapshot().get("models.decision_model", {})
+    key = "DecisionModel.AGGRESSIVE_TREND_HEALTH_MIN"
+
+    assert key in snap and snap[key] is not MISSING, (
+        "the trend-health floor for AGGRESSIVE eligibility is not in the record"
+    )
+    assert snap[key] == DecisionModel.AGGRESSIVE_TREND_HEALTH_MIN
+
+
+def test_module_snapshot_reaches_the_aggressive_entry_score_min():
+    """The entry-score half of the same band, promoted from a bare `70`."""
+    from core.decision_log import MISSING, module_snapshot
+    from models.decision_model import DecisionModel
+
+    snap = module_snapshot().get("models.decision_model", {})
+    key = "DecisionModel.AGGRESSIVE_ENTRY_SCORE_MIN"
+
+    assert key in snap and snap[key] is not MISSING, (
+        "the entry-score floor for AGGRESSIVE eligibility is not in the record"
+    )
+    assert snap[key] == DecisionModel.AGGRESSIVE_ENTRY_SCORE_MIN
+
+
+def test_module_snapshot_reaches_the_conservative_trend_health_min():
+    """
+    The CONSERVATIVE-vs-WAIT band, promoted from a bare `50` used at both
+    the BULLISH and BEARISH branches of _determine_final_action.
+    """
+    from core.decision_log import MISSING, module_snapshot
+    from models.decision_model import DecisionModel
+
+    snap = module_snapshot().get("models.decision_model", {})
+    key = "DecisionModel.CONSERVATIVE_TREND_HEALTH_MIN"
+
+    assert key in snap and snap[key] is not MISSING, (
+        "the trend-health floor for CONSERVATIVE eligibility is not in the record"
+    )
+    assert snap[key] == DecisionModel.CONSERVATIVE_TREND_HEALTH_MIN
+
+
 def test_module_snapshot_reaches_spike_ratio():
     """
     ROUND 6 (Meta Muse Spark 1.3), F1, 13 September 2026. SPIKE_RATIO was a
@@ -614,10 +664,23 @@ def test_a_changed_comparison_moves_the_hash():
     longer list. An enumeration of constants cannot see an operator change, and
     `>=` becoming `>` on a trend band changes which runs authorise a trade
     without changing any constant at all.
+
+    ROUND 6 (Meta Muse Spark 1.3), F1 follow-up, 13 September 2026: the bare
+    75/70 literals this test used to mutate around are gone -- promoted to
+    DecisionModel.AGGRESSIVE_TREND_HEALTH_MIN/AGGRESSIVE_ENTRY_SCORE_MIN (see
+    test_module_snapshot_reaches_the_aggressive_trend_health_min below).
+    Retargeted at the same comparison in its new form, for the same reason
+    test_a_bare_literal_moves_the_hash kept its own name after its literal
+    was promoted: this test is about the operator, not the operand's name.
     """
     _assert_moves(
-        MUTABLE[2], "if trend_health >= 75 and entry_score >= 70",
-        "if trend_health > 75 and entry_score >= 70",
+        MUTABLE[2],
+        "if (trend_health >= self.AGGRESSIVE_TREND_HEALTH_MIN\n"
+        "                        and entry_score >= self.AGGRESSIVE_ENTRY_SCORE_MIN\n"
+        "                        and not divergence):",
+        "if (trend_health > self.AGGRESSIVE_TREND_HEALTH_MIN\n"
+        "                        and entry_score >= self.AGGRESSIVE_ENTRY_SCORE_MIN\n"
+        "                        and not divergence):",
         "changing a trend-band comparison left the code hash identical",
     )
 
