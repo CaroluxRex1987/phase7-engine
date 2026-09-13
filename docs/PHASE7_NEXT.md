@@ -59,14 +59,13 @@ and confirmed:** `099f84ae...c57` -> `4d6f8196...127` (built on `b087875`).
 **Not fixed by this patch.** Round 6's re-audit of F1/F2/F3 is still unrun. **Batching,
 ruled 13 September:** all three post-round-5 fix commits (`2387717`, `88e47e9`, `044b055`) —
 none of which has had any independent review — are folded into round 6's package alongside
-the F1/F2/F3 re-audit, rather than a separate later pass. **Round 6's model is not yet
-chosen.** Viktor ruled out ChatGPT and Gemini as future channels (12 September) and
-delegated the pick to Claude. Claude's recommendation, reasoning in the 12 September chat
-session, not yet in a commit or a ruling: `meta/muse-spark-1.2` on OpenRouter — chosen over
-`x-ai/grok-4.6` primarily for context-window headroom (1.05M vs 500K against a package that
-was already 435,612 prompt tokens at round 5, before batching in three more commits) and for
-being single-provider (no auto-router substitution risk, the round-3 failure mode). Pending
-Viktor's ruling; nothing sent.
+the F1/F2/F3 re-audit, rather than a separate later pass. **Round 6's model, ruled 13
+September:** `meta/muse-spark-1.2` on OpenRouter — chosen over `x-ai/grok-4.6` primarily for
+context-window headroom (1.05M vs 500K against a package that was already 435,612 prompt
+tokens at round 5, before batching in three more commits) and for being single-provider (no
+auto-router substitution risk, the round-3 failure mode). Viktor ruled out ChatGPT and Gemini
+as future channels (12 September) and delegated the pick to Claude; this was that pick,
+ruled. Round 6 itself is still unbuilt and unsent.
 
 **Platform.** Built and verified in the Linux sandbox — evidence about Linux, not yet
 Windows. No production module changed, so no live-data run is being recommended before this
