@@ -1115,7 +1115,18 @@ class Phase7Engine:
                 # printed validation_score and confidence_score instead. An
                 # unread field with a misleading name is worse than no field,
                 # because the next reader believes it.
-                "confidence_score": trend["trend_health"],
+                # ROUND 6 (Meta Muse Spark 1.3), F2 -- Item 10 Consistent
+                # Semantics, Minor. This key held trend["trend_health"] --
+                # unsigned trend magnitude -- under the dotted name
+                # "risk.confidence_score", the exact name
+                # signal_router._build_decision_object gives a different
+                # quantity (DecisionModel's bias-magnitude confidence) in the
+                # final decision object it assembles independently. Nothing
+                # reads this key from engine_core's own raw return value --
+                # the router overwrites it unconditionally rather than reading
+                # it -- so RULED, 13 September 2026: drop rather than rename.
+                # The value is not lost: it is already recorded, correctly,
+                # a few lines below under decision_object["trend"]["trend_health"].
                 "trade_quality_proposed": eq_metrics["score"],
                 "validation_state": validation_state,
                 "validation_score": val_score,
