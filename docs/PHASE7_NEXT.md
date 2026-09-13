@@ -56,6 +56,14 @@ make impossible now names this as the fourth. Round 7 onward is not exposed to i
 
 **Platform.** Docs only; no production module touched, `code_hash` unaffected.
 
+**Open, not yet ruled.** Whether to fix or accept each of F1/F2/F3 as a limitation, and
+whether closing them needs a round-7 re-audit before this project can be called
+portfolio-ready per the two-goals ordering -- unlike round 5's Criticals, none of round
+6's findings blocks the release gate on its own, so the answer is not forced the way it
+was last round. Both are Viktor's call, raised at the end of this session, not yet
+answered. Separately: Phase7_Engineering_Notes.pdf still reflects the eighth patch, not
+round 6 or this correction -- regenerating it is deferred, not forgotten.
+
 ---
 *Prior head block (13 September, eighth patch) kept below for history.*
 

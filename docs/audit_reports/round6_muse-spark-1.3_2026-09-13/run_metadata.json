@@ -1,0 +1,86 @@
+{
+  "model": "meta/muse-spark-1.3",
+  "provider_pinned": "meta",
+  "max_output_tokens": 100000,
+  "package_dir": "D:\\phase7_engine\\docs\\audit_package\\round6\\UPLOAD_THESE",
+  "files": [
+    {
+      "name": "item16_review_instruction_rev7.md",
+      "bytes": 52848,
+      "sha256": "01b50635f3d6324f459bdebecf882629e66e0e58428c3c33ee41e6a86f6bae62"
+    },
+    {
+      "name": "Phase7_Constitution_v1.0_RATIFIED_AUDITCOPY.txt",
+      "bytes": 107216,
+      "sha256": "08f663a3b591c50e9ac0c62a3512c2a96c00ffb5234a5ed40814c52015aea700"
+    },
+    {
+      "name": "phase7_engine_source.md",
+      "bytes": 505769,
+      "sha256": "e04d78c40dbf147224399d4109c1a7168609e556ee70823b9d491ee868b6a8db"
+    },
+    {
+      "name": "phase7_test_suite.md",
+      "bytes": 586110,
+      "sha256": "cdf11da7f2ecded4e9e4c73761638abb59352b3a0a3d64f0562c6a9fa0a8bffd"
+    },
+    {
+      "name": "MANIFEST.md",
+      "bytes": 10188,
+      "sha256": "11f06ab9e3173c035e97c88e0a477108690a57bb0f5a725f1ece60add4057ff9"
+    },
+    {
+      "name": "version_control_history.md",
+      "bytes": 41132,
+      "sha256": "81807aa1d32c502602667b73d07e2d1b4c93cc6c627bb3380338c62654b7a095"
+    },
+    {
+      "name": "execution_transcripts.md",
+      "bytes": 10573,
+      "sha256": "8f48f97749920a695d43a17ff409b637198d5c9684e26cb2ee5e71b5f03f8dfc"
+    },
+    {
+      "name": "commit_messages_PART7_ONLY.md",
+      "bytes": 665528,
+      "sha256": "3813f4e634eb8719f61f678ea2b62a82dd934e206adaf0b24307a1cdb37e850d"
+    }
+  ],
+  "payload_sha256": "cbee4e634591527ecc9d901daf7cf28693ac12b6223635e1dcd41f2ca743e00d",
+  "payload_bytes": 1980376,
+  "estimated_prompt_tokens": 494122,
+  "data_collection": "deny",
+  "started_utc": "2026-09-13T14:35:25.044640+00:00",
+  "finished_utc": "2026-09-13T14:38:23.757540+00:00",
+  "elapsed_seconds": 178.7,
+  "generation_id": "gen-1789310125-ogzyw1LAS8l5vk89Im7P",
+  "finish_reason": "stop",
+  "usage": {
+    "prompt_tokens": 470488,
+    "completion_tokens": 10765,
+    "total_tokens": 481253,
+    "cost": 0.63386125,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.63386125,
+      "upstream_inference_prompt_cost": 0.58811,
+      "upstream_inference_completions_cost": 0.04575125
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 6570,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  },
+  "report_chars": 17072,
+  "reasoning_chars": 825,
+  "provider_reported": "Meta",
+  "native_tokens_prompt": 470488,
+  "native_tokens_completion": 10765,
+  "total_cost_usd": 0.63386125
+}

@@ -1,0 +1,3 @@
+HTTP 403
+
+{"error":{"message":"This model requires you to complete the following before use: 18+ age confirmation. Confirm at https://openrouter.ai/settings/preferences.","code":403,"metadata":{"missing_attestation_types":["age_18plus"],"routing_funnel":[{"step":"Initial Endpoints","endpoint_count":1}],"failed_routing_step":"Gate Endpoints with Attestations"}},"user_id":"user_3IGugnaHWBbD0xkeR2MmGY2O5Ko"}
