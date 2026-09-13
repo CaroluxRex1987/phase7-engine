@@ -6,8 +6,20 @@ Written for round 4 (Kimi K3), repointed for round 5 (GPT-6 Astra) on 12 Septemb
 Pro's hostile-Constitution-review and Step-8 sessions both show variant=standard
 with no training routing, so under the project's own rule -- session exposure ends
 with the session, training and lineage exposure never does -- that lab-level
-exposure does not carry to Astra. Three failures in this project's audit history are
-what this script exists to make impossible:
+exposure does not carry to Astra. Repointed again for round 6 (Meta Muse Spark
+1.3) on 13 September 2026. Viktor's original ruling that day named
+meta/muse-spark-1.2; checking OpenRouter's live models API before building this
+round -- not done before that ruling -- found 1.2 no longer listed as an
+invokable endpoint, only meta/muse-spark-1.3, meta/muse-spark-1.3-contributor,
+and meta/muse-spark-1.2-contributor. Both -contributor tiers are excluded on
+sight, regardless of price: their own pages state prompts and outputs may be
+used to improve Meta's products, and this project's source is not going to a
+tier with that policy. 1.3 is the live, same-price, same-context successor,
+and it is also the first reviewer in this project's history from a lab with no
+prior exposure to any part of it -- no billing-export check was needed the way
+one was for Astra, because there is nothing on the ledger for Meta to clear.
+Three failures in this project's audit history are what this script exists to
+make impossible:
 
   * a run that went to whatever the Auto Router picked (round 3, GLM 5.3 Flash) --
     here the model AND the serving provider are pinned, with fallbacks off, so a
@@ -43,26 +55,30 @@ from pathlib import Path
 API_URL = "https://openrouter.ai/api/v1/chat/completions"
 GENERATION_URL = "https://openrouter.ai/api/v1/generation"
 
-MODEL = "openai/gpt-6-astra"
-PROVIDER_SLUG = "openai"
-PROVIDER_DISPLAY_NAME = "OpenAI"
+MODEL = "meta/muse-spark-1.3"
+PROVIDER_SLUG = "meta"
+PROVIDER_DISPLAY_NAME = "Meta"
 
-# Verified by web search on 12 September 2026 (GPT-6 Astra postdates this
-# project's training cutoff, so this could not be answered from memory):
-# openrouter.ai lists the standard-tier endpoint, served under the bare
-# "openai" provider slug, with 1,048,576 context and a 128,000 max-completion
-# ceiling. The flex ("openai/flex") and fast ("openai/fast") service-tier
-# variants are separate slugs with their own pricing and are NOT matched by a
-# bare "openai" pin -- confirmed by checking the endpoints list rather than
-# assumed, since a bare slug silently matching the wrong tier is exactly the
-# kind of thing this project's provider-pinning already guards against.
-# MAX_OUTPUT_TOKENS is set well under that 128,000 ceiling, not against it.
+# Verified by querying OpenRouter's live models API on 13 September 2026
+# (Muse Spark 1.3 postdates this project's training cutoff, so this could not
+# be answered from memory, and its marketing page alone was not trusted --
+# see the module docstring for what that page got wrong about 1.2). The API
+# lists meta/muse-spark-1.3 at 1,048,576 context with a 943,718 max-completion
+# ceiling, served under the bare "meta" provider slug. The "-contributor"
+# variant is a separate slug with its own price and data-collection policy
+# and is NOT matched by a bare "meta" pin -- confirmed by checking the
+# endpoints list rather than assumed, the same discipline that caught 1.2
+# being retired in the first place.
+# MAX_OUTPUT_TOKENS is set well under that 943,718 ceiling, not against it,
+# and unchanged from round 5's value: it was never the limiting factor.
 MAX_OUTPUT_TOKENS = 100_000
 LARGEST_PRIOR_RESPONSE = 36_085  # Kimi K3, 2 September 2026, no report produced
 
-# OpenAI standard-tier endpoint pricing at the time of writing, USD per token.
-PRICE_IN = 10.0 / 1_000_000
-PRICE_OUT = 50.0 / 1_000_000
+# Meta's meta/muse-spark-1.3 pricing at the time of writing, USD per token
+# (verified against the same live models API query as the model metadata
+# above, not the marketing page): $1.25 / $4.25 per million tokens.
+PRICE_IN = 1.25 / 1_000_000
+PRICE_OUT = 4.25 / 1_000_000
 
 # The order the reviewer instruction itself uses in section 4, "What you will be
 # given". The instruction is item 1 and goes first; the rest follow as it lists
@@ -74,10 +90,16 @@ PRICE_OUT = 50.0 / 1_000_000
 # instruction document as available for an optional Part 7 pass -- so round 5's
 # package carries it from the start rather than describing a promise the send
 # script has never kept. It goes last, matching Section 4's own ordering in
-# rev6, and its own header still tells the reviewer not to open it before Parts
-# 1-6 are written and saved; that is a reading discipline the reviewer is asked
-# to keep, not a withholding mechanism this script enforces by omission.
-INSTRUCTION_FILE = "item16_review_instruction_rev6.md"
+# rev6 and unchanged in rev7, and its own header still tells the reviewer not
+# to open it before Parts 1-6 are written and saved; that is a reading
+# discipline the reviewer is asked to keep, not a withholding mechanism this
+# script enforces by omission.
+#
+# rev7 is round 6's instruction: it corrects two counts rev6 missed (an eighth
+# rule with a prior verdict, a fourth AI party named) and adds the sixth
+# disclosure and the round-6-specific paragraph in Section 4a. Revs 1-6 stay
+# in docs/audit_package/ unedited, per the document's own preservation rule.
+INSTRUCTION_FILE = "item16_review_instruction_rev7.md"
 ATTACHMENT_FILES = [
     "Phase7_Constitution_v1.0_RATIFIED_AUDITCOPY.txt",
     "phase7_engine_source.md",
@@ -166,7 +188,7 @@ def build_request_body(payload: str, allow_data_collection: bool) -> dict:
 
 def _open_run_dir(repo_root: Path, force: bool) -> Path:
     stamp = _utc_now().strftime("%Y-%m-%d")
-    run_dir = repo_root / "docs" / "audit_reports" / f"round5_gpt-6-astra_{stamp}"
+    run_dir = repo_root / "docs" / "audit_reports" / f"round6_muse-spark-1.3_{stamp}"
     report = run_dir / "report.md"
     if report.exists() and report.stat().st_size > 0 and not force:
         raise SystemExit(
@@ -347,7 +369,7 @@ def send(body: dict, api_key: str, run_dir: Path, metadata: dict) -> int:
 
 def main(argv: list[str] | None = None) -> int:
     repo_root = Path(__file__).resolve().parents[2]
-    default_package = repo_root / "docs" / "audit_package" / "round5" / "UPLOAD_THESE"
+    default_package = repo_root / "docs" / "audit_package" / "round6" / "UPLOAD_THESE"
 
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--package-dir", type=Path, default=default_package)
@@ -375,8 +397,9 @@ def main(argv: list[str] | None = None) -> int:
     print(f"payload        {len(payload_bytes):,} bytes, {len(payload):,} chars, "
           f"sha256 {_sha256(payload_bytes)}")
     print(f"estimated in   ~{estimated_prompt_tokens:,} tokens "
-          f"(rounds 3-4's six-file package billed 251,148; this round's package "
-          f"is larger -- it adds commit_messages_PART7_ONLY.md)")
+          f"(round 5's seven-file package billed 435,612; this round's package "
+          f"is larger again -- it carries three more landed commits' worth of "
+          f"comments and a bigger review instruction)")
     print(f"model          {MODEL}")
     print(f"provider       {PROVIDER_SLUG} only, fallbacks off, data_collection "
           f"{'allow' if args.allow_data_collection else 'deny'}")
@@ -385,7 +408,11 @@ def main(argv: list[str] | None = None) -> int:
     low = estimated_prompt_tokens * PRICE_IN + 40_000 * PRICE_OUT
     high = estimated_prompt_tokens * PRICE_IN + 90_000 * PRICE_OUT
     print(f"cost estimate  ${low:.2f} - ${high:.2f} "
-          f"(input plus 40k-90k output at $10/$50 per M)")
+          f"(input plus 40k-90k output at $1.25/$4.25 per M -- round 5's GPT-6 "
+          f"Astra send cost $12.22 at $10/$50 per M plus a long-context "
+          f"pricing premium; Muse Spark 1.3's flat, lower per-token price "
+          f"means this round should cost well under $2 even with a larger "
+          f"package)")
 
     metadata = {
         "model": MODEL,

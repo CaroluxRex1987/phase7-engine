@@ -67,7 +67,17 @@ REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 # never in send_audit_round.py's ATTACHMENT_FILES for either round, so no
 # reviewer could ever actually reach it. Folding it in fixes that for the first
 # time rather than continuing to describe a promise the send step never kept.
-ROUND = "round5"
+#
+# round5/ (above) is what GPT-6 Astra actually graded and returned a third
+# complete Parts 1-6 report against, finding F1/F2/F3 -- all three now fixed
+# and landed. round6/ is this build: it goes to Meta Muse Spark 1.3, not back
+# to GPT-6 Astra. Viktor ruled the model 13 September (see
+# docs/PHASE7_NEXT.md), after the originally ruled meta/muse-spark-1.2 turned
+# out to no longer be a live OpenRouter endpoint. round6/ also carries three
+# commits (2387717, 88e47e9, 044b055) that have never been independently
+# reviewed, batched in per Viktor's ruling the same day rather than sent as a
+# separate round.
+ROUND = "round6"
 PACKAGE_DIR = os.path.join(REPO, "docs", "audit_package")
 OUT_DIR = os.path.join(PACKAGE_DIR, ROUND)
 
@@ -109,7 +119,7 @@ UPLOAD_DIR = os.path.join(OUT_DIR, "UPLOAD_THESE")
 # claiming to be the standard, which is the same defect check 7.6 asks the
 # auditor to look for.
 HAND_WRITTEN = [
-    "item16_review_instruction_rev6.md",
+    "item16_review_instruction_rev7.md",
     "Phase7_Constitution_v1.0_RATIFIED_AUDITCOPY.txt",
 ]
 
