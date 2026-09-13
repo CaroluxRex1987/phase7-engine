@@ -29,7 +29,15 @@ make impossible:
     asserted to exceed the largest response this project has ever received
     (36,085 tokens), and the finish reason is recorded;
   * a run whose output existed only in a chat window -- here every token is
-    streamed to disk as it arrives, under docs/audit_reports/, which is tracked.
+    streamed to disk as it arrives, under docs/audit_reports/, which is tracked;
+  * a report silently corrupted by a wrong text-encoding assumption (round 6,
+    Meta Muse Spark 1.3) -- requests falls back to Latin-1 for a response whose
+    Content-Type carries no charset, so every non-ASCII character streamed back
+    got decoded wrong and re-written to disk as mangled UTF-8; caught after the
+    fact and repaired byte-for-byte (see
+    docs/audit_reports/round6_muse-spark-1.3_2026-09-13/ENCODING_CORRECTION.md).
+    Here resp.encoding is forced to "utf-8" immediately after the request
+    returns, before anything reads resp.text or iterates the stream.
 
 Nothing is sent unless --send is passed. Without it the script assembles the
 payload, hashes it, prints the size and the cost estimate, and stops.
@@ -238,6 +246,13 @@ def send(body: dict, api_key: str, run_dir: Path, metadata: dict) -> int:
         stream=True,
         timeout=(30, 900),
     )
+
+    # OpenRouter's response carries no explicit charset, so `requests` would
+    # otherwise fall back to Latin-1 (the old HTTP default) for resp.text and
+    # for iter_lines(decode_unicode=True) below -- silently mis-decoding every
+    # non-ASCII character. This is what corrupted round 6's report.md; force
+    # the encoding the API actually uses instead of trusting the header.
+    resp.encoding = "utf-8"
 
     if resp.status_code != 200:
         detail = resp.text[:8000]
