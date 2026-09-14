@@ -544,7 +544,6 @@ class SignalRouter:
             }
 
     @staticmethod
-    @staticmethod
     def _finite_or_nan(value: Any) -> float:
         """Measurement level: None/non-finite -> NaN; real finite kept. Sweep 1-5."""
         if value is None:
