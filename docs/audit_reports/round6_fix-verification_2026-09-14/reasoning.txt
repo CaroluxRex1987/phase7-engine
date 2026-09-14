@@ -1,0 +1,1 @@
+Verifying four code fixes against Location section names and citing one-line evidence per item.Confirming the four scoped files meet the Location names and separating decision_model.py to F5.

@@ -1,5 +1,45 @@
 # Next step — read this first
 
+*14 September 2026 (fourteenth patch, docs-only) — **Round-6 fix-verification sent and
+graded: F1-F5 all Fixed, independently checked against code by Claude.** Closes the open
+item raised at the ninth patch's own orientation (13 September) — whether closing F1
+through F5 needs a round-7 re-audit before portfolio-ready — per Viktor's 14 September
+ruling: the round-6 auditor verifies its own findings rather than a fresh model
+re-grading everything.
+
+- **Sent.** `python docs/build/send_fix_verification.py --send`, 14 September. Provider
+  confirmed `Meta` (matches the pin, no substitution), `finish_reason=stop` (not
+  truncated), `72,542` / `2,008` native prompt/completion tokens, cost `$0.0992115` —
+  below the estimated $0.12-$0.19 range because the response was more terse (five short
+  verdicts, no full report) than the 5k-20k output tokens the estimate budgeted for.
+  Response saved to `docs/audit_reports/round6_fix-verification_2026-09-14/`.
+- **All five verdicts: Fixed.** F1 (four locations named and fingerprinted), F2
+  (`confidence_score` dropped from `core/engine_core.py`, sole meaning left in
+  `models/signal_router.py`), F3 (all six fields NaN-passthrough via `_finite_or_nan`),
+  F4 (`core/panel_render.py`'s downstream defaults NaN-safe), F5
+  (`models/decision_model.py`'s bands and threshold split named/fingerprinted).
+- **Independently checked against the code, not just relayed.** Every citation in the
+  model's report was grepped against the actual landed code at `59de938` and matches:
+  `CONFLUENCE_BOOST_MULT`/`CONFLUENCE_PENALTY_MULT`/`SPIKE_RATIO`/`CORRELATION_WINDOW`/
+  `REGIME_HYSTERESIS_THRESHOLD` (F1); `confidence_score` present only in
+  `signal_router.py`, not `engine_core.py` (F2); all six `signal_router.py` fields
+  through `_finite_or_nan` (F3); `panel_render.py`'s `safe_float(..., float("nan"))` and
+  `math.isfinite()` guards (F4); `AGGRESSIVE_TREND_HEALTH_MIN`/`AGGRESSIVE_ENTRY_SCORE_MIN`/
+  `CONSERVATIVE_TREND_HEALTH_MIN`/`MIN_ACTION_BIAS`/`RAW_BIAS_THRESHOLD` (F5).
+- **Bonus finding, unprompted by the review note, confirmed real — found, not fixed.**
+  `models/signal_router.py` lines 546-547: `@staticmethod` appears twice, stacked, above
+  `_finite_or_nan`. Harmless (a duplicate decorator, not a behavior change) but a real
+  defect, not noise — verified present in the actual file. No ruling made on it this
+  patch; left for whenever it is convenient to fix.
+- **Not decided here: whether this makes the project portfolio-ready.** F1-F5 closing
+  with verification satisfies the fix-everything-then-verify cadence, but declaring
+  portfolio-ready and tagging the commit (per the two-goals ordering, 3 September) is
+  Viktor's own call to make, not something this patch assumes on his behalf.
+
+---
+*Prior head block (14 September, thirteenth patch) kept below for history.*
+
+
 *14 September 2026 (thirteenth patch, docs-only) — **docs/build/send_fix_verification.py
 added, landed at `2fc578b`.** Viktor's ruling, same day: closing F1-F5 does not need a
 fresh independent model. The round-6 auditor (meta/muse-spark-1.3) is asked to verify its
