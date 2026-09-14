@@ -1,5 +1,49 @@
 # Next step — read this first
 
+*14 September 2026 (sixteenth patch, docs only) — **Items 4 and 5 of six landed
+(`69f1972`, `eee218e`); this file itself was the one thing not yet updated to say so.**
+Session handover check, per Viktor's standing end-of-session practice: the three commits
+below existed in git and in chat, but nowhere in this file, which is supposed to be the
+project's own entry point.
+
+- **What landed this session, in order.** `293f310` — Engineering Notes regenerated
+  through Entry #118 (v1.29), closing the seven-commit documentation gap since before
+  round 6. `69f1972` — `docs/build/build_portfolio_document.py`, generating the
+  fourteen-section portfolio document (item 4). `eee218e` —
+  `docs/build/build_ai_attribution.py`, generating the AI-attribution statement (item 5),
+  including a corrected, AST-verified 118-entry tag count (an eyeballed regex first
+  produced 111) and a corrected Results-section attribution (the sixteen-item remediation
+  sequence is GLM 5.3's, not Luna Pro's — caught in proofreading before either document
+  reached Viktor). Full detail in each commit's own message.
+- **All six portfolio-ready criteria now have their supporting material on record**, not
+  just five. (1) Release gate — round 6 (13 September) re-audited round 5's three
+  Criticals and found no Critical Tier-1 defect, which is the Constitution's own bar
+  ("every Critical fixed *and* re-audited") — but Viktor has never written the words
+  "the release gate is open"; this file has stated the gate's technical condition, not
+  declared it met. (2) Remaining findings — round 6's own F1/F2/F3 fixed and
+  self-verified (fourteenth patch), the bonus duplicate-`@staticmethod` fixed (`a70fc1b`,
+  fifteenth patch); nothing is on record as open and unruled. (3) Engineering Notes —
+  current as of `293f310`. (4) Portfolio document — exists (`69f1972`). (5)
+  AI-attribution — exists (`eee218e`). (6) Suite and golden snapshot — current, confirmed
+  by every one of this session's three commits the same way as every prior patch (466
+  passed / 338 passed, 117 skipped / 395 passed, 0 failed, 32 pre-existing errors).
+- **Not decided here, and not this file's place to decide:** whether criterion 1 counts
+  as met on today's record, whether to declare the project portfolio-ready, and whether
+  to tag `portfolio-v1`. Viktor was given a plain breakdown of the above in chat and
+  asked to write his own reasoned position first, per his standing preference on
+  governance calls, before Claude critiques it — recorded here so the question survives
+  into whatever session picks it up next, rather than living only in that chat.
+- **Housekeeping.** `code_hash` unaffected — all three commits, and this entry, touch
+  only files under `docs/`, which `core/code_fingerprint.py` excludes from its file walk
+  by directory name; confirmed against a fresh clone of `origin/master`
+  (`eee218e`), not assumed. Each delivery's own command sequence asked Viktor to delete
+  the loose `.patch`/commit-message files after a successful push; not independently
+  re-checked this session.
+
+---
+*Prior head block (14 September, fifteenth patch) kept below for history.*
+
+
 *14 September 2026 (fifteenth patch) — **Round-6's bonus finding fixed: the duplicate
 `@staticmethod` above `_finite_or_nan` in `models/signal_router.py`, landed at `a70fc1b`.**
 The fourteenth patch left this for whenever it was convenient; Viktor asked for it the
