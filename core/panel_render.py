@@ -630,6 +630,55 @@ def render_panel(decision):
             + _target_line("3 (Aggr)", t3, rr_t3)
         )
 
+        # VIKTOR'S REQUEST, 14 September 2026: a run he read a few days
+        # earlier put a genuine SHORT setup in front of him (bearish bias,
+        # descending targets) under a NO-TRADE decision -- correct, but
+        # nothing on the panel said "SHORT" in words; he had to read the
+        # target ordering to know which side the analysis leaned. This
+        # prints that reading as its own solid box, directly under the
+        # DECISION line, on every run rather than only ones that authorize
+        # a trade.
+        #
+        # Source is bias.raw, not action_val or the risk plan's targets.
+        # decision_model.py's _determine_final_action reads this exact
+        # field for direction (Viktor's 2 September ruling: bias is the
+        # sole direction source), so whenever a trade IS authorized this
+        # box already agrees with the LONG/SHORT the DECISION line prints
+        # -- it cannot show one side while the DECISION line shows the
+        # other for any run that reaches _determine_final_action normally.
+        #
+        # One case that ruling does not cover: _refuse_incoherent_plan
+        # firing ("NO-TRADE (PLAN CONTRADICTS ACTION)") means bias and the
+        # risk plan's own targets pointed different ways this run -- see
+        # tests/test_direction_source.py, the 2 September defect ("a long
+        # label on a short plan") this box exists to never bring back
+        # through a new line. Printing the bias direction there would be
+        # that identical defect, so that case gets its own honest label
+        # instead of a directional claim either side would dispute.
+        raw_bias_val = str(bias.get("raw", "UNKNOWN")).upper()
+
+        if "PLAN CONTRADICTS ACTION" in action_val.upper():
+            direction_box = (
+                "SETUP DIRECTION: CONTRADICTORY -- bias and the risk plan "
+                "disagree this run; see Decision Reasoning below.\n\n"
+            )
+        elif raw_bias_val == "BULLISH":
+            direction_box = (
+                f"{c_green}=========================================================================\n"
+                f"    THIS ANALYSIS IS FOR A LONG\n"
+                f"========================================================================={reset}\n\n"
+            )
+        elif raw_bias_val == "BEARISH":
+            direction_box = (
+                f"{c_red}=========================================================================\n"
+                f"    THIS ANALYSIS IS FOR A SHORT\n"
+                f"========================================================================={reset}\n\n"
+            )
+        else:
+            direction_box = (
+                "SETUP DIRECTION: NEUTRAL -- no directional lean this run.\n\n"
+            )
+
         panel = (
             f"{header_banner}"
             f"{box_top}{title_line}{box_mid}"
@@ -669,6 +718,7 @@ def render_panel(decision):
             f"    |-- Proposed Entry    : {tq_proposed:.2f}/100\n\n"
             f"{box_top}"
             f"DECISION      : {colored_action}\n\n"
+            f"{direction_box}"
             f"{divider}"
             f"Decision Reasoning:\n"
             f"{reasoning_lines}\n"
