@@ -1,5 +1,92 @@
 # Next step — read this first
 
+*14 September 2026 (twelfth patch, docs-only) — **Head block brought current: the
+Engineering Notes reconstruction's closure recorded at the top of the file, and the
+`3e93fff` delivery defect plus its `214c5d8` structural fix named plainly.** This
+session did not start new engine or docs work; it picked up the 13 September
+handover's own next task (finish the Engineering Notes reconstruction) and closed it,
+then found and fixed a delivery mistake made while closing it out.
+
+- **Engineering Notes reconstruction** — `6900564`. Entries #94-#103 reconstructed
+  from the v1.25/v1.26 Document History rows' own text (a document-integrity gap:
+  those rows claimed the entries existed as numbered log entries and they did not);
+  entries #104-#111 added for 13 September's own work (Round 6 send/grade, F1/F2/F3,
+  the docs and handover-file commits, F4, F5). A three-digit entry-number rendering
+  defect found while rebuilding the PDF (numbers wrapped inside `entry_box()`'s number
+  column, first appearing at #100) fixed in the same commit: column widened
+  `0.42in` → `0.56in`, title column narrowed to match, `entry_box()` and
+  `highlighted_entry_box()` both updated. PDF grew 74 → 79 pages. Landed clean, no
+  issues; byte-identical on the landed tree; `code_hash` and golden snapshot unmoved;
+  all three test configs unchanged. (The prior head block below already records this
+  landing correctly as of its own writing — this entry exists so the closure is
+  visible at the top of the file without scrolling past it.)
+- **Delivery defect at `3e93fff`, caused by Claude, not Viktor.** That commit (the
+  prior head-block update, below) landed carrying its own two delivery files
+  (`phase7_next_headblock.patch`, `phase7_next_headblock_commit_message.txt`)
+  committed into the tracked repo alongside the real change. Root cause: the patch
+  was rebuilt and redelivered to fill in the real `6900564` commit hash in place of a
+  "pending" placeholder, and that redelivery used a shortened command sequence that
+  dropped the `git reset <patch> <patch>_commit_message.txt` steps rule 38 exists for
+  — the same `git add -A` trap rule 38 already documents, recurring because a
+  numbered sequence omitted the steps rule 38 requires, not because Viktor did
+  anything wrong. Viktor pasted back `git status --short` showing the two files
+  staged, and Claude told him that was "exactly the expected status" without having
+  actually checked it — an unverified claim stated with full confidence, the same
+  failure shape Viktor's own standing rule on stating things flags as recurring and
+  unacceptable. Caught by Claude itself during routine post-landing verification
+  (`git show --name-status 3e93fff`), not by Viktor.
+- **Structural fix** — `214c5d8`, delivered as `phase7_gitignore_cleanup.patch`.
+  Removes both stray files from tracking and adds `*.patch` / `*_commit_message.txt`
+  to `.gitignore` — a structural fix (Viktor's own standing preference: change the
+  setup so the safe action is the only one available, rather than documenting which
+  of several options is correct) so `git add -A` can no longer stage either file
+  regardless of which numbered sequence is followed or whether its reset steps
+  survive editing, rather than a fifth restatement of rule 38. First version of this
+  fix failed to apply (tried to diff the two stray files against their pre-image, but
+  Viktor had already `del`eted them from disk per the original delivery sequence);
+  the corrected version touches only `.gitignore` and relies on `git add -A` picking
+  up the already-missing files as a plain deletion. Confirmed landed and
+  byte-identical via fresh clone: `.gitignore` is the only content change, `git
+  ls-files` returns no `.patch`/`commit_message` matches anywhere in the repo,
+  `code_hash` and golden snapshot unmoved, pytest 466 passed on the landed tree.
+
+**A correction to the 14 September session handover note**
+(`Claude outputs/phase7_handover_2026-09-14.md`), found while scoping this patch, not
+by Viktor. That note describes this head block as still saying the Engineering Notes
+reconstruction is "pending Viktor's apply" and listing it as an open item. Checked
+against the actual landed file (this document, as `3e93fff` left it) rather than
+assumed: that is not what it says — the document-integrity-gap paragraph below
+already reads "Landed at `6900564`" with no open item, because `3e93fff`'s own final
+delivery filled in the real hash before landing. The head block's real, narrower
+staleness was only that it could not describe its own delivery defect or the fix for
+it, since neither existed yet when `3e93fff` was written — that is what this entry
+closes.
+
+**Test counts at tip (Linux sandbox, Python 3.12.3), re-run before this docs-only
+change and confirmed unchanged after it.** pytest with `pandas_ta` 466 passed; pytest
+without `pandas_ta` 338 passed / 117 skipped; `run_tests.py` 395 passed / 0 failed /
+32 errors (32 pre-existing, unrelated to this patch). `code_hash` confirmed unchanged
+at `13908bba2ebe9a279d29acfa97876fd91a4c251b28e851631ecb8e20505d3851` on the pristine,
+working, and patch-applied trees alike — computed, not assumed, since `docs/` is
+excluded from the fingerprint walk by directory name and this change is docs-only.
+Golden snapshot confirmed unchanged, `b027ac17f379255085b26bd1920a54d1`.
+
+**Platform.** Built and verified in the Linux sandbox. Docs-only change with no
+platform-sensitive content (no paths, no byte counts, no OS-dependent behaviour), so
+there is no reason to expect Windows evidence to differ, but that expectation has not
+itself been confirmed on Viktor's machine.
+
+**Open, not yet ruled** (carried forward unchanged, not re-raised): whether closing F1
+through F5 needs a round-7 re-audit before this project counts as portfolio-ready, or
+whether non-Critical findings can be accepted/fixed without re-auditing — raised at
+the tenth patch's own orientation, never re-raised since. This is Viktor's call; per
+the 14 September handover's own instruction, waiting for him to bring it up rather
+than re-raising it here.
+
+---
+*Prior head block (14 September, eleventh patch and its fix) kept below for history.*
+
+
 *13 September 2026 (eleventh patch, four commits) — **F4 and F5 fixed, closing every
 item the tenth patch's F1-F3 left open; the stray handover file and this document's own
 head block both resolved.** Viktor's ruling on "what is next" from the tenth patch: fix
