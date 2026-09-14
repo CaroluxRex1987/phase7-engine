@@ -655,6 +655,15 @@ def render_panel(decision):
         # through a new line. Printing the bias direction there would be
         # that identical defect, so that case gets its own honest label
         # instead of a directional claim either side would dispute.
+        #
+        # RULED, 14 September 2026: a NEUTRAL bias prints nothing here,
+        # not a "no lean" line. The first version of this patch printed one,
+        # for consistency with swing_struct/entry-zone/correlation's "not
+        # located"/"not measured" lines elsewhere on this panel -- but those
+        # are measurements that failed. NEUTRAL is not a failed reading; it
+        # is bias reporting no lean, which is exactly what an absent box
+        # already says. Viktor: only show this box when there is an actual
+        # LONG or SHORT to report.
         raw_bias_val = str(bias.get("raw", "UNKNOWN")).upper()
 
         if "PLAN CONTRADICTS ACTION" in action_val.upper():
@@ -675,9 +684,7 @@ def render_panel(decision):
                 f"========================================================================={reset}\n\n"
             )
         else:
-            direction_box = (
-                "SETUP DIRECTION: NEUTRAL -- no directional lean this run.\n\n"
-            )
+            direction_box = ""
 
         panel = (
             f"{header_banner}"
