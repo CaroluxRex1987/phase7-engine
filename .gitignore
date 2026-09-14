@@ -87,3 +87,21 @@ docs/audit_package/round*/*
 # docs/audit_reports/x.json and docs/audit_reports/<run>/x.json.
 !docs/audit_reports/**/*.json
 !docs/audit_reports/**/*.csv
+# ============================
+# CLAUDE DELIVERY ARTIFACTS
+# ============================
+# .patch files and their paired *_commit_message.txt are how Claude delivers
+# changes to this repo (no shell on Viktor's machine -- see
+# anthropic-skills:patch-delivery). They are meant to be applied, committed
+# from, and deleted -- never committed themselves. On 13 September 2026 one
+# pair (phase7_next_headblock.patch / phase7_next_headblock_commit_message.txt)
+# was accidentally committed at 3e93fff: the numbered delivery sequence for
+# that patch omitted the `git reset` steps its own sibling patch (delivered
+# minutes earlier) had used, so `git add -A` swept both loose files in before
+# they were deleted. Structural fix per Viktor's own standing preference
+# (change the setup so the safe action is the only one available, rather than
+# documenting which of several options is correct): ignored here so
+# `git add -A` can never stage them again, regardless of which numbered
+# sequence is followed or whether its reset steps are remembered.
+*.patch
+*_commit_message.txt
