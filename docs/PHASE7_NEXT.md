@@ -1,5 +1,45 @@
 # Next step — read this first
 
+*14 September 2026 (thirteenth patch, docs-only) — **docs/build/send_fix_verification.py
+added, landed at `2fc578b`.** Viktor's ruling, same day: closing F1-F5 does not need a
+fresh independent model. The round-6 auditor (meta/muse-spark-1.3) is asked to verify its
+own findings were actually fixed, not to re-grade the Constitution from scratch —
+finding something new would be a bonus, not the goal. Deliberately not called "Round 7";
+that name is reserved for the next genuinely independent audit, saved for when
+independence actually matters (before backtesting, per the existing two-goals ordering).
+
+- New script, not a mode on `send_audit_round.py`: that script gets repointed at a new
+  reviewer every round (three repoints already — Kimi K3, GPT-6 Astra, Meta Muse Spark
+  1.3), so importing its `MODEL` constant would let a future repoint silently redirect
+  this call too — the "one edit upstream" shape muse-spark-1.3's own F3 named for a
+  fabricated-zero default three call frames from where it fires. `MODEL`/`PROVIDER_SLUG`/
+  pricing are pinned independently here instead, duplicating that script's transport
+  logic rather than sharing it.
+- Sends a single-turn API call (no memory persists between calls, so muse-spark-1.3 has
+  no memory of round 6 unless restated): round 6's own `report.md` verbatim, a review
+  note pointing at each of the five items, and the full current content of the eight
+  files the five fixing commits touched — not bare diffs (too thin: a few lines of
+  context cannot show whether a promoted constant is used consistently elsewhere in the
+  same file) and not the full codebase (would cost close to round 6's ~470,000-token
+  package for a task meant to be narrow). F4 and F5 are not separately numbered in
+  muse-spark-1.3's own report, so the review note explains both: F4 is a downstream
+  instance of the pattern F3 described, one layer further in `core/panel_render.py`; F5
+  is the two `models/decision_model.py` locations F1's own Location section already
+  named but the first fix pass deliberately scoped out.
+- Docs-only, no engine module touched: `code_hash` and golden snapshot confirmed
+  unmoved, all three test configs unchanged (466 passed; 338 passed/117 skipped; 395
+  passed/0 failed/32 errors). Dry-run estimate: ~80,346 tokens, $0.12-$0.19 — well under
+  round 6's $0.63 and round 5's $12.22, consistent with a narrow follow-up rather than a
+  fresh audit.
+- **Not yet sent.** `OPENROUTER_API_KEY` stays on Viktor's machine and was never
+  requested for or supplied to this session; he runs `python
+  docs/build/send_fix_verification.py --send` himself when ready, same as every other
+  audit-round send in this project.
+
+---
+*Prior head block (14 September, twelfth patch) kept below for history.*
+
+
 *14 September 2026 (twelfth patch, docs-only) — **Head block brought current: the
 Engineering Notes reconstruction's closure recorded at the top of the file, and the
 `3e93fff` delivery defect plus its `214c5d8` structural fix named plainly.** This
