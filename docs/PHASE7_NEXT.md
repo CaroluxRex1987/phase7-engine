@@ -1,5 +1,33 @@
 # Next step — read this first
 
+*14 September 2026 (fifteenth patch) — **Round-6's bonus finding fixed: the duplicate
+`@staticmethod` above `_finite_or_nan` in `models/signal_router.py`, landed at `a70fc1b`.**
+The fourteenth patch left this for whenever it was convenient; Viktor asked for it the
+same day.
+
+- **What changed.** One of the two stacked `@staticmethod` lines removed (lines 546-547
+  before the fix). `_finite_or_nan` keeps its single decorator, same body, same six call
+  sites in `_build_decision_object` — no behavior change.
+- **`code_hash` moved, predicted correctly.** `core/code_fingerprint.py` hashes the
+  docstring-stripped parse tree, and a duplicate decorator is a second entry in the
+  function's `decorator_list` — confirmed directly before the patch shipped, not assumed:
+  `13908bba...20505d3851` → `3867ba49...05d3851`.
+- **Golden snapshot unmoved.** `tests/fixtures/golden_decision.json` untouched —
+  `tests/test_golden_path.py` (in the 466 below) confirms the decision path produces the
+  identical output, since applying `@staticmethod` twice was always a no-op.
+- **Verified in the Linux sandbox** against a fresh clone of `a70fc1b`: pytest with
+  `pandas_ta`, 466 passed, 2 warnings; pytest without it, 338 passed, 117 skipped;
+  `run_tests.py`, 395 passed / 0 failed / 32 errors (same 32 pre-existing
+  missing-fixture-argument errors, unrelated to this file). Matched exactly on Viktor's
+  own machine (Windows) before he committed.
+- **Not decided here: whether this makes the project portfolio-ready.** F1-F5 plus this
+  cleanup closes every item round-6 raised, but declaring portfolio-ready and tagging the
+  commit (per the two-goals ordering, 3 September) is still Viktor's own call.
+
+---
+*Prior head block (14 September, fourteenth patch) kept below for history.*
+
+
 *14 September 2026 (fourteenth patch, docs-only) — **Round-6 fix-verification sent and
 graded: F1-F5 all Fixed, independently checked against code by Claude.** Closes the open
 item raised at the ninth patch's own orientation (13 September) — whether closing F1
