@@ -1,5 +1,42 @@
 # Next step — read this first
 
+*15 September 2026 (twenty-third patch, docs only) — **Engineering Notes regenerated
+through Entry #127 (v1.30), landed `bd44b98`.** Batched regeneration Viktor chose himself
+at this session's start, over two other open items (writing his own position on the two
+Goal B definitional questions; the unrelated YH-programme question) — both of those
+remain untouched and still open.
+
+- **What changed.** Nine new entries (#119 through #127) appended to
+  `docs/build/build_engineering_notes.py`, one per logical unit of work in the ten commits
+  landed between `293f310` (v1.29) and `a441023` — the Portfolio Document, the
+  AI-Attribution Statement, this file's own currency fix for both, the five token-saving
+  rules' in-repo copy, the mutant-escape-findings correction, the release-gate/
+  portfolio-ready/`portfolio-v1` declaration, the session-handover script, the README.md
+  fix plus the stray-file finding and backtesting-scoping carry-forward, and the
+  README-currency check (item 8). One new Document History row (v1.30) summarizing the
+  batch, matching every prior version row's own style and per-entry citation pattern.
+- **Verified, not assumed, on both platforms.** `code_hash` confirmed unmoved —
+  `38458f20779d2709ed6402c69407339f797c69089ace3b18922ca5c8bb289fbb` — on the pristine
+  tip, the edited tree, and a fresh independent clone with the patch applied, all three
+  identical; `docs/` is excluded from `core/code_fingerprint.py`'s file walk by directory
+  name and neither changed file sits outside it. Golden snapshot not applicable — no
+  engine module touched. Full three-configuration suite run twice in the Linux sandbox
+  (466 passed / 338 passed, 117 skipped / 395 passed, 0 failed, 32 pre-existing errors,
+  diffed by name against baseline, not just counted) and confirmed a third time on
+  Viktor's own machine before he committed — first Windows confirmation of this
+  particular build script's output since it was created.
+- **This document's own currency gap, closed by this entry.** The Engineering Notes had
+  carried a ten-commit gap since `293f310` (v1.29), named explicitly in the
+  twenty-first-patch entry below and left untouched through the twenty-second. That gap
+  is now closed; the next one starts accumulating from here.
+- **`code_hash` unaffected by this entry either** — this patch touches only
+  `docs/PHASE7_NEXT.md`, under `docs/`, excluded from the fingerprint walk by directory
+  name. No engine module or test touched, so the golden snapshot does not apply.
+
+---
+*Prior head block (15 September, twenty-second patch) kept below for history.*
+
+
 *15 September 2026 (twenty-second patch) — **The handover script gets a README.md
 currency check (item 8); the "ignored-file sweep every time" half of the same open
 question closes with no code change.** Viktor named the split himself — the checkpoint/
