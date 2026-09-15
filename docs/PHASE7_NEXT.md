@@ -1,5 +1,59 @@
 # Next step — read this first
 
+*15 September 2026 (twentieth patch) — **A manual session-handover check script,
+`docs/build/session_handover_check.py`; a proposed auto-pruning mechanism for the Lessons
+list, declined.** Viktor read an unrelated agent-harness project (ECC) and asked for
+critical feedback on two of its own components he thought worth adopting, then delegated
+the final call: "It is your call, do what is best for the engine and the project."
+
+- **Adopted, in modified form.** The handover checklist below has been an instruction ("run
+  these seven checks") rather than a structural fact of the repo — Viktor's own standing
+  preference is a structural fix over a reminder to be careful. `docs/build/session_handover_check.py`
+  now runs four of the seven checks by command rather than by memory: untracked/modified
+  files, ignored files (filtered for routine build/cache noise, so a real signal like the
+  reviewer-response incident this file already documents isn't buried under `__pycache__`
+  entries), loose `.patch`/`*_commit_message.txt` files, and a staged-but-uncommitted index.
+  The other three — is this session's state written into this file, are today's rulings
+  recorded, are the Engineering Notes current or the gap stated, is anything still only in
+  chat — ask whether specific prose is accurate, which needs judgment, not a git command;
+  the script prints them as a reminder rather than pretending to answer them.
+- **Not automatic, and said so rather than overclaimed.** ECC wires this kind of check to
+  Claude Code lifecycle hooks that fire inside a persistent session. This project's actual
+  workflow is single commands run one at a time in `cmd.exe` with no such session to hook
+  into, so the script is invoked by hand at session close — same cadence as before, computed
+  instead of recollected, not the automatic version ECC gets.
+- **Declined: an "instinct"-style confidence-scored auto-prune for "Lessons carried
+  forward."** Two reasons, not one. It conflicts directly with this project's own standing
+  rule that wrong turns are recorded rather than quietly corrected — pruning is quiet
+  removal. And recurrence count is not a proxy for importance: the `git add -A` trap
+  stopped recurring specifically because it was fixed structurally (`214c5d8`'s `.gitignore`
+  rule), so a recurrence-based prune would delete exactly the lessons that worked, first.
+  No change made to that list.
+- **The other four ECC components Viktor's own proposal had already declined** —
+  verification-loop/eval-harness, the `rules/` folder, multi-agent orchestration, the broad
+  skill catalog — are confirmed correct and left as-is; nothing to add there.
+- **Verified before delivery, not assumed.** All four detectors in the script were run
+  against deliberately introduced test conditions (a stray `.patch`/commit-message pair, a
+  staged file) and confirmed to actually fire, then the test scaffolding was removed and the
+  tree confirmed clean again.
+- **`code_hash` unaffected** — the new file lives under `docs/build/`, excluded from
+  `core/code_fingerprint.py`'s file walk by directory name; computed on the pristine and
+  patched trees and confirmed identical, not assumed. No engine module touched, so the
+  golden snapshot does not apply to this patch.
+- **Test counts (Linux sandbox, Python 3.12.3), re-run before this change and confirmed
+  unchanged after it, since none of it touches engine or test code.** pytest with
+  `pandas_ta` 466 passed; pytest without it 338 passed / 117 skipped; `run_tests.py` 395
+  passed / 0 failed / 32 errors (32 pre-existing, unrelated to this patch).
+- **Platform.** Built and verified in the Linux sandbox only. `pathlib`/`subprocess`/`git`
+  behave the same on Windows for what this script does, so there is no specific reason to
+  expect it to fail there, but that expectation is not yet confirmed — run it once applied
+  and paste the output back, both to confirm it works on your machine and to get its first
+  real reading.
+
+---
+*Prior head block (15 September, nineteenth patch) kept below for history.*
+
+
 *15 September 2026 (nineteenth patch, docs only) — **The release gate is declared open
 and the project portfolio-ready.** Viktor's ruling, recorded in full under "Declared —
 15 September 2026" (below, under "Two goals, and the order they finish in"). Read that
@@ -5085,6 +5139,13 @@ narrower check; it now rests on the exhaustive one.
   eleven verified findings with line numbers, four patches, three rulings made, three
   owed, sizes for what remained -- existed only in a chat window until Viktor asked
   whether it was safe. It was not. The check runs on any signal the session is ending:
+
+  Run `python docs/build/session_handover_check.py` first — added 15 September 2026,
+  twentieth patch. It answers items 3, 5 and 7 below by command (git status, loose delivery
+  files, the staged index) rather than by memory, and prints items 1, 2, 4 and 6 as an
+  explicit reminder, since those need someone to read and judge this file's own content,
+  which no script can do. Its output is a floor, not a substitute for going through all
+  seven:
 
   1. Is the current state in this file, rather than only in the conversation?
   2. Are today's rulings recorded here, with what they decided and why?
