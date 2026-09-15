@@ -1,5 +1,24 @@
 # Next step — read this first
 
+*15 September 2026 (nineteenth patch, docs only) — **The release gate is declared open
+and the project portfolio-ready.** Viktor's ruling, recorded in full under "Declared —
+15 September 2026" (below, under "Two goals, and the order they finish in"). Read that
+section for the reasoning; this entry is a pointer, not a repeat of it.
+
+- **What this does and does not do.** Closes the one item the sixteenth through
+  eighteenth patches all left open: whether criterion 1 counts as met, whether to declare
+  portfolio-ready, and whether to tag. The first two are now yes, recorded above with
+  reasoning. The tag (`portfolio-v1`) is a separate, following commit — this patch does
+  not create it, so the tag should point at a commit at or after this one, never before.
+- **code_hash unaffected** — docs-only, confirmed against a fresh clone, not assumed.
+- **Verification scope, stated plainly.** Pure prose recording a ruling already made in
+  chat; no code or test file touched. Full suite re-run skipped as disproportionate,
+  matching the eighteenth patch's own precedent for a documentation-only change.
+
+---
+*Prior head block (15 September, eighteenth patch) kept below for history.*
+
+
 *15 September 2026 (eighteenth patch, docs only) — **The five round-6 mutant-escape
 findings (requested-run 6, GPT-6 Astra) were already closed at `044b055` (12 September)
 and this file never said so.** Found while scoping a request to fix them: they turned
@@ -1327,9 +1346,45 @@ project has already suffered once.
 With the tag in place, B can break whatever it likes. The submission is a fixed
 point.
 
-Anything B produces then becomes item 14 of the portfolio document — future
-development. If validation succeeds, the document is revised with a stronger result.
-If it fails, that is also a result and the document says so.
+### Declared — 15 September 2026
+
+**The release gate is open. The project is portfolio-ready.** Viktor's ruling, given
+the six criteria's status as of this date, after writing his own position first and
+having it checked rather than handed to him:
+
+1. **Release gate.** Round 5 (GPT-6 Astra) found three Criticals (F1/F2/F3), all fixed
+   and landed. Round 6 (Meta Muse Spark 1.3 — independent of round 5's model) re-audited
+   those three plus the three post-round-5 fix commits (`2387717`, `88e47e9`, `044b055`)
+   and found no Critical Tier-1 defect — the Constitution's own bar ("no fix has landed
+   and been re-audited"). Named plainly: round 6's scope was the touched files and fix
+   commits, not a fresh whole-codebase audit the way round 5 was — the first time this
+   project has closed a Critical this way rather than having the fix incidentally survive
+   the next full audit round. The Constitution's text doesn't specify scope, so this
+   satisfies the letter; it is a new pattern, not a repeat of an old one. The stronger
+   reason to trust it isn't "nothing raised a flag" but a checked one: all three fix
+   commits' full suite runs (466 passed, golden snapshot and `code_hash` confirmed as
+   predicted) came back clean, individually and combined, on a suite that — as of
+   `044b055`, confirmed the same day as this ruling — can no longer pass vacuously around
+   the functions these commits touch. Against this project's own confidence_score
+   precedent (a rename that broke fourteen modules undetected through the suite), that
+   distinction is what the ruling actually rests on, not an absence of suspicion.
+2. **Remaining findings.** Fully closed. Round 6's own F1-F5 fixed and self-verified
+   (fourteenth patch), the bonus duplicate-`@staticmethod` fixed (`a70fc1b`, fifteenth
+   patch), and — confirmed only today, correcting an earlier false alarm in this file's
+   own chat-side reporting — the five round-6 mutant-escape findings from requested-run 6
+   were already closed at `044b055` (twelfth patch). Nothing is on record as open and
+   unruled.
+3. **Engineering Notes** — current as of `293f310`.
+4. **Portfolio document** — exists (`69f1972`), fourteen pages, within any plausible
+   exam-paper page limit.
+5. **AI-attribution** — exists (`eee218e`).
+6. **Suite and golden snapshot** — current, confirmed on every commit since.
+
+Viktor's own words: "the targeted re-audit in Round 6 satisfies the literal
+requirement... unless there is a specific technical reason to suspect the fix broke an
+unrelated part of the engine, holding this release to a higher standard than every
+previous one isn't warranted." No such technical reason was found. All six criteria are
+green. Tag `portfolio-v1` follows as its own commit, pointing at this one.
 
 ### One consequence for the career plan
 
