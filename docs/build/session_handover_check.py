@@ -1,9 +1,9 @@
 """Session handover check — the mechanical half.
 
 Answers the git-answerable items from PHASE7_NEXT.md's "Working practice"
-handover checklist (items 3, 5 and 7) by running the actual commands
-rather than relying on anyone remembering to. It does NOT answer items
-1, 2, 4 and 6 -- whether this session's state is written into
+handover checklist (items 3, 5 and 7, plus item 8 below) by running the
+actual commands rather than relying on anyone remembering to. It does NOT
+answer items 1, 2, 4 and 6 -- whether this session's state is written into
 PHASE7_NEXT.md, whether today's rulings are recorded there, whether the
 Engineering Notes gap is current or explicitly stated, and whether any
 evidence is still sitting only in a chat window. Those four ask whether
@@ -19,14 +19,30 @@ same as before; nothing in this project's actual workflow (single
 commands run one at a time) can trigger it automatically the way an
 IDE or a persistent agent session could.
 
+Item 8 -- README.md currency, added 15 September 2026 -- is a partial
+exception to the "prose needs judging" rule above. Whether README.md's
+*content* still matches what this file's head block declares is still a
+judgment call (this script does not read either document), but *how
+long it has been since README.md was last touched* is a plain git fact,
+and printing it removes the only reason that gap went unmade for sixteen
+days: nobody ran `git log` on README.md to notice it. See `## 5.` below.
+The other half of the same session's finding -- whether the ignored-file
+sweep should run "every time" rather than only when Claude happens to do
+one by hand -- needed no code change: `## 2.` below already runs on
+every invocation of this script and always has, since the twentieth
+patch. The gap that let a stray file go unnoticed that session was that
+the script itself did not run (no shell access to Viktor's machine that
+session), not that its sweep was incomplete.
+
 Usage (from anywhere inside the repo, or pass the repo root as $1):
     python docs/build/session_handover_check.py
     python docs/build/session_handover_check.py D:\\phase7_engine
 
 Exit code 0 if nothing was flagged, 1 if something needs a look --
 never a claim that everything is fine, only that this script found
-nothing. The four manual items still need answering regardless of
-which exit code this prints.
+nothing. Item 8 (below) is informational and does not affect the exit
+code -- see its own docstring for why. The four manual items still need
+answering regardless of which exit code this prints.
 """
 
 from __future__ import annotations
@@ -157,6 +173,45 @@ def check_staged_index(root: Path) -> str:
     return result.stdout.strip()
 
 
+def check_readme_currency(root: Path) -> None:
+    """Item 8: README.md's last touch, printed for a human to judge against
+    this file's head block -- not scored, unlike items 1-4 above.
+
+    "Stale" is a judgment about content: does README.md's prose still
+    match what PHASE7_NEXT.md's head block currently declares (the
+    release gate, the portfolio-ready status, whatever the standing
+    declarations are). That needs reading both documents, which this
+    script does not do. What it can do is remove the reason the gap went
+    unnoticed for sixteen days on 15 September 2026 (README.md last
+    touched 30 August, fixed at `ebb0a46`): nobody ran `git log` on
+    README.md to see how old it was. This prints that fact every time,
+    so the judgment call at least starts from the right information.
+    """
+    readme_hash = _run(
+        ["git", "log", "-1", "--format=%H", "--", "README.md"], cwd=root
+    ).stdout.strip()
+    print()
+    print("## 5. README.md currency  (informational -- judge against the head block above)")
+    if not readme_hash:
+        print("  README.md has no commit history in this repo")
+        return
+    readme_info = _run(
+        ["git", "log", "-1", "--format=%h  %ad  %s", "--date=short", readme_hash],
+        cwd=root,
+    ).stdout.strip()
+    head_info = _run(
+        ["git", "log", "-1", "--format=%h  %ad  %s", "--date=short", "HEAD"],
+        cwd=root,
+    ).stdout.strip()
+    since = _run(
+        ["git", "rev-list", "--count", f"{readme_hash}..HEAD"], cwd=root
+    ).stdout.strip()
+    print(f"  README.md last touched: {readme_info}")
+    print(f"  HEAD currently at:      {head_info}")
+    print(f"  commits landed since README.md was touched: {since or '0'}")
+    print("  does README.md's prose still match what the head block above declares?")
+
+
 def main() -> None:
     start = Path(sys.argv[1]) if len(sys.argv) > 1 else Path.cwd()
     root = _repo_root(start)
@@ -165,6 +220,7 @@ def main() -> None:
     ignored = check_ignored_files(root)
     loose = check_loose_delivery_files(root)
     staged = check_staged_index(root)
+    check_readme_currency(root)
 
     print()
     print("## Still manual -- this script cannot answer these; read PHASE7_NEXT.md")

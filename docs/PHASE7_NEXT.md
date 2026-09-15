@@ -1,5 +1,63 @@
 # Next step — read this first
 
+*15 September 2026 (twenty-second patch) — **The handover script gets a README.md
+currency check (item 8); the "ignored-file sweep every time" half of the same open
+question closes with no code change.** Viktor named the split himself — the checkpoint/
+dataset questions are his to write, this one is Claude's engineering call — then said
+"Yes. Fix this."
+
+- **What changed, in `docs/build/session_handover_check.py`.** One new function,
+  `check_readme_currency`, printed as `## 5.` in the script's output: README.md's
+  last-touched commit (hash, date, subject), HEAD's own, and the commit count between
+  them. Informational only — it does not feed the script's exit code, the same way the
+  four "still manual" reminders don't, because whether README.md's *content* still
+  matches what this file's head block declares is a judgment call, not a git fact. What
+  the script now removes is the reason that judgment call went unmade for sixteen days
+  (README.md last touched 30 August, fixed at `ebb0a46` on 15 September): nobody ran
+  `git log` on README.md to see how old it was.
+- **The other half of the open question needed no code change.** Whether the
+  ignored-file sweep should run "every time" was already answered by the script's own
+  existence: `## 2.` (`check_ignored_files`) runs on every invocation, unconditionally,
+  since the twentieth patch created it. The stray `*_commit_message.txt` file the
+  twenty-first-patch entry found slipped through because the script itself didn't run
+  that session (no shell access to Viktor's machine), not because its sweep logic was
+  incomplete. Stated plainly rather than silently adding a redundant check to look
+  responsive.
+- **This file's own "Working practice" checklist gets item 8** (below), matching the
+  script: README.md currency, printed automatically, judged manually, the same as items
+  1, 2, 4 and 6.
+- **Verified, not assumed.** Three scenarios run against a throwaway git repo: a clean
+  tree with README.md one commit behind HEAD; a stray commit-message file plus an
+  ignored file plus a staged index together, to confirm the new check doesn't disturb
+  the existing flagged/clean logic; and a repo where README.md has no commit history at
+  all, to confirm the new check degrades gracefully instead of raising. All three
+  produced the expected output and exit code. The patch itself was verified the same way
+  every patch in this file is: `git apply --check` then `git apply` against a pristine
+  copy of the file re-staged off Viktor's disk immediately before building the diff (md5
+  confirmed identical to the disk copy before patching, and to the intended new version
+  after), CRLF preserved (240/240 lines, no LF-only lines, before and after), and
+  `python -m py_compile` confirmed on the applied result.
+- **`code_hash` unaffected** — `docs/build/session_handover_check.py` sits under `docs/`,
+  which `core/code_fingerprint.py` excludes from its file walk by directory name, checked
+  directly in that file's own `EXCLUDED_DIR_NAMES` rather than assumed from precedent. No
+  file outside `docs/` touched.
+- **Test suite: not re-run, and that's a scoping call, not a skip.** This script has no
+  pytest coverage — `tests/` has no `test_session_handover_check.py`, checked by listing
+  the directory — and nothing under test imports it; it's invoked by hand, not by the
+  suite. Nothing in `tests/`, `core/`, `indicators/`, `utils/`, `models/`, `structure/` or
+  `data/` was touched, so there is nothing under test this patch could have moved; the
+  usual three-configuration run was skipped as inapplicable, not disproportionate.
+- **Platform.** Built and verified in the Linux sandbox only, same as the script's
+  original twentieth-patch delivery. No shell access to Viktor's machine this session
+  either, so this stays Linux evidence for `git apply` / `py_compile` / the three
+  throwaway-repo runs. Nothing added is OS-conditional (no path handling, no
+  platform branches), so there's no specific reason to expect a difference on his
+  machine, but that expectation is unconfirmed until it runs there once applied.
+
+---
+*Prior head block (15 September, twenty-first patch) kept below for history.*
+
+
 *15 September 2026 (twenty-first patch, docs only) — **Session close: the README fix
 logged here for the first time, a stray leftover delivery file found, and today's
 backtesting-scoping findings carried forward so they survive into the next session
@@ -5211,11 +5269,12 @@ narrower check; it now rests on the exhaustive one.
   whether it was safe. It was not. The check runs on any signal the session is ending:
 
   Run `python docs/build/session_handover_check.py` first — added 15 September 2026,
-  twentieth patch. It answers items 3, 5 and 7 below by command (git status, loose delivery
-  files, the staged index) rather than by memory, and prints items 1, 2, 4 and 6 as an
-  explicit reminder, since those need someone to read and judge this file's own content,
+  twentieth patch, extended with item 8 the same day (twenty-second patch). It answers
+  items 3, 5, 7 and 8 below by command (git status, loose delivery files, the staged index,
+  README.md's last-touched date) rather than by memory, and prints items 1, 2, 4 and 6 as
+  an explicit reminder, since those need someone to read and judge this file's own content,
   which no script can do. Its output is a floor, not a substitute for going through all
-  seven:
+  eight:
 
   1. Is the current state in this file, rather than only in the conversation?
   2. Are today's rulings recorded here, with what they decided and why?
@@ -5229,6 +5288,11 @@ narrower check; it now rests on the exhaustive one.
      about untracked files and loose patch files, and a staged-but-uncommitted index is
      neither. The 6 September doc rewrite sat that way through a whole session and a
      handover check before anyone noticed.
+  8. Does README.md's prose still match what this head block currently declares? Added 15
+     September 2026 (twenty-second patch) after README.md went sixteen days stale (last
+     touched 30 August, fixed at `ebb0a46`) with nobody noticing. The script prints
+     README.md's last-touched date and the commit count since, every run; judging whether
+     the content still matches stays manual, the same as items 1, 2, 4 and 6.
 
   Report what the check finds, not that it ran. If everything is filed, one line.
 
