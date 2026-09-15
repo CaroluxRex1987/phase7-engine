@@ -1,5 +1,30 @@
 # Next step — read this first
 
+*15 September 2026 (seventeenth patch, docs only) — **The five token-saving workflow rules
+from the same-day chat discussion recorded in this file's own Working practice section**,
+not just in the patch-delivery skill and memory. Viktor asked for an in-repo copy after the
+skill/memory version landed.
+
+- **What changed.** One new bullet under "Working practice" (below): scoped-files
+  review-package default reserved for genuine fresh Tier-1 audits (not decided per-round),
+  batched Engineering Notes / Portfolio Document regeneration instead of after every small
+  patch, no routine staging or re-reading of `docs/audit_package/`'s
+  `qwen_reasoning_*.txt` files or superseded round folders, chat-reply discipline
+  restated as holding regardless of patch size, and the fresh-session-at-closure preference
+  restated. Same five rules already implemented into the patch-delivery skill and recorded
+  in memory earlier the same day (15 September) — this entry is the in-repo copy Viktor
+  asked for, not a new ruling.
+- **Not decided here.** The portfolio-ready declaration and the `portfolio-v1` tag are
+  still open and still Viktor's call — see the sixteenth patch entry below, unchanged by
+  this one.
+- **`code_hash` unaffected** — this entry and the Working practice addition touch only
+  `docs/PHASE7_NEXT.md`, which `core/code_fingerprint.py` excludes from its file walk by
+  directory name; confirmed against a fresh clone of `origin/master`, not assumed.
+
+---
+*Prior head block (14 September, sixteenth patch) kept below for history.*
+
+
 *14 September 2026 (sixteenth patch, docs only) — **Items 4 and 5 of six landed
 (`69f1972`, `eee218e`); this file itself was the one thing not yet updated to say so.**
 Session handover check, per Viktor's standing end-of-session practice: the three commits
@@ -4938,6 +4963,24 @@ narrower check; it now rests on the exhaustive one.
 - **Verify a delivery by reading the file back off the device and diffing it** against the
   intended bytes. Compiling the copy that was sent proves syntax, not identity — both
   versions compiled.
+- **Token-saving discipline — adopted 15 September 2026.** Five rules, implemented into
+  the patch-delivery skill so a fresh session follows them without being told:
+  1. Scoped-files review packages (touched files, direct callers, contract tests) are the
+     default for fix-verification sends and narrow patches. The full audit package
+     (~400K+ tokens) is reserved for a genuine fresh Tier-1 audit round, not decided
+     per-round.
+  2. Engineering Notes and Portfolio Document regeneration is batched — at session close,
+     or once several commits have landed since the last regeneration — rather than run
+     after every small patch. `PHASE7_NEXT.md` itself stays current every time regardless;
+     only the two generated PDFs are batched.
+  3. `docs/audit_package/`'s `qwen_reasoning_*.txt` files and superseded audit-round
+     folders are not staged or re-read as routine workflow, only when a question calls
+     back to that specific round by name.
+  4. When a patch ships with a commit message, the chat reply stays predictions-and-
+     commands only, regardless of how small the patch feels — the discipline compounds
+     across a session, a single lapse does not.
+  5. Prefer a fresh session over a long one at a real closure point — a finding closed, a
+     milestone reached, the docs caught up — over continuing on momentum.
 - **Run the handover check before the session ends — Claude initiates it, Viktor does not
   have to remember.** A session does not persist. Whatever was established in it and not
   written down has to be rediscovered, slowly and incompletely, and the parts that came
