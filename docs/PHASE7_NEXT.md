@@ -1,5 +1,47 @@
 # Next step — read this first
 
+*15 September 2026 (eighteenth patch, docs only) — **The five round-6 mutant-escape
+findings (requested-run 6, GPT-6 Astra) were already closed at `044b055` (12 September)
+and this file never said so.** Found while scoping a request to fix them: they turned
+out to already be fixed, verified, and folded into round 6's audit batch. This entry
+corrects the record rather than re-doing work already done.
+
+- **What `044b055` actually did, never spelled out in this file before now.** All five
+  mutant-escape findings from requested-run 6 closed in one commit: `compute_trend_health`'s
+  always-neutral escape (`tests/test_trend_direction_source.py`), `_determine_final_action`'s
+  always-WAIT escape (`tests/test_timeframe_disagreement.py`), `plot_engine_chart`'s no-op
+  escape on both affected tests (`tests/test_frame_ownership.py`), `SignalRouter.route`'s
+  canned-error escape (`tests/test_smoke.py`), and `run_tests.py`'s zero-match-exits-0 bug
+  (fixed in `run_tests.py` itself, with a new `tests/test_run_tests_filter_matching.py`).
+  Each mutant reproduced in-process, confirmed to escape the old test, confirmed caught by
+  the new one, confirmed the new test still passes on real code. `code_hash` moved by
+  exactly the predicted file (`run_tests.py`); golden snapshot confirmed unmoved. Test
+  counts at landing: 440 passed (with pandas_ta) / 317 passed + 112 skipped (without) /
+  369 passed, 0 failed, 32 errors (`run_tests.py`) — all recorded in the commit itself.
+- **Already independently reviewed.** `044b055` was one of the "three post-round-5 fix
+  commits" (`2387717`, `88e47e9`, `044b055`) this file already cites by hash as folded
+  into round 6's audit package (thirteenth-patch entry, below) — round 6 found no Critical
+  Tier-1 defect in that batch. This file just never said what `044b055` was.
+- **Why this matters for the record, not for the decision.** This doesn't decide whether
+  the release gate is open or the project is portfolio-ready — that's still Viktor's call,
+  unchanged. It does mean one specific thread that looked open (five Major-severity
+  findings "for Viktor to rule on") was already closed three days before anyone asked
+  whether it needed ruling on.
+- **Lesson, named plainly.** Claude reported these five as still open in chat, from
+  reading this file's own narrative rather than checking git. This file cited `044b055`
+  by hash without ever saying what it fixed — rule 19's failure shape below ("work from
+  the audit, not from the summary of it"): a derived document didn't contain what the
+  actual commit did, and the gap went unnoticed until someone asked to act on it.
+- **Verification scope for this patch, stated plainly.** Pure prose, citing an
+  already-landed, already-tested commit's own message — no code or test file touched, so
+  the full three-configuration suite re-run was skipped as disproportionate to what
+  changed. `code_hash` confirmed unmoved (computed on both trees) since that check is
+  cheap regardless of patch size and catches any accidental non-docs change.
+
+---
+*Prior head block (15 September, seventeenth patch) kept below for history.*
+
+
 *15 September 2026 (seventeenth patch, docs only) — **The five token-saving workflow rules
 from the same-day chat discussion recorded in this file's own Working practice section**,
 not just in the patch-delivery skill and memory. Viktor asked for an in-repo copy after the
