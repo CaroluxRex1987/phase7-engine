@@ -1,5 +1,75 @@
 # Next step — read this first
 
+*15 September 2026 (twenty-first patch, docs only) — **Session close: the README fix
+logged here for the first time, a stray leftover delivery file found, and today's
+backtesting-scoping findings carried forward so they survive into the next session
+rather than living only in chat.** Run at Viktor's request, starting a new chat.
+
+- **README.md fix, landed `ebb0a46`, never logged in this file.** Found while starting
+  to scope backtesting: `README.md` had not been touched since 30 August (`881df1d`) and
+  still said the release gate was shut, contradicting the 15 September declaration.
+  Fixed in its own patch, verified `code_hash`-neutral (README.md sits outside
+  `core/code_fingerprint.py`'s file walk entirely) and against the full suite (466
+  passed, unchanged). Viktor's own correction, recorded plainly rather than smoothed
+  over: this was not a case of him failing to ask for document checks — the standing
+  handover check has never covered `README.md`, only this file, the Engineering Notes,
+  and `git status`. That checklist gap is not fixed by this patch; see below.
+- **A stray delivery leftover, found by hand-checking what the new handover script
+  checks.** No shell access to Viktor's machine this session, so the check ran as a
+  direct directory listing instead of a live script run. It found
+  `phase7_mutant_escape_correction_commit_message.txt` sitting at the repo root,
+  gitignored (`*_commit_message.txt`) and therefore invisible to `git status --short`.
+  Its mtime (14:41) sits two minutes before the `f7f2e51` object was written, so it is
+  very likely that patch's own commit-message file, never deleted per step 11 of its
+  numbered delivery sequence. This is a second, live instance of the exact blind spot
+  this file's own lessons already name (reviewer responses once sat unnoticed the same
+  way) — confirmation the class recurs, not a new lesson. Not deleted by Claude; Viktor
+  should `del` it himself, same as any other delivery artifact. Everything else in the
+  tree checked out clean: no other loose `.patch`/`*_commit_message.txt` files anywhere,
+  nothing else with an out-of-place recent timestamp.
+- **The handover checklist's own scope is now a named, undecided question.** It covers
+  `PHASE7_NEXT.md`, the Engineering Notes, and git state — never `README.md`, and (per
+  the finding above) its git-based checks can still miss a gitignored straggler unless
+  someone runs the `--ignored` check specifically. Whether to add `README.md`, and
+  whether the routine should include an explicit ignored-file sweep every time rather
+  than only when Claude happens to do one by hand, are open — not decided this session,
+  named here so they are not lost.
+- **Backtesting-scoping findings from today, carried forward, nothing acted on.**
+  Viktor chose to start scoping Goal B this session; here is what the scoping so far
+  found, for whichever session picks it up next:
+  1. The Constitution's backtest-start condition — Items 2, 3, 6 and 18 all Compliant —
+     is a separate clause from the release gate and has not been formally re-checked or
+     declared the way the release gate was on 15 September. Evidence points to it
+     already being satisfied (all four items independently resolved), but nobody has
+     said so the way Viktor said "the gate is open" for the release gate.
+  2. Item 17 (Backtesting Must Be Isolated) is the actual design constraint for whatever
+     gets built: not an unbreakable backtester, a blast radius — a failure must never
+     corrupt, destabilize or redefine the live engine, and when it fails it must be
+     possible to isolate what broke and return to a known-good state without ambiguity.
+  3. A real precedent for exactly what Item 17 guards against: a 6 September finding
+     (GLM, F-1) in the old `indicators.py::pct_slope` — `.bfill()`-contaminated rows,
+     harmless only because the decision path always reads the newest bar, and "a
+     backtest harness walking the decision timestamp backwards would reach it with no
+     code change" (the report's own words). Already fixed (`4d56f2a`, `pct_slope`
+     removed entirely, confirmed gone from current code) — but proof the defect shape
+     exists in this codebase, and nothing has ever swept for other instances of it on
+     purpose.
+  4. Two questions put to Viktor, per his own standing preference to write a governance
+     position himself before Claude critiques it, not yet answered: what "known-good
+     checkpoint" and "fixed evaluation dataset" concretely mean for this project.
+- **Engineering Notes gap, stated rather than closed on reflex.** Last regenerated at
+  `293f310` (v1.29, 14 September). Five docs-only commits have landed since (the
+  sixteenth through this, the twenty-first, patch) without a fresh regeneration, per the
+  batching rule adopted 15 September — this is that rule working as intended, not
+  neglect, but the gap should say so rather than go unmentioned.
+- **`code_hash` unaffected** — docs-only, confirmed against a fresh clone, not assumed.
+  No engine module touched by anything this entry records; the golden snapshot does not
+  apply.
+
+---
+*Prior head block (15 September, twentieth patch) kept below for history.*
+
+
 *15 September 2026 (twentieth patch) — **A manual session-handover check script,
 `docs/build/session_handover_check.py`; a proposed auto-pruning mechanism for the Lessons
 list, declined.** Viktor read an unrelated agent-harness project (ECC) and asked for
