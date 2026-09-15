@@ -1,5 +1,51 @@
 # Next step — read this first
 
+*15 September 2026 (twenty-fourth patch, docs only) — **Goal B is specified and ratified
+before any backtesting code exists.** New permanent section, "Goal B — the backtesting
+phase, specified before it starts," below under "Two goals, and the order they finish in."
+Read that section; this entry is a pointer and a record of how it was decided, not a
+repeat of it.
+
+- **How it was decided.** Same shape as the portfolio-ready declaration: Viktor wrote his
+  own position on each governance question first, Claude critiqued it, corrections were
+  folded in, and Viktor ratified. Four rounds — the checkpoint/rollback/isolation rules,
+  the fixed evaluation dataset, the pre-registered verdict thresholds, and the completion
+  boundary. The final call on the remaining open points was explicitly delegated to Claude
+  ("make the changes you want and are content with... it is your call"), and the reasoning
+  for each is recorded in the section rather than only in chat.
+- **What it closes.** The two questions carried forward unanswered since the
+  twenty-first-patch entry below — what "known-good checkpoint" and "fixed evaluation
+  dataset" concretely mean for this project — are both now answered, along with three
+  things that were never on the list: the pre-registered verdict procedure, the completion
+  boundary that ends the phase, and the re-run clause that stops a negative verdict being
+  quietly re-litigated.
+- **Three findings from reading the code, not the documents.** `PHASE7_PINNED_DATA`
+  silently falls back to the live API when the environment variable is set but does not
+  resolve to a directory (`data/data_fetcher.py::pinned_source()` returns `None`, and
+  `None` means live) — still open, now a named precondition of goal B. The eval dataset is
+  three series per run, not one file, so the multi-timeframe alignment rule (truncate by
+  candle open time, never close time) is the highest-risk line in the whole phase. And
+  `_load_pinned` already tails to `limit`, so the harness is a time cursor on the existing
+  pinned path rather than a new data pipeline — a much smaller build than first scoped.
+- **Two of Claude's own errors are recorded in the section itself**, both the same shape:
+  asserting from this file's narrative instead of from the code. The lookahead sweep Claude
+  said had never happened (`793e863`, 30 August, with `tests/test_no_lookahead.py` already
+  pinning it), and `fc35a2f` described as a reusable precedent without reading it. Standing
+  mitigation adopted for goal B: every claim about the codebase's state states whether it
+  came from reading code or from a document.
+- **Not started, and deliberately so.** No goal B code exists yet. The precondition order
+  in the new section begins with a 100-decision-point timing benchmark, because whether a
+  backtest takes minutes or hours decides whether walk-forward is affordable at all, and it
+  costs almost nothing to find out first.
+- **`code_hash` unaffected** — this patch touches only `docs/PHASE7_NEXT.md`, under
+  `docs/`, which `core/code_fingerprint.py` excludes from its file walk by directory name.
+  Confirmed on both trees, not assumed. No engine module or test touched, so the golden
+  snapshot does not apply.
+
+---
+*Prior head block (15 September, twenty-third patch) kept below for history.*
+
+
 *15 September 2026 (twenty-third patch, docs only) — **Engineering Notes regenerated
 through Entry #127 (v1.30), landed `bd44b98`.** Batched regeneration Viktor chose himself
 at this session's start, over two other open items (writing his own position on the two
@@ -1614,6 +1660,265 @@ means goal B.
 
 Once portfolio-ready is a named milestone with its own date, job applications start
 there — months before B is done, which is what the guiding principle asks for.
+
+## Goal B — the backtesting phase, specified before it starts (15 September 2026)
+
+Written the same way portfolio-ready was: Viktor wrote his own position on each
+governance question first, Claude critiqued it, and the corrections were folded in
+before anything was locked. Ratified 15 September 2026. Two of Claude's own errors
+during that process are recorded at the end of this section rather than quietly
+dropped, per this project's own rule.
+
+Backtesting destroyed the previous build. `portfolio-v1` is tagged, so goal B can now
+break whatever it likes without endangering what Viktor submits — that is the tag
+working as designed. This section is what keeps the breakage recoverable and the
+eventual answer trustworthy.
+
+### What goal B is actually for
+
+**Trustworthy truth, not a favourable number.** Every rule below exists to guarantee
+Viktor learns what this engine really does. None of it makes the engine better at
+predicting anything, and it should not be read as a promise about the result. There is
+a substantial chance the honest verdict is that this does not beat buy-and-hold — most
+rule-based technical systems do not. That outcome is a result, not a failure, and goal
+A's own wording already says so. The value of everything below is that a negative
+verdict will be a *trustworthy* negative rather than an ambiguous one.
+
+### Preconditions, in order
+
+The order is deliberate: cheapest information first.
+
+0. **Timing benchmark.** Time 100 decision points against the existing pinned fixtures
+   before building anything else. The engine makes one decision per 450-row frame across
+   three series; a multi-year 4h backtest is on the order of 5,000–10,000 full runs, each
+   recomputing every indicator. Whether that is minutes or hours dictates whether
+   walk-forward is affordable and how many variants can realistically be tested. It
+   shapes every decision after it and costs almost nothing.
+1. **Fix `PHASE7_PINNED_DATA`'s silent live fallback.** `data/data_fetcher.py`'s
+   `pinned_source()` returns `None` when the environment variable is set but does not
+   resolve to a directory, and `None` means the live API. `set_pinned_source()` raises on
+   a bad path; the environment-variable route does not. A mistyped dataset path in a
+   backtest would not fail — it would quietly fetch live data from MEXC and produce
+   plausible-looking results. This is the open observation already on this file's own
+   findings table, and it is a precondition of goal B rather than a nice-to-have.
+2. **Time cursor with open-time truncation, and its negative control.** A wrapper on the
+   existing `_load_pinned` path rather than a new data pipeline: `_load_pinned` already
+   serves `df.iloc[-limit:]`, so a backtest needs "the file truncated at `t`, then the
+   existing tail logic" — and the existing loading, validation and error paths then apply
+   unchanged, for all three series at once.
+
+   **The truncation rule is the single highest-risk line in goal B.** Each series is
+   truncated by candle **open time strictly before `t`**, never by close time. At a 4h
+   decision point mid-day the current daily candle has not closed; handing the engine the
+   completed daily bar leaks the rest of that day into every decision, invisibly, with
+   clean hashes, passing every other check in this section.
+
+   Negative control, because an assertion proves only that the guard did not fire:
+   re-run sampled decision points with all bars after `t` replaced by random noise, across
+   **at least three different seeds**, asserting byte-identical decisions on every one. A
+   single noise draw can coincidentally land on the same side of a threshold.
+3. **Item 17 write guard.** Backtest mode requires an explicit flag; writes to live log
+   directories, chart directories, or the cross-run state file raise and halt. This shares
+   `fc35a2f`'s *intent* but not its mechanism: that commit redirects `config.LOG_DIR` and
+   `config.CHART_DIR` via `tests/conftest.py` at import time, keyed to a pytest run, which
+   never fires for a user-invoked backtest. The guard is new work — assertions at the
+   write points. The cross-run state file is a third artifact class alongside logs and
+   charts: a backtest reading live state is contaminated, and writing it corrupts.
+4. **`cut_checkpoint.py`.** Runs the checkpoint criteria, refuses to tag on failure,
+   writes the manifest.
+5. **Dataset build**, with its own provenance record.
+6. **Run it, and record the verdict.**
+
+### Known-good checkpoint
+
+**Criteria**
+
+- All three configurations green: pytest with `pandas_ta`, pytest without it, and
+  `run_tests.py` at 0 failures with exactly the recorded fixture-error set **matched by
+  test name**, not by count. That baseline moves only via a commit that explicitly
+  predicts and records the new fixture-taking tests — the same escape hatch the golden
+  snapshot already has. Without it, the first legitimate new fixture test during goal B
+  would invalidate every checkpoint after it.
+- Golden snapshot matches exactly, or carries a documented intentional shift predicted
+  before the run. Unintended drift is a hard failure.
+- `code_hash` verified, and `session_handover_check.py` clean on items 1, 3 and 4 —
+  item 2 once its routine-noise filter is extended to cover the permanent
+  `docs/audit_package/round*` and `logs/` entries. Until that filter is extended, item 2
+  flags those on every run and the script's own summary never reads clean.
+- **Cut only by script.** A ruleset run by remembering to run three commands and compare
+  32 error names by eye is an instruction, not a structural fact of the repo — the shape
+  this project has already replaced twice (`session_handover_check.py`, and the
+  `.gitignore` fix for the `git add -A` trap).
+
+**Tagging and cadence**
+
+- Only tagged commits count as formal checkpoints. Cadence is driven by code change —
+  cut a tag whenever backtesting-touching code is committed and all three configurations
+  pass — not by session or calendar boundaries.
+- The tag records the `data_manifest.json` hash and the result scored against it, so
+  "which checkpoint last actually worked" is answerable without cross-referencing
+  separate logs by hand. A checkpoint that certifies only code state leaves that question
+  open.
+
+**Rollback**
+
+- Primitive: `git read-tree --reset -u <tag>`, then commit. **Not** `git checkout <tag>
+  -- .`, which does not delete files added since the tag — verified empirically against a
+  throwaway repo, not assumed: the added file survived and the resulting diff against the
+  tag was non-empty.
+- No `git revert` chains. Reverting a span of commits is not guaranteed to reproduce the
+  target tree, and destroying history would violate the decision-log and audit-trail
+  invariants anyway. The tree-match commit preserves full history and guarantees identity.
+- Valid only if `git diff <checkpoint-tag> HEAD` is empty **and** `code_hash` matches the
+  value recorded in the checkpoint manifest. Compute it; do not infer it from the diff.
+- Gitignored artifacts — `logs/`, the cross-run state file, `/backtest/` outputs — are
+  archived and labelled per recorded protocol during a rollback, never silently orphaned.
+  An artifact on disk with no record of which code produced it is an Item 6 problem.
+
+### The fixed evaluation dataset
+
+- **Three series, not one file.** `AEROUSDT_4h` (base), `AEROUSDT_1d` (macro) and
+  `BTCUSDT_4h` (context) — the three series `data/data_fetcher.py`'s own docstring records
+  the engine fetching every run. Pinned CSVs in the existing `{SYMBOL}_{TIMEFRAME}.csv`
+  shape, so the already-tested pinned path is reused rather than extended to a new format.
+- Fixed multi-regime historical range — bull, bear, chop — never a rolling relative
+  window. **Regime boundaries are set independently of the engine's own indicators**
+  (external criteria, not `classify_risk_regime` or its ADX thresholds), and are locked
+  into `data_manifest.json` at dataset creation and never adjusted once results exist.
+  Boundaries that can move after a result is visible are a knob that sets the verdict.
+- Integrity: SHA256 recorded in `data_manifest.json`; any divergence halts execution
+  before any simulation runs. Data quality — monotonic timestamps, no duplicates, expected
+  bar count, no non-finite or non-positive prices — verified through
+  `data/validation.py::validate_ohlcv`, already wired into `load_csv` via
+  `.attrs["validation_error"]`, rather than a new mechanism.
+- The dataset build itself carries a provenance record: which endpoint, fetched when, what
+  range, what was done about gaps. The dataset the engine will be judged on gets the same
+  treatment as a live run.
+- IS/OOS split is **chronological**, explicitly — never random. In-sample metrics are
+  documented for tuning provenance; the verdict comes from out-of-sample only.
+- **Scope honesty, to be carried into any document quoting the result:** this evaluates
+  one pair with BTC context over these windows. It is not evidence that the engine
+  generalises across coins, and nothing downstream may present it as such.
+
+### Lookahead — what already exists, and what does not
+
+The indicator layer is already swept and tested, and this was already true before goal B
+was scoped. `793e863` (30 August, "Sequence item 15: Item 2, no look-ahead bias") graded
+nine `.bfill()` calls and fixed the same defect shape in VWMA's `.fillna(close_prices)`,
+`volume_profile`'s `.fillna(0)`, the EMA slopes and `structure.py`'s OHLCV fill.
+`tests/test_no_lookahead.py` (11 tests) pins the result, including one test that the
+chart renderer is the only permitted exception and another that the exemption still
+means something.
+
+What does not exist is harness-level protection. The existing tests cover indicator
+functions operating on the current single-decision architecture — a fixed frame whose
+last bar is the decision point. Walking the decision timestamp across history is a new
+execution mode with no code today, and the open-time truncation rule plus its negative
+control (precondition 2) is what covers it.
+
+### Methodology
+
+- **Primary metric: annualised Sharpe ratio, 0% risk-free rate, out-of-sample only.**
+  Chosen in advance rather than left as "Sharpe/Sortino" — a slash permits reporting
+  whichever looks better once both are visible, which is not pre-registration. Sortino,
+  maximum drawdown, win rate, total return and time-in-market are reported as secondary
+  context.
+- **Benchmark: buy-and-hold over identical windows, reported in aggregate and per
+  regime.** A strategy that trails across the full range but beats the benchmark in the
+  bear window is a real result that a single aggregate comparison would flatten.
+- **NO-TRADE states and degraded runs count as flat**, never omitted from the statistics.
+  Omitting them would report only the runs where the data happened to be clean.
+- **Deterministic verification only — no external audit round.** The checks are
+  `cut_checkpoint.py`'s suite/snapshot/`code_hash` verification, the `data_manifest.json`
+  checksum gate, the open-time truncation assertion with its multi-seed negative control,
+  and metrics computed by the pre-registered formulas and emitted alongside the exact
+  commit tag and dataset hash.
+
+  **What that decision weakens, stated per this project's own amendment rule:** the
+  deterministic checks confirm the data was pinned, the pipeline ran, `code_hash` held,
+  and no lookahead was detectable. Nothing outside the project checks whether the
+  methodology itself is sound. A script cannot tell you the benchmark was the wrong
+  benchmark. This is a deliberate departure from the standing practice of reserving an
+  independent reviewer for the moment independence matters most, taken because hashes and
+  arithmetic are precisely the class of claim a script checks better than a reviewer does.
+
+### The verdict — pre-registered, before any result exists
+
+Evaluated strictly top to bottom on out-of-sample data. First match wins. The procedure
+is exhaustive by construction, so no judgment call is left at the finish line — which is
+the one moment in this project where Viktor's own judgment is least independent, having
+spent months earning the number he would be grading.
+
+1. **Step 0 — sample size.** OOS trades < 30 → **INCONCLUSIVE.** This gate measures
+   whether the strategy acted enough to be judged at all; Sharpe is computed on bar
+   returns, so it is not a statistical-power test of the Sharpe estimate.
+2. **Step 1 — positive.** Sharpe delta ≥ **+0.30** *and* strategy maximum drawdown ≤
+   benchmark maximum drawdown → **POSITIVE.**
+3. **Step 2 — negative.** Sharpe delta ≤ **−0.30** *and* strategy maximum drawdown ≥
+   benchmark maximum drawdown → **NEGATIVE.**
+4. **Step 3 — catch-all.** Everything else → **NEUTRAL.**
+
+Deltas are **absolute differences in Sharpe units**, never relative percentages: a
+multiplicative rule inverts when the benchmark Sharpe is negative, which is entirely
+plausible in a bear window, and would then require performing *worse* to "exceed by 15%."
+
+The band is symmetric by design. An earlier draft required a large Sharpe gain for
+POSITIVE but triggered NEGATIVE on any loss at all, which would have branded a strategy
+statistically indistinguishable from the benchmark as negative. The drawdown clauses are
+guards against "better returns bought with more risk" and "worse returns with no safety
+benefit" respectively — not a second primary metric, which is why POSITIVE requires only
+that drawdown is not worse rather than a substantial improvement.
+
+**Every verdict is recorded with absolute OOS total return and time-in-market on the
+same line.** Two traps this closes. If both strategy and benchmark lose money, a strategy
+that merely lost less grades POSITIVE — correct relative to the benchmark, and
+catastrophically misleading if that word reaches the portfolio document without the
+absolute figure beside it. And Sharpe structurally favours sitting in cash: a strategy in
+the market a tenth of the time can post an attractive ratio on trivial returns. Printing
+the numbers solves both without adding a judgment rule.
+
+### Completion boundary
+
+Goal B is complete when the engine executes a fully isolated, lookahead-free backtest
+over the pinned dataset, produces a deterministic verification report against the
+buy-and-hold benchmark, and records the verdict — POSITIVE, NEUTRAL, NEGATIVE or
+INCONCLUSIVE — together with run hashes, OOS metrics, absolute return and time-in-market,
+directly into this file as the phase closing log.
+
+The boundary is outcome-shaped rather than effort-shaped, and it accepts a negative
+verdict as completion. That is what prevents goal B becoming the forever-project the
+career plan's own words warn about: *"Do not keep endlessly redesigning it simply because
+another interesting technical rabbit hole appears. The project needs an ending."*
+
+**The re-run clause.** The first out-of-sample evaluation is the verdict of record.
+Pre-registration only works once: tuning after seeing the OOS result and re-running
+against the same window converts that window into in-sample data and destroys the thing
+all of the above was built to protect. Any later re-run after changes is a **new phase**,
+with its own pre-registration written before it runs, and the original verdict stays on
+the record unaltered — the same append-only discipline the Engineering Notes already use,
+where a later entry records the correction and the original stands.
+
+### Two errors made while writing this section
+
+Recorded rather than quietly corrected, per this file's own standing rule, and both the
+same shape: a claim asserted from this document's narrative instead of from the code.
+
+- Claude told Viktor no deliberate sweep for lookahead-bias defects had ever been run,
+  quoting this file's own words about the 6 September `pct_slope` finding. Checking git
+  found `793e863` — a dedicated, thorough sweep from 30 August, with `tests/test_no_lookahead.py`
+  already pinning the result. The sweep Claude said was a missing precondition had been
+  done six weeks earlier. This is rule 19's failure shape again, and Entry #123 of the
+  Engineering Notes — which Claude had helped write earlier the same session — exists to
+  warn about exactly it.
+- Claude described `fc35a2f` as a reusable precedent that would cover "most of" the Item
+  17 guard, without reading it. Reading it found a path redirect performed in
+  `tests/conftest.py` at import time and keyed to a pytest run — not a runtime assertion,
+  and not reachable from a user-invoked backtest. The guard is new work.
+
+Both were caught only because Viktor asked for a critical review rather than because
+Claude noticed. Standing mitigation adopted for goal B: **every claim Claude makes about
+the codebase's state says whether it came from reading the code or from a document.**
+
 
 ## Where things stand
 
