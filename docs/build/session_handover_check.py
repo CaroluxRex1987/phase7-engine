@@ -1,6 +1,6 @@
 """Session handover check — the mechanical half.
 
-Answers the git-answerable items from PHASE7_NEXT.md's "Working practice"
+Answers the git-answerable items from docs/PHASE7_DECISIONS.md's "Working practice"
 handover checklist (items 3, 5 and 7, plus item 8 below) by running the
 actual commands rather than relying on anyone remembering to. It does NOT
 answer items 1, 2, 4 and 6 -- whether this session's state is written into
@@ -175,12 +175,15 @@ def check_staged_index(root: Path) -> str:
 
 def check_readme_currency(root: Path) -> None:
     """Item 8: README.md's last touch, printed for a human to judge against
-    this file's head block -- not scored, unlike items 1-4 above.
+    docs/PHASE7_NEXT.md's current-state section -- not scored, unlike
+    items 1-4 above. (Before 18 September 2026 this compared against
+    PHASE7_NEXT.md's "head block"; that file was split into three and no
+    longer has one -- see its own current-state section for the pointer.)
 
     "Stale" is a judgment about content: does README.md's prose still
-    match what PHASE7_NEXT.md's head block currently declares (the
-    release gate, the portfolio-ready status, whatever the standing
-    declarations are). That needs reading both documents, which this
+    match what docs/PHASE7_NEXT.md currently declares (the release gate,
+    the portfolio-ready status, whatever the standing declarations are).
+    That needs reading both documents, which this
     script does not do. What it can do is remove the reason the gap went
     unnoticed for sixteen days on 15 September 2026 (README.md last
     touched 30 August, fixed at `ebb0a46`): nobody ran `git log` on
@@ -191,7 +194,7 @@ def check_readme_currency(root: Path) -> None:
         ["git", "log", "-1", "--format=%H", "--", "README.md"], cwd=root
     ).stdout.strip()
     print()
-    print("## 5. README.md currency  (informational -- judge against the head block above)")
+    print("## 5. README.md currency  (informational -- judge against docs/PHASE7_NEXT.md)")
     if not readme_hash:
         print("  README.md has no commit history in this repo")
         return
@@ -209,7 +212,7 @@ def check_readme_currency(root: Path) -> None:
     print(f"  README.md last touched: {readme_info}")
     print(f"  HEAD currently at:      {head_info}")
     print(f"  commits landed since README.md was touched: {since or '0'}")
-    print("  does README.md's prose still match what the head block above declares?")
+    print("  does README.md's prose still match what docs/PHASE7_NEXT.md currently declares?")
 
 
 def main() -> None:
@@ -224,9 +227,10 @@ def main() -> None:
 
     print()
     print("## Still manual -- this script cannot answer these; read PHASE7_NEXT.md")
-    print("## and judge, don't skip them because the checks above came back clean:")
+    print("## (and PHASE7_DECISIONS.md for standing rulings) and judge, don't skip")
+    print("## them because the checks above came back clean:")
     print("  - Is the current session's state written into PHASE7_NEXT.md, not only in chat?")
-    print("  - Are today's rulings recorded there, with what they decided and why?")
+    print("  - Are today's rulings recorded, in PHASE7_NEXT.md or PHASE7_DECISIONS.md as fits, with what they decided and why?")
     print("  - Are the Engineering Notes current, or is the gap stated explicitly?")
     print("  - Is any evidence -- a review, a transcript, a reasoning dump -- still only in a chat window?")
 
