@@ -241,6 +241,43 @@ def test_environment_variable_activates_the_pinned_source():
         DataFetcher.clear_pinned_source()
 
 
+def test_broken_environment_variable_errors_rather_than_falling_back_to_live():
+    """
+    The companion to test_missing_series_errors_rather_than_falling_back_to_live,
+    one layer up: PHASE7_PINNED_DATA can be SET and still not identify a real
+    directory (a typo, a path that existed on another machine, a dropped mount).
+    Before this fix, pinned_source() silently returned None in that case, and
+    get_tf() read it as "no pinned source" -- so a broken pin request quietly
+    served live data instead of failing, which is worse than falling back to
+    live on purpose, because nothing about the run's output says it happened.
+    """
+    DataFetcher = _fetcher()
+    from data.data_fetcher import PINNED_ENV_VAR
+
+    previous = os.environ.get(PINNED_ENV_VAR)
+    try:
+        DataFetcher.clear_pinned_source()
+        os.environ[PINNED_ENV_VAR] = os.path.join(PINNED_DIR, "not-a-real-subdirectory")
+
+        try:
+            DataFetcher.pinned_source()
+            assert False, (
+                f"{PINNED_ENV_VAR} pointed at a directory that does not exist, "
+                f"and pinned_source() returned instead of raising -- a broken "
+                f"pin request would silently fall back to the live API"
+            )
+        except ValueError as e:
+            assert "not a directory" in str(e), (
+                f"raised, but the message does not explain why: {e}"
+            )
+    finally:
+        if previous is None:
+            os.environ.pop(PINNED_ENV_VAR, None)
+        else:
+            os.environ[PINNED_ENV_VAR] = previous
+        DataFetcher.clear_pinned_source()
+
+
 def test_live_api_is_the_default():
     """
     The mechanism must be opt-in. Nothing about normal operation changes until

@@ -4,6 +4,7 @@ from typing import Dict, Any, Optional, List
 import json
 import os
 import logging
+import tempfile
 import traceback
 
 from . import config
@@ -314,14 +315,37 @@ class Phase7Engine:
             return {}
 
     def _save_state(self, symbol: str, timeframe: str, state: Dict[str, Any]) -> None:
+        # Was open(path, "w") + json.dump(state, f): that truncates the file
+        # to zero length before a single byte of the new state is written, so
+        # a process killed or crashing mid-dump (the disk fills, the box
+        # loses power) leaves the *next* run's _load_state reading a
+        # zero-byte or half-written file -- silently swallowed there as
+        # "first run, or file is corrupt" -- instead of leaving the perfectly
+        # good prior state that a crash should not have touched at all.
+        # Writing to a temp file in the same directory and os.replace()-ing
+        # it over the real path makes the swap atomic: _load_state either
+        # sees the old complete state or the new complete state, never a
+        # partial one, on every platform this project targets.
+        tmp_path = None
         try:
             log_dir = config.LOG_DIR
             os.makedirs(log_dir, exist_ok=True)
             path = self._state_path(symbol, timeframe)
-            with open(path, "w") as f:
+            fd, tmp_path = tempfile.mkstemp(
+                prefix=f"{os.path.basename(path)}.", suffix=".tmp", dir=log_dir
+            )
+            with os.fdopen(fd, "w") as f:
                 json.dump(state, f)
+            os.replace(tmp_path, path)
+            tmp_path = None
         except Exception as e:
             logger.warning(f"Could not persist engine state for next run's Exit Watch comparison: {e}")
+        finally:
+            if tmp_path is not None:
+                try:
+                    os.remove(tmp_path)
+                except OSError:
+                    pass
 
     def run(
         self,

@@ -102,6 +102,17 @@ class DataFetcher:
 
         Explicit set_pinned_source() wins; the environment variable is the
         fallback; otherwise live.
+
+        A set environment variable that does not resolve to a directory is a
+        BROKEN pinned-source request, not "no pinned source" -- raising here
+        (rather than falling through to None, which get_tf() reads as "go
+        live") is the same choice set_pinned_source() already makes for the
+        identical problem, and closes the gap where the class's own first
+        deliberate choice (fail loudly rather than silently reintroducing
+        nondeterminism) covered a missing FILE under an active directory but
+        not a missing directory itself. Confirmed real by reading get_tf():
+        before this, PHASE7_PINNED_DATA pointing at a typo'd or dropped path
+        served live data with nothing in the run's output saying so.
         """
         if cls._pinned_dir is not None:
             return cls._pinned_dir
@@ -110,6 +121,11 @@ class DataFetcher:
             resolved = os.path.abspath(env)
             if os.path.isdir(resolved):
                 return resolved
+            raise ValueError(
+                f"{PINNED_ENV_VAR} is set to {resolved!r}, which is not a "
+                f"directory. Refusing to fall back to the live API, which "
+                f"would make this run irreproducible without saying so."
+            )
         return None
 
     @staticmethod

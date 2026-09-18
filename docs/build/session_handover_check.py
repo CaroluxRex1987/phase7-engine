@@ -90,6 +90,20 @@ def check_working_tree(root: Path) -> list[str]:
 # Deliberately short and named explicitly here (not "**/*" catch-alls) so
 # it stays legible what is being hidden. Anything not on this exact list
 # still prints -- when in doubt, this list stays out, not the file.
+#
+# logs/ and docs/audit_package/round*/ were added 18 September 2026 (Tier 1,
+# task 12). Both are engine/build OUTPUT, not signal, on this project's own
+# terms: the .gitignore's "LOGS & OUTPUT" section covers logs/ (decision
+# logs and cross-run state, rewritten every engine run), and this file's own
+# check_ignored_files docstring already calls the generated content under
+# docs/audit_package/round*/ regenerable derived bytes that
+# docs/build/build_audit_package.py rebuilds from the repository -- the
+# reviewer RESPONSES that incident was actually about are un-ignored by the
+# .gitignore's negation rules (docs/audit_reports/**/*.json, MANIFEST.md)
+# precisely so they keep showing up here, unfiltered. Filtering the leftover
+# derived noise is what keeps a real surprise from being buried in routine
+# clutter -- the same reasoning that filters __pycache__ below, not a
+# loosening of the original lesson.
 _ROUTINE_IGNORED_MARKERS = (
     "__pycache__",
     ".pytest_cache",
@@ -97,6 +111,8 @@ _ROUTINE_IGNORED_MARKERS = (
     ".DS_Store",
     "Thumbs.db",
     "desktop.ini",
+    "logs/",
+    "docs/audit_package/round",
 )
 
 
