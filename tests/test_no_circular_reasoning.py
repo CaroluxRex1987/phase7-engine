@@ -217,6 +217,17 @@ def test_continuation_strength_no_longer_contains_a_health_derived_term():
     make momentum_component and accel_component zero, so any remaining
     movement in continuation_strength as trend_health varies can only be
     coming from a health-derived term.
+
+    UPDATED 19 September 2026: the ceiling asserted here used to be 27.0
+    (ADX's max component, 25.0, plus this fixture's RSI-momentum, 2.0). ADX
+    no longer has a component in continuation_strength at all — see
+    trend_health.py's "INDEPENDENCE REVIEW" comment — so the ceiling this
+    fixture can reach is now 2.0 (RSI-momentum only, accel still 0). The
+    fixture's ADX=25.0 is left in place on purpose: if this test still
+    passed while ADX secretly contributed again, the ceiling below is tight
+    enough (2.0, not a generous upper bound) that a regression would be
+    caught here too, not only by test_continuation_strength_ignores_adx
+    below, which checks the same claim directly.
     """
     import pandas as pd
     import numpy as np
@@ -249,17 +260,74 @@ def test_continuation_strength_no_longer_contains_a_health_derived_term():
     # continuation_strength does not vary with it by construction: recomputed
     # trend_health for this fixture is deterministic, so if health_component
     # were still present, continuation_strength would equal
-    # direction * min(100, healthshare + adx(25) + rsi(2) + accel(0)).
-    # Assert the ceiling instead: with ADX=25 (max component 25.0) and
-    # RSI giving momentum_component=2.0 and accel=0, continuation_strength's
-    # magnitude cannot exceed 27.0 if health_component is really gone.
-    assert abs(low["continuation_strength"]) <= 27.0 + 1e-6, (
+    # direction * min(100, healthshare + rsi(2) + accel(0)) — strictly
+    # greater than the ADX-free ceiling asserted below.
+    # Assert the ceiling: with RSI giving momentum_component=2.0 and accel=0,
+    # and ADX contributing nothing, continuation_strength's magnitude cannot
+    # exceed 2.0 if both health_component and the ADX component are really
+    # gone.
+    assert abs(low["continuation_strength"]) <= 2.0 + 1e-6, (
         f"continuation_strength is {low['continuation_strength']!r} with only "
-        f"ADX (max 25) and RSI-momentum (2.0) contributing and acceleration "
-        f"at 0 — expected at most 27.0. A larger value means a "
-        f"trend-health-derived component is still being added, which is the "
-        f"Finding 4 double-count trend_health.py's ITEM 11 RE-AUDIT comment "
-        f"describes removing."
+        f"RSI-momentum (2.0) contributing, ADX contributing nothing, and "
+        f"acceleration at 0 — expected at most 2.0. A larger value means a "
+        f"trend-health-derived component or ADX's removed component is being "
+        f"added back."
+    )
+
+
+def test_continuation_strength_ignores_adx():
+    """
+    INDEPENDENCE REVIEW, 19 September 2026. trend_health.py's continuation_
+    strength used to spend 25 of its 60 points on adx_component, a second,
+    differently-scaled read of the same adx_val that trend_health's own
+    adx_strength already spends up to 40 of its 100 points on — the same
+    raw indicator reaching two of bias_score's six "independent" factors
+    (trend_health at 0.30, reversal_continuation at 0.10) through two
+    different formulas rather than one reused value. Not Item 11's defect
+    (that was a reused VALUE); this is a reused raw INPUT, which is why it
+    survived Item 11's audit and six subsequent rounds. See
+    trend_health.py's "INDEPENDENCE REVIEW" comment for the full reasoning
+    and models/risk_model.py's REGIME_CHOP_ADX comment for why that
+    module's own, separate read of raw ADX is unaffected.
+
+    Checked here the same way the health-derived-term test above checks its
+    claim: hold RSI, slope and acceleration fixed (so momentum_component and
+    accel_component are constant) and vary only ADX. If continuation_strength
+    moves at all, ADX is still contributing to it.
+    """
+    import pandas as pd
+    import pytest
+
+    from indicators.trend_health import compute_trend_health
+
+    def _frame(adx_value, rows=40):
+        idx = pd.RangeIndex(rows)
+        close = pd.Series(100.0 + idx.to_numpy() * 0.01, index=idx)
+        return pd.DataFrame({
+            "open": close, "high": close + 0.05, "low": close - 0.05,
+            "close": close, "volume": 1000.0,
+            "EMA20_Slope": 0.01, "EMA50_Slope": 0.01,
+            "ADX": adx_value, "RSI": 60.0,  # RSI=60 -> momentum_component=15.0 for direction>0
+        }, index=idx)
+
+    low_adx = compute_trend_health(_frame(adx_value=5.0))
+    high_adx = compute_trend_health(_frame(adx_value=45.0))
+
+    # Same RSI/slope/acceleration in both frames, so if ADX still had a
+    # component the two continuation_strength values would differ by up to
+    # (45/50 - 5/50) * 25 = 20.0. They must be identical, and identical to
+    # the RSI-momentum-only value (15.0, accel 0) — not just equal to each
+    # other, which a coincidental cancellation could also produce.
+    assert low_adx["continuation_strength"] == pytest.approx(15.0), (
+        f"continuation_strength is {low_adx['continuation_strength']!r} at "
+        f"ADX=5.0; expected exactly 15.0 (RSI-momentum only, ADX contributing "
+        f"nothing)."
+    )
+    assert high_adx["continuation_strength"] == pytest.approx(15.0), (
+        f"continuation_strength is {high_adx['continuation_strength']!r} at "
+        f"ADX=45.0; expected exactly 15.0. It moved when only ADX changed, "
+        f"which means ADX is still contributing to continuation_strength — "
+        f"the regression this test exists to catch."
     )
 
 

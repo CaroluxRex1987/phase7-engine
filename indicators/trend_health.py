@@ -199,27 +199,63 @@ def compute_trend_health(df: Optional[pd.DataFrame]) -> Dict[str, Any]:
             # Removed rather than reweighted: there is no independent
             # fraction of health_component to keep, since it was wholly a
             # function of the same trend_health value bias_engine already
-            # reads. What is left below -- ADX, RSI-relative-to-direction,
-            # and acceleration -- has no other channel into bias_score, so it
-            # remains genuinely independent evidence about whether this
-            # trend is continuing.
+            # reads. What was left after this pass -- ADX, RSI-relative-to-
+            # direction, and acceleration -- was believed at the time to have
+            # no other channel into bias_score.
             #
             # Ruled by Viktor, 31 August 2026 (delegated). No rescale: the
             # ceiling this score can reach without a health-derived term is
             # honestly lower (60, not 100) rather than stretched back to 100
             # by a multiplier invented to hide that the trend-health share is
             # gone.
+            #
+            # INDEPENDENCE REVIEW, 19 September 2026: that belief was wrong for
+            # ADX specifically. trend_health's own score reads this same
+            # adx_val and scores it on another monotonic curve (there:
+            # min(adx,0)*1.2 capped at 40; here: min(adx,50)/50*25 capped at
+            # 25) -- two of the blend's six "independent" factors, trend_health
+            # (0.30) and reversal_continuation (0.10), 40% of bias_score
+            # between them, were both partly a transform of one shared raw
+            # reading. Not the Item 11 defect (that was the same computed
+            # VALUE reused; this is the same raw INPUT reused through two
+            # different formulas), which is why it survived Item 11's audit
+            # and six subsequent rounds -- found by testing "independent"
+            # against "shares no raw indicator with any other factor" rather
+            # than just "shares no computed value". RSI is not the same
+            # problem and is deliberately left alone: trend_health's
+            # rsi_strength asks a symmetric question (is RSI in a neutral,
+            # unexhausted band) and momentum_component below asks a
+            # directional one (is RSI positioned for continuation in THIS
+            # trend's direction) -- two different questions of the same
+            # reading, the same relationship trend_direction and trend_health
+            # already have to the shared slope data without being circular.
+            #
+            # Claude's proposal, scoped by Viktor's "independence first" call
+            # (19 September 2026) rather than a re-derivation of the weights
+            # themselves. Fixed by deletion, the same standard as
+            # health_component above: ADX no longer contributes to
+            # continuation_strength, so it now reaches bias_score through
+            # exactly one of the six factors (trend_health, 0.30) instead of
+            # two. See models/risk_model.py's REGIME_CHOP_ADX /
+            # REGIME_STRONG_ADX comment: that gate already reads raw ADX
+            # independently of bias_score, so it is unaffected here -- if
+            # anything more clearly independent now that ADX has one path
+            # into bias_score rather than two. Same no-rescale ruling as 31
+            # August: continuation_strength's ceiling is honestly 35 now
+            # (was 60), not stretched back up.
 
             # SEQUENCE ITEM 9a: an unavailable input scores zero rather than
             # scoring from a substituted constant. continuation_strength is
-            # now out of 60 (ADX 25 + RSI-momentum 15 + acceleration 20);
-            # without ADX its ceiling is 35, without RSI 45, and
-            # degraded_inputs says which. A lower score for a less complete
-            # picture is the intended behaviour, not a side effect.
-            if adx_val is None:
-                adx_component = 0.0
-            else:
-                adx_component = (min(max(adx_val, 0.0), 50.0) / 50.0) * 25.0
+            # now out of 35 (RSI-momentum 15 + acceleration 20); without RSI
+            # its ceiling is 20, and degraded_inputs says which. A lower
+            # score for a less complete picture is the intended behaviour,
+            # not a side effect.
+            #
+            # ADX no longer has a component here -- see the INDEPENDENCE
+            # REVIEW comment above. adx_val is still read at the top of this
+            # function and still feeds trend_health's own adx_strength and
+            # the degraded_inputs list; only its second, near-duplicate
+            # contribution here is gone.
 
             if rsi_val is None:
                 momentum_component = 0.0
@@ -242,7 +278,7 @@ def compute_trend_health(df: Optional[pd.DataFrame]) -> Dict[str, Any]:
             accel_magnitude = float(np.tanh(abs(accel_aligned) * 50.0) * 20.0)
             accel_component = accel_magnitude if accel_aligned >= 0 else -accel_magnitude
 
-            raw_continuation = adx_component + momentum_component + accel_component
+            raw_continuation = momentum_component + accel_component  # ADX removed 19 Sept 2026 -- see comment above
             continuation_strength = float(direction * max(0.0, min(100.0, raw_continuation)))
         else:
             continuation_strength = 0.0

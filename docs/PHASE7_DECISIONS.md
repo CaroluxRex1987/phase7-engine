@@ -425,6 +425,67 @@ hasty, and ruled to slow down considerably before doing any of the above. A sess
 resuming this project does not open by proposing work from docs/PHASE7_NEXT.md's open
 items as a queue to clear; it asks what Viktor wants to do first.
 
+### First engine-review finding, fixed — bias-weight independence (19 September 2026)
+
+Ahead of the review above being scoped (still not acted on), Viktor asked Claude directly
+whether the six bias weights are defensible and told it to write its own position first,
+per the project's working-relationship default (Claude proposes and reasons, Viktor
+reviews and decides), rather than treating the question as something to hand back for
+scoping.
+
+**The finding.** Two of the six factors bias_engine.py combines share a raw input, not
+just a correlated one. `trend_health` (WEIGHT_TREND_HEALTH=0.30) and
+`reversal_continuation` (WEIGHT_REVERSAL_CONTINUATION=0.10) both read the same `adx_val`
+from `indicators/trend_health.py` and score it on two different monotonic curves — 40% of
+the blend leaning on one shared reading dressed as two independent votes. Not Item 11's
+defect (a reused computed VALUE); this is a reused raw INPUT reaching bias_score through
+two different formulas, which is why it passed Item 11's audit and six subsequent rounds:
+those checked for shared values, not shared raw indicators. `models/risk_model.py`'s
+Item 14 comment had already named and accepted this exact fact on 11 September ("ADX is
+not wholly absent from bias_score — it reaches it through continuation_strength's
+adx_component"), under the narrower standard that mattered for Item 14 (not the same
+value read twice). RSI is not the same problem: trend_health's rsi_strength asks a
+symmetric question (is RSI in a neutral, unexhausted band) and reversal_continuation's
+momentum_component asks a directional one — genuinely different information from the same
+series, not a duplicate.
+
+**The fix — scoped narrowly, on Viktor's instruction.** Given a choice between fixing the
+independence question, writing a reasoned rationale for the weight magnitudes, or both,
+Viktor chose independence only. `indicators/trend_health.py`'s `continuation_strength` no
+longer has an ADX component; its ceiling drops from 60 to 35 (RSI-momentum 15 +
+acceleration 20), honestly, not rescaled back up — the same standard the original Item 11
+fix used when `health_component` was removed rather than replaced. ADX now reaches
+bias_score through exactly one of the six factors instead of two.
+`models/risk_model.py`'s risk-regime gate reads raw ADX directly, never through
+bias_score or continuation_strength, so it was already independent of this change and
+needed no code change — only its comment, which asserted the now-superseded state,
+updated to record what changed and why, with the original text kept for the record rather
+than deleted.
+
+**What this does NOT settle.** The weight magnitudes themselves — 0.30 / 0.20 / 0.15 /
+0.15 / 0.10 / 0.10 — remain exactly what `Phase7_Roadmap.pdf` already says they are:
+"currently judgment calls," chosen by hand, with no written rationale anywhere in the
+repository for why trend health outweighs structure regime two to one, or why macro and
+reversal/continuation are tied at 10%. Reasoning through those magnitudes, and writing
+down the market thesis the review's own scope conditions ask for ("this engine believes X
+about how these markets behave, therefore it measures Y and weights it Z"), is
+deliberately not part of this patch. `volume_sentiment`'s, `supertrend_direction`'s and
+`macro_bias`'s own source computations were also not re-checked for hidden shared inputs
+with each other or with trend_health/reversal_continuation — only the pair the review
+found was checked and fixed.
+
+**Verification.** Golden snapshot moved in exactly 16 leaf fields, all causally downstream
+of `bias.score` (which moved from 78.6972703 to 77.09945429 on the golden fixture, ADX
+31.95632018 at the decision bar) — confirmed by a full leaf-level diff of the old and new
+snapshot, not just that the test went green again after re-baselining. `code_hash` moved,
+and moved in exactly one file's fingerprint, `indicators/trend_health.py` — confirmed
+programmatically; the comment-only edits to `bias_engine.py` and `risk_model.py` did not
+move their fingerprints, since `code_fingerprint.py` hashes the docstring-stripped parse
+tree and plain `#` comments were never part of it. `run_hash` was confirmed unchanged on
+the golden run, expected since neither `FINGERPRINTED_CONFIG` nor `FINGERPRINTED_MODULES`
+names moved — `trend_health.py` is not itself a fingerprinted module, only the weight
+constants and risk multipliers are, and none of those changed value.
+
 ## Three rulings — made, 31 August 2026
 
 Viktor delegated all three ("decide items 3, 11, 14 myself") rather than ruling on each

@@ -25,11 +25,16 @@ import numpy as np
 #   supertrend direction (0.15)<- indicators.py's SuperTrend column, sign only
 #   macro bias (0.10)          <- engine_core.py's higher-timeframe EMA read
 #   reversal/continuation(0.10)<- trend_health.py's continuation_strength
-#                                  (ADX + RSI-momentum + acceleration only --
-#                                  it no longer includes a trend-health-
-#                                  derived term; see trend_health.py's
-#                                  "ITEM 11 RE-AUDIT" comment for why that
-#                                  was itself a duplicate of the first factor)
+#                                  (RSI-momentum + acceleration only -- see
+#                                  trend_health.py's "ITEM 11 RE-AUDIT" comment
+#                                  for the trend-health-derived term removed
+#                                  there, and its "INDEPENDENCE REVIEW, 19
+#                                  September 2026" comment for why ADX was
+#                                  removed from this factor too: trend health
+#                                  (below) already reads the same raw ADX
+#                                  value on its own curve, so a second,
+#                                  differently-scaled read of it here was the
+#                                  same raw input reaching bias_score twice)
 #
 # This is where the auditor's finding 4 example lived: reversal_continuation_
 # score used to be built in part from trend_health's own value, so trend
@@ -37,6 +42,14 @@ import numpy as np
 # fixed at the source (trend_health.py), not here, because continuation_
 # strength has exactly one consumer -- this function -- so the source is
 # where the independence actually needs to be true.
+#
+# A second, narrower instance of the same principle was found and fixed the
+# same way on 19 September 2026: trend health and reversal/continuation both
+# read raw ADX, on two different curves rather than one reused value -- see
+# trend_health.py's "INDEPENDENCE REVIEW" comment. Weights themselves
+# (WEIGHT_TREND_HEALTH and siblings, below) were explicitly out of scope for
+# that pass and remain unreviewed hand-picked judgment calls -- see
+# docs/PHASE7_DECISIONS.md.
 #
 # What this function does NOT try to do: re-derive or cross-check any factor
 # against another. structure_regime, macro_bias and volume_sentiment are also

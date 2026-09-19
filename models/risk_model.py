@@ -66,11 +66,28 @@ BIAS_FACTOR_DIVISOR = 300.0
 # "STRONG TREND" confirmation. Nothing here is a new calibration -- the two
 # numbers were already load-bearing one module over.
 #
-# Honest limit, recorded rather than glossed: ADX is not wholly absent from
-# bias_score -- it reaches it through continuation_strength's adx_component.
-# What it is no longer is the same value read twice, which is the defect
-# Item 14 names, and that is the same standard the Item 11 fix applied when
-# it kept ADX inside continuation_strength while removing trend_health.
+# UPDATE, 19 September 2026: the paragraph below described an accepted
+# limit -- ADX reached bias_score a second time, through
+# continuation_strength's adx_component, and was kept there on 31 August
+# because it was not literally the same VALUE as trend_health's own ADX
+# read, just a second, differently-scaled transform of the same raw
+# reading. An independence review applied a stricter standard (no shared
+# raw INPUT, not just no shared computed value) and removed that second
+# transform -- see indicators/trend_health.py's "INDEPENDENCE REVIEW"
+# comment. ADX now reaches bias_score through exactly one of its six
+# factors (trend_health, 0.30). This module's own read of ADX below was
+# never through bias_score or continuation_strength -- it reads adx_val
+# directly, so it was independent of bias_score before this change and
+# remains so after it; nothing in this file needed to change.
+#
+# Honest limit, recorded rather than glossed (original text, now historical):
+# "ADX is not wholly absent from bias_score -- it reaches it through
+# continuation_strength's adx_component. What it is no longer is the same
+# value read twice, which is the defect Item 14 names, and that is the same
+# standard the Item 11 fix applied when it kept ADX inside
+# continuation_strength while removing trend_health." That adx_component no
+# longer exists; the sentence is kept for the record rather than deleted, per
+# this project's practice of not quietly erasing a superseded rationale.
 REGIME_EXTREME_STOP_PCT = 8.0
 REGIME_CHOP_ADX = 20.0
 REGIME_STRONG_ADX = 25.0

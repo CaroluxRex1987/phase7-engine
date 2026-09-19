@@ -3,14 +3,14 @@
     "detailed": "BULLISH CONFIRMED",
     "raw": "BULLISH",
     "regime": "BULLISH TREND",
-    "score": 78.6972703,
+    "score": 77.09945429,
     "volatility": "MEDIUM VOLATILITY"
   },
   "btc_context": {
     "available": true,
     "beta": -0.04925435,
     "broad_market_stress": false,
-    "btc_adjusted_confidence": 79.25947441,
+    "btc_adjusted_confidence": 77.64597223,
     "correlation": -0.0426301,
     "correlation_label": "WEAK / NO CLEAR RELATIONSHIP",
     "degraded_inputs": [],
@@ -18,7 +18,7 @@
     "n_observations": 30,
     "raw": "BEARISH",
     "reasons": [
-      "BTC-adjusted confidence: 79/100 (vs 79/100 unadjusted, never replacing it). TEST and BTC have a weak / no clear relationship (correlation -0.04 over the last 30 candles), and BTC is bearish confirmed, disagreeing with TEST's own bias."
+      "BTC-adjusted confidence: 78/100 (vs 77/100 unadjusted, never replacing it). TEST and BTC have a weak / no clear relationship (correlation -0.04 over the last 30 candles), and BTC is bearish confirmed, disagreeing with TEST's own bias."
     ],
     "regime": "BEARISH TREND",
     "trend_health": 97.0,
@@ -63,11 +63,11 @@
   "explanation": {
     "reasons": [
       "Risk check failed (Stop distance exceeds maximum allowable threshold (15%).), so no trade is allowed right now.",
-      "Confidence is 79/100 \u2014 the bias engine's own composite strength (trend health, structure regime, volume sentiment, SuperTrend direction, macro bias, and reversal/continuation, already weighted and blended into one score). Restating any of those as a separate bonus here would count the same evidence twice. This reflects how the picture lines up, not a green light \u2014 the risk check above is what's blocking the trade.",
+      "Confidence is 77/100 \u2014 the bias engine's own composite strength (trend health, structure regime, volume sentiment, SuperTrend direction, macro bias, and reversal/continuation, already weighted and blended into one score). Restating any of those as a separate bonus here would count the same evidence twice. This reflects how the picture lines up, not a green light \u2014 the risk check above is what's blocking the trade.",
       "Entry quality is 45/100 \u2014 a weak entry. Compare it against the TREND line rather than against a restatement of it.",
-      "Expected value (illustrative, not backtested): treating the 79/100 confidence score as a rough win rate against the standard 2:1 average reward, this setup works out to about +1.36R per trade \u2014 positive -- worth taking on average if that win rate holds up (this is hypothetical, since no trade is actually being suggested right now)."
+      "Expected value (illustrative, not backtested): treating the 77/100 confidence score as a rough win rate against the standard 2:1 average reward, this setup works out to about +1.31R per trade \u2014 positive -- worth taking on average if that win rate holds up (this is hypothetical, since no trade is actually being suggested right now)."
     ],
-    "summary": "NO-TRADE (RISK TOO HIGH) \u2014 Expected value (illustrative, not backtested): treating the 79/100 confidence score as a rough win rate against the standard 2:1 average reward, this setup works out to about +1.36R per trade \u2014 positive -- worth taking on average if that win rate holds up (this is hypothetical, since no trade is actually being suggested right now)."
+    "summary": "NO-TRADE (RISK TOO HIGH) \u2014 Expected value (illustrative, not backtested): treating the 77/100 confidence score as a rough win rate against the standard 2:1 average reward, this setup works out to about +1.31R per trade \u2014 positive -- worth taking on average if that win rate holds up (this is hypothetical, since no trade is actually being suggested right now)."
   },
   "lineage": {
     "archive": {
@@ -76,8 +76,8 @@
       "retention_days": 90
     },
     "bias_components": {
-      "after_discount": 78.6972703,
-      "bias_score": 78.6972703,
+      "after_discount": 77.09945429,
+      "bias_score": 77.09945429,
       "choch_against_trend": false,
       "clipped": false,
       "factors": {
@@ -88,9 +88,9 @@
           "weight": 0.1
         },
         "reversal_continuation": {
-          "contribution": 5.09299503,
-          "input": 50.92995033,
-          "signed": 50.92995033,
+          "contribution": 3.49517902,
+          "input": 34.95179024,
+          "signed": 34.95179024,
           "weight": 0.1
         },
         "structure_regime": {
@@ -123,7 +123,7 @@
       "reversal_strength": 0.0,
       "trend_direction": 1,
       "trend_sequence": "BOS BULLISH (TREND CONTINUATION)",
-      "weighted_sum": 78.6972703
+      "weighted_sum": 77.09945429
     },
     "format": 1,
     "indicators_at_decision_bar": {
@@ -190,7 +190,7 @@
     "risk_inputs": {
       "adx": 31.95632018,
       "atr": 0.01055373,
-      "bias_score": 78.6972703,
+      "bias_score": 77.09945429,
       "current_price": 0.80173175,
       "detailed_bias": "BULLISH CONFIRMED",
       "risk_regime": "UNKNOWN",
@@ -283,11 +283,11 @@
     "source": "pinned"
   },
   "risk": {
-    "assumed_win_rate": 78.6972703,
+    "assumed_win_rate": 77.09945429,
     "atr_stop": 0.6421571,
     "avg_reward_r": 2.0,
-    "confidence_score": 78.6972703,
-    "ev_r": 1.36091811,
+    "confidence_score": 77.09945429,
+    "ev_r": 1.31298363,
     "risk_reason": "Stop distance exceeds maximum allowable threshold (15%).",
     "risk_regime": "UNKNOWN",
     "risk_valid": false,
