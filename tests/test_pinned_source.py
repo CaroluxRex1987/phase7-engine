@@ -37,6 +37,19 @@ def _fetcher():
     return DataFetcher
 
 
+def _content_sha256(data):
+    """
+    sha256 of file content with CRLF normalised to LF -- the same function as
+    docs/build/make_pinned.py's sha256(), which writes the manifest's hashes.
+
+    Raw bytes will not do: `* text=auto` checks the pinned CSVs out with CRLF
+    on Windows and LF on Linux/macOS, so a raw-byte hash matched only the
+    platform that generated the manifest.
+    """
+    import hashlib
+    return hashlib.sha256(data.replace(b"\r\n", b"\n")).hexdigest()
+
+
 def _unreachable(instance):
     """
     Point an instance at a dead port.
@@ -76,8 +89,12 @@ def test_manifest_hashes_match_the_files():
     The manifest records a sha256 per series. If a file is edited without
     regenerating, this catches it — which is the whole reason to record hashes
     rather than trust that the data has not moved.
+
+    The hash is over the content with CRLF normalised to LF (see
+    _content_sha256), so this passes on a Windows CRLF checkout and a Linux or
+    macOS LF checkout alike. Before that change it hashed raw bytes and failed
+    on every platform except the one that generated the manifest.
     """
-    import hashlib
     import json
 
     with open(os.path.join(PINNED_DIR, "MANIFEST.json")) as f:
@@ -85,19 +102,47 @@ def test_manifest_hashes_match_the_files():
 
     mismatches = []
     for series in manifest["series"]:
-        path = os.path.join(PINNED_DIR, series["file"])
-        h = hashlib.sha256()
-        with open(path, "rb") as f:
-            for chunk in iter(lambda: f.read(65536), b""):
-                h.update(chunk)
-        if h.hexdigest() != series["sha256"]:
-            mismatches.append(series["file"])
+        with open(os.path.join(PINNED_DIR, series["file"]), "rb") as f:
+            if _content_sha256(f.read()) != series["sha256"]:
+                mismatches.append(series["file"])
 
     assert not mismatches, (
         "pinned data does not match its manifest: " + ", ".join(mismatches) +
         "\nEither the files were edited without regenerating, or the manifest "
         "is stale. Regenerate with: python docs/build/make_pinned.py"
     )
+
+
+def test_manifest_hash_ignores_line_endings():
+    """
+    Each pinned CSV, rewritten with LF and with CRLF, must hash to the same
+    value, and that value must be the manifest's.
+
+    test_manifest_hashes_match_the_files cannot catch its own hash being
+    reverted to raw bytes on a Linux or macOS checkout: there the files are
+    already LF, so raw and normalised hashes agree and it would keep passing,
+    failing only on Windows. This test builds both line-ending forms itself,
+    so it fails on every platform if either the hash or the manifest goes
+    back to raw bytes.
+    """
+    import json
+
+    with open(os.path.join(PINNED_DIR, "MANIFEST.json")) as f:
+        manifest = json.load(f)
+
+    for series in manifest["series"]:
+        with open(os.path.join(PINNED_DIR, series["file"]), "rb") as f:
+            lf = f.read().replace(b"\r\n", b"\n")
+        crlf = lf.replace(b"\n", b"\r\n")
+        assert lf != crlf, f"{series['file']} has no line breaks to test with"
+        assert _content_sha256(lf) == _content_sha256(crlf), (
+            f"{series['file']}: the LF and CRLF forms hash differently -- "
+            "the manifest check is platform-dependent again"
+        )
+        assert _content_sha256(crlf) == series["sha256"], (
+            f"{series['file']}: MANIFEST.json's hash is not the line-ending-"
+            "normalised hash -- regenerate with: python docs/build/make_pinned.py"
+        )
 
 
 def test_pinned_source_serves_all_three_series_without_network():

@@ -88,11 +88,25 @@ def synth(seed, start_ms, step_ms, count, start_price, drift, vol, vol_base):
 
 
 def sha256(path):
-    h = hashlib.sha256()
+    """
+    sha256 of the file's content with CRLF line endings normalised to LF.
+
+    Not the raw bytes. .gitattributes sets `* text=auto`, so git stores these
+    CSVs with LF and checks them out with CRLF on Windows and LF on Linux and
+    macOS: the same committed file has different raw bytes per platform. A
+    raw-byte hash therefore matched only the platform that generated the
+    manifest, and tests/test_pinned_source.py failed on every other one.
+    Hashing the LF form gives one hash per content, on every checkout, and
+    still changes the moment a value in the file does.
+
+    tests/test_pinned_source.py carries its own copy of this function (it
+    cannot import this module, which writes files when imported). The two must
+    stay identical; test_manifest_hash_ignores_line_endings checks the test's
+    copy.
+    """
     with open(path, "rb") as f:
-        for chunk in iter(lambda: f.read(65536), b""):
-            h.update(chunk)
-    return h.hexdigest()
+        data = f.read()
+    return hashlib.sha256(data.replace(b"\r\n", b"\n")).hexdigest()
 
 
 os.makedirs(OUT, exist_ok=True)
@@ -139,6 +153,7 @@ manifest = {
     ),
     "reproduce": "python docs/build/make_pinned.py",
     "closed_candles_only": True,
+    "sha256_over": "file content with CRLF normalised to LF, not raw bytes",
     "series": [],
 }
 for name in files:
