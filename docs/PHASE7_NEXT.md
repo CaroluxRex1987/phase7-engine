@@ -19,107 +19,116 @@ Ask what he wants to do first.
 
 ## Where things stand, right now
 
-- **Tip:** `5be5d82`. **Tag:** `portfolio-v1` at `99e022e`. **Release gate:** open,
+- **Tip:** `f24a6e9`. **Tag:** `portfolio-v1` at `99e022e`. **Release gate:** open,
   declared 15 September 2026 — see docs/PHASE7_DECISIONS.md, "Two goals, and the
   order they finish in."
-- **code_hash:** `5080ccf0490502ad72dadaf6c3c525d19792139ea52d7fb15ee28a923ab5d189`
-  — moved from `38458f20779d2709ed6402c69407339f797c69089ace3b18922ca5c8bb289fbb`
-  (unmoved since 14 September) by this session's Tier-1 patch (`5be5d82`), which
-  touched two engine files, `core/engine_core.py` and `data/data_fetcher.py`.
-  Confirmed by comparing the full per-file hash map, not just the top-level digest:
-  those two files' hashes differ, every other file's is identical.
-- **Test suite, confirmed this session, Linux sandbox, Python 3.12.3, at the current
-  tip:** 473 passed (pandas_ta) / 342 passed, 120 skipped (without pandas_ta) / 402
-  passed, 0 failed, 32 pre-existing errors (`run_tests.py`, the same 32 by name as
-  the baseline this project has carried since 14 September). The delta from that
-  baseline is exactly this session's new tests (one in `test_pinned_source.py`,
-  three each in two new files) — see `5be5d82`'s commit message for the full
-  breakdown and the Windows confirmation Viktor ran before pushing.
-- **Golden snapshot:** applicable this session — Tier 1 touched engine code.
-  `tests/test_golden_path.py` passed unchanged throughout; neither fix's changed
-  behaviour is reachable on the golden fixture's path (it never sets a broken
-  `PHASE7_PINNED_DATA`, and its state-file write never fails mid-dump).
-- **Handover check:** clean against the pushed tip (`5be5d82`) — no untracked or
-  modified files, no flagged ignored files, no loose delivery files, nothing staged
-  uncommitted. Not restated in full here since it is a git fact, not a standing one.
+- **code_hash:** `bb47ab537314953e16b2db2fcf24003ead64eb5538a30221a6578d518bb7d34d`
+  — moved from `5080ccf0490502ad72dadaf6c3c525d19792139ea52d7fb15ee28a923ab5d189`
+  (unmoved since 18 September) by this session's patch (`f24a6e9`), which touched
+  one engine file's fingerprint, `indicators/trend_health.py`. `models/bias_engine.py`
+  and `models/risk_model.py` were also edited but comment-only — confirmed
+  programmatically that neither file's per-file fingerprint moved, since
+  `core/code_fingerprint.py` hashes the docstring-stripped parse tree and plain `#`
+  comments were never part of what it dumps.
+- **Test suite, this session:** 474 passed (pandas_ta) / 343 passed, 120 skipped
+  (without pandas_ta) / 403 passed, 0 failed, 32 pre-existing errors (`run_tests.py`,
+  the same 32 by name as the standing baseline — diffed programmatically, not just
+  counted). Confirmed on BOTH the Linux sandbox and Viktor's own Windows machine —
+  he ran all three configurations himself before committing and every count matched.
+- **Golden snapshot:** applicable this session — the patch touched engine code
+  reachable on the golden fixture's path (ADX 31.96 at the decision bar fed
+  `continuation_strength`'s now-removed component). Moved in exactly 16 leaf
+  fields, all causally downstream of `bias.score` — diffed old vs new
+  programmatically at leaf granularity. Full field list: `f24a6e9`'s commit
+  message.
+- **Handover check:** not run as a script this session — this session has no shell
+  access to Viktor's machine, only the device-file bridge, so it was approximated
+  from `git status --short`, read twice around the commit rather than run as
+  `session_handover_check.py`. One open item came out of that reading — see "Open
+  items" below — everything else was clean: no other untracked or modified files,
+  no loose delivery files (the patch and commit-message files are gitignored and
+  were deleted after commit regardless), nothing staged uncommitted.
 
 ## The course correction — Goal B is on the slow burner
 
-Decided 15 September 2026, written into the repository for the first time by this
-patch (previously recorded only in a session-handover document kept outside git).
-Full reasoning: docs/PHASE7_DECISIONS.md, under "Goal B — the backtesting phase,
-specified before it starts," in the new subsection "Course correction — the engine
-review, before any Goal B work." In short: before any Goal B implementation, the
-engine gets reviewed for logical soundness — is the decision logic coherent, are the
-constants justified, are the signals actually independent, is the thesis written
-down anywhere. Goal B's full specification stands, ratified and unchanged; it is
-deferred, not cancelled. The engine review itself has not yet been scoped — see the
-scope conditions recorded alongside the course correction.
+Decided 15 September 2026. Full reasoning: docs/PHASE7_DECISIONS.md, under "Goal B —
+the backtesting phase, specified before it starts," in the subsection "Course
+correction — the engine review, before any Goal B work." In short: before any Goal B
+implementation, the engine gets reviewed for logical soundness — is the decision
+logic coherent, are the constants justified, are the signals actually independent, is
+the thesis written down anywhere. Goal B's full specification stands, ratified and
+unchanged; it is deferred, not cancelled.
+
+One finding from that eventual review was pulled forward and fixed this session,
+narrowly, ahead of the review being scoped — see "Resolved this session" below. The
+review itself, its completion boundary, and everything else it would cover remain
+exactly as unscoped as before this session's fix.
 
 ## Resolved this session
 
-- **`FINGERPRINTED_CONFIG` and the bias weights — resolved, not an open gap.** The
-  six bias weights (`WEIGHT_TREND_HEALTH` and siblings, `models/bias_engine.py`) are
-  NOT in the `FINGERPRINTED_CONFIG` list in `core/decision_log.py` — that list holds
-  `config.py`-level names only. They ARE fingerprinted, through the separate
-  `FINGERPRINTED_MODULES` / `module_snapshot()` mechanism built for exactly this
-  class of module-level constant, and both feed `run_hash`
-  (`core/engine_core.py`, lines 1255-1257). Confirmed by reading the code and by a
-  passing, purpose-built test:
-  `tests/test_lineage.py::test_the_run_hash_moves_when_a_bias_weight_moves` asserts
-  the run hash changes when `WEIGHT_TREND_HEALTH` moves from 0.30 to 0.35. Two runs
-  with different weights do not log as identical configuration. Last session's grep
-  that raised this as unverified was malformed, not wrong to have asked.
-- **This file split into three.** docs/PHASE7_NEXT.md (this file, current-state
-  only), docs/PHASE7_DECISIONS.md (standing governing material), and
-  docs/PHASE7_HISTORY.md (the dated narrative and head-block archive). Reconciliation
-  proof: the extracted content covering docs/PHASE7_DECISIONS.md and
-  docs/PHASE7_HISTORY.md, reassembled in original document order, is byte-for-byte
-  identical to the pre-split file — confirmed programmatically, not eyeballed. See
-  the commit message for the exact line-range mapping. This file's own content is
-  new, replacing what was previously this filename's role as the project's single
-  entry point; it is not extracted from anywhere and is not part of that proof.
-- **`session_handover_check.py` reworded** to stop referring to a "head block" this
-  file no longer has, and to point at all three files where relevant. See the diff.
-- **`PHASE7_PINNED_DATA`'s silent live-API fallback — fixed (Tier 1).**
-  `data/data_fetcher.py::pinned_source()` now raises `ValueError` when the
-  environment variable is set but does not resolve to a real directory, instead of
-  falling through to `return None` (which `get_tf()` read as "go to the live API").
-  Verified with a negative-control test that fails against the pre-fix code and
-  passes against the fix. See `5be5d82`.
-- **`_save_state`'s non-atomic write — fixed (Tier 1).** `core/engine_core.py` now
-  writes the cross-run state to a temp file in the same directory and
-  `os.replace()`s it over the real path, so a write interrupted mid-dump can no
-  longer leave a truncated file that reads as "no prior run." Verified with a
-  negative control that reproduces the exact corruption (recovered state `{}`) on
-  the pre-fix code. See `5be5d82`.
-- **`session_handover_check.py`'s ignored-file filter extended (Tier 1)** to cover
-  `logs/` and `docs/audit_package/round*/` — both pure regenerated build output,
-  the same class already filtered for `__pycache__`. An unrelated ignored file
-  still surfaces, confirmed by test, so this is not a blanket suppression. See
-  `5be5d82`.
+- **Bias-weight independence — one finding, fixed narrowly by Viktor's own choice.**
+  Asked directly whether the six bias weights are defensible, and to write a
+  position on it first rather than have it handed back for scoping. Found that
+  `trend_health` (weight 0.30) and `reversal_continuation` (weight 0.10) — 40% of
+  `bias_score`'s blend — both read the same raw `adx_val` and score it on two
+  different monotonic curves: not Item 11's defect (a reused *computed value*), a
+  reused raw *input*, which is why it passed Item 11's audit and six subsequent
+  rounds. Given a three-way choice — fix independence only, write a reasoned
+  rationale for the weight magnitudes, or both — Viktor chose independence only.
+  `indicators/trend_health.py`'s `continuation_strength` no longer has an ADX
+  component; its ceiling honestly drops from 60 to 35, not rescaled back up, the
+  same standard the original Item 11 fix used. `models/risk_model.py`'s own,
+  separate read of raw ADX for the risk-regime gate was already independent of
+  `bias_score` and needed no code change, only a comment correction. Full
+  reasoning, what was deliberately left out of scope, and full verification detail:
+  docs/PHASE7_DECISIONS.md, "First engine-review finding, fixed — bias-weight
+  independence," and `f24a6e9`'s commit message.
+- **The patch-delivery process itself changed.** Delivering that patch, `git add -A`
+  swept an untracked file (`Claude outputs/Phase7_Session_Handover_2026-09-15.pdf`)
+  toward staging — caught only by reading `git status --short` before committing,
+  which is a carefulness step, not a structural one. The patch-delivery skill was
+  updated (proposed to Viktor for review, not yet confirmed saved) to add files by
+  name instead of `git add -A` on his real repo going forward, so an unrelated
+  untracked file cannot be staged regardless of what else is sitting in the repo at
+  commit time.
 
 ## Open items
 
-- **Engineering Notes are five commits stale** — `bd44b98`, `f9e5127`, `dff7d00`,
-  `4a97c32`, `5be5d82` — last regenerated through Entry #127 (v1.30). Known and
-  deliberate per the batching rule (docs/PHASE7_DECISIONS.md, "Working practice");
-  stated explicitly here rather than left implicit, per this project's own
-  standing rule against silent gaps.
+- **The weight magnitudes themselves — 0.30/0.20/0.15/0.15/0.10/0.10 — remain
+  unreviewed hand-picked judgment calls.** `Phase7_Roadmap.pdf` says so in its own
+  words; nothing in the repository gives a reason for the specific split. Explicitly
+  out of scope for this session's fix, by Viktor's choice, not an oversight. Writing
+  down the market thesis the engine review's own scope conditions ask for is still
+  undone too.
+- **`volume_sentiment`'s, `supertrend_direction`'s and `macro_bias`'s own source
+  computations were not re-checked** for hidden shared raw inputs with each other or
+  with `trend_health`/`reversal_continuation` — only the one pair this session's
+  review found was checked and fixed. structure_regime *was* checked (built from
+  swing highs/lows, confirmed to share nothing with ADX/RSI).
+- **The engine review itself still has no completion boundary and is still not
+  formally scoped** — unchanged from before this session; see "The course
+  correction" above.
+- **An untracked file needs a decision.**
+  `Claude outputs/Phase7_Session_Handover_2026-09-15.pdf` was sitting untracked in
+  the repo when this session's patch was delivered, got caught mid-`git add -A`
+  before it could ride into the commit, and was left exactly where it was —
+  neither committed, deleted, nor explained. Whether it belongs in git (like the
+  other dated handover documents already tracked in `Claude outputs/`) or was never
+  meant to be there is Viktor's call, not made this session.
 - **The Constitution's backtest-start condition** (Items 2, 3, 6, 18) has never been
-  formally declared met the way the release gate was. Evidence points to it already
-  being satisfied; nobody has said so the way Viktor said "the gate is open" for the
-  release gate. Deferred behind the course correction above.
-- **The seven test files that cite `docs/PHASE7_NEXT.md` by name in a docstring or
-  comment** (`test_frame_ownership.py`, `test_imports.py`, `test_lineage.py`,
+  formally declared met the way the release gate was. Unchanged from before this
+  session. Deferred behind the course correction above.
+- **The seven test files that cite `docs/PHASE7_NEXT.md` by name** in a docstring or
+  comment (`test_frame_ownership.py`, `test_imports.py`, `test_lineage.py`,
   `test_risk_regime_independence.py`, `test_router_no_fabricated_zero_defaults.py`,
-  `test_decision_bar_integrity.py`, `test_exit_model_removal.py`) now cite the wrong
-  file for facts that moved to docs/PHASE7_HISTORY.md — confirmed none of them
-  functionally read or parse the file (checked directly; no `open()`/`Path()` call
-  on it anywhere in the codebase), so nothing breaks, but the citations are stale.
-  Same is true of prose inside `docs/build/build_engineering_notes.py`,
-  `build_portfolio_document.py` and `build_ai_attribution.py` that cites the
-  filename. Deliberately not fixed this session — scope was this file's own split,
-  not a repository-wide citation sweep; named here so it is not lost.
+  `test_decision_bar_integrity.py`, `test_exit_model_removal.py`), and the same
+  citation inside `docs/build/build_engineering_notes.py`, `build_portfolio_document.py`
+  and `build_ai_attribution.py` — unchanged from before this session, still stale,
+  still not fixed (scope was this session's independence finding, not a
+  repository-wide citation sweep).
+- **Engineering Notes are six commits stale** — `bd44b98`, `f9e5127`, `dff7d00`,
+  `4a97c32`, `5be5d82`, `f24a6e9` — last regenerated through Entry #127 (v1.30).
+  Known and deliberate per the batching rule (docs/PHASE7_DECISIONS.md, "Working
+  practice"); stated explicitly rather than left implicit.
 - **Unrelated, not urgent:** confirm which YH programme permits AI-assisted
   examensarbete work.
