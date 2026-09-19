@@ -427,3 +427,161 @@ def test_the_reasoning_no_longer_claims_structure_or_validation_as_a_bonus():
         "Both are already inside bias_score; restating them here is the "
         "defect this item removes."
     )
+
+
+def test_structure_regime_is_a_function_of_close_alone():
+    """
+    INDEPENDENCE REVIEW, SECOND PASS, 19 September 2026.
+
+    bias_engine.py's dependency graph described structure_regime (weight
+    0.20) as "structure.py's swing-based regime label" for as long as the
+    graph has existed. It is not. The label comes from _detect_regime(),
+    which reads close and nothing else. swing_struct is computed and
+    reaches the panel only.
+
+    That wrong description is why an earlier pass recorded structure_regime
+    as checked and independent: the check was run against a mechanism this
+    factor does not use.
+
+    Pinned here so the description cannot drift away from the code again
+    without a test going red. Two halves: the regime must respond to close,
+    and it must not respond to ADX, RSI or the EMA slope columns.
+    """
+    import pandas as pd
+    import numpy as np
+
+    from structure.structure import StructureEngine
+
+    def _frame(rows=40, drift=0.0, adx=25.0, rsi=50.0, slope=0.0):
+        idx = pd.RangeIndex(rows)
+        close = pd.Series(100.0 + idx.to_numpy() * drift, index=idx)
+        return pd.DataFrame({
+            "open": close, "high": close + 0.5, "low": close - 0.5,
+            "close": close, "volume": 1000.0,
+            "ADX": adx, "RSI": rsi,
+            "EMA20_Slope": slope, "EMA50_Slope": slope,
+        }, index=idx)
+
+    # Half one: close drives it. A rising series and a falling series must
+    # not produce the same regime, or the factor is reading nothing.
+    up = StructureEngine()._detect_regime(_frame(drift=0.5))
+    down = StructureEngine()._detect_regime(_frame(drift=-0.5))
+    assert up != down, (
+        f"_detect_regime returned {up!r} for a rising close series and "
+        f"{down!r} for a falling one. structure_regime is supposed to be a "
+        f"read of close; if these agree it is reading something else, or "
+        f"nothing."
+    )
+
+    # Half two: nothing else drives it. Hold close fixed, move every other
+    # indicator column to the far end of its range, and the label must not
+    # move. This is the assertion the wrong description defeated.
+    base = StructureEngine()._detect_regime(_frame(drift=0.5))
+    for label, kwargs in (
+        ("ADX", {"adx": 5.0}),
+        ("ADX", {"adx": 60.0}),
+        ("RSI", {"rsi": 5.0}),
+        ("RSI", {"rsi": 95.0}),
+        ("EMA slopes", {"slope": -1.0}),
+        ("EMA slopes", {"slope": 1.0}),
+    ):
+        moved = StructureEngine()._detect_regime(_frame(drift=0.5, **kwargs))
+        assert moved == base, (
+            f"_detect_regime returned {moved!r} instead of {base!r} when only "
+            f"{label} changed and close was held identical. structure_regime "
+            f"would then share a raw input with trend_health, which is the "
+            f"defect class the 19 September independence review exists to "
+            f"catch."
+        )
+
+
+def test_rsi_exemption_holds_in_downtrends_and_not_in_uptrends():
+    """
+    INDEPENDENCE REVIEW, SECOND PASS, 19 September 2026.
+
+    RSI reaches bias_score through two of the six factors: trend_health's
+    rsi_strength and continuation_strength's momentum_component.
+    trend_health.py's 19 September comment exempts that from the ADX
+    finding on the grounds that the two ask different questions -- one
+    symmetric (is RSI in an unexhausted band), one directional (is RSI
+    positioned for continuation in THIS trend's direction).
+
+    The exemption is real but narrower than the prose claimed. Measured
+    over RSI 0-100 the two curves correlate weakly in downtrends and
+    strongly in uptrends, where both peak in the 50-65 band and both bottom
+    at the extremes.
+
+    This test pins the measurement, not the decision. Nothing about the
+    engine's behaviour depends on it. It exists so that a future change to
+    either curve cannot quietly widen or narrow the overlap while the
+    written exemption stays the same -- the exact failure mode that let the
+    structure_regime description go stale for weeks.
+    """
+    import numpy as np
+    import pandas as pd
+
+    from indicators.trend_health import compute_trend_health
+
+    def _frame(rsi, direction, rows=40):
+        # Flat-slope series signed by `direction`, with acceleration exactly
+        # zero (EMA20_Slope constant, so slope[-1] - slope[-4] == 0), so
+        # continuation_strength's magnitude is momentum_component alone.
+        idx = pd.RangeIndex(rows)
+        slope = 0.01 * direction
+        close = pd.Series(100.0 + idx.to_numpy() * slope, index=idx)
+        return pd.DataFrame({
+            "open": close, "high": close + 0.05, "low": close - 0.05,
+            "close": close, "volume": 1000.0,
+            "EMA20_Slope": slope, "EMA50_Slope": slope,
+            "ADX": 25.0, "RSI": float(rsi),
+        }, index=idx)
+
+    def _health_rsi_component(rsi):
+        # trend_health's rsi_strength ladder, mirrored from trend_health.py.
+        # Mirrored rather than imported because it is a local in that
+        # function; the two halves of this test would diverge silently if
+        # the ladder changed, which is what the range check below catches.
+        if 45.0 <= rsi <= 65.0:
+            return 15.0
+        if 35.0 <= rsi < 45.0 or 65.0 < rsi <= 75.0:
+            return 12.0
+        if 25.0 <= rsi < 35.0 or 75.0 < rsi <= 85.0:
+            return 8.0
+        return 5.0
+
+    grid = np.arange(0.0, 100.5, 0.5)
+    health_curve = np.array([_health_rsi_component(r) for r in grid])
+
+    correlations = {}
+    for name, direction in (("uptrend", 1), ("downtrend", -1)):
+        momentum = np.array([
+            abs(compute_trend_health(_frame(r, direction))["continuation_strength"])
+            for r in grid
+        ])
+        correlations[name] = float(np.corrcoef(health_curve, momentum)[0, 1])
+
+    # The measured values on 19 September 2026 were 0.825 and 0.366. The
+    # bands are wide enough to survive float noise and narrow enough that a
+    # real change to either ladder moves out of them.
+    assert 0.75 <= correlations["uptrend"] <= 0.90, (
+        f"RSI's two paths into bias_score correlate at "
+        f"{correlations['uptrend']:.3f} in uptrends, outside the 0.75-0.90 "
+        f"band measured on 19 September 2026. Either a curve changed, or the "
+        f"overlap did. bias_engine.py's INDEPENDENCE REVIEW comment quotes "
+        f"this number and needs updating with it."
+    )
+    assert 0.25 <= correlations["downtrend"] <= 0.50, (
+        f"RSI's two paths into bias_score correlate at "
+        f"{correlations['downtrend']:.3f} in downtrends, outside the "
+        f"0.25-0.50 band measured on 19 September 2026. Same conclusion as "
+        f"the uptrend assertion above."
+    )
+
+    # The asymmetry itself is the finding: the written exemption assumes the
+    # two questions differ, and in uptrends they largely do not.
+    assert correlations["uptrend"] > correlations["downtrend"], (
+        f"uptrend correlation {correlations['uptrend']:.3f} is no longer "
+        f"above downtrend correlation {correlations['downtrend']:.3f}. The "
+        f"finding recorded in bias_engine.py describes the opposite and is "
+        f"now wrong."
+    )

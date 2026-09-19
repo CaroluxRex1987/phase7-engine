@@ -486,6 +486,70 @@ the golden run, expected since neither `FINGERPRINTED_CONFIG` nor `FINGERPRINTED
 names moved — `trend_health.py` is not itself a fingerprinted module, only the weight
 constants and risk multipliers are, and none of those changed value.
 
+### Second engine-review finding, recorded not fixed — the blend asks one question four times (19 September 2026)
+
+The first finding, above, was narrow: two factors read the same raw ADX. Fixing it left
+four of the six factors unexamined, and `docs/PHASE7_NEXT.md` said so. This is what
+tracing those four found. Claude's work, unprompted, under Viktor's explicit delegation
+of the call.
+
+**Two errors in the project's own record, corrected.** `models/bias_engine.py`'s
+dependency graph described `structure_regime` (weight 0.20) as "structure.py's
+swing-based regime label". It is not, and never was. The label comes from
+`_detect_regime()`, which computes the gap between `mean(close[-5:])` and
+`mean(close[-15:])` and applies hysteresis. `swing_struct` is computed by the same
+module and reaches nothing except the panel — `_detect_swing_structure`'s own docstring
+says so. Because that description was wrong, the previous pass recorded `structure_regime`
+as checked and independent, on the basis that swing highs and lows share nothing with
+ADX or RSI. That conclusion is literally true and beside the point: the check was run
+against a mechanism this factor does not use, so the question that mattered was never
+asked. Both the graph and the open item have been corrected.
+
+**The finding itself.** Four of the six factors — trend health (0.30), structure regime
+(0.20), SuperTrend direction (0.15) and macro bias (0.10), three quarters of the blend
+between them — are four different transforms of a single measurement: the recent
+direction of `close`. An EMA slope; a short-versus-long mean gap; an ATR-banded flip;
+price against its 50-EMA one timeframe up. They use different windows and different
+arithmetic, so this is not the ADX defect repeated — that was one reading scored on two
+curves, and these four will genuinely disagree at turning points. But all four are
+monotonic in the same underlying quantity and enter the blend with the same sign
+convention. In a sustained trend they agree because they must, and `bias_score` reports
+that agreement to every downstream consumer as four independent confirmations. Only two
+factors carry a measurement that is not price direction: volume sentiment (0.15), which
+reads `volume`, and continuation's acceleration term, which reads the change in slope and
+can oppose the slope itself.
+
+**Why this is recorded rather than fixed.** Acting on it means reweighting or dropping
+factors, and that is a trading judgment about what corroboration between correlated trend
+reads is actually worth. This project cannot evaluate that yet: the golden baseline proves
+a change is attributable, never that it is correct, and backtesting sits behind the release
+gate. It is the same reasoning that declined to wire `trend_failure` at sequence item 9c —
+an audit that finds a property is not a specification for changing it. The decision is
+Viktor's, and it does not have to be made now.
+
+**Also recorded, also not fixed.** RSI reaches `bias_score` through two factors:
+`trend_health`'s `rsi_strength` and `continuation_strength`'s `momentum_component`.
+`indicators/trend_health.py`'s 19 September comment exempts this from the ADX finding on
+the grounds that the two ask different questions — one symmetric (is RSI in an unexhausted
+band), one directional (is RSI positioned for continuation in this trend's direction). The
+exemption is real but narrower than the prose claimed. Measured across RSI 0–100 in steps
+of 0.5, the two curves correlate at r = 0.37 in downtrends and r = 0.83 in uptrends, where
+both peak in the 50–65 band and both bottom at the extremes. The duplicated path is worth
+at most 1.5 points of `bias_score` against the 2.5 the ADX fix removed, which is why it is
+a note and not an alarm.
+
+**What changed in code: nothing.** This patch edits one comment block, adds one
+subsection here, and adds two tests. `code_hash` is unmoved — confirmed programmatically,
+not assumed — because the `bias_engine.py` edit is comment-only and `tests/` is outside
+the fingerprint entirely. The golden snapshot is unmoved for the same reason. The two new
+tests pin the facts rather than the judgments: one asserts that `_detect_regime` responds
+to `close` and does not respond to ADX, RSI or the EMA slope columns, verified against an
+injected ADX dependency to prove it is not passing vacuously; the other pins the two RSI
+correlation figures inside bands, so a future change to either curve cannot quietly widen
+the overlap while the written exemption stays as it is. That second failure mode is
+exactly how the `structure_regime` description went stale and took an audit conclusion
+with it.
+
 ## Three rulings — made, 31 August 2026
 
 Viktor delegated all three ("decide items 3, 11, 14 myself") rather than ruling on each

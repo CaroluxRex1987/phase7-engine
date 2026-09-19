@@ -33,8 +33,22 @@ Ask what he wants to do first.
 - **Test suite, this session:** 474 passed (pandas_ta) / 343 passed, 120 skipped
   (without pandas_ta) / 403 passed, 0 failed, 32 pre-existing errors (`run_tests.py`,
   the same 32 by name as the standing baseline — diffed programmatically, not just
-  counted). Confirmed on BOTH the Linux sandbox and Viktor's own Windows machine —
-  he ran all three configurations himself before committing and every count matched.
+  counted). Viktor ran all three configurations himself on Windows before
+  committing, and those are his numbers.
+- **CORRECTION, made later the same day.** The line above previously read
+  "Confirmed on BOTH the Linux sandbox and Viktor's own Windows machine — he ran
+  all three configurations himself before committing and every count matched."
+  That was false and it was Claude's error. The counts do not match: on a Linux
+  checkout `tests/test_pinned_source.py::test_manifest_hashes_match_the_files`
+  fails, so the sandbox figure is 473 passed / 1 failed where Windows reports 474
+  passed / 0 failed. Verified by running the full suite on an untouched clone of
+  `2fee78f`, not inferred. The cause is not a defect in the engine: the pinned
+  CSVs are covered by `.gitattributes`'s `* text=auto`, so git stores them LF and
+  checks them out CRLF on Windows, while `MANIFEST.json` holds sha256 hashes of
+  the raw bytes — which therefore only match on the platform the manifest was
+  generated on. The test is green for Viktor and red for every Linux or macOS
+  checkout, including any future CI. See "Open items" for the fix, which is not
+  taken in this patch.
 - **Golden snapshot:** applicable this session — the patch touched engine code
   reachable on the golden fixture's path (ADX 31.96 at the decision bar fed
   `continuation_strength`'s now-removed component). Moved in exactly 16 leaf
@@ -100,11 +114,33 @@ exactly as unscoped as before this session's fix.
   out of scope for this session's fix, by Viktor's choice, not an oversight. Writing
   down the market thesis the engine review's own scope conditions ask for is still
   undone too.
-- **`volume_sentiment`'s, `supertrend_direction`'s and `macro_bias`'s own source
-  computations were not re-checked** for hidden shared raw inputs with each other or
-  with `trend_health`/`reversal_continuation` — only the one pair this session's
-  review found was checked and fixed. structure_regime *was* checked (built from
-  swing highs/lows, confirmed to share nothing with ADX/RSI).
+- **The four unchecked factors have now been traced, and the finding is open for
+  Viktor's decision.** Four of the six factors — trend health (0.30), structure
+  regime (0.20), SuperTrend direction (0.15), macro bias (0.10), three quarters of
+  the blend — are four different transforms of one measurement: the recent direction
+  of `close`. They will disagree at turning points but agree by construction in any
+  sustained trend, and `bias_score` presents that agreement as four independent
+  confirmations. Recorded rather than fixed, because acting on it means reweighting
+  or dropping factors, which is a trading judgment this project cannot evaluate until
+  backtesting is unblocked. Full reasoning: docs/PHASE7_DECISIONS.md, "Second
+  engine-review finding, recorded not fixed."
+- **The earlier claim that structure_regime had been checked was based on a false
+  description and is withdrawn.** `models/bias_engine.py` described it as
+  "structure.py's swing-based regime label"; it is actually a 5-bar vs 15-bar
+  close-mean gap, and `swing_struct` reaches nothing but the panel. The check was run
+  against a mechanism the factor does not use. The description is corrected and the
+  real behaviour is now pinned by a test.
+- **RSI still reaches `bias_score` through two factors,** and the written exemption
+  for it is narrower than its prose claims — measured r = 0.83 in uptrends against
+  r = 0.37 in downtrends. Worth at most 1.5 points of `bias_score`. Recorded, not
+  fixed, for the same reason as above.
+- **`test_pinned_source.py::test_manifest_hashes_match_the_files` is not portable
+  and needs a decision.** It hashes the raw bytes of CSVs that `* text=auto` causes
+  git to check out differently per platform, so it passes only on the OS that
+  generated `MANIFEST.json`. The clean fix is to hash line-ending-normalised content
+  in both `docs/build/make_pinned.py` and the test, then regenerate the manifest —
+  three files, no engine change, works on Windows immediately. Not taken here to keep
+  this patch to one subject.
 - **The engine review itself still has no completion boundary and is still not
   formally scoped** — unchanged from before this session; see "The course
   correction" above.

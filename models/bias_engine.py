@@ -20,10 +20,18 @@ import numpy as np
 #
 #   trend health (0.30)        <- indicators/trend_health.py's slope/ADX/RSI
 #                                  blend, unsigned magnitude
-#   structure regime (0.20)    <- structure.py's swing-based regime label
-#   volume sentiment (0.15)    <- structure.py's volume/price divergence read
-#   supertrend direction (0.15)<- indicators.py's SuperTrend column, sign only
-#   macro bias (0.10)          <- engine_core.py's higher-timeframe EMA read
+#   structure regime (0.20)    <- structure.py's _detect_regime(): the gap
+#                                  between mean(close[-5:]) and
+#                                  mean(close[-15:]), with hysteresis.
+#                                  Raw input: close. NOT the swing-based
+#                                  label -- see the correction below.
+#   volume sentiment (0.15)    <- structure.py's _volume_sentiment_simple():
+#                                  volume/price divergence.
+#                                  Raw inputs: close, volume.
+#   supertrend direction (0.15)<- indicators.py's SuperTrend column, sign only.
+#                                  Raw inputs: high, low, close (ATR-banded).
+#   macro bias (0.10)          <- engine_core.py: close > EMA_50 on the higher
+#                                  timeframe. Raw input: macro-timeframe close.
 #   reversal/continuation(0.10)<- trend_health.py's continuation_strength
 #                                  (RSI-momentum + acceleration only -- see
 #                                  trend_health.py's "ITEM 11 RE-AUDIT" comment
@@ -50,6 +58,57 @@ import numpy as np
 # (WEIGHT_TREND_HEALTH and siblings, below) were explicitly out of scope for
 # that pass and remain unreviewed hand-picked judgment calls -- see
 # docs/PHASE7_DECISIONS.md.
+#
+# INDEPENDENCE REVIEW, SECOND PASS, 19 September 2026. The first pass found
+# one shared raw indicator (ADX) between two factors and fixed it. This pass
+# traced the four factors the first pass never reached, and found something
+# larger than a duplicate input.
+#
+# TWO ERRORS IN THIS FILE'S OWN RECORD, corrected in the graph above.
+#   1. "structure.py's swing-based regime label" was simply wrong.
+#      structure_regime comes from _detect_regime(), a 5-bar vs 15-bar
+#      close-mean gap with hysteresis. swing_struct is computed but reaches
+#      nothing except the panel -- _detect_swing_structure's own docstring
+#      says so.
+#   2. Because of (1), docs/PHASE7_NEXT.md recorded structure_regime as
+#      "checked ... shares nothing with ADX/RSI". Literally true and
+#      beside the point: the check was run against a mechanism this factor
+#      does not use, so the question that mattered was never asked.
+#
+# THE FINDING. Four of the six factors -- trend health (0.30), structure
+# regime (0.20), SuperTrend direction (0.15) and macro bias (0.10), 0.75 of
+# the blend between them -- are four transforms of one measurement: the recent
+# direction of close. An EMA slope, a short-versus-long mean gap, an
+# ATR-banded flip, and price against its 50-EMA one timeframe up. Different
+# windows and different arithmetic, so this is not the ADX defect (one reading
+# on two curves) and they will not always agree. But all four are monotonic in
+# the same underlying quantity and enter the blend with the same sign
+# convention, so in a sustained trend they agree by construction, and
+# bias_score presents that agreement as four independent confirmations.
+#
+# Only two factors carry a measurement that is not price direction: volume
+# sentiment (0.15), which reads volume, and continuation's acceleration term,
+# which reads the change in slope and can oppose the slope itself.
+#
+# NOT FIXED HERE, AND NOT AN OVERSIGHT. Acting on this means reweighting or
+# dropping factors, which is a trading judgment about what corroboration
+# between correlated trend reads is worth. This project cannot evaluate that
+# yet: the golden baseline proves a change is attributable, never that it is
+# correct, and backtesting sits behind the release gate. Same reasoning that
+# declined to wire trend_failure at sequence item 9c. Recorded for Viktor's
+# decision, with the record corrected so the next pass starts from what the
+# code does rather than from what this comment used to claim.
+#
+# ALSO RECORDED, ALSO NOT FIXED: RSI reaches bias_score through two factors,
+# trend_health's rsi_strength and continuation's momentum_component.
+# trend_health.py's 19 September comment exempts this on the grounds that the
+# two ask different questions, symmetric versus directional. Measured across
+# RSI 0-100 in 0.5 steps, that exemption holds in downtrends (Pearson r =
+# 0.37) and largely fails in uptrends (r = 0.83), where both peak in the
+# 50-65 band and both bottom at the extremes. The exemption is narrower than
+# it was written to be. The duplicated path is worth at most 1.5 points of
+# bias_score (momentum_component's 15 at weight 0.10), against the 2.5 the
+# ADX fix removed.
 #
 # What this function does NOT try to do: re-derive or cross-check any factor
 # against another. structure_regime, macro_bias and volume_sentiment are also
