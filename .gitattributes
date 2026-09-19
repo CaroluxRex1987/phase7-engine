@@ -12,6 +12,12 @@
 *.jpeg binary
 *.ico binary
 
+# Hooks under githooks/ are shell scripts that Git for Windows runs with its own
+# sh, which reads a CRLF line's \r as part of the command. `* text=auto` above
+# would give them CRLF on a Windows checkout, so they are pinned to LF on every
+# platform. tests/test_pre_push_hook.py checks both this rule and the bytes.
+githooks/* text eol=lf
+
 # Reviewer responses are evidence: they are committed exactly as the provider's
 # stream delivered them. `* text=auto` above would normalise their line endings
 # at commit and rewrite them again at checkout, so a file that is supposed to be

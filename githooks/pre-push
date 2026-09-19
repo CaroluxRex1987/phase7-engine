@@ -1,0 +1,53 @@
+#!/bin/sh
+# Phase-7 pre-push hook: runs the session handover check before a push leaves
+# this machine.
+#
+# Installed once per clone, from the repo root:
+#     git config core.hooksPath githooks
+# Git does not version .git/hooks, so the hook lives in this tracked directory
+# instead. That setting is local to one clone and a fresh clone silently lacks
+# it, so docs/build/session_handover_check.py flags a clone where it is missing
+# (its section 6).
+#
+# Ruled by Viktor, 19 September 2026 -- option A of three: a finding STOPS the
+# push, he consults with Claude, and if the answer is "push" he re-runs it as
+#     git push --no-verify
+# The decision stays his; the hook only makes sure the look happens first.
+# Rejected: warning while letting the push through (the consult would come
+# after the push had already left), and a y/N prompt at the terminal (a hook's
+# stdin belongs to git, and reading the keyboard from cmd.exe through Git for
+# Windows' sh was not something that could be verified).
+#
+# Fails CLOSED: if the check cannot run at all -- no python, the script
+# missing, a crash -- the push is stopped too. A hook that silently passes when
+# broken is the exact failure it exists to prevent.
+#
+# This file must stay LF. Git for Windows runs it with its own sh, which reads
+# a CRLF line's \r as part of the command. .gitattributes pins githooks/* to
+# eol=lf, and tests/test_pre_push_hook.py checks the bytes.
+
+if command -v python >/dev/null 2>&1; then
+    PY=python
+elif command -v python3 >/dev/null 2>&1; then
+    PY=python3
+else
+    echo "pre-push: no python on PATH -- the handover check could not run." >&2
+    echo "pre-push: push STOPPED. After checking by hand: git push --no-verify" >&2
+    exit 1
+fi
+
+"$PY" docs/build/session_handover_check.py </dev/null
+status=$?
+
+if [ "$status" -eq 0 ]; then
+    exit 0
+fi
+
+echo "" >&2
+if [ "$status" -eq 1 ]; then
+    echo "pre-push: the handover check flagged something above -- push STOPPED." >&2
+else
+    echo "pre-push: the handover check could not run (exit $status) -- push STOPPED." >&2
+fi
+echo "pre-push: consult first. If the answer is push: git push --no-verify" >&2
+exit 1

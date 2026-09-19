@@ -1,7 +1,7 @@
 """Session handover check — the mechanical half.
 
 Answers the git-answerable items from docs/PHASE7_DECISIONS.md's "Working practice"
-handover checklist (items 3, 5 and 7, plus item 8 below) by running the
+handover checklist (items 3, 5 and 7, plus items 8 and 9 below) by running the
 actual commands rather than relying on anyone remembering to. It does NOT
 answer items 1, 2, 4 and 6 -- whether this session's state is written into
 PHASE7_NEXT.md, whether today's rulings are recorded there, whether the
@@ -14,10 +14,14 @@ step every session close and are printed as a reminder at the end.
 This exists because the checklist itself was, until now, an instruction
 ("run these seven checks") rather than a structural fact of the repo --
 and Viktor's own standing preference is a structural fix over a
-reminder to be careful. It is invoked by hand at session close, the
-same as before; nothing in this project's actual workflow (single
-commands run one at a time) can trigger it automatically the way an
-IDE or a persistent agent session could.
+reminder to be careful. It is invoked by hand at session close, and --
+since 19 September 2026 -- also by githooks/pre-push on every `git
+push`, once a clone has run `git config core.hooksPath githooks`. The
+hook stops the push when this script exits non-zero (Viktor's ruling,
+option A: a finding stops the push, he consults, and overrides with
+`git push --no-verify` if the answer is push). Section 6 below flags a
+clone where the hook is not installed, since that setting is local to
+one clone and nothing else would notice it missing.
 
 Item 8 -- README.md currency, added 15 September 2026 -- is a partial
 exception to the "prose needs judging" rule above. Whether README.md's
@@ -40,7 +44,8 @@ Usage (from anywhere inside the repo, or pass the repo root as $1):
 
 Exit code 0 if nothing was flagged, 1 if something needs a look --
 never a claim that everything is fine, only that this script found
-nothing. Item 8 (below) is informational and does not affect the exit
+nothing. githooks/pre-push reads this exit code: anything other than 0
+stops the push. Item 8 (below) is informational and does not affect the exit
 code -- see its own docstring for why. The four manual items still need
 answering regardless of which exit code this prints.
 """
@@ -231,6 +236,61 @@ def check_readme_currency(root: Path) -> None:
     print("  does README.md's prose still match what docs/PHASE7_NEXT.md currently declares?")
 
 
+_HOOKS_PATH = "githooks"
+_PRE_PUSH = "githooks/pre-push"
+
+
+def check_hooks_path(root: Path) -> list[str]:
+    """Item 9: is the pre-push hook actually installed in this clone?
+
+    Added 19 September 2026 with githooks/pre-push. Git does not version
+    .git/hooks, so the hook is tracked under githooks/ and switched on per
+    clone with `git config core.hooksPath githooks`. That setting lives in
+    .git/config, which a fresh clone does not carry -- the hook would then
+    silently never run, and nothing else in the workflow would notice.
+
+    Three ways it can be off, each flagged:
+      - core.hooksPath unset or pointing elsewhere
+      - githooks/pre-push missing from the working tree
+      - githooks/pre-push tracked without the executable bit. Git for
+        Windows runs a hook regardless of that bit; git on Linux and macOS
+        ignores a hook that lacks it. A file first added on Windows (where
+        core.filemode is false) is recorded as 100644 unless
+        `git update-index --chmod=+x` sets it.
+
+    All three are plain string comparisons on git's own output, not
+    filesystem mode checks, so the answer does not depend on which OS
+    runs this.
+    """
+    problems: list[str] = []
+    configured = _run(
+        ["git", "config", "--get", "core.hooksPath"], cwd=root
+    ).stdout.strip()
+    normalised = configured.replace("\\", "/").rstrip("/")
+    if normalised != _HOOKS_PATH:
+        shown = configured if configured else "(unset)"
+        problems.append(
+            f"core.hooksPath is {shown}, not {_HOOKS_PATH} -- the pre-push "
+            f"hook will not run. Install with: git config core.hooksPath {_HOOKS_PATH}"
+        )
+    if not (root / _PRE_PUSH).is_file():
+        problems.append(f"{_PRE_PUSH} is missing from the working tree")
+    staged = _run(["git", "ls-files", "-s", "--", _PRE_PUSH], cwd=root).stdout.strip()
+    if staged and not staged.startswith("100755 "):
+        problems.append(
+            f"{_PRE_PUSH} is tracked as {staged.split()[0]}, not 100755 -- git on "
+            f"Linux/macOS will ignore it. Fix: git update-index --chmod=+x {_PRE_PUSH}"
+        )
+    print()
+    print("## 6. Pre-push hook installed  (core.hooksPath, githooks/pre-push)")
+    if not problems:
+        print("  installed")
+    else:
+        for problem in problems:
+            print(" ", problem)
+    return problems
+
+
 def main() -> None:
     start = Path(sys.argv[1]) if len(sys.argv) > 1 else Path.cwd()
     root = _repo_root(start)
@@ -240,6 +300,7 @@ def main() -> None:
     loose = check_loose_delivery_files(root)
     staged = check_staged_index(root)
     check_readme_currency(root)
+    hooks = check_hooks_path(root)
 
     print()
     print("## Still manual -- this script cannot answer these; read PHASE7_NEXT.md")
@@ -250,7 +311,7 @@ def main() -> None:
     print("  - Are the Engineering Notes current, or is the gap stated explicitly?")
     print("  - Is any evidence -- a review, a transcript, a reasoning dump -- still only in a chat window?")
 
-    flagged = bool(modified or ignored or loose or staged)
+    flagged = bool(modified or ignored or loose or staged or hooks)
     print()
     print("== SUMMARY:", "one or more items above need a look" if flagged else "clean", "==")
     sys.exit(1 if flagged else 0)

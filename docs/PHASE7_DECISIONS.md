@@ -772,6 +772,24 @@ narrower check; it now rests on the exhaustive one.
      touched 30 August, fixed at `ebb0a46`) with nobody noticing. The script prints
      README.md's last-touched date and the commit count since, every run; judging whether
      the content still matches stays manual, the same as items 1, 2, 4 and 6.
+  9. Is the pre-push hook installed in this clone? Added 19 September 2026 with
+     `githooks/pre-push`, which runs this same script on every `git push`. Git does not
+     version `.git/hooks`, so the hook is tracked under `githooks/` and switched on per
+     clone with `git config core.hooksPath githooks` — a local setting that a fresh clone
+     silently lacks. The script flags it unset, the hook file missing, or the hook tracked
+     without its executable bit (Linux/macOS git ignores such a hook; Git for Windows does
+     not).
+
+  **Ruled 19 September 2026 — what the pre-push hook does on a finding.** Asked to
+  choose between (A) stop the push, consult, override with `git push --no-verify`; (B) a
+  y/N prompt at the terminal; (C) warn and let the push through, Viktor first said a
+  finding should "only warn, then I consult with you and we push or not." Claude pointed
+  out that (C) cannot deliver the second half: the push would have left before the
+  consult. Viktor chose (A). The override is deliberate — the decision stays his; the
+  hook only guarantees the look happens first. (B) was not rejected on merit but because
+  reading the keyboard from a hook under cmd.exe through Git for Windows' sh could not be
+  verified from the sandbox. The hook fails closed: if the check cannot run at all, the
+  push is stopped too.
 
   Report what the check finds, not that it ran. If everything is filed, one line.
 
