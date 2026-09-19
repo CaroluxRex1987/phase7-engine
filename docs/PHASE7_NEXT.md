@@ -19,7 +19,7 @@ Ask what he wants to do first.
 
 ## Where things stand, right now
 
-- **Tip:** `f24a6e9`. **Tag:** `portfolio-v1` at `99e022e`. **Release gate:** open,
+- **Tip:** `e2c6637`. **Tag:** `portfolio-v1` at `99e022e`. **Release gate:** open,
   declared 15 September 2026 — see docs/PHASE7_DECISIONS.md, "Two goals, and the
   order they finish in."
 - **code_hash:** `bb47ab537314953e16b2db2fcf24003ead64eb5538a30221a6578d518bb7d34d`
@@ -29,12 +29,18 @@ Ask what he wants to do first.
   and `models/risk_model.py` were also edited but comment-only — confirmed
   programmatically that neither file's per-file fingerprint moved, since
   `core/code_fingerprint.py` hashes the docstring-stripped parse tree and plain `#`
-  comments were never part of what it dumps.
-- **Test suite, this session:** 474 passed (pandas_ta) / 343 passed, 120 skipped
-  (without pandas_ta) / 403 passed, 0 failed, 32 pre-existing errors (`run_tests.py`,
-  the same 32 by name as the standing baseline — diffed programmatically, not just
-  counted). Viktor ran all three configurations himself on Windows before
-  committing, and those are his numbers.
+  comments were never part of what it dumps. The session's second patch
+  (`e2c6637`) did not move it again and was not expected to: its only code edit
+  was another comment block in `models/bias_engine.py`, and `tests/` is outside
+  the fingerprint entirely. Confirmed by recomputation on the built tree, not
+  assumed from the rule.
+- **Test suite, at `e2c6637`:** 476 passed (pandas_ta, Viktor's Windows run) /
+  344 passed, 120 skipped (without pandas_ta, sandbox) / 404 passed, 32
+  pre-existing errors (`run_tests.py`, sandbox — the same 32 by name as the
+  standing baseline, diffed programmatically rather than counted). The two tests
+  added by `e2c6637` account for the rise from 474. Sandbox figures carry one
+  extra failure that Windows does not — see the correction immediately below,
+  which is now a standing platform difference rather than a one-off.
 - **CORRECTION, made later the same day.** The line above previously read
   "Confirmed on BOTH the Linux sandbox and Viktor's own Windows machine — he ran
   all three configurations himself before committing and every count matched."
@@ -47,14 +53,17 @@ Ask what he wants to do first.
   checks them out CRLF on Windows, while `MANIFEST.json` holds sha256 hashes of
   the raw bytes — which therefore only match on the platform the manifest was
   generated on. The test is green for Viktor and red for every Linux or macOS
-  checkout, including any future CI. See "Open items" for the fix, which is not
-  taken in this patch.
+  checkout, including any future CI. See "Open items" for the fix, which has not
+  been taken. Every sandbox figure in this document is reported with that one
+  failure included rather than quietly subtracted.
 - **Golden snapshot:** applicable this session — the patch touched engine code
   reachable on the golden fixture's path (ADX 31.96 at the decision bar fed
   `continuation_strength`'s now-removed component). Moved in exactly 16 leaf
   fields, all causally downstream of `bias.score` — diffed old vs new
   programmatically at leaf granularity. Full field list: `f24a6e9`'s commit
-  message.
+  message. `e2c6637` did not touch it: that patch changed one comment block, one
+  test file and two documents, so `tests/fixtures/golden_decision.json` is not in
+  its diff at all and `test_golden_path` passed unchanged.
 - **Handover check:** not run as a script this session — this session has no shell
   access to Viktor's machine, only the device-file bridge, so it was approximated
   from `git status --short`, read twice around the commit rather than run as
@@ -105,6 +114,22 @@ exactly as unscoped as before this session's fix.
   name instead of `git add -A` on his real repo going forward, so an unrelated
   untracked file cannot be staged regardless of what else is sitting in the repo at
   commit time.
+
+- **The independence review's second pass — the finding that closes the
+  question Viktor actually asked.** The first pass fixed one shared raw input and
+  left four of the six factors untraced. Tracing them found that trend health
+  (0.30), structure regime (0.20), SuperTrend direction (0.15) and macro bias
+  (0.10) — three quarters of the blend — are four different transforms of one
+  measurement, the recent direction of `close`. Not the ADX defect repeated; the
+  four genuinely disagree at turning points. But they agree by construction in any
+  sustained trend, and `bias_score` presents that agreement as four independent
+  confirmations. Recorded, deliberately not fixed: acting on it means reweighting
+  or dropping factors, which is a trading judgment nothing here can evaluate until
+  backtesting is unblocked. Two errors in the project's own record were corrected
+  in the same patch — `bias_engine.py`'s false "swing-based" description of
+  structure regime, and Claude's false claim that this session's Linux and Windows
+  test counts matched. Full reasoning: docs/PHASE7_DECISIONS.md, "Second
+  engine-review finding, recorded not fixed," and `e2c6637`'s commit message.
 
 ## Open items
 
@@ -162,8 +187,9 @@ exactly as unscoped as before this session's fix.
   and `build_ai_attribution.py` — unchanged from before this session, still stale,
   still not fixed (scope was this session's independence finding, not a
   repository-wide citation sweep).
-- **Engineering Notes are six commits stale** — `bd44b98`, `f9e5127`, `dff7d00`,
-  `4a97c32`, `5be5d82`, `f24a6e9` — last regenerated through Entry #127 (v1.30).
+- **Engineering Notes are eight commits stale** — `bd44b98`, `f9e5127`,
+  `dff7d00`, `4a97c32`, `5be5d82`, `f24a6e9`, `2fee78f`, `e2c6637` — last
+  regenerated through Entry #127 (v1.30).
   Known and deliberate per the batching rule (docs/PHASE7_DECISIONS.md, "Working
   practice"); stated explicitly rather than left implicit.
 - **Unrelated, not urgent:** confirm which YH programme permits AI-assisted
