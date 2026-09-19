@@ -692,6 +692,59 @@ CLOSED 12 September 2026, for the full closure — including of a hedge ("probab
 provably") that section had carried since 2 September. This ruling was already sound on the
 narrower check; it now rests on the exhaustive one.
 
+## Ruling, 20 September 2026 — the open-items list scrapped; an independent audit next
+
+*New in this file on 20 September 2026 (docs commit after `b68de08`).*
+
+**What was ruled.** Viktor scrapped seven entries of PHASE7_NEXT.md's Open items as they
+stood at `e115272`, in his words: "We are gonna scrap that entire list. 1-7." They were,
+in the numbering used in the conversation: (1) his written position on the six
+bias-weight magnitudes and the engine's thesis; (2) the five points from the
+15 September PDF; (3) retiring "To do list Claude Phase 7 Engine.pdf"; (4) the
+four-factor finding (the blend asks one question four times); (5) RSI reaching
+`bias_score` through two factors; (6) the engine review's missing scope and completion
+boundary; (7) the Constitution's backtest-start condition never having been formally
+declared met. In their place: "We are going to have a new audit by an independent model
+and go from there." Three mechanical items are done first — "We can do step 8., 9., and
+10., before the new audit": the non-portable manifest test (done at `b68de08`), the
+stale citations of PHASE7_NEXT.md in test files and build scripts, and README.md's
+pre-existing omissions. The To-do PDF is to be deleted; it lives outside the repository,
+so Viktor deletes it himself.
+
+**How it came about.** Asked what was open, Claude listed the items. On item 1 Viktor
+asked whether changes had been made without documenting why. Claude checked `git log`
+rather than answering from memory: the six weights have not changed since they entered
+the repository in `83a9425` (26 August 2026, "Publish Phase-7 Engineering Constitution,
+docs, and current engine state"), which replaced the four-term blend (0.5/0.3/0.2/0.1)
+of the first commits of 24 August wholesale. No commit changed a weight value; the
+choice itself predates the repository's logging, so its reason was never written down.
+Who chose the six values is not recorded anywhere Claude could find. Viktor then ruled
+on the items one by one, then scrapped all seven.
+
+**Claude's recommendation, and what it did not change.** Before the full scrap, when
+Viktor had ruled to fix (4) and (5) while scrapping (1), Claude pointed out that fixing
+either means choosing new weights — item 1 by another name — and suggested either a
+short written reason for whatever weights came out, or structural fixes that record
+the resulting weights as still unjustified. The full scrap superseded that question
+rather than answering it. Claude also suggested that point 1 of the PDF (+0.69R
+treating a confidence score as a win rate) might be a plain calculation error rather
+than a judgment call — unchecked against the code; it goes with the rest.
+
+**What this does not change.** Nothing here removes the record: the findings behind
+(4) and (5) stay in this file ("Second engine-review finding, recorded not fixed",
+including its "Also recorded, also not fixed" note on RSI), and the old Open items stay
+in PHASE7_HISTORY.md. They are no longer open items. The Constitution's backtest-start
+condition (Items 2, 3, 6, 18) still stands as written — scrapping the open item does not
+declare it met or waive it. The 15 September course correction ("engine review before
+any Goal B work") is not amended by this ruling; how the independent audit relates to
+that review has not been ruled.
+
+**Not yet decided** (Viktor's calls, for when the audit is planned): which model; the
+package (the standing default for a genuine fresh Tier-1 audit is the full audit
+package — see Working practice); and whether the auditor is shown the scrapped
+findings. Claude's note on the last: an auditor that has not seen them is more
+independent, and anything real in them should surface again on its own.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then
