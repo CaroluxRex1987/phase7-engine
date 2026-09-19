@@ -15,20 +15,21 @@ Ask what he wants to do first.
 
 ## Where things stand, right now
 
-- **Tip:** current as of `c7ced36`; the actual tip is the docs commit that wrote this
+- **Tip:** current as of `e431714`; the actual tip is the docs commit that wrote this
   file (a commit cannot name its own hash). **Tag:** `portfolio-v1` at `99e022e`.
   **Release gate:** open, declared 15 September 2026 — see docs/PHASE7_DECISIONS.md,
   "Two goals, and the order they finish in."
 - **code_hash:** `bb47ab537314953e16b2db2fcf24003ead64eb5538a30221a6578d518bb7d34d` —
-  unmoved by `5c73e24`, `c7ced36` and this commit (all docs-only). For this commit it was
-  recomputed on the pre- and post-patch trees, not assumed.
+  unmoved by `5c73e24`, `c7ced36`, `e431714` and this commit (all docs-only). For
+  `e431714` and this commit it was recomputed on the pre- and post-patch trees, not
+  assumed.
 - **Golden snapshot:** last changed at `f24a6e9` (checked with `git log` on the
   snapshot file); `code_hash` has been `bb47ab53…` since that commit, so no engine
   file has changed since either.
 - **Test suite — engine code identical since `5c73e24`:**
   - Windows (Viktor's machine, pandas_ta): **485 passed / 0 failed at `5c73e24`, read
-    from his pasted output.** At `c7ced36`, 485 / 0 is his confirmation by proceeding
-    (told to stop on any other count; output not pasted).
+    from his pasted output.** At `c7ced36` and `e431714`, 485 / 0 is his confirmation by
+    proceeding (told to stop on any other count; output not pasted).
   - Linux sandbox, clone made with `core.autocrlf=true` (CSVs check out CRLF, as on
     Windows): 485 passed / 0 failed with pandas_ta; 354 passed / 120 skipped without
     it; `run_tests.py` 414 passed / 0 failed / 32 errors — the same 32 by name as the
@@ -40,8 +41,9 @@ Ask what he wants to do first.
     subtracted. The fix is an open item below.
 - **Engineering Notes:** current. Regenerated at `c7ced36` through Entry #135 (v1.31) —
   eight entries, #128–#135, covering all eleven commits `bd44b98`..`5c73e24`.
-  `c7ced36` itself and this commit are not yet covered; both are docs-only.
-- **Handover check / pre-push hook:** ran on the push of `c7ced36`, `SUMMARY: clean`.
+  `c7ced36`, `e431714` and this commit are not yet covered; all three are docs-only.
+- **Handover check / pre-push hook:** ran on the pushes of `c7ced36` and `e431714`,
+  `SUMMARY: clean` both times.
 
 ## Resolved since the previous version of this file
 
@@ -63,7 +65,7 @@ Ask what he wants to do first.
   static search only: none of them opens the file; the citations are in docstrings and
   comments. A dynamically built path would not show up in that search. The citations
   themselves are still stale — see Open items.
-- **README.md checked against this file, in this commit.** Fifteen commits behind before
+- **README.md checked against this file, at `e431714`.** Fifteen commits behind before
   it (last touched at `ebb0a46`, 15 September). Two things were actually stale and are
   fixed: both test-count statements (466 / 338 + 117 skipped / `run_tests.py` 395 → the
   current 485 / 354 + 120 skipped / 414), and the repository-layout tree, which lacked
@@ -71,6 +73,15 @@ Ask what he wants to do first.
   predate the fifteen commits and are omissions rather than staleness: the layout tree
   also omits `Claude outputs/` and `decision_log_backups/`, and README does not point a
   reader at `docs/PHASE7_NEXT.md` / `PHASE7_DECISIONS.md` / `PHASE7_HISTORY.md` at all.
+- **One wrong prediction in `e431714`'s delivery, recorded here because it happened
+  after that commit's message was written.** Claude told Viktor that `git status
+  --short` would list the two delivery files (`.patch`, `_commit_message.txt`) as
+  `??`. They did not appear at all: `.gitignore` lines 106–107 ignore `*.patch` and
+  `*_commit_message.txt`, and `--short` does not list ignored files. The prediction
+  was made from memory, not checked; the patch-delivery skill's own wording
+  ("confirm the delivery files are absent") was right. No harm — the files were
+  ignored, not missing — but it is the unchecked-claim shape of the 3 September
+  lesson, and an incomplete prediction weakens the stop-on-unpredicted-output rule.
 
 ## The course correction — Goal B is on the slow burner
 
@@ -155,6 +166,6 @@ Claude critiques it.
 - **README.md's pre-existing omissions** — `Claude outputs/` and
   `decision_log_backups/` absent from the layout tree; no pointer to the three
   PHASE7_* documents. Found on 20 September, left for a decision rather than widened
-  into this commit.
+  into `e431714`.
 - **Unrelated, not urgent:** confirm which YH programme permits AI-assisted
   examensarbete work.
