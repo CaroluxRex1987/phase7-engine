@@ -35,33 +35,40 @@ Nothing.
 
 ## Where things stand, right now
 
-- **Tip:** current as of `4629002`; the actual tip is the commit that wrote this file
+- **Tip:** current as of `3a899b5`; the actual tip is the commit that wrote this file
   (a commit cannot name its own hash). **Tag:** `portfolio-v1` at `99e022e`.
   **Release gate:** open, declared 15 September 2026.
 - **code_hash:** `bb47ab537314953e16b2db2fcf24003ead64eb5538a30221a6578d518bb7d34d` —
-  unchanged since `f24a6e9`. Recomputed on `4629002`'s tree and on this commit's applied
+  unchanged since `f24a6e9`. Recomputed on `3a899b5`'s tree and on this commit's applied
   tree; not assumed.
 - **Golden snapshot:** last changed at `f24a6e9`; no engine code has changed since.
 - **Test suite**, unchanged since `b68de08`: 486 passed / 0 failed with pandas_ta;
   355 passed / 120 skipped without it; `run_tests.py` 415 / 0 / 32. Linux sandbox,
-  autocrlf clone, on `4629002` and on this commit's applied tree. Windows at `4629002`:
-  **confirmation by proceeding** (Viktor went past the stop-on-difference steps).
-  Windows at this commit: to be confirmed the same way.
-- **Engineering Notes:** through Entry #141 (v1.33), which covers `4629002`. **One
-  commit behind** — this one — by the batching rule.
+  autocrlf clone, on `3a899b5` and on this commit's applied tree. Windows at `4629002`
+  and at `3a899b5`: **confirmation by proceeding** (Viktor went past the
+  stop-on-difference steps). Windows at this commit: to be confirmed the same way.
+- **Engineering Notes:** through Entry #141 (v1.33), which covers `4629002`. **Two
+  commits behind** — `3a899b5`, which regenerated them, and this one — by the
+  batching rule. A commit that regenerates the Notes cannot cover itself, so one
+  behind is the lowest the gap can go; regenerating again for `3a899b5` alone would
+  only move the gap forward one commit.
 - **Portfolio Document and AI-Attribution Statement:** current. Rebuilt from `4629002`,
   their extracted text is identical to the committed PDFs, because no commit since
   `c745a67` has changed either script; so they were not regenerated. The previous
   version of this file said they were one commit behind; that was wrong.
-- **Handover check / pre-push hook:** `4629002` is on GitHub — cloned into the sandbox
-  on 20 September and confirmed as the tip. The pre-push hook reported `SUMMARY: clean`
-  on that push (Viktor's report).
+- **Handover check / pre-push hook:** `3a899b5` is on GitHub — fetched into the sandbox
+  on 20 September, confirmed as the tip, and its four changed files compared byte for
+  byte with the tree verified before delivery. The pre-push hook reported
+  `SUMMARY: clean` on the pushes of `4629002` and `3a899b5` (Viktor's report).
 
 ## Resolved this session
 
 - **The record brought current at `4629002`.** The two landing facts above, Entry #141
   and the v1.33 Document History row in the Engineering Notes, and the correction about
   the two portfolio PDFs.
+- **`3a899b5`'s landing facts recorded** (the Windows and hook results above), in a
+  NEXT-only commit. Viktor chose this over leaving them for the next docs commit or
+  regenerating the Notes for `3a899b5`.
 
 ## Open items
 
