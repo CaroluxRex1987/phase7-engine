@@ -693,7 +693,7 @@ def render_panel(decision):
             f"REGIME     : {colorize_val(bias.get('regime', 'NEUTRAL STRUCTURE'))}\n"
             f"STRUCTURE  : {colorize_val(structure.get('regime', 'NEUTRAL'))} | Vol: {colorize_val(bias.get('volatility', 'NORMAL'))}\n"
             f"SEQUENCE   : {colorize_val(structure.get('sequence', 'NONE'))}\n"
-            f"TREND      : {colorize_val(trend.get('trend_direction', 'NEUTRAL'))} / {colorize_val(trend.get('momentum_mode', 'HEALTHY'))} (Score: {trend_health_score:.2f})\n"
+            f"TREND      : {colorize_val(trend.get('trend_direction', 'NEUTRAL'))} / {colorize_val(trend.get('momentum_mode', 'HEALTHY'))} (Score: {trend_health_score:.2f}/100)\n"
             # SEQUENCE ITEM 11: the number after the label was
             # trend_health_score — the same value the TREND line above already
             # shows. The LABEL (STRONG / BUILDING / EXTENDED) is momentum_mode,
