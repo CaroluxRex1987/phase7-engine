@@ -19,7 +19,7 @@ by one person, with heavy AI assistance.**
 | | |
 |---|---|
 | Constitution | Ratified 26 August 2026. Rules frozen at 21 / 7 / 10 / 6 = 44. Scope freeze lifted 27 August; no amendments adopted since. |
-| Independent audit | **The original four-run audit, plus five further independent rounds since** (2, 5, 5, 12 and 13 September). Every Critical Tier 1 finding any of them raised has a landed, independently re-audited fix. Full record in [`docs/audit_reports/`](docs/audit_reports/). |
+| Independent audit | **The original four-run audit, plus five further rounds since** (2, 5, 5, 12 and 13 September) — three of them both independent and complete: round 2 produced no report, and round 3's reviewer was not independent (see below). Every Critical Tier 1 finding any of them raised has a landed, independently re-audited fix. Full record in [`docs/audit_reports/`](docs/audit_reports/). |
 | Engine code | **All Criticals resolved.** The original four, plus three more a later round found — see below. All sixteen remediation-sequence items complete. |
 | Tests | 486 pass with `pandas_ta` installed (355 pass, 120 skip without it). The fixture-free runner (`run_tests.py`) reports 415 passed, 0 failed, 32 errors — all from tests written with pytest fixtures that runner deliberately doesn't support, not defects; see its own docstring. |
 | Release gate | **Open.** Declared 15 September 2026, tagged `portfolio-v1` in this repository — see below. |
@@ -29,7 +29,7 @@ by one person, with heavy AI assistance.**
 **A release gate is in force, as it always has been:** no output of this engine may be
 relied on for a real trading decision while any Critical Tier 1 finding stands
 unresolved. As of 15 September 2026 that condition is met — every Critical raised
-across the original audit and the five independent rounds since has a landed,
+across the original audit and the five rounds since has a landed,
 independently re-audited fix — and the project
 was declared portfolio-ready and tagged `portfolio-v1` at that commit. **The gate is
 open.**
@@ -156,12 +156,22 @@ that PDF was built from it and never reached the repository either. What survive
 second-hand: [`docs/Phase7_Remediation_Plan.pdf`](docs/) is GLM 5.3's unedited
 prioritisation of those findings, not the findings themselves.
 
-That was not the last audit. Five more independent rounds have run since — 2 September,
-two on 5 September, 12 September (GPT-6 Astra), and 13 September (Meta Muse Spark 1.3,
-plus its own fix-verification pass on the 14th) — each on a model reporting no prior
-exposure to this codebase or its constitution at the time it ran. Every raw report from
-every round is in [`docs/audit_reports/`](docs/audit_reports/), unedited. A caveat worth
-stating rather than skipping: several of these models
+That was not the last audit. Five more rounds have run since — 2 September, two on
+5 September, 12 September (GPT-6 Astra), and 13 September (Meta Muse Spark 1.3, plus its
+own fix-verification pass on the 14th). Every raw report from every round is in
+[`docs/audit_reports/`](docs/audit_reports/), unedited. Two of the five need saying
+plainly. Round 2 (2 September) produced no report: every attempt stopped before writing
+one. What survives is Kimi K3's reasoning trace, filed there; a Qwen response from the
+same day was never saved. Round 3 (5 September, GLM 5.3 Flash) was not independent. A
+chat left on OpenRouter's Auto Router sent it the package meant for another model, and
+GLM 5.3 — the same lab — had written this project's Remediation Plan on 28 August, so
+round 3 reviewed work carried out under its own lab's plan. Its findings stand on their
+own evidence; the round does not count as independent. The other three ran on models
+that had never worked on the build. Where a model, or another model from its lab, had
+read the project in an earlier chat session, that exposure is cleared by the project's
+rule on session exposure (`docs/PHASE7_HISTORY.md`, "Independence — what kind of
+exposure, and what clears it"). A caveat worth stating rather than skipping: several of
+these models
 cannot confirm their own exact checkpoint from the inside, so "no prior exposure" rests
 on the provider's session being genuinely fresh, not on the model itself vouching for
 its own identity.

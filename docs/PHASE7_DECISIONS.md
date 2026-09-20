@@ -777,6 +777,54 @@ PHASE7_NEXT.md, so one note there reaches all of them, and this file is not rewr
 each session, so the rule outlasts the sentence in NEXT. The Engineering Notes will
 record the patch at their next regeneration in the ordinary way.
 
+## Ruling, 20 September 2026 — round 3 is not counted as independent
+
+*New in this file on 20 September 2026, with the docs commit after `92775ea`.*
+
+**What was ruled.** Round 3 (5 September 2026, GLM 5.3 Flash) is not counted as an
+independent audit round. README.md said all five rounds after the original audit ran "on
+a model reporting no prior exposure"; it now says round 3 was not independent, and why.
+
+**Why this needed a ruling.** The record contradicted itself. HISTORY's 5 September
+entry "Z.ai is not clean" concluded GLM 5.3 Flash "was not an independent reviewer",
+reasoning from the lab-level rule: GLM 5.3 had a substantive session on this project on
+28 August. But the 2 September ruling (HISTORY, "Independence — what kind of exposure,
+and what clears it") holds that exposure from a chat session clears with a fresh
+conversation when training is off, and calls applying the lab-level rule to it a
+category error. That ruling cleared Kimi K3 on 5 September and OpenAI on 12 September.
+GLM 5.3's 28 August session is the same kind: `OpenRouter: Chatroom`,
+`variant=standard`, in the provider export. On exposure alone, the 2 September ruling
+would clear it.
+
+**The reason that does hold is authorship, not exposure.** That 28 August session
+produced the Remediation Plan — `build_remediation_plan.py` records it as "Produced by
+GLM 5.3 (z-ai/glm-5.3) on August 29, 2026", from the complete engine source, the
+Constitution, all four round-1 audit outputs and the Engineering Notes. Round 3 then
+reviewed an engine remediated under that plan. The exposure table has no category for
+a lab reviewing work done under its own plan; this ruling is the first case of it.
+
+**How it came about.** Viktor first remembered the 28 August GLM run as "for a minor
+thing" and a deliberate compromise — "pretty much the first sidestep" from the rules —
+and proposed counting round 3 as independent. Claude checked the record rather than
+answering from memory: the run was Step 5, with the full inputs above, 104,394 tokens in
+and 55,179 out, and no compromise ruling exists anywhere; the only verdict on file was
+the 5 September one. Claude also pointed out that "independent" and "a sidestep" cannot
+both be published. Viktor then ruled: "don't count it as independent then."
+
+**Why the round ran at all.** It was never chosen. The round-3 package was meant for
+another model; the chat was left on Auto Router, which sent it to GLM 5.3 Flash
+(HISTORY, "The GLM 5.3 Flash run — an accident that produced a report"). The
+5 September rulings kept its report as round 3 — not acted on, but compared against
+round 4's report on the same unmodified code.
+
+**What this does not change.** Round 3's findings stand on their own evidence, and the
+fixes built on them stand. No release-gate or portfolio-ready claim rested on round 3's
+independence: the gate was declared on round 6's targeted re-audit. What it weakens: the
+count of independent rounds after the original audit falls from five, as published, to
+three that are both independent and complete (rounds 4, 5 and 6). The authorship
+question — whether a lab that planned the fixes may later grade them — is decided here
+for this one case only, not as a general rule.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then
@@ -907,6 +955,13 @@ record the patch at their next regeneration in the ordinary way.
     free of audit outcomes after searching three guessed phrases and reading six of
     eighteen hits on a fourth. The outcomes were in a table using words never searched, and
     the auditor found them in its first act.
+18. *No rule 18.* The rule numbered 18 until `108cc9f` (2 September 2026), "Fixing the
+    instance you found does not close the item", is now rule 22. The number is left
+    empty rather than closed up, because rules are cited by number throughout the
+    project's records and renumbering would make every later citation wrong. This line
+    also keeps the rendered list's numbering equal to the numbers written here: Markdown
+    numbers an ordered list by position, so without an item 18, every rule from 19 on
+    displayed one lower than its cited number. (Recorded 20 September 2026.)
 19. **The plan is not the source. Work from the audit, not from the summary of it.**
     Four of the five Criticals were remediated, verified and signed off while the fifth
     sat unread in the report the whole time. It was absent from this file, so every check
