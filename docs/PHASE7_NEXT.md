@@ -17,125 +17,95 @@ ruled to slow down considerably (15 September 2026). **Do not open a session by
 proposing work from "Open items" below, and do not treat it as a queue to clear.**
 Ask what he wants to do first.
 
-## Ruled this session — the old list is scrapped; an independent audit is next
+## Where the project is
 
-Viktor scrapped the seven judgment and review items that were open at `e115272` — the
-bias-weight magnitudes and thesis, the five points from the 15 September PDF, the To-do
-PDF, the four-factor finding, the RSI double path, the engine review's missing scope,
-and the backtest-start declaration. Next is **a new audit by an independent model**;
-before it, three mechanical items: the manifest test (done, `b68de08`), the stale
-citations (done, `9a35f1c`), and README's omissions (done, in the commit that wrote
-this version of the file). All three are done; planning the audit is next, and is
-Viktor's call. Full ruling, what it does and does not change, and
-what is still undecided about the audit: docs/PHASE7_DECISIONS.md, "Ruling,
-20 September 2026."
+The three mechanical items Viktor ruled should come before the independent audit are
+all done: the manifest test (`b68de08`), the stale citations (`9a35f1c`) and README's
+omissions (`077d120`). The Engineering Notes and the two portfolio PDFs are current as of
+this commit. **What comes next is planning the independent audit, and that is Viktor's
+call** — which model, which package, and whether the auditor sees the findings scrapped
+on 20 September (DECISIONS, "Ruling, 20 September 2026 — the open-items list scrapped;
+an independent audit next").
+
+## Ruled this session
+
+- **Dated records are not edited to follow a move** (item 9). Viktor ruled that item 9
+  covers every stale pointer a repository-wide search found, not just the ten files
+  recorded, and — after first wanting the dated records edited too, "the aim was to
+  keep a real record", and Claude arguing against — accepted a forward note instead:
+  the sentence at the top of this file, plus the ruling in DECISIONS, "Ruling,
+  20 September 2026 — dated records are not edited to follow a move". Claude read his
+  reply ("we can ignore it this time if you want") as that ruling and said so before
+  building.
 
 ## Where things stand, right now
 
-- **Tip:** current as of `9a35f1c`; the actual tip is the item-10 commit that wrote this
-  version of the file (a commit cannot name its own hash). **Tag:** `portfolio-v1` at `99e022e`.
+- **Tip:** current as of `077d120`; the actual tip is the regeneration commit that wrote
+  this file (a commit cannot name its own hash). **Tag:** `portfolio-v1` at `99e022e`.
   **Release gate:** open, declared 15 September 2026.
 - **code_hash:** `bb47ab537314953e16b2db2fcf24003ead64eb5538a30221a6578d518bb7d34d` —
-  unmoved by `b68de08`, `16d3c1f`, `9a35f1c` — which edits comments and docstrings in six
-  fingerprinted modules; `code_hash` strips both, recomputed on the pre-patch and
-  applied trees, not assumed — and the item-10 commit (README.md and this file only;
-  recomputed, not assumed). Unchanged since `f24a6e9`.
-- **Golden snapshot:** last changed at `f24a6e9`; no engine file has changed since.
-- **Test suite at `9a35f1c` and the item-10 commit** (no test or code change in
-  either): Linux sandbox, autocrlf clone, applied tree — 486 / 0 with pandas_ta;
-  355 passed / 120 skipped without it; `run_tests.py` 415 / 0 / 32, the same 32 by
-  name. Windows at `9a35f1c`: 486 / 0 and 415 / 0 / 32 — **confirmation by
-  proceeding**. Windows at the item-10 commit: to be confirmed the same way.
-- **Test suite at `b68de08`** (engine code unchanged since `5c73e24`):
-  - Windows (Viktor's machine, pandas_ta): 486 passed / 0 failed and `run_tests.py`
-    415 / 0 / 32 — **confirmation by proceeding** (told to stop on any other count;
-    output not pasted).
-  - Linux sandbox, autocrlf clone: 486 / 0 with pandas_ta; 355 passed / 120 skipped
-    without it; `run_tests.py` 415 passed / 0 failed / 32 errors, the same 32 by name as
-    before.
-  - Linux sandbox, **default LF clone: 486 / 0.** The standing platform difference
-    (484 / 1 on LF checkouts) is closed by `b68de08`.
-- **Engineering Notes:** through Entry #135 (v1.31), regenerated at `c7ced36`. Not yet
-  covering `e431714`, `e115272` (both docs-only), `b68de08` (tests and tooling — the
-  first non-docs commit since the last regeneration), `16d3c1f` (docs-only), `9a35f1c`
-  (comments and docstrings) or the item-10 commit (docs-only). Batched per the standing
-  rule; **regeneration is now due** — item 10 has landed. `9a35f1c` also changed text
-  that
-  `build_portfolio_document.py` and `build_ai_attribution.py` render, so their PDFs are
-  behind their scripts until those two are regenerated.
-- **Handover check / pre-push hook:** ran on the push of `b68de08`, `SUMMARY: clean`.
-  GitHub's tip was then fetched into the sandbox: `b68de08`, the three files
-  byte-identical to what was verified.
+  unchanged since `f24a6e9`. Recomputed on the trees of all six commits since `c7ced36`
+  (`e431714`, `e115272`, `b68de08`, `16d3c1f`, `9a35f1c`, `077d120`) for the Notes'
+  v1.32, and on this commit's applied tree; not assumed.
+- **Golden snapshot:** last changed at `f24a6e9`; no engine code has changed since.
+- **Test suite**, unchanged since `b68de08`: 486 passed / 0 failed with pandas_ta;
+  355 passed / 120 skipped without it; `run_tests.py` 415 / 0 / 32, the same 32 by name.
+  Linux sandbox, autocrlf clone, applied tree, for each of this session's three commits.
+  Windows at `9a35f1c` and `077d120`: **confirmation by proceeding** (Viktor went past
+  the stop-on-difference steps and pasted `git status`). Windows at this commit: to be
+  confirmed the same way.
+- **Engineering Notes:** through Entry #140 (v1.32), regenerated in this commit; no gap.
+  **Phase7_Portfolio_Document.pdf** and **Phase7_AI_Attribution.pdf** regenerated in the
+  same commit; their text differs from the previous build only by `9a35f1c`'s pointer
+  changes, compared word by word. The Notes script, run unchanged before the new entries
+  were added, reproduced the committed PDF's text exactly.
+- **Handover check / pre-push hook:** `SUMMARY: clean` on the pushes of `9a35f1c` and
+  `077d120`. After each push GitHub's tip was fetched into the sandbox and every changed
+  file compared byte for byte with what was verified.
 
-## Resolved since the previous version of this file
+## Resolved this session
 
-- **Item 10 — README.md brought current, in the item-10 commit.** The three recorded
-  omissions are closed: `Claude outputs/` and `decision_log_backups/` are in the layout
-  tree, and a new paragraph points at the three PHASE7_* files. The same full read of
-  README.md found four more stale statements, fixed in the same commit: the test counts
-  (485 / 354 / 414 → 486 / 355 / 415, the counts at `b68de08`); `Logs/` in the tree
-  (the directory is `logs/`); the module lists and the "sixteen files" count (now
-  twenty-two); and the claim that `run_tests.py` needs "nothing but a Python
-  interpreter", which the runner's own docstring had withdrawn on 6 September. One
-  was left alone because it is not Claude's call — see Open items.
-
-- **Item 9 — stale citations of `docs/PHASE7_NEXT.md`, fixed in the item-9 commit.**
-  The recorded list of ten files was incomplete. Every live citation is now either
-  pointed at the section of DECISIONS or HISTORY that holds the content, or left alone
-  because it is still correct (the handover check reading NEXT, `run_tests.py`'s
-  baselines, the audit package's exclusion list). Dated records were not edited — see
-  the new DECISIONS ruling. Two citations were wrong from the day they were written:
-  "rule 18" in `entry_model.py` and `test_decision_bar_integrity.py` — the same commit
-  that wrote them, `108cc9f`, renumbered that rule (now 22). Full account in the commit
-  message.
-
-- **`b68de08` — the pinned-data manifest check is portable.** Manifest hashes are now
-  over CRLF-normalised content, in both `make_pinned.py` and the test; the manifest was
-  regenerated by the script itself (CSVs byte-identical); one new test,
-  `test_manifest_hash_ignores_line_endings`, makes a revert to raw bytes fail on every
-  platform. Full account in its commit message.
-- **Where the six bias weights came from — traced in `git log`.** Unchanged in value
-  since `83a9425` (26 August), which brought them in wholesale, replacing the first
-  commits' four-term blend. No commit ever changed a weight value without a record;
-  the original choice predates the repository, which is why no reason for it exists.
-  Recorded in DECISIONS with the ruling above.
-- **GitHub's tip checked by clone, not by assertion**, at the start of this session
-  (`e115272`) and after the push (`b68de08`).
-- **The previous version of this file was misdated.** It was headed "20 September";
-  the commits that wrote it (`e431714`, `e115272`) are dated 19 September. Corrected
-  in the note heading its HISTORY entry, not in the moved text, since HISTORY is
-  append-only. This file's date (20 September) is from the session clock and matches
-  `b68de08`'s commit date.
+- **Item 9 — stale citations of `docs/PHASE7_NEXT.md`, `9a35f1c`.** The recorded list
+  of ten files was incomplete; the fix covers twenty-four. Live pointers now name the
+  section of DECISIONS or HISTORY that holds the content; still-correct citations were
+  left; dated records were not edited (ruling above). Two citations were wrong from the
+  day they were written: "rule 18" in `entry_model.py` and
+  `test_decision_bar_integrity.py` — `108cc9f` renumbered that rule in the same commit
+  (now 22). `code_hash` unmoved, all 33 per-file fingerprints equal, with a negative
+  control. Full account in its commit message and Notes Entry #139.
+- **Item 10 — README.md brought current, `077d120`.** The three recorded omissions
+  closed, plus four stale statements found by reading the whole file: test counts,
+  `Logs/` for `logs/`, the module lists and "sixteen files" (twenty-two now), and the
+  "nothing but a Python interpreter" claim `run_tests.py`'s docstring had withdrawn.
+  Notes Entry #140.
+- **Engineering Notes regenerated, v1.32, Entries #136–#140**, with the two portfolio
+  PDFs. This file's previous version (`16d3c1f`) moved to HISTORY verbatim, proven by
+  un-demoting the block and comparing byte for byte, with a one-character negative
+  control; the old HISTORY is an exact prefix of the new one.
 
 ## Open items
 
 Items marked **Viktor's call** are his to decide; he writes his position first and
 Claude critiques it.
 
-- **Viktor's call, open since 6 September — `docs/Phase7_Audit_Findings_Complete.pdf`.**
-  README.md and `docs/build/README.md` cite it; it does not exist in the repository, and
-  its build script's source material has never been here. Recorded on 6 September as
-  "a decision this patch does not take": remove the reference, or restore the source
-  material. Still undecided; not in the list scrapped on 20 September.
 - **Viktor's call — planning the independent audit:** which model, the package (the
   standing default for a fresh Tier-1 audit is the full package), and whether the
   auditor sees the scrapped findings. Not started.
+- **Viktor's call, open since 6 September — `docs/Phase7_Audit_Findings_Complete.pdf`.**
+  README.md and `docs/build/README.md` cite it; it does not exist in the repository, and
+  its build script's source material has never been here. Remove the reference, or
+  restore the source material. Not in the list scrapped on 20 September.
 - **Viktor, outside the repository:** delete "To do list Claude Phase 7 Engine.pdf".
-- **Not investigated:** in one `run_tests.py` run on the pre-patch tree, the sandbox's
-  egress proxy reported one connection attempt to `api.mexc.com` (refused there). An
-  earlier run of the same command on the same tree showed no such report, so it is not
-  reliably reproduced; not caused by `b68de08`, whose tree was not yet built. Which
-  test, if any, makes it is unknown. `b68de08`'s commit message says it was "present on
-  the pre-patch tree too"; more exactly, it was seen once, only on the pre-patch tree,
-  and not in the post-patch runs. Seen once more on 20 September, in the baseline
-  `run_tests.py` run on a pristine `16d3c1f` tree before item 9 was built — so it is
-  not caused by item 9 either. Still not investigated.
+  Carried from `16d3c1f`; whether it has been done is not known.
+- **Not investigated:** a connection attempt to `api.mexc.com` during `run_tests.py`,
+  refused by the sandbox's egress proxy. Seen once on the tree before `b68de08`, and
+  once on a pristine `16d3c1f` tree on 20 September, before any of this session's
+  changes; not in the other runs. Which test, if any, makes it is unknown.
 - **Found, not fixed: DECISIONS' "The rules, earned" has no rule 18.** The list goes
-  17 → 19; `108cc9f` (2 September) inserted a rule and moved the old 18 to 20 (now
-  22). Not renumbered, because rule numbers are cited by number throughout the
-  repository and renumbering would make every later citation wrong. The rule-number
-  citations in live code outside item 9's scope were checked by title against the
-  list and match; those in dated records were not checked.
+  17 → 19 since `108cc9f`. Not renumbered, because rule numbers are cited by number
+  throughout and renumbering would make every later citation wrong. Rule-number
+  citations in live code were checked by title and match; those in dated records were
+  not checked.
 - **The pre-push hook is installed per clone, not per repository.** After any re-clone
   (including after a machine wipe), run `git config core.hooksPath githooks`;
   `session_handover_check.py` section 6 flags a clone without it.
