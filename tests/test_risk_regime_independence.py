@@ -19,7 +19,8 @@ raised confidence AND lowered assessed risk. An independent check that
 correlates with the thing it is checking is not a check.
 
 Kimi named this as Finding 4 in round 4. GLM graded Item 14 Compliant in
-round 3, which is the divergence recorded in docs/PHASE7_NEXT.md.
+round 3, which is the divergence recorded in docs/PHASE7_NEXT.md (moved to
+docs/PHASE7_HISTORY.md, "What comes next", on 18 September 2026).
 
 THE FIX, RULED BY VIKTOR, 11 SEPTEMBER 2026
 

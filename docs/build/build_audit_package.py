@@ -18,8 +18,8 @@ can establish exactly which artifact was graded.
 
 WHAT IT REFUSES TO INCLUDE, AND WHY THAT IS ENFORCED RATHER THAN INTENDED
 
-docs/ holds the roadmap, the engineering notes, PHASE7_NEXT.md and the previous
-auditor's report. All of it is another party's reasoning about this same code,
+docs/ holds the roadmap, the engineering notes, PHASE7_NEXT.md,
+PHASE7_DECISIONS.md, PHASE7_HISTORY.md and the previous auditor's report. All of it is another party's reasoning about this same code,
 and reading it before forming a view would make the report a review of someone
 else's audit rather than an audit.
 
@@ -72,7 +72,7 @@ REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 # complete Parts 1-6 report against, finding F1/F2/F3 -- all three now fixed
 # and landed. round6/ is this build: it goes to Meta Muse Spark 1.3, not back
 # to GPT-6 Astra. Viktor ruled the model 13 September (see
-# docs/PHASE7_NEXT.md), after the originally ruled meta/muse-spark-1.2 turned
+# docs/PHASE7_HISTORY.md), after the originally ruled meta/muse-spark-1.2 turned
 # out to no longer be a live OpenRouter endpoint. round6/ also carries three
 # commits (2387717, 88e47e9, 044b055) that have never been independently
 # reviewed, batched in per Viktor's ruling the same day rather than sent as a

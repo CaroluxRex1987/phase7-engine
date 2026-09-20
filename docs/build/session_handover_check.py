@@ -4,7 +4,8 @@ Answers the git-answerable items from docs/PHASE7_DECISIONS.md's "Working practi
 handover checklist (items 3, 5 and 7, plus items 8 and 9 below) by running the
 actual commands rather than relying on anyone remembering to. It does NOT
 answer items 1, 2, 4 and 6 -- whether this session's state is written into
-PHASE7_NEXT.md, whether today's rulings are recorded there, whether the
+PHASE7_NEXT.md, whether today's rulings are recorded (there or in
+PHASE7_DECISIONS.md, as fits), whether the
 Engineering Notes gap is current or explicitly stated, and whether any
 evidence is still sitting only in a chat window. Those four ask whether
 specific prose is accurate and current, which needs something reading
@@ -198,8 +199,9 @@ def check_readme_currency(root: Path) -> None:
     """Item 8: README.md's last touch, printed for a human to judge against
     docs/PHASE7_NEXT.md's current-state section -- not scored, unlike
     items 1-4 above. (Before 18 September 2026 this compared against
-    PHASE7_NEXT.md's "head block"; that file was split into three and no
-    longer has one -- see its own current-state section for the pointer.)
+    PHASE7_NEXT.md's old "head block"; since that day's split the file is
+    current-state only, and the state is in its "Where things stand, right
+    now" section.)
 
     "Stale" is a judgment about content: does README.md's prose still
     match what docs/PHASE7_NEXT.md currently declares (the release gate,

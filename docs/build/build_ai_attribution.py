@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Builds the Phase-7 AI-Attribution Statement -- item 5 of the six
-portfolio-ready criteria in docs/PHASE7_NEXT.md ("Two goals, and the order
+portfolio-ready criteria in docs/PHASE7_DECISIONS.md ("Two goals, and the order
 they finish in"): "What Viktor designed, decided, tested and ruled on,
 versus what Claude produced... never assembled into one place."
 
@@ -12,8 +12,8 @@ engine or the project's history -- Phase7_Portfolio_Document.pdf already
 does that -- it accounts for who did what.
 
 Sources: the Constitution's own "Roles & Authority" section, inline
-"VIKTOR'S RULING" comments in the production code, docs/PHASE7_NEXT.md's
-recorded rulings, commit messages, and the tag taxonomy already used by
+"VIKTOR'S RULING" comments in the production code, docs/PHASE7_DECISIONS.md's
+and docs/PHASE7_HISTORY.md's recorded rulings, commit messages, and the tag taxonomy already used by
 docs/build/build_engineering_notes.py's ~118 numbered entries (counted
 directly from that script, not estimated).
 """
@@ -122,7 +122,7 @@ story.append(Spacer(1, 10))
 
 story.extend(box([
     P("<b>What this document is.</b>", "H2"),
-    P("Item 5 of the six criteria docs/PHASE7_NEXT.md sets for calling this project "
+    P("Item 5 of the six criteria docs/PHASE7_DECISIONS.md sets for calling this project "
       "“portfolio-ready.” Its own words for the job: “What Viktor designed, "
       "decided, tested and ruled on, versus what Claude produced... never assembled into one "
       "place.” This is that assembly. It is a separate document from "
@@ -141,7 +141,8 @@ story.append(P(
     "Every claim in this document is checkable against something outside it: an inline code "
     "comment (grep-able by the tag “VIKTOR'S RULING”), a dated entry in the "
     "engineering log (docs/Phase7_Engineering_Notes.pdf, itself append-only and never "
-    "retroactively edited), a commit message, or docs/PHASE7_NEXT.md's own recorded rulings. "
+    "retroactively edited), a commit message, or the rulings recorded in "
+    "docs/PHASE7_DECISIONS.md and docs/PHASE7_HISTORY.md. "
     "Nothing here is asserted from memory alone. Where the underlying evidence is a memory of a "
     "conversation rather than a committed artifact, this document says so rather than presenting "
     "it with the same weight as a commit hash.", "Body"))
@@ -204,7 +205,7 @@ story.extend(table([
     ["Date", "Ruling", "Where it is checkable"],
     ["27 Aug 2026", "Item 6 (Traceability) raised from Major to Critical, on the principle "
                     "that severity reflects consequence rather than repair effort.",
-                    "docs/PHASE7_NEXT.md"],
+                    "docs/PHASE7_HISTORY.md"],
     ["29 Aug 2026", "“Degrade, don't halt” — a failed input is recorded and "
                     "confidence capped, rather than the run stopping.",
                     "models/decision_model.py's _apply_degradation()"],
@@ -212,7 +213,7 @@ story.extend(table([
                     "job, not the engine's.", "core/config.py, SEQUENCE ITEM 13 comment"],
     ["31 Aug 2026", "Items 3, 11, and 14's re-audit rulings, decided personally rather than "
                     "delegated (“decide items 3, 11, 14 myself”).",
-                    "docs/PHASE7_NEXT.md, commit c4dfcc7"],
+                    "docs/PHASE7_DECISIONS.md, commit c4dfcc7"],
     ["2 Sep 2026", "Bias is the sole source of trade direction; no other signal may open or "
                    "override it.", "models/decision_model.py, models/signal_router.py"],
     ["5 Sep 2026", "“A lean is not a case” — a directional bias below a fixed "
@@ -228,7 +229,7 @@ story.extend(table([
                     "core/panel_render.py, commit 39e0e79"],
     ["14 Sep 2026", "Closing round 6's findings needs the same auditor confirming its own fixes, "
                     "not a fresh independent model — a genuinely independent pass is saved "
-                    "for immediately before backtesting.", "docs/PHASE7_NEXT.md"],
+                    "for immediately before backtesting.", "docs/PHASE7_HISTORY.md"],
 ], col_widths=[0.85 * inch, 4 * inch, 1.65 * inch]))
 
 story.append(PageBreak())
@@ -269,7 +270,8 @@ story.extend(table([
     ["1 Sep 2026: Claude told Viktor “nine Major and Moderate findings still open,” a "
      "count taken from an audit report's verdicts rather than checked against the actual code.",
      "Checking each location the report quoted found three already closed by unrelated work; "
-     "the true count was different. Recorded in docs/PHASE7_NEXT.md rather than silently "
+     "the true count was different. Recorded in docs/PHASE7_NEXT.md (now in "
+     "docs/PHASE7_HISTORY.md) rather than silently "
      "revised."],
     ["3 Sep 2026: five separate errors in one session, all the same shape — a conclusion "
      "stated with the same confidence whether or not it had actually been checked (two "

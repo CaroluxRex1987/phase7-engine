@@ -3,7 +3,8 @@
 Documents Claude produced for this project that are not part of the engine, its record, or
 its audit package — comparisons, write-ups, analyses. They are working products, not
 evidence: the evidence lives in `docs/audit_reports/` and the record in
-`docs/PHASE7_NEXT.md` and the Engineering Notes.
+`docs/PHASE7_NEXT.md`, `docs/PHASE7_DECISIONS.md`, `docs/PHASE7_HISTORY.md` and
+the Engineering Notes.
 
 **This folder is tracked, and `git add -A` sweeps it.** That is how
 `round3_vs_round4_comparison.md` and its PDF were committed at `bd79800` and pushed to a

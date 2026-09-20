@@ -745,6 +745,38 @@ package — see Working practice); and whether the auditor is shown the scrapped
 findings. Claude's note on the last: an auditor that has not seen them is more
 independent, and anything real in them should surface again on its own.
 
+## Ruling, 20 September 2026 — dated records are not edited to follow a move
+
+*New in this file on 20 September 2026, with the item-9 citation patch (after `16d3c1f`).*
+
+**What was ruled.** Item 9 (stale citations of `docs/PHASE7_NEXT.md`) was recorded as
+seven test files and three build scripts. A repository-wide search found more: comments
+and docstrings in engine modules, the audit-package and handover scripts,
+`requirements.txt` and three READMEs. Claude asked two questions. (A) Should the item
+cover every stale pointer the search found? Viktor: yes. (B) Should dated records — the
+Engineering Notes entries, `Claude outputs/` handovers, `docs/audit_reports/`,
+`docs/constitution_reviews/` — be edited too? Viktor's first position was yes, "the aim
+was to keep a real record." Claude argued against: those citations were true when
+written (HISTORY and DECISIONS did not exist before 18 September), the Engineering Notes
+are declared append-only in the project's own AI-Attribution Statement, and some of the
+records are other models' output. Claude proposed a forward note instead. Viktor
+accepted it ("we can ignore it this time if you want"); Claude read that as a ruling for
+the forward note and said so before building.
+
+**The rule.** A dated record is not edited because a file it cites has since been split
+or moved. The forward note is this ruling plus one sentence in PHASE7_NEXT.md's head
+block, the file every stale citation leads to: a citation of PHASE7_NEXT.md written
+before 18 September 2026 refers to content now in this file (rules, rulings,
+specifications) or in PHASE7_HISTORY.md (dated accounts). Live files — code, tests,
+build scripts, READMEs — are corrected directly.
+
+**Where the note went, and why it changed.** Claude first proposed a new Engineering
+Notes entry and notes in the `Claude outputs/` and `docs/audit_reports/` READMEs. It
+chose PHASE7_NEXT.md's head block and this file instead: every stale citation leads to
+PHASE7_NEXT.md, so one note there reaches all of them, and this file is not rewritten
+each session, so the rule outlasts the sentence in NEXT. The Engineering Notes will
+record the patch at their next regeneration in the ordinary way.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then

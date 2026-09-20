@@ -46,7 +46,7 @@ see a changed comparison operator, a reordered branch, a swapped `>=` for `>`,
 or a whole new term added to a formula. All of those change what the engine
 decides, and all of them left the record byte-identical.
 
-Rule 11 in PHASE7_NEXT.md: *a list of names is a claim about the code, and it
+Rule 11 in PHASE7_DECISIONS.md: *a list of names is a claim about the code, and it
 decays.* Rule 16: *a guard written from a list of examples inherits the gaps in
 that list.* Rule 28: where a mistake cannot be undone, change the structure
 rather than writing an instruction to be careful. Adding seven names would

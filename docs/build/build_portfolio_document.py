@@ -5,7 +5,7 @@ career plan specifies (objective, problem definition, architecture, data
 sources, modules, decision logic, testing methodology, debugging process,
 major problems, solutions, results, limitations, lessons learned, future
 development), item 4 of the six portfolio-ready criteria in
-docs/PHASE7_NEXT.md ("Two goals, and the order they finish in").
+docs/PHASE7_DECISIONS.md ("Two goals, and the order they finish in").
 
 Item 5 of those six criteria — the AI-attribution section, a separate,
 explicit accounting of what Viktor designed/decided/tested/ruled on versus
@@ -16,8 +16,8 @@ then AI-attribution) in order.
 
 This document does not declare the project portfolio-ready, does not
 declare the release gate open, and does not tag a commit. Those are Viktor's
-own calls, repeatedly and deliberately left open in docs/PHASE7_NEXT.md's own
-record, and this script does not make them on his behalf.
+own calls, recorded as his in docs/PHASE7_DECISIONS.md ("Declared --
+15 September 2026"), and this script does not make them on his behalf.
 """
 
 from reportlab.lib.pagesizes import LETTER
@@ -132,7 +132,7 @@ story.append(Spacer(1, 10))
 
 story.extend(box([
     P("<b>What this document is.</b>", "H2"),
-    P("This is item 4 of the six criteria docs/PHASE7_NEXT.md sets for calling this project "
+    P("This is item 4 of the six criteria docs/PHASE7_DECISIONS.md sets for calling this project "
       "“portfolio-ready”: the fourteen sections the career plan specifies, covering the "
       "engine end to end. Item 5, the separate AI-attribution accounting of what was designed, "
       "decided, tested and ruled on by Viktor versus what Claude produced, is assembled "

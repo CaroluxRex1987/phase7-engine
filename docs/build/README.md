@@ -35,7 +35,7 @@ access.
 Until 6 September 2026 nine of them hardcoded `/tmp/outputs/`. No build script could write
 into the repository, every PDF in `docs/` was built in a sandbox and carried across by
 hand, and the Engineering Notes fell eight entries behind that way. See
-`docs/PHASE7_NEXT.md`, "the build scripts can write into the repository".
+`docs/PHASE7_HISTORY.md`, "the build scripts can write into the repository".
 
 `build_findings_bundle.py` and `build_remediation_plan.py` additionally read markdown
 source files from a `docs/audit_raw/` directory (the verbatim round-1 auditor outputs).

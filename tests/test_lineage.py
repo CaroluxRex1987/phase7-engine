@@ -602,10 +602,13 @@ def test_an_archive_that_cannot_be_written_does_not_stop_the_analysis(monkeypatc
     would be a worse defect than the gap it was added to close.
 
     The failure is injected at the archive step specifically, rather than by
-    breaking the whole log directory. That distinction matters: an unwritable
-    log directory already fails a run on this engine and did so before this
-    commit -- it is a real defect, recorded in docs/PHASE7_NEXT.md, and it is
-    not this one. Testing through it would let this test pass for the wrong
+    breaking the whole log directory. That distinction matters: when this
+    was written, an unwritable log directory already failed a run on this
+    engine and did so before this commit -- a real defect, recorded in
+    docs/PHASE7_NEXT.md, and not this one. It was ruled and fixed later the
+    same day, in d26509f (docs/PHASE7_HISTORY.md, "Findings 6 and 7", since
+    18 September 2026); the injection point stays at the archive step so
+    this test still isolates the archive failure. Testing through it would let this test pass for the wrong
     reason and would claim a fix that was not made.
     """
     if not _engine_available():

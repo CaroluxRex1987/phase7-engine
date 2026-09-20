@@ -888,7 +888,9 @@ class Phase7Engine:
             # of the same constants, which is why the fix takes two files.
             #
             # The unlisted one, seen on the live run at fa68197 and recorded
-            # in PHASE7_NEXT: EMA_20 went to `lower` and EMA_50 to `upper`
+            # in PHASE7_NEXT (moved to docs/PHASE7_HISTORY.md, "Patches L and
+            # M", on 18 September 2026): EMA_20 went to `lower` and EMA_50 to
+            # `upper`
             # unconditionally. In an uptrend the fast EMA is ABOVE the slow
             # one, so the panel printed
             #

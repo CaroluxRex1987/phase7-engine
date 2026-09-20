@@ -124,6 +124,8 @@ def test_engine_core_has_no_render_parameter():
     imported core.engine_core directly, bypassing the _engine_available()
     guard this same file already uses elsewhere -- recorded in
     docs/PHASE7_NEXT.md since batch 1 as "reported for record, not fixed."
+    (That record moved to docs/PHASE7_HISTORY.md, "The short version", on
+    18 September 2026.)
     """
     if not _engine_available():
         pytest.skip("pandas_ta not installed")

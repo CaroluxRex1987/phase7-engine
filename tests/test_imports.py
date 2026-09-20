@@ -75,7 +75,8 @@ def test_every_module_imports():
     imported core.engine_core (and, transitively through it, indicators.
     indicators) directly, bypassing the _engine_available() guard the rest
     of the suite uses -- one of the four tests docs/PHASE7_NEXT.md recorded
-    since batch 1 as "reported for record, not fixed."
+    since batch 1 as "reported for record, not fixed." (That record moved to
+    docs/PHASE7_HISTORY.md, "The short version", on 18 September 2026.)
 
     A blanket skip like every other guarded test uses would be the wrong fix
     here specifically: only 2 of the 21 ENGINE_MODULES (core.engine_core,
@@ -213,7 +214,8 @@ def test_the_engine_and_the_fetcher_module_share_one_singleton():
     "FOUR TESTS THAT FAIL OUTRIGHT" RE-AUDIT, 1 September 2026: this test
     imported core.engine_core directly with no _engine_available() guard --
     one of the four docs/PHASE7_NEXT.md recorded since batch 1 as "reported
-    for record, not fixed." Unlike test_every_module_imports above, there is
+    for record, not fixed." (That record moved to docs/PHASE7_HISTORY.md,
+    "The short version", on 18 September 2026.) Unlike test_every_module_imports above, there is
     no partial version of this check: it is specifically about engine_core's
     singleton, so it skips outright like the rest of the suite rather than
     checking something else instead.

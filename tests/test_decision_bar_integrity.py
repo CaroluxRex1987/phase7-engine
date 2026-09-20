@@ -5,7 +5,8 @@ degradation.
 THE FINDING, AND WHY IT SURVIVED FOUR MONTHS OF REMEDIATION
 
 This was one of the independent audit's five Criticals and the only one never
-worked on. It is not in PHASE7_NEXT.md's sequence, it has no ruling recorded
+worked on. It was not in PHASE7_NEXT.md's sequence (that record moved to
+docs/PHASE7_HISTORY.md on 18 September 2026), it had no ruling recorded
 against it, and the roadmap's claim that "remediation of the audit's five
 Criticals is complete" was wrong from 31 August until 1 September 2026. It was
 found by reading the audit report itself rather than the roadmap written from
@@ -68,8 +69,10 @@ readers. Two of them awarded the MAXIMUM score for a measurement never taken:
                     close makes |close-hvn|/close exactly 0 -> 12 of 12
 
 The second is byte-for-byte the defect item 3 fixed for VWMA, sitting
-untouched forty lines below the fix. Rule 18 of PHASE7_NEXT.md's own list,
-applied to the item that wrote rule 18.
+untouched forty lines below the fix. Rule 22 of docs/PHASE7_DECISIONS.md's
+list ("Fixing the instance you found does not close the item"), applied to the
+item that wrote it. Cited here as rule 18 until 20 September 2026: the same
+commit that wrote this docstring, 108cc9f, renumbered the list.
 """
 
 import os

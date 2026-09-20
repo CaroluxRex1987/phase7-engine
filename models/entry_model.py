@@ -347,8 +347,10 @@ def calculate_entry_quality(
         # high-volume node that was never located.
         #
         # Item 3 fixed the instance it was looking at and left its twin. That
-        # is rule 18 of PHASE7_NEXT.md's own list, applied to the item that
-        # wrote rule 18.
+        # is rule 22 of docs/PHASE7_DECISIONS.md's list ("Fixing the instance
+        # you found does not close the item"), applied to the item that wrote
+        # it. Cited here as rule 18 until 20 September 2026: the same commit
+        # that wrote this comment, 108cc9f, renumbered the list.
         hvn = safe_float(df["HVN"].iloc[-1], float("nan"))
 
         if np.isfinite(hvn) and close > 0:

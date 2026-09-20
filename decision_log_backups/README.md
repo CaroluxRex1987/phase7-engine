@@ -45,4 +45,4 @@ September: "keep the records ... tag them") are not touched here. Tagging
 those ten records as suite output, in place, in a file this bridge can read
 but that git does not track, is a separate, un-built piece of the same
 ruling and needs its own approach -- flagged, not done, in
-docs/PHASE7_NEXT.md.
+docs/PHASE7_DECISIONS.md, "Rulings, 11 September 2026".

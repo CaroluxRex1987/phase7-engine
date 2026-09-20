@@ -35,7 +35,7 @@ It does not touch the live log. It does not tag the suite-written records
 inside it as suite output -- that is a separate, un-built piece of the same
 11 September ruling, on a file this script can copy but that git does not
 track, and it needs its own approach. See decision_log_backups/README.md and
-docs/PHASE7_NEXT.md.
+docs/PHASE7_DECISIONS.md, "Rulings, 11 September 2026".
 """
 
 import argparse

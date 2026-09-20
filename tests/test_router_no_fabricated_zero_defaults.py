@@ -41,7 +41,8 @@ earlier (the same shape as the swing_struct fix's own history, noted in this
 file's module comment). atr_stop, targets and current_price reach
 panel_render.py through a DIFFERENT, older safe_float() call that still
 defaults a non-finite value back to 0.0 there; that mismatch is observed, not
-closed, by this patch -- see docs/PHASE7_NEXT.md.
+closed, by this patch. It was closed later, by 154e534 (round 6 F4; see
+docs/PHASE7_HISTORY.md, moved there from PHASE7_NEXT.md on 18 September 2026).
 
 WHAT THESE TESTS HOLD
 

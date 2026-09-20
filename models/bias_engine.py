@@ -70,8 +70,9 @@ import numpy as np
 #      close-mean gap with hysteresis. swing_struct is computed but reaches
 #      nothing except the panel -- _detect_swing_structure's own docstring
 #      says so.
-#   2. Because of (1), docs/PHASE7_NEXT.md recorded structure_regime as
-#      "checked ... shares nothing with ADX/RSI". Literally true and
+#   2. Because of (1), docs/PHASE7_NEXT.md recorded structure_regime, at
+#      2fee78f, as "checked (built from swing highs/lows, confirmed to
+#      share nothing with ADX/RSI)". Literally true and
 #      beside the point: the check was run against a mechanism this factor
 #      does not use, so the question that mattered was never asked.
 #

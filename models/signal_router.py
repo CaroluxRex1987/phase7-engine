@@ -143,9 +143,10 @@ class SignalRouter:
             #
             # The cost is stated rather than hidden. Item 6 is Critical, and
             # the one decision acted on without a record is the one an auditor
-            # would ask about first. Recorded in docs/PHASE7_NEXT.md as a
-            # decision with its trade-off, so a re-audit reads a ruling and not
-            # an oversight.
+            # would ask about first. Recorded in docs/PHASE7_NEXT.md (moved to
+            # docs/PHASE7_HISTORY.md, "Findings 6 and 7", on 18 September 2026)
+            # as a decision with its trade-off, so a re-audit reads a ruling
+            # and not an oversight.
 
             # THIS router owns rendering exclusively (see class docstring / C1
             # fix), using the one complete decision object as the single source

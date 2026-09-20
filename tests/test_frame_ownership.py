@@ -355,7 +355,8 @@ def test_the_engine_holds_no_caches():
     imported core.engine_core directly, bypassing the _engine_available()
     guard every other pandas_ta-dependent test in this file already uses --
     recorded in docs/PHASE7_NEXT.md since batch 1 as "reported for record,
-    not fixed." A machine without pandas_ta got a hard failure here instead
+    not fixed." (That record moved to docs/PHASE7_HISTORY.md, "The short
+    version", on 18 September 2026.) A machine without pandas_ta got a hard failure here instead
     of the honest SKIPPED the rest of the suite reports.
     """
     if not _engine_available():
