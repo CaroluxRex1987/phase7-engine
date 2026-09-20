@@ -20,10 +20,10 @@ Ask what he wants to do first.
 ## Where the project is
 
 The three mechanical items before the independent audit are done (`b68de08`, `9a35f1c`,
-`077d120`), and the open question about `docs/Phase7_Audit_Findings_Complete.pdf` is now
-closed: its source, the four round-1 auditor outputs, could not be found, and README.md
-says so
-(HISTORY, "20 September 2026 — correction: the round-1 audit outputs were lost").
+`077d120`), and the `docs/Phase7_Audit_Findings_Complete.pdf` item is closed (`4629002`;
+HISTORY, "20 September 2026 — correction: the round-1 audit outputs were lost"). This
+session only brought the record current: `4629002`'s Windows result and hook result
+recorded below, and the Engineering Notes regenerated through it.
 **What comes next is planning the independent audit, and that is Viktor's call** —
 which model, which package, and whether the auditor sees the findings scrapped on
 20 September (DECISIONS, "Ruling, 20 September 2026 — the open-items list scrapped;
@@ -31,43 +31,37 @@ an independent audit next").
 
 ## Ruled this session
 
-- **The round-1 outputs are recorded as lost, not restored** (the Findings_Complete
-  item). Viktor chose to find the source first; the search covered the repository on
-  disk, git history, `D:\Phase_7_Engine_Random_Files`, the OpenRouter chat room and
-  request logs, and a Claude data export, and found no copy. He then called off the
-  search and approved Claude's three recommendations as proposed: README.md states the
-  loss and what survives; the 30 August "nothing lived only on disk" error is recorded
-  as a new dated HISTORY entry; `build_findings_bundle.py` is kept. Full account in
-  HISTORY, "20 September 2026 — correction: the round-1 audit outputs were lost".
+Nothing.
 
 ## Where things stand, right now
 
-- **Tip:** current as of `c745a67`; the actual tip is the commit that wrote this file
+- **Tip:** current as of `4629002`; the actual tip is the commit that wrote this file
   (a commit cannot name its own hash). **Tag:** `portfolio-v1` at `99e022e`.
   **Release gate:** open, declared 15 September 2026.
 - **code_hash:** `bb47ab537314953e16b2db2fcf24003ead64eb5538a30221a6578d518bb7d34d` —
-  unchanged since `f24a6e9`. Recomputed on `c745a67`'s tree and on this commit's applied
+  unchanged since `f24a6e9`. Recomputed on `4629002`'s tree and on this commit's applied
   tree; not assumed.
 - **Golden snapshot:** last changed at `f24a6e9`; no engine code has changed since.
 - **Test suite**, unchanged since `b68de08`: 486 passed / 0 failed with pandas_ta;
   355 passed / 120 skipped without it; `run_tests.py` 415 / 0 / 32. Linux sandbox,
-  autocrlf clone, on `c745a67` and on this commit's applied tree. Windows at `c745a67`:
-  **confirmation by proceeding** (Viktor went past the stop-on-difference steps and
-  pasted `git status`). Windows at this commit: to be confirmed the same way.
-- **Engineering Notes:** through Entry #140 (v1.32), at `c745a67`. **One commit behind**
-  — this one — by the batching rule; the Portfolio and AI-Attribution PDFs likewise.
-- **Handover check / pre-push hook:** `c745a67` is on GitHub — fetched into the sandbox
-  on 20 September and confirmed as the tip. The hook's output for that push was not
-  pasted, so it is not recorded here.
+  autocrlf clone, on `4629002` and on this commit's applied tree. Windows at `4629002`:
+  **confirmation by proceeding** (Viktor went past the stop-on-difference steps).
+  Windows at this commit: to be confirmed the same way.
+- **Engineering Notes:** through Entry #141 (v1.33), which covers `4629002`. **One
+  commit behind** — this one — by the batching rule.
+- **Portfolio Document and AI-Attribution Statement:** current. Rebuilt from `4629002`,
+  their extracted text is identical to the committed PDFs, because no commit since
+  `c745a67` has changed either script; so they were not regenerated. The previous
+  version of this file said they were one commit behind; that was wrong.
+- **Handover check / pre-push hook:** `4629002` is on GitHub — cloned into the sandbox
+  on 20 September and confirmed as the tip. The pre-push hook reported `SUMMARY: clean`
+  on that push (Viktor's report).
 
 ## Resolved this session
 
-- **`docs/Phase7_Audit_Findings_Complete.pdf`, open since 6 September.** README.md no
-  longer claims the round-1 output is published; it says the output was never committed,
-  cannot be recovered, and names what survives. The same passage's "the same as the
-  original four" is gone — the round-1 reports were never in `docs/audit_reports/`.
-  `docs/build/README.md` points to the HISTORY entry. The error in HISTORY's 30 August
-  entry is corrected by a new entry, not an edit.
+- **The record brought current at `4629002`.** The two landing facts above, Entry #141
+  and the v1.33 Document History row in the Engineering Notes, and the correction about
+  the two portfolio PDFs.
 
 ## Open items
 
@@ -80,8 +74,7 @@ Claude critiques it.
 - **Found, not checked: README.md's "Every raw report from every round is in
   `docs/audit_reports/`".** Round 2's folder holds a reasoning trace that ends before
   any report, and the provider export records Qwen's round-2 output as never saved.
-  Whether the sentence overstates this was not examined — it was outside the
-  Findings_Complete item.
+  Whether the sentence overstates this was not examined (recorded at `4629002`).
 - **Viktor, outside the repository:** delete "To do list Claude Phase 7 Engine.pdf".
   It was seen back in `D:\Phase_7_Engine_Random_Files` on 20 September, after an
   earlier listing the same day had not shown it.
