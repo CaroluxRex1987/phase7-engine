@@ -1,8 +1,8 @@
 # Next step — read this first
 
-*20 September 2026. This file is the project's current-state entry point: it states only
-what is true right now and what to do next, and is rewritten each session, not appended
-to. Standing rules, ratified specifications and rulings in force live in
+*20 September 2026 (late evening). This file is the project's current-state entry point:
+it states only what is true right now and what to do next, and is rewritten each session,
+not appended to. Standing rules, ratified specifications and rulings in force live in
 docs/PHASE7_DECISIONS.md. The dated record — including this file's previous version,
 moved there verbatim this session — lives in docs/PHASE7_HISTORY.md. A citation of this
 file written before the 18 September 2026 split — in the Engineering Notes, audit
@@ -19,78 +19,112 @@ Ask what he wants to do first.
 
 ## Where the project is
 
-This session (20 September, from about 10:00) opened on the independent audit, and
-Viktor chose to land the session's routine record first, as its own commit: this
-rewrite of the file, with its previous version moved verbatim to HISTORY, and
-`982e70f`'s two landing facts. The previous session's account — the round-3 ruling,
-README's audit-round corrections, the `api.mexc.com` trace, the rule-18 note, and the
-in-place record of `53394ff`'s landing — is now in HISTORY, "20 September 2026 —
-PHASE7_NEXT.md as it stood at `982e70f`".
+This session opened fresh after `6e1baba`, with this file two commits stale — `a9d4b1f`
+and `6e1baba` had both landed since it was written at `65a0aef`, by Viktor's own ruling
+that the rewrite happens in a new chat (`6e1baba`'s commit message records it, because
+the file itself could not). Asked what he wanted to do first, he chose the rewrite and
+the TREND-line fix, in that order, as two separate commits — the rewrite being this one.
+
 **What comes next is still planning the independent audit, and that is Viktor's
-call** — which model, which package, whether the auditor sees the findings scrapped
-on 20 September, and the instruction for the selected model (DECISIONS, "Ruling, 20
+call** — which model, which package, whether the auditor sees the findings scrapped on
+20 September, and the instruction for the selected model (DECISIONS, "Ruling, 20
 September 2026 — the open-items list scrapped; an independent audit next"). He writes
-his position first; Claude critiques it.
+his position first; Claude critiques it. He said this session that he is considering
+putting that audit on pause, "since we fixed all the issues now." **That is a position,
+not a ruling, and nothing here acts on it.** Claude's stated objection, for him to
+answer when he does rule: the audit's purpose on this project has never been to close
+known findings — it is to find the ones nobody has found yet, and the project's own
+record says the recurring defect shape is the one that survives audits, on paths a
+healthy run never takes. An empty open-items list is what an audit is for, not a reason
+to skip one. The TREND-line defect below is a small instance of the same argument: it
+was found by Viktor reading a live panel two hours after a patch that fixed its
+identical twin, not by any review.
 
 ## Ruled this session
 
-- **The NEXT rewrite and `982e70f`'s landing facts land first, as their own commit**,
-  rather than being folded into the audit-planning commit as planned at the end of the
-  previous session. Viktor's choice.
-- **The Engineering Notes are not regenerated in this commit.** Claude recommended
-  waiting: a regeneration now would cover `3a899b5` to `982e70f` but not the
-  audit-planning commit that follows, so it would have to be done again before building
-  a package that includes the Notes. Viktor agreed. They are regenerated once, after
-  the audit rulings, and only if the package includes them.
+- **The NEXT rewrite lands first, as its own commit; the TREND-line fix follows as a
+  second, separate commit.** Viktor's choice from three offered options. The fix is a
+  code change and moves `code_hash`, so it is not mixed into a documentation commit —
+  the same separation `6e1baba` made.
 
 ## Where things stand, right now
 
-- **Tip:** current as of `982e70f`; the actual tip is the commit that wrote this file
-  (a commit cannot name its own hash). `982e70f` was confirmed as GitHub's tip by a
-  sandbox fetch (Viktor's report), and again by this session's sandbox clone.
+- **Tip:** current as of `6e1baba`; the actual tip is the commit that wrote this file
+  (a commit cannot name its own hash). `6e1baba` was confirmed as GitHub's tip by
+  Viktor's sandbox fetch, and again by this session's own clone.
   **Tag:** `portfolio-v1` at `99e022e`. **Release gate:** open, declared 15 September
   2026.
-- **code_hash:** `bb47ab537314953e16b2db2fcf24003ead64eb5538a30221a6578d518bb7d34d` —
-  unchanged since `f24a6e9`. Recomputed on `982e70f`'s tree and on this commit's applied
-  tree; not assumed.
-- **Golden snapshot:** last changed at `f24a6e9`; no engine code has changed since.
-- **Test suite**, unchanged since `b68de08`: 486 passed / 0 failed with pandas_ta;
-  355 passed / 120 skipped without it; `run_tests.py` 415 / 0 / 32. Linux sandbox,
-  autocrlf clone, on `982e70f` and on this commit's applied tree. Windows at `4629002`,
-  `3a899b5`, `92775ea`, `53394ff` and `982e70f`: **confirmation by proceeding** (Viktor
-  went past the stop-on-difference steps). Windows at this commit: to be confirmed the
-  same way.
-- **Engineering Notes:** through Entry #141 (v1.33), which covers `4629002`. **Five
-  commits behind** — `3a899b5`, `92775ea`, `53394ff`, `982e70f` and this one — by
-  Viktor's choice this session (see "Ruled this session"). If the independent audit's
-  package includes the Notes, regenerate them after the audit-planning commit and
-  before building it.
-- **Portfolio Document and AI-Attribution Statement:** current with their scripts; no
-  commit since `c745a67` has changed either script. One claim in the Portfolio Document
-  is now known to be wrong — see Open items.
-- **Handover check / pre-push hook:** the pre-push hook reported `SUMMARY: clean` on
-  the pushes of `4629002`, `3a899b5`, `92775ea`, `53394ff` and `982e70f` (Viktor's
-  report).
+- **code_hash:** `b02137660111cab7f1a5105e5b4d78174f81a4cc7f903587a8e0e917cc4fdde0` —
+  moved at `a9d4b1f` from `bb47ab53…`, where it had stood since `f24a6e9`; unmoved by
+  `6e1baba` (docs only) and unmoved by this commit. Recomputed on `6e1baba`'s tree and
+  on this commit's applied tree; not assumed.
+- **code_hash is only comparable within one Python minor version, and that bit this
+  session.** `core/code_fingerprint.py` hashes `ast.dump` output, which is a CPython
+  implementation detail; the file says so under "WHAT IT DOES NOT SURVIVE". The sandbox
+  used this session had `python3` = 3.11.15 by default and reported
+  `938720cd…` on an unmodified `6e1baba` tree. Nothing had moved: Python 3.12.3 on the
+  same tree gives `b0213766…`, matching Viktor's Windows decision-log record, and
+  Python 3.13.13 gives a third value again. **Every `code_hash` claim about this
+  project must be computed under Python 3.12** (Viktor runs 3.12.10; the pinned
+  requirements record 3.12.10 and 3.12.3). A hash that "moved" is a question about the
+  interpreter before it is a question about the code.
+- **Golden snapshot:** re-baselined at `a9d4b1f`, two fields only. Unchanged by
+  `6e1baba` and unchanged by this commit; nothing on the decision path has moved since
+  `a9d4b1f`.
+- **Test suite**, unchanged since `a9d4b1f`, which added 14 tests: **500 passed / 0
+  failed** with `pandas_ta`; **368 passed / 121 skipped** without it; `run_tests.py`
+  **429 passed / 0 failed / 32 errors**. The 32 are fixture-collection errors and have
+  not moved since long before this session — no behavioural failure is hidden in them.
+  Linux sandbox, default LF clone, Python 3.12.3, on `6e1baba` and on this commit's
+  applied tree. On Windows, Viktor reports the same counts at both `a9d4b1f` and
+  `6e1baba` — his own runs, not confirmation by proceeding.
+- **`a9d4b1f` is confirmed on Windows from Viktor's own live run**, not predicted from
+  Linux: the panel printed `VALIDATION : … 35.00/100` and the arithmetic matched (50,
+  +10 macro, −25 volume divergence); the EV line printed the new wording at +0.14R with
+  confidence 38; the decision log's last record carries a summary naming the risk
+  reason with no EV sentence; and that record carries
+  `code_hash b02137660111…`. The prediction made on Linux held on his machine.
+- **Engineering Notes:** through Entry #141 (v1.33), which covers `4629002`. **Eight
+  commits behind** — `3a899b5`, `92775ea`, `53394ff`, `982e70f`, `65a0aef`, `a9d4b1f`,
+  `6e1baba` and this one — by Viktor's choice, under the standing batching rule. If the
+  independent audit's package includes the Notes, regenerate them before building it.
+- **Portfolio Document and AI-Attribution Statement:** both current with their scripts.
+  `build_portfolio_document.py` was corrected at `6e1baba` and its PDF regenerated in
+  that same commit; `build_ai_attribution.py` has not changed since `9a35f1c`, whose
+  PDF was regenerated at `c745a67`.
+- **Handover check / pre-push hook:** the hook reported `SUMMARY: clean` on the pushes
+  of `4629002`, `3a899b5`, `92775ea`, `53394ff` and `982e70f` (Viktor's report). **Its
+  result on the pushes of `65a0aef`, `a9d4b1f` and `6e1baba` was not reported**, so
+  nothing here claims it was clean on them.
 
 ## Resolved this session
 
-- **`982e70f`'s landing facts** (Windows by proceeding, hook clean) folded in above.
-- **The once-per-session rewrite of this file**, deferred by `982e70f` to this
-  session. The previous version is in HISTORY verbatim, headings demoted one level.
+- **The once-per-session rewrite of this file**, deferred by `6e1baba` to this session.
+  The previous version is in HISTORY verbatim, headings demoted one level.
+- **`a9d4b1f`'s and `6e1baba`'s landing facts** folded in above — Windows counts,
+  Viktor's live-run confirmation, the new `code_hash`, the re-baselined snapshot.
+- **Closed at `6e1baba`, and no longer open items here:** the Portfolio Document's
+  "four independent runs … no prior involvement in the build" claim, and README's
+  "every raw report from every round is in `docs/audit_reports/`".
 
 ## Open items
 
 Items marked **Viktor's call** are his to decide; he writes his position first and
 Claude critiques it.
 
-- **Viktor's call — planning the independent audit:** which model, the package (the
-  standing default for a fresh Tier-1 audit is the full package), whether the auditor
-  sees the scrapped findings, and the instruction for the selected model. Not started.
-  If the package includes the Engineering Notes, regenerate them first (see above).
-- **Found, not fixed: the Portfolio Document says the four original audit runs were on
-  "models with no prior involvement in the build".** README.md says DeepSeek worked on
-  the build through Aider, and Run 1 was DeepSeek. Fixing it means editing
-  `build_portfolio_document.py` and regenerating the PDF.
+- **Viktor's call — planning the independent audit, or pausing it:** which model, the
+  package (the standing default for a fresh Tier-1 audit is the full package), whether
+  the auditor sees the scrapped findings, and the instruction for the selected model —
+  or whether the round is paused at all, which he raised this session and has not
+  ruled. Not started.
+- **Found, not fixed: the TREND line on the panel prints `(Score: 100.00)` with no
+  denominator** — `core/panel_render.py:696`, the same defect `a9d4b1f` fixed on the
+  VALIDATION line, found by Viktor in a live run afterwards. `trend_health` is on
+  0–100: `indicators/trend_health.py` builds it from a 45-point slope term, a 40-point
+  ADX term and a 15-point RSI term and clamps to `0.0 … 100.0`. Checked this session
+  and worth recording: after this line, **no other score printed by the panel is
+  missing its scale** — every remaining one carries `/100`, `/<max>`, `%` or `x`. The
+  fix is this session's next commit.
 - **Found, not checked:** HISTORY's 5 September "The record corrected from the bill"
   says the eleven round-2 observations came from a Qwen run; the
   `round2_kimi_k3_20260902/README.md`, filed later, says they are Kimi's. Which is the
