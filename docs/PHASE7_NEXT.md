@@ -19,69 +19,55 @@ Ask what he wants to do first.
 
 ## Where the project is
 
-The three mechanical items Viktor ruled should come before the independent audit are
-all done: the manifest test (`b68de08`), the stale citations (`9a35f1c`) and README's
-omissions (`077d120`). The Engineering Notes and the two portfolio PDFs are current as of
-this commit. **What comes next is planning the independent audit, and that is Viktor's
-call** — which model, which package, and whether the auditor sees the findings scrapped
-on 20 September (DECISIONS, "Ruling, 20 September 2026 — the open-items list scrapped;
+The three mechanical items before the independent audit are done (`b68de08`, `9a35f1c`,
+`077d120`), and the open question about `docs/Phase7_Audit_Findings_Complete.pdf` is now
+closed: its source, the four round-1 auditor outputs, could not be found, and README.md
+says so
+(HISTORY, "20 September 2026 — correction: the round-1 audit outputs were lost").
+**What comes next is planning the independent audit, and that is Viktor's call** —
+which model, which package, and whether the auditor sees the findings scrapped on
+20 September (DECISIONS, "Ruling, 20 September 2026 — the open-items list scrapped;
 an independent audit next").
 
 ## Ruled this session
 
-- **Dated records are not edited to follow a move** (item 9). Viktor ruled that item 9
-  covers every stale pointer a repository-wide search found, not just the ten files
-  recorded, and — after first wanting the dated records edited too, "the aim was to
-  keep a real record", and Claude arguing against — accepted a forward note instead:
-  the sentence at the top of this file, plus the ruling in DECISIONS, "Ruling,
-  20 September 2026 — dated records are not edited to follow a move". Claude read his
-  reply ("we can ignore it this time if you want") as that ruling and said so before
-  building.
+- **The round-1 outputs are recorded as lost, not restored** (the Findings_Complete
+  item). Viktor chose to find the source first; the search covered the repository on
+  disk, git history, `D:\Phase_7_Engine_Random_Files`, the OpenRouter chat room and
+  request logs, and a Claude data export, and found no copy. He then called off the
+  search and approved Claude's three recommendations as proposed: README.md states the
+  loss and what survives; the 30 August "nothing lived only on disk" error is recorded
+  as a new dated HISTORY entry; `build_findings_bundle.py` is kept. Full account in
+  HISTORY, "20 September 2026 — correction: the round-1 audit outputs were lost".
 
 ## Where things stand, right now
 
-- **Tip:** current as of `077d120`; the actual tip is the regeneration commit that wrote
-  this file (a commit cannot name its own hash). **Tag:** `portfolio-v1` at `99e022e`.
+- **Tip:** current as of `c745a67`; the actual tip is the commit that wrote this file
+  (a commit cannot name its own hash). **Tag:** `portfolio-v1` at `99e022e`.
   **Release gate:** open, declared 15 September 2026.
 - **code_hash:** `bb47ab537314953e16b2db2fcf24003ead64eb5538a30221a6578d518bb7d34d` —
-  unchanged since `f24a6e9`. Recomputed on the trees of all six commits since `c7ced36`
-  (`e431714`, `e115272`, `b68de08`, `16d3c1f`, `9a35f1c`, `077d120`) for the Notes'
-  v1.32, and on this commit's applied tree; not assumed.
+  unchanged since `f24a6e9`. Recomputed on `c745a67`'s tree and on this commit's applied
+  tree; not assumed.
 - **Golden snapshot:** last changed at `f24a6e9`; no engine code has changed since.
 - **Test suite**, unchanged since `b68de08`: 486 passed / 0 failed with pandas_ta;
-  355 passed / 120 skipped without it; `run_tests.py` 415 / 0 / 32, the same 32 by name.
-  Linux sandbox, autocrlf clone, applied tree, for each of this session's three commits.
-  Windows at `9a35f1c` and `077d120`: **confirmation by proceeding** (Viktor went past
-  the stop-on-difference steps and pasted `git status`). Windows at this commit: to be
-  confirmed the same way.
-- **Engineering Notes:** through Entry #140 (v1.32), regenerated in this commit; no gap.
-  **Phase7_Portfolio_Document.pdf** and **Phase7_AI_Attribution.pdf** regenerated in the
-  same commit; their text differs from the previous build only by `9a35f1c`'s pointer
-  changes, compared word by word. The Notes script, run unchanged before the new entries
-  were added, reproduced the committed PDF's text exactly.
-- **Handover check / pre-push hook:** `SUMMARY: clean` on the pushes of `9a35f1c` and
-  `077d120`. After each push GitHub's tip was fetched into the sandbox and every changed
-  file compared byte for byte with what was verified.
+  355 passed / 120 skipped without it; `run_tests.py` 415 / 0 / 32. Linux sandbox,
+  autocrlf clone, on `c745a67` and on this commit's applied tree. Windows at `c745a67`:
+  **confirmation by proceeding** (Viktor went past the stop-on-difference steps and
+  pasted `git status`). Windows at this commit: to be confirmed the same way.
+- **Engineering Notes:** through Entry #140 (v1.32), at `c745a67`. **One commit behind**
+  — this one — by the batching rule; the Portfolio and AI-Attribution PDFs likewise.
+- **Handover check / pre-push hook:** `c745a67` is on GitHub — fetched into the sandbox
+  on 20 September and confirmed as the tip. The hook's output for that push was not
+  pasted, so it is not recorded here.
 
 ## Resolved this session
 
-- **Item 9 — stale citations of `docs/PHASE7_NEXT.md`, `9a35f1c`.** The recorded list
-  of ten files was incomplete; the fix covers twenty-four. Live pointers now name the
-  section of DECISIONS or HISTORY that holds the content; still-correct citations were
-  left; dated records were not edited (ruling above). Two citations were wrong from the
-  day they were written: "rule 18" in `entry_model.py` and
-  `test_decision_bar_integrity.py` — `108cc9f` renumbered that rule in the same commit
-  (now 22). `code_hash` unmoved, all 33 per-file fingerprints equal, with a negative
-  control. Full account in its commit message and Notes Entry #139.
-- **Item 10 — README.md brought current, `077d120`.** The three recorded omissions
-  closed, plus four stale statements found by reading the whole file: test counts,
-  `Logs/` for `logs/`, the module lists and "sixteen files" (twenty-two now), and the
-  "nothing but a Python interpreter" claim `run_tests.py`'s docstring had withdrawn.
-  Notes Entry #140.
-- **Engineering Notes regenerated, v1.32, Entries #136–#140**, with the two portfolio
-  PDFs. This file's previous version (`16d3c1f`) moved to HISTORY verbatim, proven by
-  un-demoting the block and comparing byte for byte, with a one-character negative
-  control; the old HISTORY is an exact prefix of the new one.
+- **`docs/Phase7_Audit_Findings_Complete.pdf`, open since 6 September.** README.md no
+  longer claims the round-1 output is published; it says the output was never committed,
+  cannot be recovered, and names what survives. The same passage's "the same as the
+  original four" is gone — the round-1 reports were never in `docs/audit_reports/`.
+  `docs/build/README.md` points to the HISTORY entry. The error in HISTORY's 30 August
+  entry is corrected by a new entry, not an edit.
 
 ## Open items
 
@@ -91,16 +77,18 @@ Claude critiques it.
 - **Viktor's call — planning the independent audit:** which model, the package (the
   standing default for a fresh Tier-1 audit is the full package), and whether the
   auditor sees the scrapped findings. Not started.
-- **Viktor's call, open since 6 September — `docs/Phase7_Audit_Findings_Complete.pdf`.**
-  README.md and `docs/build/README.md` cite it; it does not exist in the repository, and
-  its build script's source material has never been here. Remove the reference, or
-  restore the source material. Not in the list scrapped on 20 September.
+- **Found, not checked: README.md's "Every raw report from every round is in
+  `docs/audit_reports/`".** Round 2's folder holds a reasoning trace that ends before
+  any report, and the provider export records Qwen's round-2 output as never saved.
+  Whether the sentence overstates this was not examined — it was outside the
+  Findings_Complete item.
 - **Viktor, outside the repository:** delete "To do list Claude Phase 7 Engine.pdf".
-  Carried from `16d3c1f`; whether it has been done is not known.
+  It was seen back in `D:\Phase_7_Engine_Random_Files` on 20 September, after an
+  earlier listing the same day had not shown it.
 - **Not investigated:** a connection attempt to `api.mexc.com` during `run_tests.py`,
   refused by the sandbox's egress proxy. Seen once on the tree before `b68de08`, and
-  once on a pristine `16d3c1f` tree on 20 September, before any of this session's
-  changes; not in the other runs. Which test, if any, makes it is unknown.
+  once on a pristine `16d3c1f` tree on 20 September. Which test, if any, makes it is
+  unknown.
 - **Found, not fixed: DECISIONS' "The rules, earned" has no rule 18.** The list goes
   17 → 19 since `108cc9f`. Not renumbered, because rule numbers are cited by number
   throughout and renumbering would make every later citation wrong. Rule-number

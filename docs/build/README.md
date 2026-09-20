@@ -41,7 +41,9 @@ hand, and the Engineering Notes fell eight entries behind that way. See
 source files from a `docs/audit_raw/` directory (the verbatim round-1 auditor outputs).
 That material is not in this repository and never has been, so **neither document can be
 regenerated from here.** Both exit 2 with a message saying so rather than failing part-way
-through.
+through. No copy of the round-1 outputs has been found (searched 20 September 2026;
+`docs/PHASE7_HISTORY.md`, "20 September 2026 — correction: the round-1 audit outputs were
+lost"). The scripts are kept because they are the record of how the two PDFs were built.
 
 ## House style
 

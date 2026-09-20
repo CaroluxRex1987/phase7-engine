@@ -144,17 +144,24 @@ prior involvement in the build, made up the original ratification audit:
 | B | Kimi K3 | The remaining 17 Tier 1 invariants |
 | C | Kimi K3 | Tiers 2, 3 and 4 — 23 items |
 
-All raw auditor output is published verbatim in
-[`docs/Phase7_Audit_Findings_Complete.pdf`](docs/), unedited — including the places
-where an auditor was later shown to be wrong, and the places where one caught me being
-wrong.
+The raw output of those four runs is not in this repository, and it cannot be recovered.
+It was never committed, and no copy of it has been found anywhere else: OpenRouter's chat
+room keeps its history only in the browser, and Windows on this machine was reinstalled,
+all drives wiped, on 30 August 2026. The check I made before that reinstall concluded that
+nothing but `logs/` lived only on disk. It was wrong. On 20 September I searched the git
+history, OpenRouter's request logs (I/O logging was off, so they hold token counts, not
+text) and a Claude data export covering those dates, and found nothing. This README used
+to say the output was published verbatim in `docs/Phase7_Audit_Findings_Complete.pdf`;
+that PDF was built from it and never reached the repository either. What survives is
+second-hand: [`docs/Phase7_Remediation_Plan.pdf`](docs/) is GLM 5.3's unedited
+prioritisation of those findings, not the findings themselves.
 
 That was not the last audit. Five more independent rounds have run since — 2 September,
 two on 5 September, 12 September (GPT-6 Astra), and 13 September (Meta Muse Spark 1.3,
 plus its own fix-verification pass on the 14th) — each on a model reporting no prior
 exposure to this codebase or its constitution at the time it ran. Every raw report from
-every round is in [`docs/audit_reports/`](docs/audit_reports/), unedited, the same as
-the original four. A caveat worth stating rather than skipping: several of these models
+every round is in [`docs/audit_reports/`](docs/audit_reports/), unedited. A caveat worth
+stating rather than skipping: several of these models
 cannot confirm their own exact checkpoint from the inside, so "no prior exposure" rests
 on the provider's session being genuinely fresh, not on the model itself vouching for
 its own identity.
