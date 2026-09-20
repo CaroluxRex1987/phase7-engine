@@ -17,7 +17,12 @@ documents, not just to its analyses.
 | `build_credential_protocol.py` | `Phase7_Credential_Security_Protocol.pdf` |
 | `build_change_log_standard.py` | `Phase7_Documentation_and_Change_Log_Standard.pdf` |
 | `build_tier0_companion.py` | `Phase7_Tier0_Companion.pdf` |
-| `build_findings_bundle.py` | `Phase7_Audit_Findings_Complete.pdf` |
+| `build_findings_bundle.py` | `Phase7_Audit_Findings_Complete.pdf` -- **not in this repository** |
+
+`build_findings_bundle.py` is kept as the record of how that PDF was built. Neither the
+PDF nor its source -- the four round-1 auditor outputs of 27 August 2026 -- ever reached
+the repository, and no copy has been found (README.md, "The audit, and what it found").
+Running the script will not reproduce it.
 
 ## Running them
 

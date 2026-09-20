@@ -21,7 +21,7 @@ by one person, with heavy AI assistance.**
 | Constitution | Ratified 26 August 2026. Rules frozen at 21 / 7 / 10 / 6 = 44. Scope freeze lifted 27 August; no amendments adopted since. |
 | Independent audit | **The original four-run audit, plus five further rounds since** (2, 5, 5, 12 and 13 September) — three of them both independent and complete: round 2 produced no report, and round 3's reviewer was not independent (see below). Every Critical Tier 1 finding any of them raised has a landed, independently re-audited fix. Full record in [`docs/audit_reports/`](docs/audit_reports/). |
 | Engine code | **All Criticals resolved.** The original four, plus three more a later round found — see below. All sixteen remediation-sequence items complete. |
-| Tests | 486 pass with `pandas_ta` installed (355 pass, 120 skip without it). The fixture-free runner (`run_tests.py`) reports 415 passed, 0 failed, 32 errors — all from tests written with pytest fixtures that runner deliberately doesn't support, not defects; see its own docstring. |
+| Tests | 500 pass with `pandas_ta` installed (368 pass, 121 skip without it). The fixture-free runner (`run_tests.py`) reports 429 passed, 0 failed, 32 errors — all from tests written with pytest fixtures that runner deliberately doesn't support, not defects; see its own docstring. |
 | Release gate | **Open.** Declared 15 September 2026, tagged `portfolio-v1` in this repository — see below. |
 | Backtesting | Not yet rebuilt. The Constitution's own separate condition for starting it — Items 2, 3, 6 and 18 all Compliant — has not been formally re-checked since the release gate opened, though nothing currently on record contradicts it. |
 | Live trading | Read-only market access only. The engine cannot place orders — enforced by five guards, each verified by injecting its violation. |
@@ -134,8 +134,11 @@ still in there on purpose.
 
 ## The audit, and what it found
 
-Four independent runs through OpenRouter, roughly a dollar each, on models with no
-prior involvement in the build, made up the original ratification audit:
+Four runs through OpenRouter, roughly a dollar each, made up the original ratification
+audit. Runs A, B and C were on a model with no prior involvement in the build. Run 1's
+independence is weaker than that, for the reason set out under "How this was built"
+below -- DeepSeek's lineage had worked on this codebase through Aider -- and this
+README described all four as having no prior involvement until 20 September 2026:
 
 | Run | Auditor | Scope |
 |---|---|---|
@@ -158,8 +161,10 @@ prioritisation of those findings, not the findings themselves.
 
 That was not the last audit. Five more rounds have run since — 2 September, two on
 5 September, 12 September (GPT-6 Astra), and 13 September (Meta Muse Spark 1.3, plus its
-own fix-verification pass on the 14th). Every raw report from every round is in
-[`docs/audit_reports/`](docs/audit_reports/), unedited. Two of the five need saying
+own fix-verification pass on the 14th). Every raw report that exists is in
+[`docs/audit_reports/`](docs/audit_reports/), unedited -- round 2 produced none, as the
+next paragraph says. This sentence read "every raw report from every round" until
+20 September 2026, which the same paragraph then contradicted. Two of the five need saying
 plainly. Round 2 (2 September) produced no report: every attempt stopped before writing
 one. What survives is Kimi K3's reasoning trace, filed there; a Qwen response from the
 same day was never saved. Round 3 (5 September, GLM 5.3 Flash) was not independent. A
@@ -244,7 +249,7 @@ It discards a passing test's output and prints a failing one's, which is not a c
 choice: two defects were found in output that a *passing* test had been burying, and one
 of them was a chart renderer failing silently for as long as anyone can tell.
 
-**All tests currently pass.** 486 with `pandas_ta` installed, 355 (plus 120 skipped)
+**All tests currently pass.** 500 with `pandas_ta` installed, 368 (plus 121 skipped)
 without it. `run_tests.py` reports 32 errors, not failures — from tests written with
 pytest fixtures (`monkeypatch`, `tmp_path`, and similar) that this fixture-free
 runner deliberately doesn't support, since supporting them would mean re-implementing

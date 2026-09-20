@@ -659,8 +659,9 @@ story.append(P(
     "author a plan it cannot support, and records what it did in a form that can be checked "
     "later against the exact code and data that produced it.", "Body"))
 story.append(P(
-    "The audit history, briefly: the initial ratification audit (four independent runs, models "
-    "with no prior involvement in the build) found the engine's first Critical defects, "
+    "The audit history, briefly: the initial ratification audit (four runs: three on a model with "
+    "no prior involvement in the build, and one blind run whose lab had worked on this codebase "
+    "through Aider, so its independence is weaker) found the engine's first Critical defects, "
     "including fabricated fallbacks and the false trade-log claim above. A sixteen-item "
     "remediation sequence (drawn up by GLM 5.3) was carried out to address that and later "
     "review rounds; its final step was an independent re-audit (GPT-5.6 Luna Pro), which found "
