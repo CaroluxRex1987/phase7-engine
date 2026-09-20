@@ -700,7 +700,7 @@ def render_panel(decision):
             # a genuinely separate reading, so it stays.
             f"MOMENTUM   : {colorize_val(trend.get('momentum_mode', 'HEALTHY'))}\n"
             f"VOLUME     : {colorize_val(structure.get('volume_sentiment', 'WEAK OR CONTRARY VOLUME'))}\n"
-            f"VALIDATION : {colorize_val(risk.get('validation_state', 'WEAK'))} (Score: {validation_score:.2f})\n"
+            f"VALIDATION : {colorize_val(risk.get('validation_state', 'WEAK'))} (Score: {validation_score:.2f}/100)\n"
             f"VOLATILITY : {colorize_val(bias.get('volatility', 'LOW'))}\n"
             # ITEM 14 RE-AUDIT (Finding 5): the independent risk classification
             # that now caps the AGGRESSIVE action label -- see

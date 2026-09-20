@@ -65,9 +65,9 @@
       "Risk check failed (Stop distance exceeds maximum allowable threshold (15%).), so no trade is allowed right now.",
       "Confidence is 77/100 \u2014 the bias engine's own composite strength (trend health, structure regime, volume sentiment, SuperTrend direction, macro bias, and reversal/continuation, already weighted and blended into one score). Restating any of those as a separate bonus here would count the same evidence twice. This reflects how the picture lines up, not a green light \u2014 the risk check above is what's blocking the trade.",
       "Entry quality is 45/100 \u2014 a weak entry. Compare it against the TREND line rather than against a restatement of it.",
-      "Expected value (illustrative, not backtested): treating the 77/100 confidence score as a rough win rate against the standard 2:1 average reward, this setup works out to about +1.31R per trade \u2014 positive -- worth taking on average if that win rate holds up (this is hypothetical, since no trade is actually being suggested right now)."
+      "Expected value (illustrative, not backtested): the 77/100 confidence score restated against the standard 2:1 average reward, not a second reading of the setup \u2014 it is arithmetic on confidence alone, so it can never disagree with it. On that basis about +1.31R per trade \u2014 positive -- worth taking on average if that win rate holds up (this is hypothetical, since no trade is actually being suggested right now). On this reward multiple any confidence above 33/100 is breakeven or better, and above 43/100 reads as positive."
     ],
-    "summary": "NO-TRADE (RISK TOO HIGH) \u2014 Expected value (illustrative, not backtested): treating the 77/100 confidence score as a rough win rate against the standard 2:1 average reward, this setup works out to about +1.31R per trade \u2014 positive -- worth taking on average if that win rate holds up (this is hypothetical, since no trade is actually being suggested right now)."
+    "summary": "NO-TRADE (RISK TOO HIGH) \u2014 Risk check failed (Stop distance exceeds maximum allowable threshold (15%).), so no trade is allowed right now."
   },
   "lineage": {
     "archive": {

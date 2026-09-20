@@ -82,6 +82,13 @@ class DecisionModel:
 
     AVG_REWARD_R = 2.0
 
+    # The band around zero inside which ev_r is reported as breakeven rather
+    # than positive or negative. Was a bare +/-0.3 literal inside _compute_ev;
+    # named here so decision_log.module_snapshot() can see it and so the
+    # confidence levels the EV sentence quotes are derived from it rather than
+    # written out by hand. ROUND 6 F1's rule, applied to this module.
+    EV_BREAKEVEN_BAND_R = 0.3
+
     # SEQUENCE ITEM 9a. Viktor's ruling of 29 August, verbatim: "When an
     # indicator fails, the engine continues in an explicitly degraded state. It
     # must not fabricate replacement values. The failure must be recorded in
@@ -121,7 +128,23 @@ class DecisionModel:
         reasons: List[str] = []
         degradation = list(degradation) if degradation else []
 
+        # SUMMARY SOURCE, 20 September 2026. `summary` below was built from
+        # reasons[-1], and _compute_ev appends to `reasons` last on every
+        # path, so the one-line summary of every run was the illustrative EV
+        # sentence -- tests/fixtures/golden_decision.json recorded
+        # "NO-TRADE (RISK TOO HIGH) -- Expected value ... worth taking on
+        # average" for a refused trade. The summary now names the reason
+        # belonging to whichever stage last SET final_action. That stage is
+        # tracked here rather than inferred from position: reasons[0] would
+        # name a superseded action whenever _refuse_incoherent_plan or
+        # _apply_degradation overrode the first one, and reasons[-1] is
+        # whatever happened to append last.
+        action_reason_index: Optional[int] = None
+
+        before = len(reasons)
         final_action = self._determine_final_action(bias, trend, entry, risk, macro_bias, reasons)
+        if len(reasons) > before:
+            action_reason_index = len(reasons) - 1
 
         # The guard that would have caught 2 September's live run.
         #
@@ -131,14 +154,25 @@ class DecisionModel:
         # defect is not a wrong number on a panel -- it is an operator taking
         # the opposite side of the analysis. So the relationship is checked
         # rather than trusted.
+        action_before_refusal = final_action
+        before = len(reasons)
         final_action = self._refuse_incoherent_plan(final_action, risk, reasons)
+        if final_action != action_before_refusal and len(reasons) > before:
+            action_reason_index = len(reasons) - 1
         confidence = self._compute_confidence(bias, final_action, reasons)
         trade_quality = self._compute_trade_quality(trend, entry, final_action, reasons)
 
         if degradation:
+            action_before_degradation = final_action
+            before = len(reasons)
             final_action, confidence, trade_quality = self._apply_degradation(
                 degradation, final_action, confidence, trade_quality, reasons
             )
+            # Degradation appends its notes whether or not it changes the
+            # action. Only a changed action moves the summary; a capped
+            # confidence on an unchanged action does not.
+            if final_action != action_before_degradation and len(reasons) > before:
+                action_reason_index = len(reasons) - 1
 
         ev = self._compute_ev(confidence, final_action, reasons)
 
@@ -148,8 +182,14 @@ class DecisionModel:
         # Reasoning, so it never grows that section further.
         btc_adjusted = self._compute_btc_adjusted(confidence, bias, btc_context, symbol)
 
+        if reasons:
+            summary_index = action_reason_index if action_reason_index is not None else 0
+            summary = f"{final_action} — {reasons[summary_index]}"
+        else:
+            summary = final_action
+
         explanation = {
-            "summary": f"{final_action} — {reasons[-1]}" if reasons else final_action,
+            "summary": summary,
             "reasons": reasons,
         }
 
@@ -673,17 +713,34 @@ class DecisionModel:
         EV = (win_rate x average reward) - (loss_rate x 1), expressed in "R"
         (multiples of what's being risked). Uses confidence/100 as a stand-in
         for win rate and AVG_REWARD_R (2.0, the average of risk_model.py's
-        fixed 1:1/2:1/3:1 targets) as the reward side. This is a sanity-check
-        translation of the confidence score above into "would this be worth
-        taking on average if you're right that often" -- not a measured,
+        fixed 1:1/2:1/3:1 targets) as the reward side. Not a measured,
         backtested number.
+
+        It is also not a check on the confidence score. With the reward
+        multiple fixed, this is a linear rescaling of confidence -- the two
+        move together by construction and cannot disagree -- so it was
+        described as a "sanity-check translation" for longer than it should
+        have been. The reason string says what it is instead.
         """
         win_rate = max(0.0, min(1.0, confidence / 100.0))
         ev_r = (win_rate * self.AVG_REWARD_R) - ((1.0 - win_rate) * 1.0)
 
-        if ev_r > 0.3:
+        # WHAT THIS NUMBER IS, 20 September 2026. ev_r is a straight-line
+        # restatement of confidence: with a fixed reward multiple R,
+        # ev_r = confidence/100 x (R + 1) - 1. It carries no information
+        # confidence does not already carry and cannot disagree with it, so
+        # it is not a second opinion and the sentence below no longer reads
+        # like one. The two confidence levels quoted are derived from
+        # AVG_REWARD_R and EV_BREAKEVEN_BAND_R rather than written out, so
+        # changing either constant moves the sentence with it.
+        breakeven_confidence = 100.0 / (self.AVG_REWARD_R + 1.0)
+        positive_confidence = (
+            (1.0 + self.EV_BREAKEVEN_BAND_R) * 100.0 / (self.AVG_REWARD_R + 1.0)
+        )
+
+        if ev_r > self.EV_BREAKEVEN_BAND_R:
             ev_phrase = "positive -- worth taking on average if that win rate holds up"
-        elif ev_r < -0.3:
+        elif ev_r < -self.EV_BREAKEVEN_BAND_R:
             ev_phrase = "negative -- would lose money on average even at that win rate"
         else:
             ev_phrase = "close to breakeven"
@@ -695,9 +752,11 @@ class DecisionModel:
         )
 
         reasons.append(
-            f"Expected value (illustrative, not backtested): treating the {confidence:.0f}/100 confidence score "
-            f"as a rough win rate against the standard {self.AVG_REWARD_R:.0f}:1 average reward, this setup works "
-            f"out to about {ev_r:+.2f}R per trade — {ev_phrase}{qualifier}."
+            f"Expected value (illustrative, not backtested): the {confidence:.0f}/100 confidence score restated "
+            f"against the standard {self.AVG_REWARD_R:.0f}:1 average reward, not a second reading of the setup — "
+            f"it is arithmetic on confidence alone, so it can never disagree with it. On that basis about "
+            f"{ev_r:+.2f}R per trade — {ev_phrase}{qualifier}. On this reward multiple any confidence above "
+            f"{breakeven_confidence:.0f}/100 is breakeven or better, and above {positive_confidence:.0f}/100 reads as positive."
         )
 
         return {

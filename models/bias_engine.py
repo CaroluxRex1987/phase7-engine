@@ -59,6 +59,35 @@ import numpy as np
 # that pass and remain unreviewed hand-picked judgment calls -- see
 # docs/PHASE7_DECISIONS.md.
 #
+# WHERE THESE FACTORS REACH AN OUTPUT, 20 September 2026. Recorded because
+# the question "is volume counted three times?" has been asked twice and
+# answered by re-deriving it from the code both times. Each path below lands
+# in a DIFFERENT output; none of them adds the same number twice to one
+# score, and the path into confidence that once did was removed by the Item
+# 11 re-audit (see models/decision_model.py's _compute_confidence).
+#
+#   volume reaches:  bias_score            <- volume sentiment, weight 0.15
+#                                             (this file)
+#                    validation_score      <- core/engine_core.py's
+#                                             volume_agreement(), +15 when it
+#                                             supports the bias, -25 against
+#                    entry quality         <- models/entry_model.py's VWMA
+#                                             distance, 20 of 102 points
+#
+#   macro bias       bias_score            <- macro bias, weight 0.10 (this
+#   reaches:                                  file), signed
+#                    validation_score      <- core/engine_core.py's
+#                                             macro_agreement(), +10 agreeing,
+#                                             -20 disagreeing
+#                    entry quality         <- models/entry_model.py's macro
+#                                             confluence multiplier,
+#                                             CONFLUENCE_BOOST_MULT /
+#                                             CONFLUENCE_PENALTY_MULT
+#
+# What this record does NOT settle: whether three separate penalties for one
+# disagreement is the right total weight. That is a trading judgment and is
+# Viktor's, unmade as of this commit.
+#
 # INDEPENDENCE REVIEW, SECOND PASS, 19 September 2026. The first pass found
 # one shared raw indicator (ADX) between two factors and fixed it. This pass
 # traced the four factors the first pass never reached, and found something
