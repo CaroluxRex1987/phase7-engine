@@ -48,27 +48,29 @@ scrapped; an independent audit next").
 
 ## Where things stand, right now
 
-- **Tip:** current as of `92775ea`; the actual tip is the commit that wrote this file
-  (a commit cannot name its own hash). `92775ea` was confirmed as GitHub's tip by a
-  fresh clone at the start of this session. **Tag:** `portfolio-v1` at `99e022e`.
+- **Tip:** current as of `53394ff`; the actual tip is the commit that wrote this file
+  (a commit cannot name its own hash). `53394ff` was confirmed as GitHub's tip by a
+  fresh clone (Viktor's, and again by the sandbox clone of the later 20 September
+  session). **Tag:** `portfolio-v1` at `99e022e`.
   **Release gate:** open, declared 15 September 2026.
 - **code_hash:** `bb47ab537314953e16b2db2fcf24003ead64eb5538a30221a6578d518bb7d34d` —
-  unchanged since `f24a6e9`. Recomputed on `92775ea`'s tree and on this commit's applied
+  unchanged since `f24a6e9`. Recomputed on `53394ff`'s tree and on this commit's applied
   tree; not assumed.
 - **Golden snapshot:** last changed at `f24a6e9`; no engine code has changed since.
 - **Test suite**, unchanged since `b68de08`: 486 passed / 0 failed with pandas_ta;
   355 passed / 120 skipped without it; `run_tests.py` 415 / 0 / 32. Linux sandbox,
-  autocrlf clone, on `92775ea` and on this commit's applied tree. Windows at `4629002`,
-  `3a899b5` and `92775ea`: **confirmation by proceeding** (Viktor went past the
-  stop-on-difference steps). Windows at this commit: to be confirmed the same way.
-- **Engineering Notes:** through Entry #141 (v1.33), which covers `4629002`. **Three
-  commits behind** — `3a899b5`, `92775ea` and this one — by the batching rule. Not
-  regenerated in this commit.
+  autocrlf clone, on `53394ff` and on this commit's applied tree. Windows at `4629002`,
+  `3a899b5`, `92775ea` and `53394ff`: **confirmation by proceeding** (Viktor went past
+  the stop-on-difference steps). Windows at this commit: to be confirmed the same way.
+- **Engineering Notes:** through Entry #141 (v1.33), which covers `4629002`. **Four
+  commits behind** — `3a899b5`, `92775ea`, `53394ff` and this one — by the batching
+  rule. Not regenerated in this commit. If the independent audit's package includes the
+  Notes, regenerate them before building it.
 - **Portfolio Document and AI-Attribution Statement:** current with their scripts; no
   commit since `c745a67` has changed either script. One claim in the Portfolio Document
   is now known to be wrong — see Open items.
 - **Handover check / pre-push hook:** the pre-push hook reported `SUMMARY: clean` on
-  the pushes of `4629002`, `3a899b5` and `92775ea` (Viktor's report).
+  the pushes of `4629002`, `3a899b5`, `92775ea` and `53394ff` (Viktor's report).
 
 ## Resolved this session
 
@@ -105,6 +107,16 @@ scrapped; an independent audit next").
   match.
 - **`92775ea`'s landing facts** (Windows by proceeding, hook clean) folded in above.
 
+## Recorded later on 20 September, in a new session
+
+- **`53394ff`'s landing facts** (Windows by proceeding, hook clean) folded in above.
+- **Claude's `git status --short` prediction was wrong, a second time** (Viktor's
+  report). It listed `??` lines for the two delivery files. They are gitignored
+  (`.gitignore` lines 106–107: `*.patch`, `*_commit_message.txt`), so they never appear
+  there; the correct prediction is that they are absent.
+- **"To do list Claude Phase 7 Engine.pdf" is deleted** from
+  `D:\Phase_7_Engine_Random_Files` (Viktor's report). Its Open item is closed.
+
 ## Open items
 
 Items marked **Viktor's call** are his to decide; he writes his position first and
@@ -121,9 +133,6 @@ Claude critiques it.
   says the eleven round-2 observations came from a Qwen run; the
   `round2_kimi_k3_20260902/README.md`, filed later, says they are Kimi's. Which is the
   later word, and whether the earlier one is marked superseded, was not examined.
-- **Viktor, outside the repository:** delete "To do list Claude Phase 7 Engine.pdf" from
-  `D:\Phase_7_Engine_Random_Files` (last seen there on 20 September; not rechecked this
-  session).
 - **The pre-push hook is installed per clone, not per repository.** After any re-clone
   (including after a machine wipe), run `git config core.hooksPath githooks`;
   `session_handover_check.py` section 6 flags a clone without it.
