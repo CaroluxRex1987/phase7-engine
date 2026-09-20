@@ -21,7 +21,7 @@ by one person, with heavy AI assistance.**
 | Constitution | Ratified 26 August 2026. Rules frozen at 21 / 7 / 10 / 6 = 44. Scope freeze lifted 27 August; no amendments adopted since. |
 | Independent audit | **The original four-run audit, plus five further independent rounds since** (2, 5, 5, 12 and 13 September). Every Critical Tier 1 finding any of them raised has a landed, independently re-audited fix. Full record in [`docs/audit_reports/`](docs/audit_reports/). |
 | Engine code | **All Criticals resolved.** The original four, plus three more a later round found — see below. All sixteen remediation-sequence items complete. |
-| Tests | 485 pass with `pandas_ta` installed (354 pass, 120 skip without it). The dependency-free runner (`run_tests.py`) reports 414 passed, 0 failed, 32 errors — all from tests written with pytest fixtures that runner deliberately doesn't support, not defects; see its own docstring. |
+| Tests | 486 pass with `pandas_ta` installed (355 pass, 120 skip without it). The fixture-free runner (`run_tests.py`) reports 415 passed, 0 failed, 32 errors — all from tests written with pytest fixtures that runner deliberately doesn't support, not defects; see its own docstring. |
 | Release gate | **Open.** Declared 15 September 2026, tagged `portfolio-v1` in this repository — see below. |
 | Backtesting | Not yet rebuilt. The Constitution's own separate condition for starting it — Items 2, 3, 6 and 18 all Compliant — has not been formally re-checked since the release gate opened, though nothing currently on record contradicts it. |
 | Live trading | Read-only market access only. The engine cannot place orders — enforced by five guards, each verified by injecting its violation. |
@@ -206,7 +206,8 @@ pip install -r requirements.txt -r requirements-dev.txt
 pytest
 ```
 
-Or with nothing but a Python interpreter:
+Or with `run_tests.py` as the driver instead of pytest (pytest itself must still be
+installed — see below):
 
 ```
 python run_tests.py               # everything
@@ -215,17 +216,20 @@ python run_tests.py -q            # summary only
 python run_tests.py --show-output # don't suppress passing tests' stdout
 ```
 
-The dependency-free runner exists because the suite has to work on a clean machine
-before `pip install` has succeeded — which is exactly the situation the dependency test
-is about.
+The runner exists to be independent of pytest as the *test driver* — no collection, no
+fixtures, no plugins. It is not independent of pytest itself: most test files import
+`pytest` at module scope (for `parametrize`, `skip`, `approx` and similar), so it still
+has to be installed. An earlier version of this README said the runner needed nothing
+but a Python interpreter; `run_tests.py`'s own docstring records the correction
+(6 September 2026).
 
 It discards a passing test's output and prints a failing one's, which is not a cosmetic
 choice: two defects were found in output that a *passing* test had been burying, and one
 of them was a chart renderer failing silently for as long as anyone can tell.
 
-**All tests currently pass.** 485 with `pandas_ta` installed, 354 (plus 120 skipped)
+**All tests currently pass.** 486 with `pandas_ta` installed, 355 (plus 120 skipped)
 without it. `run_tests.py` reports 32 errors, not failures — from tests written with
-pytest fixtures (`monkeypatch`, `tmp_path`, and similar) that this dependency-free
+pytest fixtures (`monkeypatch`, `tmp_path`, and similar) that this fixture-free
 runner deliberately doesn't support, since supporting them would mean re-implementing
 the part of pytest it exists to be independent of. Its own docstring explains the
 boundary; the count is watched and expected to stay flat except when a new
@@ -240,23 +244,32 @@ phase7_engine/
 ├── main.py             entry point
 ├── live_trading.py     read-only live market access (Item 18)
 ├── test_live.py
-├── run_tests.py        dependency-free test runner
-├── core/               config, engine_core, panel_render
-├── data/               data_fetcher
+├── run_tests.py        fixture-free test runner
+├── core/               config, engine_core, panel_render, decision_contract,
+│                       decision_log, lineage, code_fingerprint
+├── data/               data_fetcher, validation
 ├── indicators/         indicators, trend_health, volume_profile
 ├── models/             bias_engine, btc_context, decision_model,
 │                       entry_model, exit_model, risk_model, signal_router
 ├── structure/          structure
-├── utils/              plotting
+├── utils/              plotting, decision_log_backup
 ├── tests/              the suite, plus pinned fixtures
 ├── githooks/           pre-push hook: runs the session handover check
-├── Logs/               not tracked — see .gitignore
-└── docs/               the constitution, audit record, engineering log
-    └── build/          and the reportlab scripts that generate them
+├── decision_log_backups/
+│                       dated, committed snapshots of the live decision log
+├── Claude outputs/     Claude's working products — comparisons, write-ups;
+│                       not evidence (see its README)
+├── logs/               the live decision log — not tracked, see .gitignore
+└── docs/               the constitution, audit record, engineering log, and the
+    │                   project's own record (PHASE7_*.md — see below)
+    └── build/          the reportlab scripts that generate the PDFs
 ```
 
-Sixteen files across `core/`, `data/`, `indicators/`, `models/`, `structure/`
-and `utils/` — the module count Step 2a of the constitution refers to.
+Twenty-two files across `core/`, `data/`, `indicators/`, `models/`, `structure/`
+and `utils/`. The constitution's description of the audit package speaks of "all
+sixteen modules": that was the count at ratification (26 August 2026). The six added
+since are `core/decision_contract.py`, `core/decision_log.py`, `core/lineage.py`,
+`core/code_fingerprint.py`, `data/validation.py` and `utils/decision_log_backup.py`.
 `main.py`, `live_trading.py` and `test_live.py` are entry points, not
 modules, and sit outside that count. There is no `backtesting/` in the tree yet:
 an earlier version was removed during development, and it was deliberately left
@@ -269,6 +282,14 @@ contradicts it — see the Status table above.
 `docs/build/` holds the scripts that generate every PDF in `docs/`. They are committed
 so the documents are reproducible from source rather than existing only as rendered
 output — the constitution's own reproducibility rule applies to its own documents too.
+
+The project's working record is three plain-text files in `docs/`:
+[`PHASE7_NEXT.md`](docs/PHASE7_NEXT.md) is the entry point — the current state and
+what comes next, rewritten each session;
+[`PHASE7_DECISIONS.md`](docs/PHASE7_DECISIONS.md) holds the standing rules,
+specifications and rulings in force; [`PHASE7_HISTORY.md`](docs/PHASE7_HISTORY.md) is
+the dated record, append-only. Before 18 September 2026 all three were one file,
+`PHASE7_NEXT.md`, so older documents cite that name for content now in the other two.
 
 ---
 

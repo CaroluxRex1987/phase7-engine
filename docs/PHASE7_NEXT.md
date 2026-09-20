@@ -24,24 +24,28 @@ bias-weight magnitudes and thesis, the five points from the 15 September PDF, th
 PDF, the four-factor finding, the RSI double path, the engine review's missing scope,
 and the backtest-start declaration. Next is **a new audit by an independent model**;
 before it, three mechanical items: the manifest test (done, `b68de08`), the stale
-citations (done, in the commit that wrote this version of the file), and README's
-omissions. Full ruling, what it does and does not change, and
+citations (done, `9a35f1c`), and README's omissions (done, in the commit that wrote
+this version of the file). All three are done; planning the audit is next, and is
+Viktor's call. Full ruling, what it does and does not change, and
 what is still undecided about the audit: docs/PHASE7_DECISIONS.md, "Ruling,
 20 September 2026."
 
 ## Where things stand, right now
 
-- **Tip:** current as of `16d3c1f`; the actual tip is the item-9 commit that wrote this
+- **Tip:** current as of `9a35f1c`; the actual tip is the item-10 commit that wrote this
   version of the file (a commit cannot name its own hash). **Tag:** `portfolio-v1` at `99e022e`.
   **Release gate:** open, declared 15 September 2026.
 - **code_hash:** `bb47ab537314953e16b2db2fcf24003ead64eb5538a30221a6578d518bb7d34d` —
-  unmoved by `b68de08` and `16d3c1f`, and by the item-9 commit — which edits comments and
-  docstrings in six fingerprinted modules; `code_hash` strips both, recomputed on the
-  pre-patch and applied trees, not assumed. Unchanged since `f24a6e9`.
+  unmoved by `b68de08`, `16d3c1f`, `9a35f1c` — which edits comments and docstrings in six
+  fingerprinted modules; `code_hash` strips both, recomputed on the pre-patch and
+  applied trees, not assumed — and the item-10 commit (README.md and this file only;
+  recomputed, not assumed). Unchanged since `f24a6e9`.
 - **Golden snapshot:** last changed at `f24a6e9`; no engine file has changed since.
-- **Test suite at the item-9 commit** (Linux sandbox, autocrlf clone, applied tree):
-  486 / 0 with pandas_ta; 355 passed / 120 skipped without it; `run_tests.py`
-  415 / 0 / 32 — identical to `16d3c1f`. Windows: to be confirmed by proceeding.
+- **Test suite at `9a35f1c` and the item-10 commit** (no test or code change in
+  either): Linux sandbox, autocrlf clone, applied tree — 486 / 0 with pandas_ta;
+  355 passed / 120 skipped without it; `run_tests.py` 415 / 0 / 32, the same 32 by
+  name. Windows at `9a35f1c`: 486 / 0 and 415 / 0 / 32 — **confirmation by
+  proceeding**. Windows at the item-10 commit: to be confirmed the same way.
 - **Test suite at `b68de08`** (engine code unchanged since `5c73e24`):
   - Windows (Viktor's machine, pandas_ta): 486 passed / 0 failed and `run_tests.py`
     415 / 0 / 32 — **confirmation by proceeding** (told to stop on any other count;
@@ -53,9 +57,10 @@ what is still undecided about the audit: docs/PHASE7_DECISIONS.md, "Ruling,
     (484 / 1 on LF checkouts) is closed by `b68de08`.
 - **Engineering Notes:** through Entry #135 (v1.31), regenerated at `c7ced36`. Not yet
   covering `e431714`, `e115272` (both docs-only), `b68de08` (tests and tooling — the
-  first non-docs commit since the last regeneration), `16d3c1f` (docs-only) or the
-  item-9 commit. Batched per the standing rule; regeneration is due at the latest when
-  item 10 has landed. The item-9 commit also changed text that
+  first non-docs commit since the last regeneration), `16d3c1f` (docs-only), `9a35f1c`
+  (comments and docstrings) or the item-10 commit (docs-only). Batched per the standing
+  rule; **regeneration is now due** — item 10 has landed. `9a35f1c` also changed text
+  that
   `build_portfolio_document.py` and `build_ai_attribution.py` render, so their PDFs are
   behind their scripts until those two are regenerated.
 - **Handover check / pre-push hook:** ran on the push of `b68de08`, `SUMMARY: clean`.
@@ -63,6 +68,16 @@ what is still undecided about the audit: docs/PHASE7_DECISIONS.md, "Ruling,
   byte-identical to what was verified.
 
 ## Resolved since the previous version of this file
+
+- **Item 10 — README.md brought current, in the item-10 commit.** The three recorded
+  omissions are closed: `Claude outputs/` and `decision_log_backups/` are in the layout
+  tree, and a new paragraph points at the three PHASE7_* files. The same full read of
+  README.md found four more stale statements, fixed in the same commit: the test counts
+  (485 / 354 / 414 → 486 / 355 / 415, the counts at `b68de08`); `Logs/` in the tree
+  (the directory is `logs/`); the module lists and the "sixteen files" count (now
+  twenty-two); and the claim that `run_tests.py` needs "nothing but a Python
+  interpreter", which the runner's own docstring had withdrawn on 6 September. One
+  was left alone because it is not Claude's call — see Open items.
 
 - **Item 9 — stale citations of `docs/PHASE7_NEXT.md`, fixed in the item-9 commit.**
   The recorded list of ten files was incomplete. Every live citation is now either
@@ -97,9 +112,11 @@ what is still undecided about the audit: docs/PHASE7_DECISIONS.md, "Ruling,
 Items marked **Viktor's call** are his to decide; he writes his position first and
 Claude critiques it.
 
-- **README.md's pre-existing omissions** (next, Claude's work) — `Claude outputs/`
-  and `decision_log_backups/` absent from the layout tree; no pointer to the three
-  PHASE7_* documents.
+- **Viktor's call, open since 6 September — `docs/Phase7_Audit_Findings_Complete.pdf`.**
+  README.md and `docs/build/README.md` cite it; it does not exist in the repository, and
+  its build script's source material has never been here. Recorded on 6 September as
+  "a decision this patch does not take": remove the reference, or restore the source
+  material. Still undecided; not in the list scrapped on 20 September.
 - **Viktor's call — planning the independent audit:** which model, the package (the
   standing default for a fresh Tier-1 audit is the full package), and whether the
   auditor sees the scrapped findings. Not started.
