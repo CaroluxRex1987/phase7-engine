@@ -19,103 +19,64 @@ Ask what he wants to do first.
 
 ## Where the project is
 
-This session (20 September, evening) took four loose ends from the Open items, at
-Viktor's choice: README.md's claim about the audit reports, the `api.mexc.com`
-connection seen during the tests, rule-number citations around DECISIONS' missing
-rule 18, and folding `92775ea`'s landing facts into this file. All four are closed —
-see "Resolved this session". Checking the README claim turned up a contradiction in
-the record about round 3's independence, which Viktor ruled on.
+This session (20 September, from about 10:00) opened on the independent audit, and
+Viktor chose to land the session's routine record first, as its own commit: this
+rewrite of the file, with its previous version moved verbatim to HISTORY, and
+`982e70f`'s two landing facts. The previous session's account — the round-3 ruling,
+README's audit-round corrections, the `api.mexc.com` trace, the rule-18 note, and the
+in-place record of `53394ff`'s landing — is now in HISTORY, "20 September 2026 —
+PHASE7_NEXT.md as it stood at `982e70f`".
 **What comes next is still planning the independent audit, and that is Viktor's
-call** — which model, which package, and whether the auditor sees the findings
-scrapped on 20 September (DECISIONS, "Ruling, 20 September 2026 — the open-items list
-scrapped; an independent audit next").
+call** — which model, which package, whether the auditor sees the findings scrapped
+on 20 September, and the instruction for the selected model (DECISIONS, "Ruling, 20
+September 2026 — the open-items list scrapped; an independent audit next"). He writes
+his position first; Claude critiques it.
 
 ## Ruled this session
 
-- **Round 3 is not counted as independent.** DECISIONS, "Ruling, 20 September 2026 —
-  round 3 is not counted as independent": the reason that holds is authorship (GLM 5.3
-  wrote the Remediation Plan; GLM 5.3 Flash then reviewed work done under it), not
-  exposure, which the 2 September ruling would clear. Viktor first proposed counting it
-  as independent, from memory of the 28 August run as minor; the record showed
-  otherwise, and he ruled.
-- **`test_main_runs_without_a_logs_directory` is left as it is (option A)** — it keeps
-  doing one live engine run against MEXC whenever the suite runs with `pandas_ta`.
-  Claude recommended option B (point the subprocess at `tests/fixtures/pinned/`, which
-  ran to exit 0 with no network in the sandbox) and was overruled.
-- **README wording delegated to Claude:** the round-2 sentence ("do what is best for
-  the project") and the round-3 wording ("fix the GLM wording as it should be done").
-- **A note at the rule-18 gap in DECISIONS: yes.**
+- **The NEXT rewrite and `982e70f`'s landing facts land first, as their own commit**,
+  rather than being folded into the audit-planning commit as planned at the end of the
+  previous session. Viktor's choice.
+- **The Engineering Notes are not regenerated in this commit.** Claude recommended
+  waiting: a regeneration now would cover `3a899b5` to `982e70f` but not the
+  audit-planning commit that follows, so it would have to be done again before building
+  a package that includes the Notes. Viktor agreed. They are regenerated once, after
+  the audit rulings, and only if the package includes them.
 
 ## Where things stand, right now
 
-- **Tip:** current as of `53394ff`; the actual tip is the commit that wrote this file
-  (a commit cannot name its own hash). `53394ff` was confirmed as GitHub's tip by a
-  fresh clone (Viktor's, and again by the sandbox clone of the later 20 September
-  session). **Tag:** `portfolio-v1` at `99e022e`.
-  **Release gate:** open, declared 15 September 2026.
+- **Tip:** current as of `982e70f`; the actual tip is the commit that wrote this file
+  (a commit cannot name its own hash). `982e70f` was confirmed as GitHub's tip by a
+  sandbox fetch (Viktor's report), and again by this session's sandbox clone.
+  **Tag:** `portfolio-v1` at `99e022e`. **Release gate:** open, declared 15 September
+  2026.
 - **code_hash:** `bb47ab537314953e16b2db2fcf24003ead64eb5538a30221a6578d518bb7d34d` —
-  unchanged since `f24a6e9`. Recomputed on `53394ff`'s tree and on this commit's applied
+  unchanged since `f24a6e9`. Recomputed on `982e70f`'s tree and on this commit's applied
   tree; not assumed.
 - **Golden snapshot:** last changed at `f24a6e9`; no engine code has changed since.
 - **Test suite**, unchanged since `b68de08`: 486 passed / 0 failed with pandas_ta;
   355 passed / 120 skipped without it; `run_tests.py` 415 / 0 / 32. Linux sandbox,
-  autocrlf clone, on `53394ff` and on this commit's applied tree. Windows at `4629002`,
-  `3a899b5`, `92775ea` and `53394ff`: **confirmation by proceeding** (Viktor went past
-  the stop-on-difference steps). Windows at this commit: to be confirmed the same way.
-- **Engineering Notes:** through Entry #141 (v1.33), which covers `4629002`. **Four
-  commits behind** — `3a899b5`, `92775ea`, `53394ff` and this one — by the batching
-  rule. Not regenerated in this commit. If the independent audit's package includes the
-  Notes, regenerate them before building it.
+  autocrlf clone, on `982e70f` and on this commit's applied tree. Windows at `4629002`,
+  `3a899b5`, `92775ea`, `53394ff` and `982e70f`: **confirmation by proceeding** (Viktor
+  went past the stop-on-difference steps). Windows at this commit: to be confirmed the
+  same way.
+- **Engineering Notes:** through Entry #141 (v1.33), which covers `4629002`. **Five
+  commits behind** — `3a899b5`, `92775ea`, `53394ff`, `982e70f` and this one — by
+  Viktor's choice this session (see "Ruled this session"). If the independent audit's
+  package includes the Notes, regenerate them after the audit-planning commit and
+  before building it.
 - **Portfolio Document and AI-Attribution Statement:** current with their scripts; no
   commit since `c745a67` has changed either script. One claim in the Portfolio Document
   is now known to be wrong — see Open items.
 - **Handover check / pre-push hook:** the pre-push hook reported `SUMMARY: clean` on
-  the pushes of `4629002`, `3a899b5`, `92775ea` and `53394ff` (Viktor's report).
+  the pushes of `4629002`, `3a899b5`, `92775ea`, `53394ff` and `982e70f` (Viktor's
+  report).
 
 ## Resolved this session
 
-- **README.md's "Every raw report from every round is in `docs/audit_reports/`".**
-  Narrowly overstated: round 2 never produced a report (every attempt stopped before
-  writing one; the folder holds Kimi K3's reasoning trace, and a Qwen response from
-  that day was never saved), yet the paragraph counted it among rounds that had run and
-  pointed to their reports. Now stated. The same paragraph said every round ran "on a
-  model reporting no prior exposure"; corrected per the round-3 ruling, with the status
-  table and the release-gate paragraph brought in line ("five further rounds", three
-  both independent and complete).
-- **The `api.mexc.com` connection.** Made by
-  `tests/test_clean_checkout.py::test_main_runs_without_a_logs_directory`, which runs
-  `python main.py` in a temporary copy of the repository and so fetches live data. Found
-  by tracing every outbound connection in the sandbox (Linux, autocrlf clone, `92775ea`):
-  it is the suite's only one, under both pytest and `run_tests.py`; with `pandas_ta`
-  absent no connection was made (whether because that test is skipped was not checked).
-  It writes only inside its temporary directory, so the live decision log is not
-  touched. Left as is, by ruling.
-- **Rule-number citations around the missing rule 18.** The rules list was rebuilt at
-  all 98 commits that touched it. Only one rule ever changed number — "Fixing the
-  instance you found does not close the item": 18 → 20 at `108cc9f`, → 21 at
-  `710cb5e`, → 22 at `e70b835`, all 1–2 September. Every citation of rules 18–21 in
-  tracked `.md`/`.py`/`.txt` files (excluding `docs/audit_package/` and
-  `docs/audit_reports/`) and in every commit message was checked against the list as it
-  stood when written: all correct, except "rule 18" meaning today's rule 22, already
-  recorded at `9a35f1c` (Entry #139). PDFs were not searched.
-- **A note at the gap, and a rendering defect it also fixes.** DECISIONS now has an
-  item 18 saying the number is empty and where the rule went. Found while adding it:
-  Markdown numbers an ordered list by position, so the rendered list had shown every
-  rule from 19 on one lower than its cited number — a reader following "rule 22" on
-  GitHub landed on rule 23. Checked with a CommonMark renderer (markdown-it-py), not on
-  GitHub itself: before, source and rendered numbers diverged from 19 on; after, all 38
-  match.
-- **`92775ea`'s landing facts** (Windows by proceeding, hook clean) folded in above.
-
-## Recorded later on 20 September, in a new session
-
-- **`53394ff`'s landing facts** (Windows by proceeding, hook clean) folded in above.
-- **Claude's `git status --short` prediction was wrong, a second time** (Viktor's
-  report). It listed `??` lines for the two delivery files. They are gitignored
-  (`.gitignore` lines 106–107: `*.patch`, `*_commit_message.txt`), so they never appear
-  there; the correct prediction is that they are absent.
-- **"To do list Claude Phase 7 Engine.pdf" is deleted** from
-  `D:\Phase_7_Engine_Random_Files` (Viktor's report). Its Open item is closed.
+- **`982e70f`'s landing facts** (Windows by proceeding, hook clean) folded in above.
+- **The once-per-session rewrite of this file**, deferred by `982e70f` to this
+  session. The previous version is in HISTORY verbatim, headings demoted one level.
 
 ## Open items
 
@@ -123,8 +84,9 @@ Items marked **Viktor's call** are his to decide; he writes his position first a
 Claude critiques it.
 
 - **Viktor's call — planning the independent audit:** which model, the package (the
-  standing default for a fresh Tier-1 audit is the full package), and whether the
-  auditor sees the scrapped findings. Not started.
+  standing default for a fresh Tier-1 audit is the full package), whether the auditor
+  sees the scrapped findings, and the instruction for the selected model. Not started.
+  If the package includes the Engineering Notes, regenerate them first (see above).
 - **Found, not fixed: the Portfolio Document says the four original audit runs were on
   "models with no prior involvement in the build".** README.md says DeepSeek worked on
   the build through Aider, and Run 1 was DeepSeek. Fixing it means editing
