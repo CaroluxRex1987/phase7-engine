@@ -43,7 +43,8 @@ Each line gives what changed, which finding it closes, and which tests guard it.
 | `05a12c7` | 21 Sep | `core/decision_log.py`: non-finite floats written as `null` with `allow_nan=False` (19); `read_with_report()`, and `read()` logs what it skips (20); the module docstring names the recorded source, `"pinned"` (21) | deferred-read findings 19–21 | `test_decision_log_record_format.py` | none on the decision; the log's spelling of "no value" is `null` from this commit on |
 | `2c7a7d1` | 21 Sep | `core/decision_log.py`: `DecisionModel.BTC_STRESS_PENALTY`, `AVG_REWARD_R`, `EV_BREAKEVEN_BAND_R` added to `FINGERPRINTED_MODULES` | deferred-read finding 22 | `test_fingerprint_names_every_constant.py` (scans every fingerprinted module, so a future omission fails too) | **golden re-baselined**: `run_hash` (2 places) and the archive name (2 places) move; 3 leaves added under `module_constants`; no decision field |
 | `4e2b1c8` | 21 Sep | `core/lineage.py`: `verify_against_record()` checks an archive against its decision-log record (24); `verify_archive`'s docstring says it checks the archive against itself (24); the archive's JSON writes non-finite floats as `null` with `allow_nan=False` (19, archive half; latent); `write_archive`'s docstring states the overwrite under changed code (23) | deferred-read findings 23, 24, 19's archive half | `test_lineage_against_record.py` (11); `test_lineage.py` (1 added: a real run's archive matches its record) | none; the archive's bytes are unchanged for a payload with no non-finite float |
-| commit 5 of the six (the commit that adds this line) | 21 Sep | `data/validation.py`: a last candle more than one bar after `now` is rejected as future-dated (25); the timeframe table is matched exactly, case included, with MEXC's `60m` and `1W`, and `1M` (month) no longer read as one minute (26); an aware `now` converted to UTC, not relabelled (28, found while fixing 25) | deferred-read findings 25, 26; 28 | `test_timestamp_currency.py` (11) | none; only live fetches pass a `now`, and `4h`/`1d` keep their entries. A live series stamped more than one bar ahead of the local clock is now refused |
+| `486f1a5` | 21 Sep | `data/validation.py`: a last candle more than one bar after `now` is rejected as future-dated (25); the timeframe table is matched exactly, case included, with MEXC's `60m` and `1W`, and `1M` (month) no longer read as one minute (26); an aware `now` converted to UTC, not relabelled (28, found while fixing 25) | deferred-read findings 25, 26; 28 | `test_timestamp_currency.py` (11) | none; only live fetches pass a `now`, and `4h`/`1d` keep their entries. A live series stamped more than one bar ahead of the local clock is now refused |
+| commit 6 of the six (the commit that adds this line) | 21 Sep | `data/data_fetcher.py`: a reply that is not a list is quoted in the error (MEXC's code/msg as that pair), an empty list reported apart, and a 4XX reply's body quoted too; cut at `EXCHANGE_TEXT_LIMIT` (300); the unused `import time` removed | deferred-read finding 27 | `test_fetch_reports_exchange_error.py` (8, including one that fails on any unused import) | none on any decision; only the text of a failed live fetch changes, which reaches the panel and no record |
 
 ## Tests and tooling only
 
@@ -67,6 +68,6 @@ Each line gives what changed, which finding it closes, and which tests guard it.
 ## Found, open, and not yet a change
 
 Recorded in `docs/PHASE7_NEXT.md` ("Review findings"): Viktor's calls 4–7, 16 and 18;
-Claude's 17 (work order G) and 27 from the deferred read (19–26 and 28 have landed,
-above).
+Claude's 17 (work order G). Findings 19–28 from the deferred read have all landed,
+above.
 Each gets a line above when it lands.

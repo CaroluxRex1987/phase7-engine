@@ -2,7 +2,6 @@ import os
 
 import pandas as pd
 import requests
-import time
 from core import config
 from data.validation import validate_ohlcv
 
@@ -12,6 +11,50 @@ PINNED_ENV_VAR = "PHASE7_PINNED_DATA"
 
 # Columns a pinned CSV must provide, in the shape fetch_ohlc() produces.
 _OHLCV_COLUMNS = ["open", "high", "low", "close", "volume"]
+
+# FINDING 27, 21 September 2026. How much of the exchange's own reply an error
+# message carries. Enough for MEXC's {"code": ..., "msg": ...} and for most
+# plain-text error pages; bounded so an HTML error page cannot flood the panel.
+EXCHANGE_TEXT_LIMIT = 300
+
+
+def _exchange_said(payload):
+    """
+    The exchange's own words, for an error message. FINDING 27.
+
+    fetch_ohlc used to answer every non-list reply with "Empty or invalid API
+    response.", so MEXC's explanation -- {"code": -1121, "msg": "Invalid
+    symbol."}, say -- was read and thrown away, and the operator was left to
+    guess. A dict carrying MEXC's code/msg pair is quoted as that pair;
+    anything else as its repr. Truncated to EXCHANGE_TEXT_LIMIT characters.
+    """
+    if isinstance(payload, dict) and ("code" in payload or "msg" in payload):
+        text = f"code {payload.get('code')!r}, msg {payload.get('msg')!r}"
+    else:
+        text = repr(payload)
+    if len(text) > EXCHANGE_TEXT_LIMIT:
+        text = text[:EXCHANGE_TEXT_LIMIT] + f"... ({len(text)} characters)"
+    return text
+
+
+def _http_error_body(response):
+    """
+    The body of a reply that failed raise_for_status(), as _exchange_said
+    quotes it, or None when there is none to quote. MEXC documents 4XX for a
+    malformed request, so this is where its code/msg pair usually arrives --
+    requests' HTTPError text holds only the status line and the URL.
+    """
+    if response is None:
+        return None
+    try:
+        return _exchange_said(response.json())
+    except Exception:
+        pass
+    try:
+        text = (response.text or "").strip()
+    except Exception:
+        return None
+    return _exchange_said(text) if text else None
 
 
 class DataFetcher:
@@ -255,11 +298,29 @@ class DataFetcher:
             response.raise_for_status()
             data = response.json()
 
+        except requests.exceptions.HTTPError as e:
+            # FINDING 27: the status line alone does not say what was wrong
+            # with the request; the body does.
+            body = _http_error_body(e.response)
+            said = f" The exchange said: {body}" if body else ""
+            return {"error": f"API request failed: {e}.{said}"}
+
         except Exception as e:
             return {"error": f"API request failed: {e}"}
 
-        if not isinstance(data, list) or len(data) == 0:
-            return {"error": "Empty or invalid API response."}
+        # FINDING 27: two cases, reported apart, and the reply quoted rather
+        # than discarded. They used to share one message, "Empty or invalid
+        # API response.", which named neither.
+        if not isinstance(data, list):
+            return {"error": (
+                f"API response for {symbol} {timeframe} was not a list of "
+                f"candles. The exchange said: {_exchange_said(data)}"
+            )}
+        if len(data) == 0:
+            return {"error": (
+                f"API response for {symbol} {timeframe} was an empty list: "
+                f"no candles."
+            )}
 
         # ============================================================
         # CORRECT MEXC FORMAT (8 fields)

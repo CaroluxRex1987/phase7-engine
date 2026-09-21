@@ -1,7 +1,7 @@
 # Next step — read this first
 
 *21 September 2026, fifth session. Rewritten at the opening of this session by commit 5
-of the six; the version it replaces — written at the opening of the third session and
+of the six (`486f1a5`); the version it replaces — written at the opening of the third session and
 amended in place through the fourth, as it stood at `4e2b1c8` — is in HISTORY verbatim.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
@@ -31,8 +31,8 @@ it carries dead code. Claude read the decision path and, in the third session, t
 deferred input side; the findings are below. Viktor delegated the order of the work to
 Claude. Work orders A–F have landed, and commits 1–4 of the six that fix the deferred
 read's findings. In the fifth session Viktor chose commits 5 and 6, then the session's
-close; commit 5 is the commit that writes this line. G is next in Claude's order after
-them.
+close: commit 5 is `486f1a5`, commit 6 the commit that writes this line. That closes the
+six. G is next in Claude's order.
 
 **Nothing Claude does under that delegation decides the engine's trading rules.**
 Findings 4–7, 16 and 18 are questions about what the engine should do; they are
@@ -58,27 +58,42 @@ no-backtest rule exists only as text.
   list and we start working, It is up to you."). It covers ordering and the items marked
   Claude's below; it does not cover the items marked Viktor's.
 - **The audit is paused**, and **work order F is ruled** — both above, both in DECISIONS.
+- **No ruling was made in the fifth session.** Viktor chose the work (commits 5 and 6,
+  then the close); 28 and the widening of 27 are Claude's, under the delegation.
 
 ## Where things stand, right now
 
 - **Tip:** the commit that writes this line (a commit cannot name its own hash) —
-  commit 5 of the six, `data/validation.py`: findings 25, 26 and 28. Before it:
-  `4e2b1c8` (commit 4, `core/lineage.py`: findings 23, 24 and the archive's half of 19),
+  commit 6 of the six, `data/data_fetcher.py`: finding 27. Before it: `486f1a5`
+  (commit 5, `data/validation.py`: findings 25, 26 and 28, and this file's session
+  rewrite), `4e2b1c8` (commit 4, `core/lineage.py`: findings 23, 24 and the archive's half of 19),
   `5d3a4b4` (the third session's documentation close), `2c7a7d1` (22), `05a12c7`
   (19–21), `9c4917c` (the direction-box tests), `1cc2142` (the deferred read and the
   audit change list). F itself is `3f263c2`. **Tag:** `portfolio-v1` at `99e022e`.
   **Release gate:** open, declared 15 September 2026.
-- **Working tree and hook at `4e2b1c8`:** the push `5d3a4b4..4e2b1c8` printed
-  `SUMMARY: clean`, section 1 (`git status --short`) "none" — Viktor's message opening
-  the fifth session. The tip was fetched into the sandbox after that push and matched
-  the verified files (fourth session); cloned again at the opening of the fifth, its
-  `code_hash` recomputes to `4fe5084e…` (Linux, Python 3.12.3). The earlier record of
-  the hook is in HISTORY.
-- **code_hash:** `2c8ebe3264c2543369d534512f0e1a6b3751f0e61811ecb291dfa5a9a331f391`,
-  moved by the commit that writes this line (`data/validation.py`) from `4fe5084e…`;
+- **Working tree and hook at `486f1a5`:** the push `4e2b1c8..486f1a5` printed
+  `SUMMARY: clean`, section 1 (`git status --short`) "none", section 6 "installed" —
+  Viktor's paste, fifth session. The tip was fetched into the sandbox afterwards and
+  its six files matched the verified build byte for byte. At `4e2b1c8`: the push
+  `5d3a4b4..4e2b1c8` printed `SUMMARY: clean`, section 1 "none" (Viktor's message
+  opening the fifth session); the tip, fetched after that push, matched the verified
+  files (fourth session), and recomputes to `4fe5084e…` on a fresh clone (Linux, Python
+  3.12.3). The earlier record of the hook is in HISTORY.
+- **code_hash:** `b3c2308f8f3e05981af25ee82468c071f7bf0b9d49519b6e75bd78c37b5fb365`,
+  moved by the commit that writes this line (`data/data_fetcher.py`) from `2c8ebe32…`;
   computed under Python 3.12.3 on the pristine and the applied tree. **Windows
   confirmation owed** to the live run in that commit's command sequence, before its
   `git commit`; filed by the next commit.
+  **`2c8ebe3264c2543369d534512f0e1a6b3751f0e61811ecb291dfa5a9a331f391` (`486f1a5`),
+  confirmed on Windows before its commit:** Viktor's live run of 21 September 23:17,
+  AEROUSDT 4h, NO-TRADE (RISK TOO HIGH), the 33rd record, read by Claude from his disk
+  before the commit step. No fetch error — so the forming candle passed finding 25's
+  check, as predicted. The 32 earlier records were byte-identical to the copy taken
+  before the run; the new record was strict JSON (no NaN or Infinity token) and
+  carried `2c8ebe32…`. Its archive, `aerousdt_4h_f0113fc2ee2caee6.json.gz`, was strict
+  JSON with the same `meta.code.code_hash`. `verify_against_record` returned `run_hash`
+  True and `btc`, `macro` and `struct` all True; `verify_archive` returned all True. The
+  six applied files on disk matched the build (the new test file CRLF on disk).
   **`4fe5084e47157289326776ffca85671548608fc409b614c7e11c2fc687c71d66` (`4e2b1c8`),
   confirmed on Windows before its commit:** Viktor's live run of 21 September 22:54,
   AEROUSDT 4h, NO-TRADE (RISK TOO HIGH), the 32nd record, read by Claude from his disk
@@ -95,31 +110,33 @@ no-backtest rule exists only as text.
   SURVIVE"). **Every `code_hash` claim about this project is computed under Python 3.12**
   (Viktor runs 3.12.10).
 - **Golden snapshot:** unmoved by the commit that writes this line, as predicted:
-  `data/validation.py` is not in `FINGERPRINTED_MODULES`, the pinned path passes no
-  `now` so neither time check runs on it, and `4h` and `1d` keep their table entries.
-  Last re-baselined at `2c7a7d1` (finding 22: `run_hash` in two places, the archive
+  `data/data_fetcher.py` is not fingerprinted, and its change acts only on a live reply
+  that is an error; the pinned path does not call `fetch_ohlc`. Unmoved at `486f1a5`
+  too: `data/validation.py` is not in `FINGERPRINTED_MODULES`, the pinned path passes
+  no `now`, and `4h` and `1d` keep their table entries. Last re-baselined at `2c7a7d1` (finding 22: `run_hash` in two places, the archive
   name in two, three `module_constants` leaves; no decision field).
-- **Test suite at the commit that writes this line** — moved by 11 fixture-free tests
-  in the new `tests/test_timestamp_currency.py`, none needing `pandas_ta`: **589
-  passed / 0 failed, no warnings line** with `pandas_ta`; **452 passed / 126 skipped**
-  without it; `run_tests.py` **518 passed / 0 failed / 32 errors**, all 32
+- **Test suite at the commit that writes this line** — moved by 8 fixture-free tests
+  in the new `tests/test_fetch_reports_exchange_error.py`, none needing `pandas_ta`:
+  **597 passed / 0 failed, no warnings line** with `pandas_ta`; **460 passed / 126
+  skipped** without it; `run_tests.py` **526 passed / 0 failed / 32 errors**, all 32
   fixture-collection `TypeError`s, unmoved. Linux sandbox, autocrlf clone, Python
   3.12.3, pinned requirements, applied tree; on Windows, the stop conditions of its
-  command sequence. At `4e2b1c8`: 578 / 441 with 126 skipped / 507, the same three on
-  a fresh autocrlf clone this session (Linux); on Windows, confirmed by Viktor
-  proceeding past the steps whose stop conditions they were.
+  command sequence. At `486f1a5`: 589 / 452 with 126 skipped / 518 (Linux); on
+  Windows, confirmed by Viktor proceeding past the steps whose stop conditions they
+  were. At `4e2b1c8`: 578 / 441 with 126 skipped / 507.
 - **Engineering Notes:** through Entry #141 (v1.33), which covers `4629002`.
-  **Twenty-five commits behind** — `3a899b5`, `92775ea`, `53394ff`, `982e70f`,
+  **Twenty-six commits behind** — `3a899b5`, `92775ea`, `53394ff`, `982e70f`,
   `65a0aef`, `a9d4b1f`, `6e1baba`, `b869a30`, `119c8a3`, `635a94e`, `ebb4e5c`,
   `a530006`, `e3f3d51`, `afd8460`, `49de810`, `3f263c2`, `aafded0`, `cb659f1`,
-  `1cc2142`, `9c4917c`, `05a12c7`, `2c7a7d1`, `5d3a4b4`, `4e2b1c8` and the commit that
-  writes this line — by Viktor's choice, under the standing batching rule. **This count
+  `1cc2142`, `9c4917c`, `05a12c7`, `2c7a7d1`, `5d3a4b4`, `4e2b1c8`, `486f1a5` and the
+  commit that writes this line — by Viktor's choice, under the standing batching rule. **This count
   includes the commit that writes it, so every later commit adds one until the Notes
   are regenerated.** If the independent audit's package includes the Notes, regenerate
   them before building it.
 - **Portfolio Document and AI-Attribution Statement:** both current with their scripts.
 - **README.md:** its two test-count lines brought current by the commit that writes
-  this line (589 / 452 with 126 skipped / 518). Otherwise current since `cb659f1`.
+  this line (597 / 460 with 126 skipped / 526), as at `486f1a5` (589 / 452 / 518).
+  Otherwise current since `cb659f1`.
 
 ## Carried lesson — the live run comes BEFORE the commit
 
@@ -129,7 +146,7 @@ caught it by reading the log, not from a paste. **On every change that moves
 `code_hash` — and always on one that touches the decision path (G is one) — the live
 run and the panel read happen before `git commit`, and Claude checks the decision-log
 record for the new `code_hash` before the commit step, not after the push.** Never
-predict live numbers; check the record. Followed at `2c7a7d1` and `4e2b1c8`: the
+predict live numbers; check the record. Followed at `2c7a7d1`, `4e2b1c8` and `486f1a5`: the
 command list stopped at the live run, Claude read the record, and only then gave the
 commit steps.
 
@@ -180,13 +197,13 @@ entry for this file at `aafded0`, 19–24 in the entry at `4e2b1c8`.
     `4e2b1c8`, not renamed.
 24. `verify_archive()` checked an archive only against itself — `verify_against_record()`
     added at `4e2b1c8`. Not built: a command-line wrapper, and a re-fetch comparison.
-25. **The staleness check accepted a last candle in the future.** Fixed by the commit
-    that writes this line: a last candle more than one bar
+25. **The staleness check accepted a last candle in the future.** Fixed at `486f1a5`:
+    a last candle more than one bar
     (`FUTURE_TOLERANCE_BARS = 1`) after `now` is rejected as future-dated. One bar, not
     zero, because the exchange's clock and Viktor's are two clocks. Reachability on
     MEXC: not measured.
-26. **`validation`'s timeframe table lower-cased what it was given.** Fixed by the
-    commit that writes this line: exact match, case included; MEXC's `60m` and `1W`
+26. **`validation`'s timeframe table lower-cased what it was given.** Fixed at
+    `486f1a5`: exact match, case included; MEXC's `60m` and `1W`
     listed; the month `1M` deliberately unlisted (not a fixed number of minutes), so it
     skips the spacing check instead of being read as one minute. Consequence, stated: an
     upper-case spelling the table does not list (`4H`) is now unknown and skips the
@@ -194,10 +211,21 @@ entry for this file at `aafded0`, 19–24 in the entry at `4e2b1c8`.
     in the engine uses one. MEXC's spellings: `60m` is on its documentation page (read
     this session through a fetch tool that summarised the page, so weak); `1W` and `1M`
     come from the third session's read and were not re-checked.
+27. **`data_fetcher.fetch_ohlc` discarded the exchange's own error text.** Fixed by the
+    commit that writes this line. A reply that is not a list is quoted in the error
+    (MEXC's `{"code": …, "msg": …}` as that pair, anything else as its repr), and an
+    empty list is reported apart from it; they used to share "Empty or invalid API
+    response." **Widened past the finding as written:** a 4XX reply's body is quoted
+    too — MEXC documents 4XX for a malformed request, so that is where its code/msg
+    usually arrives, and `requests`' `HTTPError` text holds only the status line and
+    the URL. Quoted text is cut at `EXCHANGE_TEXT_LIMIT` (300) characters. The unused
+    `import time` is removed, and a test now fails on any unused import in the module.
+    The exchange's text reaches the panel's "Data fetch failed" line only: a failed
+    fetch writes no decision-log record. What MEXC actually returns for a bad symbol
+    was not observed — the sandbox cannot reach it.
 28. **An aware `now` was relabelled as UTC, not converted.** Found while fixing 25, in
     the same lines: `tz_localize(None)` keeps the wall-clock reading, so a Stockholm
-    `now` was read two hours late. Fixed by the commit that writes this line with
-    `tz_convert("UTC")` first. The engine's own caller passes naive UTC and never
+    `now` was read two hours late. Fixed at `486f1a5` with `tz_convert("UTC")` first. The engine's own caller passes naive UTC and never
     reached it; after 25, a `now` west of UTC would have made a current series look
     future-dated, so the two land together.
 
@@ -255,9 +283,6 @@ entry for this file at `aafded0`, 19–24 in the entry at `4e2b1c8`.
     `"BEARISH"` — a hard requirement on evidence already weighted into `bias_score`,
     the double count Viktor removed from the signal at F. Left out of F so that each
     change to which trades are taken lands in its own commit. → G.
-27. **`data_fetcher.fetch_ohlc` discards the exchange's own error text** when the
-    response is not a list (e.g. MEXC's `{"code": …, "msg": …}`): the error reads
-    "Empty or invalid API response." Also: `import time` is unused. → commit 6.
 
 **Recorded, not changed:** a timeframe the table does not list still skips the spacing
 and staleness checks without saying so (`_interval_minutes` returns None). Making it
@@ -286,9 +311,9 @@ Each code commit is its own commit and updates this file for its own landing.
   2. `decision_log`: 19, 20, 21 — `05a12c7`.
   3. `decision_log`: 22 — `2c7a7d1`.
   4. `lineage`: 23, 24, 19's archive half — `4e2b1c8`.
-  5. `validation`: 25, 26, and 28 found on the way — the commit that writes this line.
-  6. `data_fetcher`: 27. Next, this session.
-- **G — macro in the CONSERVATIVE branches (17). Next in Claude's order after 6.**
+  5. `validation`: 25, 26, and 28 found on the way — `486f1a5`.
+  6. `data_fetcher`: 27 — the commit that writes this line. The six are done.
+- **G — macro in the CONSERVATIVE branches (17). Next in Claude's order.**
   Changes which trades are taken, so it is scoped in full before any diff:
   `decision_model`'s ladder, every caller, the golden fields it could move, and the
   live decision log checked first for which recorded actions it would change, as for F.
@@ -298,6 +323,8 @@ Each code commit is its own commit and updates this file for its own landing.
 
 - **The fourth session's owed filing:** the Windows confirmation of `4e2b1c8` and the
   hook's clean result on its push, which existed only in chat — filed above.
+- **Commits 5 and 6 of the six** — `486f1a5` and the commit that writes this line;
+  `486f1a5`'s Windows confirmation and its hook result, filed above.
 - **The once-per-session rewrite of this file**, owed at the fourth session's close.
   The previous version — written at the third session's opening and amended in place
   through `4e2b1c8` — is in HISTORY verbatim, headings demoted one level, proven by
