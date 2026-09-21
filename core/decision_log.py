@@ -218,6 +218,20 @@ FINGERPRINTED_MODULES = {
         "DecisionModel.AGGRESSIVE_TREND_HEALTH_MIN",
         "DecisionModel.AGGRESSIVE_ENTRY_SCORE_MIN",
         "DecisionModel.CONSERVATIVE_TREND_HEALTH_MIN",
+        # FINDING 22, 21 September 2026. Three class constants that set numbers
+        # the operator reads and were missing from this list, found in the
+        # deferred read. BTC_STRESS_PENALTY is BTC_ADJUSTMENT_CAP's sibling --
+        # the two together bound the BTC-adjusted confidence -- and only the
+        # cap was here. AVG_REWARD_R and EV_BREAKEVEN_BAND_R set the
+        # illustrative EV sentence and its "worth taking" verdict. All three
+        # were already inside code_hash, so a change to them was detected;
+        # what the record could not say was which value a run used. Adding
+        # them changes run_hash (this dict is part of its payload) and so the
+        # archive's file name -- predicted, and the golden snapshot
+        # re-baselined in the same commit.
+        "DecisionModel.BTC_STRESS_PENALTY",
+        "DecisionModel.AVG_REWARD_R",
+        "DecisionModel.EV_BREAKEVEN_BAND_R",
     ],
     # KIMI FINDING 3 names "the entry multipliers", which were the bare 1.05
     # and 0.90 literals in generate_entry_signals' confluence ladder and were
