@@ -28,7 +28,12 @@ So each line carries a fingerprint of the inputs:
 
     last_candle     the timestamp of the newest bar the analysis used
     row_count       how much history it had
-    source          the pinned directory, or the live endpoint
+    source          the literal "pinned", or the live endpoint. Not the
+                    pinned directory: that path is machine-specific and made
+                    two runs on identical data record differently (see the
+                    provenance block in core/engine_core.py). Corrected
+                    21 September 2026, finding 21; this line had said "the
+                    pinned directory" since the provenance change.
     engine_version  from config, where it has been defined and written
                     nowhere since the engine was built
     config          the knobs that change the numbers
@@ -39,7 +44,19 @@ and a diary.
 
 JSONL, one object per line: appendable without parsing what came before,
 readable by anything, and it survives a partial write with only the last line
-damaged. A CSV cannot hold a nested decision object without flattening it, and
+damaged.
+
+"Readable by anything" was not true until 21 September 2026 (finding 19).
+json.dumps writes a float NaN as the bare token NaN unless told otherwise, and
+NaN is not JSON: Python's json module reads it back, a strict reader (jq,
+JavaScript's JSON.parse) rejects the whole line. The engine puts NaN in the
+decision object on purpose -- it is how the router says "not measured" -- and
+one record in the live log (6 September, swing_struct) carried it. So write()
+now spells every non-finite float as null, the one JSON spelling of "no
+value", and passes allow_nan=False so that a bare NaN can never be written
+again. In the record, null is what NaN, +inf and -inf all mean: not a
+number the engine could state. Records written before this change keep their
+NaN tokens; read() still accepts them, since Python's parser does. A CSV cannot hold a nested decision object without flattening it, and
 flattening is where fields go missing quietly.
 
 THE LINE THE PANEL PRINTS IS NOW CONDITIONAL
@@ -50,8 +67,12 @@ was full would be the same defect wearing a new filename.
 """
 
 import json
+import logging
+import math
 import os
 from datetime import datetime, timezone
+
+logger = logging.getLogger(__name__)
 
 LOG_FILENAME = "phase7_decision_log_{symbol}.jsonl"
 
@@ -294,6 +315,30 @@ def module_snapshot():
     return out
 
 
+def _json_safe(value):
+    """
+    A copy of `value` in which every non-finite float is None.
+
+    Finding 19, 21 September 2026 -- see the module docstring. Walks dicts,
+    lists and tuples, the only containers the decision object uses; anything
+    else is returned unchanged for json.dumps' `default=str` to handle, as
+    before. numpy.float64 is a float subclass and is covered; a numpy.float32
+    is not a float and still goes through `default=str`, which spells NaN as
+    the string "nan" -- valid JSON, and the behaviour it had before this
+    change. Integers, bools and strings are untouched.
+
+    The decision object passed in is not modified: the record is a copy, and
+    the caller's object may still be read after it is logged.
+    """
+    if isinstance(value, float):
+        return value if math.isfinite(value) else None
+    if isinstance(value, dict):
+        return {k: _json_safe(v) for k, v in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_json_safe(v) for v in value]
+    return value
+
+
 def log_path(log_dir, symbol):
     return os.path.join(log_dir, LOG_FILENAME.format(symbol=str(symbol).lower()))
 
@@ -324,8 +369,16 @@ def write(decision, config, log_dir=None):
             "decision": decision,
         }
 
+        # Finding 19: non-finite floats become null before serialising, and
+        # allow_nan=False makes a bare NaN an error rather than a token no
+        # strict JSON reader accepts. _json_safe covers every float the
+        # decision object can hold, so the guard is not expected to fire; if
+        # a future change ever made it fire, write() returns None and the
+        # panel does not claim the run was logged -- the same contract as a
+        # full disk.
+        line = json.dumps(_json_safe(record), default=str, allow_nan=False)
         with open(path, "a", encoding="utf-8") as f:
-            f.write(json.dumps(record, default=str) + "\n")
+            f.write(line + "\n")
         return path
 
     except Exception:
@@ -335,21 +388,49 @@ def write(decision, config, log_dir=None):
         return None
 
 
-def read(log_dir, symbol):
-    """Every record for one symbol, oldest first. For tests and for reading back."""
+def read_with_report(log_dir, symbol):
+    """
+    Every record for one symbol, oldest first, and the line numbers skipped.
+
+    Returns (records, skipped): `skipped` is the list of 1-based line numbers
+    that could not be parsed.
+
+    Finding 20, 21 September 2026. read() skipped any line it could not parse
+    and said nothing. Its comment named the case it was written for -- a torn
+    final line from an interrupted write -- but the code skipped a damaged
+    line anywhere, so a corrupted record in the middle of the history vanished
+    from what read() returned, with no count and no trace. Skipping is still
+    right (one damaged record must not make the whole history unreadable);
+    skipping without saying so is not, in the one file this project keeps as
+    its audit trail.
+    """
     path = log_path(log_dir, symbol)
     if not os.path.exists(path):
-        return []
-    out = []
+        return [], []
+    out, skipped = [], []
     with open(path, encoding="utf-8") as f:
-        for line in f:
+        for number, line in enumerate(f, start=1):
             line = line.strip()
             if line:
                 try:
                     out.append(json.loads(line))
                 except json.JSONDecodeError:
-                    # A torn final line from an interrupted write. Skipped
-                    # rather than raised: one damaged record must not make the
-                    # whole history unreadable.
-                    continue
+                    skipped.append(number)
+    return out, skipped
+
+
+def read(log_dir, symbol):
+    """
+    Every record for one symbol, oldest first. For tests and for reading back.
+
+    A line that cannot be parsed is skipped, as before, and now reported: a
+    warning names the file and every skipped line number. Callers that need
+    the numbers themselves use read_with_report().
+    """
+    out, skipped = read_with_report(log_dir, symbol)
+    if skipped:
+        logger.warning(
+            f"decision log {log_path(log_dir, symbol)}: {len(skipped)} "
+            f"line(s) could not be parsed and were skipped: {skipped}"
+        )
     return out

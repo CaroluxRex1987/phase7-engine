@@ -62,19 +62,22 @@ no-backtest rule exists only as text.
 ## Where things stand, right now
 
 - **Tip:** the documentation commit that writes this line (a commit cannot name its own
-  hash); the one before it is `1cc2142`, the deferred read and the audit change list;
-  F itself is `3f263c2`. **Tag:** `portfolio-v1` at `99e022e`. **Release gate:** open, declared
+  hash); the one before it adds `tests/test_setup_direction_box.py`; before that
+  `1cc2142`, the deferred read and the audit change list; F itself is `3f263c2`. **Tag:** `portfolio-v1` at `99e022e`. **Release gate:** open, declared
   15 September 2026.
 - **Working tree at `1cc2142`:** clean — the pre-push hook's section 1, which is
   `git status --short`, printed "none" on that push (Viktor's paste, third session of
   21 September). The same at `cb659f1`.
-- **code_hash:** `44f7296bb9c1a927712797df132eff4114f2782cdebb290d93d0dc86f8e44f78`,
-  moved at F (`3f263c2`) from `3e76c1c5…`, Python 3.12. **Confirmed on Windows** by the
+- **code_hash:** `f691c4d8668001694c831cf68c73ebd86ec79512e71f774754f1fb0e72b149d7`,
+  moved by the commit that writes this line (`core/decision_log.py`, findings 19–21,
+  and no other `.py` file outside `tests/`) from `44f7296b…`; computed under Python
+  3.12.3 on the pristine and the applied tree. **Not confirmed on Windows, and it will
+  not be on its own:** Viktor's live run is taken once, on the next commit's tree, which
+  carries this code and moves the hash again. `44f7296b…` was moved at F (`3f263c2`)
+  from `3e76c1c5…`, Python 3.12. **Confirmed on Windows** by the
   decision-log record of Viktor's live run of 21 September 19:24 (AEROUSDT 4h, the 30th
-  record), read by Claude from his disk. Unmoved by `aafded0`, `cb659f1`, `1cc2142` and
-  the commit that writes this line — none touches a `.py` file outside `tests/`, and
-  `core/code_fingerprint.py` walks `.py` files only and excludes `tests/` by directory;
-  computed on this commit's applied tree under Python 3.12.3, not assumed.
+  record), read by Claude from his disk; unmoved by `aafded0`, `cb659f1`, `1cc2142` and
+  the direction-box tests commit.
 - **code_hash is only comparable within one Python minor version.** It hashes `ast.dump`
   output, a CPython implementation detail (`core/code_fingerprint.py`, "WHAT IT DOES NOT
   SURVIVE"). **Every `code_hash` claim about this project is computed under Python 3.12**
@@ -84,17 +87,18 @@ no-backtest rule exists only as text.
   `trend.divergence_direction`), nothing changed; the action, every reason and
   `run_hash` did not move.
 - **Test suite, moved by the commit that writes this line** — one new fixture-free file
-  of 6 tests, none of which skips (`tests/test_setup_direction_box.py`): **555 passed /
-  0 failed, no warnings line** with `pandas_ta`; **420 passed / 124 skipped** without
-  it; `run_tests.py` **484 passed / 0 failed / 32 errors**, all 32 fixture-collection
-  `TypeError`s, unmoved. Linux sandbox, `core.autocrlf=true` clone, Python 3.12.3,
+  of 8 tests, none of which skips (`tests/test_decision_log_record_format.py`): **563
+  passed / 0 failed, no warnings line** with `pandas_ta`; **428 passed / 124 skipped**
+  without it; `run_tests.py` **492 passed / 0 failed / 32 errors**, all 32
+  fixture-collection `TypeError`s, unmoved. The direction-box tests commit before it:
+  555 / 420 / 484. Linux sandbox, `core.autocrlf=true` clone, Python 3.12.3,
   pinned requirements. **On Windows:** to be confirmed by Viktor's steps. At `3f263c2`
   it stood at 549 / 414 / 478, confirmed on Windows by his proceeding.
-- **Engineering Notes:** through Entry #141 (v1.33), which covers `4629002`. **Twenty
+- **Engineering Notes:** through Entry #141 (v1.33), which covers `4629002`. **Twenty-one
   commits behind** — `3a899b5`, `92775ea`, `53394ff`, `982e70f`, `65a0aef`, `a9d4b1f`,
   `6e1baba`, `b869a30`, `119c8a3`, `635a94e`, `ebb4e5c`, `a530006`, `e3f3d51`,
-  `afd8460`, `49de810`, `3f263c2`, `aafded0`, `cb659f1`, `1cc2142` and the commit that
-  writes this line — by
+  `afd8460`, `49de810`, `3f263c2`, `aafded0`, `cb659f1`, `1cc2142`, the direction-box
+  tests commit and the commit that writes this line — by
   Viktor's choice, under the standing batching rule. **This count includes the commit
   that writes it, so every later commit adds one until the Notes are regenerated.** If
   the independent audit's package includes the Notes, regenerate them before building
@@ -221,14 +225,19 @@ against the live log. None changes a decision; none is fixed yet.
     records (6 September) carries `"swing_struct": NaN`. Reachable today — the router
     emits NaN for a value not located, on purpose (`models/signal_router.py`,
     `_finite_or_nan`). The archive's JSON (`lineage.write_archive`) has the same shape.
+    **Fixed for the decision log in the commit after the direction-box tests:** every
+    non-finite float is written as `null`, and `allow_nan=False` keeps a bare NaN out.
+    Records already in the log keep their NaN; `read()` still accepts them. The
+    archive's half is commit 4's.
 20. **`decision_log.read()` drops any line it cannot parse, silently.** Its comment
     says the case is "a torn final line"; the code skips a damaged line anywhere in the
     file and counts nothing, so a corrupted middle record vanishes from the history it
-    returns.
+    returns. **Fixed in the same commit as 19:** `read_with_report()` returns the
+    skipped line numbers; `read()` still skips and now logs them.
 21. **`decision_log`'s module docstring says the record's source is "the pinned
     directory".** Since the provenance change the engine records the literal
     `"pinned"`, on purpose (`core/engine_core.py`, the `provenance` block). Stale
-    docstring.
+    docstring. **Corrected in the same commit as 19.**
 22. **The readable half of the fingerprint misses three named constants.**
     `FINGERPRINTED_MODULES` lists `DecisionModel.BTC_ADJUSTMENT_CAP` but not its
     sibling `DecisionModel.BTC_STRESS_PENALTY`, nor `AVG_REWARD_R` and
@@ -294,9 +303,9 @@ Each code commit is its own commit and updates this file for its own landing.
   before the commit (above).
 - **Findings 19–27 and the direction-box tests — six commits, Claude's.** Viktor chose
   commits 1–3 for the third session, the rest for later:
-  1. Tests for the SETUP DIRECTION box and its NEUTRAL branch — **the commit that
-     writes this line.** Tests only; `code_hash` unmoved.
-  2. `decision_log`: findings 19, 20, 21.
+  1. Tests for the SETUP DIRECTION box and its NEUTRAL branch — landed. Tests only;
+     `code_hash` unmoved.
+  2. `decision_log`: findings 19, 20, 21 — **the commit that writes this line.**
   3. `decision_log`: finding 22 alone — it moves `run_hash`, so the golden snapshot.
   4. `lineage`: 23 (a documentation correction, not a rename: the archive's name is
      pinned in the golden snapshot and the record keeps its own `code_hash`) and 24
