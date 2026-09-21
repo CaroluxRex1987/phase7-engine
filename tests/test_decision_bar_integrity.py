@@ -447,8 +447,7 @@ def test_calculate_stop_targets_rejects_a_non_finite_atr():
 
     model = RiskModel()
     with pytest.raises(Exception):
-        model.calculate_stop_targets("BULLISH CONFIRMED", 80.0, 100.0,
-                                     float("nan"), None, 60.0)
+        model.calculate_stop_targets(80.0, 100.0, float("nan"), None, 60.0)
 
 
 def test_a_structural_level_no_longer_masks_a_missing_atr():
@@ -462,8 +461,7 @@ def test_a_structural_level_no_longer_masks_a_missing_atr():
 
     model = RiskModel()
     with pytest.raises(Exception):
-        model.calculate_stop_targets("BULLISH CONFIRMED", 80.0, 100.0,
-                                     float("nan"), 98.0, 60.0)
+        model.calculate_stop_targets(80.0, 100.0, float("nan"), 98.0, 60.0)
 
 
 def test_valid_inputs_still_produce_levels():
@@ -471,7 +469,7 @@ def test_valid_inputs_still_produce_levels():
     from models.risk_model import RiskModel
 
     stop, t1, t2, t3 = RiskModel().calculate_stop_targets(
-        "BULLISH CONFIRMED", 80.0, 100.0, 2.0, None, 60.0)
+        80.0, 100.0, 2.0, None, 60.0)
 
     for value in (stop, t1, t2, t3):
         assert np.isfinite(value), (stop, t1, t2, t3)

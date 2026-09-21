@@ -368,8 +368,7 @@ def test_a_failed_risk_calculation_does_not_invent_levels():
     raised = None
     try:
         model.calculate_stop_targets(
-            detailed_bias="BEARISH CONFIRMED",   # a SHORT
-            trend_health=80.0,
+            trend_health=80.0,                   # a SHORT: bias_score below
             current_price=100.0,
             atr_val=None,
             structural_level=None,

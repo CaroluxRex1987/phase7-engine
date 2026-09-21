@@ -1032,8 +1032,12 @@ class Phase7Engine:
             # NORMAL (1.0x) multiplier regardless of actual conditions. Now passes
             # the same volatility_mode the sibling validate_risk_parameters call
             # three lines below already receives.
+            # 21 SEPTEMBER 2026, work order C: detailed_bias was passed here
+            # and decided nothing -- risk_model tested it for "LONG"/"SHORT",
+            # which BiasStateMachine never emits, and took the plan's direction
+            # from the sign of bias_score every time. The parameter is gone;
+            # see calculate_stop_targets' docstring.
             atr_stop, t1, t2, t3 = self.risk_model.calculate_stop_targets(
-                detailed_bias=detailed_bias,
                 trend_health=trend["trend_health"],
                 current_price=current_price,
                 atr_val=atr_val,
@@ -1371,7 +1375,12 @@ class Phase7Engine:
                     "structural_level": (
                         float(hvn) if (hvn is not None and math.isfinite(hvn)) else None),
                     "bias_score": bias_score,
-                    "detailed_bias": detailed_bias,
+                    # 21 SEPTEMBER 2026, work order C: detailed_bias stood here
+                    # and no longer does, for the reason given for trend_health
+                    # below -- it never fed the stop or the targets (see
+                    # risk_model.calculate_stop_targets). The plan's direction
+                    # is the sign of bias_score, recorded on the line above.
+                    # detailed_bias is still recorded under `bias`.
                     # ITEM 14, 11 September 2026: trend_health stood here and
                     # no longer does, because this block records what actually
                     # fed the risk decision and trend_health no longer does.

@@ -168,7 +168,6 @@ def test_module_snapshot_actually_carries_the_risk_constants():
 
 def _plan(**overrides):
     kwargs = dict(
-        detailed_bias="BULLISH CONFIRMED",
         trend_health=50.0,
         current_price=100.0,
         atr_val=2.0,

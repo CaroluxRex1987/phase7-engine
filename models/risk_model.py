@@ -158,6 +158,42 @@ def read_risk_verdict(risk) -> Optional[bool]:
     return None
 
 
+def _refuse_wrong_side_stop(plan_direction, current_price, atr_stop):
+    """
+    21 SEPTEMBER 2026, work order C. Replaces a fallback that set
+
+        stop_distance = atr_val * ATR_STOP_MULT
+
+    whenever the stop did not sit on the correct side of price, commented as
+    a "degenerate case (e.g. structural level sits above price)".
+
+    UNREACHABLE on the engine's own path. bias_engine clips bias_score to
+    +-100, so bias_factor = 1 - |bias_score| / 300 is at least 0.667 and the
+    ATR stop always lands on the correct side of price; min() / max() against
+    the structural level can only move it further out. The comment's own
+    example -- a structural level above price on a long -- is the case min()
+    already rules out.
+
+    WRONG IF IT WERE REACHED. It replaced the DISTANCE and left the stop where
+    it was, on the wrong side of price: a stop above a long's entry, returned
+    with three targets measured from a different distance than the stop
+    implies. The panel computes R:R with abs(), so it would have printed a
+    normal-looking 1:1 / 2:1 / 3:1 beside it, and validate_risk_parameters
+    measures the distance with abs() too, so the plan could pass the risk
+    check. Reachable by calling calculate_stop_targets with |bias_score| of
+    300 or more, which tests/test_plan_direction_and_side.py does.
+
+    A stop on the wrong side of entry is not a degenerate plan; it is not a
+    plan. This raises, and calculate_stop_targets' own except turns that into
+    the engine's existing "no risk plan can be produced" error path.
+    """
+    raise ValueError(
+        f"The stop for a {plan_direction} came out at {atr_stop}, on the wrong "
+        f"side of the current price {current_price} -- a stop that is not "
+        f"below a long's entry or above a short's is not a stop."
+    )
+
+
 class RiskModel:
     """
     Core institutional risk engine for Phase-7.
@@ -182,7 +218,6 @@ class RiskModel:
 
     def calculate_stop_targets(
         self,
-        detailed_bias: str,
         trend_health: float,
         current_price: float,
         atr_val: float,
@@ -191,11 +226,26 @@ class RiskModel:
         volatility_state: str = "NORMAL"
     ) -> Tuple[float, float, float, float]:
         """
-        Compute volatility-adjusted ATR stop + tiered targets, forcing directional fallback
-        if bias is neutral so targets never collapse to current price.
+        Compute volatility-adjusted ATR stop + tiered targets. The plan points
+        LONG when bias_score >= 0 and SHORT when it is negative -- on every run,
+        including one whose bias is NEUTRAL, so targets never collapse to
+        current price.
+
+        21 SEPTEMBER 2026, work order C. The first parameter used to be
+        `detailed_bias`, and the direction was chosen by a branch that tested
+        it for "LONG" / "SHORT" and otherwise fell back to the sign of
+        bias_score. Its only caller passes BiasStateMachine's output, which is
+        "BULLISH CONFIRMED", "BEARISH CONFIRMED" or "NEUTRAL" -- never "LONG"
+        or "SHORT". So the branch could not be taken, the parameter decided
+        nothing, and the direction has always come from the sign of
+        bias_score. The same wrong-vocabulary shape as the A1/A2 gates in
+        entry_model.py, surviving in a second file. The parameter is removed
+        rather than left in place, because a parameter that reads as the
+        direction source while being ignored is how the 2 September record
+        (tests/test_direction_source.py) came to say this function built its
+        plan "from detailed_bias alone". Passing it now raises TypeError.
 
         Args:
-            detailed_bias: Trading bias direction
             trend_health: Trend health score (0-100)
             current_price: Current market price
             atr_val: Average True Range value
@@ -232,13 +282,22 @@ class RiskModel:
                     f"atr={atr_val}) -- no stop or targets can be computed from "
                     f"a value that is not a number."
                 )
+            # 21 SEPTEMBER 2026, work order C: bias_score picks the plan's
+            # direction below, and `NaN >= 0` is False -- a NaN score would
+            # have produced a SHORT plan, a direction chosen by a missing
+            # number. Unreachable today (bias_engine returns a finite, clipped
+            # score); refused here so it stays that way.
+            if not np.isfinite(bias_score):
+                raise ValueError(
+                    f"Non-finite bias_score ({bias_score}) -- the plan's "
+                    f"direction is the sign of this number, and a number that "
+                    f"is not one has no sign."
+                )
             if current_price <= 0 or atr_val <= 0:
                 logger.error(f"Invalid price inputs: price={current_price}, atr={atr_val}")
                 raise ValueError("Invalid price or ATR values")
 
-            effective_bias = detailed_bias
-            if effective_bias not in ["LONG", "SHORT"]:
-                effective_bias = "LONG" if bias_score >= 0 else "SHORT"
+            plan_direction = "LONG" if bias_score >= 0 else "SHORT"
 
             # Volatility-adjusted modifier
             vol_multiplier = 1.0
@@ -266,7 +325,7 @@ class RiskModel:
             # making "conservative" T1 mathematically the worst R:R target
             # (often below 1:1) by construction. Now T1/T2/T3 R:R come out at
             # exactly 1:1 / 2:1 / 3:1 relative to what's actually being risked.
-            if effective_bias == "LONG":
+            if plan_direction == "LONG":
                 calculated_stop = current_price - (atr_val * stop_mult)
                 atr_stop = (
                     min(structural_level, calculated_stop)
@@ -276,10 +335,7 @@ class RiskModel:
 
                 stop_distance = current_price - atr_stop
                 if not np.isfinite(stop_distance) or stop_distance <= 0:
-                    # Degenerate case (e.g. structural level sits above price) —
-                    # fall back to the raw ATR-based distance so targets never
-                    # collapse to current_price.
-                    stop_distance = atr_val * ATR_STOP_MULT
+                    _refuse_wrong_side_stop(plan_direction, current_price, atr_stop)
 
                 target_t1 = current_price + (stop_distance * TARGET1_MULT)
                 target_t2 = current_price + (stop_distance * TARGET2_MULT)
@@ -294,7 +350,7 @@ class RiskModel:
 
                 stop_distance = atr_stop - current_price
                 if not np.isfinite(stop_distance) or stop_distance <= 0:
-                    stop_distance = atr_val * ATR_STOP_MULT
+                    _refuse_wrong_side_stop(plan_direction, current_price, atr_stop)
 
                 target_t1 = current_price - (stop_distance * TARGET1_MULT)
                 target_t2 = current_price - (stop_distance * TARGET2_MULT)

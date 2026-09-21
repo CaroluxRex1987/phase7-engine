@@ -57,42 +57,44 @@ codebase whose open-items list was empty.
 
 ## Where things stand, right now
 
-- **Tip:** the commit that landed work order B (a commit cannot name its own hash); the
-  one before it is `ebb4e5c`, which rewrote this file. **Tag:** `portfolio-v1` at
-  `99e022e`.
+- **Tip:** the commit that landed work order C (a commit cannot name its own hash); the
+  one before it is `a530006`, work order B. **Tag:** `portfolio-v1` at `99e022e`.
   **Release gate:** open, declared 15 September 2026.
 - **Working tree at `635a94e`:** clean — `git status --short` printed nothing
   (Viktor's paste, 21 September, before this session's work began).
-- **code_hash:** `ec88cf242fdd6014abe66693ab7c319cbac97cf3d9131e9fe7c27562c1ac06f8` —
-  moved at work order B (`core/panel_render.py`, `models/decision_model.py`) from
-  `35718f6b…`, where it stood since `119c8a3`; `ebb4e5c` touched `docs/` only and did not
-  move it. Both values computed under Python 3.12.3 on the pristine and the applied tree,
-  not assumed.
+- **code_hash:** `ac02a155e315cd78a04d4a63555747b424392eda6299b358e80b747240a11e60` —
+  moved at work order C (`models/risk_model.py`, `core/engine_core.py`) from `ec88cf24…`,
+  which `a530006` (work order B) had moved from `35718f6b…`. Both computed under
+  Python 3.12.3 on the pristine and the applied tree, not assumed. **`ec88cf24…` is also
+  confirmed on Viktor's Windows machine:** the decision-log record written by his live
+  run before committing `a530006` carries it.
 - **code_hash is only comparable within one Python minor version.** It hashes `ast.dump`
   output, a CPython implementation detail (`core/code_fingerprint.py`, "WHAT IT DOES NOT
   SURVIVE"). On 20 September a sandbox whose default `python3` was 3.11.15 reported a
   different value on an unmodified tree. **Every `code_hash` claim about this project is
   computed under Python 3.12** (Viktor runs 3.12.10).
-- **Golden snapshot:** last re-baselined at `a9d4b1f`, two fields. Unmoved by work order
-  B: the only decision-path change is the wording of one reason on a run whose trend
-  health was not measured, and the pinned run measures it. The pinned run's whole panel
-  is byte-identical before and after B.
-- **Test suite, moved at work order B** by one new fixture-free file of 11 tests:
-  **515 passed / 0 failed** with `pandas_ta`; **383 passed / 121 skipped** without it;
-  `run_tests.py` **444 passed / 0 failed / 32 errors**, all 32 fixture-collection
-  `TypeError`s, unmoved. Verified in a Linux sandbox on a `core.autocrlf=true` clone
-  under Python 3.12.3, pinned requirements — evidence about Linux until Viktor's run.
-- **Engineering Notes:** through Entry #141 (v1.33), which covers `4629002`. **Twelve
+- **Golden snapshot:** re-baselined at work order C, one field, as predicted:
+  `lineage.risk_inputs.detailed_bias` removed, because it never fed the stop or targets.
+  No decision field moved and `run_hash` did not move. Previously re-baselined at
+  `a9d4b1f`; unmoved by `a530006`, whose pinned-run panel was byte-identical before and
+  after.
+- **Test suite, moved at work order C** by one new fixture-free file of 7 tests:
+  **522 passed / 0 failed** with `pandas_ta`; **390 passed / 121 skipped** without it;
+  `run_tests.py` **451 passed / 0 failed / 32 errors**, all 32 fixture-collection
+  `TypeError`s, unmoved. (`a530006` had moved them to 515 / 383 / 444 with 11 tests.)
+  Verified in a Linux sandbox on a `core.autocrlf=true` clone under Python 3.12.3,
+  pinned requirements — evidence about Linux until Viktor's run.
+- **Engineering Notes:** through Entry #141 (v1.33), which covers `4629002`. **Thirteen
   commits behind** — `3a899b5`, `92775ea`, `53394ff`, `982e70f`, `65a0aef`, `a9d4b1f`,
-  `6e1baba`, `b869a30`, `119c8a3`, `635a94e`, `ebb4e5c` and work order B's commit — by
-  Viktor's choice, under
-  the standing batching rule. **This count includes the commit that writes it, so every
+  `6e1baba`, `b869a30`, `119c8a3`, `635a94e`, `ebb4e5c`, `a530006` and work order C's
+  commit — by Viktor's choice, under the standing batching rule. **This count includes the commit that writes it, so every
   later commit adds one until the Notes are regenerated;** it is the line most likely to
   go stale in this file. If the independent audit's package includes the Notes,
   regenerate them before building it.
 - **Portfolio Document and AI-Attribution Statement:** both current with their scripts.
-- **Pre-push hook:** reported `SUMMARY: clean` on the pushes of `635a94e` and `ebb4e5c`
-  — Viktor pasted both outputs, so those are confirmed, not reported. Earlier record,
+- **Pre-push hook:** reported `SUMMARY: clean` on the pushes of `635a94e`, `ebb4e5c`
+  and `a530006` — Viktor pasted all three outputs, so those are confirmed, not
+  reported. Earlier record,
   carried unchanged:
   clean on the pushes of `4629002`, `3a899b5`, `92775ea`, `53394ff` and `982e70f`
   (Viktor's report) and on the push that carried `119c8a3`; whether that push also
@@ -156,9 +158,16 @@ reproduced by running the engine**, and each says how far its reachability was c
    min(HVN, ATR stop). The HVN is the single highest-volume bin of the whole 450-candle
    frame (`indicators/volume_profile.py`, 50 bins) — about 75 days on 4h. A trend that
    has moved away from its point of control therefore gets its stop there, and past 15%
-   the risk check fails: NO-TRADE (RISK TOO HIGH), RISK REGIME UNKNOWN — the branch the
-   21 September AEROUSDT run took. Whether the HVN set that run's stop was not checked,
-   and how often this vetoes a setup was not measured.
+   the risk check fails: NO-TRADE (RISK TOO HIGH), RISK REGIME UNKNOWN.
+   **Seen twice since, both checked against the record, not inferred.** Viktor's live
+   run of 21 September 05:28 (AEROUSDT 4h, before committing `a530006`): the stop,
+   0.549596, is the HVN exactly, 18.2% below a price of 0.6719, so NO-TRADE. The ATR stop
+   it replaced works out at about 0.6301, 6.2% below price — computed by Claude from that
+   record's ATR (0.022209), bias score (65.08), trend health (97) and HIGH VOLATILITY;
+   the engine does not print it. By the decision rules — read, not run — that run would
+   otherwise have been CONSERVATIVE LONG. And the pinned golden fixture is the same case:
+   stop = HVN = 0.6421571, 19.9% below 0.80173175, NO-TRADE (RISK TOO HIGH). How often
+   this vetoes a setup across many runs was not measured.
 7. **Indicator values beyond 5σ are silently replaced by the previous bar's.**
    `indicators/indicators.py:105–110`, inside `clean_series`, which EMA, RSI, ADX,
    SuperTrend and ATR all pass through.
@@ -174,15 +183,20 @@ reproduced by running the engine**, and each says how far its reachability was c
    `detailed_bias` to "LONG"/"SHORT"; its only caller passes "BULLISH CONFIRMED" /
    "BEARISH CONFIRMED" / "NEUTRAL" (`engine_core.py:707`). The A1/A2 shape, surviving in
    a second file. Not a wrong answer today: raw bias comes from the same score, so an
-   authorised action and its plan cannot point opposite ways. → C.
+   authorised action and its plan cannot point opposite ways.
 9. **An unreachable fallback that would be wrong if reached** — `risk_model.py:278–282`,
    `:296–297`. `bias_score` is clipped to ±100 (`models/bias_engine.py:448`), so the ATR
    stop is always on the correct side. If the branch ever ran it would leave the stop on
-   the wrong side while the targets used a different distance. → C.
+   the wrong side while the targets used a different distance. **Fixed at work order
+   C**, with 8: the parameter is removed, the direction is stated as the sign of
+   `bias_score`, a non-finite score is refused, and the fallback raises. Shown on the
+   pre-fix code: `bias_score` 400 returned a long with its stop at 101.04 above a price
+   of 100, and `validate_risk_parameters` passed it (True, "OK", NORMAL RISK).
 10. **Nothing at runtime checks that the stop sits on the correct side.** The panel's
     R:R uses `abs()` (`panel_render.py:171`, `:177–179`); `_refuse_incoherent_plan`
     reads target order only; `core/decision_contract.py` runs in tests and checks shape,
-    not values. Unreachable today per 8 and 9. → D.
+    not values. **Closed at work order C** by putting the check at the only producer —
+    see D under "Work order".
 11. **`long_signal` / `short_signal` are recorded and decide nothing.** Computed every run
     (`generate_entry_signals`), carried into the decision object, the log and the
     simulated order; no decision reads them. They are False whenever
@@ -210,13 +224,20 @@ reproduced by running the engine**, and each says how far its reachability was c
 Each code commit is its own commit and updates this file for its own landing.
 
 - **A — landed at `ebb4e5c`.** The findings above into the repo; the HISTORY move.
-- **B — landed.** Panel display (1, 2, 3). Also found while scoping it: `asset_name`'s
-  suffix list tried "USD" before "BUSD", so a BUSD pair lost only "USD"; fixed in the
-  same function. Viktor's Windows live run before committing: result not yet recorded.
-- **C — `risk_model` dead paths (8, 9).** Output-invariant: the code says what it already
-  does, and the unreachable fallback fails closed instead of returning a wrong-side stop.
-- **D — plan-side guard (10).** One check every plan passes before it can authorise a
-  trade; fails closed. Unreachable today, so output-invariant on every current run.
+- **B — landed at `a530006`.** Panel display (1, 2, 3). Also found while scoping it:
+  `asset_name`'s suffix list tried "USD" before "BUSD", so a BUSD pair lost only "USD";
+  fixed in the same function. **Confirmed on Windows** by Viktor's live run before the
+  commit (AEROUSDT 4h, 21 September 05:28): every score line printed a number with its
+  "/100", no "nan" and no "not computed" anywhere, and the BTC section named AERO.
+- **C — landed.** `risk_model` dead paths (8, 9). Output-invariant on every decision
+  field; the one golden change is the lineage record above.
+- **D — folded into C, not a separate commit.** Finding 10 asked for one check every plan
+  passes. `calculate_stop_targets` is the only producer of a stop and targets, and since
+  C it refuses a stop on the wrong side of price; the targets are then measured from a
+  positive distance, so they cannot be on the wrong side either. The check now sits at
+  the source, which is the structural form of the fix. The `abs()` in the panel's R:R
+  and in `validate_risk_parameters` stays — harmless once no wrong-side stop can reach
+  them. Claude's call under the delegation.
 - **E — remaining fabricated defaults (12, 13).**
 - **F — `long_signal` / `short_signal` (11).** Touches the decision contract and possibly
   the golden snapshot; scoped fully before any diff.
