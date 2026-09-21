@@ -47,6 +47,29 @@ what nobody has found yet, not to close known findings. This session's review is
 small instance of the point — it found fourteen defects and open questions in a
 codebase whose open-items list was empty.
 
+**Viktor's plan, stated 21 September — a plan, not a ruling:** about four more weeks of
+this kind of work — our own review, fixes and improvements — before the next audit,
+with no time pressure ("i dont mind working 4 more weeks fixing and improving what we
+can for the next audition, there is no time press"). It sits alongside the unruled audit
+question above, not in place of it.
+
+**Checked against the Constitution, 21 September, at Viktor's request.** Claude read the
+ratified PDF's rules and its "Next Steps" sequence (not its version history or
+glossary) against this session's work. Nothing done this session breaks it: each
+change was stated before the work, tested, negative-controlled and version-controlled;
+Fail Safely (13), Epistemic Honesty (8) and Traceability (6) were strengthened, not
+weakened; no rule was touched. **One condition it does impose, and it bears on the
+audit question:** its sequence reads "8) Re-audit the items that changed — independent
+auditor again, not a self-check by whoever made the fix. 9) Only then … build the
+backtesting architecture." None of this session's fixes has been independently
+re-audited. Pausing the audit is consistent with the Constitution; pausing it and then
+starting backtesting is not. Where it is thinnest: two riders were found mid-work
+rather than stated before it (the BUSD suffix in B, `utcnow` in E); items 14 and 15
+below were first written as "found sound", which reads as the builder certifying its
+own compliance and is reworded; finding 16 may be an existing Item 3 / Item 8 gap,
+Unknown until ruled on. Viktor's reading: "we are reviewing everything ourselves and
+make adjustments and fixes, i think it is good and important work."
+
 ## Ruled this session
 
 - **The order of work is delegated to Claude** (Viktor, 21 September: "Organize a to do
@@ -58,18 +81,20 @@ codebase whose open-items list was empty.
 
 ## Where things stand, right now
 
-- **Tip:** the commit that landed work order E (a commit cannot name its own hash); the
-  one before it is `e3f3d51`, work order C. **Tag:** `portfolio-v1` at `99e022e`.
+- **Tip:** the documentation commit that filed the last of this session's chat-only
+  evidence (a commit cannot name its own hash); the one before it is `afd8460`, work
+  order E. **Tag:** `portfolio-v1` at `99e022e`.
   **Release gate:** open, declared 15 September 2026.
 - **Working tree at `635a94e`:** clean — `git status --short` printed nothing
   (Viktor's paste, 21 September, before this session's work began).
-- **code_hash:** `3e76c1c54c85858cb12c35cb53ec6757ff81deb95f6f5bc3e7452b9bf9e96b38` —
-  moved at work order E (`live_trading.py`, `structure/structure.py`,
+- **code_hash:** `3e76c1c54c85858cb12c35cb53ec6757ff81deb95f6f5bc3e7452b9bf9e96b38`,
+  unmoved by the documentation commit after `afd8460` — moved at work order E (`live_trading.py`, `structure/structure.py`,
   `indicators/volume_profile.py`) from `ac02a155…`, which `e3f3d51` (C) had moved from
   `ec88cf24…`, which `a530006` (B) had moved from `35718f6b…`. Computed under Python
-  3.12.3 on the pristine and the applied tree, not assumed. **`ec88cf24…` and
-  `ac02a155…` are both confirmed on Viktor's Windows machine:** the decision-log records
-  his live runs wrote before committing `a530006` and `e3f3d51` carry them.
+  3.12.3 on the pristine and the applied tree, not assumed. **All three are confirmed on
+  Viktor's Windows machine:** the decision-log records his live runs wrote before
+  committing `a530006`, `e3f3d51` and `afd8460` carry `ec88cf24…`, `ac02a155…` and
+  `3e76c1c5…`.
 - **code_hash is only comparable within one Python minor version.** It hashes `ast.dump`
   output, a CPython implementation detail (`core/code_fingerprint.py`, "WHAT IT DOES NOT
   SURVIVE"). On 20 September a sandbox whose default `python3` was 3.11.15 reported a
@@ -88,19 +113,21 @@ codebase whose open-items list was empty.
   errors**, all 32 fixture-collection `TypeError`s, unmoved. (`e3f3d51` stood at
   522 / 390 / 451, `a530006` at 515 / 383 / 444.)
   Verified in a Linux sandbox on a `core.autocrlf=true` clone under Python 3.12.3,
-  pinned requirements — evidence about Linux until Viktor's run.
-- **Engineering Notes:** through Entry #141 (v1.33), which covers `4629002`. **Fourteen
+  pinned requirements. **On Windows:** Viktor's pytest printed 528 passed and no
+  warnings line (his paste); `run_tests.py`'s 457 / 0 / 32 is confirmed by his
+  proceeding past the step whose stop condition it was.
+- **Engineering Notes:** through Entry #141 (v1.33), which covers `4629002`. **Fifteen
   commits behind** — `3a899b5`, `92775ea`, `53394ff`, `982e70f`, `65a0aef`, `a9d4b1f`,
-  `6e1baba`, `b869a30`, `119c8a3`, `635a94e`, `ebb4e5c`, `a530006`, `e3f3d51` and work
-  order E's commit — by Viktor's choice, under the standing batching rule. **This count
-  includes the commit that writes it, so every later commit adds one until the Notes are
-  regenerated;** it is the line most likely to
+  `6e1baba`, `b869a30`, `119c8a3`, `635a94e`, `ebb4e5c`, `a530006`, `e3f3d51`,
+  `afd8460` and the documentation commit after it — by Viktor's choice, under the
+  standing batching rule. **This count includes the commit that writes it, so every
+  later commit adds one until the Notes are regenerated;** it is the line most likely to
   go stale in this file. If the independent audit's package includes the Notes,
   regenerate them before building it.
 - **Portfolio Document and AI-Attribution Statement:** both current with their scripts.
 - **Pre-push hook:** reported `SUMMARY: clean` on the pushes of `635a94e`, `ebb4e5c`,
-  `a530006` and `e3f3d51` — Viktor pasted all four outputs, so those are confirmed, not
-  reported. Earlier record, carried unchanged:
+  `a530006`, `e3f3d51` and `afd8460` — Viktor pasted all five outputs, so those are
+  confirmed, not reported. Earlier record, carried unchanged:
   clean on the pushes of `4629002`, `3a899b5`, `92775ea`, `53394ff` and `982e70f`
   (Viktor's report) and on the push that carried `119c8a3`; whether that push also
   carried `b869a30` was not established; the result on the pushes of `65a0aef`,
@@ -164,7 +191,10 @@ reproduced by running the engine**, and each says how far its reachability was c
    frame (`indicators/volume_profile.py`, 50 bins) — about 75 days on 4h. A trend that
    has moved away from its point of control therefore gets its stop there, and past 15%
    the risk check fails: NO-TRADE (RISK TOO HIGH), RISK REGIME UNKNOWN.
-   **Seen twice since, both checked against the record, not inferred.** Viktor's live
+   **Seen on three live runs and the pinned fixture since, each checked against the
+   record, not inferred.** The 05:51 and 06:18 runs (the second on the new candle that
+   opened 04:00 UTC) both carry a stop equal to the HVN, 0.549596 — at 06:18, 17.6%
+   below a price of 0.6666, NO-TRADE again. The first of them in detail: Viktor's live
    run of 21 September 05:28 (AEROUSDT 4h, before committing `a530006`): the stop,
    0.549596, is the HVN exactly, 18.2% below a price of 0.6719, so NO-TRADE. The ATR stop
    it replaced works out at about 0.6301, 6.2% below price — computed by Claude from that
@@ -234,13 +264,16 @@ candle counts is a rule, not a defect to patch, so it sits here with 4–7.
     there: `indicators/volume_profile.py`'s docstring still said "NOT FIXED HERE" about
     a fill that sequence item 15 had fixed.
 
-**Checked and found sound**
+**Claude's claims, open to the independent auditor** — first written as "Checked and
+found sound", reworded 21 September: the Constitution does not let the builder certify
+its own compliance, so these are claims with their evidence named, not findings.
 
 14. Every engine module is reachable from `main.py` except `core/decision_contract.py`
     (test-side by design) and `utils/decision_log_backup.py` (a standalone tool with its
     own `__main__`). No orphaned module.
 15. `_refuse_incoherent_plan` cannot fire today (see 8) — correctly so: it is a tripwire
-    against a future change, which is what its docstring says it is. Not a finding.
+    against a future change, which is what its docstring says it is. Claude's reading
+    (the argument is in 8), not a finding.
 
 ## Work order — Claude's, under Viktor's delegation
 
@@ -268,8 +301,15 @@ Each code commit is its own commit and updates this file for its own landing.
   the source, which is the structural form of the fix. The `abs()` in the panel's R:R
   and in `validate_risk_parameters` stays — harmless once no wrong-side stop can reach
   them. Claude's call under the delegation.
-- **E — landed.** Remaining fabricated defaults (12, 13). No decision field moves;
-  golden snapshot unmoved; `live_trading.py` is not on the engine's path.
+- **E — landed at `afd8460`.** Remaining fabricated defaults (12, 13). No decision field
+  moves; golden snapshot unmoved; `live_trading.py` is not on the engine's path.
+  **Confirmed on Windows** by the record of Viktor's 06:18 run before the commit:
+  `code_hash 3e76c1c5…`. That run's REGIME, STRUCTURE, VOLUME and VALIDATION lines
+  differed from 05:51 because a new candle had opened at 04:00 UTC — not because of E,
+  whose pinned-run panel was byte-identical before and after in the sandbox.
+- **Filed after E, documentation only:** the evidence above that existed only in chat —
+  E's Windows confirmation, the hook result on `afd8460`, the third HVN-vetoed run,
+  Viktor's four-week plan, and the Constitution check.
 - **F — `long_signal` / `short_signal` (11).** Touches the decision contract and possibly
   the golden snapshot; scoped fully before any diff.
 - **Then:** the deferred read (`data_fetcher`, `validation`, `decision_log`, `lineage` —
