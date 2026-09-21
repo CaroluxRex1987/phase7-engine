@@ -62,21 +62,28 @@ no-backtest rule exists only as text.
 ## Where things stand, right now
 
 - **Tip:** the documentation commit that writes this line (a commit cannot name its own
-  hash); the two before it are the decision-log commit (findings 19–21) and the
-  direction-box tests; before them `1cc2142`, the deferred read and the audit change
-  list; F itself is `3f263c2`. **Tag:** `portfolio-v1` at `99e022e`. **Release gate:** open, declared
+  hash). Before it: `2c7a7d1` (finding 22), `05a12c7` (findings 19–21), `9c4917c` (the
+  direction-box tests), `1cc2142` (the deferred read and the audit change list). F
+  itself is `3f263c2`. **Tag:** `portfolio-v1` at `99e022e`. **Release gate:** open, declared
   15 September 2026.
-- **Working tree at `1cc2142`:** clean — the pre-push hook's section 1, which is
+- **Working tree at `2c7a7d1`:** clean — the pre-push hook's section 1, which is
   `git status --short`, printed "none" on that push (Viktor's paste, third session of
-  21 September). The same at `cb659f1`.
+  21 September). The same at `1cc2142` and `cb659f1`.
 - **code_hash:** `82c14ef9cc211a2edb35a5bc473f6e37b05e4afe01f9ab3b352f24eae1a32cb8`,
-  moved by the commit that writes this line (`core/decision_log.py`, finding 22) from
-  `f691c4d8…`, which the decision-log commit before it had moved from `44f7296b…`;
-  both computed under Python 3.12.3 on the pristine and the applied tree. **Windows:**
-  Viktor's live run on this commit's tree, before it was committed, is the check; its
-  decision-log record is read by Claude before the commit step and filed in the next
-  commit. `f691c4d8…` is not confirmed on Windows on its own — no run was taken on that
-  tree; the run on this one carries all of its code. `44f7296b…` was moved at F (`3f263c2`)
+  moved at `2c7a7d1` (`core/decision_log.py`, finding 22) from `f691c4d8…`, which
+  `05a12c7` had moved from `44f7296b…`; both computed under Python 3.12.3 on the
+  pristine and the applied tree. Unmoved by the commit that writes this line
+  (documentation only). **Confirmed on Windows, before the commit:** Viktor's live run
+  of 21 September 22:09 on `2c7a7d1`'s applied tree (AEROUSDT 4h, NO-TRADE (RISK TOO
+  HIGH), the 31st record) carries `82c14ef9…`. Claude read it from his disk before the
+  commit step: the 30 records before it byte-identical to the copy taken at `1cc2142`;
+  the new record strict JSON (no NaN or Infinity token); `module_constants` holding
+  `BTC_STRESS_PENALTY` 15.0, `AVG_REWARD_R` 2.0 and `EV_BREAKEVEN_BAND_R` 0.3; the panel
+  printed "Decision logged to" and the SETUP DIRECTION box read LONG on a NO-TRADE run.
+  **Not exercised on Windows:** the run had no non-finite value, so the record holds no
+  `null` at all — finding 19's conversion is evidenced on Linux only, by
+  `tests/test_decision_log_record_format.py`. `f691c4d8…` (`05a12c7`) was never run on
+  its own; the 22:09 run carries all of its code. `44f7296b…` was moved at F (`3f263c2`)
   from `3e76c1c5…`, Python 3.12. **Confirmed on Windows** by the
   decision-log record of Viktor's live run of 21 September 19:24 (AEROUSDT 4h, the 30th
   record), read by Claude from his disk; unmoved by `aafded0`, `cb659f1`, `1cc2142` and
@@ -85,7 +92,7 @@ no-backtest rule exists only as text.
   output, a CPython implementation detail (`core/code_fingerprint.py`, "WHAT IT DOES NOT
   SURVIVE"). **Every `code_hash` claim about this project is computed under Python 3.12**
   (Viktor runs 3.12.10).
-- **Golden snapshot:** re-baselined by the commit that writes this line, finding 22,
+- **Golden snapshot:** re-baselined at `2c7a7d1`, finding 22,
   seven leaves and nothing else: `lineage.run_hash` and `provenance.run_hash`
   (`c210b69e…` → `51c8f3df…`), `lineage.archive.path` and `provenance.archive_path`
   (the archive is named by `run_hash`), and three added under
@@ -95,30 +102,34 @@ no-backtest rule exists only as text.
   `run_hash`, `archive.path` and `archive_path` beforehand and missed the three
   `module_constants` leaves — the change itself — and that `run_hash` sits in two
   places. Before this, re-baselined at F (three fields added).
-- **Test suite, moved by the commit that writes this line** — one new fixture-free file
+- **Test suite at `2c7a7d1`, unmoved since** — moved there by one new fixture-free file
   of 3 tests, one of which skips without `pandas_ta`
   (`tests/test_fingerprint_names_every_constant.py`): **566 passed / 0 failed, no
   warnings line** with `pandas_ta`; **430 passed / 125 skipped** without it;
   `run_tests.py` **495 passed / 0 failed / 32 errors**, all 32 fixture-collection
-  `TypeError`s, unmoved. The two commits before it: 555 / 420 / 484 (direction-box
-  tests), 563 / 428 / 492 (decision log). Linux sandbox, `core.autocrlf=true` clone, Python 3.12.3,
-  pinned requirements. **On Windows:** to be confirmed by Viktor's steps. At `3f263c2`
-  it stood at 549 / 414 / 478, confirmed on Windows by his proceeding.
-- **Engineering Notes:** through Entry #141 (v1.33), which covers `4629002`. **Twenty-two
+  `TypeError`s, unmoved. The two commits before it: 555 / 420 / 484 at `9c4917c`,
+  563 / 428 / 492 at `05a12c7`. Linux sandbox, `core.autocrlf=true` clone, Python
+  3.12.3, pinned requirements. **On Windows**, the pytest and `run_tests.py` counts of
+  all three commits (555 and 484 / 0 / 32; 563 and 492 / 0 / 32; 566 and 495 / 0 / 32)
+  are confirmed by Viktor proceeding past the steps whose stop conditions they were. At
+  `3f263c2` it stood at 549 / 414 / 478.
+- **Engineering Notes:** through Entry #141 (v1.33), which covers `4629002`. **Twenty-three
   commits behind** — `3a899b5`, `92775ea`, `53394ff`, `982e70f`, `65a0aef`, `a9d4b1f`,
   `6e1baba`, `b869a30`, `119c8a3`, `635a94e`, `ebb4e5c`, `a530006`, `e3f3d51`,
-  `afd8460`, `49de810`, `3f263c2`, `aafded0`, `cb659f1`, `1cc2142`, the direction-box
-  tests commit, the decision-log commit and the commit that writes this line — by
+  `afd8460`, `49de810`, `3f263c2`, `aafded0`, `cb659f1`, `1cc2142`, `9c4917c`,
+  `05a12c7`, `2c7a7d1` and the commit that writes this line — by
   Viktor's choice, under the standing batching rule. **This count includes the commit
   that writes it, so every later commit adds one until the Notes are regenerated.** If
   the independent audit's package includes the Notes, regenerate them before building
   it.
 - **Portfolio Document and AI-Attribution Statement:** both current with their scripts.
-- **README.md:** brought current at `cb659f1` — test counts, the paused audit, and what
-  backtesting now waits on. Nothing in this commit changes what it declares.
-- **Pre-push hook:** `SUMMARY: clean` on the pushes of `1cc2142`, `cb659f1` and
-  `aafded0` — Viktor pasted all three in the third session of 21 September, so
-  confirmed, not reported. On `cb659f1` its section 5 showed README.md touched at the tip, 0 commits since, as
+- **README.md:** brought current at `cb659f1` — the paused audit, and what backtesting
+  now waits on — and its two test-count lines again in the commit that writes this line
+  (566 / 430 with 125 skipped / 495, the counts at `2c7a7d1`). The hook reported it four
+  commits behind on the push of `2c7a7d1`; the counts were the stale part.
+- **Pre-push hook:** `SUMMARY: clean` on the pushes of `2c7a7d1` (which carried
+  `9c4917c` and `05a12c7`), `1cc2142`, `cb659f1` and `aafded0` — Viktor pasted all four
+  in the third session of 21 September, so confirmed, not reported. On `cb659f1` its section 5 showed README.md touched at the tip, 0 commits since, as
   predicted. Clean, and pasted, on `635a94e`, `ebb4e5c`, `a530006`, `e3f3d51`,
   `afd8460` and `49de810`. On `3f263c2` the output was not pasted; the push landed and
   the hook stops a push on any finding, so clean is inferred, not seen. The earlier record is in HISTORY.
@@ -131,7 +142,10 @@ caught it by reading the log, not from a paste. Viktor's 19:24 run came after th
 commit. **On the next change that touches the decision path (G is one), the live run
 and the panel read happen before `git commit`, and Claude checks the decision-log
 record for the new `code_hash` before the commit step, not after the push.** Never
-predict live numbers; check the record.
+predict live numbers; check the record. **Followed at `2c7a7d1`** (not a decision-path
+change, but it changes what the log records): the command list stopped at the live
+run, Claude read the record, and only then gave the commit steps; nothing was pushed
+before the check.
 
 ## Sandbox practice — learned 21 September, second session
 
@@ -225,7 +239,7 @@ file as it stood at `aafded0`.
 `data/data_fetcher.py`, `data/validation.py`, `core/decision_log.py` and
 `core/lineage.py`, read at `cb659f1` in full, with their call sites in
 `core/engine_core.py`. From reading the code, except where a line says it was checked
-against the live log. None changes a decision; none is fixed yet.
+against the live log. None changes a decision. 19–22 fixed since (below); 23–27 open.
 
 19. **The decision log writes bare `NaN`, which is not JSON.** `decision_log.write()`
     calls `json.dumps` with its default `allow_nan=True`, so a NaN in the decision object
@@ -235,7 +249,7 @@ against the live log. None changes a decision; none is fixed yet.
     records (6 September) carries `"swing_struct": NaN`. Reachable today — the router
     emits NaN for a value not located, on purpose (`models/signal_router.py`,
     `_finite_or_nan`). The archive's JSON (`lineage.write_archive`) has the same shape.
-    **Fixed for the decision log in the commit after the direction-box tests:** every
+    **Fixed for the decision log at `05a12c7`:** every
     non-finite float is written as `null`, and `allow_nan=False` keeps a bare NaN out.
     Records already in the log keep their NaN; `read()` still accepts them. The
     archive's half is commit 4's.
@@ -254,8 +268,8 @@ against the live log. None changes a decision; none is fixed yet.
     `EV_BREAKEVEN_BAND_R`, which set the illustrative EV sentence. All three are inside
     `code_hash`, so a change to them is still detected; the record just cannot say which
     value a run used. **Adding them moves `run_hash`**, which the golden snapshot pins,
-    so the fix is a predicted re-baseline, not a free edit. **Fixed in its own commit,
-    after the decision-log commit:** the three are listed, and
+    so the fix is a predicted re-baseline, not a free edit. **Fixed at `2c7a7d1`:** the
+    three are listed, and
     `tests/test_fingerprint_names_every_constant.py` scans every fingerprinted module
     for UPPER_CASE finite numeric constants, so the next one missed fails the day it is
     written rather than waiting for a read.
@@ -317,11 +331,11 @@ Each code commit is its own commit and updates this file for its own landing.
   before the commit (above).
 - **Findings 19–27 and the direction-box tests — six commits, Claude's.** Viktor chose
   commits 1–3 for the third session, the rest for later:
-  1. Tests for the SETUP DIRECTION box and its NEUTRAL branch — landed. Tests only;
+  1. Tests for the SETUP DIRECTION box and its NEUTRAL branch — `9c4917c`. Tests only;
      `code_hash` unmoved.
-  2. `decision_log`: findings 19, 20, 21 — landed.
-  3. `decision_log`: finding 22 alone — **the commit that writes this line.** It moves
-     `run_hash`, so the golden snapshot.
+  2. `decision_log`: findings 19, 20, 21 — `05a12c7`.
+  3. `decision_log`: finding 22 alone — `2c7a7d1`. It moved `run_hash`, so the golden
+     snapshot.
   4. `lineage`: 23 (a documentation correction, not a rename: the archive's name is
      pinned in the golden snapshot and the record keeps its own `code_hash`) and 24
      (check an archive against its decision-log record); also the archive's own bare
@@ -362,7 +376,10 @@ Each code commit is its own commit and updates this file for its own landing.
 - **README.md checked against this file** — the hook reported it three commits behind.
   Stale: both test-count lines (528 / 393 / 457, the counts at E), and nothing said the
   audit is paused or that backtesting now also waits on an independent re-audit of the
-  changes since 14 September. Brought current in the commit that writes this line.
+  changes since 14 September. Brought current at `cb659f1`; its test counts again,
+  after `2c7a7d1` moved them, in the commit that writes this line.
+- **The live-run check for `05a12c7` and `2c7a7d1`**, and the hook's clean result and
+  clean working tree at `2c7a7d1`, which existed only in chat, are filed above.
 
 ## Open items
 
