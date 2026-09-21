@@ -62,19 +62,19 @@ no-backtest rule exists only as text.
 ## Where things stand, right now
 
 - **Tip:** the documentation commit that writes this line (a commit cannot name its own
-  hash); the one before it is `cb659f1`, this session's rewrite of this file; F itself
-  is `3f263c2`. **Tag:** `portfolio-v1` at `99e022e`. **Release gate:** open, declared
+  hash); the one before it is `1cc2142`, the deferred read and the audit change list;
+  F itself is `3f263c2`. **Tag:** `portfolio-v1` at `99e022e`. **Release gate:** open, declared
   15 September 2026.
-- **Working tree at `cb659f1`:** clean — the pre-push hook's section 1, which is
+- **Working tree at `1cc2142`:** clean — the pre-push hook's section 1, which is
   `git status --short`, printed "none" on that push (Viktor's paste, third session of
-  21 September).
+  21 September). The same at `cb659f1`.
 - **code_hash:** `44f7296bb9c1a927712797df132eff4114f2782cdebb290d93d0dc86f8e44f78`,
   moved at F (`3f263c2`) from `3e76c1c5…`, Python 3.12. **Confirmed on Windows** by the
   decision-log record of Viktor's live run of 21 September 19:24 (AEROUSDT 4h, the 30th
-  record), read by Claude from his disk. Unmoved by `aafded0`, by `cb659f1` and by the
-  commit that writes this line — none touches a `.py` file, and
-  `core/code_fingerprint.py` walks `.py` files only; computed on `cb659f1`'s tree under
-  Python 3.12.3, not assumed.
+  record), read by Claude from his disk. Unmoved by `aafded0`, `cb659f1`, `1cc2142` and
+  the commit that writes this line — none touches a `.py` file outside `tests/`, and
+  `core/code_fingerprint.py` walks `.py` files only and excludes `tests/` by directory;
+  computed on this commit's applied tree under Python 3.12.3, not assumed.
 - **code_hash is only comparable within one Python minor version.** It hashes `ast.dump`
   output, a CPython implementation detail (`core/code_fingerprint.py`, "WHAT IT DOES NOT
   SURVIVE"). **Every `code_hash` claim about this project is computed under Python 3.12**
@@ -83,17 +83,18 @@ no-backtest rule exists only as text.
   (`entry.long_signal_blockers`, `entry.short_signal_blockers`,
   `trend.divergence_direction`), nothing changed; the action, every reason and
   `run_hash` did not move.
-- **Test suite at `3f263c2`, unmoved since:** **549 passed / 0 failed, no warnings
-  line** with `pandas_ta`; **414 passed / 124 skipped** without it; `run_tests.py`
-  **478 passed / 0 failed / 32 errors**, all 32 fixture-collection `TypeError`s. Linux
-  sandbox, `core.autocrlf=true` clone, Python 3.12.3, pinned requirements. **On
-  Windows**, 549 and 478 / 0 / 32 are confirmed by Viktor proceeding past the steps whose
-  stop conditions they were.
-- **Engineering Notes:** through Entry #141 (v1.33), which covers `4629002`. **Nineteen
+- **Test suite, moved by the commit that writes this line** — one new fixture-free file
+  of 6 tests, none of which skips (`tests/test_setup_direction_box.py`): **555 passed /
+  0 failed, no warnings line** with `pandas_ta`; **420 passed / 124 skipped** without
+  it; `run_tests.py` **484 passed / 0 failed / 32 errors**, all 32 fixture-collection
+  `TypeError`s, unmoved. Linux sandbox, `core.autocrlf=true` clone, Python 3.12.3,
+  pinned requirements. **On Windows:** to be confirmed by Viktor's steps. At `3f263c2`
+  it stood at 549 / 414 / 478, confirmed on Windows by his proceeding.
+- **Engineering Notes:** through Entry #141 (v1.33), which covers `4629002`. **Twenty
   commits behind** — `3a899b5`, `92775ea`, `53394ff`, `982e70f`, `65a0aef`, `a9d4b1f`,
   `6e1baba`, `b869a30`, `119c8a3`, `635a94e`, `ebb4e5c`, `a530006`, `e3f3d51`,
-  `afd8460`, `49de810`, `3f263c2`, `aafded0`, `cb659f1` and the commit that writes this
-  line — by
+  `afd8460`, `49de810`, `3f263c2`, `aafded0`, `cb659f1`, `1cc2142` and the commit that
+  writes this line — by
   Viktor's choice, under the standing batching rule. **This count includes the commit
   that writes it, so every later commit adds one until the Notes are regenerated.** If
   the independent audit's package includes the Notes, regenerate them before building
@@ -101,9 +102,9 @@ no-backtest rule exists only as text.
 - **Portfolio Document and AI-Attribution Statement:** both current with their scripts.
 - **README.md:** brought current at `cb659f1` — test counts, the paused audit, and what
   backtesting now waits on. Nothing in this commit changes what it declares.
-- **Pre-push hook:** `SUMMARY: clean` on the pushes of `cb659f1` and `aafded0` — Viktor
-  pasted both in the third session of 21 September, so confirmed, not reported. On
-  `cb659f1` its section 5 showed README.md touched at the tip, 0 commits since, as
+- **Pre-push hook:** `SUMMARY: clean` on the pushes of `1cc2142`, `cb659f1` and
+  `aafded0` — Viktor pasted all three in the third session of 21 September, so
+  confirmed, not reported. On `cb659f1` its section 5 showed README.md touched at the tip, 0 commits since, as
   predicted. Clean, and pasted, on `635a94e`, `ebb4e5c`, `a530006`, `e3f3d51`,
   `afd8460` and `49de810`. On `3f263c2` the output was not pasted; the push landed and
   the hook stops a push on any finding, so clean is inferred, not seen. The earlier record is in HISTORY.
@@ -291,8 +292,20 @@ Each code commit is its own commit and updates this file for its own landing.
   every caller, the golden fields it could move, and the live decision log checked
   first for which recorded actions it would change, as for F. The live run happens
   before the commit (above).
-- **Then:** findings 19–27, Claude's, each its own commit where it changes code. 22
-  moves `run_hash` and so the golden snapshot; the rest are predicted not to.
+- **Findings 19–27 and the direction-box tests — six commits, Claude's.** Viktor chose
+  commits 1–3 for the third session, the rest for later:
+  1. Tests for the SETUP DIRECTION box and its NEUTRAL branch — **the commit that
+     writes this line.** Tests only; `code_hash` unmoved.
+  2. `decision_log`: findings 19, 20, 21.
+  3. `decision_log`: finding 22 alone — it moves `run_hash`, so the golden snapshot.
+  4. `lineage`: 23 (a documentation correction, not a rename: the archive's name is
+     pinned in the golden snapshot and the record keeps its own `code_hash`) and 24
+     (check an archive against its decision-log record); also the archive's own bare
+     NaN, the lineage half of 19.
+  5. `validation`: 25 (reject a last candle more than one bar in the future) and 26
+     (case-sensitive timeframe table with MEXC's spellings).
+  6. `data_fetcher`: 27.
+  4–6 wait for a later session.
 
 ## Resolved this session
 
@@ -341,8 +354,9 @@ Claude critiques it.
 - **Claude's — the running change list for the audit:** `docs/audit_change_list.md`,
   from the baseline `e65a0f7` (the tree round 6's fix-verification was sent). **Every
   later commit that changes engine code, tests or tooling adds its line there in the
-  same commit.** Two entries show no test at all: the SETUP DIRECTION box and its
-  CONTRADICTORY line (`66f1479`, `39e0e79`).
+  same commit.** The two entries that had no test at all — the SETUP DIRECTION box and
+  its CONTRADICTORY line (`66f1479`, `39e0e79`) — are guarded since the commit that adds
+  `tests/test_setup_direction_box.py`.
 - **The pre-push hook is installed per clone, not per repository.** After any re-clone
   (including after a machine wipe), run `git config core.hooksPath githooks`;
   `session_handover_check.py` section 6 flags a clone without it.

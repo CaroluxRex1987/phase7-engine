@@ -28,8 +28,8 @@ Each line gives what changed, which finding it closes, and which tests guard it.
 | Commit | Date | What changed | Closes | Guarded by | Output |
 |---|---|---|---|---|---|
 | `a70fc1b` | 14 Sep | `models/signal_router.py`: a duplicate `@staticmethod` on `_finite_or_nan` removed | round-6 fix-verification's unprompted note | none specific; existing router tests exercise the function | none; `code_hash` moved |
-| `66f1479` | 14 Sep | `core/panel_render.py`: a SETUP DIRECTION box states LONG or SHORT from `bias.raw`; prints CONTRADICTORY when bias and the plan disagree | Viktor's request (a SHORT setup had no word "SHORT" on the panel) | **none** — no test asserts on the box or on its CONTRADICTORY line | panel only |
-| `39e0e79` | 14 Sep | `core/panel_render.py`: a NEUTRAL bias prints no direction box | Viktor's ruling on 66f1479's NEUTRAL line | **none** | panel only |
+| `66f1479` | 14 Sep | `core/panel_render.py`: a SETUP DIRECTION box states LONG or SHORT from `bias.raw`; prints CONTRADICTORY when bias and the plan disagree | Viktor's request (a SHORT setup had no word "SHORT" on the panel) | none when it landed; `test_setup_direction_box.py` since 21 Sep (below), including the CONTRADICTORY line | panel only |
+| `39e0e79` | 14 Sep | `core/panel_render.py`: a NEUTRAL bias prints no direction box | Viktor's ruling on 66f1479's NEUTRAL line | none when it landed; `test_setup_direction_box.py` since 21 Sep (below) | panel only |
 | `5be5d82` | 18 Sep | `data/data_fetcher.py`: `PHASE7_PINNED_DATA` set to a path that is not a directory now raises instead of silently going live. `core/engine_core.py`: `_save_state` writes atomically | Tier 1 of the 18 September session | `test_pinned_source.py` (added cases), `test_engine_state_atomic_write.py` | none |
 | `f24a6e9` | 19 Sep | `indicators/trend_health.py`, `models/bias_engine.py`, `models/risk_model.py`: ADX's second read removed from `continuation_strength` | Item 11 (shared raw input reaching `bias_score` twice) | `test_no_circular_reasoning.py` (extended) | **golden re-baselined** (16 fields, all downstream of `bias_score`, 78.70 → 77.10 on the fixture; action unchanged). Moves `bias_score` on every run, so it **can change which trades are taken** near a threshold |
 | `e2c6637` | 19 Sep | `models/bias_engine.py`: comment only. Records that four of six bias factors read the direction of close | recorded, not fixed — Viktor's call | `test_no_circular_reasoning.py` (documents the finding) | none |
@@ -48,6 +48,7 @@ Each line gives what changed, which finding it closes, and which tests guard it.
 | `5be5d82` | 18 Sep | the handover check's routine-noise filter (`docs/build/session_handover_check.py`) | `test_session_handover_check_ignored_filter.py` |
 | `2f5fdaa` | 19 Sep | `githooks/pre-push` runs the handover check and stops a push on a finding; `.gitattributes` pins it `eol=lf` | `test_pre_push_hook.py` |
 | `b68de08` | 20 Sep | `tests/test_pinned_source.py` and the pinned MANIFEST: the hash check portable across line endings | itself |
+| after `1cc2142` | 21 Sep | `tests/test_setup_direction_box.py`: 6 tests for `66f1479` and `39e0e79` — LONG, SHORT, NEUTRAL prints nothing, CONTRADICTORY takes neither side for either bias, the box follows bias on a run that takes no trade, and its place under DECISION | itself; four negative controls on `core/panel_render.py`, each failing it |
 
 ## Rulings since the baseline that change what the engine must do
 
