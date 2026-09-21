@@ -1,6 +1,7 @@
 # Next step — read this first
 
-*21 September 2026, third session. This file is the project's current-state entry point:
+*21 September 2026, third session; amended in place in the fourth by commit 4 of the
+six (the rewrite this file owes each session is owed at the fourth session's close). This file is the project's current-state entry point:
 it states only what is true right now and what to do next, and is rewritten each
 session, not appended to. Standing rules, ratified specifications and rulings in force
 live in docs/PHASE7_DECISIONS.md. The dated record — including this file's previous
@@ -29,7 +30,8 @@ findings are below. Viktor delegated the order of the work to Claude. Work order
 have landed (below). In the third session Viktor chose four items ahead of G: the
 deferred read, the running change list for the audit, two record questions and the
 sandbox lessons into the patch-delivery skill — all done (below). G is next in
-Claude's order.
+Claude's order. In the fourth session Viktor chose commits 4–6 of the six ahead of G;
+commit 4 is the commit that writes this line.
 
 **Nothing Claude does under that delegation decides the engine's trading rules.**
 Findings 4–7, 16 and 18 are questions about what the engine should do; they are
@@ -61,19 +63,24 @@ no-backtest rule exists only as text.
 
 ## Where things stand, right now
 
-- **Tip:** the documentation commit that writes this line (a commit cannot name its own
-  hash). Before it: `2c7a7d1` (finding 22), `05a12c7` (findings 19–21), `9c4917c` (the
+- **Tip:** the commit that writes this line (a commit cannot name its own hash) —
+  commit 4 of the six, `core/lineage.py`: findings 23 and 24 and the archive's half of
+  19. Before it: `5d3a4b4` (the third session's documentation close), `2c7a7d1` (finding 22), `05a12c7` (findings 19–21), `9c4917c` (the
   direction-box tests), `1cc2142` (the deferred read and the audit change list). F
   itself is `3f263c2`. **Tag:** `portfolio-v1` at `99e022e`. **Release gate:** open, declared
   15 September 2026.
 - **Working tree at `2c7a7d1`:** clean — the pre-push hook's section 1, which is
   `git status --short`, printed "none" on that push (Viktor's paste, third session of
-  21 September). The same at `1cc2142` and `cb659f1`.
-- **code_hash:** `82c14ef9cc211a2edb35a5bc473f6e37b05e4afe01f9ab3b352f24eae1a32cb8`,
-  moved at `2c7a7d1` (`core/decision_log.py`, finding 22) from `f691c4d8…`, which
+  21 September). The same at `1cc2142` and `cb659f1`. On the push of `5d3a4b4` the
+  hook printed `SUMMARY: clean` (Viktor's message opening the fourth session).
+- **code_hash:** `4fe5084e47157289326776ffca85671548608fc409b614c7e11c2fc687c71d66`,
+  moved by the commit that writes this line (`core/lineage.py`) from `82c14ef9…`;
+  computed under Python 3.12.3 on the pristine and the applied tree. **Windows
+  confirmation owed** to the live run in that commit's command sequence, before its
+  `git commit`; filed by the next commit. `82c14ef9…` was moved at `2c7a7d1` (`core/decision_log.py`, finding 22) from `f691c4d8…`, which
   `05a12c7` had moved from `44f7296b…`; both computed under Python 3.12.3 on the
   pristine and the applied tree. Unmoved by the commit that writes this line
-  (documentation only). **Confirmed on Windows, before the commit:** Viktor's live run
+  (documentation only), `5d3a4b4`. **Confirmed on Windows, before the commit:** Viktor's live run
   of 21 September 22:09 on `2c7a7d1`'s applied tree (AEROUSDT 4h, NO-TRADE (RISK TOO
   HIGH), the 31st record) carries `82c14ef9…`. Claude read it from his disk before the
   commit step: the 30 records before it byte-identical to the copy taken at `1cc2142`;
@@ -92,7 +99,10 @@ no-backtest rule exists only as text.
   output, a CPython implementation detail (`core/code_fingerprint.py`, "WHAT IT DOES NOT
   SURVIVE"). **Every `code_hash` claim about this project is computed under Python 3.12**
   (Viktor runs 3.12.10).
-- **Golden snapshot:** re-baselined at `2c7a7d1`, finding 22,
+- **Golden snapshot:** unmoved by the commit that writes this line, as predicted: the
+  archive's bytes are unchanged for a payload with no non-finite float (checked on all
+  22 archives in Viktor's `logs/archive`, re-serialised under both codes, Linux).
+  Re-baselined at `2c7a7d1`, finding 22,
   seven leaves and nothing else: `lineage.run_hash` and `provenance.run_hash`
   (`c210b69e…` → `51c8f3df…`), `lineage.archive.path` and `provenance.archive_path`
   (the archive is named by `run_hash`), and three added under
@@ -102,22 +112,24 @@ no-backtest rule exists only as text.
   `run_hash`, `archive.path` and `archive_path` beforehand and missed the three
   `module_constants` leaves — the change itself — and that `run_hash` sits in two
   places. Before this, re-baselined at F (three fields added).
-- **Test suite at `2c7a7d1`, unmoved since** — moved there by one new fixture-free file
-  of 3 tests, one of which skips without `pandas_ta`
-  (`tests/test_fingerprint_names_every_constant.py`): **566 passed / 0 failed, no
-  warnings line** with `pandas_ta`; **430 passed / 125 skipped** without it;
-  `run_tests.py` **495 passed / 0 failed / 32 errors**, all 32 fixture-collection
-  `TypeError`s, unmoved. The two commits before it: 555 / 420 / 484 at `9c4917c`,
+- **Test suite at the commit that writes this line** — moved by 12 fixture-free tests:
+  11 in the new `tests/test_lineage_against_record.py` and 1 appended to
+  `tests/test_lineage.py`, which skips without `pandas_ta`: **578 passed / 0 failed, no
+  warnings line** with `pandas_ta`; **441 passed / 126 skipped** without it;
+  `run_tests.py` **507 passed / 0 failed / 32 errors**, all 32 fixture-collection
+  `TypeError`s, unmoved. Linux sandbox, autocrlf clone, Python 3.12.3, pinned
+  requirements, applied tree; on Windows, the stop conditions of its command sequence.
+  At `2c7a7d1`: 566 / 430 with 125 skipped / 495. Before that: 555 / 420 / 484 at `9c4917c`,
   563 / 428 / 492 at `05a12c7`. Linux sandbox, `core.autocrlf=true` clone, Python
   3.12.3, pinned requirements. **On Windows**, the pytest and `run_tests.py` counts of
   all three commits (555 and 484 / 0 / 32; 563 and 492 / 0 / 32; 566 and 495 / 0 / 32)
   are confirmed by Viktor proceeding past the steps whose stop conditions they were. At
   `3f263c2` it stood at 549 / 414 / 478.
-- **Engineering Notes:** through Entry #141 (v1.33), which covers `4629002`. **Twenty-three
+- **Engineering Notes:** through Entry #141 (v1.33), which covers `4629002`. **Twenty-four
   commits behind** — `3a899b5`, `92775ea`, `53394ff`, `982e70f`, `65a0aef`, `a9d4b1f`,
   `6e1baba`, `b869a30`, `119c8a3`, `635a94e`, `ebb4e5c`, `a530006`, `e3f3d51`,
   `afd8460`, `49de810`, `3f263c2`, `aafded0`, `cb659f1`, `1cc2142`, `9c4917c`,
-  `05a12c7`, `2c7a7d1` and the commit that writes this line — by
+  `05a12c7`, `2c7a7d1`, `5d3a4b4` and the commit that writes this line — by
   Viktor's choice, under the standing batching rule. **This count includes the commit
   that writes it, so every later commit adds one until the Notes are regenerated.** If
   the independent audit's package includes the Notes, regenerate them before building
@@ -126,7 +138,9 @@ no-backtest rule exists only as text.
 - **README.md:** brought current at `cb659f1` — the paused audit, and what backtesting
   now waits on — and its two test-count lines again in the commit that writes this line
   (566 / 430 with 125 skipped / 495, the counts at `2c7a7d1`). The hook reported it four
-  commits behind on the push of `2c7a7d1`; the counts were the stale part.
+  commits behind on the push of `2c7a7d1`; the counts were the stale part. Its two
+  test-count lines again in the commit that writes this line (578 / 441 with 126
+  skipped / 507).
 - **Pre-push hook:** `SUMMARY: clean` on the pushes of `2c7a7d1` (which carried
   `9c4917c` and `05a12c7`), `1cc2142`, `cb659f1` and `aafded0` — Viktor pasted all four
   in the third session of 21 September, so confirmed, not reported. On `cb659f1` its section 5 showed README.md touched at the tip, 0 commits since, as
@@ -239,7 +253,7 @@ file as it stood at `aafded0`.
 `data/data_fetcher.py`, `data/validation.py`, `core/decision_log.py` and
 `core/lineage.py`, read at `cb659f1` in full, with their call sites in
 `core/engine_core.py`. From reading the code, except where a line says it was checked
-against the live log. None changes a decision. 19–22 fixed since (below); 23–27 open.
+against the live log. None changes a decision. 19–24 fixed since (below); 25–27 open.
 
 19. **The decision log writes bare `NaN`, which is not JSON.** `decision_log.write()`
     calls `json.dumps` with its default `allow_nan=True`, so a NaN in the decision object
@@ -251,8 +265,10 @@ against the live log. None changes a decision. 19–22 fixed since (below); 23�
     `_finite_or_nan`). The archive's JSON (`lineage.write_archive`) has the same shape.
     **Fixed for the decision log at `05a12c7`:** every
     non-finite float is written as `null`, and `allow_nan=False` keeps a bare NaN out.
-    Records already in the log keep their NaN; `read()` still accepts them. The
-    archive's half is commit 4's.
+    Records already in the log keep their NaN; `read()` still accepts them. **The
+    archive's half fixed by the commit that writes this line**, with the same
+    sanitiser (`decision_log._json_safe`). Latent there: only `meta` can hold a float,
+    and no fingerprinted constant is non-finite today.
 20. **`decision_log.read()` drops any line it cannot parse, silently.** Its comment
     says the case is "a torn final line"; the code skips a damaged line anywhere in the
     file and counts nothing, so a corrupted middle record vanishes from the history it
@@ -279,13 +295,22 @@ against the live log. None changes a decision. 19–22 fixed since (below); 23�
     per-file code digests (`meta.code`) with it. The decision record keeps its own
     `code_hash`, so the decision's code identity survives. Reachable on pinned-fixture
     runs across commits; live runs rarely repeat their input (finding 16).
+    **Documented by the commit that writes this line** (`write_archive`'s docstring),
+    not renamed, and pinned by a test of the overwrite it describes.
 24. **`lineage.verify_archive()` checks an archive only against itself.** It compares
     each stored frame with the digest stored beside it in the same file, so an edit
     that rewrites both passes. The check that means something — the archive against the
     decision log's `input_hashes` — exists only in the tests; nothing in the repository
     lets an operator check a logged decision against its archive or against re-fetched
     data. The docstring's "a file that has been edited since it was written says so"
-    overstates it.
+    overstates it. **Fixed by the commit that writes this line:**
+    `lineage.verify_against_record(path, record)` re-hashes each archived frame and
+    compares it with the record's `input_hashes`, and the archive's `run_hash` with the
+    record's; `verify_archive`'s docstring now says what it checks. Run on Viktor's live
+    log (read on Linux from his disk, 31 records): 30 match in every frame and in
+    `run_hash`; 1 (6 September) carries no input hashes and returns `{}`. **Not built:**
+    a command-line wrapper (the function is called from Python), and a re-fetch
+    comparison (`frame_hash` of a re-fetched frame against the same record hash).
 25. **The staleness check accepts a last candle in the future.** `validate_ohlcv`
     rejects age above three bars and accepts any negative age. A timestamp
     inconsistency, one of Item 3's named classes. Reachability on MEXC: not measured.
@@ -339,11 +364,11 @@ Each code commit is its own commit and updates this file for its own landing.
   4. `lineage`: 23 (a documentation correction, not a rename: the archive's name is
      pinned in the golden snapshot and the record keeps its own `code_hash`) and 24
      (check an archive against its decision-log record); also the archive's own bare
-     NaN, the lineage half of 19.
+     NaN, the lineage half of 19 — the commit that writes this line.
   5. `validation`: 25 (reject a last candle more than one bar in the future) and 26
      (case-sensitive timeframe table with MEXC's spellings).
   6. `data_fetcher`: 27.
-  4–6 wait for a later session.
+  Viktor chose 4–6 for the fourth session.
 
 ## Resolved this session
 

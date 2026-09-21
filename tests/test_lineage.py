@@ -753,3 +753,33 @@ def test_the_recorded_archive_path_is_spelled_the_same_on_every_platform():
     finally:
         os.chdir(original_cwd)
         shutil.rmtree(work, ignore_errors=True)
+
+
+def test_a_real_run_s_archive_matches_its_decision_log_record():
+    """
+    Finding 24 (21 September 2026), on the engine's own output: the archive a
+    routed run writes answers to the decision-log line the same run wrote, by
+    lineage.verify_against_record() -- the check that until now existed only
+    inside this file's other tests.
+    """
+    if not _engine_available():
+        pytest.skip("pandas_ta not installed")
+
+    from core import decision_log, lineage
+
+    work = tempfile.mkdtemp(prefix="phase7_vrec_engine_")
+    try:
+        log_dir = os.path.join(work, "logs")
+        _clear_state(log_dir)
+        decision = _run(PINNED_DIR, log_dir)
+        assert not decision.get("error"), decision.get("error")
+        archived = decision["lineage"]["archive"]["path"]
+        assert archived and os.path.exists(archived)
+
+        records = decision_log.read(log_dir, "AEROUSDT")
+        assert len(records) == 1
+        result = lineage.verify_against_record(archived, records[-1])
+        assert result == {"run_hash": True,
+                          "frames": {"btc": True, "macro": True, "struct": True}}, result
+    finally:
+        shutil.rmtree(work, ignore_errors=True)

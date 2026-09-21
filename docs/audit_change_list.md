@@ -42,6 +42,7 @@ Each line gives what changed, which finding it closes, and which tests guard it.
 | `3f263c2` | 21 Sep | `models/entry_model.py`, `models/decision_model.py`, `core/engine_core.py`, `core/decision_contract.py`, `models/signal_router.py`, `indicators/trend_health.py`: the entry signals confirm the side the ladder chooses; unconfirmed is `NO-TRADE (SIGNAL UNCONFIRMED)` | review finding 11; **changes which trades are taken** — Viktor's ruling (DECISIONS, "the entry signals confirm") | `test_signal_confirms.py`; `test_code_fingerprint.py`, `test_direction_source.py`, `test_summary_names_the_action_reason.py` amended | **golden re-baselined** (3 fields added) |
 | `05a12c7` | 21 Sep | `core/decision_log.py`: non-finite floats written as `null` with `allow_nan=False` (19); `read_with_report()`, and `read()` logs what it skips (20); the module docstring names the recorded source, `"pinned"` (21) | deferred-read findings 19–21 | `test_decision_log_record_format.py` | none on the decision; the log's spelling of "no value" is `null` from this commit on |
 | `2c7a7d1` | 21 Sep | `core/decision_log.py`: `DecisionModel.BTC_STRESS_PENALTY`, `AVG_REWARD_R`, `EV_BREAKEVEN_BAND_R` added to `FINGERPRINTED_MODULES` | deferred-read finding 22 | `test_fingerprint_names_every_constant.py` (scans every fingerprinted module, so a future omission fails too) | **golden re-baselined**: `run_hash` (2 places) and the archive name (2 places) move; 3 leaves added under `module_constants`; no decision field |
+| commit 4 of the six (the commit that adds this line) | 21 Sep | `core/lineage.py`: `verify_against_record()` checks an archive against its decision-log record (24); `verify_archive`'s docstring says it checks the archive against itself (24); the archive's JSON writes non-finite floats as `null` with `allow_nan=False` (19, archive half; latent); `write_archive`'s docstring states the overwrite under changed code (23) | deferred-read findings 23, 24, 19's archive half | `test_lineage_against_record.py` (11); `test_lineage.py` (1 added: a real run's archive matches its record) | none; the archive's bytes are unchanged for a payload with no non-finite float |
 
 ## Tests and tooling only
 
@@ -65,5 +66,5 @@ Each line gives what changed, which finding it closes, and which tests guard it.
 ## Found, open, and not yet a change
 
 Recorded in `docs/PHASE7_NEXT.md` ("Review findings"): Viktor's calls 4–7, 16 and 18;
-Claude's 17 (work order G) and 19–27 from the deferred read. Each gets a line above
-when it lands.
+Claude's 17 (work order G) and 25–27 from the deferred read (19–24 have landed, above).
+Each gets a line above when it lands.

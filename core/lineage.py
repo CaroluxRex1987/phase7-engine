@@ -81,6 +81,11 @@ import re
 import time
 from datetime import datetime, timezone
 
+# Finding 19's sanitiser, the lineage half. One definition for both files that
+# write JSON records, so a later fix to it reaches both. decision_log imports
+# nothing from core, so this adds no cycle.
+from core import decision_log
+
 # Viktor's ruling, 2 September 2026. Archives older than this are removed; the
 # hashes that identify them stay in the decision log forever.
 RETENTION_DAYS = 90
@@ -282,6 +287,19 @@ def write_archive(frames, log_dir, symbol, timeframe, run_id, meta=None):
     The filename is the run hash, not a timestamp, so a rerun on identical
     input rewrites one file instead of accumulating copies -- identical input
     is not a second observation.
+
+    FINDING 23, 21 September 2026 -- what that rewrite also loses. run_hash
+    covers the input data and the settings, and excludes code_hash by design
+    (see engine_core, where run_id is computed). So a rerun on identical
+    candles and settings under CHANGED code rewrites this same file, and the
+    earlier run's `meta` -- its per-file code digests in `meta.code` above all
+    -- is replaced by the later run's. The candles are the same, so nothing
+    rebuildable is lost; which code the EARLIER run used is then no longer
+    readable from the archive. The decision record keeps its own `code_hash`,
+    so each decision's code identity survives in the log. Reachable on
+    pinned-fixture runs across commits; a live run rarely repeats its input.
+    Documented rather than renamed: the archive's name is pinned by the golden
+    snapshot, and the record already carries what the overwrite loses.
     """
     try:
         directory = archive_dir(log_dir)
@@ -322,7 +340,16 @@ def write_archive(frames, log_dir, symbol, timeframe, run_id, meta=None):
         # Fixed mtime in the gzip header: the member timestamp would otherwise
         # make two byte-identical archives differ, and this file is content
         # addressed.
-        raw = json.dumps(payload, sort_keys=True, default=str).encode("utf-8")
+        #
+        # FINDING 19, the archive's half (21 September 2026). json.dumps'
+        # default allow_nan=True wrote a non-finite float as the bare token
+        # NaN, which no strict JSON reader accepts. The frames are strings, so
+        # only `meta` could carry one -- a non-finite fingerprinted constant;
+        # none exists today, so this was latent. Now non-finite floats are
+        # written as null and allow_nan=False keeps the token out. For a
+        # payload with no non-finite float the bytes are unchanged.
+        raw = json.dumps(decision_log._json_safe(payload), sort_keys=True, default=str,
+                         allow_nan=False).encode("utf-8")
         with open(path, "wb") as fh:
             with gzip.GzipFile(fileobj=fh, mode="wb", mtime=0) as gz:
                 gz.write(raw)
@@ -345,8 +372,13 @@ def verify_archive(path):
     Re-hash every stored frame and compare against the digest stored beside it.
 
     Returns {frame_name: bool}. An empty dict means nothing could be read.
-    This is what makes the archive evidence rather than a copy: a file that has
-    been edited since it was written says so.
+
+    FINDING 24, 21 September 2026: this checks the archive against ITSELF.
+    It catches an edit to a frame that leaves the digest beside it alone --
+    damage, or a careless edit -- and nothing more: an edit that rewrites the
+    frame and its digest together passes. The check that means something is
+    against a digest stored somewhere else, the decision log, and that is
+    verify_against_record() below.
     """
     payload = read_archive(path)
     if not payload:
@@ -357,6 +389,66 @@ def verify_archive(path):
         digest = hashlib.sha256(text.encode("utf-8")).hexdigest()
         out[name] = (digest == frame.get("sha256"))
     return out
+
+
+def verify_against_record(path, record):
+    """
+    Check an archive against the decision-log record of the run that wrote it.
+
+    FINDING 24, 21 September 2026. verify_archive() compares each stored frame
+    with the digest stored beside it in the same file, so an edit that
+    rewrites both passes. The decision log is written separately and never
+    pruned; its `provenance.input_hashes` and `provenance.run_hash` are the
+    digests an archive has to answer to. Until now that comparison existed
+    only inside the tests.
+
+    `record` is one decision-log line as decision_log.read() returns it, or
+    the decision object itself (the line's "decision" member).
+
+    Returns {"run_hash": bool, "frames": {name: bool}}:
+
+      run_hash  the archive's own run_hash equals the record's.
+      frames    one entry per frame named on either side. True only when the
+                archive holds the frame AND its canonical text, re-hashed here
+                -- not the digest stored beside it -- equals the record's
+                hash. A frame the record hashed and the archive lacks, or the
+                archive holds and the record did not hash, is False. A frame
+                absent on both sides (the record's hash is null and nothing
+                was archived) is not listed.
+
+    Returns {} when there is nothing to compare: the archive cannot be read,
+    or the record carries no input hashes (records written before the
+    lineage fields existed, e.g. one of Viktor's 6 September records).
+
+    Checking a logged decision against data re-fetched later is a different
+    question, answered by frame_hash(re-fetched frame) against the same
+    record hash; this function does not fetch.
+    """
+    payload = read_archive(path)
+    if not payload or not isinstance(record, dict):
+        return {}
+    decision = record.get("decision", record)
+    provenance = (decision or {}).get("provenance") or {}
+    recorded = provenance.get("input_hashes")
+    if not isinstance(recorded, dict):
+        return {}
+    recorded = {name: digest for name, digest in recorded.items() if digest}
+    if not recorded:
+        return {}
+    archived = {}
+    for name, frame in (payload.get("frames") or {}).items():
+        text = (frame or {}).get("canonical", "")
+        archived[name] = hashlib.sha256(text.encode("utf-8")).hexdigest()
+    frames = {
+        name: (name in archived and name in recorded
+               and archived[name] == recorded[name])
+        for name in sorted(set(archived) | set(recorded))
+    }
+    return {
+        "run_hash": (payload.get("run_hash") is not None
+                     and payload.get("run_hash") == provenance.get("run_hash")),
+        "frames": frames,
+    }
 
 
 def prune(log_dir, max_age_days=RETENTION_DAYS, now=None, keep=()):
