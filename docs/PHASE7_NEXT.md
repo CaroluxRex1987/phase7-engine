@@ -17,7 +17,8 @@ not fall behind the tip the way it did on 20 September, when `119c8a3` landed af
 
 *A second session opened on 21 September at `49de810`. Its work is amended into this
 file in place, commit by commit; the once-per-session rewrite, with the previous
-version moved to HISTORY, is owed at that session's close.*
+version moved to HISTORY, is owed — deferred to the next session's opening, agreed with
+Viktor when his weekly usage stood at 25% remaining.*
 
 ## PACE FIRST — read this before the rest of this file
 
@@ -88,9 +89,8 @@ make adjustments and fixes, i think it is good and important work."
 
 ## Where things stand, right now
 
-- **Tip:** work order F's commit (a commit cannot name its own hash); the one before it
-  is `49de810`, the documentation commit that filed the first session's chat-only
-  evidence. **Tag:** `portfolio-v1` at `99e022e`.
+- **Tip:** the documentation commit filing F's Windows confirmation (a commit cannot
+  name its own hash); the one before it is `3f263c2`, work order F. **Tag:** `portfolio-v1` at `99e022e`.
   **Release gate:** open, declared 15 September 2026.
 - **Working tree at `635a94e`:** clean — `git status --short` printed nothing
   (Viktor's paste, 21 September, before this session's work began).
@@ -99,8 +99,15 @@ make adjustments and fixes, i think it is good and important work."
   `core/engine_core.py`, `core/decision_contract.py`, `models/signal_router.py`,
   `indicators/trend_health.py` — the six files it edits, and no others) from
   `3e76c1c5…`, computed under Python 3.12.3 on the pristine and the applied tree.
-  **Windows confirmation of `44f7296b…` is pending at the time of writing** — Viktor's
-  live run before committing F; it is filed at the next commit. `3e76c1c5…` was
+  **Confirmed on Windows, AFTER the commit, not before it:** the record of Viktor's live
+  run of 21 September 19:24 (AEROUSDT 4h, 30th record in the log) carries
+  `44f7296b…`, read by Claude from his disk. The run before committing, asked for in
+  the command sequence, did not happen: at the push the log still held 29 records, the
+  newest on `3e76c1c5…`. Claude caught it by reading the log, not from a paste. The
+  record also shows F's fields as designed — `long_signal` True with an empty blocker
+  list, `short_signal` False with "structure is BULLISH TREND, not BEARISH TREND",
+  `divergence_direction` "NONE" — and, correctly, no "Separately" reason: the action was
+  RISK TOO HIGH (the HVN stop again, finding 6) with the long confirmed. `3e76c1c5…` was
   unmoved by `49de810` — moved at work order E (`live_trading.py`, `structure/structure.py`,
   `indicators/volume_profile.py`) from `ac02a155…`, which `e3f3d51` (C) had moved from
   `ec88cf24…`, which `a530006` (B) had moved from `35718f6b…`. Computed under Python
@@ -127,7 +134,9 @@ make adjustments and fixes, i think it is good and important work."
   (`tests/test_signal_confirms.py`), none of which skips: **549 passed / 0 failed, no
   warnings line** with `pandas_ta`; **414 passed / 124 skipped** without it;
   `run_tests.py` **478 passed / 0 failed / 32 errors**, the 32 unmoved. Linux sandbox,
-  `core.autocrlf=true` clone, Python 3.12.3, pinned requirements; on Windows, pending.
+  `core.autocrlf=true` clone, Python 3.12.3, pinned requirements. **On Windows**, 549 and
+  478 / 0 / 32 are confirmed by Viktor proceeding past the steps whose stop conditions
+  they were.
   At work order E, by one new fixture-free file of 6 tests, three of
   which skip without `pandas_ta`: **528 passed / 0 failed, and no warnings** with
   `pandas_ta` — the suite's two DeprecationWarnings were the `utcnow()` call E removes;
@@ -138,10 +147,10 @@ make adjustments and fixes, i think it is good and important work."
   pinned requirements. **On Windows:** Viktor's pytest printed 528 passed and no
   warnings line (his paste); `run_tests.py`'s 457 / 0 / 32 is confirmed by his
   proceeding past the step whose stop condition it was.
-- **Engineering Notes:** through Entry #141 (v1.33), which covers `4629002`. **Sixteen
+- **Engineering Notes:** through Entry #141 (v1.33), which covers `4629002`. **Seventeen
   commits behind** — `3a899b5`, `92775ea`, `53394ff`, `982e70f`, `65a0aef`, `a9d4b1f`,
   `6e1baba`, `b869a30`, `119c8a3`, `635a94e`, `ebb4e5c`, `a530006`, `e3f3d51`,
-  `afd8460`, `49de810` and work order F's commit — by Viktor's choice, under the
+  `afd8460`, `49de810`, `3f263c2` and the documentation commit after it — by Viktor's choice, under the
   standing batching rule. **This count includes the commit that writes it, so every
   later commit adds one until the Notes are regenerated;** it is the line most likely to
   go stale in this file. If the independent audit's package includes the Notes,
@@ -149,7 +158,9 @@ make adjustments and fixes, i think it is good and important work."
 - **Portfolio Document and AI-Attribution Statement:** both current with their scripts.
 - **Pre-push hook:** reported `SUMMARY: clean` on the pushes of `635a94e`, `ebb4e5c`,
   `a530006`, `e3f3d51`, `afd8460` and `49de810` — Viktor pasted all six outputs, so those are
-  confirmed, not reported. Earlier record, carried unchanged:
+  confirmed, not reported. On `3f263c2` the output was not pasted; the push landed (the
+  sandbox fetched it), and the hook stops a push on any finding, so clean is inferred,
+  not seen. Earlier record, carried unchanged:
   clean on the pushes of `4629002`, `3a899b5`, `92775ea`, `53394ff` and `982e70f`
   (Viktor's report) and on the push that carried `119c8a3`; whether that push also
   carried `b869a30` was not established; the result on the pushes of `65a0aef`,
@@ -367,8 +378,10 @@ Each code commit is its own commit and updates this file for its own landing.
   failed the tests guarding it. Existing tests changed: two fixtures now carry complete
   signal records (without them the "cannot open a direction" tests would pass
   vacuously, refused by the gate for missing data) and one fingerprint test retargeted
-  at the comparison without `and not divergence`. **Windows confirmation pending** —
-  filed at the next commit.
+  at the comparison without `and not divergence`. **Landed at `3f263c2`; confirmed on
+  Windows after the commit** (see code_hash above). **A wrong prediction, recorded:**
+  Claude's expected `git status --short` listed `tests/test_signal_confirms.py` last;
+  git sorts by path, so it prints before `test_summary_…`. Same files, same states.
 - **G — macro in the CONSERVATIVE branches (17).** Claude's, under the delegation. Changes
   which trades are taken; scoped before any diff; the live log checked first, as for F.
 - **Then:** the deferred read (`data_fetcher`, `validation`, `decision_log`, `lineage` —
