@@ -31,8 +31,9 @@ it carries dead code. Claude read the decision path and, in the third session, t
 deferred input side; the findings are below. Viktor delegated the order of the work to
 Claude. Work orders A–F have landed, and commits 1–4 of the six that fix the deferred
 read's findings. In the fifth session Viktor chose commits 5 and 6, then the session's
-close: commit 5 is `486f1a5`, commit 6 the commit that writes this line. That closes the
-six. G is next in Claude's order.
+close: commit 5 is `486f1a5`, commit 6 `3bfa6b7`, and the commit that writes this line
+is the session's documentation close. That closes the six. G is next in Claude's order.
+Viktor will continue in the same chat on 22 September.
 
 **Nothing Claude does under that delegation decides the engine's trading rules.**
 Findings 4–7, 16 and 18 are questions about what the engine should do; they are
@@ -63,27 +64,39 @@ no-backtest rule exists only as text.
 
 ## Where things stand, right now
 
-- **Tip:** the commit that writes this line (a commit cannot name its own hash) —
-  commit 6 of the six, `data/data_fetcher.py`: finding 27. Before it: `486f1a5`
+- **Tip:** the commit that writes this line (a commit cannot name its own hash) — the
+  fifth session's documentation close; documentation only. Before it: `3bfa6b7`
+  (commit 6 of the six, `data/data_fetcher.py`: finding 27), `486f1a5`
   (commit 5, `data/validation.py`: findings 25, 26 and 28, and this file's session
   rewrite), `4e2b1c8` (commit 4, `core/lineage.py`: findings 23, 24 and the archive's half of 19),
   `5d3a4b4` (the third session's documentation close), `2c7a7d1` (22), `05a12c7`
   (19–21), `9c4917c` (the direction-box tests), `1cc2142` (the deferred read and the
   audit change list). F itself is `3f263c2`. **Tag:** `portfolio-v1` at `99e022e`.
   **Release gate:** open, declared 15 September 2026.
-- **Working tree and hook at `486f1a5`:** the push `4e2b1c8..486f1a5` printed
+- **Working tree and hook at `3bfa6b7`:** the push `486f1a5..3bfa6b7` printed
   `SUMMARY: clean`, section 1 (`git status --short`) "none", section 6 "installed" —
   Viktor's paste, fifth session. The tip was fetched into the sandbox afterwards and
-  its six files matched the verified build byte for byte. At `4e2b1c8`: the push
+  its five files matched the verified build byte for byte. The same at `486f1a5` (push
+  `4e2b1c8..486f1a5`, pasted; six files matched). **Owed to the next session:** the
+  hook's result on the push of the commit that writes this line, which will exist
+  only in chat until filed. At `4e2b1c8`: the push
   `5d3a4b4..4e2b1c8` printed `SUMMARY: clean`, section 1 "none" (Viktor's message
   opening the fifth session); the tip, fetched after that push, matched the verified
   files (fourth session), and recomputes to `4fe5084e…` on a fresh clone (Linux, Python
   3.12.3). The earlier record of the hook is in HISTORY.
 - **code_hash:** `b3c2308f8f3e05981af25ee82468c071f7bf0b9d49519b6e75bd78c37b5fb365`,
-  moved by the commit that writes this line (`data/data_fetcher.py`) from `2c8ebe32…`;
-  computed under Python 3.12.3 on the pristine and the applied tree. **Windows
-  confirmation owed** to the live run in that commit's command sequence, before its
-  `git commit`; filed by the next commit.
+  moved at `3bfa6b7` (`data/data_fetcher.py`) from `2c8ebe32…`, computed under Python
+  3.12.3 on the pristine and the applied tree; unmoved by the commit that writes this
+  line (documentation only). **Confirmed on Windows before its commit:** Viktor's live
+  run of 21 September 23:29, AEROUSDT 4h, NO-TRADE (RISK TOO HIGH), the 34th record,
+  read by Claude from his disk before the commit step. The 33 earlier records were
+  byte-identical to the copy taken before the run; the new record was strict JSON and
+  carried `b3c2308f…`. Its archive, `aerousdt_4h_5242945daebc435b.json.gz`, was strict
+  JSON with the same `meta.code.code_hash`. `verify_against_record` returned `run_hash`
+  True and `btc`, `macro` and `struct` all True; `verify_archive` returned all True. The
+  five applied files on disk matched the build (the new test file CRLF on disk). The
+  run fetched successfully, so 27's new error text was not exercised on Windows — it
+  is evidenced on Linux only, by `tests/test_fetch_reports_exchange_error.py`.
   **`2c8ebe3264c2543369d534512f0e1a6b3751f0e61811ecb291dfa5a9a331f391` (`486f1a5`),
   confirmed on Windows before its commit:** Viktor's live run of 21 September 23:17,
   AEROUSDT 4h, NO-TRADE (RISK TOO HIGH), the 33rd record, read by Claude from his disk
@@ -109,34 +122,36 @@ no-backtest rule exists only as text.
   output, a CPython implementation detail (`core/code_fingerprint.py`, "WHAT IT DOES NOT
   SURVIVE"). **Every `code_hash` claim about this project is computed under Python 3.12**
   (Viktor runs 3.12.10).
-- **Golden snapshot:** unmoved by the commit that writes this line, as predicted:
-  `data/data_fetcher.py` is not fingerprinted, and its change acts only on a live reply
+- **Golden snapshot:** unmoved by the commit that writes this line (documentation
+  only). Unmoved at `3bfa6b7`, as predicted: `data/data_fetcher.py` is not fingerprinted, and its change acts only on a live reply
   that is an error; the pinned path does not call `fetch_ohlc`. Unmoved at `486f1a5`
   too: `data/validation.py` is not in `FINGERPRINTED_MODULES`, the pinned path passes
   no `now`, and `4h` and `1d` keep their table entries. Last re-baselined at `2c7a7d1` (finding 22: `run_hash` in two places, the archive
   name in two, three `module_constants` leaves; no decision field).
-- **Test suite at the commit that writes this line** — moved by 8 fixture-free tests
+- **Test suite** — unmoved by the commit that writes this line (documentation only).
+  At `3bfa6b7`, moved by 8 fixture-free tests
   in the new `tests/test_fetch_reports_exchange_error.py`, none needing `pandas_ta`:
   **597 passed / 0 failed, no warnings line** with `pandas_ta`; **460 passed / 126
   skipped** without it; `run_tests.py` **526 passed / 0 failed / 32 errors**, all 32
   fixture-collection `TypeError`s, unmoved. Linux sandbox, autocrlf clone, Python
   3.12.3, pinned requirements, applied tree; on Windows, the stop conditions of its
-  command sequence. At `486f1a5`: 589 / 452 with 126 skipped / 518 (Linux); on
+  command sequence (Viktor proceeded past them). At `486f1a5`: 589 / 452 with 126 skipped / 518 (Linux); on
   Windows, confirmed by Viktor proceeding past the steps whose stop conditions they
   were. At `4e2b1c8`: 578 / 441 with 126 skipped / 507.
 - **Engineering Notes:** through Entry #141 (v1.33), which covers `4629002`.
-  **Twenty-six commits behind** — `3a899b5`, `92775ea`, `53394ff`, `982e70f`,
+  **Twenty-seven commits behind** — `3a899b5`, `92775ea`, `53394ff`, `982e70f`,
   `65a0aef`, `a9d4b1f`, `6e1baba`, `b869a30`, `119c8a3`, `635a94e`, `ebb4e5c`,
   `a530006`, `e3f3d51`, `afd8460`, `49de810`, `3f263c2`, `aafded0`, `cb659f1`,
-  `1cc2142`, `9c4917c`, `05a12c7`, `2c7a7d1`, `5d3a4b4`, `4e2b1c8`, `486f1a5` and the
-  commit that writes this line — by Viktor's choice, under the standing batching rule. **This count
+  `1cc2142`, `9c4917c`, `05a12c7`, `2c7a7d1`, `5d3a4b4`, `4e2b1c8`, `486f1a5`, `3bfa6b7`
+  and the commit that writes this line — by Viktor's choice, under the standing batching rule. **This count
   includes the commit that writes it, so every later commit adds one until the Notes
   are regenerated.** If the independent audit's package includes the Notes, regenerate
   them before building it.
 - **Portfolio Document and AI-Attribution Statement:** both current with their scripts.
-- **README.md:** its two test-count lines brought current by the commit that writes
-  this line (597 / 460 with 126 skipped / 526), as at `486f1a5` (589 / 452 / 518).
-  Otherwise current since `cb659f1`.
+- **README.md:** its two test-count lines current at `3bfa6b7` (597 / 460 with 126
+  skipped / 526); untouched by the commit that writes this line, which changes no count,
+  so the hook's section 5 will report it one commit behind — expected. Otherwise
+  current since `cb659f1`.
 
 ## Carried lesson — the live run comes BEFORE the commit
 
@@ -146,7 +161,7 @@ caught it by reading the log, not from a paste. **On every change that moves
 `code_hash` — and always on one that touches the decision path (G is one) — the live
 run and the panel read happen before `git commit`, and Claude checks the decision-log
 record for the new `code_hash` before the commit step, not after the push.** Never
-predict live numbers; check the record. Followed at `2c7a7d1`, `4e2b1c8` and `486f1a5`: the
+predict live numbers; check the record. Followed at `2c7a7d1`, `4e2b1c8`, `486f1a5` and `3bfa6b7`: the
 command list stopped at the live run, Claude read the record, and only then gave the
 commit steps.
 
@@ -211,8 +226,8 @@ entry for this file at `aafded0`, 19–24 in the entry at `4e2b1c8`.
     in the engine uses one. MEXC's spellings: `60m` is on its documentation page (read
     this session through a fetch tool that summarised the page, so weak); `1W` and `1M`
     come from the third session's read and were not re-checked.
-27. **`data_fetcher.fetch_ohlc` discarded the exchange's own error text.** Fixed by the
-    commit that writes this line. A reply that is not a list is quoted in the error
+27. **`data_fetcher.fetch_ohlc` discarded the exchange's own error text.** Fixed at
+    `3bfa6b7`. A reply that is not a list is quoted in the error
     (MEXC's `{"code": …, "msg": …}` as that pair, anything else as its repr), and an
     empty list is reported apart from it; they used to share "Empty or invalid API
     response." **Widened past the finding as written:** a 4XX reply's body is quoted
@@ -312,7 +327,7 @@ Each code commit is its own commit and updates this file for its own landing.
   3. `decision_log`: 22 — `2c7a7d1`.
   4. `lineage`: 23, 24, 19's archive half — `4e2b1c8`.
   5. `validation`: 25, 26, and 28 found on the way — `486f1a5`.
-  6. `data_fetcher`: 27 — the commit that writes this line. The six are done.
+  6. `data_fetcher`: 27 — `3bfa6b7`. The six are done.
 - **G — macro in the CONSERVATIVE branches (17). Next in Claude's order.**
   Changes which trades are taken, so it is scoped in full before any diff:
   `decision_model`'s ladder, every caller, the golden fields it could move, and the
@@ -323,8 +338,13 @@ Each code commit is its own commit and updates this file for its own landing.
 
 - **The fourth session's owed filing:** the Windows confirmation of `4e2b1c8` and the
   hook's clean result on its push, which existed only in chat — filed above.
-- **Commits 5 and 6 of the six** — `486f1a5` and the commit that writes this line;
-  `486f1a5`'s Windows confirmation and its hook result, filed above.
+- **Commits 5 and 6 of the six** — `486f1a5` and `3bfa6b7`; both Windows
+  confirmations and both hook results, filed above.
+- **The session's handover check, run at its close:** the state is in this file; no
+  ruling was made (above); the working tree was clean on the push of `3bfa6b7`
+  (section 1 "none"); the Engineering Notes gap is stated (27 behind); no loose patch
+  file (section 3 "none"); the one piece of evidence still in chat is the hook's
+  result on this commit's own push — owed to the next session (above).
 - **The once-per-session rewrite of this file**, owed at the fourth session's close.
   The previous version — written at the third session's opening and amended in place
   through `4e2b1c8` — is in HISTORY verbatim, headings demoted one level, proven by
@@ -335,6 +355,9 @@ Each code commit is its own commit and updates this file for its own landing.
 Items marked **Viktor's call** are his to decide; he writes his position first and
 Claude critiques it.
 
+- **Owed at the next session's opening:** file the hook's result on this commit's
+  push; and this file's once-per-session rewrite, with this version moved to HISTORY
+  verbatim, proven by un-demotion with a negative control.
 - **Viktor's call — findings 4, 5, 6, 7, 16 and 18 above**, before backtesting. Not
   started.
 - **The independent audit — paused, ruled 21 September.** When it is planned, still
