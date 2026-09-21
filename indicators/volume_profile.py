@@ -23,11 +23,12 @@ def compute_volume_profile(df: pd.DataFrame, num_bins: int = 50):
     Not named in the Step 5 plan; found while fixing the two that were. Same
     class: modules mutating frames they don't own.
 
-    NOT FIXED HERE: `fillna(0)` on `low` and `high` substitutes a price of zero
-    for a missing one, which would put a fabricated candle at the bottom of the
-    volume profile and drag HVN/LVN toward it. Latent — it cannot fire on data
-    that has been through add_technical_indicators. Rider on sequence item 9
-    with the other fabricated fallbacks.
+    FIXED SINCE, AT SEQUENCE ITEM 15: `fillna(0)` on `low` and `high`
+    substituted a price of zero for a missing one, which would have put a
+    fabricated candle at the bottom of the volume profile and dragged HVN/LVN
+    toward it. See the cleaning block below. Until 21 September 2026 (work
+    order E) this paragraph still read "NOT FIXED HERE", describing a
+    defect the same function no longer had.
     """
 
     try:

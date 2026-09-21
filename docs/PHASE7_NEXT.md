@@ -32,8 +32,9 @@ path and most of the input side and reported the findings recorded below. Viktor
 asked Claude to organise the work and start it — "It is up to you" — so the order under
 "Work order" is Claude's, under that delegation.
 
-**Nothing here decides the engine's trading rules.** Four findings are questions about
-what the engine should do rather than defects in what it does; they are listed under
+**Nothing here decides the engine's trading rules.** Five findings (4–7, and 16, found
+later the same morning) are questions about what the engine should do rather than
+defects in what it does; they are listed under
 "Viktor's call, before backtesting" and none of the planned commits touches them.
 
 **Planning or pausing the independent audit is still Viktor's call, unruled** — which
@@ -43,59 +44,63 @@ open-items list scrapped; an independent audit next"). On 20 September he said h
 considering pausing it, "since we fixed all the issues now"; that is a position, not a
 ruling. Claude's objection, for him to answer when he rules: the audit exists to find
 what nobody has found yet, not to close known findings. This session's review is a
-small instance of the point — it found thirteen defects and open questions in a
+small instance of the point — it found fourteen defects and open questions in a
 codebase whose open-items list was empty.
 
 ## Ruled this session
 
 - **The order of work is delegated to Claude** (Viktor, 21 September: "Organize a to do
   list and we start working, It is up to you."). The delegation covers ordering and the
-  items marked Claude's below; it does not cover the four marked Viktor's.
+  items marked Claude's below; it does not cover the five marked Viktor's.
 - **The rest of the read waits** (Viktor, 21 September: "we check it after"):
   `data/data_fetcher.py`, `data/validation.py`, `core/decision_log.py` and
   `core/lineage.py` are read after the work list, not before it.
 
 ## Where things stand, right now
 
-- **Tip:** the commit that landed work order C (a commit cannot name its own hash); the
-  one before it is `a530006`, work order B. **Tag:** `portfolio-v1` at `99e022e`.
+- **Tip:** the commit that landed work order E (a commit cannot name its own hash); the
+  one before it is `e3f3d51`, work order C. **Tag:** `portfolio-v1` at `99e022e`.
   **Release gate:** open, declared 15 September 2026.
 - **Working tree at `635a94e`:** clean — `git status --short` printed nothing
   (Viktor's paste, 21 September, before this session's work began).
-- **code_hash:** `ac02a155e315cd78a04d4a63555747b424392eda6299b358e80b747240a11e60` —
-  moved at work order C (`models/risk_model.py`, `core/engine_core.py`) from `ec88cf24…`,
-  which `a530006` (work order B) had moved from `35718f6b…`. Both computed under
-  Python 3.12.3 on the pristine and the applied tree, not assumed. **`ec88cf24…` is also
-  confirmed on Viktor's Windows machine:** the decision-log record written by his live
-  run before committing `a530006` carries it.
+- **code_hash:** `3e76c1c54c85858cb12c35cb53ec6757ff81deb95f6f5bc3e7452b9bf9e96b38` —
+  moved at work order E (`live_trading.py`, `structure/structure.py`,
+  `indicators/volume_profile.py`) from `ac02a155…`, which `e3f3d51` (C) had moved from
+  `ec88cf24…`, which `a530006` (B) had moved from `35718f6b…`. Computed under Python
+  3.12.3 on the pristine and the applied tree, not assumed. **`ec88cf24…` and
+  `ac02a155…` are both confirmed on Viktor's Windows machine:** the decision-log records
+  his live runs wrote before committing `a530006` and `e3f3d51` carry them.
 - **code_hash is only comparable within one Python minor version.** It hashes `ast.dump`
   output, a CPython implementation detail (`core/code_fingerprint.py`, "WHAT IT DOES NOT
   SURVIVE"). On 20 September a sandbox whose default `python3` was 3.11.15 reported a
   different value on an unmodified tree. **Every `code_hash` claim about this project is
   computed under Python 3.12** (Viktor runs 3.12.10).
-- **Golden snapshot:** re-baselined at work order C, one field, as predicted:
+- **Golden snapshot:** unmoved by work order E. Last re-baselined at `e3f3d51` (C), one
+  field, as predicted:
   `lineage.risk_inputs.detailed_bias` removed, because it never fed the stop or targets.
   No decision field moved and `run_hash` did not move. Previously re-baselined at
   `a9d4b1f`; unmoved by `a530006`, whose pinned-run panel was byte-identical before and
   after.
-- **Test suite, moved at work order C** by one new fixture-free file of 7 tests:
-  **522 passed / 0 failed** with `pandas_ta`; **390 passed / 121 skipped** without it;
-  `run_tests.py` **451 passed / 0 failed / 32 errors**, all 32 fixture-collection
-  `TypeError`s, unmoved. (`a530006` had moved them to 515 / 383 / 444 with 11 tests.)
+- **Test suite, moved at work order E** by one new fixture-free file of 6 tests, three of
+  which skip without `pandas_ta`: **528 passed / 0 failed, and no warnings** with
+  `pandas_ta` — the suite's two DeprecationWarnings were the `utcnow()` call E removes;
+  **393 passed / 124 skipped** without it; `run_tests.py` **457 passed / 0 failed / 32
+  errors**, all 32 fixture-collection `TypeError`s, unmoved. (`e3f3d51` stood at
+  522 / 390 / 451, `a530006` at 515 / 383 / 444.)
   Verified in a Linux sandbox on a `core.autocrlf=true` clone under Python 3.12.3,
   pinned requirements — evidence about Linux until Viktor's run.
-- **Engineering Notes:** through Entry #141 (v1.33), which covers `4629002`. **Thirteen
+- **Engineering Notes:** through Entry #141 (v1.33), which covers `4629002`. **Fourteen
   commits behind** — `3a899b5`, `92775ea`, `53394ff`, `982e70f`, `65a0aef`, `a9d4b1f`,
-  `6e1baba`, `b869a30`, `119c8a3`, `635a94e`, `ebb4e5c`, `a530006` and work order C's
-  commit — by Viktor's choice, under the standing batching rule. **This count includes the commit that writes it, so every
-  later commit adds one until the Notes are regenerated;** it is the line most likely to
+  `6e1baba`, `b869a30`, `119c8a3`, `635a94e`, `ebb4e5c`, `a530006`, `e3f3d51` and work
+  order E's commit — by Viktor's choice, under the standing batching rule. **This count
+  includes the commit that writes it, so every later commit adds one until the Notes are
+  regenerated;** it is the line most likely to
   go stale in this file. If the independent audit's package includes the Notes,
   regenerate them before building it.
 - **Portfolio Document and AI-Attribution Statement:** both current with their scripts.
-- **Pre-push hook:** reported `SUMMARY: clean` on the pushes of `635a94e`, `ebb4e5c`
-  and `a530006` — Viktor pasted all three outputs, so those are confirmed, not
-  reported. Earlier record,
-  carried unchanged:
+- **Pre-push hook:** reported `SUMMARY: clean` on the pushes of `635a94e`, `ebb4e5c`,
+  `a530006` and `e3f3d51` — Viktor pasted all four outputs, so those are confirmed, not
+  reported. Earlier record, carried unchanged:
   clean on the pushes of `4629002`, `3a899b5`, `92775ea`, `53394ff` and `982e70f`
   (Viktor's report) and on the push that carried `119c8a3`; whether that push also
   carried `b869a30` was not established; the result on the pushes of `65a0aef`,
@@ -177,6 +182,18 @@ reproduced by running the engine**, and each says how far its reachability was c
    computes indicators once over its history would leak future bars into past
    decisions. Reachability on live data: not measured.
 
+**Finding 16, added the same morning — the decision is made on the candle still
+forming.** Numbered 16 because 14 and 15 were already used below. Found from the record,
+then confirmed in the code: Viktor's live runs at 05:28 and 05:51 (21 September) carry
+the same last candle, `2026-09-21 00:00` UTC — the 4h candle that closes at 04:00 UTC,
+06:00 his time — with a different input hash and a different price (0.6719, then
+0.6714). `data/data_fetcher.py` requests MEXC klines, reads and discards `close_time`,
+and keeps every row, the live one included. So on a live run the close, the volume, and
+every indicator at the decision bar come from a partial candle, and the panel can
+change within the same candle. A backtest run on closed candles would be testing a
+different engine from the one run live — the volume-based readings most of all. Which
+candle counts is a rule, not a defect to patch, so it sits here with 4–7.
+
 **Code that cannot run, or runs and decides nothing** — Claude's
 
 8. **A direction check that can never match** — `models/risk_model.py:240` compares
@@ -207,9 +224,15 @@ reproduced by running the engine**, and each says how far its reachability was c
 
 12. **`live_trading.py`, `_build_simulated_order`:** zone 0.0, stop 0.0, targets
     (0, 0, 0), current price 0.0, `risk_reason` "OK". The class Round 6 F3 fixed in the
-    router and the panel. Reachable only through `test_live.py`, a manual script. → E.
+    router and the panel. Reachable only through `test_live.py`, a manual script.
+    **Fixed at work order E:** absent is None (JSON null). Also fixed there, found while
+    scoping: its timestamp called `utcnow()`, deprecated since Python 3.12 and the
+    source of the suite's two DeprecationWarnings.
 13. **`structure/structure.py:544–546`:** `.get("hvn", 0.0)`, `.get("lvn", 0.0)`,
-    `.get("regime", "NEUTRAL STRUCTURE")`. Latent — the keys are always present. → E.
+    `.get("regime", "NEUTRAL STRUCTURE")`. Latent — the keys are always present.
+    **Fixed at work order E:** indexed directly, so a missing key raises. Also corrected
+    there: `indicators/volume_profile.py`'s docstring still said "NOT FIXED HERE" about
+    a fill that sequence item 15 had fixed.
 
 **Checked and found sound**
 
@@ -229,8 +252,15 @@ Each code commit is its own commit and updates this file for its own landing.
   fixed in the same function. **Confirmed on Windows** by Viktor's live run before the
   commit (AEROUSDT 4h, 21 September 05:28): every score line printed a number with its
   "/100", no "nan" and no "not computed" anywhere, and the BTC section named AERO.
-- **C — landed.** `risk_model` dead paths (8, 9). Output-invariant on every decision
-  field; the one golden change is the lineage record above.
+- **C — landed at `e3f3d51`.** `risk_model` dead paths (8, 9). Output-invariant on
+  every decision field; the one golden change is the lineage record above. **Confirmed
+  on Windows** by the record of Viktor's live run before the commit (05:51): it carries
+  `code_hash ac02a155…` and a `risk_inputs` block without `detailed_bias`. **A wrong
+  prediction, recorded:** Claude told him that run would print exactly the 05:28
+  numbers, because it was before 06:00 and "the same candle". It printed a different
+  price and targets. The patch was not the cause — the stop was unchanged and each
+  target sat exactly 1R, 2R and 3R from the new price — the prediction was: it assumed
+  the engine reads closed candles without checking. That is how finding 16 was found.
 - **D — folded into C, not a separate commit.** Finding 10 asked for one check every plan
   passes. `calculate_stop_targets` is the only producer of a stop and targets, and since
   C it refuses a stop on the wrong side of price; the targets are then measured from a
@@ -238,18 +268,21 @@ Each code commit is its own commit and updates this file for its own landing.
   the source, which is the structural form of the fix. The `abs()` in the panel's R:R
   and in `validate_risk_parameters` stays — harmless once no wrong-side stop can reach
   them. Claude's call under the delegation.
-- **E — remaining fabricated defaults (12, 13).**
+- **E — landed.** Remaining fabricated defaults (12, 13). No decision field moves;
+  golden snapshot unmoved; `live_trading.py` is not on the engine's path.
 - **F — `long_signal` / `short_signal` (11).** Touches the decision contract and possibly
   the golden snapshot; scoped fully before any diff.
-- **Then:** the deferred read (`data_fetcher`, `validation`, `decision_log`, `lineage`),
-  and Viktor's rulings on 4–7 before any backtest is designed.
+- **Then:** the deferred read (`data_fetcher`, `validation`, `decision_log`, `lineage` —
+  `data_fetcher`'s live fetch path was read for finding 16, nothing else of it), and
+  Viktor's rulings on 4–7 and 16 before any backtest is designed.
 
 ## Open items
 
 Items marked **Viktor's call** are his to decide; he writes his position first and
 Claude critiques it.
 
-- **Viktor's call — findings 4, 5, 6, 7 above**, before backtesting. Not started.
+- **Viktor's call — findings 4, 5, 6, 7 and 16 above**, before backtesting. Not
+  started.
 - **Viktor's call — planning the independent audit, or pausing it:** which model, the
   package (the standing default for a fresh Tier-1 audit is the full package), whether
   the auditor sees the scrapped findings, and the instruction for the selected model —

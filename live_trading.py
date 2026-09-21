@@ -114,18 +114,36 @@ class LiveTradingSimulator:
         risk = result.get("risk", {}) if isinstance(result.get("risk"), dict) else {}
         exit_data = result.get("exit", {}) if isinstance(result.get("exit"), dict) else {}
 
+        # 21 SEPTEMBER 2026, work order E. Two things in this object.
+        #
+        # The prices defaulted an absent value to 0.0 -- a zone of $0.00, a
+        # stop at $0.00, three targets at $0.00, a current price of $0.00 --
+        # and risk_reason defaulted to "OK". Round 6 F3 removed exactly this
+        # shape from the router and the panel; this was the third copy. The
+        # order log is a record of what the engine said, and for an absent
+        # value it said nothing: None, written as JSON null. A value the
+        # router sent as NaN (measured-and-missing) still passes through as
+        # NaN, as it does into the decision log.
+        #
+        # The timestamp used datetime.utcnow(), deprecated since Python 3.12
+        # and the source of the suite's two DeprecationWarnings. The 5
+        # September note in _log_simulated_trade below records fixing the same
+        # call there and in data_fetcher.py; this one, above it, was missed.
+        # now(timezone.utc) with the tzinfo dropped writes the same naive ISO
+        # string the log has always carried.
         order = {
-            "timestamp": datetime.datetime.utcnow().isoformat(),
+            "timestamp": datetime.datetime.now(
+                datetime.timezone.utc).replace(tzinfo=None).isoformat(),
             "symbol": result.get("symbol", "UNKNOWN"),
             "timeframe": result.get("timeframe", "UNKNOWN"),
             "decision": exit_data.get("action", "UNKNOWN"),
             "entry_zone": {
-                "lower": entry.get("zone_lower", 0.0),
-                "upper": entry.get("zone_upper", 0.0)
+                "lower": entry.get("zone_lower"),
+                "upper": entry.get("zone_upper")
             },
             "risk": {
-                "atr_stop": risk.get("atr_stop", 0.0),
-                "targets": risk.get("targets", (0.0, 0.0, 0.0)),
+                "atr_stop": risk.get("atr_stop"),
+                "targets": risk.get("targets"),
                 # GLM F-7, the site GLM actually filed -- 6 September 2026.
                 # This read risk.get("risk_valid", True), so an order object
                 # built from a result with no risk block at all recorded a
@@ -141,13 +159,13 @@ class LiveTradingSimulator:
                 # core/decision_contract.py declares -- so it can carry the
                 # honest third value that the decision object cannot.
                 "risk_valid": read_risk_verdict(risk),
-                "risk_reason": risk.get("risk_reason", "OK")
+                "risk_reason": risk.get("risk_reason")
             },
             "signals": {
                 "long_signal": entry.get("long_signal", False),
                 "short_signal": entry.get("short_signal", False)
             },
-            "current_price": exit_data.get("current_price", 0.0),
+            "current_price": exit_data.get("current_price"),
             "note": "This is a simulated order. No real trading occurs."
         }
 

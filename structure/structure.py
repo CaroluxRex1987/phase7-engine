@@ -541,9 +541,18 @@ def calculate_structure(df: Optional[pd.DataFrame], lookback: int = 8,
     # SWING STRUCT line was aspirational text next to a stub. Now real.
     result = engine.analyze(df_clean, current_price, lookback=lookback)
 
-    df_clean.loc[:, "STRUCTURE"] = result.get("regime", "NEUTRAL STRUCTURE")
-    df_clean.loc[:, "HVN"] = result.get("hvn", 0.0)
-    df_clean.loc[:, "LVN"] = result.get("lvn", 0.0)
+    # 21 SEPTEMBER 2026, work order E: these read .get("regime", "NEUTRAL
+    # STRUCTURE"), .get("hvn", 0.0) and .get("lvn", 0.0). analyze() above
+    # always returns all three keys -- NaN or "UNKNOWN STRUCTURE" when a
+    # sub-routine failed -- so the defaults could not fire; had they fired,
+    # they would have written a price of zero into the HVN column that
+    # entry_model and trend_health read, and a regime nobody detected. The
+    # 2 September note above removed the same zeros from the empty-frame
+    # return and left these. Indexed directly now: a missing key is a
+    # KeyError, not a number.
+    df_clean.loc[:, "STRUCTURE"] = result["regime"]
+    df_clean.loc[:, "HVN"] = result["hvn"]
+    df_clean.loc[:, "LVN"] = result["lvn"]
 
     result["df"] = df_clean
 
