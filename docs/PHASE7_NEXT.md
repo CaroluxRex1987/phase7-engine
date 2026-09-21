@@ -26,7 +26,10 @@ On 21 September Viktor asked what to put to the engine before backtesting starts
 whether its logic is correct, whether it displays the correct information, and whether
 it carries dead code. Claude read the decision path and most of the input side; the
 findings are below. Viktor delegated the order of the work to Claude. Work orders A–F
-have landed (below); G is next in Claude's order.
+have landed (below). In the third session Viktor chose four items ahead of G: the
+deferred read, the running change list for the audit, two record questions and the
+sandbox lessons into the patch-delivery skill — all done (below). G is next in
+Claude's order.
 
 **Nothing Claude does under that delegation decides the engine's trading rules.**
 Findings 4–7, 16 and 18 are questions about what the engine should do; they are
@@ -58,19 +61,20 @@ no-backtest rule exists only as text.
 
 ## Where things stand, right now
 
-- **Tip:** the documentation commit that writes this file (a commit cannot name its own
-  hash); the one before it is `aafded0`, which filed F's Windows confirmation; F itself
+- **Tip:** the documentation commit that writes this line (a commit cannot name its own
+  hash); the one before it is `cb659f1`, this session's rewrite of this file; F itself
   is `3f263c2`. **Tag:** `portfolio-v1` at `99e022e`. **Release gate:** open, declared
   15 September 2026.
-- **Working tree:** last seen clean by `git status --short` at `635a94e` (Viktor's
-  paste, 21 September); not pasted since. The hook's clean SUMMARY covers its own
-  checks, not every line `git status` would print.
+- **Working tree at `cb659f1`:** clean — the pre-push hook's section 1, which is
+  `git status --short`, printed "none" on that push (Viktor's paste, third session of
+  21 September).
 - **code_hash:** `44f7296bb9c1a927712797df132eff4114f2782cdebb290d93d0dc86f8e44f78`,
   moved at F (`3f263c2`) from `3e76c1c5…`, Python 3.12. **Confirmed on Windows** by the
   decision-log record of Viktor's live run of 21 September 19:24 (AEROUSDT 4h, the 30th
-  record), read by Claude from his disk. Unmoved by `aafded0` and by the commit that
-  writes this file — both touch no `.py` file, and `core/code_fingerprint.py` walks
-  `.py` files only.
+  record), read by Claude from his disk. Unmoved by `aafded0`, by `cb659f1` and by the
+  commit that writes this line — none touches a `.py` file, and
+  `core/code_fingerprint.py` walks `.py` files only; computed on `cb659f1`'s tree under
+  Python 3.12.3, not assumed.
 - **code_hash is only comparable within one Python minor version.** It hashes `ast.dump`
   output, a CPython implementation detail (`core/code_fingerprint.py`, "WHAT IT DOES NOT
   SURVIVE"). **Every `code_hash` claim about this project is computed under Python 3.12**
@@ -85,22 +89,24 @@ no-backtest rule exists only as text.
   sandbox, `core.autocrlf=true` clone, Python 3.12.3, pinned requirements. **On
   Windows**, 549 and 478 / 0 / 32 are confirmed by Viktor proceeding past the steps whose
   stop conditions they were.
-- **Engineering Notes:** through Entry #141 (v1.33), which covers `4629002`. **Eighteen
+- **Engineering Notes:** through Entry #141 (v1.33), which covers `4629002`. **Nineteen
   commits behind** — `3a899b5`, `92775ea`, `53394ff`, `982e70f`, `65a0aef`, `a9d4b1f`,
   `6e1baba`, `b869a30`, `119c8a3`, `635a94e`, `ebb4e5c`, `a530006`, `e3f3d51`,
-  `afd8460`, `49de810`, `3f263c2`, `aafded0` and the commit that writes this line — by
+  `afd8460`, `49de810`, `3f263c2`, `aafded0`, `cb659f1` and the commit that writes this
+  line — by
   Viktor's choice, under the standing batching rule. **This count includes the commit
   that writes it, so every later commit adds one until the Notes are regenerated.** If
   the independent audit's package includes the Notes, regenerate them before building
   it.
 - **Portfolio Document and AI-Attribution Statement:** both current with their scripts.
-- **README.md:** brought current in the commit that writes this file — test counts,
-  the paused audit, and what backtesting now waits on.
-- **Pre-push hook:** `SUMMARY: clean` on the push of `aafded0` — Viktor pasted it at the
-  opening of the third session of 21 September, so confirmed, not reported. Clean, and
-  pasted, on `635a94e`, `ebb4e5c`, `a530006`, `e3f3d51`, `afd8460` and `49de810`. On
-  `3f263c2` the output was not pasted; the push landed and the hook stops a push on any
-  finding, so clean is inferred, not seen. The earlier record is in HISTORY.
+- **README.md:** brought current at `cb659f1` — test counts, the paused audit, and what
+  backtesting now waits on. Nothing in this commit changes what it declares.
+- **Pre-push hook:** `SUMMARY: clean` on the pushes of `cb659f1` and `aafded0` — Viktor
+  pasted both in the third session of 21 September, so confirmed, not reported. On
+  `cb659f1` its section 5 showed README.md touched at the tip, 0 commits since, as
+  predicted. Clean, and pasted, on `635a94e`, `ebb4e5c`, `a530006`, `e3f3d51`,
+  `afd8460` and `49de810`. On `3f263c2` the output was not pasted; the push landed and
+  the hook stops a push on any finding, so clean is inferred, not seen. The earlier record is in HISTORY.
 
 ## Carried lesson — the live run comes BEFORE the commit
 
@@ -199,6 +205,64 @@ file as it stood at `aafded0`.
     the double count Viktor removed from the signal at F. Left out of F so that each
     change to which trades are taken lands in its own commit. → G.
 
+**Found in the deferred read, 21 September, third session** — Claude's
+
+`data/data_fetcher.py`, `data/validation.py`, `core/decision_log.py` and
+`core/lineage.py`, read at `cb659f1` in full, with their call sites in
+`core/engine_core.py`. From reading the code, except where a line says it was checked
+against the live log. None changes a decision; none is fixed yet.
+
+19. **The decision log writes bare `NaN`, which is not JSON.** `decision_log.write()`
+    calls `json.dumps` with its default `allow_nan=True`, so a NaN in the decision object
+    is written as the token `NaN`. Python reads it back; a strict JSON reader (`jq`,
+    JavaScript's `JSON.parse`) rejects the whole line. The module docstring claims the
+    format is "readable by anything". **Checked against Viktor's live log:** 1 of its 30
+    records (6 September) carries `"swing_struct": NaN`. Reachable today — the router
+    emits NaN for a value not located, on purpose (`models/signal_router.py`,
+    `_finite_or_nan`). The archive's JSON (`lineage.write_archive`) has the same shape.
+20. **`decision_log.read()` drops any line it cannot parse, silently.** Its comment
+    says the case is "a torn final line"; the code skips a damaged line anywhere in the
+    file and counts nothing, so a corrupted middle record vanishes from the history it
+    returns.
+21. **`decision_log`'s module docstring says the record's source is "the pinned
+    directory".** Since the provenance change the engine records the literal
+    `"pinned"`, on purpose (`core/engine_core.py`, the `provenance` block). Stale
+    docstring.
+22. **The readable half of the fingerprint misses three named constants.**
+    `FINGERPRINTED_MODULES` lists `DecisionModel.BTC_ADJUSTMENT_CAP` but not its
+    sibling `DecisionModel.BTC_STRESS_PENALTY`, nor `AVG_REWARD_R` and
+    `EV_BREAKEVEN_BAND_R`, which set the illustrative EV sentence. All three are inside
+    `code_hash`, so a change to them is still detected; the record just cannot say which
+    value a run used. **Adding them moves `run_hash`**, which the golden snapshot pins,
+    so the fix is a predicted re-baseline, not a free edit.
+23. **The raw-input archive is overwritten by a rerun on different code.** Its file
+    name is `run_hash`, which excludes `code_hash` by design; a rerun on identical
+    candles and config under changed code rewrites the file, and the earlier run's
+    per-file code digests (`meta.code`) with it. The decision record keeps its own
+    `code_hash`, so the decision's code identity survives. Reachable on pinned-fixture
+    runs across commits; live runs rarely repeat their input (finding 16).
+24. **`lineage.verify_archive()` checks an archive only against itself.** It compares
+    each stored frame with the digest stored beside it in the same file, so an edit
+    that rewrites both passes. The check that means something — the archive against the
+    decision log's `input_hashes` — exists only in the tests; nothing in the repository
+    lets an operator check a logged decision against its archive or against re-fetched
+    data. The docstring's "a file that has been edited since it was written says so"
+    overstates it.
+25. **The staleness check accepts a last candle in the future.** `validate_ohlcv`
+    rejects age above three bars and accepts any negative age. A timestamp
+    inconsistency, one of Item 3's named classes. Reachability on MEXC: not measured.
+26. **`validation`'s timeframe table lower-cases what it is given.** MEXC's month
+    interval `1M` would be read as one minute, and MEXC's `60m` is not listed, which
+    silently switches off the spacing and staleness checks. Latent: the engine uses
+    only `4h` and `1d` (`core/config.py`), and `main.py` takes no other.
+27. **`data_fetcher.fetch_ohlc` discards the exchange's own error text** when the
+    response is not a list (e.g. MEXC's `{"code": …, "msg": …}`): the error reads
+    "Empty or invalid API response." Also: `import time` is unused.
+
+**Confirmed again by the read, not new:** finding 16 — `fetch_ohlc` drops
+`close_time` and keeps the forming candle, and the staleness check measures from the
+candle's open time, so a forming candle is never stale.
+
 **Claude's claims, open to the independent auditor** — claims with their evidence
 named, not findings: the Constitution does not let the builder certify its own
 compliance.
@@ -217,14 +281,18 @@ Each code commit is its own commit and updates this file for its own landing.
   C `e3f3d51` (risk-model dead paths; D folded in), E `afd8460` (fabricated defaults),
   F `3f263c2` (the signals confirm). Each one's Windows confirmation, negative controls
   and wrong predictions are recorded in HISTORY's entry for this file at `aafded0`.
+- **Done in the third session, ahead of G, at Viktor's choice:** the deferred read
+  (findings 19–27 above); the running change list, now `docs/audit_change_list.md`; the
+  two record questions (Resolved, below); the sandbox lessons, proposed to Viktor as an
+  update to the patch-delivery skill (a skill is saved by him from a review card, not
+  from the repository).
 - **G — macro in the CONSERVATIVE branches (17). Next in Claude's order.** Changes which
   trades are taken, so it is scoped in full before any diff: `decision_model`'s ladder,
   every caller, the golden fields it could move, and the live decision log checked
   first for which recorded actions it would change, as for F. The live run happens
   before the commit (above).
-- **Then:** the deferred read (`data_fetcher`, `validation`, `decision_log`, `lineage` —
-  `data_fetcher`'s live fetch path was read for finding 16, nothing else of it).
-- **Then:** the running change list for the audit (Open items).
+- **Then:** findings 19–27, Claude's, each its own commit where it changes code. 22
+  moves `run_hash` and so the golden snapshot; the rest are predicted not to.
 
 ## Resolved this session
 
@@ -232,6 +300,28 @@ Each code commit is its own commit and updates this file for its own landing.
   `ebb4e5c` and amended in place through `aafded0` — is in HISTORY verbatim, headings
   demoted one level, proven by un-demotion.
 - **The hook's clean result on `aafded0`**, which existed only in chat, is filed above.
+- **Which clone produced the Linux counts at `119c8a3`: an autocrlf clone.**
+  `119c8a3`'s own commit message says "LINUX, autocrlf clone, Python 3.12.3" for
+  504 / 372 / 433. The "default LF clone" text was `b869a30`'s, about `6e1baba`'s counts,
+  and it said the LF counts were the same three numbers. There was no contradiction:
+  `b68de08` (20 September) made `tests/test_pinned_source.py` portable across line
+  endings, so an LF clone no longer fails it. Checked on 21 September: a fresh default
+  clone of `cb659f1` (no CRLF in the tree) passes that file, 11 / 0. The "standing
+  note" the item leaned on — the patch-delivery skill's "an LF clone fails that test" —
+  was stale since `b68de08`; corrected in the proposed skill update.
+- **Round 2's eleven observations are Kimi's.** The later word is HISTORY's own
+  "The transcripts were Kimi's all along — 5 September 2026, afternoon", the same day
+  as "The record corrected from the bill" and filed after it, backed by
+  `docs/audit_reports/round2_kimi_k3_20260902/README.md` (57,631 identical characters;
+  the transcript names itself Kimi). That later section names "the 5 September
+  correction from the bill" among the records that inherited the misattribution. The
+  earlier section is not marked in place; HISTORY is append-only and the correction
+  that supersedes it names it, so no edit is owed.
+- **The HISTORY move at `cb659f1` now has its negative control.** `cb659f1`'s
+  message said the move was proven by un-demotion but ran no negative control, which
+  the practice includes (Engineering Notes, `e431714`). Run afterwards against the
+  committed blobs: the proof holds, and a one-character change to the moved body is
+  detected.
 - **README.md checked against this file** — the hook reported it three commits behind.
   Stale: both test-count lines (528 / 393 / 457, the counts at E), and nothing said the
   audit is paused or that backtesting now also waits on an independent re-audit of the
@@ -248,18 +338,11 @@ Claude critiques it.
   Viktor's: which model, the package (the standing default for a fresh Tier-1 audit is
   the full package), whether the auditor sees the scrapped findings, and the
   instruction for the selected model. No backtesting before it.
-- **Claude's — the running change list for the audit.** Every change since the last
-  audit, one line per commit: what changed, which finding it closes, which tests
-  guard it. Becomes the auditor's scope. Not started.
-- **Found, not resolved — which clone produced the Linux counts at `119c8a3`.** An
-  autocrlf clone passes `tests/test_pinned_source.py` and gave 504 / 0 (confirmed again
-  on 21 September). The earlier text described the `119c8a3` Linux counts as coming from
-  a default LF clone, which by the standing note should fail that test. The clone type
-  was not recorded.
-- **Found, not checked:** HISTORY's 5 September "The record corrected from the bill"
-  says the eleven round-2 observations came from a Qwen run; the
-  `round2_kimi_k3_20260902/README.md`, filed later, says they are Kimi's. Which is the
-  later word, and whether the earlier one is marked superseded, was not examined.
+- **Claude's — the running change list for the audit:** `docs/audit_change_list.md`,
+  from the baseline `e65a0f7` (the tree round 6's fix-verification was sent). **Every
+  later commit that changes engine code, tests or tooling adds its line there in the
+  same commit.** Two entries show no test at all: the SETUP DIRECTION box and its
+  CONTRADICTORY line (`66f1479`, `39e0e79`).
 - **The pre-push hook is installed per clone, not per repository.** After any re-clone
   (including after a machine wipe), run `git config core.hooksPath githooks`;
   `session_handover_check.py` section 6 flags a clone without it.
