@@ -825,6 +825,98 @@ three that are both independent and complete (rounds 4, 5 and 6). The authorship
 question — whether a lab that planned the fixes may later grade them — is decided here
 for this one case only, not as a general rule.
 
+## Ruling, 21 September 2026 — the independent audit paused; four weeks of our own work first
+
+*New in this file on 21 September 2026, with work order F.*
+
+**What was ruled.** Viktor: "We pause the audit. We work on the engine another four
+weeks." Asked to write his position first, he set out: "We pause or [our] audit. And
+keep working on the engine for another for weeks, reviewing everything, analyzing and
+do fixes and patches and try to evaluate our work. Integrity and truth must remain."
+After Claude's critique he added: "we should not audit or [our] own work, but we have
+fixes to make and prepare a new audit as good as we can."
+
+**What it does not change.** The Constitution's sequence still binds: "8) Re-audit the
+items that changed — independent auditor again, not a self-check by whoever made the
+fix. 9) Only then … build the backtesting architecture." Pausing the audit is
+consistent with it; pausing it and then starting backtesting is not. The open questions
+of the 20 September ruling (which model, which package, whether the auditor sees the
+scrapped findings) stay open until the audit is planned.
+
+**How the four weeks are recorded.** Agreed with Viktor: nothing done in them is written
+up as verification. Our own review, tests and negative controls are recorded as
+unaudited work awaiting the auditor — never "found sound", the wording that made items
+14 and 15 read as the builder certifying his own compliance. Preparing the audit means
+three things: a running list of every change since the last audit (what changed, which
+finding it closes, which tests guard it), which becomes the auditor's scope; Viktor's
+open rulings answered before the package is sent, so the auditor judges the engine
+against stated intent; and the deferred read done first.
+
+**Claude's two points, not adopted.** (1) The pause has no end condition — "about four
+weeks" is a plan, not a trigger; Claude suggested a date, about 19 October, on which
+Viktor decides again whether to commission the audit or extend the pause. (2) The rule
+"no backtesting before re-audit" exists only as text; a structural form would be a
+backtest entry point that refuses to run without a recorded re-audit. Neither was
+ruled on; both are recorded here so the choice not to adopt them is visible.
+
+## Ruling, 21 September 2026 — the entry signals confirm (work order F)
+
+*New in this file on 21 September 2026, with work order F.*
+
+**The question.** Finding 11: `long_signal` / `short_signal` were computed every run
+and decided nothing. On 2 September they had been left in `entry` "for a future ruling
+on whether they should CONFIRM a direction bias has already chosen." Claude set out
+three options — remove them, make them confirm, or keep and relabel — and named the
+second as Viktor's, because it changes which trades are taken.
+
+**What Viktor ruled.** Option 2: a trade the decision ladder chooses is taken only if
+that side's signal confirms it; otherwise the action is `NO-TRADE (SIGNAL
+UNCONFIRMED)`. His written position, after two rounds of Claude's critique:
+
+1. Macro is removed from the signal completely (it is already inside `bias_score`; a
+   veto would count it twice).
+2. The reversal check is ruled by its components, not a number: HVN proximity alone
+   does not block (the stop pulled to the HVN, finding 6, already acts on that area);
+   divergence and exhaustion do.
+3. Only a reversal pointing against the trade blocks it.
+4. The CONFIRMED requirement is dropped; the signal accepts the direction
+   `decision_model` chose from `raw_bias`.
+5. When risk and confirmation both fail, `NO-TRADE (RISK TOO HIGH)` stays the label and
+   the confirmation failure is appended to the reasons.
+
+He also asked for a check of past decisions first. Claude read the 29 records of the
+live decision log: no action would change; the one SHORT in it (code `38458f20…`) had a
+reversal reading of 4.0 that was HVN proximity alone, which the old signal refused and
+the new one passes. `decision_log_backups/…20260906.jsonl` is a byte-for-byte copy of
+the log's first 11 records, not further evidence.
+
+**Delegated to Claude.** Viktor: "Make the adjustments you want and do what is best for
+the engine and the project." Claude's calls under that delegation, each reversible by
+Viktor:
+
+- **One divergence rule, not two.** `decision_model` vetoed its two upper tiers on any
+  divergence whichever way it pointed, while CONSERVATIVE had no divergence check.
+  That check is removed; the gate's direction-aware rule applies to every tier.
+  Consequences: an upper-tier setup with a divergence against it used to fall to
+  CONSERVATIVE or WAIT and is now refused; one with a divergence pointing its own way
+  is no longer demoted.
+- **The trend-health ≥ 50 condition is dropped from the signal:** every trading branch
+  already requires ≥ 50 or ≥ 75, so it decided nothing.
+- **Macro inside CONSERVATIVE is NOT changed in this work order.** The CONSERVATIVE
+  branches require macro agreement — the same double count Viktor removed from the
+  signal. Recorded as finding 17 and scheduled as its own work order (G), so each
+  change to which trades are taken is attributable to one commit.
+- **The bias state machine now gates no trade** (consequence of rule 4). It still feeds
+  `exit_model`'s "bias state changed" flag and the persisted state. Recorded as finding
+  18; nothing removed.
+
+**Stated for the auditor.** The three surviving conditions (structure regime,
+exhaustion, divergence) also reach `bias_score` as weighted factors. The gate is a hard
+AND on top of that blend: it can refuse a trade, never add confidence to one. It is a
+design choice and has not been backtested. The HVN reasoning in rule 2 depends on
+finding 6, still open: if the stop stops being pulled to the HVN, nothing checks HVN
+proximity at all.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then

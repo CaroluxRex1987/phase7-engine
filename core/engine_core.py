@@ -863,14 +863,18 @@ class Phase7Engine:
                 btc_context = {"available": False}
 
             # 7. ENTRY MODEL & ENTRY QUALITY ENGINE
-            long_signal, short_signal = generate_entry_signals(
-                detailed_bias=detailed_bias,
+            # WORK ORDER F, 21 September 2026: the signals now CONFIRM the
+            # side decision_model chooses (VIKTOR'S RULING) -- see the comment
+            # above generate_entry_signals in models/entry_model.py for what
+            # each input is and why the others are gone.
+            signals = generate_entry_signals(
                 structure_regime=structure_regime,
-                trend_health=trend["trend_health"],
                 trend_exhaustion=trend["trend_exhaustion"],
-                reversal_strength=trend.get("reversal_strength", 0),
-                macro_bias=macro_bias,
+                momentum_divergence=trend["momentum_divergence"],
+                divergence_direction=trend["divergence_direction"],
             )
+            long_signal = signals["long_signal"]
+            short_signal = signals["short_signal"]
 
             # AUDIT FINDING (4), 5 September 2026. These two lines were:
             #
@@ -970,6 +974,8 @@ class Phase7Engine:
                 "zone_upper": entry_zone_upper,
                 "long_signal": long_signal,
                 "short_signal": short_signal,
+                "long_signal_blockers": signals["long_signal_blockers"],
+                "short_signal_blockers": signals["short_signal_blockers"],
                 "score": eq_metrics["score"],
                 "ema_pos_pts": eq_metrics["ema_pos_pts"],
                 "atr_dist_pts": eq_metrics["atr_dist_pts"],

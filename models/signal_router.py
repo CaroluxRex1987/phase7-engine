@@ -327,6 +327,7 @@ class SignalRouter:
                     "exhaustion": bool(trend.get("trend_exhaustion", False)),
                     "momentum_mode": str(trend.get("momentum_mode", "UNKNOWN")),
                     "momentum_divergence": bool(trend.get("momentum_divergence", False)),
+                    "divergence_direction": str(trend.get("divergence_direction", "UNKNOWN")),
                     "trend_direction": str(trend.get("trend_direction", "UNKNOWN")),
                 },
 
@@ -366,6 +367,10 @@ class SignalRouter:
                     "zone_upper": self._finite_or_nan(entry.get("zone_upper")),
                     "long_signal": bool(entry.get("long_signal", False)),
                     "short_signal": bool(entry.get("short_signal", False)),
+                    # Work order F. An absent list is recorded as absent, not
+                    # as an empty one: an empty list would read as "confirmed".
+                    "long_signal_blockers": self._blocker_list(entry.get("long_signal_blockers")),
+                    "short_signal_blockers": self._blocker_list(entry.get("short_signal_blockers")),
                     "score": float(entry.get("score", 0.0)),
                     "distance_from_zone": self._finite_or_nan(entry.get("distance_from_zone")),
                     "entry_status": str(entry.get("entry_status", "ACTIVE ENTRY ZONE")),
@@ -543,6 +548,13 @@ class SignalRouter:
                 "provenance": provenance,
                 "lineage": lineage_record,
             }
+
+    @staticmethod
+    def _blocker_list(value: Any) -> List[str]:
+        """Work order F: a signal's blocker list, or a named absence."""
+        if isinstance(value, list):
+            return [str(v) for v in value]
+        return ["the confirmation signal was not computed on this run"]
 
     @staticmethod
     def _finite_or_nan(value: Any) -> float:

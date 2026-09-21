@@ -672,15 +672,17 @@ def test_a_changed_comparison_moves_the_hash():
     Retargeted at the same comparison in its new form, for the same reason
     test_a_bare_literal_moves_the_hash kept its own name after its literal
     was promoted: this test is about the operator, not the operand's name.
+
+    Work order F, 21 September 2026: retargeted again, same comparison. The
+    `and not divergence` clause left the condition when divergence moved to
+    the confirmation gate (see decision_model.py's _apply_signal_gate).
     """
     _assert_moves(
         MUTABLE[2],
         "if (trend_health >= self.AGGRESSIVE_TREND_HEALTH_MIN\n"
-        "                        and entry_score >= self.AGGRESSIVE_ENTRY_SCORE_MIN\n"
-        "                        and not divergence):",
+        "                        and entry_score >= self.AGGRESSIVE_ENTRY_SCORE_MIN):",
         "if (trend_health > self.AGGRESSIVE_TREND_HEALTH_MIN\n"
-        "                        and entry_score >= self.AGGRESSIVE_ENTRY_SCORE_MIN\n"
-        "                        and not divergence):",
+        "                        and entry_score >= self.AGGRESSIVE_ENTRY_SCORE_MIN):",
         "changing a trend-band comparison left the code hash identical",
     )
 

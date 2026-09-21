@@ -167,6 +167,17 @@ class DecisionModel:
         if len(reasons) > before:
             action_reason_index = len(reasons) - 1
 
+        # WORK ORDER F, 21 September 2026: the confirmation gate. Runs before
+        # the plan-coherence check so a vetoed trade never reaches it, and
+        # before degradation, which only overrides actions naming a side --
+        # so NO-TRADE (SIGNAL UNCONFIRMED) stands on a degraded run, with the
+        # degradation notes appended to it.
+        action_before_gate = final_action
+        before = len(reasons)
+        final_action = self._apply_signal_gate(final_action, bias, entry, reasons)
+        if final_action != action_before_gate and len(reasons) > before:
+            action_reason_index = len(reasons) - 1
+
         # The guard that would have caught 2 September's live run.
         #
         # Narrowing the direction source stops the two modules disagreeing for
@@ -222,6 +233,73 @@ class DecisionModel:
             "btc_adjusted": btc_adjusted,
             "explanation": explanation,
         }
+
+    SIGNAL_UNCONFIRMED = "NO-TRADE (SIGNAL UNCONFIRMED)"
+
+    @staticmethod
+    def _read_signal(entry: Any, side: str) -> Tuple[bool, List[str]]:
+        """
+        One side's confirmation ("long" or "short") and its blockers.
+
+        Fails safe: a signal that is absent, malformed or contradicts its own
+        blocker list is NOT a confirmation. An absent confirmation read as a
+        present one would be the risk_valid=True default of GLM F-7 again.
+        """
+        entry = entry if isinstance(entry, dict) else {}
+        signal = entry.get(f"{side}_signal")
+        blockers = entry.get(f"{side}_signal_blockers")
+        if not isinstance(signal, bool) or not isinstance(blockers, list):
+            return False, ["the confirmation signal was not computed on this run, "
+                           "and an absent confirmation is not a confirmation"]
+        if signal != (len(blockers) == 0):
+            return False, [f"the {side} signal ({signal}) contradicts its own "
+                           f"blocker list ({len(blockers)} entries), so it "
+                           "cannot be read as a confirmation"]
+        return signal, [str(b) for b in blockers]
+
+    def _apply_signal_gate(self, final_action: str, bias: Any, entry: Any,
+                           reasons: List[str]) -> str:
+        """
+        VIKTOR'S RULING, 21 September 2026 (work order F): a trade the ladder
+        chooses is taken only if that side's signal confirms it. The rule
+        itself is documented above generate_entry_signals in
+        models/entry_model.py.
+
+        Priority, also his ruling: a risk refusal stays the label. When risk
+        refused AND the bias direction is unconfirmed, the confirmation
+        failure is appended to the reasons so the log shows both.
+        """
+        if any(side in final_action for side in ("LONG", "SHORT")):
+            side = "long" if "LONG" in final_action else "short"
+            confirmed, blockers = self._read_signal(entry, side)
+            if confirmed:
+                reasons.append(
+                    f"Structural confirmation holds for the {side}: structure "
+                    f"agrees with the direction, the trend is not flagged "
+                    f"exhausted, and no momentum divergence points against it."
+                )
+                return final_action
+            leaning = "bullish" if side == "long" else "bearish"
+            reasons.append(
+                f"This would have been {final_action}, but the {leaning} bias "
+                f"lacked structural confirmation ({'; '.join(blockers)}), so no "
+                f"trade is taken."
+            )
+            return self.SIGNAL_UNCONFIRMED
+
+        if final_action == "NO-TRADE (RISK TOO HIGH)":
+            raw_bias = str(bias.get("raw", "NEUTRAL")) if isinstance(bias, dict) else "NEUTRAL"
+            if raw_bias in ("BULLISH", "BEARISH"):
+                side = "long" if raw_bias == "BULLISH" else "short"
+                confirmed, blockers = self._read_signal(entry, side)
+                if not confirmed:
+                    reasons.append(
+                        f"Separately, the {raw_bias.lower()} bias also lacked "
+                        f"structural confirmation ({'; '.join(blockers)}). The "
+                        f"risk refusal is the label; this is recorded so the "
+                        f"log shows both failures."
+                    )
+        return final_action
 
     @staticmethod
     def _plan_direction(risk: Dict[str, Any]) -> Optional[str]:
@@ -446,7 +524,18 @@ class DecisionModel:
             trend_health = _safe_float(trend.get("trend_health", float("nan")), default=float("nan"))
             entry_score = _safe_float(entry.get("score", 0.0))
             entry_status = str(entry.get("entry_status", ""))
-            divergence = bool(trend.get("momentum_divergence", False))
+            # WORK ORDER F, 21 September 2026: `divergence` was read here
+            # and vetoed the two upper tiers whichever way it pointed, while
+            # CONSERVATIVE had no divergence check at all. Divergence is now
+            # judged in ONE place -- the confirmation gate
+            # (_apply_signal_gate, after this function), which blocks every
+            # tier on a divergence pointing against the trade and none on one
+            # pointing with it. Viktor ruled the direction rule; removing this
+            # second, disagreeing rule was Claude's call under his delegation.
+            # Consequence, predicted: an upper-tier setup with a divergence
+            # against it used to fall through to CONSERVATIVE or WAIT and now
+            # reaches the gate and becomes NO-TRADE (SIGNAL UNCONFIRMED); one
+            # with a divergence pointing its own way is no longer demoted.
             entry_active = "ACTIVE" in entry_status.upper()
 
             raw_bias = str(bias.get("raw", "NEUTRAL"))
@@ -509,6 +598,9 @@ class DecisionModel:
             # wearing a different name. They remain available in `entry` for a
             # future ruling on whether they should CONFIRM a direction bias has
             # already chosen; they may no longer choose one.
+            #
+            # RULED 21 September 2026 (work order F): they confirm. See
+            # _apply_signal_gate, which runs after this function returns.
 
             if validation_state == "WEAK" and trend_health < 40:
                 reasons.append(
@@ -526,12 +618,11 @@ class DecisionModel:
 
             if raw_bias == "BULLISH":
                 if (trend_health >= self.AGGRESSIVE_TREND_HEALTH_MIN
-                        and entry_score >= self.AGGRESSIVE_ENTRY_SCORE_MIN
-                        and not divergence):
+                        and entry_score >= self.AGGRESSIVE_ENTRY_SCORE_MIN):
                     if entry_active and aggressive_allowed:
                         reasons.append(
                             f"Bias is bullish, {trend_note}, with a "
-                            f"high-quality, active entry ({entry_score:.0f}/100), with no momentum divergence "
+                            f"high-quality, active entry ({entry_score:.0f}/100) "
                             f"and a {risk_regime.lower()} — AGGRESSIVE LONG."
                         )
                         return "AGGRESSIVE LONG"
@@ -545,7 +636,7 @@ class DecisionModel:
                         return "LONG"
                     reasons.append(
                         f"Bias is bullish, {trend_note}, with a high-quality "
-                        f"entry ({entry_score:.0f}/100), with no momentum divergence — LONG."
+                        f"entry ({entry_score:.0f}/100) — LONG."
                     )
                     return "LONG"
                 elif trend_health >= self.CONSERVATIVE_TREND_HEALTH_MIN and macro_bias == "BULLISH":
@@ -558,12 +649,11 @@ class DecisionModel:
 
             if raw_bias == "BEARISH":
                 if (trend_health >= self.AGGRESSIVE_TREND_HEALTH_MIN
-                        and entry_score >= self.AGGRESSIVE_ENTRY_SCORE_MIN
-                        and not divergence):
+                        and entry_score >= self.AGGRESSIVE_ENTRY_SCORE_MIN):
                     if entry_active and aggressive_allowed:
                         reasons.append(
                             f"Bias is bearish, {trend_note}, with a "
-                            f"high-quality, active entry ({entry_score:.0f}/100), with no momentum divergence "
+                            f"high-quality, active entry ({entry_score:.0f}/100) "
                             f"and a {risk_regime.lower()} — AGGRESSIVE SHORT."
                         )
                         return "AGGRESSIVE SHORT"
@@ -577,7 +667,7 @@ class DecisionModel:
                         return "SHORT"
                     reasons.append(
                         f"Bias is bearish, {trend_note}, with a high-quality "
-                        f"entry ({entry_score:.0f}/100), with no momentum divergence — SHORT."
+                        f"entry ({entry_score:.0f}/100) — SHORT."
                     )
                     return "SHORT"
                 elif trend_health >= self.CONSERVATIVE_TREND_HEALTH_MIN and macro_bias == "BEARISH":

@@ -15,6 +15,10 @@ updates this file's own lines for its own landing, in the same commit, so the fi
 not fall behind the tip the way it did on 20 September, when `119c8a3` landed after
 `b869a30` had written it.*
 
+*A second session opened on 21 September at `49de810`. Its work is amended into this
+file in place, commit by commit; the once-per-session rewrite, with the previous
+version moved to HISTORY, is owed at that session's close.*
+
 ## PACE FIRST — read this before the rest of this file
 
 Viktor judged, on his own, that 226 commits across 22 days had become hasty, and
@@ -37,15 +41,13 @@ later the same morning) are questions about what the engine should do rather tha
 defects in what it does; they are listed under
 "Viktor's call, before backtesting" and none of the planned commits touches them.
 
-**Planning or pausing the independent audit is still Viktor's call, unruled** — which
-model, which package, whether the auditor sees the findings scrapped on 20 September, and
-the instruction for the selected model (DECISIONS, "Ruling, 20 September 2026 — the
-open-items list scrapped; an independent audit next"). On 20 September he said he was
-considering pausing it, "since we fixed all the issues now"; that is a position, not a
-ruling. Claude's objection, for him to answer when he rules: the audit exists to find
-what nobody has found yet, not to close known findings. This session's review is a
-small instance of the point — it found fourteen defects and open questions in a
-codebase whose open-items list was empty.
+**The independent audit is paused — ruled by Viktor, 21 September, second session:**
+"We pause the audit. We work on the engine another four weeks." The four weeks are
+fixes and preparing the audit, and none of our own checks is written up as
+verification (DECISIONS, "Ruling, 21 September 2026 — the independent audit paused").
+The Constitution's step 8 still binds: no backtesting before an independent re-audit.
+Claude's two points not adopted, recorded there: no end condition (Claude suggested
+deciding again around 19 October), and the no-backtest rule exists only as text.
 
 **Viktor's plan, stated 21 September — a plan, not a ruling:** about four more weeks of
 this kind of work — our own review, fixes and improvements — before the next audit,
@@ -75,20 +77,31 @@ make adjustments and fixes, i think it is good and important work."
 - **The order of work is delegated to Claude** (Viktor, 21 September: "Organize a to do
   list and we start working, It is up to you."). The delegation covers ordering and the
   items marked Claude's below; it does not cover the five marked Viktor's.
+- **Second session, 21 September:** the audit paused (above); work order F ruled — the
+  entry signals CONFIRM the side the ladder chooses (DECISIONS, "Ruling, 21 September
+  2026 — the entry signals confirm"). Viktor wrote the conditions; the remaining
+  adjustments were delegated to Claude ("Make the adjustments you want and do what is
+  best for the engine and the project").
 - **The rest of the read waits** (Viktor, 21 September: "we check it after"):
   `data/data_fetcher.py`, `data/validation.py`, `core/decision_log.py` and
   `core/lineage.py` are read after the work list, not before it.
 
 ## Where things stand, right now
 
-- **Tip:** the documentation commit that filed the last of this session's chat-only
-  evidence (a commit cannot name its own hash); the one before it is `afd8460`, work
-  order E. **Tag:** `portfolio-v1` at `99e022e`.
+- **Tip:** work order F's commit (a commit cannot name its own hash); the one before it
+  is `49de810`, the documentation commit that filed the first session's chat-only
+  evidence. **Tag:** `portfolio-v1` at `99e022e`.
   **Release gate:** open, declared 15 September 2026.
 - **Working tree at `635a94e`:** clean — `git status --short` printed nothing
   (Viktor's paste, 21 September, before this session's work began).
-- **code_hash:** `3e76c1c54c85858cb12c35cb53ec6757ff81deb95f6f5bc3e7452b9bf9e96b38`,
-  unmoved by the documentation commit after `afd8460` — moved at work order E (`live_trading.py`, `structure/structure.py`,
+- **code_hash:** `44f7296bb9c1a927712797df132eff4114f2782cdebb290d93d0dc86f8e44f78`,
+  moved at work order F (`models/entry_model.py`, `models/decision_model.py`,
+  `core/engine_core.py`, `core/decision_contract.py`, `models/signal_router.py`,
+  `indicators/trend_health.py` — the six files it edits, and no others) from
+  `3e76c1c5…`, computed under Python 3.12.3 on the pristine and the applied tree.
+  **Windows confirmation of `44f7296b…` is pending at the time of writing** — Viktor's
+  live run before committing F; it is filed at the next commit. `3e76c1c5…` was
+  unmoved by `49de810` — moved at work order E (`live_trading.py`, `structure/structure.py`,
   `indicators/volume_profile.py`) from `ac02a155…`, which `e3f3d51` (C) had moved from
   `ec88cf24…`, which `a530006` (B) had moved from `35718f6b…`. Computed under Python
   3.12.3 on the pristine and the applied tree, not assumed. **All three are confirmed on
@@ -100,13 +113,22 @@ make adjustments and fixes, i think it is good and important work."
   SURVIVE"). On 20 September a sandbox whose default `python3` was 3.11.15 reported a
   different value on an unmodified tree. **Every `code_hash` claim about this project is
   computed under Python 3.12** (Viktor runs 3.12.10).
-- **Golden snapshot:** unmoved by work order E. Last re-baselined at `e3f3d51` (C), one
-  field, as predicted:
+- **Golden snapshot:** re-baselined at work order F, three fields ADDED and nothing
+  changed, as predicted: `entry.long_signal_blockers` (`[]`),
+  `entry.short_signal_blockers` (`["structure is BULLISH TREND, not BEARISH TREND"]`)
+  and `trend.divergence_direction` (`"NONE"`). The action, every reason and `run_hash`
+  did not move; the fixture's long signal was already True and stays True. Unmoved by
+  work order E. Re-baselined before that at `e3f3d51` (C), one field, as predicted:
   `lineage.risk_inputs.detailed_bias` removed, because it never fed the stop or targets.
   No decision field moved and `run_hash` did not move. Previously re-baselined at
   `a9d4b1f`; unmoved by `a530006`, whose pinned-run panel was byte-identical before and
   after.
-- **Test suite, moved at work order E** by one new fixture-free file of 6 tests, three of
+- **Test suite, moved at work order F** by one new fixture-free file of 21 tests
+  (`tests/test_signal_confirms.py`), none of which skips: **549 passed / 0 failed, no
+  warnings line** with `pandas_ta`; **414 passed / 124 skipped** without it;
+  `run_tests.py` **478 passed / 0 failed / 32 errors**, the 32 unmoved. Linux sandbox,
+  `core.autocrlf=true` clone, Python 3.12.3, pinned requirements; on Windows, pending.
+  At work order E, by one new fixture-free file of 6 tests, three of
   which skip without `pandas_ta`: **528 passed / 0 failed, and no warnings** with
   `pandas_ta` — the suite's two DeprecationWarnings were the `utcnow()` call E removes;
   **393 passed / 124 skipped** without it; `run_tests.py` **457 passed / 0 failed / 32
@@ -116,17 +138,17 @@ make adjustments and fixes, i think it is good and important work."
   pinned requirements. **On Windows:** Viktor's pytest printed 528 passed and no
   warnings line (his paste); `run_tests.py`'s 457 / 0 / 32 is confirmed by his
   proceeding past the step whose stop condition it was.
-- **Engineering Notes:** through Entry #141 (v1.33), which covers `4629002`. **Fifteen
+- **Engineering Notes:** through Entry #141 (v1.33), which covers `4629002`. **Sixteen
   commits behind** — `3a899b5`, `92775ea`, `53394ff`, `982e70f`, `65a0aef`, `a9d4b1f`,
   `6e1baba`, `b869a30`, `119c8a3`, `635a94e`, `ebb4e5c`, `a530006`, `e3f3d51`,
-  `afd8460` and the documentation commit after it — by Viktor's choice, under the
+  `afd8460`, `49de810` and work order F's commit — by Viktor's choice, under the
   standing batching rule. **This count includes the commit that writes it, so every
   later commit adds one until the Notes are regenerated;** it is the line most likely to
   go stale in this file. If the independent audit's package includes the Notes,
   regenerate them before building it.
 - **Portfolio Document and AI-Attribution Statement:** both current with their scripts.
 - **Pre-push hook:** reported `SUMMARY: clean` on the pushes of `635a94e`, `ebb4e5c`,
-  `a530006`, `e3f3d51` and `afd8460` — Viktor pasted all five outputs, so those are
+  `a530006`, `e3f3d51`, `afd8460` and `49de810` — Viktor pasted all six outputs, so those are
   confirmed, not reported. Earlier record, carried unchanged:
   clean on the pushes of `4629002`, `3a899b5`, `92775ea`, `53394ff` and `982e70f`
   (Viktor's report) and on the push that carried `119c8a3`; whether that push also
@@ -203,6 +225,9 @@ reproduced by running the engine**, and each says how far its reachability was c
    otherwise have been CONSERVATIVE LONG. And the pinned golden fixture is the same case:
    stop = HVN = 0.6421571, 19.9% below 0.80173175, NO-TRADE (RISK TOO HIGH). How often
    this vetoes a setup across many runs was not measured.
+   **Dependency added at work order F:** the confirmation gate no longer blocks on HVN
+   proximity, on the reasoning that this stop already acts on that area. If this
+   finding is ruled to stop pulling the stop to the HVN, nothing checks HVN proximity.
 7. **Indicator values beyond 5σ are silently replaced by the previous bar's.**
    `indicators/indicators.py:105–110`, inside `clean_series`, which EMA, RSI, ADX,
    SuperTrend and ATR all pass through.
@@ -249,6 +274,15 @@ candle counts is a rule, not a defect to patch, so it sits here with 4–7.
     simulated order; no decision reads them. They are False whenever
     `reversal_strength > 0` — e.g. within 3% of the HVN — so the record can show
     `long_signal: False` beside an AGGRESSIVE LONG. → F.
+    **Ruled and fixed at work order F:** the signals now CONFIRM the side the ladder
+    chooses; an unconfirmed trade is `NO-TRADE (SIGNAL UNCONFIRMED)`. Conditions:
+    structure matches the side, the trend is not exhausted, no momentum divergence
+    points against the trade. Macro, CONFIRMED, trend health and HVN proximity no
+    longer take part. `decision_model`'s own direction-blind divergence veto on the
+    upper tiers is removed, so there is one divergence rule. Each side's reasons are
+    recorded (`long_signal_blockers` / `short_signal_blockers`), and the trend block
+    now carries `divergence_direction`. Full account: DECISIONS, "Ruling, 21 September
+    2026 — the entry signals confirm".
 
 **Fabricated defaults still standing** — Claude's
 
@@ -274,6 +308,19 @@ its own compliance, so these are claims with their evidence named, not findings.
 15. `_refuse_incoherent_plan` cannot fire today (see 8) — correctly so: it is a tripwire
     against a future change, which is what its docstring says it is. Claude's reading
     (the argument is in 8), not a finding.
+
+**Found at work order F, 21 September, second session**
+
+17. **Macro still counts twice in the CONSERVATIVE branches.** `decision_model`'s
+    CONSERVATIVE LONG requires `macro_bias == "BULLISH"`, CONSERVATIVE SHORT
+    `"BEARISH"` — a hard requirement on evidence already weighted into `bias_score`,
+    the double count Viktor removed from the signal at F. Not changed at F, so that
+    each change to which trades are taken lands in its own commit. → G.
+18. **The bias state machine now gates no trade.** A consequence of F (Viktor dropped the
+    CONFIRMED requirement so the signal follows `raw_bias`, as `decision_model` does).
+    `detailed_bias` still feeds `exit_model`'s "bias state changed" flag and the
+    persisted state; nothing that decides reads it. Recorded, nothing removed. Whether
+    its persistence requirement should gate anything is Viktor's call; not started.
 
 ## Work order — Claude's, under Viktor's delegation
 
@@ -310,8 +357,20 @@ Each code commit is its own commit and updates this file for its own landing.
 - **Filed after E, documentation only:** the evidence above that existed only in chat —
   E's Windows confirmation, the hook result on `afd8460`, the third HVN-vetoed run,
   Viktor's four-week plan, and the Constitution check.
-- **F — `long_signal` / `short_signal` (11).** Touches the decision contract and possibly
-  the golden snapshot; scoped fully before any diff.
+- **F — landed in the commit that writes this line.** The signals confirm (11): Viktor's
+  ruling and conditions, Claude's delegated adjustments, all in DECISIONS. The golden
+  snapshot gained three fields and changed none; no action in the 29 live-log records
+  would change. Negative controls, each restored and confirmed with `cmp`: restoring
+  the ladder's divergence veto, making the gate a no-op, making divergence
+  direction-blind, dropping the appended risk-and-signal reason, letting a missing
+  signal pass, re-adding `macro_bias`, and ignoring a self-contradicting record — each
+  failed the tests guarding it. Existing tests changed: two fixtures now carry complete
+  signal records (without them the "cannot open a direction" tests would pass
+  vacuously, refused by the gate for missing data) and one fingerprint test retargeted
+  at the comparison without `and not divergence`. **Windows confirmation pending** —
+  filed at the next commit.
+- **G — macro in the CONSERVATIVE branches (17).** Claude's, under the delegation. Changes
+  which trades are taken; scoped before any diff; the live log checked first, as for F.
 - **Then:** the deferred read (`data_fetcher`, `validation`, `decision_log`, `lineage` —
   `data_fetcher`'s live fetch path was read for finding 16, nothing else of it), and
   Viktor's rulings on 4–7 and 16 before any backtest is designed.
@@ -323,11 +382,15 @@ Claude critiques it.
 
 - **Viktor's call — findings 4, 5, 6, 7 and 16 above**, before backtesting. Not
   started.
-- **Viktor's call — planning the independent audit, or pausing it:** which model, the
-  package (the standing default for a fresh Tier-1 audit is the full package), whether
-  the auditor sees the scrapped findings, and the instruction for the selected model —
-  or whether the round is paused at all, which he raised on 20 September and has not
-  ruled. Not started.
+- **The independent audit — paused, ruled 21 September.** When it is planned, still
+  Viktor's: which model, the package (the standing default for a fresh Tier-1 audit is
+  the full package), whether the auditor sees the scrapped findings, and the
+  instruction for the selected model. No backtesting before it.
+- **Claude's — the running change list for the audit.** Every change since the last
+  audit, one line per commit: what changed, which finding it closes, which tests
+  guard it. Becomes the auditor's scope. Not started.
+- **Viktor's call — finding 18** (whether the bias state machine should gate anything).
+  Not started.
 - **Found, not resolved — which clone produced the Linux counts at `119c8a3`.** An
   autocrlf clone passes `tests/test_pinned_source.py` and gives 504 / 0 (confirmed again
   this session). The earlier text described the `119c8a3` Linux counts as coming from a

@@ -61,12 +61,26 @@ import pytest
 from models.decision_model import DecisionModel
 
 
+# WORK ORDER F, 21 September 2026. The entry signals now CONFIRM the side
+# the ladder chooses (decision_model._apply_signal_gate), and an incomplete
+# signal record fails safe to NO-TRADE (SIGNAL UNCONFIRMED). Every entry below
+# therefore carries a COMPLETE record. Without it, the "cannot open a
+# direction" tests would pass vacuously: a regression back to a LONG would be
+# refused by the gate for missing data, not caught by the assertion.
+LONG_CONFIRMED = {"long_signal": True, "short_signal": False,
+                  "long_signal_blockers": [],
+                  "short_signal_blockers": ["structure is BULLISH TREND, not BEARISH TREND"]}
+SHORT_CONFIRMED = {"long_signal": False, "short_signal": True,
+                   "long_signal_blockers": ["structure is BEARISH TREND, not BULLISH TREND"],
+                   "short_signal_blockers": []}
+
+
 # The live run, as close to the panel as the inputs allow.
 BEARISH_BIAS = {"raw": "BEARISH", "detailed": "BEARISH CONFIRMED", "score": -61.72}
 BEARISH_TREND = {"trend_health": 69.14, "trend_exhaustion": False,
                  "momentum_divergence": False, "trend_direction": "BEARISH"}
 APPROACHING_ENTRY = {"score": 59.21, "entry_status": "APPROACHING ZONE",
-                     "long_signal": True, "short_signal": False}
+                     **LONG_CONFIRMED}
 SHORT_PLAN = {"atr_stop": 0.4889, "targets": (0.4561, 0.4397, 0.4233),
               "risk_valid": True, "risk_regime": "HIGH VOLATILITY RISK",
               "validation_state": "NEUTRAL", "validation_score": 45.0}
@@ -114,7 +128,7 @@ def test_a_bearish_macro_cannot_open_a_direction_against_a_bullish_bias():
                     {"trend_health": 69.0, "trend_exhaustion": False,
                      "momentum_divergence": False, "trend_direction": "BULLISH"},
                     {"score": 59.0, "entry_status": "APPROACHING ZONE",
-                     "long_signal": False, "short_signal": True},
+                     **SHORT_CONFIRMED},
                     LONG_PLAN, macro_bias="BEARISH")
     assert "SHORT" not in out["final_action"]
 
@@ -130,7 +144,7 @@ def test_an_entry_zone_signal_cannot_open_a_direction_on_its_own():
                     {"trend_health": 80.0, "trend_exhaustion": False,
                      "momentum_divergence": False, "trend_direction": "NEUTRAL"},
                     {"score": 85.0, "entry_status": "ACTIVE ZONE",
-                     "long_signal": True, "short_signal": False},
+                     **LONG_CONFIRMED},
                     LONG_PLAN, macro_bias="NEUTRAL")
     assert not any(side in out["final_action"] for side in ("LONG", "SHORT")), (
         f"a neutral bias with a long entry signal produced "
@@ -243,7 +257,7 @@ def test_a_genuine_bullish_run_still_reaches_a_long():
                     {"trend_health": 80.0, "trend_exhaustion": False,
                      "momentum_divergence": False, "trend_direction": "BULLISH"},
                     {"score": 75.0, "entry_status": "ACTIVE ZONE",
-                     "long_signal": True, "short_signal": False},
+                     **LONG_CONFIRMED},
                     LONG_PLAN, macro_bias="BULLISH")
     assert "LONG" in out["final_action"], (
         f"a bullish bias with strong trend health, a high-quality active "
@@ -257,7 +271,7 @@ def test_a_genuine_bearish_run_still_reaches_a_short():
                     {"trend_health": 80.0, "trend_exhaustion": False,
                      "momentum_divergence": False, "trend_direction": "BEARISH"},
                     {"score": 75.0, "entry_status": "ACTIVE ZONE",
-                     "long_signal": False, "short_signal": True},
+                     **SHORT_CONFIRMED},
                     SHORT_PLAN, macro_bias="BEARISH")
     assert "SHORT" in out["final_action"], (
         f"a bearish bias with strong trend health, a high-quality active "

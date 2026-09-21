@@ -37,6 +37,10 @@ def compute_trend_health(df: Optional[pd.DataFrame]) -> Dict[str, Any]:
         "trend_slope": 0.0,
         "trend_acceleration": 0.0,
         "momentum_divergence": False,
+        # WORK ORDER F, 21 September 2026: which way a divergence points.
+        # entry_model's confirmation gate blocks only a divergence that points
+        # against the trade, so the direction has to leave this module.
+        "divergence_direction": "NONE",
         "trend_regime": "NEUTRAL",
         # B1 additions — see sections 2b and 7 below.
         "continuation_strength": 0.0,
@@ -465,6 +469,9 @@ def compute_trend_health(df: Optional[pd.DataFrame]) -> Dict[str, Any]:
             "trend_slope": float(trend_slope),
             "trend_acceleration": float(trend_acceleration),
             "momentum_divergence": bool(momentum_divergence),
+            # WORK ORDER F: computed in section 5 and until now used only
+            # inside this function (section 7). See the default dict above.
+            "divergence_direction": str(divergence_direction),
             "trend_regime": str(trend_regime),
             "continuation_strength": float(continuation_strength),
             "reversal_direction": str(reversal_direction),

@@ -1,5 +1,5 @@
 import numpy as np
-from typing import Dict, Any, Tuple, Optional
+from typing import Dict, Any, List, Optional
 
 # AUDIT FINDING (4), 5 September 2026. What a sub-score is worth when the
 # thing it scores could not be measured.
@@ -456,51 +456,130 @@ def calculate_entry_quality(
     }
 
 
-def generate_entry_signals(
-    detailed_bias: str,
+# WORK ORDER F, 21 September 2026 -- the confirmation gate.
+#
+# Finding 11 of the 21 September pre-backtest review: long_signal and
+# short_signal were computed on every run, carried into the decision object,
+# the decision log and the simulated order -- and read by nothing that
+# decides. The record could show `long_signal: False` beside an AGGRESSIVE
+# LONG. They had been left in `entry` on 2 September "for a future ruling on
+# whether they should CONFIRM a direction bias has already chosen" (see
+# decision_model.py). That ruling is now made.
+#
+# VIKTOR'S RULING, 21 September 2026: the signal CONFIRMS. A trade the
+# decision ladder chooses is taken only if the signal for its side holds;
+# otherwise the action is NO-TRADE (SIGNAL UNCONFIRMED). He wrote the rule
+# first; Claude critiqued it; he then delegated the remaining adjustments
+# ("Make the adjustments you want and do what is best for the engine and the
+# project"). What each old condition became, and whose call it was:
+#
+#   macro_bias not opposed      REMOVED -- Viktor. Macro is already a 10%
+#                               factor inside bias_score; a veto lets the same
+#                               evidence vote twice.
+#   detailed_bias == CONFIRMED  REMOVED -- Viktor. decision_model chooses on
+#                               raw_bias; a second, stricter bias threshold
+#                               here was a conflict between two modules. The
+#                               consequence, recorded: the bias state
+#                               machine's persistence requirement no longer
+#                               gates a trade anywhere.
+#   trend_health >= 50          REMOVED -- Claude, under the delegation. It
+#                               decided nothing: every trading branch of the
+#                               ladder already requires trend_health >= 50
+#                               (CONSERVATIVE_TREND_HEALTH_MIN) or >= 75.
+#   reversal_strength > 0       REPLACED BY ITS PARTS -- Viktor. The number
+#                               is a sum of named components (trend_health.py,
+#                               section 7), so a cut-off would silently decide
+#                               which combinations block. HVN proximity alone
+#                               no longer blocks: it was a second HVN veto
+#                               beside the stop pulled to the 75-day HVN.
+#                               DEPENDENCY, recorded: if finding 6 is later
+#                               ruled to stop pulling the stop to the HVN,
+#                               nothing checks HVN proximity at all.
+#   trend exhaustion            KEPT -- Viktor. Structure must match the side,
+#                               so every confirmed trade runs with the trend,
+#                               and exhaustion is always against it.
+#   momentum divergence         BLOCKS ONLY WHEN IT POINTS AGAINST THE TRADE --
+#                               Viktor. decision_model's own direction-blind
+#                               divergence check on the upper tiers is removed
+#                               in the same change so the engine has ONE
+#                               divergence rule, not two that disagree --
+#                               Claude, under the delegation.
+#   structure regime matches    KEPT -- Viktor.
+#
+# Stated for the auditor: all three surviving conditions (structure regime,
+# exhaustion via reversal/continuation, divergence) also reach bias_score
+# as weighted factors. The gate is a hard AND on top of that blend -- a veto,
+# which can refuse a trade but never adds confidence to one. That is a design
+# choice. It has not been backtested; no evidence yet says it improves
+# decisions.
+#
+# Checked against the live decision log before writing (21 September, 29
+# records): no past action would change. One SHORT was taken in that log
+# (code 38458f20...); its reversal reading of 4.0 was HVN proximity alone,
+# so it passes under this rule where the old signal refused it.
+
+def signal_blockers(
+    direction: str,
     structure_regime: str,
-    trend_health: float,
     trend_exhaustion: bool,
-    reversal_strength: float,
-    macro_bias: str = "NEUTRAL"
-) -> Tuple[bool, bool]:
+    momentum_divergence: bool,
+    divergence_direction: str,
+) -> List[str]:
     """
-    Generate long/short entry signals based on structural bias,
-    trend health, collapse conditions, and Multi-Timeframe Confluence.
+    Every reason the setup does NOT confirm a trade in `direction` ("LONG" or
+    "SHORT"). An empty list is a confirmation; the signal is exactly that.
     """
-    # SEQUENCE ITEM 9c: `trend_failure or` removed from this condition. It
-    # was always False — the gate that produced it compared STRUCTURE
-    # against labels structure.py never writes. The two remaining
-    # disjuncts are live and are what has actually been blocking entries.
-    if trend_exhaustion or (reversal_strength is not None and reversal_strength > 0):
-        return False, False
+    if direction not in ("LONG", "SHORT"):
+        raise ValueError(f"direction must be LONG or SHORT, got {direction!r}")
 
-    # A1 FIX: structure.py only ever emits "BULLISH TREND" / "BEARISH TREND"
-    # (see _detect_regime() in structure.py) — "BULLISH STRUCTURE" /
-    # "BEARISH STRUCTURE" were never produced by anything, so these gates
-    # could never pass. Corrected to match the real emitted strings.
-    #
-    # A2 FIX: BiasStateMachine only ever emits "BULLISH CONFIRMED" /
-    # "BEARISH CONFIRMED" / "NEUTRAL" (see bias_engine.py) — "LONG" / "SHORT"
-    # were never produced either, a second independent dead gate. Corrected
-    # to match. Note: this gate still won't fire in practice until B1 (the
-    # continuation/reversal engine in trend_health.py) exists, since raw_bias
-    # is currently pinned to NEUTRAL upstream — that's expected and by design,
-    # not a bug in this file.
-    macro_long_allowed = macro_bias in ["BULLISH", "NEUTRAL"]
-    long_signal = bool(
-        macro_long_allowed
-        and detailed_bias == "BULLISH CONFIRMED"
-        and structure_regime == "BULLISH TREND"
-        and trend_health >= 50.0
-    )
+    wanted_structure = "BULLISH TREND" if direction == "LONG" else "BEARISH TREND"
+    opposing = "BEARISH" if direction == "LONG" else "BULLISH"
+    blockers: List[str] = []
 
-    macro_short_allowed = macro_bias in ["BEARISH", "NEUTRAL"]
-    short_signal = bool(
-        macro_short_allowed
-        and detailed_bias == "BEARISH CONFIRMED"
-        and structure_regime == "BEARISH TREND"
-        and trend_health >= 50.0
-    )
+    if structure_regime != wanted_structure:
+        blockers.append(f"structure is {structure_regime}, not {wanted_structure}")
 
-    return long_signal, short_signal
+    if trend_exhaustion:
+        blockers.append("the trend is flagged exhausted")
+
+    if momentum_divergence:
+        if divergence_direction == opposing:
+            blockers.append(
+                f"{opposing.lower()} momentum divergence points against the trade")
+        elif divergence_direction not in ("BULLISH", "BEARISH"):
+            # A divergence whose direction was not recorded cannot be shown
+            # NOT to point against the trade, so it is not a confirmation.
+            blockers.append(
+                "momentum divergence is present but its direction is "
+                f"{divergence_direction!r}, so it cannot be shown not to point "
+                "against the trade")
+
+    return blockers
+
+
+def generate_entry_signals(
+    structure_regime: str,
+    trend_exhaustion: bool,
+    momentum_divergence: bool,
+    divergence_direction: str,
+) -> Dict[str, Any]:
+    """
+    Both sides' confirmation signals and the reasons behind each.
+
+    Returns long_signal / short_signal (True exactly when that side's blocker
+    list is empty) and long_signal_blockers / short_signal_blockers. Both
+    sides are recorded so the decision log shows why each was or was not
+    confirmed, not only the side that was traded.
+    """
+    long_blockers = signal_blockers(
+        "LONG", structure_regime, trend_exhaustion,
+        momentum_divergence, divergence_direction)
+    short_blockers = signal_blockers(
+        "SHORT", structure_regime, trend_exhaustion,
+        momentum_divergence, divergence_direction)
+    return {
+        "long_signal": not long_blockers,
+        "short_signal": not short_blockers,
+        "long_signal_blockers": long_blockers,
+        "short_signal_blockers": short_blockers,
+    }

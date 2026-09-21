@@ -109,6 +109,10 @@ class TrendBlock(TypedDict):
     exhaustion: bool
     momentum_mode: str
     momentum_divergence: bool
+    # Work order F, 21 September 2026: which way a divergence points --
+    # "BULLISH", "BEARISH" or "NONE". The confirmation gate reads it; the
+    # record carries it so a blocked trade can be checked against it.
+    divergence_direction: str
     trend_direction: str
 
 
@@ -124,8 +128,13 @@ class StructureBlock(TypedDict):
 class EntryBlock(TypedDict):
     zone_lower: float
     zone_upper: float
+    # Work order F, 21 September 2026: these CONFIRM the side decision_model
+    # chooses (Viktor's ruling). A side's signal is True exactly when its
+    # blocker list is empty; the lists say why a side is not confirmed.
     long_signal: bool
     short_signal: bool
+    long_signal_blockers: List[str]
+    short_signal_blockers: List[str]
     score: float
     distance_from_zone: float
     entry_status: str

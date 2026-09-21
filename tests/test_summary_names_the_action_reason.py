@@ -43,7 +43,13 @@ def _evaluate(risk_valid=True, degradation=None, targets=(1.1, 1.2, 1.3),
         bias={"raw": raw, "score": score},
         trend={"trend_health": health, "trend_direction_sign": 1,
                "momentum_divergence": False},
-        entry={"score": entry_score, "entry_status": "ACTIVE ENTRY ZONE"},
+        # Work order F, 21 September 2026: a complete, confirmed long
+        # signal, so the confirmation gate passes and these tests keep
+        # testing the summary rather than the gate's fail-safe refusal.
+        entry={"score": entry_score, "entry_status": "ACTIVE ENTRY ZONE",
+               "long_signal": True, "short_signal": False,
+               "long_signal_blockers": [],
+               "short_signal_blockers": ["structure is BULLISH TREND, not BEARISH TREND"]},
         risk={"risk_valid": risk_valid,
               "risk_reason": "Stop distance exceeds maximum allowable threshold (15%).",
               "risk_regime": "NORMAL RISK",

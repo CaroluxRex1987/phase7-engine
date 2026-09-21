@@ -39,6 +39,7 @@
     "ema_pos_pts": 10.0,
     "entry_status": "APPROACHING ZONE",
     "long_signal": true,
+    "long_signal_blockers": [],
     "macro_multiplier": 1.05,
     "rsi_pts": 10.0,
     "scaled_score": 45.18175716,
@@ -46,6 +47,9 @@
     "score_ceiling": 100.0,
     "score_clipped": false,
     "short_signal": false,
+    "short_signal_blockers": [
+      "structure is BULLISH TREND, not BEARISH TREND"
+    ],
     "struct_pts": 4.0,
     "structure_multiplier": 1.05,
     "trend_multiplier": 1.05,
@@ -311,6 +315,7 @@
   "symbol": "TESTUSDT",
   "timeframe": "4h",
   "trend": {
+    "divergence_direction": "NONE",
     "exhaustion": false,
     "momentum_divergence": false,
     "momentum_mode": "STRONG",
