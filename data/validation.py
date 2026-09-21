@@ -105,21 +105,51 @@ OHLCV = ["open", "high", "low", "close", "volume"]
 # boundary, and a validator that cries wolf on a routine lag gets disabled.
 STALE_AFTER_BARS = 3
 
+# FINDING 25, 21 September 2026. How far AHEAD of `now` the last candle may
+# sit before its timestamp is inconsistent with the clock it is measured by.
+# The staleness check below bounded the age from above only, so a last candle
+# dated a week in the future passed as perfectly current -- a timestamp
+# inconsistency, one of Item 3's named classes, accepted by the check meant to
+# catch it.
+#
+# One bar, not zero: the exchange's clock and this machine's are two clocks,
+# and at a candle boundary the exchange can open a bar a few seconds before
+# the local clock reaches that instant. A candle more than a whole bar ahead
+# is not explained by that. Like STALE_AFTER_BARS, this decides whether a run
+# happens at all, not what it decides, so neither is in the fingerprint.
+FUTURE_TOLERANCE_BARS = 1
+
 # Minutes per candle, for the interval and staleness checks. Anything not
 # listed here is not validated for spacing rather than guessed at — see
 # _interval_minutes.
+#
+# FINDING 26, 21 September 2026. The keys are matched EXACTLY, case included.
+# The lookup used to lower-case what it was given, and the case carries the
+# meaning: MEXC spells the month interval "1M", which lower-cased to "1m", one
+# minute. And MEXC spells the hour "60m", which was not listed, so a 60m series
+# silently lost its spacing and staleness checks. MEXC's spellings are listed
+# beside the ones this table already had. The month is deliberately absent:
+# a month is not a fixed number of minutes, so its spacing cannot be checked
+# this way, and an unknown timeframe skips the check rather than guessing.
 TIMEFRAME_MINUTES = {
     "1m": 1, "3m": 3, "5m": 5, "15m": 15, "30m": 30,
+    "60m": 60,                                        # MEXC's one hour
     "1h": 60, "2h": 120, "4h": 240, "6h": 360, "8h": 480, "12h": 720,
-    "1d": 1440, "3d": 4320, "1w": 10080,
+    "1d": 1440, "3d": 4320,
+    "1w": 10080, "1W": 10080,                         # MEXC spells the week 1W
 }
 
 
 def _interval_minutes(timeframe):
-    """None when the timeframe is unknown, which disables spacing checks."""
+    """
+    None when the timeframe is unknown, which disables spacing checks.
+
+    Exact match, case included -- "1M" is a month and "1m" a minute. See
+    TIMEFRAME_MINUTES.
+    """
     if not timeframe:
         return None
-    return TIMEFRAME_MINUTES.get(str(timeframe).lower())
+    return TIMEFRAME_MINUTES.get(str(timeframe))
 
 
 def _timestamps(df):
@@ -270,7 +300,15 @@ def validate_ohlcv(df, timeframe=None, now=None):
     if now is not None:
         now_ts = pd.Timestamp(now)
         if now_ts.tzinfo is not None:
-            now_ts = now_ts.tz_localize(None)
+            # FINDING 28, 21 September 2026. The candles' times are naive UTC
+            # (MEXC sends UTC epoch milliseconds). tz_localize(None) alone
+            # drops the zone and KEEPS the wall-clock reading, so a `now` of
+            # 12:00 in Stockholm was read as 12:00 UTC, two hours out. Convert
+            # to UTC first. The engine's own caller passes naive UTC and never
+            # reached this line; since finding 25 a `now` read hours early
+            # could reject a current series as future-dated, so the two are
+            # fixed together.
+            now_ts = now_ts.tz_convert("UTC").tz_localize(None)
         age = now_ts - ts.iloc[-1]
         limit = expected * STALE_AFTER_BARS
         if age > limit:
@@ -278,6 +316,14 @@ def validate_ohlcv(df, timeframe=None, now=None):
                     f"{age} old against a {timeframe} bar. The engine would "
                     f"analyse it and present the result with no indication "
                     f"that the market has moved since.")
+        # FINDING 25: the other side. A negative age is a candle that opens
+        # after the reference instant. See FUTURE_TOLERANCE_BARS.
+        if -age > expected * FUTURE_TOLERANCE_BARS:
+            return (f"future-dated data: the last candle is {ts.iloc[-1]}, "
+                    f"{-age} after the reference time {now_ts} (UTC), more "
+                    f"than {FUTURE_TOLERANCE_BARS} {timeframe} bar(s) ahead. A "
+                    f"candle cannot open after the time it is read at; either "
+                    f"its timestamp or the clock is wrong.")
 
     return None
 
