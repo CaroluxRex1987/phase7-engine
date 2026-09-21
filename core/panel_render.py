@@ -37,6 +37,26 @@ def _wrap_bullets(items, empty_message):
 
     return "\n".join(out_lines) + "\n"
 
+
+def _score_text(value, denominator=100.0):
+    """
+    A score and its scale, or "not computed".
+
+    21 SEPTEMBER 2026, work order B. Every score line on this panel formatted
+    its number with ":.2f" directly. The router sends NaN for a value it could
+    not measure (signal_router._finite_or_nan), and Python prints that as the
+    literal text "nan" -- "VALIDATION : WEAK (Score: nan/100)". The price lines
+    were guarded against exactly this at Round 6 F3; the score lines were not,
+    including the two that a9d4b1f and 119c8a3 edited to add their "/100".
+    Three more scores defaulted an absent value to 0 and printed "0.00/100",
+    a score nobody computed.
+
+    One function for every score line, so the next one added cannot forget.
+    """
+    if isinstance(value, (int, float)) and math.isfinite(value):
+        return f"{value:.2f}/{denominator:.0f}"
+    return "not computed"
+
 # Safe colorama import with fallback
 try:
     from colorama import init, Fore, Style
@@ -87,6 +107,11 @@ def render_panel(decision):
         # with no symbol rendered as a confident AERO panel rather than as the
         # error it is.
         symbol = str(decision.get("symbol") or "UNKNOWN")
+        # 21 SEPTEMBER 2026, work order B: the asset's name for the BTC
+        # section's sentences, from the same function decision_model.py's
+        # reasoning uses -- see asset_name() there.
+        from models.decision_model import asset_name
+        asset = asset_name(symbol)
         timeframe = str(decision.get("timeframe", "4h"))
         macro_bias = str(decision.get("macro_bias", "NEUTRAL"))
 
@@ -198,9 +223,14 @@ def render_panel(decision):
         # CONFIDENCE, which reads confidence_score. The field itself is removed
         # from the decision object; bias.score is where that number lives.
         validation_score = safe_float(risk.get('validation_score'), default=float('nan'))
-        entry_score = safe_float(entry.get('score', 0))
-        confidence_score = safe_float(risk.get('confidence_score', 0))
-        tq_proposed = safe_float(risk.get('trade_quality_proposed', 0))
+        # 21 SEPTEMBER 2026, work order B: these three defaulted an absent
+        # value to 0, printed as "0.00/100". NaN now, printed by _score_text
+        # as "not computed". The router always sets all three today, so the
+        # default was latent -- the same reasoning Round 6 F3 applied to the
+        # price lines above.
+        entry_score = safe_float(entry.get('score'), float('nan'))
+        confidence_score = safe_float(risk.get('confidence_score'), float('nan'))
+        tq_proposed = safe_float(risk.get('trade_quality_proposed'), float('nan'))
         trend_health_score = safe_float(trend.get('trend_health'), default=float('nan'))
 
         # C4 BUILD: position size and the standalone EV line were both
@@ -443,8 +473,8 @@ def render_panel(decision):
                 return f"    |-- {label:<18}: {shown}/{maximum:.0f}\n"
 
             lines = (
-                f"ENTRY QUALITY : {entry_score:.2f}/"
-                f"{safe_float(entry.get('score_ceiling'), 100.0):.0f}\n"
+                f"ENTRY QUALITY : "
+                f"{_score_text(entry_score, safe_float(entry.get('score_ceiling'), 100.0))}\n"
                 + component("EMA Zone Position", "ema_pos_pts", EMA_ZONE_MAX_POINTS)
                 + component("ATR Distance", "atr_dist_pts", ATR_DISTANCE_MAX_POINTS)
                 + component("VWMA Distance", "vwma_pts", VWMA_MAX_POINTS)
@@ -548,9 +578,12 @@ def render_panel(decision):
             )
 
             if unmeasured:
+                # 21 SEPTEMBER 2026, work order B: this said "AERO" whatever
+                # the symbol. Sequence item 12 fixed the same string in
+                # decision_model.py and missed this one and the one below.
                 return (
                     f"CORRELATION   : {colorize_val('NOT MEASURED')} "
-                    f"— AERO and BTC could not be paired by timestamp this run\n"
+                    f"— {asset} and BTC could not be paired by timestamp this run\n"
                     f"BTC SENSITIVITY (beta): not measured\n"
                 )
 
@@ -582,8 +615,9 @@ def render_panel(decision):
                 f"Vol: {colorize_val(btc.get('volatility', 'NORMAL'))}\n"
                 f"{_correlation_lines(btc, colorize_val)}"
                 f"BROAD MARKET STRESS: {colorize_val('YES' if btc.get('broad_market_stress') else 'No')}\n"
-                f"BTC-ADJUSTED CONFIDENCE: {safe_float(btc.get('btc_adjusted_confidence', 0.0)):.2f}/100 "
-                f"(vs {confidence_score:.2f}/100 unadjusted)\n"
+                f"BTC-ADJUSTED CONFIDENCE: "
+                f"{_score_text(safe_float(btc.get('btc_adjusted_confidence'), float('nan')))} "
+                f"(vs {_score_text(confidence_score)} unadjusted)\n"
                 # SEQUENCE ITEM 12, Item 7: this number is correctness-validated
                 # — it computes what it was designed to compute — and
                 # empirically unvalidated: nothing has tested whether adjusting
@@ -596,7 +630,7 @@ def render_panel(decision):
         else:
             btc_section = (
                 f"{divider}"
-                f"BTC Market Context (informational only): unavailable this run -- AERO analysis above is unaffected.\n\n"
+                f"BTC Market Context (informational only): unavailable this run -- {asset} analysis above is unaffected.\n\n"
             )
 
         # ROUND 6 F3 FOLLOW-UP: CURRENT PRICE, STOP LOSS and the three
@@ -693,14 +727,14 @@ def render_panel(decision):
             f"REGIME     : {colorize_val(bias.get('regime', 'NEUTRAL STRUCTURE'))}\n"
             f"STRUCTURE  : {colorize_val(structure.get('regime', 'NEUTRAL'))} | Vol: {colorize_val(bias.get('volatility', 'NORMAL'))}\n"
             f"SEQUENCE   : {colorize_val(structure.get('sequence', 'NONE'))}\n"
-            f"TREND      : {colorize_val(trend.get('trend_direction', 'NEUTRAL'))} / {colorize_val(trend.get('momentum_mode', 'HEALTHY'))} (Score: {trend_health_score:.2f}/100)\n"
+            f"TREND      : {colorize_val(trend.get('trend_direction', 'NEUTRAL'))} / {colorize_val(trend.get('momentum_mode', 'HEALTHY'))} (Score: {_score_text(trend_health_score)})\n"
             # SEQUENCE ITEM 11: the number after the label was
             # trend_health_score — the same value the TREND line above already
             # shows. The LABEL (STRONG / BUILDING / EXTENDED) is momentum_mode,
             # a genuinely separate reading, so it stays.
             f"MOMENTUM   : {colorize_val(trend.get('momentum_mode', 'HEALTHY'))}\n"
             f"VOLUME     : {colorize_val(structure.get('volume_sentiment', 'WEAK OR CONTRARY VOLUME'))}\n"
-            f"VALIDATION : {colorize_val(risk.get('validation_state', 'WEAK'))} (Score: {validation_score:.2f}/100)\n"
+            f"VALIDATION : {colorize_val(risk.get('validation_state', 'WEAK'))} (Score: {_score_text(validation_score)})\n"
             f"VOLATILITY : {colorize_val(bias.get('volatility', 'LOW'))}\n"
             # ITEM 14 RE-AUDIT (Finding 5): the independent risk classification
             # that now caps the AGGRESSIVE action label -- see
@@ -719,10 +753,10 @@ def render_panel(decision):
             f"{divider}"
             f"{_entry_quality_lines(entry, entry_score)}"
             f"{divider}"
-            f"CONFIDENCE (decision): {confidence_score:.2f}/100\n"
+            f"CONFIDENCE (decision): {_score_text(confidence_score)}\n"
             f"TRADE QUALITY :\n"
 
-            f"    |-- Proposed Entry    : {tq_proposed:.2f}/100\n\n"
+            f"    |-- Proposed Entry    : {_score_text(tq_proposed)}\n\n"
             f"{box_top}"
             f"DECISION      : {colored_action}\n\n"
             f"{direction_box}"

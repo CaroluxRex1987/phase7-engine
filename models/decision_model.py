@@ -20,6 +20,27 @@ def _safe_float(value: Any, default: float = 0.0) -> float:
         return default
 
 
+def asset_name(symbol: Any) -> str:
+    """
+    The traded asset's name for a sentence: "AEROUSDT" -> "AERO".
+
+    21 SEPTEMBER 2026, work order B. Sequence item 12 put this inline in
+    _compute_btc_adjusted when it removed a hardcoded "AERO" there; two more
+    hardcoded "AERO" strings survived in core/panel_render.py's BTC section.
+    One function now serves both, so the panel cannot drift from the reasoning
+    text by carrying its own copy.
+
+    The suffixes are tried longest first. The inline version tried "USD" before
+    "BUSD", so "BUSD" could never match and ETHBUSD read as "ETHB". No pair the
+    engine has been run on is affected: every recorded run is a USDT pair.
+    """
+    asset = str(symbol).upper()
+    for suffix in ("USDT", "USDC", "BUSD", "USD"):
+        if asset.endswith(suffix) and len(asset) > len(suffix):
+            return asset[: -len(suffix)]
+    return asset
+
+
 # 5 SEPTEMBER 2026 -- VIKTOR'S RULING, and the mechanism chosen for it.
 #
 # HIS RULING: a directional action must require a minimum bias strength.
@@ -445,7 +466,12 @@ class DecisionModel:
             # and lets the reader see when the two disagree.
             trend_sign = int(_safe_float(trend.get("trend_direction_sign"), 0.0))
             _dir_word = "up" if trend_sign > 0 else ("down" if trend_sign < 0 else "flat")
-            trend_note = f"trend strength {trend_health:.0f}/100 ({_dir_word})"
+            # 21 SEPTEMBER 2026, work order B: trend_health is NaN when it
+            # was not measured (read above with a NaN default), and ":.0f"
+            # printed that as "trend strength nan/100" in Decision Reasoning.
+            _strength = (f"{trend_health:.0f}/100" if math.isfinite(trend_health)
+                         else "not computed")
+            trend_note = f"trend strength {_strength} ({_dir_word})"
 
             # VIKTOR'S RULING, 2 September 2026: bias is the sole direction
             # source. This block used to read
@@ -865,12 +891,9 @@ class DecisionModel:
 
             # SEQUENCE ITEM 12: the run's own symbol, not a hardcoded one.
             # Trimmed of the quote currency so the sentence reads "AERO and
-            # BTC" rather than "AEROUSDT and BTC".
-            asset = str(symbol).upper()
-            for suffix in ("USDT", "USDC", "USD", "BUSD"):
-                if asset.endswith(suffix) and len(asset) > len(suffix):
-                    asset = asset[: -len(suffix)]
-                    break
+            # BTC" rather than "AEROUSDT and BTC". Moved to asset_name() on
+            # 21 September so core/panel_render.py uses the same function.
+            asset = asset_name(symbol)
 
             if agreement > 0:
                 agree_phrase = f"BTC is also {btc_detailed.lower()}, agreeing with {asset}'s own bias"

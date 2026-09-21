@@ -57,37 +57,43 @@ codebase whose open-items list was empty.
 
 ## Where things stand, right now
 
-- **Tip:** current as of `635a94e`; the actual tip is the commit that rewrote this file
-  (a commit cannot name its own hash). **Tag:** `portfolio-v1` at `99e022e`.
+- **Tip:** the commit that landed work order B (a commit cannot name its own hash); the
+  one before it is `ebb4e5c`, which rewrote this file. **Tag:** `portfolio-v1` at
+  `99e022e`.
   **Release gate:** open, declared 15 September 2026.
 - **Working tree at `635a94e`:** clean — `git status --short` printed nothing
   (Viktor's paste, 21 September, before this session's work began).
-- **code_hash:** `35718f6b8c7c021f52ae566c266ab7fc8295c7e1bff89121bba8a20272168b3c`,
-  unchanged since `119c8a3`. This commit touches `docs/` only, which
-  `core/code_fingerprint.py` excludes by directory; recomputed under Python 3.12.3 on the
-  pristine and the applied tree, not assumed.
+- **code_hash:** `ec88cf242fdd6014abe66693ab7c319cbac97cf3d9131e9fe7c27562c1ac06f8` —
+  moved at work order B (`core/panel_render.py`, `models/decision_model.py`) from
+  `35718f6b…`, where it stood since `119c8a3`; `ebb4e5c` touched `docs/` only and did not
+  move it. Both values computed under Python 3.12.3 on the pristine and the applied tree,
+  not assumed.
 - **code_hash is only comparable within one Python minor version.** It hashes `ast.dump`
   output, a CPython implementation detail (`core/code_fingerprint.py`, "WHAT IT DOES NOT
   SURVIVE"). On 20 September a sandbox whose default `python3` was 3.11.15 reported a
   different value on an unmodified tree. **Every `code_hash` claim about this project is
   computed under Python 3.12** (Viktor runs 3.12.10).
-- **Golden snapshot:** last re-baselined at `a9d4b1f`, two fields. Nothing since has
-  touched the decision path.
-- **Test suite at `635a94e`:** **504 passed / 0 failed** with `pandas_ta`; **372 passed /
-  121 skipped** without it; `run_tests.py` **433 passed / 0 failed / 32 errors**, all 32
-  fixture-collection `TypeError`s. Verified this session in a Linux sandbox on a
-  `core.autocrlf=true` clone under Python 3.12.3, pinned requirements — evidence about
-  Linux. This commit is documentation only and does not move them.
-- **Engineering Notes:** through Entry #141 (v1.33), which covers `4629002`. **Eleven
+- **Golden snapshot:** last re-baselined at `a9d4b1f`, two fields. Unmoved by work order
+  B: the only decision-path change is the wording of one reason on a run whose trend
+  health was not measured, and the pinned run measures it. The pinned run's whole panel
+  is byte-identical before and after B.
+- **Test suite, moved at work order B** by one new fixture-free file of 11 tests:
+  **515 passed / 0 failed** with `pandas_ta`; **383 passed / 121 skipped** without it;
+  `run_tests.py` **444 passed / 0 failed / 32 errors**, all 32 fixture-collection
+  `TypeError`s, unmoved. Verified in a Linux sandbox on a `core.autocrlf=true` clone
+  under Python 3.12.3, pinned requirements — evidence about Linux until Viktor's run.
+- **Engineering Notes:** through Entry #141 (v1.33), which covers `4629002`. **Twelve
   commits behind** — `3a899b5`, `92775ea`, `53394ff`, `982e70f`, `65a0aef`, `a9d4b1f`,
-  `6e1baba`, `b869a30`, `119c8a3`, `635a94e` and this one — by Viktor's choice, under
+  `6e1baba`, `b869a30`, `119c8a3`, `635a94e`, `ebb4e5c` and work order B's commit — by
+  Viktor's choice, under
   the standing batching rule. **This count includes the commit that writes it, so every
   later commit adds one until the Notes are regenerated;** it is the line most likely to
   go stale in this file. If the independent audit's package includes the Notes,
   regenerate them before building it.
 - **Portfolio Document and AI-Attribution Statement:** both current with their scripts.
-- **Pre-push hook:** reported `SUMMARY: clean` on the push of `635a94e` — Viktor pasted
-  the output, so that one is confirmed, not reported. Earlier record, carried unchanged:
+- **Pre-push hook:** reported `SUMMARY: clean` on the pushes of `635a94e` and `ebb4e5c`
+  — Viktor pasted both outputs, so those are confirmed, not reported. Earlier record,
+  carried unchanged:
   clean on the pushes of `4629002`, `3a899b5`, `92775ea`, `53394ff` and `982e70f`
   (Viktor's report) and on the push that carried `119c8a3`; whether that push also
   carried `b869a30` was not established; the result on the pushes of `65a0aef`,
@@ -99,8 +105,8 @@ codebase whose open-items list was empty.
 
 - **Four notes that existed only in the 20 September chat, filed here:** the hook's clean
   result on `635a94e` (above); the Engineering Notes line counting itself (above); the
-  obligation to rewrite this file if this session did substantive work, which is this
-  commit; and the autocrlf observation, which stays open (below).
+  obligation to rewrite this file if this session did substantive work, which `ebb4e5c`
+  did; and the autocrlf observation, which stays open (below).
 - **The once-per-session rewrite of this file.** The previous version — written at
   `b869a30`, amended at `635a94e` — is in HISTORY verbatim, headings demoted one level,
   proven by un-demotion.
@@ -116,17 +122,22 @@ reproduced by running the engine**, and each says how far its reachability was c
 1. **Two panel lines name AERO whatever the symbol** — `core/panel_render.py:553` and
    `:599`. On BTCUSDT the BTC context is always skipped (`core/engine_core.py:754`), so
    every BTCUSDT run prints "AERO analysis above is unaffected." Sequence item 12 fixed
-   the same string in `models/decision_model.py` and missed these two. → Work order B.
+   the same string in `models/decision_model.py` and missed these two. **Fixed at work
+   order B:** both sentences name the run's asset through `asset_name()`, now the one
+   function the panel and the reasoning share.
 2. **TREND and VALIDATION can print `Score: nan/100`** — `panel_render.py:696`, `:703`.
    The router sends NaN for a missing value on purpose (`models/signal_router.py:326`,
    `:444`); the price lines got a guard at Round 6 F3, these two did not, including in
    `119c8a3` and `a9d4b1f`, which edited exactly these lines. Same shape in
    Decision Reasoning's "trend strength nan/100" (`decision_model.py`,
    `_determine_final_action`). How often the value is missing on a live run: not
-   checked. → B.
+   checked. **Fixed at work order B:** every score line goes through one helper,
+   `_score_text()`, which prints "not computed" for a value that is not finite; the
+   reasoning sentence says "trend strength not computed".
 3. **Entry, confidence and trade-quality scores print `0.00` when absent** —
-   `panel_render.py:201–203`. Latent: the router always sets confidence; the other two
-   not checked. → B.
+   `panel_render.py:201–203`, and the BTC-adjusted confidence the same way. Latent: the
+   router always sets all three (`signal_router.py:369`, `:441`, `:442`). **Fixed at
+   work order B:** absent is NaN and prints "not computed".
 
 **Viktor's call, before backtesting** — he writes his position first; Claude critiques.
 
@@ -198,8 +209,10 @@ reproduced by running the engine**, and each says how far its reachability was c
 
 Each code commit is its own commit and updates this file for its own landing.
 
-- **A — this commit.** The findings above into the repo; the HISTORY move. Docs only.
-- **B — panel display (1, 2, 3).** Moves `code_hash`; engine live run before commit.
+- **A — landed at `ebb4e5c`.** The findings above into the repo; the HISTORY move.
+- **B — landed.** Panel display (1, 2, 3). Also found while scoping it: `asset_name`'s
+  suffix list tried "USD" before "BUSD", so a BUSD pair lost only "USD"; fixed in the
+  same function. Viktor's Windows live run before committing: result not yet recorded.
 - **C — `risk_model` dead paths (8, 9).** Output-invariant: the code says what it already
   does, and the unreachable fallback fails closed instead of returning a wrong-side stop.
 - **D — plan-side guard (10).** One check every plan passes before it can authorise a
