@@ -859,6 +859,9 @@ Viktor decides again whether to commission the audit or extend the pause. (2) Th
 backtest entry point that refuses to run without a recorded re-audit. Neither was
 ruled on; both are recorded here so the choice not to adopt them is visible.
 
+*Point (1) was answered on 22 September 2026: "Ruling, 22 September 2026 — when the
+audit resumes", below.*
+
 ## Ruling, 21 September 2026 — the entry signals confirm (work order F)
 
 *New in this file on 21 September 2026, with work order F.*
@@ -916,6 +919,55 @@ AND on top of that blend: it can refuse a trade, never add confidence to one. It
 design choice and has not been backtested. The HVN reasoning in rule 2 depends on
 finding 6, still open: if the stop stops being pulled to the HVN, nothing checks HVN
 proximity at all.
+
+## Ruling, 22 September 2026 — when the audit resumes
+
+*New in this file on 22 September 2026, with the Engineering Notes' v1.34 regeneration.
+It answers point (1) of Claude's two in the 21 September ruling above; point (2) is
+not touched.*
+
+**What was ruled.** Viktor: "We do the audit after we have done G and my findings."
+The independent audit resumes when a fixed list of work is done:
+
+- **work order G** (finding 17, macro inside the CONSERVATIVE branches) has landed; and
+- **findings 4, 5, 6, 7, 16 and 18** are each done.
+
+**What "done" means.** A finding is done when Viktor has ruled it and any code his ruling
+calls for has landed. A ruling to leave something as it is counts as done. Proposed by
+Claude; Viktor: "Yes the short term work is 'done' when we have fixed G and the finding,
+that's all."
+
+**The list is closed.** Viktor: "anything else we might find gets put on a list for after
+the next audit." A finding made after this ruling does not join the list and does not
+move the audit. It goes on a separate list, kept in PHASE7_NEXT.md, for after the audit.
+His reasoning: "We do the work we said we would do. There is no difference in stopping
+now and have the audit, or stopping after the point we decided."
+
+**The four weeks.** An estimate, not a rule. Viktor: the four weeks was his "estimation
+... to do the work we decided to do before the audit and also add a buffert for unseen
+things. That is all." No date is attached to the trigger.
+
+**How it was reached.** Viktor wrote his position first and Claude critiqued it. The
+critique named three gaps. (1) An open list could grow without end: each new finding
+would push the audit back, which is the "no end condition" point again by another
+route. (2) "Done" was undefined. (3) Whether the trigger replaced the four weeks.
+Viktor's answers closed all three. His argument on (1) is that a fixed list is itself
+the end condition. Claude agreed and withdrew the objection. On (2) he answered first
+about the whole project — "years in the making, constantly improving, constantly fine
+tuning, constantly auditing" — and Claude pointed out that the definition was needed
+for six findings, not for the project. He accepted the definition above.
+
+**A tension Claude named, not ruled on.** Viktor described the project as running until
+"we have built an version of this engine that actually generates profit". Goal B as
+ratified (above, 15 September) makes the first out-of-sample evaluation the verdict of
+record, accepts a negative verdict as completion, and makes each later re-run a new
+phase with its own pre-registration. Working toward a profitable engine is consistent
+with that one phase at a time; re-running until a result passes is not. Recorded so it
+does not come as a surprise when backtesting starts.
+
+**What it weakens.** A defect found during this work waits for the list after the audit,
+whatever its severity, because the ruling makes no exception. The Constitution's order
+is unchanged: audit before backtesting (step 8 before step 9).
 
 ## Working practice
 

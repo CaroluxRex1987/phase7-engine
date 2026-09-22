@@ -64,6 +64,9 @@ Each line gives what changed, which finding it closes, and which tests guard it.
   them too, as a consequence: it moves `bias_score`.
 - **The independent audit paused** (DECISIONS, 21 September). No backtesting before an
   independent re-audit of everything above (Constitution step 8).
+- **When the audit resumes** (DECISIONS, 22 September): once work order G and findings
+  4, 5, 6, 7, 16 and 18 are done. The list is closed; anything found later waits for
+  after the audit.
 
 ## Found, open, and not yet a change
 
