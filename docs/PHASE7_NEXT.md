@@ -1,7 +1,8 @@
 # Next step — read this first
 
-*22 September 2026, sixth session. Rewritten by this session's first commit, the one
-that regenerates the Engineering Notes at v1.34; the version it replaces — rewritten at
+*22 September 2026, sixth session. Rewritten by this session's first commit, `e804b64`,
+the one that regenerates the Engineering Notes at v1.34, and amended in place by its
+second; the version it replaces — rewritten at
 `486f1a5` and amended in place at `3bfa6b7` and `5e55eb8` — is in HISTORY verbatim.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
@@ -31,7 +32,7 @@ for the deferred read's findings (19–28) and the direction-box tests. Asked wh
 first in the sixth session (22 September), Viktor chose two things. The first was to
 regenerate the Engineering Notes, 27 commits behind. The second was Claude's open
 objection that the audit pause had no end condition. He ruled on the second (below),
-and the commit that writes this line carries both.
+and `e804b64` carries both.
 
 **What remains before the independent audit is a closed list:** work order G (Claude's,
 finding 17) and findings 4, 5, 6, 7, 16 and 18 (Viktor's). When each is done, the audit
@@ -68,24 +69,30 @@ September ruling is still open: the no-backtest rule exists only as text.
 
 ## Where things stand, right now
 
-- **Tip:** the commit that writes this line (a commit cannot name its own hash) — the
-  Engineering Notes' v1.34 regeneration, the 22 September ruling, and this file's
-  session rewrite; documentation only. Before it: `5e55eb8` (the fifth session's
+- **Tip:** the commit that writes this line (a commit cannot name its own hash) —
+  `e804b64`'s push filed and README's audit row brought current; documentation only.
+  Before it: `e804b64` (the Engineering Notes' v1.34 regeneration, the 22 September
+  ruling, and this file's session rewrite), `5e55eb8` (the fifth session's
   documentation close), `3bfa6b7` (commit 6 of the six, `data/data_fetcher.py`:
   finding 27), `486f1a5` (commit 5, `data/validation.py`: 25, 26, 28), `4e2b1c8`
   (commit 4, `core/lineage.py`: 23, 24, 19's archive half), `2c7a7d1` (22), `05a12c7`
   (19–21), `9c4917c` (the direction-box tests). F itself is `3f263c2`. **Tag:**
   `portfolio-v1` at `99e022e`. **Release gate:** open, declared 15 September 2026.
-- **Working tree and hook at `5e55eb8`:** the push `3bfa6b7..5e55eb8` printed
+- **Working tree and hook at `e804b64`:** the push `5e55eb8..e804b64` printed
+  `SUMMARY: clean`, section 1 "none", section 6 "installed", and section 5 README.md
+  two commits behind, as predicted — Viktor's paste. The tip was fetched into the
+  sandbox afterwards; its six changed files matched the verified build byte for byte.
+  **Owed to the next commit:** the hook's result on the push of the commit that writes
+  this line.
+- **At `5e55eb8`:** the push `3bfa6b7..5e55eb8` printed
   `SUMMARY: clean`, section 1 (`git status --short`) "none", section 6 "installed", and
   section 5 README.md one commit behind (expected: that commit changed no count) —
   Viktor's message opening this session. The fifth session's sandbox fetched the tip
   afterwards, and the verified close patch reverse-applied to it cleanly (same message).
-  This session's clone of GitHub's tip is `5e55eb8`. **Owed to the next commit:** the
-  hook's result on the push of the commit that writes this line. The earlier record of
-  the hook is in HISTORY.
+  This session's clone of GitHub's tip was `5e55eb8`. The earlier record of the hook is
+  in HISTORY.
 - **code_hash:** `b3c2308f8f3e05981af25ee82468c071f7bf0b9d49519b6e75bd78c37b5fb365`,
-  moved at `3bfa6b7` (`data/data_fetcher.py`) from `2c8ebe32…`; unmoved at `5e55eb8` and
+  moved at `3bfa6b7` (`data/data_fetcher.py`) from `2c8ebe32…`; unmoved at `5e55eb8`, at `e804b64` and
   by the commit that writes this line (documentation only). Computed under Python 3.12.3
   on the tip's tree and on the applied tree. **Confirmed on Windows before its
   commit:** Viktor's live run of 21 September 23:29, AEROUSDT 4h, NO-TRADE (RISK TOO
@@ -102,7 +109,7 @@ September ruling is still open: the no-backtest rule exists only as text.
   output, a CPython implementation detail (`core/code_fingerprint.py`, "WHAT IT DOES NOT
   SURVIVE"). **Every `code_hash` claim about this project is computed under Python 3.12**
   (Viktor runs 3.12.10).
-- **Golden snapshot:** unmoved by the commit that writes this line and at `5e55eb8`,
+- **Golden snapshot:** unmoved by the commit that writes this line and at `e804b64`, `5e55eb8`,
   `3bfa6b7`, `486f1a5` and `4e2b1c8`. Last re-baselined at `2c7a7d1` (finding 22:
   `run_hash` in two places, the archive name in two, three `module_constants` leaves;
   no decision field).
@@ -112,16 +119,17 @@ September ruling is still open: the no-backtest rule exists only as text.
   fixture-collection `TypeError`s. Linux sandbox, autocrlf clone, Python 3.12.3, pinned
   requirements, applied tree. Last moved at `3bfa6b7`; on Windows, confirmed there by
   Viktor proceeding past the stop conditions.
-- **Engineering Notes:** through Entry #164 (v1.34), which covers `5e55eb8`. **One
-  commit behind** — the commit that writes this line, which is the floor: a commit that
-  regenerates the Notes cannot cover itself (Entry #144). Every later commit adds one
-  until the next regeneration.
+- **Engineering Notes:** through Entry #164 (v1.34), which covers `5e55eb8`. **Two
+  commits behind** — `e804b64`, the regeneration itself (the floor: a commit that
+  regenerates the Notes cannot cover itself, Entry #144), and the commit that writes
+  this line. Every later commit adds one until the next regeneration.
 - **Portfolio Document and AI-Attribution Statement:** both current with their scripts,
   which last changed at `6e1baba`.
 - **README.md:** its two test-count lines current at `3bfa6b7` (597 / 460 with 126
-  skipped / 526); untouched by `5e55eb8` and by the commit that writes this line, so the
-  hook's section 5 will report it **two commits behind** — expected, as neither changes
-  a count. Otherwise current since `cb659f1`.
+  skipped / 526). Its Independent-audit row, which said the round was paused "for about
+  four weeks", now states the 22 September ruling — changed by the commit that writes
+  this line, so the hook's section 5 will report README.md 0 commits behind. Otherwise
+  current since `cb659f1`.
 
 ## Carried lesson — the live run comes BEFORE the commit
 
@@ -298,6 +306,9 @@ Each code commit is its own commit and updates this file for its own landing.
 
 - **The fifth session's owed filing** (Viktor's message opening this session): the
   hook's result on the push of `5e55eb8` — filed above.
+- **`e804b64`'s push and README's audit row** — the session's second commit, at
+  Viktor's request for the finishing touches: the push filed above; README's "about
+  four weeks" replaced by the ruling.
 - **The once-per-session rewrite of this file.** The previous version, as at `5e55eb8`,
   is in HISTORY verbatim, headings demoted one level, proven by un-demotion with a
   negative control (the commit message has the result).
