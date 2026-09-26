@@ -189,9 +189,13 @@ def test_rejects_stale_data():
     forever, regardless of when the suite is run.
 
     Ruled by Viktor, 30 August 2026.
+
+    FINDING 16, 26 September 2026: the reference is thirty minutes after the
+    clean fixture's last candle CLOSES, not the instant it opens. A series is
+    measured by its last closed candle now, and a candle opening at the
+    reference instant has not closed. See _reference.
     """
-    clean = _load()
-    reference = pd.to_datetime(clean["timestamp"].iloc[-1], unit="ms")
+    reference = _reference()
 
     df = _load()
     df["timestamp"] = df["timestamp"] - (730 * 24 * 60 * 60 * 1000)
@@ -212,18 +216,31 @@ def test_clean_data_is_current_against_its_own_end():
     must be accepted.
 
     Together the two pin the rule rather than one direction of it.
+
+    FINDING 16, 26 September 2026: "its own end" is thirty minutes after its
+    last candle closed. See _reference.
     """
-    clean = _load()
-    reference = pd.to_datetime(clean["timestamp"].iloc[-1], unit="ms")
+    reference = _reference()
 
     accepted, reason = _validate(fixture(CLEAN), now=reference)
     assert accepted, (
         f"the clean fixture was rejected when measured against its own last "
         f"candle: {reason}\n"
-        "The staleness rule allows the most recent bar to be up to "
-        "STALE_AFTER_BARS old. Data whose newest candle IS the reference "
-        "instant is as current as data can be."
+        "Since finding 16 a series is current from FINALITY_GRACE_SECONDS "
+        "after its last candle closes until the next candle closes. Thirty "
+        "minutes after the close is inside that window."
     )
+
+
+def _reference():
+    """
+    Thirty minutes after the clean fixture's last 4h candle closes: past the
+    finality grace (sixty seconds) and before the next candle closes, so the
+    clean series is as current as a series of closed candles can be.
+    """
+    clean = _load()
+    last_open = pd.to_datetime(clean["timestamp"].iloc[-1], unit="ms")
+    return last_open + pd.Timedelta(hours=4, minutes=30)
 
 
 def test_rejects_nan_in_close():

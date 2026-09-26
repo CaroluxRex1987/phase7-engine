@@ -2,6 +2,11 @@
 Round 6 F3 follow-up, 13 September 2026 -- CURRENT PRICE, STOP LOSS and the
 three TARGET lines in core/panel_render.py.
 
+RENAMED 26 September 2026 (finding 16): the CURRENT PRICE line is labelled
+DECISION CLOSE now, since the engine decides on the latest closed candle and
+the price it prints is that candle's close. The assertions below look for the
+new label; what they assert is unchanged.
+
 THE FINDING
 
 Viktor, after F1/F2/F3 landed: "panel_render.py's atr_stop/targets/current_price
@@ -83,8 +88,8 @@ def test_an_absent_current_price_is_not_a_price_of_zero():
     panel = render_panel(_decision(exit_data={}))
     assert panel is not None, "the panel failed to render at all"
 
-    lines = _lines_for(panel, "CURRENT PRICE")
-    assert len(lines) == 1, f"expected one CURRENT PRICE line, found {lines!r}"
+    lines = _lines_for(panel, "DECISION CLOSE")
+    assert len(lines) == 1, f"expected one DECISION CLOSE line, found {lines!r}"
     assert "not available" in lines[0], (
         f"the panel does not say the price is missing: {lines[0]!r}"
     )
@@ -166,7 +171,7 @@ def test_negative_control_a_real_current_price_and_stop_survive():
     ))
     assert panel is not None
 
-    price_lines = _lines_for(panel, "CURRENT PRICE")
+    price_lines = _lines_for(panel, "DECISION CLOSE")
     stop_lines = _lines_for(panel, "STOP LOSS")
     target_lines = _lines_for(panel, "TARGET")
 
@@ -215,10 +220,10 @@ def test_negative_control_lines_still_terminate_properly():
     assert panel is not None
 
     lines = panel.splitlines()
-    price_line = [ln for ln in lines if ln.lstrip().startswith("CURRENT PRICE")]
+    price_line = [ln for ln in lines if ln.lstrip().startswith("DECISION CLOSE")]
     assert len(price_line) == 1
     assert "STATUS" not in price_line[0], (
-        f"CURRENT PRICE does not terminate its own line: {price_line[0]!r}"
+        f"DECISION CLOSE does not terminate its own line: {price_line[0]!r}"
     )
 
     stop_line = [ln for ln in lines if ln.lstrip().startswith("STOP LOSS")]

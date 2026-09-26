@@ -99,7 +99,10 @@ def test_the_box_follows_bias_on_a_run_that_takes_no_trade():
 
 def test_the_box_sits_directly_under_the_decision_line():
     lines = _render("BEARISH").splitlines()
-    decision = next(i for i, l in enumerate(lines) if l.startswith("DECISION"))
+    # FINDING 16, 26 September 2026: the price line is labelled DECISION CLOSE
+    # now and sits above this one, so "starts with DECISION" found it first.
+    # The DECISION line is matched by its whole label.
+    decision = next(i for i, l in enumerate(lines) if l.startswith("DECISION      :"))
     box = next(i for i, l in enumerate(lines) if SHORT in l)
     between = [l for l in lines[decision + 1:box] if l.strip()]
     # Only the box's own top border may stand between the two.

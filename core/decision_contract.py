@@ -279,6 +279,12 @@ class ProvenanceBlock(TypedDict):
     input_hashes: Dict[str, Any]  # per-frame SHA-256; None for a frame not read
     canonical_format: int         # which serialisation produced those digests
     fetch: Dict[str, Any]         # requested vs effective parameters
+    # FINDING 16, 26 September 2026 (Viktor's ruling, point 4). Per series --
+    # struct, macro, btc -- the candle the series decided on: open_time,
+    # close_time, exchange_close_time, forming_candles_dropped, live_price,
+    # basis. A series that never became usable is None. See
+    # Phase7Engine._decision_candle in core/engine_core.py.
+    decision_candles: Dict[str, Any]
     prior_state: Dict[str, Any]   # what the previous run left for Exit Watch
     module_constants: Dict[str, Any]   # bias weights and threshold
 

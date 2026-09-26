@@ -46,6 +46,31 @@ chosen there is a magic number with an expiry date.
 
 Ruled by Viktor, 30 August 2026.
 
+FINDING 16: A SERIES IS MEASURED BY ITS LAST CLOSED CANDLE
+
+Ruled by Viktor, 26 September 2026 (PHASE7_DECISIONS.md, "Ruling, 26 September
+2026 -- decisions are made on closed candles (finding 16)"). Decisions are made
+on closed candles only. data_fetcher.fetch_ohlc removes the candle still
+forming before a frame reaches this module, so a frame checked against a `now`
+here is a frame of CLOSED candles, and this module now holds it to that:
+
+  - A last candle that has not closed at `now` is rejected. It can only arrive
+    here if a caller skipped the drop, and deciding on it is the finding.
+  - Staleness is measured from the last candle's CLOSE (its open time plus the
+    bar length), no longer from its open. The series fails unless its last
+    candle is the latest one that should have closed: once a newer candle
+    has closed, the series is stale. This replaces the old allowance of three
+    bars from the last OPEN, which let a forming candle of any age pass and
+    let a closed series fall more than two whole candles behind.
+  - A candle that closed less than FINALITY_GRACE_SECONDS ago is rejected too:
+    the grace is for exchange delay. Inside it the run fails rather than
+    deciding on the previous candle -- Viktor confirmed that reading of point
+    3 of the ruling on 26 September 2026, and it is the "Accepted with it"
+    sentence of the ruling in force.
+
+Both failures reach the operator exactly as a stale series always has: as a
+validation error, which fetch_ohlc returns as {"error": ...}.
+
 ITEM 3 RE-AUDIT (Finding 1): ABNORMAL VOLUME, RULED
 
 The independent audit found this module's volume check checks only
@@ -100,10 +125,26 @@ import pandas as pd
 
 OHLCV = ["open", "high", "low", "close", "volume"]
 
-# How many bars past the last candle before a series claiming to be current is
-# not. Three is deliberately loose: an exchange can be a bar behind at a
-# boundary, and a validator that cries wolf on a routine lag gets disabled.
-STALE_AFTER_BARS = 3
+# FINDING 16, 26 September 2026. How long after a candle's close it is still
+# treated as not yet final. The grace is for exchange delay: in the first
+# seconds after a boundary the exchange may still be filling the candle that
+# just closed, and the clock this machine reads may run ahead of the
+# exchange's. A run inside the grace fails, as a stale series fails; it does
+# not fall back to the previous candle (Viktor, 26 September 2026).
+#
+# The evidence for sixty seconds, and its limit. Viktor measured his machine's
+# clock against time.windows.com on 26 September 2026 (w32tm /stripchart, five
+# samples): +0.198 s to +0.200 s, steady. Sixty seconds is some three hundred
+# times that offset. MEXC's own delay in finalising a candle was NOT measured
+# -- the sandbox cannot reach api.mexc.com -- so the grace is a margin chosen
+# against the one number that was measured, not a measured MEXC delay. The
+# cost is a failed run in the first minute after each close: six minutes a
+# day on 4h.
+#
+# Replaces STALE_AFTER_BARS = 3, which measured three bars from the last
+# candle's OPEN. Like it, this decides whether a run happens at all, not what
+# it decides, so it is not in the fingerprint.
+FINALITY_GRACE_SECONDS = 60
 
 # FINDING 25, 21 September 2026. How far AHEAD of `now` the last candle may
 # sit before its timestamp is inconsistent with the clock it is measured by.
@@ -115,8 +156,12 @@ STALE_AFTER_BARS = 3
 # One bar, not zero: the exchange's clock and this machine's are two clocks,
 # and at a candle boundary the exchange can open a bar a few seconds before
 # the local clock reaches that instant. A candle more than a whole bar ahead
-# is not explained by that. Like STALE_AFTER_BARS, this decides whether a run
-# happens at all, not what it decides, so neither is in the fingerprint.
+# is not explained by that. Like FINALITY_GRACE_SECONDS, this decides whether a
+# run happens at all, not what it decides, so neither is in the fingerprint.
+#
+# FINDING 16, 26 September 2026: data_fetcher.fetch_ohlc also reads this
+# tolerance, to tell a candle still forming (dropped) from one dated in the
+# future (kept, so that the check below rejects it).
 FUTURE_TOLERANCE_BARS = 1
 
 # Minutes per candle, for the interval and staleness checks. Anything not
@@ -150,6 +195,33 @@ def _interval_minutes(timeframe):
     if not timeframe:
         return None
     return TIMEFRAME_MINUTES.get(str(timeframe))
+
+
+def bar_length(timeframe):
+    """
+    The length of one candle as a Timedelta, or None for a timeframe this table
+    does not list. FINDING 16: a candle's close is its open time plus this, for
+    the fetcher's drop of the forming candle and for the staleness check.
+    """
+    minutes = _interval_minutes(timeframe)
+    return None if minutes is None else pd.Timedelta(minutes=minutes)
+
+
+def as_naive_utc(now):
+    """
+    `now` as a naive UTC Timestamp, the form the candles' times are in.
+
+    FINDING 28, 21 September 2026. The candles' times are naive UTC (MEXC sends
+    UTC epoch milliseconds). tz_localize(None) alone drops the zone and KEEPS
+    the wall-clock reading, so a `now` of 12:00 in Stockholm was read as 12:00
+    UTC, two hours out. Convert to UTC first. A naive `now` is taken to be UTC
+    already. Moved here from validate_ohlcv on 26 September 2026 (finding 16),
+    unchanged, so that data_fetcher reads the clock the same way.
+    """
+    now_ts = pd.Timestamp(now)
+    if now_ts.tzinfo is not None:
+        now_ts = now_ts.tz_convert("UTC").tz_localize(None)
+    return now_ts
 
 
 def _timestamps(df):
@@ -297,33 +369,42 @@ def validate_ohlcv(df, timeframe=None, now=None):
                     f"shortens every rolling window that spans it.")
 
     # --- currency, only if the caller claims it --------------------------
+    #
+    # FINDING 16, 26 September 2026: the frame is a frame of CLOSED candles
+    # (see the module docstring), so everything below is measured from the
+    # last candle's close, not its open.
     if now is not None:
-        now_ts = pd.Timestamp(now)
-        if now_ts.tzinfo is not None:
-            # FINDING 28, 21 September 2026. The candles' times are naive UTC
-            # (MEXC sends UTC epoch milliseconds). tz_localize(None) alone
-            # drops the zone and KEEPS the wall-clock reading, so a `now` of
-            # 12:00 in Stockholm was read as 12:00 UTC, two hours out. Convert
-            # to UTC first. The engine's own caller passes naive UTC and never
-            # reached this line; since finding 25 a `now` read hours early
-            # could reject a current series as future-dated, so the two are
-            # fixed together.
-            now_ts = now_ts.tz_convert("UTC").tz_localize(None)
-        age = now_ts - ts.iloc[-1]
-        limit = expected * STALE_AFTER_BARS
-        if age > limit:
-            return (f"stale data: the last candle is {ts.iloc[-1]}, which is "
-                    f"{age} old against a {timeframe} bar. The engine would "
-                    f"analyse it and present the result with no indication "
-                    f"that the market has moved since.")
-        # FINDING 25: the other side. A negative age is a candle that opens
-        # after the reference instant. See FUTURE_TOLERANCE_BARS.
-        if -age > expected * FUTURE_TOLERANCE_BARS:
-            return (f"future-dated data: the last candle is {ts.iloc[-1]}, "
-                    f"{-age} after the reference time {now_ts} (UTC), more "
-                    f"than {FUTURE_TOLERANCE_BARS} {timeframe} bar(s) ahead. A "
-                    f"candle cannot open after the time it is read at; either "
-                    f"its timestamp or the clock is wrong.")
+        # FINDING 28: converted, not relabelled. See as_naive_utc.
+        now_ts = as_naive_utc(now)
+        last_open = ts.iloc[-1]
+        # FINDING 25: a candle that opens after the reference instant. Checked
+        # first, and unchanged by finding 16. See FUTURE_TOLERANCE_BARS.
+        if last_open - now_ts > expected * FUTURE_TOLERANCE_BARS:
+            return (f"future-dated data: the last candle is {last_open}, "
+                    f"{last_open - now_ts} after the reference time {now_ts} "
+                    f"(UTC), more than {FUTURE_TOLERANCE_BARS} {timeframe} "
+                    f"bar(s) ahead. A candle cannot open after the time it is "
+                    f"read at; either its timestamp or the clock is wrong.")
+        last_close = last_open + expected
+        if last_close > now_ts:
+            return (f"forming candle: the last candle opened {last_open} and "
+                    f"closes {last_close}, after the reference time {now_ts} "
+                    f"(UTC). Decisions are made on closed candles only "
+                    f"(finding 16); the candle still forming must be removed "
+                    f"before a series is validated as current.")
+        since_close = now_ts - last_close
+        if since_close >= expected:
+            return (f"stale data: the last closed candle opened {last_open} "
+                    f"and closed {last_close}, {since_close} before the "
+                    f"reference time {now_ts} (UTC). A newer {timeframe} "
+                    f"candle has closed since and is missing. The engine would "
+                    f"analyse an older candle and present the result with no "
+                    f"indication that the market has moved since.")
+        if since_close < pd.Timedelta(seconds=FINALITY_GRACE_SECONDS):
+            return (f"not yet final: the last candle closed at {last_close} "
+                    f"(UTC), {since_close} before the reference time -- inside "
+                    f"the {FINALITY_GRACE_SECONDS}-second grace for exchange "
+                    f"delay. Run again after {last_close + pd.Timedelta(seconds=FINALITY_GRACE_SECONDS)} UTC.")
 
     return None
 

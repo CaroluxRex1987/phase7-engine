@@ -9,6 +9,7 @@ import traceback
 
 from . import config
 from data.data_fetcher import data_fetcher
+from data import validation
 from indicators.indicators import add_technical_indicators
 from structure.structure import calculate_structure
 from indicators.trend_health import compute_trend_health
@@ -302,6 +303,46 @@ class Phase7Engine:
             "last_candle": str(df.index[-1]) if len(df) else None,
         }
 
+    @staticmethod
+    def _decision_candle(df, timeframe) -> Optional[Dict[str, Any]]:
+        """
+        FINDING 16, 26 September 2026: which candle this series decided on.
+
+        Viktor's ruling, point 4: the decision log records, for each series,
+        the decision candle's open time and whether a forming candle was
+        dropped. Read from the frame exactly as get_tf returned it, before any
+        indicator column exists, because pandas does not reliably carry
+        `.attrs` through the operations that follow.
+
+          open_time                the decision candle's open time (UTC)
+          close_time               open_time plus one bar; None for a
+                                   timeframe the bar-length table does not list
+          exchange_close_time      MEXC's own close_time for that candle;
+                                   None when the series was not fetched live
+          forming_candles_dropped  0, 1 or (at a boundary, clocks apart) 2 on
+                                   a live fetch; None for pinned data, where
+                                   the question cannot be asked
+          live_price               the forming candle's close -- information
+                                   only, read by nothing that decides; None
+                                   when none was dropped
+          basis                    "live" or "pinned"
+
+        None for a series that never became usable, as its input hash is.
+        """
+        if df is None or len(df) == 0:
+            return None
+        info = df.attrs.get("candles") or {}
+        open_time = df.index[-1]
+        bar = validation.bar_length(timeframe)
+        return {
+            "open_time": str(open_time),
+            "close_time": str(open_time + bar) if bar is not None else None,
+            "exchange_close_time": info.get("exchange_close_time"),
+            "forming_candles_dropped": info.get("forming_candles_dropped"),
+            "live_price": info.get("live_price"),
+            "basis": info.get("basis"),
+        }
+
     def _load_state(self, symbol: str, timeframe: str) -> Dict[str, Any]:
         try:
             path = self._state_path(symbol, timeframe)
@@ -417,6 +458,10 @@ class Phase7Engine:
         # see models/decision_model.py.
         degradation = []
 
+        # FINDING 16: the decision candle of each series, filled in as each
+        # series is fetched and recorded in provenance. See _decision_candle.
+        decision_candles = {"struct": None, "macro": None, "btc": None}
+
         try:
             # 1. FETCH EXECUTION DATA
             df = data_fetcher.get_tf(symbol, timeframe, limit=limit)
@@ -456,6 +501,7 @@ class Phase7Engine:
             # what arrived, and a record that later mutates into what the
             # engine made of it is not a record.
             raw_struct = df.copy()
+            decision_candles["struct"] = self._decision_candle(df, timeframe)
 
             # 1b. FETCH MACRO DATA (Multi-Timeframe Confluence)
             # None means "not archived because it was never usable", which is
@@ -474,6 +520,7 @@ class Phase7Engine:
 
             if self._validate_dataframe(df_macro, required_base_cols, "macro timeframe data"):
                 raw_macro = df_macro.copy()  # AUDIT FINDING 6 -- see raw_struct above
+                decision_candles["macro"] = self._decision_candle(df_macro, macro_tf)
                 try:
                     # SEQUENCE ITEM 9a: macro failures are recorded like any
                     # other. A macro read computed without ADX is still a macro
@@ -755,6 +802,7 @@ class Phase7Engine:
                     df_btc = data_fetcher.get_tf("BTCUSDT", timeframe, limit=limit)
                     if self._validate_dataframe(df_btc, required_base_cols, "BTC context data"):
                         raw_btc = df_btc.copy()  # AUDIT FINDING 6 -- see raw_struct above
+                        decision_candles["btc"] = self._decision_candle(df_btc, timeframe)
                         # BTC failures are recorded but do not degrade the run:
                         # BTC context is informational and already has its own
                         # available/unavailable flag. Naming them still beats
@@ -1002,6 +1050,13 @@ class Phase7Engine:
             }
 
             # 8. RISK MODEL & VALIDATION ENGINE
+            # FINDING 16, 26 September 2026: the last row is the decision
+            # candle, the latest CLOSED one -- the fetcher has removed the
+            # candle still forming -- so this is that candle's close, and stop
+            # and targets are measured from it. Whether they should be measured
+            # from the live price instead is finding 4's question (DECISIONS,
+            # "Ruling, 26 September 2026 -- decisions are made on closed
+            # candles (finding 16)").
             current_price = float(df_struct["close"].iloc[-1])
             # AUDIT FINDING 6, 5 September 2026. This line ended in
             #     ... else (current_price * 0.02)
@@ -1466,6 +1521,10 @@ class Phase7Engine:
                         },
                         "pinned": bool(data_fetcher.pinned_source()),
                     },
+                    # FINDING 16, 26 September 2026: which candle each series
+                    # decided on, and whether a forming candle was dropped to
+                    # reach it. See _decision_candle.
+                    "decision_candles": decision_candles,
                     # The state carried in from the previous run. Two runs on
                     # identical candles produce different Exit Watch flags when
                     # this differs, so a reconstruction without it is not a

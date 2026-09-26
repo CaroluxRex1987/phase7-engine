@@ -640,11 +640,52 @@ def render_panel(decision):
         # Python's own float formatting spell a missing value as the literal
         # text "nan" in a price field. Built here, after ORANGE/c_red/
         # c_green/reset are assigned above, not up by swing_struct_line.
-        current_price_line = (
-            f"CURRENT PRICE : {ORANGE}${current_price:.4f}{reset}\n"
-            if math.isfinite(current_price)
-            else "CURRENT PRICE : not available this run\n"
+        #
+        # FINDING 16, 26 September 2026. The engine decides on the latest
+        # CLOSED candle, so the price the stop and targets are measured from
+        # is that candle's close, and the line says so: it was labelled
+        # CURRENT PRICE, which it no longer is. The live price -- the close of
+        # the candle still forming, which the fetcher removed -- follows on a
+        # line of its own, labelled as information only, with its distance
+        # from the decision close (Viktor's ruling, point 2). Nothing that
+        # decides reads it; it comes from provenance, not from the analysis.
+        provenance = decision.get("provenance")
+        provenance = provenance if isinstance(provenance, dict) else {}
+        candles = provenance.get("decision_candles")
+        candles = candles if isinstance(candles, dict) else {}
+        struct_candle = candles.get("struct")
+        struct_candle = struct_candle if isinstance(struct_candle, dict) else {}
+
+        candle_note = (
+            f" ({timeframe} candle opened {struct_candle['open_time']} UTC)"
+            if struct_candle.get("open_time") else ""
         )
+        current_price_line = (
+            f"DECISION CLOSE: {ORANGE}${current_price:.4f}{reset}{candle_note}\n"
+            if math.isfinite(current_price)
+            else "DECISION CLOSE: not available this run\n"
+        )
+
+        live_price = safe_float(struct_candle.get("live_price"), float("nan"))
+        if math.isfinite(live_price):
+            if math.isfinite(current_price) and current_price != 0:
+                distance = (live_price - current_price) / current_price * 100.0
+                distance_text = f"{distance:+.2f}% from the decision close"
+            else:
+                distance_text = "distance from the decision close not computed"
+            live_price_line = (
+                f"LIVE PRICE    : ${live_price:.4f} -- information only, used by "
+                f"no decision; {distance_text}\n"
+            )
+        elif struct_candle.get("basis") == "pinned":
+            live_price_line = "LIVE PRICE    : not available -- pinned data has no live candle\n"
+        elif struct_candle.get("basis") == "live":
+            live_price_line = (
+                "LIVE PRICE    : not available -- the exchange sent no forming "
+                "candle this run\n"
+            )
+        else:
+            live_price_line = "LIVE PRICE    : not available this run\n"
 
         stop_loss_line = (
             f"STOP LOSS     : {c_red}${stop_loss:.4f}{reset}\n"
@@ -745,6 +786,7 @@ def render_panel(decision):
             f"MACRO TREND: {colorize_val(macro_bias)}\n\n"
             f"{divider}"
             f"{current_price_line}"
+            f"{live_price_line}"
             f"{_entry_zone_lines(entry, c_cyan, reset)}"
             f"STATUS        : {colorize_val(entry.get('entry_status', 'ACTIVE ENTRY ZONE'))}\n"
             f"{swing_struct_line}\n"

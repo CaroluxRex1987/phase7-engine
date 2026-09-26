@@ -1,8 +1,8 @@
 # Next step — read this first
 
-*26 September 2026, tenth session. Rewritten by this session's first commit, the one
-that files Viktor's ruling on finding 16 and what the push of `7d103d7` owed; the
-version it replaces — as it stood at `7d103d7` — is in HISTORY verbatim.
+*26 September 2026, eleventh session. Rewritten by this session's first commit —
+finding 16's code, which also files what the push of `bf2e802` owed; the version it
+replaces — as it stood at `bf2e802` — is in HISTORY verbatim.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
 rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
@@ -29,8 +29,10 @@ Ask what he wants to do first.
 finding 17) and findings 4, 5, 6, 7, 16 and 18 (Viktor's). When each is done, the audit
 is next. Anything found in the meantime goes on the list for after the audit (below),
 not onto this one. **Phase 3 started on 26 September (tenth session), in the order 16,
-7, 4, 6, 5, 18, then G.** Finding 16 is ruled; its code has not landed, so it is not yet
-done. The rest has not started.
+7, 4, 6, 5, 18, then G.** **Finding 16 is done**: ruled in the tenth session, and its
+code lands with the commit that writes this line, after the live run and the
+decision-log record were read (the commit message has what the record showed). **Finding
+7 is next.** The rest has not started.
 
 **Nothing Claude does under the delegation decides the engine's trading rules.**
 Findings 4–7, 16 and 18 are questions about what the engine should do. They are
@@ -47,14 +49,15 @@ build the backtesting architecture." No engine change since the last independent
 backtesting before an independent re-audit.** Claude's second point in the 21 September
 ruling is still open: the no-backtest rule exists only as text.
 
-**The tenth session (26 September)** is a new chat on the same day as the eighth and
-ninth, under Claude Opus 5.5. It opened on Viktor's message: phase 3 of the roadmap to
-the audit ("Phase 7 roadmap to the independent audit", a Claude Docs document outside
-the repository) — one finding at a time, his position first, Claude's critique, and
-Claude drafting the DECISIONS wording once he has ruled — and three items owed to the
-first commit (the push of `7d103d7`, the phase-3 order, and a Windows test-run episode;
-the last two are in HISTORY, 26 September, tenth session). Finding 16 was ruled and its
-wording approved; its code is the next piece of work, as its own commit.
+**The eleventh session (26 September)** is a new chat on the same day as the eighth,
+ninth and tenth, under Claude Opus 5.5. It opened on Viktor's message: finding 16's
+code, with the decision path's full scope before any diff and the live run before the
+commit, and two items owed to the first commit — (a) the hook's result on the push of
+`bf2e802`, filed below, and (b) Claude's proposal to stop filing each push's hook
+result as an owed item, which is **Viktor's call and not ruled** (Open items). Before
+building, Claude stated the scope and asked how point 3 of the ruling reads; Viktor
+agreed with Claude's recommendation and measured his clock for the grace (DECISIONS, the
+finding 16 ruling, "Recorded when its code landed").
 
 ## Ruled — in force
 
@@ -93,17 +96,21 @@ wording approved; its code is the next piece of work, as its own commit.
   candles** (DECISIONS, "Ruling, 26 September 2026 — decisions are made on closed
   candles (finding 16)"). All three series; the live price shown as information only;
   staleness measured from the close time, requiring the latest closed candle; the log
-  records each series' decision candle. Done when its code lands.
+  records each series' decision candle. **Its code lands with the commit that writes
+  this line.** How point 3 reads (a run inside the grace fails), the 60-second grace
+  with its evidence, the pinned-data treatment and the panel's labels are recorded under
+  the ruling, "Recorded when its code landed" (eleventh session).
 
 ## Where things stand, right now
 
 - **Tip:** the commit that writes this line (a commit cannot name its own hash) — the
-  tenth session's first commit; documentation only. Before it: `7d103d7` (the ninth
-  session's first commit: the move to E:), `eba6a2a` (the eighth session's third
-  commit), `1861208` (the stop-distance ruling), `2582994` (the eighth
-  session's first commit: two rulings), `75682ee` (the seventh session's owed filing and
-  the round-1 audit outputs), `bc48f59` (the Engineering Notes regenerated at v1.35),
-  `c5dc4cd`, `e804b64`, `5e55eb8`, `3bfa6b7` (the last code commit,
+  eleventh session's first commit: finding 16's code, a decision-path change. Before
+  it: `bf2e802` (the tenth session's first commit: finding 16 ruled), `7d103d7` (the
+  ninth session's first commit: the move to E:), `eba6a2a` (the eighth session's third
+  commit), `1861208` (the stop-distance ruling), `2582994` (the eighth session's first
+  commit: two rulings), `75682ee` (the seventh session's owed filing and the round-1
+  audit outputs), `bc48f59` (the Engineering Notes regenerated at v1.35), `c5dc4cd`,
+  `e804b64`, `5e55eb8`, `3bfa6b7` (the code commit before this one,
   `data/data_fetcher.py`: finding 27). F itself is `3f263c2`. **Tag:** `portfolio-v1` at
   `99e022e`. **Release gate:** open, declared 15 September 2026.
 - **Where the project lives, from 26 September:** `E:\phase7_engine` on Viktor's machine;
@@ -114,50 +121,53 @@ wording approved; its code is the next piece of work, as its own commit.
   to `E:\phase7_engine`". Run the engine and every command from `E:\phase7_engine` (in
   cmd, changing drive needs `cd /d`). A dated record that names the D: paths means the
   same folders before the move; dated records are not edited.
-- **The push of `7d103d7`** printed `SUMMARY: clean`, section 1 "none", section 2
-  "none" (30 filtered), section 6 "installed" and section 5 README.md 4 commits behind —
-  as predicted (Viktor's message opening this session). Claude had fetched GitHub's tip
-  after that push and verified it (the ninth session); this session read `master` and
-  `origin/master` off Viktor's disk, both `7d103d7`. **Owed to the next commit:** the
-  hook's result on the push of the commit that writes this line. Filing a push's result
+- **The push of `bf2e802`** printed `SUMMARY: clean`, sections 1–3 "none" (30
+  filtered), section 6 "installed" and section 5 README.md 5 commits behind — as
+  predicted (Viktor's message opening this session). Claude had fetched GitHub's tip
+  after that push and verified it (the tenth session); this session read `master` off
+  Viktor's disk (`.git/refs/heads/master`, staged): `bf2e802`. **Owed to the next
+  commit:** the hook's result on the push of the commit that writes this line — unless
+  Viktor rules on Claude's proposal (b) first (Open items). Filing a push's result
   always leaves the filing commit's own push owed — a floor of one, like the Notes'.
   The earlier record of the hook is in HISTORY.
-- **Before this commit**, the three documents it changes matched Viktor's disk on E:
-  byte for byte.
-- **code_hash:** `b3c2308f8f3e05981af25ee82468c071f7bf0b9d49519b6e75bd78c37b5fb365`,
-  moved at `3bfa6b7` (`data/data_fetcher.py`); unmoved since, and by the commit that
-  writes this line — computed on the tip's tree and on the applied tree under Python
-  3.12.3. The move to E: cannot enter it: the walk records paths relative to the
-  repository root (`core/code_fingerprint.py`). Confirmed on Windows before `3bfa6b7`'s
-  commit by Viktor's live run of 21 September 23:29 (details in HISTORY, the entry for
-  this file at `bc48f59`).
+- **Before this commit**, every file it changes matched Viktor's disk on E: byte for
+  byte (staged off his disk and compared with the clone at `bf2e802`).
+- **code_hash:** `36d995652d23c9a1d35595ca7271748052536699b37deda5ed390e2a6ebe4aad`,
+  moved by the commit that writes this line (from `b3c2308f…`, which held from
+  `3bfa6b7`): `data/data_fetcher.py`, `data/validation.py`, `core/engine_core.py`,
+  `core/panel_render.py`, `core/decision_contract.py`. Computed on the tip's tree and on
+  the applied tree under Python 3.12.3. Confirmed on Windows before the commit by
+  Viktor's live run, whose decision-log record Claude read — the commit message has
+  it.
 - **code_hash is only comparable within one Python minor version.** It hashes `ast.dump`
   output, a CPython implementation detail (`core/code_fingerprint.py`, "WHAT IT DOES NOT
   SURVIVE"). **Every `code_hash` claim about this project is computed under Python 3.12**
   (Viktor runs 3.12.10).
-- **Golden snapshot:** unmoved by the commit that writes this line. Last re-baselined at
-  `2c7a7d1` (finding 22; no decision field).
-- **Test suite** — unmoved by the commit that writes this line (documentation only; no
-  test reads this file or HISTORY): **597 passed / 0 failed, no warnings line** with
-  `pandas_ta`; **460 passed / 126 skipped** without it; `run_tests.py` **526 passed / 0
-  failed / 32 errors**, all 32 fixture-collection `TypeError`s. Linux sandbox, autocrlf
-  clone, Python 3.12.3, pinned requirements, applied tree. Last moved at `3bfa6b7`. **On
-  Windows**, Viktor's `python -m pytest -q` in `E:\phase7_engine` at `eba6a2a`, right
-  after the move: 597 passed (26 September). Before `7d103d7`'s commit, a first run in
-  a new, non-administrator cmd window gave 590 passed, 7 errors — all `PermissionError`
-  on pytest's temp folder, not the engine; 597 after Viktor removed that folder (HISTORY,
-  26 September, tenth session).
-- **Engineering Notes:** through Entry #166 (v1.35), which covers `c5dc4cd`. **Seven
+- **Golden snapshot:** re-baselined by the commit that writes this line
+  (`PHASE7_UPDATE_SNAPSHOT=1`): one field added, `provenance.decision_candles`, all
+  three series `basis: "pinned"` with `forming_candles_dropped: null`. No decision field
+  moved and `run_hash` is unmoved. Before that, `2c7a7d1` (finding 22; no decision
+  field).
+- **Test suite** — moved by the commit that writes this line: **613 passed / 0 failed,
+  no warnings line** with `pandas_ta`; **475 passed / 127 skipped** without it;
+  `run_tests.py` **542 passed / 0 failed / 32 errors**, all 32 fixture-collection
+  `TypeError`s (unchanged: the 16 new tests take no fixtures). Linux sandbox, autocrlf
+  clone, Python 3.12.3, pinned requirements, applied tree. The 16 are
+  `tests/test_closed_candles.py`; one skips without `pandas_ta`. **On Windows**, the
+  counts Viktor was told to stop on in this commit's command sequence; he proceeded,
+  which is his confirmation. Before that, 597 at `eba6a2a` (26 September).
+- **Engineering Notes:** through Entry #166 (v1.35), which covers `c5dc4cd`. **Eight
   commits behind** — `bc48f59`, the floor (a commit that regenerates the Notes cannot
-  cover itself, Entry #144), `75682ee`, `2582994`, `1861208`, `eba6a2a`, `7d103d7`, and
-  the commit that writes this line.
+  cover itself, Entry #144), `75682ee`, `2582994`, `1861208`, `eba6a2a`, `7d103d7`,
+  `bf2e802`, and the commit that writes this line.
   Every later commit adds one until the next regeneration, which also records the round-1
-  recovery, the four rulings of 26 September, the phase-3 order and the move to E:. No
-  time pressure (Viktor, 26 September).
+  recovery, the rulings of 26 September, the phase-3 order, the move to E: and
+  finding 16's code. No time pressure (Viktor, 26 September).
 - **Portfolio Document and AI-Attribution Statement:** both current with their scripts,
   which last changed at `6e1baba`.
-- **README.md:** not changed by the commit that writes this line; last changed at
-  `75682ee`. So the hook's section 5 will report README.md 5 commits behind (expected).
+- **README.md:** changed by the commit that writes this line — its two test-count
+  passages only (613 / 475 + 127 skipped / 542). So the hook's section 5 will report 0
+  commits since README.md was touched (expected).
 - **The round-1 audit outputs are in the repository**, in
   `docs/audit_reports/round1_deepseek-v4-pro_kimi-k3_2026-08-27/`, byte-identical to the
   hashes Viktor took on 23 September. The account is in HISTORY, "26 September 2026 —
@@ -171,9 +181,11 @@ caught it by reading the log, not from a paste. **On every change that moves
 `code_hash` — and always on one that touches the decision path (G is one) — the live
 run and the panel read happen before `git commit`, and Claude checks the decision-log
 record for the new `code_hash` before the commit step, not after the push.** Never
-predict live numbers; check the record. Followed at `2c7a7d1`, `4e2b1c8`, `486f1a5` and
-`3bfa6b7`: the command list stopped at the live run, Claude read the record, and only
-then gave the commit steps.
+predict live numbers; check the record. Followed at `2c7a7d1`, `4e2b1c8`, `486f1a5`,
+`3bfa6b7` and the commit that writes this line: the command list stopped at the live
+run, Claude read the record, and only then gave the commit steps. **Since finding 16, a
+live run in the first 60 seconds after a 4h close (00:00, 04:00, 08:00, 12:00, 16:00,
+20:00 UTC) fails by design** ("not yet final"); run again a minute later.
 
 ## Sandbox practice
 
@@ -207,11 +219,20 @@ then gave the commit steps.
   in a delivery names E:. `D:\phase7_engine` no longer exists under that name.
 - **Tenth session:** the session had no shell on Viktor's machine, only file staging, so
   his tip was read from `.git/refs` staged off his disk, not from `git log`.
+- **Eleventh session:** the same (file staging only). The scope stated before the diff
+  missed two consequences the suite then caught: `core/decision_contract.py` must
+  declare every provenance field (`test_decision_contract.py`), and a panel label that
+  starts with `DECISION` is found by `test_setup_direction_box.py`'s "starts with
+  DECISION" search before the DECISION line itself. Both are in the commit message. A
+  new panel label should be checked against every `startswith` search over the panel.
 
 ## Review findings, 21 September 2026
 
 Read at `635a94e` from Viktor's disk and from an autocrlf clone. **Every finding comes
 from reading the code; none was reproduced by running the engine** unless it says so.
+Line numbers are as read at the commit each entry names. Since finding 16's commit,
+`current_price` is at `core/engine_core.py:1060` and the stop-and-targets call at
+`:1101–1108`.
 The full text of each fixed finding, with its evidence, is in HISTORY: 1–13 in the
 entry for this file at `aafded0`, 19–24 in the entry at `4e2b1c8`, 25–28 in the entry
 at `5e55eb8`. The Engineering Notes, Entries #150–#164, give each one's landing.
@@ -303,7 +324,12 @@ landed (DECISIONS, 22 September).
     DECISIONS, "Ruling, 26 September 2026 — decisions are made on closed candles
     (finding 16)". Re-read on 26 September: `fetch_ohlc` names `close_time` and drops it
     (`data/data_fetcher.py:346–358`); three series are fetched (`core/engine_core.py:422`,
-    `:472`, `:755`); `current_price` is the last row's close (`:1005`). Code not landed.
+    `:472`, `:755`); `current_price` is the last row's close (`:1005`). **Code landed
+    with the eleventh session's first commit** (the commit that writes this line):
+    `fetch_ohlc` drops the forming candle before validation and records it; the
+    staleness check measures from the decision candle's close with a 60-second grace;
+    `provenance.decision_candles` records each series; the panel prints DECISION CLOSE
+    and a LIVE PRICE line. Done.
 18. **The bias state machine gates no trade since F.** Viktor dropped the CONFIRMED
     requirement so the signal follows `raw_bias`, as `decision_model` does.
     `detailed_bias` still feeds `exit_model`'s "bias state changed" flag and the
@@ -402,12 +428,12 @@ Each code commit is its own commit and updates this file for its own landing.
 
 ## Resolved this session
 
-- **Finding 16 ruled** — DECISIONS, 26 September; its code is still owed.
-- **The push of `7d103d7`** — filed above.
-- **The phase-3 order and the Windows test-run episode before `7d103d7`** — HISTORY,
-  "26 September 2026 (tenth session) — phase 3 started: the order, finding 16 ruled, and
-  a Windows test-run episode".
-- **The once-per-session rewrite of this file.** The previous version, as at `7d103d7`,
+- **Finding 16's code** — landed by the commit that writes this line; finding 16 is
+  done.
+- **How point 3 of the finding 16 ruling reads, and the grace** — DECISIONS, under the
+  ruling, "Recorded when its code landed".
+- **The push of `bf2e802`** — filed above.
+- **The once-per-session rewrite of this file.** The previous version, as at `bf2e802`,
   is in HISTORY verbatim, headings demoted one level, proven by un-demotion with a
   negative control (the commit message has the result).
 
@@ -417,20 +443,18 @@ Items marked **Viktor's call** are his to decide; he writes his position first a
 Claude critiques it.
 
 - **Owed to the next commit:** file the hook's result on this commit's push.
+- **Viktor's call, not ruled — (b), Claude's proposal of 26 September:** a push whose
+  hook result Viktor does not paste back is recorded once as "as predicted", and only
+  deviations are filed as owed items. It would end the floor-of-one chain above.
 - **Viktor, outside the repository:** delete `D:\phase7_engine_MOVED_TO_E` and
   `D:\Phase_7_Engine_Random_Files_MOVED_TO_G` once satisfied with the copies on E: and
   G: (HISTORY, 26 September, ninth session). Not urgent.
-- **Claude's — finding 16's code, next.** Decision path, so full scope before any diff:
-  `data/data_fetcher.py` (live and pinned paths), `data/validation.py`'s staleness
-  check, the three fetches and `current_price` in `core/engine_core.py`, the panel's
-  new information line, the decision log's new fields and its reader, every caller and
-  test of each, and the golden snapshot fields it could move. The grace value is set from
-  evidence and recorded. The live run and the decision-log record come before the
-  commit, and the commit adds its line to `docs/audit_change_list.md`. When it lands, the
-  patch-delivery skill's line that the forming candle moves live numbers within one 4h
-  bar (its step 6) needs changing; the skill is outside the repository. Not started.
+- **Claude's, outside the repository — the patch-delivery skill's step 6** still says
+  the forming candle moves live numbers within one 4h bar. Since finding 16 it does
+  not; the line needs changing, and a live run inside the first minute after a close now
+  fails by design. Proposed to Viktor as a skill update; his to save.
 - **Viktor's call — findings 7, 4, 6, 5 and 18 above, in that order.** On the closed
-  list before the audit. Not started.
+  list before the audit. **7 is next.** Not started.
 - **Claude's — work order G (finding 17).** On the closed list before the audit.
 - **Claude's — the pre-send token check** (audit preparation, ruled 26 September). It
   cannot be finished until the auditor is pinned, because it needs that model's
@@ -480,7 +504,7 @@ Claude critiques it.
 - **Claude's — the running change list for the audit:** `docs/audit_change_list.md`,
   from the baseline `e65a0f7` (the tree round 6's fix-verification was sent). **Every
   later commit that changes engine code, tests or tooling adds its line there in the
-  same commit.** This session's first commit is documentation only and adds none.
+  same commit.** This session's first commit (finding 16's code) adds its line.
 - **Viktor, outside the repository:** rotate the plaintext API key in `D:\USB
   Backup\Phase7_Engine documents\API KEY FROM OPEN CODE.txt` if it is still live. The
   file was not copied or opened.

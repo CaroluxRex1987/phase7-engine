@@ -1142,6 +1142,33 @@ the golden snapshot moves.
 **Done when** the code lands, with the live run done and the decision-log record read
 before its commit.
 
+**Recorded when its code landed** *(added 26 September 2026, eleventh session, by the
+commit that lands the code; the ruling above is unchanged)*.
+
+- **Point 3, how it reads.** Before building, Claude asked which of two readings Viktor
+  meant: a candle that closed less than the grace ago is not yet final, so a run inside
+  the grace fails; or the grace lets the previous candle stand, so a run never fails.
+  Claude recommended the first, since it is the only one the "Accepted with it" sentence
+  above fits. Viktor agreed by sending the clock measurement Claude had asked for as the
+  go-ahead. So: a series fails once a newer candle than its decision candle has closed
+  ("stale data"), and fails inside the grace after its decision candle's close ("not
+  yet final"). Both are handled as a stale series is handled today.
+- **The grace: 60 seconds** (`FINALITY_GRACE_SECONDS`, `data/validation.py`). The
+  evidence: Viktor's clock against time.windows.com, 26 September 2026, five samples by
+  `w32tm /stripchart`: +0.198 s to +0.200 s, steady. MEXC's own delay in finalising a
+  candle was not measured, since the sandbox cannot reach api.mexc.com. Sixty seconds is
+  a margin chosen against the one number that was measured. The cost is a failed run in
+  the first minute after each close: six minutes a day on 4h.
+- **Pinned data.** Every row of a pinned file is treated as closed, and nothing is
+  dropped. The record's `forming_candles_dropped` is `null`, not 0, because a pinned
+  file carries no fetch time and the question cannot be asked. The live price is `null`.
+- **The golden snapshot moved by one added field only**, `provenance.decision_candles`.
+  No decision field moved, and `run_hash` is unmoved.
+- **The panel.** The price line was labelled CURRENT PRICE; it is the decision close
+  now and is labelled DECISION CLOSE, with the decision candle's open time. The live
+  price follows as `LIVE PRICE`, marked information only, with its distance from the
+  decision close. Claude proposed the label; Viktor agreed with the reading above.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then

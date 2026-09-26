@@ -206,6 +206,32 @@
   "provenance": {
     "archive_path": "logs/archive/testusdt_4h_51c8f3df520b284c.json.gz",
     "canonical_format": 1,
+    "decision_candles": {
+      "btc": {
+        "basis": "pinned",
+        "close_time": "2025-03-17 00:00:00",
+        "exchange_close_time": null,
+        "forming_candles_dropped": null,
+        "live_price": null,
+        "open_time": "2025-03-16 20:00:00"
+      },
+      "macro": {
+        "basis": "pinned",
+        "close_time": "2025-03-17 00:00:00",
+        "exchange_close_time": null,
+        "forming_candles_dropped": null,
+        "live_price": null,
+        "open_time": "2025-03-16 00:00:00"
+      },
+      "struct": {
+        "basis": "pinned",
+        "close_time": "2025-03-17 00:00:00",
+        "exchange_close_time": null,
+        "forming_candles_dropped": null,
+        "live_price": null,
+        "open_time": "2025-03-16 20:00:00"
+      }
+    },
     "engine_version": "Phase\u20117 Structural Quant Engine v1.0",
     "fetch": {
       "effective_rows": {

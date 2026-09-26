@@ -3,6 +3,7 @@ import os
 import pandas as pd
 import requests
 from core import config
+from data import validation
 from data.validation import validate_ohlcv
 
 # Environment variable naming a directory of pinned OHLCV CSVs. Checked at call
@@ -16,6 +17,26 @@ _OHLCV_COLUMNS = ["open", "high", "low", "close", "volume"]
 # message carries. Enough for MEXC's {"code": ..., "msg": ...} and for most
 # plain-text error pages; bounded so an HTML error page cannot flood the panel.
 EXCHANGE_TEXT_LIMIT = 300
+
+# FINDING 16, 26 September 2026. How far MEXC's own close_time may sit from a
+# kept candle's open time plus the bar length before the reply is treated as
+# malformed. The forming candle is identified from the open time and the bar
+# length, not from close_time (see _split_forming), so this is the check that
+# the exchange agrees on what a candle is. Whether MEXC stamps a candle's
+# close at the boundary or one millisecond before it was NOT read from its
+# documentation (the fetch was not possible from the sandbox); one second
+# covers either, and the first live run confirms it or fails loudly.
+CLOSE_TIME_TOLERANCE_SECONDS = 1
+
+# The record's `candles` attribute for a series served from pinned files. A
+# pinned file carries no fetch time and no close_time, so whether its last
+# row was still forming when it was saved cannot be known: None, not 0.
+PINNED_CANDLES = {
+    "basis": "pinned",
+    "forming_candles_dropped": None,
+    "live_price": None,
+    "exchange_close_time": None,
+}
 
 
 def _exchange_said(payload):
@@ -226,7 +247,11 @@ class DataFetcher:
             df = df.iloc[-int(limit):]
 
         # A fresh copy per call. See the class docstring, choice 2.
-        return df.copy()
+        # FINDING 16: every row of a pinned file is treated as closed, and
+        # the record says the question could not be asked. See PINNED_CANDLES.
+        out = df.copy()
+        out.attrs["candles"] = dict(PINNED_CANDLES)
+        return out
 
     # ============================================================
     # LOCAL CSV LOADING
@@ -273,10 +298,61 @@ class DataFetcher:
     # MEXC API OHLC FETCHER
     # ============================================================
 
-    def fetch_ohlc(self, symbol, timeframe, limit=300):
+    @staticmethod
+    def _split_forming(df, timeframe, now_ts):
+        """
+        FINDING 16, 26 September 2026: remove the candle still forming.
+
+        `df` is indexed by open time and still carries MEXC's `close_time`.
+        Returns (closed_frame, dropped_frame).
+
+        A candle is forming when it has not closed at `now_ts`: its open time
+        plus the bar length is later than now. Only trailing rows are
+        dropped, and only while a row opens no more than FUTURE_TOLERANCE_BARS
+        after now. Normally that is one row; at a boundary, with this
+        machine's clock a little behind the exchange's, it can be two (the
+        candle the exchange has just closed and the one it has just opened).
+        A row opening further ahead is not a candle forming, it is a
+        timestamp or clock defect -- finding 25 -- so it is kept, and
+        validate_ohlcv rejects the series as future-dated rather than the
+        defect being dropped out of sight.
+
+        For a timeframe the bar-length table does not list (MEXC's "1M"), the
+        exchange's own close_time decides instead, since there is no other
+        way to know where the candle ends; validate_ohlcv checks nothing
+        about the time axis of such a series, as before.
+        """
+        bar = validation.bar_length(timeframe)
+        opens = df.index
+        if bar is not None:
+            closes = opens + bar
+            ahead_limit = bar * validation.FUTURE_TOLERANCE_BARS
+        else:
+            closes = pd.DatetimeIndex(df["close_time"])
+            ahead_limit = None
+
+        keep = len(df)
+        while keep > 0:
+            i = keep - 1
+            if not closes[i] > now_ts:
+                break
+            if ahead_limit is not None and opens[i] - now_ts > ahead_limit:
+                break
+            keep -= 1
+        return df.iloc[:keep], df.iloc[keep:]
+
+    def fetch_ohlc(self, symbol, timeframe, limit=300, now=None):
         """
         Fetch OHLCV candles from MEXC API.
         MEXC returns **8 fields**, not 12.
+
+        FINDING 16, 26 September 2026: returns CLOSED candles only. The candle
+        still forming is removed (see _split_forming), and what was removed is
+        recorded at `.attrs["candles"]`: how many forming candles were dropped,
+        the latest one's close as the live price (information only; nothing
+        that decides reads it), and MEXC's close_time for the last closed
+        candle. `now` is the reference time, the wall clock in UTC when
+        omitted; tests pass it so that "now" is not the day the suite runs.
         """
 
         url = f"{self.base_url}/api/v3/klines"
@@ -354,11 +430,16 @@ class DataFetcher:
                 "quote_volume"
             ])
 
-            # Keep only OHLCV
-            df = df[["timestamp", "open", "high", "low", "close", "volume"]]
+            # Keep OHLCV, and -- FINDING 16 -- close_time, which this line
+            # used to throw away. It is read below and dropped before the
+            # frame is returned.
+            df = df[["timestamp", "open", "high", "low", "close", "volume",
+                     "close_time"]]
 
             # Convert types
             df["timestamp"] = pd.to_datetime(df["timestamp"], unit="ms")
+            df["close_time"] = pd.to_datetime(df["close_time"].astype("int64"),
+                                              unit="ms")
             df["open"] = df["open"].astype(float)
             df["high"] = df["high"].astype(float)
             df["low"] = df["low"].astype(float)
@@ -374,6 +455,52 @@ class DataFetcher:
                 f"{type(e).__name__}: {e}"
             )}
 
+        # MEXC timestamps are UTC epoch ms, so the reference must be UTC too.
+        # Timestamp.now(tz="UTC") rather than the deprecated utcnow().
+        now_ts = validation.as_naive_utc(
+            pd.Timestamp.now(tz="UTC") if now is None else now)
+
+        # FINDING 16, 26 September 2026: decisions are made on closed candles
+        # only. The candle still forming leaves the frame here, before
+        # validation and before anything that decides can read it.
+        try:
+            closed, dropped = self._split_forming(df, timeframe, now_ts)
+        except Exception as e:
+            return {"error": (
+                f"API response for {symbol} {timeframe} could not be split into "
+                f"closed and forming candles: {type(e).__name__}: {e}"
+            )}
+
+        # FINDING 16: the exchange must agree on where each kept candle ends.
+        # A close_time more than CLOSE_TIME_TOLERANCE_SECONDS from open time
+        # plus the bar length means the candles are not what the drop above
+        # assumed, and the drop cannot be trusted.
+        bar = validation.bar_length(timeframe)
+        if bar is not None and len(closed):
+            off = (closed["close_time"] - (closed.index + bar)).abs()
+            tolerance = pd.Timedelta(seconds=CLOSE_TIME_TOLERANCE_SECONDS)
+            if (off > tolerance).any():
+                i = int((off > tolerance).to_numpy().argmax())
+                return {"error": (
+                    f"API response for {symbol} {timeframe}: the exchange's "
+                    f"close_time {closed['close_time'].iloc[i]} for the candle "
+                    f"opened {closed.index[i]} is not that open time plus one "
+                    f"{timeframe} bar (tolerance "
+                    f"{CLOSE_TIME_TOLERANCE_SECONDS} s). Which candles are "
+                    f"closed cannot be decided from this reply."
+                )}
+
+        exchange_close = (str(closed["close_time"].iloc[-1])
+                          if len(closed) else None)
+        candles = {
+            "basis": "live",
+            "forming_candles_dropped": int(len(dropped)),
+            "live_price": (float(dropped["close"].iloc[-1])
+                           if len(dropped) else None),
+            "exchange_close_time": exchange_close,
+        }
+        df = closed[["open", "high", "low", "close", "volume"]].copy()
+
         # SEQUENCE ITEM 8: live data is validated too, and this is the one
         # path that DOES claim to be current — so it is the one that passes a
         # reference time and can therefore fail the staleness check.
@@ -382,13 +509,14 @@ class DataFetcher:
         # The shape checks above catch a response with the wrong number of
         # fields; this catches one that is correctly shaped and wrong, which is
         # the harder case and the one that reaches analysis.
-        # MEXC timestamps are UTC epoch ms, so the reference must be UTC too.
-        # Timestamp.now(tz="UTC") rather than the deprecated utcnow().
-        problem = validate_ohlcv(df, timeframe=timeframe,
-                                 now=pd.Timestamp.now(tz="UTC").tz_localize(None))
+        #
+        # FINDING 16: validated AFTER the forming candle has gone, so the
+        # staleness check measures the candle the engine decides on.
+        problem = validate_ohlcv(df, timeframe=timeframe, now=now_ts)
         if problem:
             return {"error": f"API data for {symbol} {timeframe} failed validation: {problem}"}
 
+        df.attrs["candles"] = candles
         return df
 
     # ============================================================
