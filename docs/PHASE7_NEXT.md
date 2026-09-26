@@ -73,11 +73,16 @@ and the log count were done under Sonnet 5, this commit under Opus 5.5.
 - **New, 26 September — the pre-send token check is audit preparation, not an engine
   item** (DECISIONS, "Ruling, 26 September 2026 — the pre-send token check is audit
   preparation, not an engine item"). It does not add to or reopen the closed list.
+- **New, 26 September — the stop-distance finding is evidence for findings 4 and 6**
+  (DECISIONS, "Ruling, 26 September 2026 — the stop-distance finding is evidence for
+  findings 4 and 6"). Not part of G; the closed list is unchanged. The 8% ceiling is part
+  of finding 6; the risk gate's position goes on the list for after the audit.
 
 ## Where things stand, right now
 
 - **Tip:** the commit that writes this line (a commit cannot name its own hash) — the
-  eighth session's first commit; documentation only. Before it: `75682ee` (the seventh
+  eighth session's second commit; documentation only. Before it: `2582994` (the eighth
+  session's first commit: two rulings, this file rewritten), `75682ee` (the seventh
   session's owed filing and the round-1 audit outputs), `bc48f59` (the Engineering Notes
   regenerated at v1.35), `c5dc4cd`, `e804b64`, `5e55eb8`, `3bfa6b7` (the last code commit,
   `data/data_fetcher.py`: finding 27). F itself is `3f263c2`. **Tag:** `portfolio-v1` at
@@ -92,10 +97,13 @@ and the log count were done under Sonnet 5, this commit under Opus 5.5.
   commits behind (expected: `75682ee` changed README). The prediction of section 1 "none"
   held only for the second push. The hook did what it was installed for (DECISIONS,
   19 September): the push stopped, and nothing reached GitHub that was not meant to.
-  **Owed to the next commit:** the hook's result on the push of the commit that writes
-  this line. The earlier record of the hook is in HISTORY.
-- **This session's clone** of GitHub's tip was `75682ee`, and the three documents this
-  commit changes matched Viktor's disk byte for byte before any edit.
+- **The push of `2582994`** printed `SUMMARY: clean`, section 1 "none", section 6
+  "installed" and section 5 README.md 1 commit behind — as predicted (Viktor's paste).
+  Claude fetched GitHub's tip afterwards; the three documents it changed matched what was
+  built. **Owed to the next commit:** the hook's result on the push of the commit that
+  writes this line. The earlier record of the hook is in HISTORY.
+- **Before each of this session's commits**, the documents it changes matched Viktor's
+  disk byte for byte (at `75682ee` and at `2582994`).
 - **code_hash:** `b3c2308f8f3e05981af25ee82468c071f7bf0b9d49519b6e75bd78c37b5fb365`,
   moved at `3bfa6b7` (`data/data_fetcher.py`); unmoved since, and by the commit that
   writes this line — computed on the tip's tree and on the applied tree under Python
@@ -112,15 +120,15 @@ and the log count were done under Sonnet 5, this commit under Opus 5.5.
   skipped** without it; `run_tests.py` **526 passed / 0 failed / 32 errors**, all 32
   fixture-collection `TypeError`s. Linux sandbox, autocrlf clone, Python 3.12.3, pinned
   requirements, applied tree. Last moved at `3bfa6b7`.
-- **Engineering Notes:** through Entry #166 (v1.35), which covers `c5dc4cd`. **Three
+- **Engineering Notes:** through Entry #166 (v1.35), which covers `c5dc4cd`. **Four
   commits behind** — `bc48f59`, the floor (a commit that regenerates the Notes cannot
-  cover itself, Entry #144), `75682ee`, and the commit that writes this line. Every later
-  commit adds one until the next regeneration, which also records the round-1 recovery
-  and the two rulings of 26 September. No time pressure (Viktor, 26 September).
+  cover itself, Entry #144), `75682ee`, `2582994`, and the commit that writes this line.
+  Every later commit adds one until the next regeneration, which also records the round-1
+  recovery and the three rulings of 26 September. No time pressure (Viktor, 26 September).
 - **Portfolio Document and AI-Attribution Statement:** both current with their scripts,
   which last changed at `6e1baba`.
 - **README.md:** not changed by the commit that writes this line; last changed at
-  `75682ee`. So the hook's section 5 will report README.md 1 commit behind (expected).
+  `75682ee`. So the hook's section 5 will report README.md 2 commits behind (expected).
 - **The round-1 audit outputs are in the repository**, in
   `docs/audit_reports/round1_deepseek-v4-pro_kimi-k3_2026-08-27/`, byte-identical to the
   hashes Viktor took on 23 September. The account is in HISTORY, "26 September 2026 —
@@ -238,6 +246,8 @@ landed (DECISIONS, 22 September).
    measured. **Dependency added at F:** the confirmation gate no longer blocks on HVN
    proximity, on the reasoning that this stop already acts on that area. If this finding
    is ruled to stop pulling the stop to the HVN, nothing checks HVN proximity.
+   **Ruled 26 September:** the 8% ceiling is part of this finding, and the count under
+   "Evidence for findings 4 and 6" below is its measurement.
 7. **Indicator values beyond 5σ are silently replaced by the previous bar's.**
    `indicators/indicators.py:105–110`, inside `clean_series`, which EMA, RSI, ADX,
    SuperTrend and ATR all pass through. Nothing records the replacement — unlike volume
@@ -284,6 +294,44 @@ compliance.
 15. `_refuse_incoherent_plan` cannot fire today (see 8) — correctly so: it is a tripwire
     against a future change, which is what its docstring says it is.
 
+## Evidence for findings 4 and 6 — the stop-distance count (26 September)
+
+**The engine almost never trades, and one gate decides nearly all of it.** Viktor,
+22 September, in chat. **Ruled 26 September: evidence for findings 4 and 6, not a new
+item and not part of G** (DECISIONS, "Ruling, 26 September 2026 — the stop-distance
+finding is evidence for findings 4 and 6"). What the code shows — read from staged
+copies of Viktor's disk, which matched `75682ee`; the engine was not run:
+
+- **G cannot change it.** `_determine_final_action` returns NO-TRADE (RISK TOO HIGH) on
+  a failed risk verdict at `models/decision_model.py:500–502`, before the direction
+  ladder whose CONSERVATIVE branches G would change (from `:619`). No refusal in the
+  log is within G's reach.
+- **Finding 6, confirmed.** For a long the stop is `min(hvn, calculated_stop)`, for a
+  short `max(…)` (`models/risk_model.py:328–349`): the point of control can only widen
+  the stop, never tighten it.
+- **Finding 4, confirmed.** Stop and targets are measured from `current_price`, the
+  last close (`core/engine_core.py:1005`, the call at `:1046–1053`).
+- **RISK REGIME: UNKNOWN, confirmed.** Both distance refusals return before the regime
+  is classified (`models/risk_model.py:516–522`); the inference of 22 September holds.
+- **The ceiling is 8%, not 15%.** A stop 8–15% away is classified EXTREME RISK and
+  refused (`risk_model.py:439`, `:524–526`); the 15% limit only decides which message
+  prints. Finding 6's text above is corrected accordingly; ruled part of finding 6.
+- **Count, 26 September**, of Viktor's `logs/phase7_decision_log_aerousdt.jsonl`, staged
+  off his disk (last written 23 September, 00:01 UTC): 37 records, 6–23 September, all
+  AEROUSDT 4h, test runs included — 33 NO-TRADE (RISK TOO HIGH), 3 WAIT, 1 SHORT
+  (16 September), 0 LONG. Of the 33, 29 were refused on the distance limit (UNKNOWN)
+  and 4 as EXTREME RISK (8.4–15.0%). The records cover 18 distinct last candles (one
+  record lacks the field); on 16 of them every run was refused. Macro agreed with the
+  raw bias in 31 of the 33.
+- **What the refused runs would otherwise have been.** Replaying the ladder on the 33
+  with the risk gate ignored gives 25 CONSERVATIVE, 6 at the LONG/SHORT tier and 2
+  WAIT. This is Claude's re-implementation from reading, not engine output, and it
+  leaves out the confirmation gate that runs after the ladder, so some of the 31 could
+  still be refused there. It is the measurement finding 6 says "was not measured", on
+  one symbol over one mostly rising period.
+- The count of 22 September (35 runs, 31 NO-TRADE, 27 on the distance limit) was of an
+  earlier copy; the two records added since are both distance refusals.
+
 ## Found after 22 September — for after the next audit
 
 The 22 September ruling closed the list above. A finding made from now on is recorded
@@ -291,44 +339,12 @@ here, with its evidence, and waits until after the independent audit; it does no
 the audit. Whether the auditor is shown this section is part of the package question,
 Viktor's when the audit is planned.
 
-- **The engine almost never trades, and one gate decides nearly all of it.** Viktor,
-  22 September, in chat; recorded here on 26 September. **Where it belongs is open and
-  Viktor's: work order G (finding 17), findings 4 and 6 already on the list, or this
-  list.** Claude's recommendation, from reading the code on 26 September: **findings 4
-  and 6, not G.** What the code shows — read from staged copies of Viktor's disk, which
-  match `75682ee`; the engine was not run:
-  - **G cannot change it.** `_determine_final_action` returns NO-TRADE (RISK TOO HIGH) on
-    a failed risk verdict at `models/decision_model.py:500–502`, before the direction
-    ladder whose CONSERVATIVE branches G would change (from `:619`). No refusal in the
-    log is within G's reach.
-  - **Finding 6, confirmed.** For a long the stop is `min(hvn, calculated_stop)`, for a
-    short `max(…)` (`models/risk_model.py:328–349`): the point of control can only widen
-    the stop, never tighten it.
-  - **Finding 4, confirmed.** Stop and targets are measured from `current_price`, the
-    last close (`core/engine_core.py:1005`, the call at `:1046–1053`).
-  - **RISK REGIME: UNKNOWN, confirmed.** Both distance refusals return before the regime
-    is classified (`models/risk_model.py:516–522`); the inference of 22 September holds.
-  - **The ceiling is 8%, not 15%.** A stop 8–15% away is classified EXTREME RISK and
-    refused (`risk_model.py:439`, `:524–526`); the 15% limit only decides which message
-    prints. Finding 6's text above is corrected accordingly.
-  - **The risk gate runs before the bias checks** — the weak-validation and lean checks
-    at `decision_model.py:605–617` — so a refused run can be one the ladder would have
-    answered WAIT anyway.
-  - **Count, 26 September**, of Viktor's `logs/phase7_decision_log_aerousdt.jsonl`, staged
-    off his disk (last written 23 September, 00:01 UTC): 37 records, 6–23 September, all
-    AEROUSDT 4h, test runs included — 33 NO-TRADE (RISK TOO HIGH), 3 WAIT, 1 SHORT
-    (16 September), 0 LONG. Of the 33, 29 were refused on the distance limit (UNKNOWN)
-    and 4 as EXTREME RISK (8.4–15.0%). The records cover 18 distinct last candles (one
-    record lacks the field); on 16 of them every run was refused. Macro agreed with the
-    raw bias in 31 of the 33.
-  - **What the refused runs would otherwise have been.** Replaying the ladder on the 33
-    with the risk gate ignored gives 25 CONSERVATIVE, 6 at the LONG/SHORT tier and 2
-    WAIT. This is Claude's re-implementation from reading, not engine output, and it
-    leaves out the confirmation gate that runs after the ladder, so some of the 31 could
-    still be refused there. It is the measurement finding 6 says "was not measured", on
-    one symbol over one mostly rising period.
-  - The count of 22 September (35 runs, 31 NO-TRADE, 27 on the distance limit) was of an
-    earlier copy; the two records added since are both distance refusals.
+- **The risk gate runs before the bias checks.** The risk verdict returns at
+  `models/decision_model.py:500–502`, before the weak-validation and lean checks at
+  `:605–617`, so a run the ladder would have answered WAIT is reported as NO-TRADE (RISK
+  TOO HIGH). In the log counted on 26 September this was 2 of the 33 refused runs. It
+  changes what the panel says, not which trades are taken. Found by Claude reading the
+  code, 26 September; **ruled for after the audit** (Viktor, 26 September).
 
 ## Work order — Claude's, under Viktor's delegation
 
@@ -351,8 +367,10 @@ Each code commit is its own commit and updates this file for its own landing.
   DECISIONS: any model may build or review, at the cost of its audit eligibility; the
   pre-send token check is audit preparation, not an engine item.
 - **The push of `75682ee`** — filed above, with Claude's wrong prediction.
-- **Where the stop-distance finding belongs — the code is read** (above). The ruling is
-  still Viktor's.
+- **Where the stop-distance finding belongs — ruled** (DECISIONS, 26 September): evidence
+  for findings 4 and 6; the 8% ceiling is part of 6; the risk gate's position goes on the
+  list for after the audit. Phase 2 of the roadmap is done.
+- **The push of `2582994`** — filed above.
 - **The once-per-session rewrite of this file.** The previous version, as at `75682ee`,
   is in HISTORY verbatim, headings demoted one level, proven by un-demotion with a
   negative control (the commit message has the result).
@@ -366,8 +384,6 @@ Claude critiques it.
 - **Viktor's call — findings 4, 5, 6, 7, 16 and 18 above.** On the closed list before
   the audit. Not started.
 - **Claude's — work order G (finding 17).** On the closed list before the audit.
-- **Viktor's call — where the stop-distance finding belongs** (above, "Found after
-  22 September"). The code is read; Claude recommends findings 4 and 6.
 - **Claude's — the pre-send token check** (audit preparation, ruled 26 September). It
   cannot be finished until the auditor is pinned, because it needs that model's
   tokenizer; until then it can be built with the model as a parameter. It goes under

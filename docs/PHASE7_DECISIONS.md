@@ -1064,6 +1064,40 @@ September; the ranking is in "Phase-7 — Model Roster", outside the repository)
 **What it weakens.** It puts a tool on the audit's path that no independent party has
 reviewed. If it counts wrong, it can pass a send that truncates or refuse one that fits.
 
+## Ruling, 26 September 2026 — the stop-distance finding is evidence for findings 4 and 6
+
+*New in this file on 26 September 2026, filed with the eighth session's second commit.*
+
+**What was ruled.** Viktor agreed with Claude's recommendation: the finding that the
+engine almost never trades, because nearly every run is refused on the stop's distance
+(Viktor, 22 September; the evidence is in PHASE7_NEXT.md, "Evidence for findings 4 and
+6"), is evidence for findings 4 and 6. It is not a new item and not part of work order G,
+and the closed list (22 September) is unchanged. Two parts of Claude's code reading were
+ruled separately:
+
+- **The 8% ceiling is part of finding 6.** Viktor: "Ok". A stop 8–15% from the price is
+  refused as EXTREME RISK (`models/risk_model.py:439`, `:524–526`), so the working limit
+  is 8%, not the 15% that finding 6's text stated until 26 September. Ruling finding 6
+  decides how far a stop may sit, and these limits are part of that question.
+- **The risk gate's position goes on the list for after the audit.** Viktor: "We can put
+  it on the after audit list". The risk verdict is checked before the weak-validation and
+  lean checks (`models/decision_model.py:500–502`, `:605–617`), so a run the ladder would
+  have answered WAIT is reported as NO-TRADE (RISK TOO HIGH) — 2 of the 33 refused runs
+  in the log counted on 26 September. It changes what the panel says, not which trades
+  are taken, and it was found after 22 September.
+
+**Why not G.** The risk verdict returns before the direction ladder whose CONSERVATIVE
+branches G changes. No refusal in the log is within G's reach.
+
+**How it was reached.** Viktor adopted Claude's recommendation rather than writing a
+position first. Claude said at the time that the only critique of the recommendation was
+its own, which is weaker than his testing it, and that this was acceptable here: the
+question is where a finding is filed, and nothing the engine does turns on it.
+
+**What it weakens.** Findings 4 and 6 now carry the measurement of how often the stop
+vetoes a setup, which makes them heavier to rule. Until after the audit the panel keeps
+reporting some runs that would have been WAIT as RISK TOO HIGH.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then
