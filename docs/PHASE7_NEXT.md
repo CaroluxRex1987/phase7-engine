@@ -81,7 +81,8 @@ and the log count were done under Sonnet 5, this commit under Opus 5.5.
 ## Where things stand, right now
 
 - **Tip:** the commit that writes this line (a commit cannot name its own hash) — the
-  eighth session's second commit; documentation only. Before it: `2582994` (the eighth
+  eighth session's third commit; documentation only. Before it: `1861208` (the
+  stop-distance ruling), `2582994` (the eighth
   session's first commit: two rulings, this file rewritten), `75682ee` (the seventh
   session's owed filing and the round-1 audit outputs), `bc48f59` (the Engineering Notes
   regenerated at v1.35), `c5dc4cd`, `e804b64`, `5e55eb8`, `3bfa6b7` (the last code commit,
@@ -100,10 +101,15 @@ and the log count were done under Sonnet 5, this commit under Opus 5.5.
 - **The push of `2582994`** printed `SUMMARY: clean`, section 1 "none", section 6
   "installed" and section 5 README.md 1 commit behind — as predicted (Viktor's paste).
   Claude fetched GitHub's tip afterwards; the three documents it changed matched what was
-  built. **Owed to the next commit:** the hook's result on the push of the commit that
-  writes this line. The earlier record of the hook is in HISTORY.
+  built.
+- **The push of `1861208`** printed `SUMMARY: clean`, section 1 "none", section 6
+  "installed" and section 5 README.md 2 commits behind — as predicted (Viktor's paste).
+  Claude's fetch afterwards: the two documents it changed matched what was built.
+  **Owed to the next commit:** the hook's result on the push of the commit that writes
+  this line. Filing a push's result always leaves the filing commit's own push owed — a
+  floor of one, like the Notes'. The earlier record of the hook is in HISTORY.
 - **Before each of this session's commits**, the documents it changes matched Viktor's
-  disk byte for byte (at `75682ee` and at `2582994`).
+  disk byte for byte (at `75682ee`, `2582994` and `1861208`).
 - **code_hash:** `b3c2308f8f3e05981af25ee82468c071f7bf0b9d49519b6e75bd78c37b5fb365`,
   moved at `3bfa6b7` (`data/data_fetcher.py`); unmoved since, and by the commit that
   writes this line — computed on the tip's tree and on the applied tree under Python
@@ -120,15 +126,16 @@ and the log count were done under Sonnet 5, this commit under Opus 5.5.
   skipped** without it; `run_tests.py` **526 passed / 0 failed / 32 errors**, all 32
   fixture-collection `TypeError`s. Linux sandbox, autocrlf clone, Python 3.12.3, pinned
   requirements, applied tree. Last moved at `3bfa6b7`.
-- **Engineering Notes:** through Entry #166 (v1.35), which covers `c5dc4cd`. **Four
+- **Engineering Notes:** through Entry #166 (v1.35), which covers `c5dc4cd`. **Five
   commits behind** — `bc48f59`, the floor (a commit that regenerates the Notes cannot
-  cover itself, Entry #144), `75682ee`, `2582994`, and the commit that writes this line.
+  cover itself, Entry #144), `75682ee`, `2582994`, `1861208`, and the commit that writes
+  this line.
   Every later commit adds one until the next regeneration, which also records the round-1
   recovery and the three rulings of 26 September. No time pressure (Viktor, 26 September).
 - **Portfolio Document and AI-Attribution Statement:** both current with their scripts,
   which last changed at `6e1baba`.
 - **README.md:** not changed by the commit that writes this line; last changed at
-  `75682ee`. So the hook's section 5 will report README.md 2 commits behind (expected).
+  `75682ee`. So the hook's section 5 will report README.md 3 commits behind (expected).
 - **The round-1 audit outputs are in the repository**, in
   `docs/audit_reports/round1_deepseek-v4-pro_kimi-k3_2026-08-27/`, byte-identical to the
   hashes Viktor took on 23 September. The account is in HISTORY, "26 September 2026 —
@@ -370,7 +377,9 @@ Each code commit is its own commit and updates this file for its own landing.
 - **Where the stop-distance finding belongs — ruled** (DECISIONS, 26 September): evidence
   for findings 4 and 6; the 8% ceiling is part of 6; the risk gate's position goes on the
   list for after the audit. Phase 2 of the roadmap is done.
-- **The push of `2582994`** — filed above.
+- **The pushes of `2582994` and `1861208`** — filed above.
+- **Grok's account of what it read, saved** outside the repository (Open items, the
+  ledger).
 - **The once-per-session rewrite of this file.** The previous version, as at `75682ee`,
   is in HISTORY verbatim, headings demoted one level, proven by un-demotion with a
   negative control (the commit message has the result).
@@ -408,6 +417,10 @@ Claude critiques it.
   and this file at about `c5dc4cd`; production code in `main.py`, `live_trading.py`,
   `data/`, `core/`, `models/`, `indicators/` and `structure/`; the full `tests/` tree and
   fixtures; one live panel Viktor pasted. It is Grok's account, not a provider export.
+  Saved unchanged, at Viktor's request, as
+  `Docs\02_Reviews_and_Feedback\Grok_Inventory_of_What_It_Read_2026-09-26.txt` in
+  `D:\Phase_7_Engine_Random_Files` (SHA256 `0d923a095bc112bda5ad11e6be39a98f0d5a48ad`
+  `139938ed119d18ebd96a71ed`, as written by Claude).
   Grok is ineligible to audit the engine (DECISIONS, 26 September). Its review
   (`ASSISTING_MODEL_REVIEW_2026-09-23.md`, outside the repository) is received, not
   triaged; by its own text it is not an audit, and anything accepted from it goes on the
