@@ -19,9 +19,11 @@ documents, not just to its analyses.
 | `build_tier0_companion.py` | `Phase7_Tier0_Companion.pdf` |
 | `build_findings_bundle.py` | `Phase7_Audit_Findings_Complete.pdf` -- **not in this repository** |
 
-`build_findings_bundle.py` is kept as the record of how that PDF was built. Neither the
-PDF nor its source -- the four round-1 auditor outputs of 27 August 2026 -- ever reached
-the repository, and no copy has been found (README.md, "The audit, and what it found").
+`build_findings_bundle.py` is kept as the record of how that PDF was built. The PDF never
+reached the repository. Its source -- the four round-1 auditor outputs of 27 August 2026 --
+was recovered on 23 September 2026 and filed on 26 September in
+`docs/audit_reports/round1_deepseek-v4-pro_kimi-k3_2026-08-27/` (README.md, "The audit,
+and what it found"). Until 26 September this paragraph said no copy had been found.
 Running the script will not reproduce it.
 
 ## Running them
@@ -43,12 +45,18 @@ hand, and the Engineering Notes fell eight entries behind that way. See
 `docs/PHASE7_HISTORY.md`, "the build scripts can write into the repository".
 
 `build_findings_bundle.py` and `build_remediation_plan.py` additionally read markdown
-source files from a `docs/audit_raw/` directory (the verbatim round-1 auditor outputs).
-That material is not in this repository and never has been, so **neither document can be
-regenerated from here.** Both exit 2 with a message saying so rather than failing part-way
-through. No copy of the round-1 outputs has been found (searched 20 September 2026;
+source files from a `docs/audit_raw/` directory. That directory is not in this repository
+and never has been, so **neither document can be regenerated from here.** Both exit 2 with
+a message saying so rather than failing part-way through. The scripts are kept because they
+are the record of how the two PDFs were built. `build_remediation_plan.py` reads GLM 5.3's
+`Step5_GLM53_remediation_sequence.md`, which has not been found. `build_findings_bundle.py`
+reads four files that were recovered on 23 September 2026 and filed under the same names
+in `docs/audit_reports/round1_deepseek-v4-pro_kimi-k3_2026-08-27/`. The script still
+points at `docs/audit_raw/`, and its exit message still says the outputs are not in this
+repository; repointing it is a tooling change not made here. Until 26 September this
+paragraph said no copy of the round-1 outputs had been found (searched 20 September 2026;
 `docs/PHASE7_HISTORY.md`, "20 September 2026 — correction: the round-1 audit outputs were
-lost"). The scripts are kept because they are the record of how the two PDFs were built.
+lost", and "26 September 2026 — correction: the round-1 audit outputs were recovered").
 
 ## House style
 

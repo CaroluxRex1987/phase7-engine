@@ -1,9 +1,9 @@
 # Next step — read this first
 
-*22 September 2026, sixth session. Rewritten by this session's first commit, `e804b64`,
-the one that regenerates the Engineering Notes at v1.34, and amended in place by its
-second and third; the version it replaces — rewritten at
-`486f1a5` and amended in place at `3bfa6b7` and `5e55eb8` — is in HISTORY verbatim.
+*26 September 2026, seventh session. Rewritten by this session's first commit, the one
+that files what the sixth session owed and the round-1 audit outputs; the version it
+replaces — rewritten at `e804b64` and amended in place at `c5dc4cd` and `bc48f59` — is in
+HISTORY verbatim.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
 rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
@@ -26,33 +26,32 @@ Ask what he wants to do first.
 
 ## Where the project is
 
-Viktor asked, on 21 September, what to put to the engine before backtesting. The
-review's findings are below. Work orders A–F have landed, and so have the six commits
-for the deferred read's findings (19–28) and the direction-box tests. Asked what to do
-first in the sixth session (22 September), Viktor chose two things. The first was to
-regenerate the Engineering Notes, 27 commits behind. The second was Claude's open
-objection that the audit pause had no end condition. He ruled on the second (below),
-and `e804b64` carries both.
-
 **What remains before the independent audit is a closed list:** work order G (Claude's,
 finding 17) and findings 4, 5, 6, 7, 16 and 18 (Viktor's). When each is done, the audit
 is next. Anything found in the meantime goes on the list for after the audit (below),
-not onto this one.
+not onto this one. None of the closed list has started.
 
 **Nothing Claude does under the delegation decides the engine's trading rules.**
 Findings 4–7, 16 and 18 are questions about what the engine should do. They are
 Viktor's, and none of Claude's commits touches them. G changes which trades are taken.
-It is Claude's under the delegation (Viktor's message opening this session), and it
-gets full scope, the live log checked first, and the live run before the commit.
+It is Claude's under the delegation, and it gets full scope, the live log checked first,
+and the live run before the commit.
 
-**The independent audit is paused, and now has an end** — DECISIONS, "Ruling, 21
-September 2026 — the independent audit paused" and "Ruling, 22 September 2026 — when
-the audit resumes". **The Constitution's step 8 binds:** "Re-audit the items that
-changed — independent auditor again, not a self-check by whoever made the fix. 9) Only
-then … build the backtesting architecture." No engine change since the last independent
-round (round 6 fix-verification, 14 September) has been independently re-audited, so
-**no backtesting before an independent re-audit.** Claude's second point in the 21
-September ruling is still open: the no-backtest rule exists only as text.
+**The independent audit is paused, and has an end** — DECISIONS, "Ruling, 21 September
+2026 — the independent audit paused" and "Ruling, 22 September 2026 — when the audit
+resumes". **The Constitution's step 8 binds:** "Re-audit the items that changed —
+independent auditor again, not a self-check by whoever made the fix. 9) Only then …
+build the backtesting architecture." No engine change since the last independent round
+(round 6 fix-verification, 14 September) has been independently re-audited, so **no
+backtesting before an independent re-audit.** Claude's second point in the 21 September
+ruling is still open: the no-backtest rule exists only as text.
+
+**The seventh session (26 September)** opened on Viktor's message listing four owed items
+and four things discussed only in chat since 22 September. Asked what to do first, he
+chose the owed filing. Before it, at his request, Claude made a roadmap to the audit — a
+Claude Docs document, "Phase 7 roadmap to the independent audit", outside the repository.
+It proposes an order and changes no rule. The session switched model partway, from Claude
+Sonnet 5 to Claude Opus 5.5 (the commit message has the detail).
 
 ## Ruled — in force
 
@@ -61,79 +60,61 @@ September ruling is still open: the no-backtest rule exists only as text.
   Claude's below; it does not cover the items marked Viktor's.
 - **The audit is paused**, and **work order F is ruled** — both in DECISIONS, 21
   September.
-- **Ruled this session — when the audit resumes** (DECISIONS, 22 September): once work
-  order G and findings 4, 5, 6, 7, 16 and 18 are done. A finding is done when Viktor
-  has ruled it and any code his ruling calls for has landed; a ruling to leave it as it
-  is counts. The list is closed. The four weeks was his estimate with a buffer, not a
-  rule.
+- **When the audit resumes** (DECISIONS, 22 September): once work order G and findings
+  4, 5, 6, 7, 16 and 18 are done. A finding is done when Viktor has ruled it and any code
+  his ruling calls for has landed; a ruling to leave it as it is counts. The list is
+  closed.
+- **Filed this session — `bias_score`'s weighting waits for after the audit, and the
+  auditor sees it** (DECISIONS, "Ruling, 22 September 2026 — bias_score's weighting waits
+  for after the audit, and the auditor sees it"). Ruled in chat on 22 September, option 3.
 
 ## Where things stand, right now
 
 - **Tip:** the commit that writes this line (a commit cannot name its own hash) — the
-  Engineering Notes regenerated at v1.35 and `c5dc4cd`'s push filed; documentation
-  only. Before it: `c5dc4cd` (`e804b64`'s push filed, README's audit row brought
-  current), `e804b64` (the Engineering Notes' v1.34 regeneration, the 22 September
-  ruling, and this file's session rewrite), `5e55eb8` (the fifth session's
-  documentation close), `3bfa6b7` (commit 6 of the six, `data/data_fetcher.py`:
-  finding 27), `486f1a5` (commit 5, `data/validation.py`: 25, 26, 28), `4e2b1c8`
-  (commit 4, `core/lineage.py`: 23, 24, 19's archive half), `2c7a7d1` (22), `05a12c7`
-  (19–21), `9c4917c` (the direction-box tests). F itself is `3f263c2`. **Tag:**
-  `portfolio-v1` at `99e022e`. **Release gate:** open, declared 15 September 2026.
-- **Working tree and hook at `c5dc4cd`:** the push `e804b64..c5dc4cd` printed
-  `SUMMARY: clean`, section 1 "none", section 6 "installed", and section 5 README.md
-  0 commits behind, as predicted — Viktor's paste. The tip was fetched into the sandbox
-  afterwards and reverse-applies the verified patch cleanly. **Owed to the next
-  commit:** the hook's result on the push of the commit that writes this line.
-- **At `e804b64`:** the push `5e55eb8..e804b64` printed `SUMMARY: clean`, section 1
-  "none", section 6 "installed", and section 5 README.md two commits behind, as
-  predicted — Viktor's paste. The tip was fetched into the sandbox afterwards; its six
-  changed files matched the verified build byte for byte.
-- **At `5e55eb8`:** the push `3bfa6b7..5e55eb8` printed
-  `SUMMARY: clean`, section 1 (`git status --short`) "none", section 6 "installed", and
-  section 5 README.md one commit behind (expected: that commit changed no count) —
-  Viktor's message opening this session. The fifth session's sandbox fetched the tip
-  afterwards, and the verified close patch reverse-applied to it cleanly (same message).
-  This session's clone of GitHub's tip was `5e55eb8`. The earlier record of the hook is
-  in HISTORY.
+  seventh session's owed filing; documentation only. Before it: `bc48f59` (the
+  Engineering Notes regenerated at v1.35, `c5dc4cd`'s push filed), `c5dc4cd` (`e804b64`'s
+  push filed, README's audit row), `e804b64` (the Notes at v1.34, the 22 September ruling,
+  NEXT's sixth-session rewrite), `5e55eb8`, `3bfa6b7` (commit 6 of the six,
+  `data/data_fetcher.py`: finding 27). F itself is `3f263c2`. **Tag:** `portfolio-v1` at
+  `99e022e`. **Release gate:** open, declared 15 September 2026.
+- **Working tree and hook at `bc48f59`:** the push `c5dc4cd..bc48f59` printed
+  `SUMMARY: clean`, section 1 "none", section 6 "installed", and section 5 README.md one
+  commit behind (expected) — Viktor's message opening this session. He verified the push
+  by fetch on 22 September; this session's clone of GitHub's tip was `bc48f59`, and the
+  five documents this commit changes matched his disk byte for byte before any edit.
+  **Owed to the next commit:** the hook's result on the push of the commit that writes
+  this line. The earlier record of the hook is in HISTORY.
 - **code_hash:** `b3c2308f8f3e05981af25ee82468c071f7bf0b9d49519b6e75bd78c37b5fb365`,
-  moved at `3bfa6b7` (`data/data_fetcher.py`) from `2c8ebe32…`; unmoved at `5e55eb8`, `e804b64`, `c5dc4cd` and
-  by the commit that writes this line (documentation only). Computed under Python 3.12.3
-  on the tip's tree and on the applied tree. **Confirmed on Windows before its
-  commit:** Viktor's live run of 21 September 23:29, AEROUSDT 4h, NO-TRADE (RISK TOO
-  HIGH), the 34th record, read by Claude from his disk before the commit step. The 33
-  earlier records were byte-identical to the copy taken before the run; the new record
-  was strict JSON and carried `b3c2308f…`; its archive,
-  `aerousdt_4h_5242945daebc435b.json.gz`, carried the same `meta.code.code_hash`;
-  `verify_against_record` and `verify_archive` returned all True. The fetch succeeded,
-  so finding 27's new error text is evidenced on Linux only, by its tests. Every
-  code_hash from `4629002` to `5e55eb8` was recomputed on its own tree for the v1.34
-  regeneration and matched its commit message; the chain is in the Notes' Document
-  History, v1.34.
+  moved at `3bfa6b7` (`data/data_fetcher.py`); unmoved since, and by the commit that
+  writes this line — computed on the tip's tree and on the applied tree under Python
+  3.12.3. Confirmed on Windows before `3bfa6b7`'s commit by Viktor's live run of
+  21 September 23:29 (details in HISTORY, the entry for this file at `bc48f59`).
 - **code_hash is only comparable within one Python minor version.** It hashes `ast.dump`
   output, a CPython implementation detail (`core/code_fingerprint.py`, "WHAT IT DOES NOT
   SURVIVE"). **Every `code_hash` claim about this project is computed under Python 3.12**
   (Viktor runs 3.12.10).
-- **Golden snapshot:** unmoved by the commit that writes this line and at `c5dc4cd`, `e804b64`, `5e55eb8`,
-  `3bfa6b7`, `486f1a5` and `4e2b1c8`. Last re-baselined at `2c7a7d1` (finding 22:
-  `run_hash` in two places, the archive name in two, three `module_constants` leaves;
-  no decision field).
+- **Golden snapshot:** unmoved by the commit that writes this line. Last re-baselined at
+  `2c7a7d1` (finding 22; no decision field).
 - **Test suite** — unmoved by the commit that writes this line (documentation only):
   **597 passed / 0 failed, no warnings line** with `pandas_ta`; **460 passed / 126
   skipped** without it; `run_tests.py` **526 passed / 0 failed / 32 errors**, all 32
   fixture-collection `TypeError`s. Linux sandbox, autocrlf clone, Python 3.12.3, pinned
-  requirements, applied tree. Last moved at `3bfa6b7`; on Windows, confirmed there by
-  Viktor proceeding past the stop conditions.
-- **Engineering Notes:** through Entry #166 (v1.35), which covers `c5dc4cd` and the
-  22 September ruling `e804b64` carried. **One commit behind** — the commit that writes
-  this line, which is the floor: a commit that regenerates the Notes cannot cover
-  itself (Entry #144). Every later commit adds one until the next regeneration.
+  requirements, applied tree. Last moved at `3bfa6b7`.
+- **Engineering Notes:** through Entry #166 (v1.35), which covers `c5dc4cd`. **Two
+  commits behind** — `bc48f59`, the floor (a commit that regenerates the Notes cannot
+  cover itself, Entry #144), and the commit that writes this line. Every later commit
+  adds one until the next regeneration, which also records the round-1 recovery.
 - **Portfolio Document and AI-Attribution Statement:** both current with their scripts,
   which last changed at `6e1baba`.
-- **README.md:** its two test-count lines current at `3bfa6b7` (597 / 460 with 126
-  skipped / 526). Its Independent-audit row, which said the round was paused "for about
-  four weeks", now states the 22 September ruling (changed at `c5dc4cd`). Untouched by
-  the commit that writes this line, so the hook's section 5 will report README.md one
-  commit behind — expected. Otherwise current since `cb659f1`.
+- **README.md:** changed by the commit that writes this line — its paragraph on the
+  round-1 outputs, under "The audit, and what it found", now says where they are, and that
+  it used to say they could not be recovered. So the hook's section 5 will report
+  README.md 0 commits behind. Its two test-count lines current at `3bfa6b7`; its
+  Independent-audit row current at `c5dc4cd`.
+- **The round-1 audit outputs are in the repository**, in
+  `docs/audit_reports/round1_deepseek-v4-pro_kimi-k3_2026-08-27/`, byte-identical to the
+  hashes Viktor took on 23 September. The account is in HISTORY, "26 September 2026 —
+  correction: the round-1 audit outputs were recovered".
 
 ## Carried lesson — the live run comes BEFORE the commit
 
@@ -162,6 +143,10 @@ then gave the commit steps.
   `/usr/bin/python3.12` explicitly. The sandbox cannot reach `api.mexc.com` (the proxy
   refuses it), so anything about MEXC's live behaviour is either read from its
   documentation or from Viktor's own runs — say which.
+- **Seventh session:** `docs/audit_reports/**` is `-text`, so its files are committed and
+  checked out byte for byte, LF or CRLF as they came; compare them by hash, never after a
+  line-ending conversion. The session's hashes of the round-1 files are in HISTORY
+  (26 September).
 - **Sixth session:** `reportlab` 5.0.1 (not pinned; `docs/build/README.md` has the
   install line) rebuilt the committed Notes PDF from `5e55eb8` with identical extracted
   text, so it is a sound baseline for the Notes. The PDF embeds a build timestamp, so
@@ -289,7 +274,24 @@ here, with its evidence, and waits until after the independent audit; it does no
 the audit. Whether the auditor is shown this section is part of the package question,
 Viktor's when the audit is planned.
 
-- None yet.
+- **The engine almost never trades, and one gate decides nearly all of it.** Viktor,
+  22 September, in chat; recorded here on 26 September. **Where it belongs is open and
+  Viktor's: work order G (finding 17), findings 4 and 6 already on the list, or this
+  list.** Evidence, from Claude's count on 22 September of a copy of
+  `logs/phase7_decision_log_aerousdt.jsonl` (not recounted this session): 35 runs, 6 to
+  22 September, all AEROUSDT 4h, about 10 of them test runs — 31 NO-TRADE, 3 WAIT,
+  1 SHORT (16 September), 0 LONG. 27 of the 31 refusals are the 15% stop-distance rule,
+  and since 19 September every refusal is. The stop has sat at about 0.547–0.550 since
+  19 September while price rose. On the 22 September panel the stop was 20.7% from the
+  current price and 13.0% from the entry zone's bottom, because stop and targets are
+  measured from the current price. Every stop-distance refusal shows RISK REGIME: UNKNOWN;
+  that the regime is not computed once the stop check fails is an inference, and the code
+  has not been read. **Claude's reading, from this file's text of findings 4, 6 and 17
+  and not from the code:** the measuring point is finding 4, and a stop held at the
+  volume point of control is finding 6, whose text says how often it vetoes a setup "was
+  not measured" — the count above is that measurement. Finding 17 is about macro in the
+  CONSERVATIVE branches and does not mention the stop. First step before Viktor rules:
+  read finding 17's code and the stop path, and say what the code shows.
 
 ## Work order — Claude's, under Viktor's delegation
 
@@ -304,25 +306,23 @@ Each code commit is its own commit and updates this file for its own landing.
   audit.** Changes which trades are taken, so it is scoped in full before any diff:
   `decision_model`'s ladder, every caller, the golden fields it could move, and the
   live decision log checked first for which recorded actions it would change, as for F.
-  The live run happens before the commit (above).
+  The live run happens before the commit (above). Not started.
 
 ## Resolved this session
 
-- **The fifth session's owed filing** (Viktor's message opening this session): the
-  hook's result on the push of `5e55eb8` — filed above.
-- **`e804b64`'s push and README's audit row** — the session's second commit, at
-  Viktor's request for the finishing touches: the push filed above; README's "about
-  four weeks" replaced by the ruling.
-- **The Engineering Notes regenerated at v1.35** — the session's third commit, at
-  Viktor's call: Entry #165 (the 22 September ruling) and #166 (`c5dc4cd`), with
-  `c5dc4cd`'s push filed above. The gap goes from two commits to one, the floor.
-- **The once-per-session rewrite of this file.** The previous version, as at `5e55eb8`,
+- **The sixth session's owed filing** (Viktor's message opening this session), in the
+  session's first commit:
+  - the hook's result on the push of `bc48f59` — filed above;
+  - the ruling of 22 September on `bias_score`'s weighting — filed in DECISIONS;
+  - a correction: "To do list Claude Phase 7 Engine.pdf" was not deleted, as `982e70f`
+    recorded — HISTORY, 26 September. It is in `Docs\99_Superseded` of
+    `D:\Phase_7_Engine_Random_Files`, renamed, identified by content;
+  - **the round-1 audit outputs, recovered** — filed in `docs/audit_reports/`, a new
+    HISTORY entry, and forward corrections in README.md and `docs/build/README.md`. The
+    20 September record is not edited.
+- **The once-per-session rewrite of this file.** The previous version, as at `bc48f59`,
   is in HISTORY verbatim, headings demoted one level, proven by un-demotion with a
   negative control (the commit message has the result).
-- **The Engineering Notes regenerated at v1.34**, Entries #142–#164 for the 26 commits
-  after `3a899b5` (Viktor's choice this session). One commit behind now: the floor.
-- **When the audit resumes — ruled** (above; DECISIONS, 22 September). It answers
-  Claude's point (1) in the 21 September ruling.
 
 ## Open items
 
@@ -333,18 +333,50 @@ Claude critiques it.
 - **Viktor's call — findings 4, 5, 6, 7, 16 and 18 above.** On the closed list before
   the audit. Not started.
 - **Claude's — work order G (finding 17).** On the closed list before the audit.
+- **Viktor's call — where the stop-distance finding belongs** (above, "Found after
+  22 September"). Claude reads the code first.
+- **Viktor's positions of 22 September, stated in chat, not yet ruled in DECISIONS:**
+  1. **Spent models for build and review.** Models already spent (Gemini, ChatGPT, Grok
+     and the others on the ledger) may do build and review work, with full transparency:
+     the same patch gates, the commit message names the model, and a ledger entry is made
+     at the time of use. Any model that writes engine code is disqualified from auditing
+     that code. Claude agreed.
+  2. **A pre-send token check, built ahead of the audit.** It measures the audit package
+     with the chosen model's own tokenizer and refuses the send if package plus output
+     reserve does not fit. Claude agreed, on condition that it is ruled explicitly as
+     audit preparation, not an engine item, so the closed list stays closed.
+- **Viktor's call — the next independent auditor.** Claude recommends Nemotron 3 Super or
+  Poolside Laguna S 2.1 (both 1M context, open weights, pinnable, labs not in the
+  project's record). Mistral Large 3 is out for a full round (256K context). The ranking
+  is in "Phase-7 — Model Roster" (22 September, outside the repository, filed as
+  `The_clean_slate_model_list.pdf`; it supersedes the clean-slate list). Not decided.
 - **The independent audit — paused until the closed list is done** (DECISIONS, 21 and
   22 September). When it is planned, still Viktor's: which model, the package (the
   standing default for a fresh Tier-1 audit is the full package), whether the auditor
-  sees the scrapped findings and the list for after the audit, and the instruction for
-  the selected model. No backtesting before it.
+  sees the rest of the 20 September scrapped findings and the list for after the audit,
+  and the instruction for the selected model. The auditor is shown the `bias_score`
+  weighting findings (ruled). No backtesting before the audit.
+- **The independence ledger is outside the repository and not yet reconciled** —
+  `Phase7_Spent_Models_Ledger_2026-09-22.pdf`, built from README.md and the
+  AI-Attribution Statement, not from provider exports. **Owed to it:** Grok read the
+  production modules for its assisting-model review of 23 September
+  (`ASSISTING_MODEL_REVIEW_2026-09-23.md`, outside the repository); the ledger shows Grok
+  as not having seen engine source. That review is received, not triaged. By its own text
+  it is not an audit, grades nothing, and anything accepted from it goes on the list for
+  after the audit.
 - **Viktor's call, not ruled — Claude's point (2) of 21 September:** the rule "no
   backtesting before re-audit" exists only as text; a structural form would be a
   backtest entry point that refuses to run without a recorded re-audit.
+- **Viktor's call — repointing `docs/build/build_findings_bundle.py`** at the round-1
+  folder, so `Phase7_Audit_Findings_Complete.pdf` could be rebuilt. A tooling change;
+  not done.
 - **Claude's — the running change list for the audit:** `docs/audit_change_list.md`,
   from the baseline `e65a0f7` (the tree round 6's fix-verification was sent). **Every
   later commit that changes engine code, tests or tooling adds its line there in the
-  same commit.**
+  same commit.** This session's first commit is documentation only and adds none.
+- **Viktor, outside the repository:** rotate the plaintext API key in `D:\USB
+  Backup\Phase7_Engine documents\API KEY FROM OPEN CODE.txt` if it is still live. The
+  file was not copied or opened.
 - **The pre-push hook is installed per clone, not per repository.** After any re-clone
   (including after a machine wipe), run `git config core.hooksPath githooks`;
   `session_handover_check.py` section 6 flags a clone without it.

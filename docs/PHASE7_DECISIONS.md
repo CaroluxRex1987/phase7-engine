@@ -969,6 +969,36 @@ does not come as a surprise when backtesting starts.
 whatever its severity, because the ruling makes no exception. The Constitution's order
 is unchanged: audit before backtesting (step 8 before step 9).
 
+## Ruling, 22 September 2026 — bias_score's weighting waits for after the audit, and the auditor sees it
+
+*New in this file on 26 September 2026. Ruled in chat on 22 September; filed with the
+seventh session's first commit, as owed.*
+
+**What was ruled.** Viktor chose option 3. The weighting of `bias_score` stays off the
+closed list (the 22 September ruling above) and waits until after the independent audit.
+The independent auditor is shown these findings. "The weighting" means four things:
+
+- the six weights, 0.30 / 0.20 / 0.15 / 0.15 / 0.10 / 0.10, which have never been
+  reviewed or given a written reason;
+- the four-factor overlap ("Second engine-review finding", above);
+- RSI reaching `bias_score` twice (the same section, "Also recorded, also not fixed");
+- one volume/macro disagreement adding up to three penalties.
+
+The last of the four is recorded here in Viktor's words from the 22 September message. A
+keyword search of this file and HISTORY did not find it as a finding; the nearest is point
+2 of the 15 September PDF in HISTORY, "volume may be counted three times". This session
+did not see options 1 and 2, so they are not recorded.
+
+**What it answers, and what it leaves open.** The 20 September ruling left open whether the
+auditor is shown the scrapped findings. This answers it for items (4) and (5) of that
+list and for the weights half of item (1); the thesis half is not covered. Whether the auditor sees the rest of the 20 September scrapped
+findings is still Viktor's call. Claude's note of 20 September still applies to the part
+now decided: an auditor that has already seen a finding is less independent on that point.
+
+**What it weakens.** An unreviewed weighting sits at the centre of every decision the
+engine makes, and the audit runs without it being ruled. The audit can show the weighting
+is implemented as written; it cannot say the weights are right.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then

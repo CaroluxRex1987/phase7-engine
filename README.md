@@ -147,17 +147,18 @@ README described all four as having no prior involvement until 20 September 2026
 | B | Kimi K3 | The remaining 17 Tier 1 invariants |
 | C | Kimi K3 | Tiers 2, 3 and 4 — 23 items |
 
-The raw output of those four runs is not in this repository, and it cannot be recovered.
-It was never committed, and no copy of it has been found anywhere else: OpenRouter's chat
-room keeps its history only in the browser, and Windows on this machine was reinstalled,
-all drives wiped, on 30 August 2026. The check I made before that reinstall concluded that
-nothing but `logs/` lived only on disk. It was wrong. On 20 September I searched the git
-history, OpenRouter's request logs (I/O logging was off, so they hold token counts, not
-text) and a Claude data export covering those dates, and found nothing. This README used
-to say the output was published verbatim in `docs/Phase7_Audit_Findings_Complete.pdf`;
-that PDF was built from it and never reached the repository either. What survives is
-second-hand: [`docs/Phase7_Remediation_Plan.pdf`](docs/) is GLM 5.3's unedited
-prioritisation of those findings, not the findings themselves.
+The raw output of those four runs is in
+[`docs/audit_reports/round1_deepseek-v4-pro_kimi-k3_2026-08-27/`](docs/audit_reports/round1_deepseek-v4-pro_kimi-k3_2026-08-27/),
+filed on 26 September 2026. It was never committed at the time, and Windows on this
+machine was reinstalled, all drives wiped, on 30 August. On 20 September I searched the git
+history, OpenRouter's request logs and a Claude data export, found nothing, and this
+paragraph said the output "cannot be recovered" and that no copy "has been found anywhere
+else". On 23 September I found it on a USB backup made before the reinstall. The folder's
+README gives the hashes, and what they do and do not prove. This README also used to say
+the output was published verbatim in `docs/Phase7_Audit_Findings_Complete.pdf`; that PDF
+was built from it, never reached the repository, and has not been rebuilt.
+[`docs/Phase7_Remediation_Plan.pdf`](docs/) is GLM 5.3's unedited prioritisation of the
+findings.
 
 That was not the last audit. Five more rounds have run since — 2 September, two on
 5 September, 12 September (GPT-6 Astra), and 13 September (Meta Muse Spark 1.3, plus its
