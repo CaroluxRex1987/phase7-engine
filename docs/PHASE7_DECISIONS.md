@@ -1098,6 +1098,50 @@ question is where a finding is filed, and nothing the engine does turns on it.
 vetoes a setup, which makes them heavier to rule. Until after the audit the panel keeps
 reporting some runs that would have been WAIT as RISK TOO HIGH.
 
+## Ruling, 26 September 2026 — decisions are made on closed candles (finding 16)
+
+*New in this file on 26 September 2026, phase 3 of the roadmap to the audit.*
+
+**The question.** Finding 16: the engine decides on the candle that is still forming.
+`data/data_fetcher.py` reads MEXC's `close_time`, throws it away and keeps every row. So
+on a live run, the close, the volume and every indicator at the decision bar come from a
+partial candle, and two runs inside one candle can decide differently. The staleness
+check measures from the last candle's open time, so a forming candle is never stale.
+Claude asked four questions: which candle decides, what the panel shows of the forming
+candle, how staleness is measured, and whether the log records which candle was used.
+
+**What Viktor ruled.**
+
+1. Decisions are made on closed candles only, on every series the engine fetches: the
+   symbol's execution timeframe, the macro timeframe and BTCUSDT (today 4h, 1d and 4h).
+2. Nothing that decides reads the forming candle. The panel shows the live price on one
+   line, labelled as information only, with its distance from the decision candle's
+   close. Whether stop and targets should be measured from the live price instead is
+   finding 4's question.
+3. Staleness is measured from the decision candle's close time. A series fails the check
+   unless its decision candle is the latest one that should have closed, allowing a
+   short grace for exchange delay. A failure is handled as a stale series is handled
+   today.
+4. The decision log records, for each series, the decision candle's open time and
+   whether a forming candle was dropped.
+
+Points 1 and 4 are Viktor's own position. Points 2 and 3 were Claude's suggestions, which
+he adopted.
+
+**Accepted with it.** A decision can be up to one candle old: four hours on 4h, a day for
+macro. A price move inside the forming candle is invisible until that candle closes.
+`current_price` (`core/engine_core.py:1005`) becomes the decision candle's close, so stop
+and targets are measured from that close until finding 4 is ruled. A run in the first
+minutes after a close may fail the staleness check instead of deciding on the previous
+candle.
+
+**Left to the implementation, and recorded when it lands.** The grace value, with the
+evidence for it. How pinned data is treated, since it carries no close time, and whether
+the golden snapshot moves.
+
+**Done when** the code lands, with the live run done and the decision-log record read
+before its commit.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then
