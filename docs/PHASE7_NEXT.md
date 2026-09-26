@@ -1,8 +1,9 @@
 # Next step — read this first
 
-*26 September 2026, eighth session. Rewritten by this session's first commit, the one
-that files the two rulings of 26 September and what the push of `75682ee` owed; the
-version it replaces — rewritten at `75682ee` — is in HISTORY verbatim.
+*26 September 2026, ninth session. Rewritten by this session's first commit, the one
+that records the move of the repository to `E:\phase7_engine` and files what the push of
+`eba6a2a` owed; the version it replaces — as it stood at `eba6a2a` — is in HISTORY
+verbatim.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
 rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
@@ -45,14 +46,13 @@ build the backtesting architecture." No engine change since the last independent
 backtesting before an independent re-audit.** Claude's second point in the 21 September
 ruling is still open: the no-backtest rule exists only as text.
 
-**The eighth session (26 September)** is a new chat on the same day as the seventh. It
-opened on Viktor's message: phase 2 of the roadmap to the audit ("Phase 7 roadmap to the
-independent audit", a Claude Docs document outside the repository), and two items owed
-by the push of `75682ee`. Phase 2 is three items. The two rulings are filed in DECISIONS
-by this session's first commit. For the third — where the stop-distance finding belongs —
-Claude read the code (below, "Found after 22 September"); Viktor has not ruled. The
-session switched model partway, from Claude Sonnet 5 to Claude Opus 5.5: the code reading
-and the log count were done under Sonnet 5, this commit under Opus 5.5.
+**The ninth session (26 September)** is a new chat on the same day as the eighth, under
+Claude Opus 5.5. It opened on Viktor's message: phase 3 of the roadmap to the audit ("Phase
+7 roadmap to the independent audit", a Claude Docs document outside the repository) —
+his findings 4, 5, 6, 7, 16 and 18 and Claude's work order G, one finding at a time, his
+position first — and one item owed by the push of `eba6a2a`. Before phase 3 started,
+Viktor moved the project to two new drives on his machine (below, "Where things stand",
+and HISTORY). Phase 3 has not started; Viktor names the finding it starts with.
 
 ## Ruled — in force
 
@@ -77,65 +77,72 @@ and the log count were done under Sonnet 5, this commit under Opus 5.5.
   (DECISIONS, "Ruling, 26 September 2026 — the stop-distance finding is evidence for
   findings 4 and 6"). Not part of G; the closed list is unchanged. The 8% ceiling is part
   of finding 6; the risk gate's position goes on the list for after the audit.
+- **New, 26 September (ninth session) — where the project lives, Viktor's choice.** The
+  repository is `E:\phase7_engine`; the files kept outside it are in
+  `G:\Phase_7_Engine_Random_Files`. `D:\USB Backup\Phase7_Engine documents` stays where it
+  is. The originals on D: are renamed `phase7_engine_MOVED_TO_E` and
+  `Phase_7_Engine_Random_Files_MOVED_TO_G`; deleting them is Viktor's. He chose Claude's
+  recommended option on all three (HISTORY, "26 September 2026 (ninth session) — the
+  repository moved to `E:\phase7_engine`").
 
 ## Where things stand, right now
 
 - **Tip:** the commit that writes this line (a commit cannot name its own hash) — the
-  eighth session's third commit; documentation only. Before it: `1861208` (the
-  stop-distance ruling), `2582994` (the eighth
-  session's first commit: two rulings, this file rewritten), `75682ee` (the seventh
-  session's owed filing and the round-1 audit outputs), `bc48f59` (the Engineering Notes
-  regenerated at v1.35), `c5dc4cd`, `e804b64`, `5e55eb8`, `3bfa6b7` (the last code commit,
+  ninth session's first commit; documentation only. Before it: `eba6a2a` (the eighth
+  session's third commit), `1861208` (the stop-distance ruling), `2582994` (the eighth
+  session's first commit: two rulings), `75682ee` (the seventh session's owed filing and
+  the round-1 audit outputs), `bc48f59` (the Engineering Notes regenerated at v1.35),
+  `c5dc4cd`, `e804b64`, `5e55eb8`, `3bfa6b7` (the last code commit,
   `data/data_fetcher.py`: finding 27). F itself is `3f263c2`. **Tag:** `portfolio-v1` at
   `99e022e`. **Release gate:** open, declared 15 September 2026.
-- **The push of `75682ee`, and a wrong prediction** (from Viktor's message opening this
-  session). The first push was stopped by the hook at section 1: ten untracked files in
-  `Claude outputs/`. Claude's `git status --short` prediction for `75682ee` missed them,
-  and so did the commit message's prediction of section 1 "none": both were built from a
-  sandbox clone, which cannot see files that exist only on Viktor's disk. He moved all
-  ten to `D:\Phase_7_Engine_Random_Files\Docs`, and the second push printed
-  `SUMMARY: clean`, section 1 "none", section 6 "installed", and section 5 README.md 0
-  commits behind (expected: `75682ee` changed README). The prediction of section 1 "none"
-  held only for the second push. The hook did what it was installed for (DECISIONS,
-  19 September): the push stopped, and nothing reached GitHub that was not meant to.
-- **The push of `2582994`** printed `SUMMARY: clean`, section 1 "none", section 6
-  "installed" and section 5 README.md 1 commit behind — as predicted (Viktor's paste).
-  Claude fetched GitHub's tip afterwards; the three documents it changed matched what was
-  built.
-- **The push of `1861208`** printed `SUMMARY: clean`, section 1 "none", section 6
-  "installed" and section 5 README.md 2 commits behind — as predicted (Viktor's paste).
-  Claude's fetch afterwards: the two documents it changed matched what was built.
-  **Owed to the next commit:** the hook's result on the push of the commit that writes
-  this line. Filing a push's result always leaves the filing commit's own push owed — a
-  floor of one, like the Notes'. The earlier record of the hook is in HISTORY.
-- **Before each of this session's commits**, the documents it changes matched Viktor's
-  disk byte for byte (at `75682ee`, `2582994` and `1861208`).
+- **Where the project lives, from 26 September:** `E:\phase7_engine` on Viktor's machine;
+  the files kept outside the repository in `G:\Phase_7_Engine_Random_Files`. Copied with
+  robocopy, verified — git's own checks on Windows for the tracked files, SHA-256 for the
+  91 ignored data files and the 25 Random Files — and only then the originals renamed.
+  The evidence is in HISTORY, "26 September 2026 (ninth session) — the repository moved
+  to `E:\phase7_engine`". Run the engine and every command from `E:\phase7_engine` (in
+  cmd, changing drive needs `cd /d`). A dated record that names the D: paths means the
+  same folders before the move; dated records are not edited.
+- **The push of `eba6a2a`** printed `SUMMARY: clean`, section 1 "none", section 6
+  "installed" and section 5 README.md 3 commits behind — as predicted (Viktor's message
+  opening this session). Claude had fetched GitHub's tip after that push and found the
+  documents it changed matched what was built (the eighth session). **Owed to the next
+  commit:** the hook's result on the push of the commit that writes this line. Filing a
+  push's result always leaves the filing commit's own push owed — a floor of one, like
+  the Notes'. The earlier record of the hook is in HISTORY.
+- **Before this commit**, the two documents it changes matched Viktor's disk on E: byte
+  for byte.
 - **code_hash:** `b3c2308f8f3e05981af25ee82468c071f7bf0b9d49519b6e75bd78c37b5fb365`,
   moved at `3bfa6b7` (`data/data_fetcher.py`); unmoved since, and by the commit that
   writes this line — computed on the tip's tree and on the applied tree under Python
-  3.12.3. Confirmed on Windows before `3bfa6b7`'s commit by Viktor's live run of
-  21 September 23:29 (details in HISTORY, the entry for this file at `bc48f59`).
+  3.12.3. The move to E: cannot enter it: the walk records paths relative to the
+  repository root (`core/code_fingerprint.py`). Confirmed on Windows before `3bfa6b7`'s
+  commit by Viktor's live run of 21 September 23:29 (details in HISTORY, the entry for
+  this file at `bc48f59`).
 - **code_hash is only comparable within one Python minor version.** It hashes `ast.dump`
   output, a CPython implementation detail (`core/code_fingerprint.py`, "WHAT IT DOES NOT
   SURVIVE"). **Every `code_hash` claim about this project is computed under Python 3.12**
   (Viktor runs 3.12.10).
 - **Golden snapshot:** unmoved by the commit that writes this line. Last re-baselined at
   `2c7a7d1` (finding 22; no decision field).
-- **Test suite** — unmoved by the commit that writes this line (documentation only):
-  **597 passed / 0 failed, no warnings line** with `pandas_ta`; **460 passed / 126
-  skipped** without it; `run_tests.py` **526 passed / 0 failed / 32 errors**, all 32
-  fixture-collection `TypeError`s. Linux sandbox, autocrlf clone, Python 3.12.3, pinned
-  requirements, applied tree. Last moved at `3bfa6b7`.
-- **Engineering Notes:** through Entry #166 (v1.35), which covers `c5dc4cd`. **Five
+- **Test suite** — unmoved by the commit that writes this line (documentation only; no
+  test reads this file or HISTORY): **597 passed / 0 failed, no warnings line** with
+  `pandas_ta`; **460 passed / 126 skipped** without it; `run_tests.py` **526 passed / 0
+  failed / 32 errors**, all 32 fixture-collection `TypeError`s. Linux sandbox, autocrlf
+  clone, Python 3.12.3, pinned requirements, applied tree. Last moved at `3bfa6b7`. **On
+  Windows**, Viktor's `python -m pytest -q` in `E:\phase7_engine` at `eba6a2a`, right
+  after the move: 597 passed (26 September).
+- **Engineering Notes:** through Entry #166 (v1.35), which covers `c5dc4cd`. **Six
   commits behind** — `bc48f59`, the floor (a commit that regenerates the Notes cannot
-  cover itself, Entry #144), `75682ee`, `2582994`, `1861208`, and the commit that writes
-  this line.
+  cover itself, Entry #144), `75682ee`, `2582994`, `1861208`, `eba6a2a`, and the commit
+  that writes this line.
   Every later commit adds one until the next regeneration, which also records the round-1
-  recovery and the three rulings of 26 September. No time pressure (Viktor, 26 September).
+  recovery, the three rulings of 26 September and the move to E:. No time pressure
+  (Viktor, 26 September).
 - **Portfolio Document and AI-Attribution Statement:** both current with their scripts,
   which last changed at `6e1baba`.
 - **README.md:** not changed by the commit that writes this line; last changed at
-  `75682ee`. So the hook's section 5 will report README.md 3 commits behind (expected).
+  `75682ee`. So the hook's section 5 will report README.md 4 commits behind (expected).
 - **The round-1 audit outputs are in the repository**, in
   `docs/audit_reports/round1_deepseek-v4-pro_kimi-k3_2026-08-27/`, byte-identical to the
   hashes Viktor took on 23 September. The account is in HISTORY, "26 September 2026 —
@@ -177,9 +184,12 @@ then gave the commit steps.
   text, so it is a sound baseline for the Notes. The PDF embeds a build timestamp, so
   its bytes differ on every run.
 - **Eighth session:** a `git status --short` prediction built from the clone cannot see
-  untracked files on Viktor's disk (the push of `75682ee`, above). Before predicting it,
-  list his repository over the device bridge and compare it with the clone's tracked
-  and ignored files.
+  untracked files on Viktor's disk (the push of `75682ee`; its account is in HISTORY).
+  Before predicting it, list his repository over the device bridge and compare it with
+  the clone's tracked and ignored files.
+- **Ninth session:** the repository is at `E:\phase7_engine` on Viktor's machine (moved
+  26 September), so the device bridge needs that folder granted, and every device path
+  in a delivery names E:. `D:\phase7_engine` no longer exists under that name.
 
 ## Review findings, 21 September 2026
 
@@ -370,17 +380,10 @@ Each code commit is its own commit and updates this file for its own landing.
 
 ## Resolved this session
 
-- **The two positions of 22 September, ruled** by Viktor on 26 September and filed in
-  DECISIONS: any model may build or review, at the cost of its audit eligibility; the
-  pre-send token check is audit preparation, not an engine item.
-- **The push of `75682ee`** — filed above, with Claude's wrong prediction.
-- **Where the stop-distance finding belongs — ruled** (DECISIONS, 26 September): evidence
-  for findings 4 and 6; the 8% ceiling is part of 6; the risk gate's position goes on the
-  list for after the audit. Phase 2 of the roadmap is done.
-- **The pushes of `2582994` and `1861208`** — filed above.
-- **Grok's account of what it read, saved** outside the repository (Open items, the
-  ledger).
-- **The once-per-session rewrite of this file.** The previous version, as at `75682ee`,
+- **The move to E: and G:** — above ("Where things stand") and in HISTORY, with the
+  evidence.
+- **The push of `eba6a2a`** — filed above.
+- **The once-per-session rewrite of this file.** The previous version, as at `eba6a2a`,
   is in HISTORY verbatim, headings demoted one level, proven by un-demotion with a
   negative control (the commit message has the result).
 
@@ -390,6 +393,9 @@ Items marked **Viktor's call** are his to decide; he writes his position first a
 Claude critiques it.
 
 - **Owed to the next commit:** file the hook's result on this commit's push.
+- **Viktor, outside the repository:** delete `D:\phase7_engine_MOVED_TO_E` and
+  `D:\Phase_7_Engine_Random_Files_MOVED_TO_G` once satisfied with the copies on E: and
+  G: (HISTORY, 26 September, ninth session). Not urgent.
 - **Viktor's call — findings 4, 5, 6, 7, 16 and 18 above.** On the closed list before
   the audit. Not started.
 - **Claude's — work order G (finding 17).** On the closed list before the audit.
@@ -419,8 +425,9 @@ Claude critiques it.
   fixtures; one live panel Viktor pasted. It is Grok's account, not a provider export.
   Saved unchanged, at Viktor's request, as
   `Docs\02_Reviews_and_Feedback\Grok_Inventory_of_What_It_Read_2026-09-26.txt` in
-  `D:\Phase_7_Engine_Random_Files` (SHA256 `0d923a095bc112bda5ad11e6be39a98f0d5a48ad`
-  `139938ed119d18ebd96a71ed`, as written by Claude).
+  `G:\Phase_7_Engine_Random_Files` (SHA256 `0d923a095bc112bda5ad11e6be39a98f0d5a48ad`
+  `139938ed119d18ebd96a71ed`, as written by Claude; unchanged after the move from D:
+  on 26 September).
   Grok is ineligible to audit the engine (DECISIONS, 26 September). Its review
   (`ASSISTING_MODEL_REVIEW_2026-09-23.md`, outside the repository) is received, not
   triaged; by its own text it is not an audit, and anything accepted from it goes on the
