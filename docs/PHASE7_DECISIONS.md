@@ -999,6 +999,71 @@ now decided: an auditor that has already seen a finding is less independent on t
 engine makes, and the audit runs without it being ruled. The audit can show the weighting
 is implemented as written; it cannot say the weights are right.
 
+## Ruling, 26 September 2026 — any model may build or review; doing so costs it audit eligibility
+
+*New in this file on 26 September 2026, filed with the eighth session's first commit.
+Viktor stated the position in chat on 22 September and ruled it on 26 September. Claude
+drafted the wording and showed it to him in chat before this commit.*
+
+**What was ruled.** Viktor: "a model can be used to review and build but not for audit".
+No model is barred from build or review work on the engine. A model that has done that
+work may not audit the engine: authorship disqualifies it permanently, and having read
+engine source disqualifies it for independence.
+
+**How it was reached.** The 22 September position was worded as "spent models for build
+and review" — models already spent as auditors may do build and review work. Viktor asked
+why any model would be deemed spent for building and reviewing. Claude agreed the wording
+was wrong: "spent" is a fact about the audit role only, and says nothing against building
+or reviewing. The rule was restated the other way round — build and review work is open
+to any model, and what it costs is audit eligibility — and Viktor confirmed it.
+
+**What goes with it,** carried from the 22 September position and Claude's draft:
+
+- each use is entered in the independence ledger at the time of use;
+- work from any model reaches the repository as a patch under the normal gates, with the
+  model named in the commit message;
+- a family still clean for auditing is not used for build or review work, because that
+  work spends it as an auditor. Build and review work goes to models already ineligible
+  to audit, Claude among them.
+
+**Where it stands in practice.** No model other than Claude is in use. Viktor stopped
+using Grok, the only other one, after its test run reported 2 failures on a suite that
+passes on his machine and in Claude's sandbox — failures Grok put down to repository
+checks and did not resolve (PHASE7_NEXT.md, Open items, 26 September).
+
+**What it weakens.** Every model used for build or review is one fewer candidate auditor,
+and the families not yet in the project's record are few. The rule does not stop a clean
+family being used for build work; it makes the cost explicit and puts it on record.
+
+## Ruling, 26 September 2026 — the pre-send token check is audit preparation, not an engine item
+
+*New in this file on 26 September 2026, filed with the eighth session's first commit.
+Viktor stated the position in chat on 22 September and ruled it on 26 September. Claude
+drafted the wording and showed it to him in chat before this commit.*
+
+**What was ruled.** Viktor: "The pre-send token check is a preparation not an engine
+item". The check measures the audit package with the chosen auditor's own tokenizer and
+refuses the send if the package plus an output reserve does not fit the model's context.
+It is built ahead of the audit. It is not on the closed list (22 September) and does not
+add to or reopen it.
+
+**Why it exists.** An auditor must be able to read the whole package without running out
+of context: package size is a hard gate on which model can audit (Viktor, 22–23
+September; the ranking is in "Phase-7 — Model Roster", outside the repository).
+
+**Conditions,** Claude's of 22 September, which the ruling answers:
+
+- it is built outside the fingerprinted modules, so it cannot move `code_hash`. `docs/`
+  is excluded by directory (`core/code_fingerprint.py`, `EXCLUDED_DIR_NAMES`), so
+  `docs/build/` qualifies;
+- it goes through the normal patch gates, and takes a line in `docs/audit_change_list.md`,
+  which covers tooling as well as engine code;
+- it cannot be finished until the auditor is pinned, because it needs that model's
+  tokenizer. Until then it can be built with the model as a parameter.
+
+**What it weakens.** It puts a tool on the audit's path that no independent party has
+reviewed. If it counts wrong, it can pass a send that truncates or refuse one that fits.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then

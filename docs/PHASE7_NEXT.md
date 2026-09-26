@@ -1,9 +1,8 @@
 # Next step — read this first
 
-*26 September 2026, seventh session. Rewritten by this session's first commit, the one
-that files what the sixth session owed and the round-1 audit outputs; the version it
-replaces — rewritten at `e804b64` and amended in place at `c5dc4cd` and `bc48f59` — is in
-HISTORY verbatim.
+*26 September 2026, eighth session. Rewritten by this session's first commit, the one
+that files the two rulings of 26 September and what the push of `75682ee` owed; the
+version it replaces — rewritten at `75682ee` — is in HISTORY verbatim.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
 rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
@@ -46,12 +45,14 @@ build the backtesting architecture." No engine change since the last independent
 backtesting before an independent re-audit.** Claude's second point in the 21 September
 ruling is still open: the no-backtest rule exists only as text.
 
-**The seventh session (26 September)** opened on Viktor's message listing four owed items
-and four things discussed only in chat since 22 September. Asked what to do first, he
-chose the owed filing. Before it, at his request, Claude made a roadmap to the audit — a
-Claude Docs document, "Phase 7 roadmap to the independent audit", outside the repository.
-It proposes an order and changes no rule. The session switched model partway, from Claude
-Sonnet 5 to Claude Opus 5.5 (the commit message has the detail).
+**The eighth session (26 September)** is a new chat on the same day as the seventh. It
+opened on Viktor's message: phase 2 of the roadmap to the audit ("Phase 7 roadmap to the
+independent audit", a Claude Docs document outside the repository), and two items owed
+by the push of `75682ee`. Phase 2 is three items. The two rulings are filed in DECISIONS
+by this session's first commit. For the third — where the stop-distance finding belongs —
+Claude read the code (below, "Found after 22 September"); Viktor has not ruled. The
+session switched model partway, from Claude Sonnet 5 to Claude Opus 5.5: the code reading
+and the log count were done under Sonnet 5, this commit under Opus 5.5.
 
 ## Ruled — in force
 
@@ -64,26 +65,37 @@ Sonnet 5 to Claude Opus 5.5 (the commit message has the detail).
   4, 5, 6, 7, 16 and 18 are done. A finding is done when Viktor has ruled it and any code
   his ruling calls for has landed; a ruling to leave it as it is counts. The list is
   closed.
-- **Filed this session — `bias_score`'s weighting waits for after the audit, and the
-  auditor sees it** (DECISIONS, "Ruling, 22 September 2026 — bias_score's weighting waits
-  for after the audit, and the auditor sees it"). Ruled in chat on 22 September, option 3.
+- **`bias_score`'s weighting waits for after the audit, and the auditor sees it**
+  (DECISIONS, 22 September; filed at `75682ee`).
+- **New, 26 September — any model may build or review; doing so costs it audit
+  eligibility** (DECISIONS, "Ruling, 26 September 2026 — any model may build or review;
+  doing so costs it audit eligibility"). No model other than Claude is in use now.
+- **New, 26 September — the pre-send token check is audit preparation, not an engine
+  item** (DECISIONS, "Ruling, 26 September 2026 — the pre-send token check is audit
+  preparation, not an engine item"). It does not add to or reopen the closed list.
 
 ## Where things stand, right now
 
 - **Tip:** the commit that writes this line (a commit cannot name its own hash) — the
-  seventh session's owed filing; documentation only. Before it: `bc48f59` (the
-  Engineering Notes regenerated at v1.35, `c5dc4cd`'s push filed), `c5dc4cd` (`e804b64`'s
-  push filed, README's audit row), `e804b64` (the Notes at v1.34, the 22 September ruling,
-  NEXT's sixth-session rewrite), `5e55eb8`, `3bfa6b7` (commit 6 of the six,
+  eighth session's first commit; documentation only. Before it: `75682ee` (the seventh
+  session's owed filing and the round-1 audit outputs), `bc48f59` (the Engineering Notes
+  regenerated at v1.35), `c5dc4cd`, `e804b64`, `5e55eb8`, `3bfa6b7` (the last code commit,
   `data/data_fetcher.py`: finding 27). F itself is `3f263c2`. **Tag:** `portfolio-v1` at
   `99e022e`. **Release gate:** open, declared 15 September 2026.
-- **Working tree and hook at `bc48f59`:** the push `c5dc4cd..bc48f59` printed
-  `SUMMARY: clean`, section 1 "none", section 6 "installed", and section 5 README.md one
-  commit behind (expected) — Viktor's message opening this session. He verified the push
-  by fetch on 22 September; this session's clone of GitHub's tip was `bc48f59`, and the
-  five documents this commit changes matched his disk byte for byte before any edit.
+- **The push of `75682ee`, and a wrong prediction** (from Viktor's message opening this
+  session). The first push was stopped by the hook at section 1: ten untracked files in
+  `Claude outputs/`. Claude's `git status --short` prediction for `75682ee` missed them,
+  and so did the commit message's prediction of section 1 "none": both were built from a
+  sandbox clone, which cannot see files that exist only on Viktor's disk. He moved all
+  ten to `D:\Phase_7_Engine_Random_Files\Docs`, and the second push printed
+  `SUMMARY: clean`, section 1 "none", section 6 "installed", and section 5 README.md 0
+  commits behind (expected: `75682ee` changed README). The prediction of section 1 "none"
+  held only for the second push. The hook did what it was installed for (DECISIONS,
+  19 September): the push stopped, and nothing reached GitHub that was not meant to.
   **Owed to the next commit:** the hook's result on the push of the commit that writes
   this line. The earlier record of the hook is in HISTORY.
+- **This session's clone** of GitHub's tip was `75682ee`, and the three documents this
+  commit changes matched Viktor's disk byte for byte before any edit.
 - **code_hash:** `b3c2308f8f3e05981af25ee82468c071f7bf0b9d49519b6e75bd78c37b5fb365`,
   moved at `3bfa6b7` (`data/data_fetcher.py`); unmoved since, and by the commit that
   writes this line — computed on the tip's tree and on the applied tree under Python
@@ -100,17 +112,15 @@ Sonnet 5 to Claude Opus 5.5 (the commit message has the detail).
   skipped** without it; `run_tests.py` **526 passed / 0 failed / 32 errors**, all 32
   fixture-collection `TypeError`s. Linux sandbox, autocrlf clone, Python 3.12.3, pinned
   requirements, applied tree. Last moved at `3bfa6b7`.
-- **Engineering Notes:** through Entry #166 (v1.35), which covers `c5dc4cd`. **Two
+- **Engineering Notes:** through Entry #166 (v1.35), which covers `c5dc4cd`. **Three
   commits behind** — `bc48f59`, the floor (a commit that regenerates the Notes cannot
-  cover itself, Entry #144), and the commit that writes this line. Every later commit
-  adds one until the next regeneration, which also records the round-1 recovery.
+  cover itself, Entry #144), `75682ee`, and the commit that writes this line. Every later
+  commit adds one until the next regeneration, which also records the round-1 recovery
+  and the two rulings of 26 September. No time pressure (Viktor, 26 September).
 - **Portfolio Document and AI-Attribution Statement:** both current with their scripts,
   which last changed at `6e1baba`.
-- **README.md:** changed by the commit that writes this line — its paragraph on the
-  round-1 outputs, under "The audit, and what it found", now says where they are, and that
-  it used to say they could not be recovered. So the hook's section 5 will report
-  README.md 0 commits behind. Its two test-count lines current at `3bfa6b7`; its
-  Independent-audit row current at `c5dc4cd`.
+- **README.md:** not changed by the commit that writes this line; last changed at
+  `75682ee`. So the hook's section 5 will report README.md 1 commit behind (expected).
 - **The round-1 audit outputs are in the repository**, in
   `docs/audit_reports/round1_deepseek-v4-pro_kimi-k3_2026-08-27/`, byte-identical to the
   hashes Viktor took on 23 September. The account is in HISTORY, "26 September 2026 —
@@ -151,6 +161,10 @@ then gave the commit steps.
   install line) rebuilt the committed Notes PDF from `5e55eb8` with identical extracted
   text, so it is a sound baseline for the Notes. The PDF embeds a build timestamp, so
   its bytes differ on every run.
+- **Eighth session:** a `git status --short` prediction built from the clone cannot see
+  untracked files on Viktor's disk (the push of `75682ee`, above). Before predicting it,
+  list his repository over the device bridge and compare it with the clone's tracked
+  and ignored files.
 
 ## Review findings, 21 September 2026
 
@@ -200,7 +214,7 @@ first; Claude critiques. Each is done when ruled and any code the ruling calls f
 landed (DECISIONS, 22 September).
 
 4. **The panel gives an entry ZONE but measures everything from the last close.** Stop,
-   T1–T3 and all three R:R values come from `current_price` (`engine_core.py:999`); the
+   T1–T3 and all three R:R values come from `current_price` (`engine_core.py:1005`); the
    zone is EMA20–EMA50. LONG is authorised without price in the zone (entry score ≥ 70 is
    reachable at NEAR ZONE), and CONSERVATIVE LONG has no zone condition at all. The
    printed R:R holds only for an entry at the current price. There is no single entry
@@ -210,11 +224,14 @@ landed (DECISIONS, 22 September).
    prints a long- or short-shaped stop and targets under a NEUTRAL bias with no
    direction box; exactly 0 prints a long.
 6. **The stop is pulled to the 75-day volume point of control, with no distance limit.**
-   `structural_level=hvn` (`engine_core.py:1040`); for a long the stop is
+   `structural_level=hvn` (`engine_core.py:1050`); for a long the stop is
    min(HVN, ATR stop). The HVN is the single highest-volume bin of the whole 450-candle
    frame (`indicators/volume_profile.py`, 50 bins) — about 75 days on 4h. A trend that
-   has moved away from its point of control therefore gets its stop there, and past 15%
-   the risk check fails: NO-TRADE (RISK TOO HIGH), RISK REGIME UNKNOWN. Seen on Viktor's
+   has moved away from its point of control therefore gets its stop there, and past 8%
+   the risk check fails: NO-TRADE (RISK TOO HIGH). Between 8% and 15% the setup is
+   classified EXTREME RISK (`models/risk_model.py:439`, `:524–526`); past 15% the
+   distance limit refuses it first and RISK REGIME reads UNKNOWN (`:516–520`). This text
+   said "past 15%" until 26 September, when the code was read. Seen on Viktor's
    live runs of 21 September at 05:28, 05:51 and 06:18 and on the pinned golden fixture,
    each checked against the record (details in HISTORY); the 19:24 run's action was again
    RISK TOO HIGH on the HVN stop. How often this vetoes a setup across many runs was not
@@ -277,21 +294,41 @@ Viktor's when the audit is planned.
 - **The engine almost never trades, and one gate decides nearly all of it.** Viktor,
   22 September, in chat; recorded here on 26 September. **Where it belongs is open and
   Viktor's: work order G (finding 17), findings 4 and 6 already on the list, or this
-  list.** Evidence, from Claude's count on 22 September of a copy of
-  `logs/phase7_decision_log_aerousdt.jsonl` (not recounted this session): 35 runs, 6 to
-  22 September, all AEROUSDT 4h, about 10 of them test runs — 31 NO-TRADE, 3 WAIT,
-  1 SHORT (16 September), 0 LONG. 27 of the 31 refusals are the 15% stop-distance rule,
-  and since 19 September every refusal is. The stop has sat at about 0.547–0.550 since
-  19 September while price rose. On the 22 September panel the stop was 20.7% from the
-  current price and 13.0% from the entry zone's bottom, because stop and targets are
-  measured from the current price. Every stop-distance refusal shows RISK REGIME: UNKNOWN;
-  that the regime is not computed once the stop check fails is an inference, and the code
-  has not been read. **Claude's reading, from this file's text of findings 4, 6 and 17
-  and not from the code:** the measuring point is finding 4, and a stop held at the
-  volume point of control is finding 6, whose text says how often it vetoes a setup "was
-  not measured" — the count above is that measurement. Finding 17 is about macro in the
-  CONSERVATIVE branches and does not mention the stop. First step before Viktor rules:
-  read finding 17's code and the stop path, and say what the code shows.
+  list.** Claude's recommendation, from reading the code on 26 September: **findings 4
+  and 6, not G.** What the code shows — read from staged copies of Viktor's disk, which
+  match `75682ee`; the engine was not run:
+  - **G cannot change it.** `_determine_final_action` returns NO-TRADE (RISK TOO HIGH) on
+    a failed risk verdict at `models/decision_model.py:500–502`, before the direction
+    ladder whose CONSERVATIVE branches G would change (from `:619`). No refusal in the
+    log is within G's reach.
+  - **Finding 6, confirmed.** For a long the stop is `min(hvn, calculated_stop)`, for a
+    short `max(…)` (`models/risk_model.py:328–349`): the point of control can only widen
+    the stop, never tighten it.
+  - **Finding 4, confirmed.** Stop and targets are measured from `current_price`, the
+    last close (`core/engine_core.py:1005`, the call at `:1046–1053`).
+  - **RISK REGIME: UNKNOWN, confirmed.** Both distance refusals return before the regime
+    is classified (`models/risk_model.py:516–522`); the inference of 22 September holds.
+  - **The ceiling is 8%, not 15%.** A stop 8–15% away is classified EXTREME RISK and
+    refused (`risk_model.py:439`, `:524–526`); the 15% limit only decides which message
+    prints. Finding 6's text above is corrected accordingly.
+  - **The risk gate runs before the bias checks** — the weak-validation and lean checks
+    at `decision_model.py:605–617` — so a refused run can be one the ladder would have
+    answered WAIT anyway.
+  - **Count, 26 September**, of Viktor's `logs/phase7_decision_log_aerousdt.jsonl`, staged
+    off his disk (last written 23 September, 00:01 UTC): 37 records, 6–23 September, all
+    AEROUSDT 4h, test runs included — 33 NO-TRADE (RISK TOO HIGH), 3 WAIT, 1 SHORT
+    (16 September), 0 LONG. Of the 33, 29 were refused on the distance limit (UNKNOWN)
+    and 4 as EXTREME RISK (8.4–15.0%). The records cover 18 distinct last candles (one
+    record lacks the field); on 16 of them every run was refused. Macro agreed with the
+    raw bias in 31 of the 33.
+  - **What the refused runs would otherwise have been.** Replaying the ladder on the 33
+    with the risk gate ignored gives 25 CONSERVATIVE, 6 at the LONG/SHORT tier and 2
+    WAIT. This is Claude's re-implementation from reading, not engine output, and it
+    leaves out the confirmation gate that runs after the ladder, so some of the 31 could
+    still be refused there. It is the measurement finding 6 says "was not measured", on
+    one symbol over one mostly rising period.
+  - The count of 22 September (35 runs, 31 NO-TRADE, 27 on the distance limit) was of an
+    earlier copy; the two records added since are both distance refusals.
 
 ## Work order — Claude's, under Viktor's delegation
 
@@ -310,17 +347,13 @@ Each code commit is its own commit and updates this file for its own landing.
 
 ## Resolved this session
 
-- **The sixth session's owed filing** (Viktor's message opening this session), in the
-  session's first commit:
-  - the hook's result on the push of `bc48f59` — filed above;
-  - the ruling of 22 September on `bias_score`'s weighting — filed in DECISIONS;
-  - a correction: "To do list Claude Phase 7 Engine.pdf" was not deleted, as `982e70f`
-    recorded — HISTORY, 26 September. It is in `Docs\99_Superseded` of
-    `D:\Phase_7_Engine_Random_Files`, renamed, identified by content;
-  - **the round-1 audit outputs, recovered** — filed in `docs/audit_reports/`, a new
-    HISTORY entry, and forward corrections in README.md and `docs/build/README.md`. The
-    20 September record is not edited.
-- **The once-per-session rewrite of this file.** The previous version, as at `bc48f59`,
+- **The two positions of 22 September, ruled** by Viktor on 26 September and filed in
+  DECISIONS: any model may build or review, at the cost of its audit eligibility; the
+  pre-send token check is audit preparation, not an engine item.
+- **The push of `75682ee`** — filed above, with Claude's wrong prediction.
+- **Where the stop-distance finding belongs — the code is read** (above). The ruling is
+  still Viktor's.
+- **The once-per-session rewrite of this file.** The previous version, as at `75682ee`,
   is in HISTORY verbatim, headings demoted one level, proven by un-demotion with a
   negative control (the commit message has the result).
 
@@ -334,17 +367,12 @@ Claude critiques it.
   the audit. Not started.
 - **Claude's — work order G (finding 17).** On the closed list before the audit.
 - **Viktor's call — where the stop-distance finding belongs** (above, "Found after
-  22 September"). Claude reads the code first.
-- **Viktor's positions of 22 September, stated in chat, not yet ruled in DECISIONS:**
-  1. **Spent models for build and review.** Models already spent (Gemini, ChatGPT, Grok
-     and the others on the ledger) may do build and review work, with full transparency:
-     the same patch gates, the commit message names the model, and a ledger entry is made
-     at the time of use. Any model that writes engine code is disqualified from auditing
-     that code. Claude agreed.
-  2. **A pre-send token check, built ahead of the audit.** It measures the audit package
-     with the chosen model's own tokenizer and refuses the send if package plus output
-     reserve does not fit. Claude agreed, on condition that it is ruled explicitly as
-     audit preparation, not an engine item, so the closed list stays closed.
+  22 September"). The code is read; Claude recommends findings 4 and 6.
+- **Claude's — the pre-send token check** (audit preparation, ruled 26 September). It
+  cannot be finished until the auditor is pinned, because it needs that model's
+  tokenizer; until then it can be built with the model as a parameter. It goes under
+  `docs/`, which `core/code_fingerprint.py` excludes by directory, so it cannot move
+  `code_hash`; it takes a line in `docs/audit_change_list.md`. Not started.
 - **Viktor's call — the next independent auditor.** Claude recommends Nemotron 3 Super or
   Poolside Laguna S 2.1 (both 1M context, open weights, pinnable, labs not in the
   project's record). Mistral Large 3 is out for a full round (256K context). The ranking
@@ -358,12 +386,22 @@ Claude critiques it.
   weighting findings (ruled). No backtesting before the audit.
 - **The independence ledger is outside the repository and not yet reconciled** —
   `Phase7_Spent_Models_Ledger_2026-09-22.pdf`, built from README.md and the
-  AI-Attribution Statement, not from provider exports. **Owed to it:** Grok read the
-  production modules for its assisting-model review of 23 September
-  (`ASSISTING_MODEL_REVIEW_2026-09-23.md`, outside the repository); the ledger shows Grok
-  as not having seen engine source. That review is received, not triaged. By its own text
-  it is not an audit, grades nothing, and anything accepted from it goes on the list for
-  after the audit.
+  AI-Attribution Statement, not from provider exports. **Owed to it: Grok's entry.** The
+  ledger shows Grok as not having seen engine source. Grok's own account of what it read,
+  given on 26 September: the Constitution and the Assistant Instruction in full; README
+  and this file at about `c5dc4cd`; production code in `main.py`, `live_trading.py`,
+  `data/`, `core/`, `models/`, `indicators/` and `structure/`; the full `tests/` tree and
+  fixtures; one live panel Viktor pasted. It is Grok's account, not a provider export.
+  Grok is ineligible to audit the engine (DECISIONS, 26 September). Its review
+  (`ASSISTING_MODEL_REVIEW_2026-09-23.md`, outside the repository) is received, not
+  triaged; by its own text it is not an audit, and anything accepted from it goes on the
+  list for after the audit.
+- **Viktor has stopped using Grok.** Its test run reported 458 passed, 126 skipped and
+  2 failed — together the recorded 460 without `pandas_ta` — and it put the two failures
+  down to repository checks without resolving them. Claude's reading, not reproduced:
+  one is likely `tests/test_session_handover_check_ignored_filter.py`, which needs a
+  `git` executable; the other was not in the five test files read. No model other than
+  Claude is in use.
 - **Viktor's call, not ruled — Claude's point (2) of 21 September:** the rule "no
   backtesting before re-audit" exists only as text; a structural form would be a
   backtest entry point that refuses to run without a recorded re-audit.
