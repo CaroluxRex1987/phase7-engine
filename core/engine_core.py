@@ -1053,10 +1053,13 @@ class Phase7Engine:
             # FINDING 16, 26 September 2026: the last row is the decision
             # candle, the latest CLOSED one -- the fetcher has removed the
             # candle still forming -- so this is that candle's close, and stop
-            # and targets are measured from it. Whether they should be measured
-            # from the live price instead is finding 4's question (DECISIONS,
-            # "Ruling, 26 September 2026 -- decisions are made on closed
-            # candles (finding 16)").
+            # and targets are measured from it (DECISIONS, "Ruling,
+            # 26 September 2026 -- decisions are made on closed candles
+            # (finding 16)"). FINDING 4, 27 September 2026: Viktor ruled that
+            # it stays so -- this close is the plan's single entry price, not
+            # the live price and not the EMA band (DECISIONS, "Ruling,
+            # 27 September 2026 -- the plan is measured from the decision
+            # close (finding 4)"). It reaches the log as exit.current_price.
             current_price = float(df_struct["close"].iloc[-1])
             # AUDIT FINDING 6, 5 September 2026. This line ended in
             #     ... else (current_price * 0.02)

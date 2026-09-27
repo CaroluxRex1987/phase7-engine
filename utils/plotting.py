@@ -193,7 +193,9 @@ def plot_engine_chart(df, entry_data, risk_data, save_path="chart_output.png"):
                         entry_zone_upper,
                         color="yellow",
                         alpha=0.12,
-                        label="Entry Zone"
+                        # FINDING 4, 27 September 2026: the band between
+                        # the two EMAs, not an entry (see panel_render).
+                        label="EMA band"
                     )
                 except Exception as e:
                     logger.warning(f"Failed to plot entry zone: {e}")

@@ -188,7 +188,7 @@ class RiskBlock(TypedDict):
 
 class ExitBlock(TypedDict):
     action: str                   # DecisionModel's verdict, not exit_model's
-    current_price: float
+    current_price: float          # the plan's entry: the decision close (finding 4)
 
 
 class ExplanationBlock(TypedDict):

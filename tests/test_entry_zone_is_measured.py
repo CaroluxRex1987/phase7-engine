@@ -270,11 +270,18 @@ def _entry_lines(panel):
     other lines -- a zeroed price elsewhere in a minimal fixture, and SWING
     STRUCT's own "not located this run". Rule 30: a substring assertion
     cannot see the shape of what it matched.
+
+    FINDING 4, 27 September 2026: the lines are labelled EMA BAND and BAND
+    DISTANCE now (Viktor's ruling). Exactly two lines must match, so a
+    future relabel fails here instead of leaving every assertion below to
+    search an empty string.
     """
-    return "\n".join(
+    lines = [
         line for line in panel.splitlines()
-        if line.lstrip().startswith(("ENTRY ZONE", "ZONE DISTANCE"))
-    )
+        if line.lstrip().startswith(("EMA BAND", "BAND DISTANCE"))
+    ]
+    assert len(lines) == 2, f"expected the band line and its distance: {lines!r}"
+    return "\n".join(lines)
 
 
 def test_the_lower_bound_is_the_lower_of_the_two():
@@ -394,7 +401,7 @@ def test_the_panel_does_not_print_a_zone_it_does_not_have():
         f"the panel still prints $0.0000 - $0.0000 for an absent zone. Zero "
         f"is a price. Lines: {lines!r}"
     )
-    assert "0.00% away from zone" not in lines, (
+    assert "0.00% away from the band" not in lines, (
         f"the panel still prints 0.00% away — price sitting exactly on a "
         f"zone that was never found, which is the strongest claim this line "
         f"can make. Lines: {lines!r}"
@@ -413,5 +420,5 @@ def test_the_panel_still_prints_a_zone_it_does_have():
     lines = _entry_lines(panel)
 
     assert "$0.4918 - $0.4981" in lines, lines
-    assert "5.44% away from zone" in lines, lines
+    assert "5.44% away from the band" in lines, lines
     assert "not located" not in lines, lines

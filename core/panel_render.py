@@ -525,23 +525,42 @@ def render_panel(decision):
             entry_model now returns NaN for both when there is no zone, which
             is how this engine already spells "not located" (structure.py's
             hvn, lvn and swing_struct). Printed as such.
+
+            FINDING 4, 27 September 2026 -- Viktor's ruling (DECISIONS,
+            "Ruling, 27 September 2026 -- the plan is measured from the
+            decision close (finding 4)"). The lines were labelled ENTRY ZONE
+            and ZONE DISTANCE, while stop, targets and every R:R are measured
+            from the decision close and no rule requires price to be inside
+            the zone to trade. The panel implied an entry it does not plan.
+            They are labelled for what they are now: the band between the two
+            EMAs, a reference that the entry-quality score measures the close
+            against. The lengths are read from config rather than written
+            here, so the label cannot name EMAs the engine did not compute.
+            The data keys (zone_lower, zone_upper, distance_from_zone) and
+            entry_status's values are unchanged: entry_status is read by
+            decision_model (`"ACTIVE" in entry_status`), and renaming it is a
+            decision-path change the ruling did not ask for.
             """
+            band = f"(EMA {config.EMA_FAST} and EMA {config.EMA_SLOW})"
             lower = safe_float(entry.get("zone_lower"), float("nan"))
             upper = safe_float(entry.get("zone_upper"), float("nan"))
             distance = safe_float(entry.get("distance_from_zone"), float("nan"))
 
             if math.isfinite(lower) and math.isfinite(upper):
-                zone_line = f"ENTRY ZONE    : {c_cyan}${lower:.4f} - ${upper:.4f}{reset}\n"
+                zone_line = (
+                    f"EMA BAND      : {c_cyan}${lower:.4f} - ${upper:.4f}{reset} "
+                    f"{band} -- a reference, not the entry\n"
+                )
             else:
                 zone_line = (
-                    f"ENTRY ZONE    : not located "
-                    f"(EMA_20/EMA_50 unavailable this run)\n"
+                    f"EMA BAND      : not located "
+                    f"{band} unavailable this run\n"
                 )
 
             if math.isfinite(distance):
-                distance_line = f"ZONE DISTANCE : {distance:.2f}% away from zone\n"
+                distance_line = f"BAND DISTANCE : {distance:.2f}% away from the band\n"
             else:
-                distance_line = "ZONE DISTANCE : not measured\n"
+                distance_line = "BAND DISTANCE : not measured\n"
 
             return zone_line + distance_line
 
@@ -649,6 +668,11 @@ def render_panel(decision):
         # line of its own, labelled as information only, with its distance
         # from the decision close (Viktor's ruling, point 2). Nothing that
         # decides reads it; it comes from provenance, not from the analysis.
+        #
+        # FINDING 4, 27 September 2026 (Viktor's ruling, option A): the
+        # decision close IS the plan's entry -- stop, targets and all three
+        # R:R values are measured from it -- and the line now says so, since
+        # the panel printed no single entry price anywhere.
         provenance = decision.get("provenance")
         provenance = provenance if isinstance(provenance, dict) else {}
         candles = provenance.get("decision_candles")
@@ -661,7 +685,8 @@ def render_panel(decision):
             if struct_candle.get("open_time") else ""
         )
         current_price_line = (
-            f"DECISION CLOSE: {ORANGE}${current_price:.4f}{reset}{candle_note}\n"
+            f"DECISION CLOSE: {ORANGE}${current_price:.4f}{reset}{candle_note}"
+            f" -- the plan's entry; stop, targets and R:R are measured from it\n"
             if math.isfinite(current_price)
             else "DECISION CLOSE: not available this run\n"
         )

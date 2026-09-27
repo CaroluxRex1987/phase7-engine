@@ -297,6 +297,10 @@ control (precondition 2) is what covers it.
   benchmark. This is a deliberate departure from the standing practice of reserving an
   independent reviewer for the moment independence matters most, taken because hashes and
   arithmetic are precisely the class of claim a script checks better than a reviewer does.
+- **Fill price** *(added 27 September 2026)*: a backtest fills at the open of the candle
+  after the decision candle and records the gap from the decision close — "Ruling,
+  27 September 2026 — the plan is measured from the decision close (finding 4)", which
+  states what it weakens.
 
 ### The verdict — pre-registered, before any result exists
 
@@ -1226,6 +1230,87 @@ the code; the ruling above is unchanged)*.
 - **On the fixtures the rule never fired.** Instrumented at `add8540`, it touched no
   value on the golden run or on any of the four fixture frames, which is why no test
   noticed it and why the golden snapshot does not move.
+
+## Ruling, 27 September 2026 — the plan is measured from the decision close (finding 4)
+
+*New in this file on 27 September 2026, phase 3 of the roadmap to the audit. Ruled and
+recorded, with its code, in the same session.*
+
+**The question.** Finding 4: the panel printed an ENTRY ZONE — the band between EMA_20
+and EMA_50 — while the stop, T1–T3 and all three R:R values are measured from
+`current_price`, the close of the decision candle (`core/engine_core.py`, the line after
+the finding 16 comment; the call into the risk model below it). No rule requires price
+to be inside the band to trade: LONG is reachable at NEAR ZONE, and CONSERVATIVE LONG has
+no band condition. The panel printed no single entry price, and a backtest has to fill
+somewhere.
+
+**How it was ruled.** Not in the usual order. Viktor asked for Claude's suggestions
+first, and Claude set out three options: (A) the decision close, made explicit; (B) the
+band — the plan becomes a limit order at the band's edge, with an expiry; (C) the live
+price at run time. Claude recommended A, advised against C (it undoes finding 16, is not
+reproducible under Item 2, and two runs inside one candle would print different plans),
+and said B changes which trades are taken, which only backtest evidence can judge.
+Viktor asked for Claude's single suggestion and chose A.
+
+**What Viktor ruled — option A.**
+
+1. The close of the decision candle — the latest closed candle, since finding 16 — is
+   the plan's single entry price. Stop, targets and R:R are measured from it, as they
+   already were. The panel says so, and the log records it.
+2. The band is labelled for what it is on the panel, the band between the two EMAs, so
+   the panel stops implying an entry there.
+3. A backtest fills at the open of the candle after the decision candle, and records the
+   gap between that open and the decision close.
+4. Option B — entering at the band — goes on the list for after the audit.
+
+**The risk accepted, not measured.** B may be part of the answer to "the engine almost
+never trades": an entry at the band on a pullback sits nearer the stop, so fewer runs
+would exceed the distance limit that refuses most of them (the count of 26 September:
+29 of 33 refusals on the distance limit). Nobody measured it before the ruling. Claude
+offered to measure it from the decision log; the ruling was made without it.
+
+**What point 3 weakens**, stated per this project's amendment rule, since it adds to
+Goal B's methodology (a pointer is added there):
+
+- The printed R:R holds only for an entry at the decision close. A backtest fill at the
+  next open realises a different R:R whenever the two differ. The gap is recorded, not
+  corrected for.
+- A fill at the next candle's open is optimistic about timing. The decision cannot
+  exist until the decision candle is final — at least 60 seconds after the close, since
+  finding 16 — so the open itself is not an achievable price. Spread, fees and slippage
+  are not part of this ruling; they are Goal B's methodology.
+- How large the close-to-next-open gap is on the exchanges the engine reads has not
+  been measured.
+
+**Accepted with it.** No rule is added that price must be in the band to trade: which
+trades are taken does not change. `entry_status`'s values ("ACTIVE ENTRY ZONE", "NEAR
+ZONE", …) and the STATUS line that prints them are unchanged, because `decision_model`
+reads the value (`"ACTIVE" in entry_status`); renaming them is a decision-path change
+the ruling did not ask for. The data keys (`zone_lower`, `zone_upper`,
+`distance_from_zone`) and the degradation block's wording for a missing band ("entry
+zone") are unchanged for the same reason: they are recorded in the decision log, and a
+rename there is a change to the record, not to the panel. The entry-quality score is
+unchanged: it scores an entry at the decision close against the band, which is what
+point 1 says the entry is.
+
+**Done when** the code lands, with the live run done and its decision-log record read
+before the commit (the change moves `code_hash`).
+
+**Recorded when its code landed** *(added 27 September 2026 by the commit that lands
+the code; the ruling above is unchanged)*.
+
+- **Point 1.** The panel's DECISION CLOSE line now ends "the plan's entry; stop,
+  targets and R:R are measured from it". The log already recorded the price, as
+  `exit.current_price`; no field is added, so the decision object and the golden
+  snapshot do not change. `core/decision_contract.py` says what the field is, in a
+  comment.
+- **Point 2.** ENTRY ZONE and ZONE DISTANCE are now EMA BAND and BAND DISTANCE. The band
+  line names the EMA lengths from `config.EMA_FAST` and `config.EMA_SLOW`, not written-in
+  numbers, and says it is "a reference, not the entry". The chart's legend reads "EMA
+  band".
+- **Point 3** is recorded here and pointed to from Goal B's methodology. No backtest
+  code exists; none is written.
+- **Point 4** is on the list for after the audit in PHASE7_NEXT.md.
 
 ## Working practice
 
