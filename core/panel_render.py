@@ -354,13 +354,43 @@ def render_panel(decision):
             "No explanation available for this decision.",
         )
 
+        # FINDING 5, 27 September 2026 -- Viktor's ruling, panel only
+        # (docs/PHASE7_DECISIONS.md, "Ruling, 27 September 2026 -- a NEUTRAL
+        # bias prints no plan (finding 5)"). The plan's direction is the sign
+        # of bias_score (models/risk_model.py, calculate_stop_targets), so
+        # under a NEUTRAL bias -- a score inside +/-RAW_BIAS_THRESHOLD -- the
+        # panel printed a long- or short-shaped stop and targets for a
+        # direction the engine had not chosen; exactly 0 printed a long. The
+        # panel now prints no stop, no targets and no R:R under a NEUTRAL bias,
+        # and one PLAN line saying why. The engine still computes the plan and
+        # the decision object still carries it: the risk check needs a stop,
+        # and the log records it. Nothing here changes a decision -- the
+        # ladder never returns LONG or SHORT under a NEUTRAL bias
+        # (models/decision_model.py, _determine_final_action), which
+        # tests/test_neutral_bias_prints_no_plan.py checks over a grid.
+        #
+        # Keyed on bias.raw, the field the direction box below and
+        # decision_model both read. Only NEUTRAL withholds the plan: a raw
+        # bias the engine never emits (absent, UNKNOWN) prints it as before.
+        raw_bias_val = str(bias.get("raw", "UNKNOWN")).upper()
+        plan_withheld = raw_bias_val == "NEUTRAL"
+
         # C3: Exit Watch advisory flags. Passed straight through from
         # signal_router.py / exit_model.py's build_exit_watch() -- see
         # that function's docstring for what feeds into this list. Same
         # line-wrapping treatment as Decision Reasoning above.
+        #
+        # FINDING 5: the always-on note naming Target 1 is a target, so it is
+        # not printed under a NEUTRAL bias. It is still in the decision
+        # object and the log; only this rendering skips it.
         exit_watch = decision.get("exit_watch", [])
+        exit_watch = exit_watch if isinstance(exit_watch, list) else []
+        if plan_withheld:
+            from models.exit_model import TARGET1_NOTE_PREFIX
+            exit_watch = [flag for flag in exit_watch
+                          if not str(flag).startswith(TARGET1_NOTE_PREFIX)]
         exit_watch_lines = _wrap_bullets(
-            exit_watch if isinstance(exit_watch, list) else [],
+            exit_watch,
             "No exit-watch flags are active right now.",
         )
 
@@ -684,12 +714,20 @@ def render_panel(decision):
             f" ({timeframe} candle opened {struct_candle['open_time']} UTC)"
             if struct_candle.get("open_time") else ""
         )
-        current_price_line = (
-            f"DECISION CLOSE: {ORANGE}${current_price:.4f}{reset}{candle_note}"
-            f" -- the plan's entry; stop, targets and R:R are measured from it\n"
-            if math.isfinite(current_price)
-            else "DECISION CLOSE: not available this run\n"
-        )
+        #
+        # FINDING 5: under a NEUTRAL bias there is no plan, so the close is
+        # printed without calling itself the plan's entry.
+        if not math.isfinite(current_price):
+            current_price_line = "DECISION CLOSE: not available this run\n"
+        elif plan_withheld:
+            current_price_line = (
+                f"DECISION CLOSE: {ORANGE}${current_price:.4f}{reset}{candle_note}\n"
+            )
+        else:
+            current_price_line = (
+                f"DECISION CLOSE: {ORANGE}${current_price:.4f}{reset}{candle_note}"
+                f" -- the plan's entry; stop, targets and R:R are measured from it\n"
+            )
 
         live_price = safe_float(struct_candle.get("live_price"), float("nan"))
         if math.isfinite(live_price):
@@ -730,6 +768,24 @@ def render_panel(decision):
             + _target_line("3 (Aggr)", t3, rr_t3)
         )
 
+        # FINDING 5: under a NEUTRAL bias one PLAN line replaces the stop,
+        # the three targets and their R:R. The threshold is read from
+        # bias_engine, so the line moves with the constant.
+        if plan_withheld:
+            from models.bias_engine import RAW_BIAS_THRESHOLD
+            neutral_score = safe_float(bias.get("score"), float("nan"))
+            if math.isfinite(neutral_score):
+                score_text = (f"score {neutral_score:+.1f}, inside "
+                              f"\u00b1{RAW_BIAS_THRESHOLD:.0f}")
+            else:
+                score_text = "score not computed"
+            plan_lines = (
+                f"PLAN          : none -- the bias is NEUTRAL ({score_text}), "
+                f"so there is no direction to measure a stop from\n"
+            )
+        else:
+            plan_lines = f"{stop_loss_line}{target_lines}"
+
         # VIKTOR'S REQUEST, 14 September 2026: a run he read a few days
         # earlier put a genuine SHORT setup in front of him (bearish bias,
         # descending targets) under a NO-TRADE decision -- correct, but
@@ -764,7 +820,8 @@ def render_panel(decision):
         # is bias reporting no lean, which is exactly what an absent box
         # already says. Viktor: only show this box when there is an actual
         # LONG or SHORT to report.
-        raw_bias_val = str(bias.get("raw", "UNKNOWN")).upper()
+        #
+        # raw_bias_val is read once, above the Exit Watch block (finding 5).
 
         if "PLAN CONTRADICTS ACTION" in action_val.upper():
             direction_box = (
@@ -815,8 +872,7 @@ def render_panel(decision):
             f"{_entry_zone_lines(entry, c_cyan, reset)}"
             f"STATUS        : {colorize_val(entry.get('entry_status', 'ACTIVE ENTRY ZONE'))}\n"
             f"{swing_struct_line}\n"
-            f"{stop_loss_line}"
-            f"{target_lines}\n"
+            f"{plan_lines}\n"
             f"{divider}"
             f"{_entry_quality_lines(entry, entry_score)}"
             f"{divider}"

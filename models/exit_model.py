@@ -36,6 +36,13 @@ design and is consumed. It stays.
 # go with it.
 from typing import Dict, Any, Optional, List
 
+# FINDING 5, 27 September 2026. The opening words of the always-on Target 1
+# note below, named once so core/panel_render.py can recognise that note
+# without copying its text: under a NEUTRAL bias the panel prints no stop,
+# targets or R:R (Viktor's ruling, panel only), and this note names Target 1.
+# The note itself is unchanged -- it is still built and logged on every run.
+TARGET1_NOTE_PREFIX = "If you're already in this trade"
+
 # ============================================================
 # C3 BUILD: EXIT WATCH -- advisory-only flags, never automatic actions
 # ============================================================
@@ -169,7 +176,7 @@ def build_exit_watch(
         # --- Always-on informational note (not a warning) ---
         if target_t1 and float(target_t1) > 0:
             flags.append(
-                f"If you're already in this trade, a common approach is moving your stop to breakeven once price "
+                f"{TARGET1_NOTE_PREFIX}, a common approach is moving your stop to breakeven once price "
                 f"reaches Target 1 (${float(target_t1):.4f})."
             )
 

@@ -61,9 +61,13 @@ from core.panel_render import render_panel
 
 
 def _decision(risk=None, exit_data=None):
+    # FINDING 5, 27 September 2026: a NEUTRAL bias prints no stop, targets
+    # or R:R (tests/test_neutral_bias_prints_no_plan.py), so this fixture
+    # carries a direction -- it was NEUTRAL -- for the plan lines these
+    # tests read to be printed at all. Nothing else in it changed.
     return {
         "symbol": "TESTUSDT", "timeframe": "4h",
-        "bias": {"raw": "NEUTRAL", "detailed": "NEUTRAL", "regime": "NEUTRAL STRUCTURE",
+        "bias": {"raw": "BULLISH", "detailed": "NEUTRAL", "regime": "NEUTRAL STRUCTURE",
                  "volatility": "LOW VOLATILITY"},
         "trend": {"trend_health": 50.0, "trend_direction": "NEUTRAL",
                   "momentum_mode": "NEUTRAL"},

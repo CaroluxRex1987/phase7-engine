@@ -1404,6 +1404,131 @@ the code; the ruling above is unchanged)*.
   comment in `models/entry_model.py` now says it is in force.
 - **Point 4** is recorded here only. Nothing was built or measured.
 
+**Confirmed, 27 September 2026 (the next session)** *(added by the commit that lands
+finding 5's code; the ruling above is unchanged)*. Viktor confirmed the "information
+only" reading above: only the stop stopped using the HVN. Its uses in the entry score,
+the reversal reading and the Exit Watch stay, and revisiting them belongs with the
+`bias_score` weighting review after the audit (DECISIONS, 22 September). Confirmed by
+agreeing to Claude's suggestion, not by writing his position first; recorded that way
+at his instruction.
+
+## Ruling, 27 September 2026 — a NEUTRAL bias prints no plan (finding 5)
+
+*New in this file on 27 September 2026, phase 3 of the roadmap to the audit. Ruled on
+27 September, after `76c8cde` landed; recorded, with the code, by the next commit.*
+
+**The question.** Finding 5 (review of 21 September): the plan's direction is the sign
+of `bias_score` (`models/risk_model.py`, `calculate_stop_targets`, since work order C),
+so a score inside ±20 — a NEUTRAL bias, which prints no direction box — still printed a
+long- or short-shaped stop, three targets and their R:R, and a score of exactly 0
+printed a long.
+
+**How it was ruled.** By agreeing to Claude's suggestion, not by writing his position
+first. Recorded that way at his instruction.
+
+**What Viktor ruled.**
+
+1. Panel only. Under a NEUTRAL bias the panel prints no stop, targets or R:R, and
+   instead one line saying there is no plan because the bias is NEUTRAL (score X,
+   inside ±20), so there is no direction to measure a stop from.
+2. The engine still computes and logs the plan, because the risk check needs a stop.
+3. Before any diff: check where the panel prints the plan lines, and that a NEUTRAL
+   bias never reaches LONG or SHORT.
+
+**The checks point 3 asked for** — Claude, 27 September, at `76c8cde`, before the diff.
+
+- *Where the plan is printed* (read in `core/panel_render.py` and
+  `models/exit_model.py`): the DECISION CLOSE line's ending ("the plan's entry; stop,
+  targets and R:R are measured from it", since finding 4), STOP LOSS, and TARGET 1–3
+  with their R:R. One more line names a plan price: the Exit Watch's always-on note
+  "…once price reaches Target 1 ($x)" (`build_exit_watch`). Nothing else prints the
+  plan. Decision Reasoning's expected-value sentence names the fixed 2:1 average reward,
+  not the plan's R:R; a risk refusal's reason can cite a stop distance in percent, and
+  that distance does not depend on the side (ATR × a multiplier built from
+  |`bias_score`|), so it stays true under NEUTRAL.
+- *A NEUTRAL bias never reaches LONG or SHORT.* From the code:
+  `_determine_final_action` (`models/decision_model.py`) returns a side only inside its
+  `raw_bias == "BULLISH"` and `raw_bias == "BEARISH"` branches; a NEUTRAL bias falls
+  through to WAIT, or returns earlier with a NO-TRADE or a WAIT. The later stages — the
+  confirmation gate, `_refuse_incoherent_plan` and degradation — only turn a side into
+  a NO-TRADE, never create one, and `models/signal_router.py` takes the action from
+  `evaluate` alone. A second, independent guard holds as well: a NEUTRAL score is inside
+  ±20 (`RAW_BIAS_THRESHOLD`), and `MIN_ACTION_BIAS` (30) sends any lean below 30 to
+  WAIT, so even a NEUTRAL bias misread as a direction would not trade. From the record:
+  Viktor's `logs/phase7_decision_log_aerousdt.jsonl`, staged off his disk (41 records,
+  6–27 September), holds 2 NEUTRAL runs, one WAIT and one NO-TRADE (RISK TOO HIGH). As
+  a test: `tests/test_neutral_bias_prints_no_plan.py` runs the full `evaluate` over a
+  grid of 48,384 NEUTRAL inputs and gets only WAIT and NO-TRADE (RISK TOO HIGH), with a
+  negative control showing the same grid reaches a side under BULLISH and BEARISH.
+
+**What it weakens**, stated per this project's amendment practice:
+
+- Under a NEUTRAL bias the panel no longer shows the stop the risk check measured. A
+  NEUTRAL run refused as NO-TRADE (RISK TOO HIGH) cites a stop distance whose stop is
+  not printed; the stop is in the log (`risk.atr_stop`).
+- The panel and the log now differ under a NEUTRAL bias: the log carries a plan the
+  panel does not show. Anyone reading the log — a backtest included — must know that a
+  NEUTRAL record's stop and targets are not a plan the engine offered.
+- A reader who used the NEUTRAL panel to see where a stop would sit if the market
+  broke one way loses that. It was only ever the side the score's sign picked.
+- ENTRY QUALITY and TRADE QUALITY still print under a NEUTRAL bias, scored for the side
+  the score's sign picks. This ruling does not cover them; found while building it, and
+  on the list for after the audit (PHASE7_NEXT.md).
+
+**Claude's readings, Viktor's to correct** — three places where the ruling's words had
+to be applied to lines it did not name:
+
+- *DECISION CLOSE.* Under a NEUTRAL bias the close and its candle still print, without
+  "the plan's entry; stop, targets and R:R are measured from it", which would otherwise
+  sit directly above a line saying there is no plan.
+- *The Exit Watch note naming Target 1* is a target, so under a NEUTRAL bias the panel
+  does not print it. The decision object and the log still carry it. The panel
+  recognises it by its opening words, named once as `TARGET1_NOTE_PREFIX` in
+  `models/exit_model.py`; the note's text is unchanged.
+- *Only NEUTRAL withholds the plan.* A raw bias the engine never emits (absent, shown
+  as UNKNOWN) prints the plan as before: the ruling names NEUTRAL, and an absent reading
+  is not a reading of no lean.
+
+**Done when** the code lands, with the live run done and its decision-log record read
+before the commit (the change moves `code_hash`, though no decision).
+
+**Recorded when its code landed** *(added 27 September 2026 by the commit that lands
+the code; the ruling above is unchanged)*.
+
+- **Point 1.** The line reads, for example, `PLAN          : none -- the bias is NEUTRAL
+  (score +12.4, inside ±20), so there is no direction to measure a stop from`. The
+  threshold is read from `RAW_BIAS_THRESHOLD`, not written in; a score that was not
+  computed prints "score not computed", never "nan". It replaces STOP LOSS and the three
+  TARGET lines in the same place on the panel.
+- **Point 2.** Nothing in the engine, the decision object or the log changed: the
+  golden snapshot did not move. `code_hash` moved, for `core/panel_render.py` and
+  `models/exit_model.py` only.
+- **Point 3** is above, and pinned by the grid test.
+
+## Ruling, 27 September 2026 — a push that goes as predicted leaves nothing owed
+
+*New in this file on 27 September 2026. Ruled on 27 September; recorded by the commit
+that lands finding 5's code.*
+
+**The question.** Since the pre-push hook (19 September), each push's hook result was
+filed by the next commit, which left that commit's own push owed — a floor of one owed
+item that never cleared. Claude proposed on 26 September (proposal (b)) that a push
+whose result Viktor does not paste back be recorded once as "as predicted", and only a
+deviation be filed as an owed item.
+
+**How it was ruled.** By agreeing to Claude's suggestion, not by writing his position
+first. Recorded that way at his instruction.
+
+**What Viktor ruled.** Proposal (b) is adopted. A push that goes as predicted is
+recorded once, in the next commit's account, and leaves nothing owed. Only a deviation
+becomes an owed item.
+
+**What it weakens.** A push that went wrong and was not reported would now leave no
+trace of being unconfirmed; before, the owed item kept asking. It rests on Viktor's
+standing practice of reporting only what differs from a prediction (20 September), and
+on Claude reading `master` and `origin/master` off his disk at the start of the next
+session, which is kept.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then
