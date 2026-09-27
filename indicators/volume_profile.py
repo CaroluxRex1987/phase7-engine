@@ -68,7 +68,9 @@ def compute_volume_profile(df: pd.DataFrame, num_bins: int = 50):
             # drags the range to the origin and every bin above it empties.
             # The HVN that comes out is then a structural level derived from a
             # price that never traded, and engine_core passes it to
-            # calculate_stop_targets.
+            # calculate_stop_targets. (It did until finding 6, 27 September
+            # 2026; the stop no longer reads the HVN. The entry score and
+            # trend_health's reversal reading still do.)
             #
             # Forward fill only — no backfill, which would take the value from
             # a later bar, and no zero. If a gap survives, there is no profile

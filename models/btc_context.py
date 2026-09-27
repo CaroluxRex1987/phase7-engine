@@ -26,6 +26,8 @@ from typing import Tuple
 # Callers gate on the third return value, `n`, which is 0 only when nothing
 # was measured. engine_core converts the NaN to None at the boundary before it
 # reaches the decision object, matching what it already does for hvn and atr.
+# (The hvn half was in lineage.risk_inputs, removed at finding 6, 27 September
+# 2026; atr is still spelled that way there.)
 NOT_MEASURED = float("nan")
 
 

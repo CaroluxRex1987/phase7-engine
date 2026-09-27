@@ -1,4 +1,4 @@
-from typing import Tuple, Union, Optional
+from typing import Tuple, Optional
 import logging
 import numpy as np
 
@@ -172,7 +172,9 @@ def _refuse_wrong_side_stop(plan_direction, current_price, atr_stop):
     ATR stop always lands on the correct side of price; min() / max() against
     the structural level can only move it further out. The comment's own
     example -- a structural level above price on a long -- is the case min()
-    already rules out.
+    already rules out. (Finding 6, 27 September 2026, removed the structural
+    level and the min() / max(); the stop is the ATR stop alone, and the
+    argument above holds for it unchanged.)
 
     WRONG IF IT WERE REACHED. It replaced the DISTANCE and left the stop where
     it was, on the wrong side of price: a stop above a long's entry, returned
@@ -221,7 +223,6 @@ class RiskModel:
         trend_health: float,
         current_price: float,
         atr_val: float,
-        structural_level: Union[float, None],
         bias_score: float,
         volatility_state: str = "NORMAL"
     ) -> Tuple[float, float, float, float]:
@@ -245,11 +246,28 @@ class RiskModel:
         (tests/test_direction_source.py) came to say this function built its
         plan "from detailed_bias alone". Passing it now raises TypeError.
 
+        FINDING 6, 27 September 2026. The fourth parameter used to be
+        `structural_level`, and its only caller passed the HVN -- the single
+        highest-volume bin of the whole 450-candle frame, about 75 days on 4h
+        (indicators/volume_profile.py). For a long the stop was
+        min(HVN, ATR stop), for a short max(...), so the point of control
+        could only widen the stop and had no distance limit of its own: a
+        trend that had moved away from it got its stop there, and past 8% the
+        risk check refused the setup. On Viktor's decision log (39 usable
+        runs, 6-27 September, AEROUSDT 4h) the HVN set the stop in 35 of 39.
+        Viktor ruled that the stop comes from ATR alone and the HVN stays as
+        information only (docs/PHASE7_DECISIONS.md, "Ruling, 27 September
+        2026 -- the stop comes from ATR alone (finding 6)"). The parameter is
+        removed rather than ignored, for the reason given for detailed_bias
+        above: a parameter that reads as a stop anchor while deciding nothing
+        is a false statement in the signature. Passing it now raises
+        TypeError. The 8% (EXTREME RISK) and 15% (distance refusal) limits in
+        validate_risk_parameters are unchanged by the same ruling.
+
         Args:
             trend_health: Trend health score (0-100)
             current_price: Current market price
             atr_val: Average True Range value
-            structural_level: Key structural price level
             bias_score: Bias strength score
             volatility_state: Current volatility regime
 
@@ -269,7 +287,8 @@ class RiskModel:
             # of the structural branch and looked completely normal
             # -- (98.0, 102.0, 104.0, 106.0) in the audit's own scenario --
             # while the ATR that is supposed to set stop distance contributed
-            # nothing and nothing anywhere was flagged.
+            # nothing and nothing anywhere was flagged. (Finding 6, 27 September
+            # 2026, removed the structural branch; the guard stays.)
             #
             # validate_risk_parameters, twenty lines below in this same file,
             # has checked np.isfinite since sequence item 2. The two methods
@@ -314,9 +333,6 @@ class RiskModel:
 
             stop_mult = ATR_STOP_MULT * trend_factor * bias_factor * vol_multiplier
 
-            # Ensure structural level is a valid finite float if provided
-            valid_structural = structural_level is not None and np.isfinite(structural_level)
-
             # A12 FIX: targets are now computed as multiples of the ACTUAL stop
             # distance (i.e. real risk), not fixed ATR multiples independent of
             # it. Previously, since the stop can be pulled further out by
@@ -325,13 +341,12 @@ class RiskModel:
             # making "conservative" T1 mathematically the worst R:R target
             # (often below 1:1) by construction. Now T1/T2/T3 R:R come out at
             # exactly 1:1 / 2:1 / 3:1 relative to what's actually being risked.
+            #
+            # FINDING 6, 27 September 2026: the structural level and the
+            # min/max named above are gone -- see the docstring. The stop is
+            # the ATR stop, and nothing else moves it.
             if plan_direction == "LONG":
-                calculated_stop = current_price - (atr_val * stop_mult)
-                atr_stop = (
-                    min(structural_level, calculated_stop)
-                    if valid_structural
-                    else calculated_stop
-                )
+                atr_stop = current_price - (atr_val * stop_mult)
 
                 stop_distance = current_price - atr_stop
                 if not np.isfinite(stop_distance) or stop_distance <= 0:
@@ -341,12 +356,7 @@ class RiskModel:
                 target_t2 = current_price + (stop_distance * TARGET2_MULT)
                 target_t3 = current_price + (stop_distance * TARGET3_MULT)
             else:  # SHORT
-                calculated_stop = current_price + (atr_val * stop_mult)
-                atr_stop = (
-                    max(structural_level, calculated_stop)
-                    if valid_structural
-                    else calculated_stop
-                )
+                atr_stop = current_price + (atr_val * stop_mult)
 
                 stop_distance = atr_stop - current_price
                 if not np.isfinite(stop_distance) or stop_distance <= 0:

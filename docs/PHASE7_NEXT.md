@@ -1,8 +1,8 @@
 # Next step — read this first
 
-*27 September 2026. Rewritten by the commit that lands finding 4's code, which also
-files what the push of `57f0521` owed; the version it replaces — as it stood at
-`57f0521` — is in HISTORY verbatim.
+*27 September 2026. Rewritten by the commit that lands finding 6's code, which also
+files what the push of `b0efe23` owed; the version it replaces — as it stood at
+`b0efe23` — is in HISTORY verbatim.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
 rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
@@ -31,10 +31,11 @@ is next. Anything found in the meantime goes on the list for after the audit (be
 not onto this one. **Phase 3 started on 26 September (tenth session), in the order 16,
 7, 4, 6, 5, 18, then G.** **Finding 16 is done** (ruled in the tenth session, code at
 `add8540`). **Finding 7 is done** (ruled 27 September, code at `57f0521`). **Finding 4
-is done**: ruled on 27 September (option A — the plan is measured from the decision
-close), and its code lands with the commit that writes this line, after the live run
-and the decision-log record were read (the commit message has what the record showed).
-**Finding 6 is next.** The rest has not started.
+is done** (ruled 27 September, option A, code at `b0efe23`). **Finding 6 is done**:
+ruled on 27 September (the stop comes from ATR alone), and its code lands with the
+commit that writes this line, after the live run and the decision-log record were read
+(the commit message has what the record showed). **Finding 5 is next.** Then 18, then
+G. The rest has not started.
 
 **Nothing Claude does under the delegation decides the engine's trading rules.**
 Findings 4–7, 16 and 18 are questions about what the engine should do. They are
@@ -51,15 +52,15 @@ build the backtesting architecture." No engine change since the last independent
 backtesting before an independent re-audit.** Claude's second point in the 21 September
 ruling is still open: the no-backtest rule exists only as text.
 
-**This session (27 September, thirteenth)**, under Claude Opus 5.5, opened on "Continue
-Phase 7". Asked what first, Viktor chose to build finding 7's code; Claude found it had
-already landed at `57f0521` — read off Viktor's disk (`master` and `origin/master`, and
-`indicators/indicators.py` byte-identical to the tip), not taken from a document. Viktor
-then asked for Claude's suggestions on finding 4 rather than writing his position first,
-and ruled option A (DECISIONS, "Ruling, 27 September 2026 — the plan is measured from
-the decision close (finding 4)"). The code is a panel change that moves `code_hash` and
-no decision, so the live run and the read of its log record come before the commit
-step.
+**This session (27 September, the one after `b0efe23`)**, under Claude Opus 5.5, opened
+on "Continue Phase 7" with the ruling on finding 6 already made and the instruction to
+build its code. Viktor ruled by agreeing to Claude's suggestion, not by writing his
+position first, and asked for it to be recorded that way (DECISIONS, "Ruling,
+27 September 2026 — the stop comes from ATR alone (finding 6)"). Re-deriving the
+ruling's evidence before filing it found that two of its figures did not add up (29 + 7
+≠ 39); the correction is recorded under the ruling. The change is on the decision path
+and changes which trades are taken, so it was scoped in full before any diff, and the
+live run and the read of its log record come before the commit step.
 
 ## Ruled — in force
 
@@ -77,7 +78,13 @@ step.
   (finding 4)"). Option A: the decision close is the plan's single entry; the band is
   labelled EMA BAND; a backtest fills at the next candle's open and records the gap
   (added to Goal B's methodology); entering at the band goes on the list for after the
-  audit.
+  audit. **Its code landed at `b0efe23`.**
+- **New, 27 September — the stop comes from ATR alone (finding 6)** (DECISIONS,
+  "Ruling, 27 September 2026 — the stop comes from ATR alone (finding 6)"). The HVN no
+  longer pulls the stop and stays as information only; the 8% and 15% limits are
+  unchanged; nothing checks HVN proximity, which goes on the list for after the audit;
+  a swing-structure anchor was not chosen and not measured. Ruled by agreeing to
+  Claude's suggestion, not by writing his position first.
 - **`bias_score`'s weighting waits for after the audit, and the auditor sees it**
   (DECISIONS, 22 September; filed at `75682ee`).
 - **New, 26 September — any model may build or review; doing so costs it audit
@@ -117,17 +124,17 @@ step.
 ## Where things stand, right now
 
 - **Tip:** the commit that writes this line (a commit cannot name its own hash) —
-  finding 4's code, a panel change. Before it: `57f0521` (the twelfth session's commit:
-  finding 7's code), `add8540` (the eleventh
-  session's first commit: finding 16's code), `bf2e802` (the tenth session's first
-  commit: finding 16 ruled), `7d103d7` (the
-  ninth session's first commit: the move to E:), `eba6a2a` (the eighth session's third
+  finding 6's code, a decision-path change. Before it: `b0efe23` (the thirteenth
+  session's commit: finding 4's code), `57f0521` (the twelfth session's commit: finding
+  7's code), `add8540` (the eleventh session's first commit: finding 16's code),
+  `bf2e802` (the tenth session's first commit: finding 16 ruled), `7d103d7` (the ninth
+  session's first commit: the move to E:), `eba6a2a` (the eighth session's third
   commit), `1861208` (the stop-distance ruling), `2582994` (the eighth session's first
   commit: two rulings), `75682ee` (the seventh session's owed filing and the round-1
   audit outputs), `bc48f59` (the Engineering Notes regenerated at v1.35), `c5dc4cd`,
-  `e804b64`, `5e55eb8`, `3bfa6b7` (the code commit before this one,
-  `data/data_fetcher.py`: finding 27). F itself is `3f263c2`. **Tag:** `portfolio-v1` at
-  `99e022e`. **Release gate:** open, declared 15 September 2026.
+  `e804b64`, `5e55eb8`, `3bfa6b7` (`data/data_fetcher.py`: finding 27). F itself is
+  `3f263c2`. **Tag:** `portfolio-v1` at `99e022e`. **Release gate:** open, declared
+  15 September 2026.
 - **Where the project lives, from 26 September:** `E:\phase7_engine` on Viktor's machine;
   the files kept outside the repository in `G:\Phase_7_Engine_Random_Files`. Copied with
   robocopy, verified — git's own checks on Windows for the tracked files, SHA-256 for the
@@ -136,51 +143,57 @@ step.
   to `E:\phase7_engine`". Run the engine and every command from `E:\phase7_engine` (in
   cmd, changing drive needs `cd /d`). A dated record that names the D: paths means the
   same folders before the move; dated records are not edited.
-- **The push of `57f0521`** happened: this session read `master` and `origin/master` off
+- **The push of `b0efe23`** happened: this session read `master` and `origin/master` off
   Viktor's disk (`.git/refs/heads/master` and `.git/refs/remotes/origin/master`, staged)
-  and GitHub's tip, all three `57f0521`. Viktor did not report the hook's output, which by
-  his standing rule means it matched the prediction (`SUMMARY: clean`, README.md 0
-  commits behind); that is his confirmation by silence, not output Claude read. **Owed
-  to the next commit:** the hook's result on the push of the commit that writes this
-  line — unless Viktor rules on Claude's proposal (b) first (Open items). Filing a push's
-  result always leaves the filing commit's own push owed — a floor of one, like the
-  Notes'. The earlier record of the hook is in HISTORY.
+  and GitHub's tip, all three `b0efe23`. The hook printed `SUMMARY: clean` and README.md
+  0 commits behind, as predicted — Viktor's report of the output in chat, not output
+  Claude read. **Owed to the next commit:** the hook's result on the push of the commit
+  that writes this line — unless Viktor rules on Claude's proposal (b) first (Open
+  items). Filing a push's result always leaves the filing commit's own push owed — a
+  floor of one, like the Notes'. The earlier record of the hook is in HISTORY.
 - **Before this commit**, every file it changes matched Viktor's disk on E: byte for
-  byte (staged off his disk and compared with the clone at `57f0521`).
-- **code_hash:** `b5e6af9ede33e5797efa9b82101dd0f00bbc859245e3e5493b6011928b0ad02a`,
-  moved by the commit that writes this line (from `84f5c4ac…`, which held from
-  `57f0521`): `core/panel_render.py` and `utils/plotting.py`. The changes to
-  `core/engine_core.py` and `core/decision_contract.py` are comments only, and their
-  per-file fingerprints are unchanged (checked). Computed on the working tree and on the
-  applied tree under Python 3.12.3. Confirmed on Windows before the commit by Viktor's
-  live run, whose decision-log record Claude read — the commit message has it.
+  byte (staged off his disk and compared with the clone at `b0efe23`).
+- **code_hash:** `ed2710b68816687d065d00d0bb259174328d7c0892901d1db561b0423ec7d51a`,
+  moved by the commit that writes this line (from `b5e6af9e…`, which held from
+  `b0efe23`): `models/risk_model.py` and `core/engine_core.py`. The changes to
+  `core/decision_contract.py`, `models/entry_model.py`, `models/signal_router.py`,
+  `models/btc_context.py` and `indicators/volume_profile.py` are comments or docstrings
+  only, and their per-file fingerprints are unchanged (checked). Computed on the working
+  tree and on the applied tree under Python 3.12.3. Confirmed on Windows before the
+  commit by Viktor's live run, whose decision-log record Claude read — the commit
+  message has it.
 - **code_hash is only comparable within one Python minor version.** It hashes `ast.dump`
   output, a CPython implementation detail (`core/code_fingerprint.py`, "WHAT IT DOES NOT
   SURVIVE"). **Every `code_hash` claim about this project is computed under Python 3.12**
   (Viktor runs 3.12.10).
-- **Golden snapshot:** unmoved by the commit that writes this line, as predicted: the
-  change is to panel text, and the decision object gains and loses no field. Last
-  re-baselined at `add8540` (finding 16; one provenance field added).
-- **Test suite** — moved by the commit that writes this line: **627 passed / 0 failed,
-  no warnings line** with `pandas_ta`; **483 passed / 133 skipped** without it;
-  `run_tests.py` **556 passed / 0 failed / 32 errors**, all 32 fixture-collection
-  `TypeError`s (unchanged: the 5 new tests take no fixtures). Linux sandbox, autocrlf
-  clone, Python 3.12.3, pinned requirements, applied tree. The 5 are
-  `tests/test_plan_entry_is_the_decision_close.py`; one (the engine path) skips without
-  `pandas_ta`. **On Windows**, the counts Viktor was told to stop on in this commit's
-  command sequence; he proceeded, which is his confirmation. Before that, 622 at
-  `57f0521` and 613 at `add8540`.
-- **Engineering Notes:** through Entry #166 (v1.35), which covers `c5dc4cd`. **Ten
+- **Golden snapshot:** re-baselined by the commit that writes this line, 11 fields, as
+  predicted before the run: `exit.action` (NO-TRADE (RISK TOO HIGH) → CONSERVATIVE
+  LONG), `explanation.reasons`, `explanation.summary`, `exit_watch` (the Target 1
+  price), `risk.atr_stop`, `risk.targets`, `risk.risk_valid`, `risk.risk_reason`,
+  `risk.risk_regime`, `lineage.risk_inputs.risk_regime` (UNKNOWN → NORMAL RISK) and
+  `lineage.risk_inputs.structural_level` (removed). `run_hash` unmoved: no fingerprinted
+  constant changed. Before that, last re-baselined at `add8540`.
+- **Test suite** — moved by the commit that writes this line: **631 passed / 0 failed,
+  no warnings line** with `pandas_ta`; **486 passed / 134 skipped** without it;
+  `run_tests.py` **560 passed / 0 failed / 32 errors**, all 32 fixture-collection
+  `TypeError`s (unchanged: the new tests take no fixtures). Linux sandbox, autocrlf
+  clone, Python 3.12.3, pinned requirements, applied tree. +6 in
+  `tests/test_stop_is_atr_only.py` (one, the engine path, skips without `pandas_ta`);
+  −2 removed with the structural level they tested (one each in
+  `test_plan_direction_and_side.py` and `test_decision_bar_integrity.py`). **On
+  Windows**, the counts Viktor was told to stop on in this commit's command sequence; he
+  proceeded, which is his confirmation. Before that, 627 at `b0efe23`.
+- **Engineering Notes:** through Entry #166 (v1.35), which covers `c5dc4cd`. **Eleven
   commits behind** — `bc48f59`, the floor (a commit that regenerates the Notes cannot
   cover itself, Entry #144), `75682ee`, `2582994`, `1861208`, `eba6a2a`, `7d103d7`,
-  `bf2e802`, `add8540`, `57f0521`, and the commit that writes this line.
+  `bf2e802`, `add8540`, `57f0521`, `b0efe23`, and the commit that writes this line.
   Every later commit adds one until the next regeneration, which also records the round-1
   recovery, the rulings of 26 and 27 September, the phase-3 order, the move to E: and
-  the code for findings 16, 7 and 4. No time pressure (Viktor, 26 September).
+  the code for findings 16, 7, 4 and 6. No time pressure (Viktor, 26 September).
 - **Portfolio Document and AI-Attribution Statement:** both current with their scripts,
   which last changed at `6e1baba`.
 - **README.md:** changed by the commit that writes this line — its two test-count
-  passages only (627 / 483 + 133 skipped / 556). So the hook's section 5 will report 0
+  passages only (631 / 486 + 134 skipped / 560). So the hook's section 5 will report 0
   commits since README.md was touched (expected).
 - **The round-1 audit outputs are in the repository**, in
   `docs/audit_reports/round1_deepseek-v4-pro_kimi-k3_2026-08-27/`, byte-identical to the
@@ -196,8 +209,8 @@ caught it by reading the log, not from a paste. **On every change that moves
 run and the panel read happen before `git commit`, and Claude checks the decision-log
 record for the new `code_hash` before the commit step, not after the push.** Never
 predict live numbers; check the record. Followed at `2c7a7d1`, `4e2b1c8`, `486f1a5`,
-`3bfa6b7`, `add8540`, `57f0521` and the commit that writes this line: the command list stopped at
-the live run, Claude read the record, and only then gave the commit steps. **Since finding 16, a
+`3bfa6b7`, `add8540`, `57f0521`, `b0efe23` and the commit that writes this line: the command
+list stopped at the live run, Claude read the record, and only then gave the commit steps. **Since finding 16, a
 live run in the first 60 seconds after a 4h close (00:00, 04:00, 08:00, 12:00, 16:00,
 20:00 UTC) fails by design** ("not yet final"); run again a minute later.
 
@@ -243,14 +256,23 @@ live run in the first 60 seconds after a 4h close (00:00, 04:00, 08:00, 12:00, 1
   line that logs when it fires, run on the golden test and the fixture frames, then
   restore the file and `cmp` it) — that is how the golden prediction for finding 7 was
   made from evidence rather than from reading.
+- **27 September, finding 6:** re-derive a ruling's evidence before filing it. The
+  figures handed over with the ruling said 29 of 39 pass and 7 are refused, which does
+  not add up to 39; recomputed from the staged log, 32 pass (29 of them newly). Also:
+  `core/code_fingerprint.py` strips docstrings and the AST has no comments, so a
+  docstring- or comment-only change moves no per-file fingerprint — checked per file,
+  not assumed. And when a parameter is removed, check every call that passed it for a
+  test that would now pass for the wrong reason: the `detailed_bias` test still passed
+  `structural_level=None`, which would have raised the TypeError on its own.
 
 ## Review findings, 21 September 2026
 
 Read at `635a94e` from Viktor's disk and from an autocrlf clone. **Every finding comes
 from reading the code; none was reproduced by running the engine** unless it says so.
-Line numbers are as read at the commit each entry names. Since finding 16's commit,
-`current_price` is at `core/engine_core.py:1060` and the stop-and-targets call at
-`:1101–1108`.
+Line numbers are as read at the commit each entry names. Since finding 6's commit,
+`current_price` is at `core/engine_core.py:1063` and the stop-and-targets call at
+`:1111–1117` (this line said `:1060` and `:1101–1108`, set at finding 16; finding 4's
+comments had already moved them by three).
 The full text of each fixed finding, with its evidence, is in HISTORY: 1–13 in the
 entry for this file at `aafded0`, 19–24 in the entry at `4e2b1c8`, 25–28 in the entry
 at `5e55eb8`. The Engineering Notes, Entries #150–#164, give each one's landing.
@@ -304,7 +326,7 @@ landed (DECISIONS, 22 September).
    (DECISIONS, "Ruling, 27 September 2026 — the plan is measured from the decision close
    (finding 4)"). The panel now names the decision close as the plan's entry and labels
    the band EMA BAND; a backtest fills at the next candle's open. Entering at the band
-   is on the list for after the audit (below).
+   is on the list for after the audit (below). **Code landed at `b0efe23`.** Done.
 5. **A NEUTRAL bias still prints a full plan.** The plan's direction comes from
    `bias_score >= 0` (`models/risk_model.py`, since C), so a score between −20 and +20
    prints a long- or short-shaped stop and targets under a NEUTRAL bias with no
@@ -326,6 +348,13 @@ landed (DECISIONS, 22 September).
    is ruled to stop pulling the stop to the HVN, nothing checks HVN proximity.
    **Ruled 26 September:** the 8% ceiling is part of this finding, and the count under
    "Evidence for findings 4 and 6" below is its measurement.
+   **Ruled 27 September: the stop comes from ATR alone; done with the commit that
+   writes this line** (DECISIONS, "Ruling, 27 September 2026 — the stop comes from ATR
+   alone (finding 6)"). `calculate_stop_targets` no longer takes a structural level,
+   `engine_core` passes no HVN, and `lineage.risk_inputs` no longer lists one; the 8%
+   and 15% limits are unchanged. Tests in `tests/test_stop_is_atr_only.py`. The
+   dependency above is now in force: nothing gates on HVN proximity (list for after the
+   audit, below).
 7. **Indicator values beyond 5σ are silently replaced by the previous bar's.**
    `indicators/indicators.py:105–110`, inside `clean_series`, which EMA, RSI, ADX,
    SuperTrend and ATR all pass through. Nothing records the replacement — unlike volume
@@ -386,43 +415,20 @@ compliance.
 15. `_refuse_incoherent_plan` cannot fire today (see 8) — correctly so: it is a tripwire
     against a future change, which is what its docstring says it is.
 
-## Evidence for findings 4 and 6 — the stop-distance count (26 September)
+## Evidence for findings 4 and 6 — the stop-distance count
 
-**The engine almost never trades, and one gate decides nearly all of it.** Viktor,
-22 September, in chat. **Ruled 26 September: evidence for findings 4 and 6, not a new
-item and not part of G** (DECISIONS, "Ruling, 26 September 2026 — the stop-distance
-finding is evidence for findings 4 and 6"). What the code shows — read from staged
-copies of Viktor's disk, which matched `75682ee`; the engine was not run:
-
-- **G cannot change it.** `_determine_final_action` returns NO-TRADE (RISK TOO HIGH) on
-  a failed risk verdict at `models/decision_model.py:500–502`, before the direction
-  ladder whose CONSERVATIVE branches G would change (from `:619`). No refusal in the
-  log is within G's reach.
-- **Finding 6, confirmed.** For a long the stop is `min(hvn, calculated_stop)`, for a
-  short `max(…)` (`models/risk_model.py:328–349`): the point of control can only widen
-  the stop, never tighten it.
-- **Finding 4, confirmed.** Stop and targets are measured from `current_price`, the
-  last close (`core/engine_core.py:1005`, the call at `:1046–1053`).
-- **RISK REGIME: UNKNOWN, confirmed.** Both distance refusals return before the regime
-  is classified (`models/risk_model.py:516–522`); the inference of 22 September holds.
-- **The ceiling is 8%, not 15%.** A stop 8–15% away is classified EXTREME RISK and
-  refused (`risk_model.py:439`, `:524–526`); the 15% limit only decides which message
-  prints. Finding 6's text above is corrected accordingly; ruled part of finding 6.
-- **Count, 26 September**, of Viktor's `logs/phase7_decision_log_aerousdt.jsonl`, staged
-  off his disk (last written 23 September, 00:01 UTC): 37 records, 6–23 September, all
-  AEROUSDT 4h, test runs included — 33 NO-TRADE (RISK TOO HIGH), 3 WAIT, 1 SHORT
-  (16 September), 0 LONG. Of the 33, 29 were refused on the distance limit (UNKNOWN)
-  and 4 as EXTREME RISK (8.4–15.0%). The records cover 18 distinct last candles (one
-  record lacks the field); on 16 of them every run was refused. Macro agreed with the
-  raw bias in 31 of the 33.
-- **What the refused runs would otherwise have been.** Replaying the ladder on the 33
-  with the risk gate ignored gives 25 CONSERVATIVE, 6 at the LONG/SHORT tier and 2
-  WAIT. This is Claude's re-implementation from reading, not engine output, and it
-  leaves out the confirmation gate that runs after the ladder, so some of the 31 could
-  still be refused there. It is the measurement finding 6 says "was not measured", on
-  one symbol over one mostly rising period.
-- The count of 22 September (35 runs, 31 NO-TRADE, 27 on the distance limit) was of an
-  earlier copy; the two records added since are both distance refusals.
+**Both findings are done** (4 at `b0efe23`, 6 with the commit that writes this line), so
+this section is now a pointer. The count of 26 September (37 records: 33 NO-TRADE (RISK
+TOO HIGH), 29 of them on the distance limit; the ladder replay) is in HISTORY, in this
+file's version at `b0efe23`, "Evidence for findings 4 and 6". The ATR-only recount of
+27 September that finding 6 was ruled on, with its correction, is in DECISIONS, "Ruling,
+27 September 2026 — the stop comes from ATR alone (finding 6)". **Two things from it
+still stand:** G cannot change a refusal made by the risk gate (the verdict returns at
+`models/decision_model.py:500–502`, before the ladder); and passing the risk check is not
+a trade — the ladder and the confirmation gate still decide. **What to watch for now:**
+the decision log will show how often runs refused only on the HVN stop become trades
+under ATR alone. On the newest records (26 and 27 September) volatility was EXTREME, and
+EXTREME VOLATILITY is refused as EXTREME RISK whatever the stop.
 
 ## Found after 22 September — for after the next audit
 
@@ -448,6 +454,22 @@ Viktor's when the audit is planned.
   that an entry at the band on a pullback sits nearer the stop and might meet fewer
   distance refusals — the gate behind most NO-TRADEs; the decision log can measure it.
   **Ruled for after the audit** (Viktor, 27 September, point 4 of the finding 4 ruling).
+- **Nothing gates on HVN proximity.** Work order F removed HVN proximity from the
+  confirmation gate because the HVN stop acted on that area; finding 6 removed the HVN
+  stop. The HVN still weighs — the entry score's structure points and trend_health's
+  reversal reading — but vetoes nothing, so a long can be authorised directly under a
+  high-volume node. **Ruled for after the audit** (Viktor, 27 September, point 3 of the
+  finding 6 ruling).
+- **`lineage.risk_inputs` leaves out an input to the stop.** `calculate_stop_targets`
+  scales the ATR by `trend_factor`, which reads `trend_health`
+  (`models/risk_model.py`, the line `trend_factor = 1.0 + …`), so trend health sets the
+  stop distance, and through it the 8% and 15% checks. `risk_inputs` does not record
+  it, and its comment in `core/engine_core.py` (ITEM 14, 11 September) says trend_health
+  "no longer" feeds the risk decision — true of the regime classification, not of the
+  stop. The value is still in the record, at `trend.trend_health`: the recount of
+  27 September needed it to reproduce the logged stops. Found by Claude reading the code
+  while building finding 6, 27 September; on this list by the 22 September ruling, not
+  separately ruled. A lineage change would move the golden snapshot.
 
 ## Work order — Claude's, under Viktor's delegation
 
@@ -466,15 +488,12 @@ Each code commit is its own commit and updates this file for its own landing.
 
 ## Resolved this session
 
-- **Finding 4** — ruled (option A) and its code landed by the commit that writes this
-  line; finding 4 is done.
-- **Finding 7's code** — found already landed at `57f0521` (read off Viktor's disk, see
-  "This session").
-- **The push of `57f0521`** — filed above.
-- **The plaintext API key in the USB backup** — Viktor said in chat on 27 September
-  that he has rotated it. His statement, not checked by Claude; the file was not opened.
-  It was an Open item here.
-- **The once-per-session rewrite of this file.** The previous version, as at `57f0521`,
+- **Finding 6** — ruled (the stop comes from ATR alone) and its code landed by the
+  commit that writes this line; finding 6 is done.
+- **The push of `b0efe23`** — filed above.
+- **The ruling's evidence, corrected** — 32 of 39 pass under ATR alone, not 29 (the 29
+  are the runs that newly pass); recorded under the ruling in DECISIONS.
+- **The once-per-session rewrite of this file.** The previous version, as at `b0efe23`,
   is in HISTORY verbatim, headings demoted one level, proven by un-demotion with a
   negative control (the commit message has the result).
 
@@ -490,9 +509,9 @@ Claude critiques it.
 - **Viktor, outside the repository:** delete `D:\phase7_engine_MOVED_TO_E` and
   `D:\Phase_7_Engine_Random_Files_MOVED_TO_G` once satisfied with the copies on E: and
   G: (HISTORY, 26 September, ninth session). Not urgent.
-- **Viktor's call — findings 6, 5 and 18 above, in that order.** On the closed
-  list before the audit. **6 is next.** Not started. The stop-distance count (above) is
-  its evidence, and the 8% ceiling is part of it (DECISIONS, 26 September).
+- **Viktor's call — findings 5 and 18 above, in that order.** On the closed list
+  before the audit. **5 is next** (a NEUTRAL bias still prints a full plan). Not
+  started; his position first.
 - **Claude's — work order G (finding 17).** On the closed list before the audit.
 - **Claude's — the pre-send token check** (audit preparation, ruled 26 September). It
   cannot be finished until the auditor is pinned, because it needs that model's

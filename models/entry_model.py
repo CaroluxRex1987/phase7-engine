@@ -495,6 +495,13 @@ def calculate_entry_quality(
 #                               DEPENDENCY, recorded: if finding 6 is later
 #                               ruled to stop pulling the stop to the HVN,
 #                               nothing checks HVN proximity at all.
+#                               IN FORCE since 27 September 2026: finding 6
+#                               was so ruled, and no gate checks HVN
+#                               proximity. It still weighs -- the entry
+#                               score's structure points and trend_health's
+#                               reversal reading read it -- but vetoes
+#                               nothing. On the list for after the audit
+#                               (Viktor, point 3 of the finding 6 ruling).
 #   trend exhaustion            KEPT -- Viktor. Structure must match the side,
 #                               so every confirmed trade runs with the trend,
 #                               and exhaustion is always against it.

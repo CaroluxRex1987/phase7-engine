@@ -326,8 +326,9 @@ class LineageBlock(TypedDict):
         archive["path"]                                raw source data
 
     `risk_inputs` is the second decision-component branch: the stop and the
-    three targets are computed from price, ATR and a structural level, and
-    without those recorded a target is a number with no derivation.
+    three targets are computed from price and ATR, and without those recorded
+    a target is a number with no derivation. A structural level (the HVN) was
+    a third input until finding 6 (27 September 2026) and is no longer one.
 
     A note on what `archive.path` means when it is None. It means nothing was
     written for this run -- not that the path is unknown. The alternative, a

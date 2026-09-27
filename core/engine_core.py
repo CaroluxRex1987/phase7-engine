@@ -888,7 +888,7 @@ class Phase7Engine:
                             # AUDIT FINDING (a), 5 September 2026. NaN means
                             # "not measured" inside btc_context; None is how
                             # this file already spells it in the record (see
-                            # risk_inputs' atr and structural_level below), and
+                            # risk_inputs' atr below), and
                             # it is what serialises to JSON null. n_observations
                             # is the flag the panel and decision model gate on.
                             "correlation": (
@@ -1101,11 +1101,17 @@ class Phase7Engine:
             # which BiasStateMachine never emits, and took the plan's direction
             # from the sign of bias_score every time. The parameter is gone;
             # see calculate_stop_targets' docstring.
+            # FINDING 6, 27 September 2026: structural_level=hvn was passed
+            # here, and the stop was pulled out to the HVN whenever the HVN
+            # lay further away than the ATR stop. Viktor ruled that the stop
+            # comes from ATR alone and the HVN stays as information only
+            # (DECISIONS, "Ruling, 27 September 2026 -- the stop comes from
+            # ATR alone (finding 6)"). The parameter is gone; the HVN is still
+            # computed and recorded under structure.hvn.
             atr_stop, t1, t2, t3 = self.risk_model.calculate_stop_targets(
                 trend_health=trend["trend_health"],
                 current_price=current_price,
                 atr_val=atr_val,
-                structural_level=hvn,
                 bias_score=bias_score,
                 volatility_state=volatility_mode,
             )
@@ -1436,8 +1442,11 @@ class Phase7Engine:
                 "risk_inputs": {
                     "current_price": current_price,
                     "atr": atr_val if math.isfinite(atr_val) else None,
-                    "structural_level": (
-                        float(hvn) if (hvn is not None and math.isfinite(hvn)) else None),
+                    # FINDING 6, 27 September 2026: structural_level (the
+                    # HVN) stood here and no longer does, for the reason given
+                    # for detailed_bias below -- it no longer feeds the stop or
+                    # the targets. The HVN is still recorded under
+                    # structure.hvn and indicators_at_decision_bar.HVN.
                     "bias_score": bias_score,
                     # 21 SEPTEMBER 2026, work order C: detailed_bias stood here
                     # and no longer does, for the reason given for trend_health

@@ -375,8 +375,8 @@ def test_the_reason_string_does_not_claim_a_relationship_it_lacks():
 def test_the_btc_block_is_strict_json(monkeypatch):
     """
     NaN is the honest in-memory value and invalid JSON. engine_core converts
-    it to None at the boundary, the way it already does for atr and
-    structural_level. json.dumps(allow_nan=False) is what would catch a
+    it to None at the boundary, the way it already does for atr (and did for
+    structural_level until finding 6, 27 September 2026). json.dumps(allow_nan=False) is what would catch a
     regression: Python emits a bare NaN token by default, which every strict
     reader rejects.
     """

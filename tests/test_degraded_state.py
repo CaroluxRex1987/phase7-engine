@@ -371,7 +371,6 @@ def test_a_failed_risk_calculation_does_not_invent_levels():
             trend_health=80.0,                   # a SHORT: bias_score below
             current_price=100.0,
             atr_val=None,
-            structural_level=None,
             bias_score=-70.0,
         )
     except Exception as e:

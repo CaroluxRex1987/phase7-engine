@@ -1312,6 +1312,98 @@ the code; the ruling above is unchanged)*.
   code exists; none is written.
 - **Point 4** is on the list for after the audit in PHASE7_NEXT.md.
 
+## Ruling, 27 September 2026 — the stop comes from ATR alone (finding 6)
+
+*New in this file on 27 September 2026, phase 3 of the roadmap to the audit. Ruled on
+27 September, after `b0efe23` landed; recorded, with the code, by the next commit.*
+
+**The question.** Finding 6: the stop was pulled to the HVN — the single highest-volume
+bin of the whole 450-candle frame (`indicators/volume_profile.py`, 50 bins), about 75 days
+on 4h. `core/engine_core.py` passed `structural_level=hvn` to
+`RiskModel.calculate_stop_targets`, which set a long's stop at min(HVN, ATR stop) and a
+short's at max(…). The HVN could only widen the stop, and nothing limited how far: a trend
+that had moved away from its point of control got its stop there, and past 8% the risk
+check refused the setup (EXTREME RISK; past 15% the distance limit, RISK REGIME UNKNOWN).
+The 8% ceiling was ruled part of this finding on 26 September.
+
+**How it was ruled.** Not in the usual order: Viktor ruled by agreeing to Claude's
+suggestion, not by writing his position first. Recorded that way at his instruction.
+
+**What Viktor ruled.**
+
+1. The stop comes from ATR alone. It is no longer pulled to the HVN. The HVN stays as
+   information only.
+2. The 8% (EXTREME RISK) and 15% (distance refusal) limits are unchanged.
+3. Since work order F nothing checks HVN proximity: the confirmation gate stopped
+   checking it because the HVN stop covered it. That goes on the list for after the
+   audit.
+4. Using the swing-structure level as the stop anchor was not chosen and not measured.
+
+**The evidence it was ruled on** — Claude, 27 September, from Viktor's
+`logs/phase7_decision_log_aerousdt.jsonl` staged off his disk: 40 records, 6–27
+September, AEROUSDT 4h, test runs included, 39 usable.
+
+- The HVN pull set the stop in 35 of 39 runs. Median stop distance with the pull: 19.4%.
+  Only 3 runs passed the risk check.
+- ATR-only: median 5.8%, widest 10.1%. 29 of 39 would pass the risk check; 7 would
+  still be refused (6 on EXTREME VOLATILITY, 1 over 8%).
+- These figures are Claude's recomputation of the stop formula from the logged inputs,
+  not engine output. It matched the logged stop exactly on the 4 runs where the HVN did
+  not take over.
+- Passing the risk check is not a trade: the direction rules and the confirmation gate
+  still apply. The 26 September replay suggested most such runs become CONSERVATIVE and
+  a few reach the LONG/SHORT tier.
+
+**Correction to that evidence, found when the code landed** *(Claude, 27 September,
+recomputed from the same 40 records, re-staged off Viktor's disk and byte-identical to
+the log the ruling was made on)*. "29 of 39 would pass" and "7 would still be refused"
+do not add up to 39. Under ATR alone **32 of 39 pass**: the 29 counted are the runs that
+newly pass, and the 3 that passed with the pull pass too (29 + 3 + 7 = 39). The 7
+refused, the medians and the 35 of 39 hold as stated. The ruling was made on the figure
+as worded; the correction makes the evidence stronger, not weaker. Recorded rather than
+quietly fixed.
+
+**What it weakens**, stated per this project's amendment practice:
+
+- The HVN no longer vetoes anything. A stop may now sit inside or short of a
+  high-volume area — a level where price has often reacted — and be taken out there.
+  How often that happens has not been measured; only a backtest can.
+- No gate checks HVN proximity (point 3). A long can be authorised directly under a
+  high-volume node.
+- It changes which trades are taken. Runs refused on the distance limit alone now reach
+  the direction ladder and the confirmation gate. On the pinned golden fixture the
+  action moves from NO-TRADE (RISK TOO HIGH) to CONSERVATIVE LONG.
+- The stop distance now depends only on ATR and the multipliers in
+  `models/risk_model.py` (trend health, bias score, volatility state), none of which has
+  been backtested.
+
+**How "information only" is read** — Claude's reading, Viktor's to correct. The stop
+stops reading the HVN, and nothing else changes: the HVN is still computed and recorded
+(`structure.hvn`, `indicators_at_decision_bar.HVN`), and its other existing uses stay —
+the entry score's structure points (`models/entry_model.py`, up to 12 of 102), the
+reversal reading in `indicators/trend_health.py` (which reaches `bias_score` as part of
+the 10% reversal/continuation factor), and the Exit Watch "close to a high-volume node"
+note. They weigh; none of them gates. Whether they should stay is not part of this
+ruling.
+
+**Done when** the code lands, with the live run done and its decision-log record read
+before the commit (the change moves `code_hash` and the decision path).
+
+**Recorded when its code landed** *(added 27 September 2026 by the commit that lands
+the code; the ruling above is unchanged)*.
+
+- **Point 1.** `calculate_stop_targets` no longer takes `structural_level`: passing it
+  raises TypeError, as `detailed_bias` does since work order C. The stop is
+  `price ∓ ATR × stop multiplier`, and nothing else moves it. `engine_core` passes no
+  HVN, and `lineage.risk_inputs` no longer lists `structural_level` — it records what fed
+  the stop, and the HVN no longer does; the HVN stays under `structure.hvn`.
+- **Point 2.** `REGIME_EXTREME_STOP_PCT` (8.0) and `MAX_STOP_DISTANCE_PCT` (15.0) are
+  unchanged and pinned by `tests/test_stop_is_atr_only.py`; no fingerprinted constant
+  changed, so `run_hash` did not move.
+- **Point 3** is on the list for after the audit in PHASE7_NEXT.md. The dependency
+  comment in `models/entry_model.py` now says it is in force.
+- **Point 4** is recorded here only. Nothing was built or measured.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then

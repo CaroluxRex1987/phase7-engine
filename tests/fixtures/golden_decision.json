@@ -58,20 +58,21 @@
     "zone_upper": 0.77559759
   },
   "exit": {
-    "action": "NO-TRADE (RISK TOO HIGH)",
+    "action": "CONSERVATIVE LONG",
     "current_price": 0.80173175
   },
   "exit_watch": [
-    "If you're already in this trade, a common approach is moving your stop to breakeven once price reaches Target 1 ($0.9613)."
+    "If you're already in this trade, a common approach is moving your stop to breakeven once price reaches Target 1 ($0.8156)."
   ],
   "explanation": {
     "reasons": [
-      "Risk check failed (Stop distance exceeds maximum allowable threshold (15%).), so no trade is allowed right now.",
-      "Confidence is 77/100 \u2014 the bias engine's own composite strength (trend health, structure regime, volume sentiment, SuperTrend direction, macro bias, and reversal/continuation, already weighted and blended into one score). Restating any of those as a separate bonus here would count the same evidence twice. This reflects how the picture lines up, not a green light \u2014 the risk check above is what's blocking the trade.",
+      "Bias is bullish and the broader macro trend agrees, trend strength 95/100 (up), but the entry quality (45/100) isn't strong enough \u2014 CONSERVATIVE LONG.",
+      "Structural confirmation holds for the long: structure agrees with the direction, the trend is not flagged exhausted, and no momentum divergence points against it.",
+      "Confidence is 77/100 \u2014 the bias engine's own composite strength (trend health, structure regime, volume sentiment, SuperTrend direction, macro bias, and reversal/continuation, already weighted and blended into one score). Restating any of those as a separate bonus here would count the same evidence twice.",
       "Entry quality is 45/100 \u2014 a weak entry. Compare it against the TREND line rather than against a restatement of it.",
-      "Expected value (illustrative, not backtested): the 77/100 confidence score restated against the standard 2:1 average reward, not a second reading of the setup \u2014 it is arithmetic on confidence alone, so it can never disagree with it. On that basis about +1.31R per trade \u2014 positive -- worth taking on average if that win rate holds up (this is hypothetical, since no trade is actually being suggested right now). On this reward multiple any confidence above 33/100 is breakeven or better, and above 43/100 reads as positive."
+      "Expected value (illustrative, not backtested): the 77/100 confidence score restated against the standard 2:1 average reward, not a second reading of the setup \u2014 it is arithmetic on confidence alone, so it can never disagree with it. On that basis about +1.31R per trade \u2014 positive -- worth taking on average if that win rate holds up. On this reward multiple any confidence above 33/100 is breakeven or better, and above 43/100 reads as positive."
     ],
-    "summary": "NO-TRADE (RISK TOO HIGH) \u2014 Risk check failed (Stop distance exceeds maximum allowable threshold (15%).), so no trade is allowed right now."
+    "summary": "CONSERVATIVE LONG \u2014 Bias is bullish and the broader macro trend agrees, trend strength 95/100 (up), but the entry quality (45/100) isn't strong enough \u2014 CONSERVATIVE LONG."
   },
   "lineage": {
     "archive": {
@@ -196,8 +197,7 @@
       "atr": 0.01055373,
       "bias_score": 77.09945429,
       "current_price": 0.80173175,
-      "risk_regime": "UNKNOWN",
-      "structural_level": 0.6421571,
+      "risk_regime": "NORMAL RISK",
       "volatility_state": "MEDIUM VOLATILITY"
     },
     "run_hash": "51c8f3df520b284c10aed18dd5d85182535864a5ed8af2c1bdf3f5e89ec3191a"
@@ -316,17 +316,17 @@
   },
   "risk": {
     "assumed_win_rate": 77.09945429,
-    "atr_stop": 0.6421571,
+    "atr_stop": 0.78783605,
     "avg_reward_r": 2.0,
     "confidence_score": 77.09945429,
     "ev_r": 1.31298363,
-    "risk_reason": "Stop distance exceeds maximum allowable threshold (15%).",
-    "risk_regime": "UNKNOWN",
-    "risk_valid": false,
+    "risk_reason": "OK",
+    "risk_regime": "NORMAL RISK",
+    "risk_valid": true,
     "targets": [
-      0.9613064,
-      1.12088105,
-      1.2804557
+      0.81562745,
+      0.82952316,
+      0.84341886
     ],
     "trade_quality_proposed": 45.18175716,
     "validation_note": "The higher timeframe agrees with this bias. | Volume divergence or weakness detected.",

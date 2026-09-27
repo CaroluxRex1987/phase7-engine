@@ -11,8 +11,9 @@ WHAT WAS WRONG
     {"available": True, ..., "correlation": None, "beta": None}
 
 when the AERO/BTC relationship could not be measured. None is that file's own
-spelling for "not measured" — the same one it uses for atr and
-structural_level — and it is what serialises to JSON null.
+spelling for "not measured" — the same one it uses for atr (and used for
+structural_level until finding 6, 27 September 2026) — and it is what
+serialises to JSON null.
 
 `models/signal_router.py::_merge_btc_context` (478-481) read it as
 

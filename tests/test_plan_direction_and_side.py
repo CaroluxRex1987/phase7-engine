@@ -18,8 +18,10 @@ FOUND 21 SEPTEMBER 2026, by reading the code during the pre-backtest review
    stop above a long's entry, returned as a plan. It raises now.
 
 The grid test is the evidence for "unreachable": every combination of score,
-trend health, volatility state and structural level the engine can produce
-gives a stop on the correct side. The out-of-range tests are the evidence
+trend health and volatility state the engine can produce gives a stop on the
+correct side. (It also varied a structural level until finding 6,
+27 September 2026, removed that input: the stop comes from ATR alone.
+tests/test_stop_is_atr_only.py holds that.) The out-of-range tests are the evidence
 that the raise is load-bearing: they reach the branch the grid proves the
 engine cannot.
 
@@ -37,15 +39,13 @@ PRICE = 100.0
 ATR = 2.0
 
 
-def _plan(bias_score, structural_level=None, trend_health=60.0,
-          volatility_state="NORMAL"):
+def _plan(bias_score, trend_health=60.0, volatility_state="NORMAL"):
     from models.risk_model import RiskModel
 
     return RiskModel().calculate_stop_targets(
         trend_health=trend_health,
         current_price=PRICE,
         atr_val=ATR,
-        structural_level=structural_level,
         bias_score=bias_score,
         volatility_state=volatility_state,
     )
@@ -74,13 +74,17 @@ def _is_short(plan):
 def test_detailed_bias_is_no_longer_accepted():
     from models.risk_model import RiskModel
 
+    # structural_level=None stood in this call until finding 6 removed that
+    # parameter too. Left in, it would raise the TypeError by itself and this
+    # test would pass whatever became of detailed_bias -- so it is gone, and
+    # the message is asserted to name detailed_bias.
     exc = _raises(lambda: RiskModel().calculate_stop_targets(
         detailed_bias="BULLISH CONFIRMED", trend_health=60.0,
-        current_price=PRICE, atr_val=ATR, structural_level=None,
-        bias_score=40.0))
+        current_price=PRICE, atr_val=ATR, bias_score=40.0))
     assert isinstance(exc, TypeError), (
         "calculate_stop_targets accepts detailed_bias again -- a parameter "
         "that reads as the direction source and is not one")
+    assert "detailed_bias" in str(exc), exc
 
 
 def test_the_plan_direction_is_the_sign_of_bias_score():
@@ -115,18 +119,17 @@ def test_every_plan_the_engine_can_ask_for_has_its_stop_on_the_correct_side():
     """
     The unreachability claim, checked rather than argued. bias_score is
     clipped to -100..100 by bias_engine and trend_health to 0..100 by
-    trend_health.py; the structural level can sit anywhere.
+    trend_health.py. A structural level was a fourth axis here until finding
+    6 (27 September 2026) removed it from the stop.
     """
     scores = [-100.0, -99.9, -50.0, -20.0, -0.1, 0.0, 0.1, 20.0, 50.0, 99.9, 100.0]
     healths = [0.0, 50.0, 100.0]
     vols = ["LOW VOLATILITY", "NORMAL", "HIGH VOLATILITY", "EXTREME VOLATILITY"]
-    levels = [None, 1.0, 90.0, 99.9, 100.0, 100.1, 110.0, 1000.0]
 
-    for score, health, vol, level in itertools.product(scores, healths, vols, levels):
-        plan = _plan(score, structural_level=level, trend_health=health,
-                     volatility_state=vol)
+    for score, health, vol in itertools.product(scores, healths, vols):
+        plan = _plan(score, trend_health=health, volatility_state=vol)
         ok = _is_long(plan) if score >= 0 else _is_short(plan)
-        assert ok, (score, health, vol, level, plan)
+        assert ok, (score, health, vol, plan)
 
 
 def test_a_stop_that_would_land_on_the_wrong_side_raises():
@@ -143,17 +146,12 @@ def test_a_stop_that_would_land_on_the_wrong_side_raises():
         assert "wrong side" in str(exc), exc
 
 
-def test_a_structural_level_on_the_far_side_does_not_move_the_stop_across():
-    """
-    Negative control for the raise: the comment on the old fallback named
-    "structural level sits above price" as its case. min() already keeps a
-    long's stop below price when the level is above it, so this is a normal
-    plan, not a refusal.
-    """
-    long_plan = _plan(40.0, structural_level=150.0)
-    assert _is_long(long_plan), long_plan
-    short_plan = _plan(-40.0, structural_level=50.0)
-    assert _is_short(short_plan), short_plan
+# test_a_structural_level_on_the_far_side_does_not_move_the_stop_across
+# stood here: a negative control for the raise, showing that min() / max()
+# against a structural level on the far side of price still gave a normal
+# plan. Finding 6 (27 September 2026) removed the structural level and the
+# min() / max(), so there is no far side left to test; the test was removed
+# with them rather than left passing on a path that no longer exists.
 
 
 # --- the record ------------------------------------------------------------

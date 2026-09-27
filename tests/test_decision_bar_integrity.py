@@ -445,23 +445,23 @@ def test_calculate_stop_targets_rejects_a_non_finite_atr():
     """
     from models.risk_model import RiskModel
 
+    # FINDING 6, 27 September 2026: these calls were positional, with a
+    # structural level (None) fourth. That parameter is gone, and a positional
+    # call would now hand 60.0 to volatility_state and None to bias_score, so
+    # the calls name their arguments.
     model = RiskModel()
     with pytest.raises(Exception):
-        model.calculate_stop_targets(80.0, 100.0, float("nan"), None, 60.0)
+        model.calculate_stop_targets(trend_health=80.0, current_price=100.0,
+                                     atr_val=float("nan"), bias_score=60.0)
 
 
-def test_a_structural_level_no_longer_masks_a_missing_atr():
-    """
-    The dangerous half of the audit's scenario. With a structural level present
-    the levels came out of the structural branch and looked entirely normal —
-    (98.0, 102.0, 104.0, 106.0) — while the ATR that is supposed to set stop
-    distance contributed nothing and nothing was flagged anywhere.
-    """
-    from models.risk_model import RiskModel
-
-    model = RiskModel()
-    with pytest.raises(Exception):
-        model.calculate_stop_targets(80.0, 100.0, float("nan"), 98.0, 60.0)
+# test_a_structural_level_no_longer_masks_a_missing_atr stood here: the
+# dangerous half of the audit's scenario, where a structural level made the
+# levels come out of the structural branch looking normal -- (98.0, 102.0,
+# 104.0, 106.0) -- while a NaN ATR contributed nothing. Finding 6
+# (27 September 2026) removed the structural branch, so nothing is left for a
+# structural level to mask; the test above still holds a NaN ATR refused, and
+# tests/test_stop_is_atr_only.py holds that no structural level is accepted.
 
 
 def test_valid_inputs_still_produce_levels():
@@ -469,7 +469,7 @@ def test_valid_inputs_still_produce_levels():
     from models.risk_model import RiskModel
 
     stop, t1, t2, t3 = RiskModel().calculate_stop_targets(
-        80.0, 100.0, 2.0, None, 60.0)
+        trend_health=80.0, current_price=100.0, atr_val=2.0, bias_score=60.0)
 
     for value in (stop, t1, t2, t3):
         assert np.isfinite(value), (stop, t1, t2, t3)

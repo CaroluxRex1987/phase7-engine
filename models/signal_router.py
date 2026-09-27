@@ -582,7 +582,8 @@ class SignalRouter:
         which looks like a default for a missing key and is not one. The key is
         always present: engine_core writes it with the value None when the
         quantity could not be measured (engine_core.py 771-788, the same
-        spelling that file already uses for atr and structural_level, and the
+        spelling that file already uses for atr -- and for structural_level
+        until finding 6, 27 September 2026 -- and the
         one that serialises to JSON null). So the default never fired,
         float(None) raised TypeError, and _build_decision_object's broad except
         turned a complete and correct AERO analysis into an error dict because

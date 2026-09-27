@@ -171,7 +171,6 @@ def _plan(**overrides):
         trend_health=50.0,
         current_price=100.0,
         atr_val=2.0,
-        structural_level=None,
         bias_score=40.0,
         volatility_state="NORMAL",
     )
