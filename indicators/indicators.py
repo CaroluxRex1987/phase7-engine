@@ -34,7 +34,7 @@ class IndicatorFailure(NamedTuple):
 
 def clean_series(series: pd.Series, method: str = "forward_fill", fallback_value: float = None) -> pd.Series:
     """
-    Clean a series by handling inf and extreme values, and filling gaps FORWARD.
+    Clean a series by turning inf into NaN, and filling gaps FORWARD.
 
     SEQUENCE ITEM 15 — Item 2 (No Future Information / Look-Ahead Bias) and the
     remainder of item 9a.
@@ -101,13 +101,34 @@ def clean_series(series: pd.Series, method: str = "forward_fill", fallback_value
     # Replace inf values with NaN
     series = series.replace([np.inf, -np.inf], np.nan)
 
-    # Handle extreme outliers (beyond 5 standard deviations)
-    if len(series.dropna()) > 10:
-        mean_val = series.mean()
-        std_val = series.std()
-        if np.isfinite(mean_val) and np.isfinite(std_val) and std_val > 0:
-            outlier_mask = np.abs(series - mean_val) > (5 * std_val)
-            series.loc[outlier_mask] = np.nan
+    # FINDING 7, ruled by Viktor on 27 September 2026 (DECISIONS, "Ruling,
+    # 27 September 2026 -- indicator values are no longer replaced beyond
+    # 5 sigma (finding 7)"). A block stood here that set every value more
+    # than five standard deviations from the series' mean to NaN, once the
+    # series had more than 10 values. It was removed; the inf step above is
+    # kept. Three reasons, each measured:
+    #
+    #   - It erased real readings. A fresh SuperTrend flip of fewer than
+    #     n/26 bars, in a direction series of n values that is otherwise
+    #     one-sided, lies beyond 5 sigma (16 bars on a 450-bar frame, whose
+    #     direction has 440 values after the warm-up); so did an ATR of about
+    #     2.2x its usual level at the decision bar.
+    #   - At the decision bar an erased value is not "cleaned", it is a
+    #     reported indicator FAILURE (the trailing-edge rule below leaves it
+    #     NaN, and unusable_reason() refuses it). Inside the frame it was
+    #     quietly replaced by the previous bar's value, and nothing recorded
+    #     either.
+    #   - The mean and standard deviation spanned the whole series, so
+    #     whether bar k survived depended on bars after k. A backtest that
+    #     computes indicators once over its history would have leaked later
+    #     bars into earlier decisions (Item 2).
+    #
+    # Checking the CANDLES for bad data is a different question and is on
+    # the list for after the audit (docs/PHASE7_NEXT.md). Nothing in the test
+    # suite pinned the old behaviour: the rule needed more than 10 values, the
+    # longest series a test passed to this function directly had 10, and on
+    # the fixture frames the engine tests use it fired on no value at all.
+    # tests/test_no_outlier_replacement.py now pins its absence.
 
     # Apply cleaning method. SEQUENCE ITEM 15: `.bfill()` removed from the
     # forward_fill branch and limit_direction changed from 'both' to 'forward'.

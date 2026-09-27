@@ -1169,6 +1169,64 @@ commit that lands the code; the ruling above is unchanged)*.
   price follows as `LIVE PRICE`, marked information only, with its distance from the
   decision close. Claude proposed the label; Viktor agreed with the reading above.
 
+## Ruling, 27 September 2026 — indicator values are no longer replaced beyond 5 sigma (finding 7)
+
+*New in this file on 27 September 2026, phase 3 of the roadmap to the audit. Ruled in a
+session on 27 September that made no commit; recorded, with the code, by the next one.*
+
+**The question.** Finding 7: `clean_series` (`indicators/indicators.py:105–110` at
+`add8540`) set every indicator value more than five standard deviations from its
+series' mean to NaN, once the series had more than 10 values. Inside the frame the
+forward fill then replaced it with the previous bar's value; at the decision bar it
+stayed NaN and was reported as an indicator failure. Nothing recorded either. The mean
+and standard deviation spanned the whole series.
+
+**What Viktor ruled.**
+
+1. Remove the 5-sigma replacement from `clean_series`.
+2. Keep the step that turns inf into NaN.
+3. Checking the candles for bad data goes on the list for after the audit.
+
+**The evidence it was ruled on** — from the ruling session, sandbox and synthetic
+frames, not live data, as Viktor stated it:
+
+- A fresh SuperTrend flip of 17 or fewer bars in 450 is erased and becomes a failure.
+- An ATR spike of about 2.2x its usual level at the decision bar is erased.
+- No test in the 65 test files pins the behaviour: the rule needs more than 10 values,
+  and the longest series a test passes is 10.
+
+**Scope.** Everything that passes through `clean_series`: EMA_20 and EMA_50, RSI, ADX,
+the SuperTrend level and direction, and ATR, on the primary paths and on the EMA, RSI
+and ATR fallbacks.
+
+**Accepted with it.** An indicator value is written as computed, however far it lies
+from the rest of its series. On price, `data/validation.py` rejects NaN, inf,
+non-positive values and impossible candles (a high below the low, the open or the
+close; a low above the open or the close), and nothing else — read at `add8540`; its
+31 August ruling on isolated spikes is about volume. So a bad price print that is
+internally consistent now reaches every indicator unaltered. Before, it was erased
+only where it pushed an indicator past 5 sigma, and at the decision bar that erasure
+was itself a failure. Checking candles for bad data is point 3.
+
+**Done when** the code lands, with the live run done and the decision-log record read
+before its commit.
+
+**Recorded when its code landed** *(added 27 September 2026 by the commit that lands
+the code; the ruling above is unchanged)*.
+
+- **Re-measured while building, sandbox and synthetic.** The flip threshold is a
+  count below n/26, where n is the number of values the direction series has. On a
+  450-bar frame SuperTrend's warm-up leaves 440, so a flip of 16 bars or fewer was
+  erased and 17 survived; the ruling session's "17 or fewer in 450" is the same bound
+  on 450 values. The ATR case reproduced on the pinned AEROUSDT 4h fixture with the
+  last bar's range widened 15 times: ATR 2.19x its median over the previous 50 bars,
+  erased. A 10% decision-bar move after a flat market erased EMA_20, EMA_50, the
+  SuperTrend and ATR, and RSI as well with the fallbacks forced. The test-file count is
+  64 `test_*.py` files; 65 counts `tests/conftest.py`.
+- **On the fixtures the rule never fired.** Instrumented at `add8540`, it touched no
+  value on the golden run or on any of the four fixture frames, which is why no test
+  noticed it and why the golden snapshot does not move.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then
