@@ -482,6 +482,15 @@ def calculate_entry_quality(
 #                               consequence, recorded: the bias state
 #                               machine's persistence requirement no longer
 #                               gates a trade anywhere.
+#                               CORRECTED 27 September 2026 (finding 18):
+#                               there was no persistence requirement. The
+#                               state machine never read its previous state,
+#                               so CONFIRMED only ever meant |bias_score| >
+#                               30 -- and the ladder already needs >= 30
+#                               (MIN_ACTION_BIAS) to act. What stopped gating
+#                               here was that threshold, which differs from
+#                               the ladder's only at exactly 30.0. The class
+#                               is now bias_label (models/bias_engine.py).
 #   trend_health >= 50          REMOVED -- Claude, under the delegation. It
 #                               decided nothing: every trading branch of the
 #                               ladder already requires trend_health >= 50

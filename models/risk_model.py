@@ -245,6 +245,10 @@ class RiskModel:
         direction source while being ignored is how the 2 September record
         (tests/test_direction_source.py) came to say this function built its
         plan "from detailed_bias alone". Passing it now raises TypeError.
+        CORRECTED 27 September 2026 (finding 18): BiasStateMachine -- now
+        models.bias_engine.bias_label -- also returned plain "BULLISH" and
+        "BEARISH" (a score past +/-20 up to +/-30), not only the three labels
+        listed above. Still never "LONG" or "SHORT", so the conclusion stands.
 
         FINDING 6, 27 September 2026. The fourth parameter used to be
         `structural_level`, and its only caller passed the HVN -- the single

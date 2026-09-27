@@ -1,8 +1,8 @@
 # Next step — read this first
 
-*27 September 2026. Rewritten by the commit that lands finding 5's code, which also
-files the push of `76c8cde` and three rulings of 27 September; the version it
-replaces — as it stood at `76c8cde` — is in HISTORY verbatim.
+*27 September 2026. Rewritten by the commit that lands finding 18's ruling and code,
+which also files the push of `8b9ac1e`; the version it replaces — as it stood at
+`8b9ac1e` — is in HISTORY verbatim.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
 rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
@@ -33,11 +33,12 @@ not onto this one. **Phase 3 started on 26 September (tenth session), in the ord
 `add8540`). **Finding 7 is done** (ruled 27 September, code at `57f0521`). **Finding 4
 is done** (ruled 27 September, option A, code at `b0efe23`). **Finding 6 is done**
 (ruled 27 September, the stop comes from ATR alone, code at `76c8cde`). **Finding 5 is
-done**: ruled on 27 September (panel only: a NEUTRAL bias prints no plan), and its code
-lands with the commit that writes this line, after the live run and the decision-log
-record were read (the commit message has what the record showed). **Finding 18 is
-next**, then G (Viktor, 27 September: "After finding 5, the order is 18, then work order
-G"). The rest has not started.
+done** (ruled 27 September, panel only, code at `8b9ac1e`). **Finding 18 is done**:
+ruled on 27 September (the bias label is a function of the score; no new rule), and its
+code lands with the commit that writes this line, after the live run and the
+decision-log record were read (the commit message has what the record showed). **All
+six of Viktor's findings are done. Work order G is the last item on the closed list**,
+and after it the independent audit.
 
 **Nothing Claude does under the delegation decides the engine's trading rules.**
 Findings 4–7, 16 and 18 are questions about what the engine should do. They are
@@ -54,17 +55,26 @@ build the backtesting architecture." No engine change since the last independent
 backtesting before an independent re-audit.** Claude's second point in the 21 September
 ruling is still open: the no-backtest rule exists only as text.
 
-**This session (27 September, the one after `76c8cde`)**, under Claude Opus 5.5, opened
-on "Continue Phase 7" with three rulings already made, all three by agreeing to Claude's
-suggestion, not by writing his position first, and to be recorded that way: finding 5
-(panel only), the confirmation of finding 6's "information only" reading, and Claude's
-proposal (b) on filing a push's hook result. Before any diff, as the ruling asked, the
-session checked where the panel prints the plan and that a NEUTRAL bias never reaches
-LONG or SHORT (read in the code, then pinned by a test over a grid; the decision log
-agrees — DECISIONS, "Ruling, 27 September 2026 — a NEUTRAL bias prints no plan
-(finding 5)"). The change is to the panel only and moves no decision, but it moves
-`code_hash`, so the live run and the read of its log record come before the commit
-step.
+**This session (27 September, the sixteenth, the one after `8b9ac1e`)**, under Claude
+Opus 5.5, opened on "Continue Phase 7". **A wrong turn, recorded:** Claude opened by
+saying finding 5 was ruled but not yet built, from its own notes between sessions, and
+Viktor asked for it to be built. Before any work Claude cloned GitHub and read `master`
+and `origin/master` off his disk: all three were `8b9ac1e`, finding 5's code, committed
+and pushed by the fifteenth session minutes earlier. Nothing was rebuilt; the notes had
+been written before that commit. The start-of-session read of the refs is what caught
+it, which is why it is kept (DECISIONS, the ruling on proposal (b)).
+
+Then finding 18. Before Viktor wrote anything, Claude read the code and found the
+finding's premise false: the "state machine" never read its previous state, so there
+was no persistence requirement to gate anything — CONFIRMED only ever meant
+|`bias_score`| > 30. Claude set out four options (label only; real persistence; the
+same labels from a plain function; a CONFIRMED gate), Viktor asked for Claude's
+suggestion and ruled by agreeing to it (DECISIONS, "Ruling, 27 September 2026 — the
+bias label is a function of the score (finding 18)"). **A second wrong claim, caught
+before the build:** Claude told Viktor `tests/test_plan_direction_and_side.py` uses the
+class; it only names it in its docstring, and no test exercised the class at all. The
+change moves `code_hash` and no decision, so the live run and the read of its log
+record come before the commit step.
 
 ## Ruled — in force
 
@@ -99,12 +109,20 @@ step.
   no stop, targets or R:R, and one PLAN line naming the NEUTRAL bias and its score
   inside ±20. The engine still computes and logs the plan; the risk check needs a stop.
   Ruled by agreeing to Claude's suggestion, not by writing his position first. **Its
-  code lands with the commit that writes this line.**
+  code landed at `8b9ac1e`.**
 - **New, 27 September — a push that goes as predicted leaves nothing owed** (DECISIONS,
   "Ruling, 27 September 2026 — a push that goes as predicted leaves nothing owed").
   Claude's proposal (b) of 26 September, adopted by agreeing to Claude's suggestion. A
   push is recorded once, in the next commit's account; only a deviation becomes an owed
   item. The floor-of-one chain of owed hook results ends.
+- **New, 27 September — the bias label is a function of the score (finding 18)**
+  (DECISIONS, "Ruling, 27 September 2026 — the bias label is a function of the score
+  (finding 18)"). The behaviour stays exactly as it was: `BiasStateMachine`, which never
+  read its previous state, becomes `bias_label(raw_bias, bias_score)` in
+  `models/bias_engine.py`, the same labels word for word; no new trading rule and no
+  CONFIRMED gate. "A side must hold for N closed candles" and renaming CONFIRMED go on
+  the list for after the audit. Ruled by agreeing to Claude's suggestion, not by writing
+  his position first. **Its code lands with the commit that writes this line.**
 - **`bias_score`'s weighting waits for after the audit, and the auditor sees it**
   (DECISIONS, 22 September; filed at `75682ee`).
 - **New, 26 September — any model may build or review; doing so costs it audit
@@ -144,9 +162,10 @@ step.
 ## Where things stand, right now
 
 - **Tip:** the commit that writes this line (a commit cannot name its own hash) —
-  finding 5's code, a panel-only change. Before it: `76c8cde` (the fourteenth
-  session's commit: finding 6's code), `b0efe23` (the thirteenth session's commit:
-  finding 4's code), `57f0521` (the twelfth session's commit: finding
+  finding 18's ruling and code; it changes no decision and no label. Before it:
+  `8b9ac1e` (the fifteenth session's commit: finding 5's code), `76c8cde` (the
+  fourteenth session's commit: finding 6's code), `b0efe23` (the thirteenth session's
+  commit: finding 4's code), `57f0521` (the twelfth session's commit: finding
   7's code), `add8540` (the eleventh session's first commit: finding 16's code),
   `bf2e802` (the tenth session's first commit: finding 16 ruled), `7d103d7` (the ninth
   session's first commit: the move to E:), `eba6a2a` (the eighth session's third
@@ -164,60 +183,58 @@ step.
   to `E:\phase7_engine`". Run the engine and every command from `E:\phase7_engine` (in
   cmd, changing drive needs `cd /d`). A dated record that names the D: paths means the
   same folders before the move; dated records are not edited.
-- **The push of `76c8cde`** happened: this session read `master` and `origin/master` off
-  Viktor's disk (`.git/refs/heads/master` and `.git/refs/remotes/origin/master`, staged)
-  and GitHub's tip, all three `76c8cde`. The hook printed `SUMMARY: clean` and README.md
-  0 commits behind, as predicted — Viktor's report of the output in chat, not output
-  Claude read. **One deviation inside that command sequence, caught before the commit:**
-  `models/signal_router.py` was first left unstaged at step 17, and the `git status
-  --short` prediction showed it (Viktor's report). The prediction did the job it exists
-  for; the commit at `76c8cde` contains the file. **Nothing is owed** for that push, and
-  by the ruling on proposal (b) nothing is owed for the push of the commit that writes
-  this line unless it deviates from its prediction. The earlier record of the hook is in
-  HISTORY.
+- **The push of `8b9ac1e`** happened: this session read `master` and
+  `origin/master` off Viktor's disk (`.git/refs/heads/master` and
+  `.git/refs/remotes/origin/master`, staged; written 14:34:16 and 14:34:29 local) and
+  GitHub's tip from a fresh clone, all three `8b9ac1e`. Viktor reported no deviation
+  from that push's prediction, so it is recorded here once, as predicted, and **nothing
+  is owed** (ruling on proposal (b)). The same holds for the push of the commit that
+  writes this line unless it deviates.
 - **Before this commit**, every file it changes matched Viktor's disk on E: byte for
-  byte (staged off his disk and compared with the clone at `76c8cde`).
-- **code_hash:** `c636157760390e9682f4b9190825079af6e03b4ebba43b0a93adde6ba5dc1b0c`,
-  moved by the commit that writes this line (from `ed2710b6…`, which held from
-  `76c8cde`): `core/panel_render.py` and `models/exit_model.py`, the only two per-file
-  fingerprints that changed (checked against every file). Computed on the working tree
-  and on the applied tree under Python 3.12.3. Confirmed on Windows before the commit by
+  byte (staged off his disk and compared with the clone at `8b9ac1e`).
+- **code_hash:** `f4b23f94ca9b0562c5c68a756fbd45222f6e11f9ecb78efaa75fcb4817142183`,
+  moved by the commit that writes this line (from `c636157…`, which held from
+  `8b9ac1e`): `models/bias_engine.py` and `core/engine_core.py`, the only two per-file
+  fingerprints that changed (checked against every file; the comment and docstring
+  changes in `models/entry_model.py`, `models/decision_model.py` and
+  `models/risk_model.py` move none, as predicted). Computed on the working tree and on
+  the applied tree under Python 3.12.3. Confirmed on Windows before the commit by
   Viktor's live run, whose decision-log record Claude read — the commit message has it.
 - **code_hash is only comparable within one Python minor version.** It hashes `ast.dump`
   output, a CPython implementation detail (`core/code_fingerprint.py`, "WHAT IT DOES NOT
   SURVIVE"). **Every `code_hash` claim about this project is computed under Python 3.12**
   (Viktor runs 3.12.10).
-- **Golden snapshot:** unmoved by the commit that writes this line, as predicted: the
-  golden test pins the decision object, which the panel only reads, and the Exit Watch
-  note's text is unchanged. Last re-baselined at `76c8cde`, 11 fields, as predicted
-  before that run: `exit.action` (NO-TRADE (RISK TOO HIGH) → CONSERVATIVE
-  LONG), `explanation.reasons`, `explanation.summary`, `exit_watch` (the Target 1
-  price), `risk.atr_stop`, `risk.targets`, `risk.risk_valid`, `risk.risk_reason`,
-  `risk.risk_regime`, `lineage.risk_inputs.risk_regime` (UNKNOWN → NORMAL RISK) and
-  `lineage.risk_inputs.structural_level` (removed). `run_hash` unmoved: no fingerprinted
-  constant changed. Before that, last re-baselined at `add8540`.
-- **Test suite** — moved by the commit that writes this line: **645 passed / 0 failed,
-  no warnings line** with `pandas_ta`; **500 passed / 134 skipped** without it;
-  `run_tests.py` **574 passed / 0 failed / 32 errors**, all 32 fixture-collection
+- **Golden snapshot:** unmoved by the commit that writes this line, as predicted: it
+  pins `bias.detailed` (BULLISH CONFIRMED) and `btc_context.detailed` (BEARISH
+  CONFIRMED), and `bias_label` gives the same labels; no fingerprinted constant changed,
+  so `run_hash` is unmoved too. Unmoved at `8b9ac1e` as well. Last re-baselined at
+  `76c8cde`, 11 fields, as predicted before that run: `exit.action` (NO-TRADE (RISK TOO
+  HIGH) → CONSERVATIVE LONG), `explanation.reasons`, `explanation.summary`,
+  `exit_watch` (the Target 1 price), `risk.atr_stop`, `risk.targets`,
+  `risk.risk_valid`, `risk.risk_reason`, `risk.risk_regime`,
+  `lineage.risk_inputs.risk_regime` (UNKNOWN → NORMAL RISK) and
+  `lineage.risk_inputs.structural_level` (removed). Before that, last re-baselined at
+  `add8540`.
+- **Test suite** — moved by the commit that writes this line: **652 passed / 0 failed,
+  no warnings line** with `pandas_ta`; **507 passed / 134 skipped** without it;
+  `run_tests.py` **581 passed / 0 failed / 32 errors**, all 32 fixture-collection
   `TypeError`s (unchanged: the new tests take no fixtures). Linux sandbox, autocrlf
-  clone, Python 3.12.3, pinned requirements, applied tree. +14 in
-  `tests/test_neutral_bias_prints_no_plan.py`, none of which needs `pandas_ta`;
-  `test_panel_no_fabricated_price_defaults.py`'s fixture now carries a BULLISH bias
-  (it was NEUTRAL, and its 7 plan-line tests would otherwise read lines that are no
-  longer printed). **On Windows**, the counts Viktor was told to stop on in this
-  commit's command sequence; he proceeded, which is his confirmation. Before that, 631
-  at `76c8cde`.
-- **Engineering Notes:** through Entry #166 (v1.35), which covers `c5dc4cd`. **Twelve
+  clone, Python 3.12.3, pinned requirements, applied tree. +7 in
+  `tests/test_bias_label.py`, none of which needs `pandas_ta`. **On Windows**, the
+  counts Viktor was told to stop on in this commit's command sequence; he proceeded,
+  which is his confirmation. Before that, 645 at `8b9ac1e`.
+- **Engineering Notes:** through Entry #166 (v1.35), which covers `c5dc4cd`. **Thirteen
   commits behind** — `bc48f59`, the floor (a commit that regenerates the Notes cannot
   cover itself, Entry #144), `75682ee`, `2582994`, `1861208`, `eba6a2a`, `7d103d7`,
-  `bf2e802`, `add8540`, `57f0521`, `b0efe23`, `76c8cde`, and the commit that writes this
-  line. Every later commit adds one until the next regeneration, which also records the
-  round-1 recovery, the rulings of 26 and 27 September, the phase-3 order, the move to
-  E: and the code for findings 16, 7, 4, 6 and 5. No time pressure (Viktor, 26 September).
+  `bf2e802`, `add8540`, `57f0521`, `b0efe23`, `76c8cde`, `8b9ac1e`, and the commit that
+  writes this line. Every later commit adds one until the next regeneration, which also
+  records the round-1 recovery, the rulings of 26 and 27 September, the phase-3 order,
+  the move to E: and the code for findings 16, 7, 4, 6, 5 and 18. No time pressure
+  (Viktor, 26 September).
 - **Portfolio Document and AI-Attribution Statement:** both current with their scripts,
   which last changed at `6e1baba`.
 - **README.md:** changed by the commit that writes this line — its two test-count
-  passages only (645 / 500 + 134 skipped / 574). So the hook's section 5 will report 0
+  passages only (652 / 507 + 134 skipped / 581). So the hook's section 5 will report 0
   commits since README.md was touched (expected).
 - **The round-1 audit outputs are in the repository**, in
   `docs/audit_reports/round1_deepseek-v4-pro_kimi-k3_2026-08-27/`, byte-identical to the
@@ -233,7 +250,7 @@ caught it by reading the log, not from a paste. **On every change that moves
 run and the panel read happen before `git commit`, and Claude checks the decision-log
 record for the new `code_hash` before the commit step, not after the push.** Never
 predict live numbers; check the record. Followed at `2c7a7d1`, `4e2b1c8`, `486f1a5`,
-`3bfa6b7`, `add8540`, `57f0521`, `b0efe23`, `76c8cde` and the commit that writes this line: the command
+`3bfa6b7`, `add8540`, `57f0521`, `b0efe23`, `76c8cde`, `8b9ac1e` and the commit that writes this line: the command
 list stopped at the live run, Claude read the record, and only then gave the commit steps. **Since finding 16, a
 live run in the first 60 seconds after a 4h close (00:00, 04:00, 08:00, 12:00, 16:00,
 20:00 UTC) fails by design** ("not yet final"); run again a minute later.
@@ -295,6 +312,15 @@ live run in the first 60 seconds after a 4h close (00:00, 04:00, 08:00, 12:00, 1
   control that fails breaks the path past both. And a `sed` meant to break one line
   matched two (`if plan_withheld:`); controls are now edited by an exact, counted
   replacement.
+- **27 September, finding 18:** a name is a claim, not evidence. "State machine",
+  `state` and `transition()` read as memory, and the record built a finding on it; the
+  method body never read `self.state`. Read what a unit does before reasoning from what
+  it is called. Also: Claude's notes between sessions can be behind the repository —
+  read `master` and `origin/master` off Viktor's disk before proposing any build
+  (this session's first finding). And a new UPPER_CASE numeric constant in a
+  fingerprinted module is caught by `test_fingerprint_names_every_constant.py` and has
+  to enter `FINGERPRINTED_MODULES`, which moves `run_hash` and the golden snapshot —
+  weigh that before naming a number.
 
 ## Review findings, 21 September 2026
 
@@ -427,6 +453,14 @@ landed (DECISIONS, 22 September).
     `detailed_bias` still feeds `exit_model`'s "bias state changed" flag and the
     persisted state; nothing that decides reads it. Recorded, nothing removed. Whether
     its persistence requirement should gate anything is Viktor's call.
+    **Corrected 27 September, from the code:** there was no persistence requirement.
+    `BiasStateMachine.transition()` never read its previous state, and an instance
+    lived one run; CONFIRMED only ever meant |`bias_score`| > 30, and the ladder already
+    needs ≥ 30 to act. On Viktor's log all 42 recorded AERO labels are what the current
+    score gives. **Ruled 27 September: the same labels from a function with no state;
+    done with the commit that writes this line** (DECISIONS, "Ruling, 27 September
+    2026 — the bias label is a function of the score (finding 18)"). `bias_label` in
+    `models/bias_engine.py`; tests in `tests/test_bias_label.py`. Done.
 
 **Claude's, open**
 
@@ -514,6 +548,17 @@ Viktor's when the audit is planned.
   stop, targets and R:R only. It decides nothing: a NEUTRAL bias never reaches a side.
   Found by Claude reading a rendered NEUTRAL panel while building finding 5,
   27 September; on this list by the 22 September ruling, not separately ruled.
+- **A side that must hold for N closed candles before a trade.** What finding 18's
+  text assumed the state machine did; it never did. A new trading rule, so not built
+  now. If built: compute it from the closed candles in the run's own input, which the
+  input hash pins, not from a state file. **Ruled for after the audit** (Viktor,
+  27 September, point 3 of the finding 18 ruling).
+- **The word CONFIRMED on the panel.** It reads as a lean that has held for a while; it
+  means |`bias_score`| > 30. Renaming it moves a panel label and the golden snapshot.
+  **Ruled for after the audit** (Viktor, 27 September, point 4 of the finding 18
+  ruling). Recorded with it, not ruled: at exactly 30.0 the ladder can take a side
+  (`MIN_ACTION_BIAS`, ≥ 30) while the label reads BULLISH or BEARISH (> 30 needed) —
+  noted beside `MIN_ACTION_BIAS` in `models/decision_model.py`.
 
 ## Work order — Claude's, under Viktor's delegation
 
@@ -528,19 +573,19 @@ Each code commit is its own commit and updates this file for its own landing.
   audit.** Changes which trades are taken, so it is scoped in full before any diff:
   `decision_model`'s ladder, every caller, the golden fields it could move, and the
   live decision log checked first for which recorded actions it would change, as for F.
-  The live run happens before the commit (above). Not started.
+  The live run happens before the commit (above). **The last item on the closed list,
+  and next.** Not started.
 
 ## Resolved this session
 
-- **Finding 5** — ruled (panel only: a NEUTRAL bias prints no plan) and its code
-  landed by the commit that writes this line; finding 5 is done.
-- **Finding 6's "information only" reading** — confirmed by Viktor; recorded under the
-  finding 6 ruling in DECISIONS.
-- **Proposal (b)** — adopted; its own ruling in DECISIONS. The owed-hook-result chain
-  ends.
-- **The push of `76c8cde`** — filed above, with the step-17 deviation caught by the
-  prediction.
-- **The once-per-session rewrite of this file.** The previous version, as at `76c8cde`,
+- **Finding 18** — its premise corrected from the code (no persistence existed), ruled
+  by agreeing to Claude's suggestion (the same labels from a function with no state),
+  and its code landed by the commit that writes this line; finding 18 is done. All six
+  of Viktor's findings on the closed list are done.
+- **The push of `8b9ac1e`** — filed above, once, as predicted.
+- **Claude's stale opening claim** (finding 5 "not yet built") — caught by reading the
+  refs off Viktor's disk before any work; recorded above.
+- **The once-per-session rewrite of this file.** The previous version, as at `8b9ac1e`,
   is in HISTORY verbatim, headings demoted one level, proven by un-demotion with a
   negative control (the commit message has the result).
 
@@ -554,10 +599,10 @@ Claude critiques it.
 - **Viktor, outside the repository:** delete `D:\phase7_engine_MOVED_TO_E` and
   `D:\Phase_7_Engine_Random_Files_MOVED_TO_G` once satisfied with the copies on E: and
   G: (HISTORY, 26 September, ninth session). Not urgent.
-- **Viktor's call — finding 18 above.** On the closed list before the audit, and
-  **next** (the bias state machine gates no trade since F). Not started; his position
-  first.
-- **Claude's — work order G (finding 17).** On the closed list before the audit.
+- **Claude's — work order G (finding 17).** The last item on the closed list before
+  the audit, and **next**. Changes which trades are taken: full scope first, the live
+  log checked for which recorded actions it would change, and the live run before the
+  commit. Whether to start it is Viktor's to say (PACE FIRST).
 - **Claude's — the pre-send token check** (audit preparation, ruled 26 September). It
   cannot be finished until the auditor is pinned, because it needs that model's
   tokenizer; until then it can be built with the model as a parameter. It goes under
@@ -606,8 +651,8 @@ Claude critiques it.
 - **Claude's — the running change list for the audit:** `docs/audit_change_list.md`,
   from the baseline `e65a0f7` (the tree round 6's fix-verification was sent). **Every
   later commit that changes engine code, tests or tooling adds its line there in the
-  same commit.** Finding 4's commit adds its line, and names `57f0521` in the line that
-  finding 7's commit wrote as "the commit that adds this line".
+  same commit.** Finding 18's commit adds its line, and names `8b9ac1e` in the line that
+  finding 5's commit wrote as "the commit that adds this line".
 - **The pre-push hook is installed per clone, not per repository.** After any re-clone
   (including after a machine wipe), run `git config core.hooksPath githooks`;
   `session_handover_check.py` section 6 flags a clone without it.

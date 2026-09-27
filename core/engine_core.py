@@ -16,7 +16,7 @@ from indicators.trend_health import compute_trend_health
 from models.bias_engine import (
     calculate_dynamic_bias,
     calculate_dynamic_regime,
-    BiasStateMachine,
+    bias_label,
 )
 from models.risk_model import RiskModel
 from models.entry_model import generate_entry_signals, calculate_entry_quality
@@ -175,11 +175,12 @@ class Phase7Engine:
     """
 
     def __init__(self) -> None:
-        self.bias_state_machine = BiasStateMachine()
-        # Separate state machine for BTC's own bias -- BTC's detailed bias
-        # is tracked independently of AERO's, since they're different assets
-        # with their own history of confirmations.
-        self.btc_bias_state_machine = BiasStateMachine()
+        # FINDING 18, 27 September 2026: self.bias_state_machine and
+        # self.btc_bias_state_machine were built here, the second "tracked
+        # independently ... with their own history of confirmations". Neither
+        # kept a history: transition() never read its previous state, and an
+        # instance lived one run. Both labels now come from
+        # models.bias_engine.bias_label, which has no state. See its comment.
         self.risk_model = RiskModel()
         # SEQUENCE ITEM 6: _indicator_cache, _structure_cache and
         # _max_cache_size lived here. See the run() docstring for why they went.
@@ -214,9 +215,8 @@ class Phase7Engine:
     # Two of the Exit Watch flags (SuperTrend flip, bias flip) are only
     # meaningful as a COMPARISON against the previous run. This tool is
     # normally invoked as a fresh command each time rather than left running
-    # continuously, so in-memory instance state (like self.bias_state_machine
-    # above) doesn't survive between runs -- it has to be a small file on
-    # disk instead. Defensive by design: a missing or corrupt state file
+    # continuously, so in-memory instance state doesn't survive between
+    # runs -- it has to be a small file on disk instead. Defensive by design: a missing or corrupt state file
     # just means "nothing to compare against yet," never a crash.
 
     def _state_path(self, symbol: str, timeframe: str) -> str:
@@ -751,7 +751,7 @@ class Phase7Engine:
             )
 
             dynamic_regime, volatility_mode = calculate_dynamic_regime(df_struct)
-            detailed_bias = self.bias_state_machine.transition(raw_bias, bias_score)
+            detailed_bias = bias_label(raw_bias, bias_score)
 
             bias = {
                 "raw": raw_bias,
@@ -866,7 +866,7 @@ class Phase7Engine:
                             macro_bias="NEUTRAL",
                         )
                         btc_dynamic_regime, btc_volatility_mode = calculate_dynamic_regime(df_btc_struct)
-                        btc_detailed_bias = self.btc_bias_state_machine.transition(btc_raw_bias, btc_bias_score)
+                        btc_detailed_bias = bias_label(btc_raw_bias, btc_bias_score)
 
                         # ROUND 6 (Meta Muse Spark 1.3), F1: window=30 was a
                         # bare literal here restating compute_correlation_beta's
@@ -1098,8 +1098,9 @@ class Phase7Engine:
             # three lines below already receives.
             # 21 SEPTEMBER 2026, work order C: detailed_bias was passed here
             # and decided nothing -- risk_model tested it for "LONG"/"SHORT",
-            # which BiasStateMachine never emits, and took the plan's direction
-            # from the sign of bias_score every time. The parameter is gone;
+            # which BiasStateMachine (bias_label since finding 18) never
+            # emits, and took the plan's direction from the sign of
+            # bias_score every time. The parameter is gone;
             # see calculate_stop_targets' docstring.
             # FINDING 6, 27 September 2026: structural_level=hvn was passed
             # here, and the stop was pulled out to the HVN whenever the HVN

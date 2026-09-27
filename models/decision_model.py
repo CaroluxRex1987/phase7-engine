@@ -66,6 +66,12 @@ def asset_name(symbol: Any) -> str:
 # 30 matches bias_engine's CONFIRMED threshold, where the state machine
 # already draws the line between a lean and a conviction. Viktor named that
 # value; making it a separate constant is Claude's call.
+# FINDING 18, 27 September 2026: the state machine is now bias_label
+# (models/bias_engine.py), a function of the current score -- it never had
+# memory. Its 30 is a literal there, for the reason its comment gives; the
+# label needs > 30 and this constant acts at >= 30, so at exactly 30.0 a run
+# can take a side while the panel's BIAS line reads BULLISH or BEARISH, not
+# CONFIRMED. Recorded, not changed.
 MIN_ACTION_BIAS = 30.0
 
 

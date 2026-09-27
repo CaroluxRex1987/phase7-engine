@@ -1529,6 +1529,94 @@ standing practice of reporting only what differs from a prediction (20 September
 on Claude reading `master` and `origin/master` off his disk at the start of the next
 session, which is kept.
 
+## Ruling, 27 September 2026 — the bias label is a function of the score (finding 18)
+
+*New in this file on 27 September 2026, phase 3 of the roadmap to the audit. Ruled on
+27 September, after `8b9ac1e` landed; recorded, with the code, by the same commit.*
+
+**The question.** Finding 18 (review of 21 September): since work order F dropped the
+CONFIRMED requirement from the confirmation gate, the bias state machine gates no
+trade; `detailed_bias` still feeds the panel, `exit_model`'s "bias state changed" flag
+and the persisted state. The finding asked whether "its persistence requirement" should
+gate anything.
+
+**What Claude found before the ruling, from the code** (`models/bias_engine.py`,
+`BiasStateMachine.transition`, at `8b9ac1e`). **There was no persistence
+requirement.** `transition()` never read its previous state: every branch assigned
+`self.state` from the current `raw_bias` and `bias_score` alone. `core/engine_core.py`
+built a fresh instance per process, which on this engine is one run, so it started at
+NEUTRAL every time in any case. CONFIRMED only ever meant |`bias_score`| > 30. The
+decision ladder already needs |`bias_score`| ≥ 30 (`MIN_ACTION_BIAS`) to act, so
+gating a trade on CONFIRMED would change the outcome at exactly 30.0 and nowhere else.
+Nothing that decides reads the label: it is read by the panel (BIAS, BTC BIAS), by the
+wording of the BTC sentence in `decision_model`, and by `exit_model`'s flag, which
+compares against the label the previous run persisted in `engine_core`'s state file —
+the only cross-run memory involved. From the record: Viktor's
+`logs/phase7_decision_log_aerousdt.jsonl`, staged off his disk (42 records), holds
+`bias.detailed` exactly as the current score gives it in all 42 (BULLISH CONFIRMED 36,
+BEARISH CONFIRMED 3, NEUTRAL 2, BULLISH 1). BTC's score is not in the record, so BTC's
+labels were not checked this way. The finding's own text ("its persistence
+requirement") and the comment written at F in `models/entry_model.py` described
+something the code never did.
+
+**The options Claude set out.** A: leave it as a label, correct the wording, no code.
+B: give it real persistence (a side must hold for N closed candles before a trade) — a
+new trading rule. C: replace the class with a plain labelling function giving the same
+labels. D: gate trades on CONFIRMED — it would block only a score of exactly 30.0.
+
+**How it was ruled.** By agreeing to Claude's suggestion, not by writing his position
+first. Recorded that way, as for findings 5 and 6.
+
+**What Viktor ruled.**
+
+1. The behaviour stays exactly as it is: the same labels, word for word, and no
+   decision changes. No new trading rule now (not B), and no CONFIRMED gate (not D).
+2. The code says what it does (C): `BiasStateMachine` is replaced by a plain function,
+   `bias_label(raw_bias, bias_score)`, with no state; `engine_core` labels AERO and BTC
+   through it; the wrong "persistence" wording is corrected where it stands.
+3. "A side must hold for N closed candles before a trade" goes on the list for after
+   the audit, with Claude's note: if it is ever built, compute it from the closed
+   candles in the run's own input, which the input hash pins, not from a state file,
+   which would be an input the record cannot reproduce.
+4. "CONFIRMED" stays on the panel for now. Whether to rename it (it reads as
+   confirmation over time, which it never was) is a wording question for after the
+   audit; renaming it moves a panel label and the golden snapshot.
+
+**What it weakens**, stated per this project's amendment practice:
+
+- The panel keeps a word, CONFIRMED, that suggests a lean has held for a while. It has
+  never meant that, and point 4 leaves it in place until after the audit.
+- `EngineCore` no longer has `bias_state_machine` or `btc_bias_state_machine`. Any
+  script outside the repository that reached for them breaks; inside it, nothing did
+  (every `.py` file searched).
+- `tests/test_bias_label.py` pins "no memory". Adding persistence later now fails a
+  test, so it has to be done on purpose — which is the intent, and also a cost.
+
+**Claude's readings, Viktor's to correct.**
+
+- *The 20 is read, the 30 is written in.* The NEUTRAL band reads
+  `RAW_BIAS_THRESHOLD` (it was a literal 20, the same value, so no label changes; a
+  change to the constant now moves the band with the raw bias it describes). The 30
+  stays a literal: naming it would put it in `FINGERPRINTED_MODULES`
+  (`tests/test_fingerprint_names_every_constant.py`), which moves `run_hash` and the
+  golden snapshot for a number that decides nothing; `code_hash` covers it. It is
+  `MIN_ACTION_BIAS`'s value, which `bias_engine` cannot import (`decision_model`
+  imports `bias_engine`).
+- *The edge at exactly 30.0, recorded, not changed.* The label needs > 30 and the
+  ladder acts at ≥ 30, so a run at exactly 30.0 can take a side while the panel's BIAS
+  line reads BULLISH or BEARISH, not CONFIRMED. Recorded beside `MIN_ACTION_BIAS` in
+  `models/decision_model.py`.
+- *Corrections, not rewrites.* The wrong "persistence requirement" in
+  `models/entry_model.py`'s comment is kept and followed by a dated correction. So is
+  the label list in `models/risk_model.py`'s docstring and in
+  `tests/test_plan_direction_and_side.py`'s, which named only BULLISH CONFIRMED,
+  BEARISH CONFIRMED and NEUTRAL; the function also returns plain BULLISH and BEARISH.
+  Their conclusion (never "LONG" or "SHORT") stands.
+
+**Done when** the code lands, with the live run done and its decision-log record read
+before the commit (the change moves `code_hash`, though no decision). Ruling and code
+land in the same commit; the commit message has the evidence.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then

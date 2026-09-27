@@ -12,7 +12,7 @@ import numpy as np
 # scored on a consistent -100..+100 scale and combined as a straight
 # weighted sum (weights below sum to 1.00), so the -100..100 bias_score
 # contract everything downstream relies on (DecisionModel, entry_model,
-# BiasStateMachine) is unchanged.
+# bias_label -- BiasStateMachine until finding 18) is unchanged.
 #
 # ITEM 11 RE-AUDIT (Finding 4), dependency graph, made explicit rather than
 # left to be reconstructed. Six factors are combined below, and each is
@@ -521,29 +521,77 @@ def calculate_dynamic_regime(df):
 
 
 # ============================================================
-# BIAS STATE MACHINE
+# BIAS LABEL (was BiasStateMachine until finding 18)
 # ============================================================
+#
+# FINDING 18, 27 September 2026 -- Viktor's ruling, by agreeing to Claude's
+# suggestion (docs/PHASE7_DECISIONS.md, "Ruling, 27 September 2026 -- the
+# bias label is a function of the score (finding 18)").
+#
+# This was a class, BiasStateMachine, with a `state` attribute and a
+# transition() method, and the record called what it produced a "persistence
+# requirement". It had none. transition() never read its previous state:
+# every branch assigned self.state from the current raw_bias and bias_score
+# alone. And engine_core built a fresh instance per process, which on this
+# engine is one run, so it started at NEUTRAL every time in any case. What it
+# returned was a label for how far the score leans, nothing more. On Viktor's
+# decision log (42 records, 6-27 September) every recorded bias.detailed is
+# exactly what the current score gives.
+#
+# The ruling keeps the behaviour and makes the code say what it does: the
+# same labels, word for word, from a plain function with no state. Nothing
+# that decides reads the label -- decision_model chooses on raw_bias and
+# acts only at |bias_score| >= MIN_ACTION_BIAS (30). The label is read by the
+# panel (BIAS, BTC BIAS), by the wording of the BTC sentence in
+# decision_model, and by exit_model's "Bias state changed" flag, which
+# compares against the label persisted by the previous run -- the one piece
+# of cross-run memory here, and it lives in engine_core's state file, not in
+# this function.
+#
+# A side that must hold for N closed candles before a trade is allowed was
+# not chosen; it is on the list for after the audit (PHASE7_NEXT.md). If it
+# is ever built, it should be computed from the closed candles in the run's
+# own input, which the input hash pins, not from a state file, which would
+# be an input the record cannot reproduce.
+#
+# The two thresholds:
+#   RAW_BIAS_THRESHOLD (20)  read, not written in. It was a literal 20 here,
+#                            the same value, so no label changes; a change to
+#                            the constant now moves the NEUTRAL band with the
+#                            raw bias it describes.
+#   30                       left as a literal, deliberately. Naming it would
+#                            put it in FINGERPRINTED_MODULES
+#                            (tests/test_fingerprint_names_every_constant.py),
+#                            which moves run_hash and the golden snapshot for
+#                            a number that decides nothing; code_hash covers
+#                            it. It is the value of MIN_ACTION_BIAS in
+#                            decision_model, which cannot be imported here
+#                            (decision_model imports this module). One edge,
+#                            recorded: the label needs > 30 and the ladder acts
+#                            at >= 30, so at exactly 30.0 a run can take a side
+#                            while the panel prints BULLISH or BEARISH, not
+#                            CONFIRMED.
 
-class BiasStateMachine:
-    def __init__(self):
-        self.state = "NEUTRAL"
+def bias_label(raw_bias, bias_score):
+    """
+    The panel's label for how far bias_score leans. No state: the same
+    raw_bias and bias_score always give the same label.
 
-    def transition(self, raw_bias, bias_score):
-        """
-        Returns a stable bias state.
-        """
+    NEUTRAL                inside +/-RAW_BIAS_THRESHOLD (and at exactly +/-20,
+                           where raw_bias is NEUTRAL)
+    BULLISH / BEARISH      past +/-20, up to and including +/-30
+    ... CONFIRMED          past +/-30
 
-        # Normalize None values
-        bias_score = bias_score if bias_score is not None else 0.0
+    Inputs the engine never produces -- a raw_bias that disagrees with the
+    score, a raw_bias outside the three -- give exactly what
+    BiasStateMachine.transition() gave them (tests/test_bias_label.py).
+    """
+    bias_score = bias_score if bias_score is not None else 0.0
 
-        # Thresholds match bias_score's real -100..100 scale (A5 fix).
-        if raw_bias == "BULLISH" and bias_score > 30:
-            self.state = "BULLISH CONFIRMED"
-        elif raw_bias == "BEARISH" and bias_score < -30:
-            self.state = "BEARISH CONFIRMED"
-        elif abs(bias_score) < 20:
-            self.state = "NEUTRAL"
-        else:
-            self.state = raw_bias
-
-        return self.state
+    if raw_bias == "BULLISH" and bias_score > 30:
+        return "BULLISH CONFIRMED"
+    if raw_bias == "BEARISH" and bias_score < -30:
+        return "BEARISH CONFIRMED"
+    if abs(bias_score) < RAW_BIAS_THRESHOLD:
+        return "NEUTRAL"
+    return raw_bias

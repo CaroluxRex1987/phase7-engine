@@ -11,6 +11,10 @@ FOUND 21 SEPTEMBER 2026, by reading the code during the pre-backtest review
    test could not pass and the direction always came from the sign of
    bias_score. The parameter decided nothing and read as the direction source.
    It is removed.
+   CORRECTED 27 September 2026 (finding 18): that output -- now
+   models.bias_engine.bias_label's -- also included plain "BULLISH" and
+   "BEARISH" (a score past +-20 up to +-30). Still never "LONG" or "SHORT", so
+   the finding stands.
 
 9. When the stop did not land on the correct side of price, a fallback
    replaced the stop DISTANCE and left the stop where it was. Unreachable on
