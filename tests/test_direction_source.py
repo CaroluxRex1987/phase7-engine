@@ -59,6 +59,7 @@ import math
 import pytest
 
 from models.decision_model import DecisionModel
+from models.signal_router import SignalRouter
 
 
 # WORK ORDER F, 21 September 2026. The entry signals now CONFIRM the side
@@ -90,8 +91,24 @@ LONG_PLAN = {"atr_stop": 0.45, "targets": (0.49, 0.51, 0.53),
 
 
 def _evaluate(bias, trend, entry, risk, macro_bias):
-    return DecisionModel().evaluate(bias, trend, entry, risk,
-                                    macro_bias=macro_bias, symbol="AEROUSDT")
+    """
+    WORK ORDER G, 27 September 2026: through the router, not
+    DecisionModel.evaluate(). The decision model no longer takes macro_bias
+    (the CONSERVATIVE clause that read it is gone), so a test that supplies a
+    macro reading has to supply it where the engine still receives one. The
+    router passes everything else to the same evaluate() these tests called
+    before. It returns an error record with no "exit" or "explanation" when
+    assembly fails, so the indexing below raises rather than letting a
+    negative assertion ("LONG" not in ...) pass on a failed build.
+    """
+    out = SignalRouter(engine_core=object())._build_decision_object(
+        symbol="AEROUSDT", timeframe="4h",
+        bias=bias, trend=trend, structure={}, entry=entry, risk=risk,
+        exit_data={"current_price": 1.0},
+        macro_bias=macro_bias, chart_path="",
+    )
+    return {"final_action": out["exit"]["action"],
+            "explanation": out["explanation"]}
 
 
 # ============================================================

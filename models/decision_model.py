@@ -82,10 +82,13 @@ class DecisionModel:
     Original roadmap diagnosis: decision logic (_determine_final_action)
     was living inside signal_router.py, which is architecturally wrong --
     "Router contains decision logic (should not)." This module is the fix:
-    the single place that turns {bias, trend, entry, risk, macro_bias} into
+    the single place that turns {bias, trend, entry, risk} into
     {final_action, confidence, trade_quality, explanation}. (`structure` was
     a parameter too until the Item 11 re-audit removed the confidence
-    calculation that was its only reader here -- see evaluate()'s comment.)
+    calculation that was its only reader here -- see evaluate()'s comment.
+    `macro_bias` was one until work order G, 27 September 2026, removed the
+    CONSERVATIVE clause that was its only reader -- see
+    _determine_final_action.)
     signal_router.py now just calls DecisionModel.evaluate(...) and
     assembles/renders the result -- it is a pure assembler, per the
     roadmap's stated architecture.
@@ -141,11 +144,17 @@ class DecisionModel:
         trend: Dict[str, Any],
         entry: Dict[str, Any],
         risk: Dict[str, Any],
-        macro_bias: str,
+        *,
         btc_context: Optional[Dict[str, Any]] = None,
         degradation: Optional[List[str]] = None,
         symbol: str = "this asset",
     ) -> Dict[str, Any]:
+        # WORK ORDER G, 27 September 2026 (finding 17): `macro_bias` was the
+        # fifth positional parameter here and is gone -- see
+        # _determine_final_action for why. Everything after `risk` is
+        # keyword-only so that a caller still passing macro in fifth place
+        # fails with a TypeError instead of having the string land silently
+        # in btc_context.
         # ITEM 11 RE-AUDIT (Finding 4): `structure` was a parameter here,
         # threaded into _compute_confidence to compute structure_alignment.
         # It is gone along with that term -- see _compute_confidence's
@@ -169,7 +178,7 @@ class DecisionModel:
         action_reason_index: Optional[int] = None
 
         before = len(reasons)
-        final_action = self._determine_final_action(bias, trend, entry, risk, macro_bias, reasons)
+        final_action = self._determine_final_action(bias, trend, entry, risk, reasons=reasons)
         if len(reasons) > before:
             action_reason_index = len(reasons) - 1
 
@@ -435,8 +444,9 @@ class DecisionModel:
     # promoted from bare literals inside _determine_final_action below,
     # values unchanged. The pair (trend health >= 75, entry score >= 70)
     # is the line between AGGRESSIVE-eligible and plain LONG/SHORT; the
-    # single 50 is the line between CONSERVATIVE and WAIT when macro
-    # agrees. Named and fingerprinted like every other decision-affecting
+    # single 50 is the line between CONSERVATIVE and WAIT. (It read "when
+    # macro agrees" until work order G, 27 September 2026, removed the
+    # macro condition.) Named and fingerprinted like every other decision-affecting
     # number in this file (AVG_REWARD_R, DEGRADED_CONFIDENCE_CEILING
     # above; BTC_ADJUSTMENT_CAP, BTC_STRESS_PENALTY below) -- see
     # core/decision_log.py's FINGERPRINTED_MODULES entry for this class.
@@ -453,13 +463,48 @@ class DecisionModel:
     AGGRESSIVE_ENTRY_SCORE_MIN = 70.0
     CONSERVATIVE_TREND_HEALTH_MIN = 50.0
 
+    def _conservative_reason(self, leaning: str, side: str, trend_note: str,
+                             trend_health: float, entry_score: float) -> str:
+        """
+        The CONSERVATIVE sentence, naming what kept the setup below the
+        LONG/SHORT tier.
+
+        WORK ORDER G, 27 September 2026. The sentence read "...but the entry
+        quality (N/100) isn't strong enough" in every case. The tier is also
+        reached with a strong entry and trend strength between the
+        CONSERVATIVE and upper-tier lines, and then the sentence blamed a
+        number that had passed. Item 8's class: the engine asserting
+        something that is not so, in the line the operator reads first.
+        Viktor ruled to fix it inside G, since G rewrites this sentence.
+
+        One helper for both sides, so the two cannot drift apart. The
+        thresholds are read from the constants the ladder compares against,
+        so the sentence cannot quote a number the ladder does not use.
+        """
+        trend_short = trend_health < self.AGGRESSIVE_TREND_HEALTH_MIN
+        entry_short = entry_score < self.AGGRESSIVE_ENTRY_SCORE_MIN
+        trend_min = f"{self.AGGRESSIVE_TREND_HEALTH_MIN:.0f}"
+        entry_min = f"{self.AGGRESSIVE_ENTRY_SCORE_MIN:.0f}"
+        if trend_short and entry_short:
+            detail = (f"below the {trend_min} the {side} tier needs, and the "
+                      f"entry quality ({entry_score:.0f}/100) is below its {entry_min}")
+        elif trend_short:
+            detail = (f"below the {trend_min} the {side} tier needs, with entry "
+                      f"quality {entry_score:.0f}/100")
+        else:
+            # entry_short alone. Neither short cannot reach this helper: the
+            # ladder's upper-tier branch returns before the CONSERVATIVE one.
+            detail = (f"but the entry quality ({entry_score:.0f}/100) is below "
+                      f"the {entry_min} the {side} tier needs")
+        return f"Bias is {leaning}, {trend_note}, {detail} — CONSERVATIVE {side}."
+
     def _determine_final_action(
         self,
         bias: Dict[str, Any],
         trend: Dict[str, Any],
         entry: Dict[str, Any],
         risk: Dict[str, Any],
-        macro_bias: str,
+        *,
         reasons: List[str],
     ) -> str:
         """
@@ -622,6 +667,30 @@ class DecisionModel:
                 )
                 return "WAIT"
 
+            # WORK ORDER G, 27 September 2026 (finding 17). Both CONSERVATIVE
+            # branches below read
+            #
+            #     elif trend_health >= ... and macro_bias == "BULLISH":
+            #
+            # (and "BEARISH" in the short branch): a hard requirement on
+            # evidence already weighted into bias_score at 10% -- the double
+            # count Viktor removed from the entry signal at work order F, and
+            # the one his ruling of 2 September removed from direction. The
+            # upper tiers never had it; only the tier with the weakest case
+            # did. Claude's call under Viktor's delegation. Removed, and
+            # macro_bias removed from this function and from evaluate(), since
+            # nothing here read it after that. The router still records it.
+            #
+            # Predicted consequence, recorded: a directional bias at
+            # CONSERVATIVE strength with a disagreeing or neutral macro used
+            # to be WAIT and now reaches the confirmation gate as CONSERVATIVE
+            # LONG/SHORT. In the live log of 27 September (43 runs) that is 2
+            # runs, both on 15 September.
+            #
+            # What still reads macro, unchanged here: bias_score's 10% factor,
+            # the entry score's confluence multiplier, and the validation
+            # score. Those are the weighting questions ruled for after the
+            # independent audit (DECISIONS, 22 September 2026).
             if raw_bias == "BULLISH":
                 if (trend_health >= self.AGGRESSIVE_TREND_HEALTH_MIN
                         and entry_score >= self.AGGRESSIVE_ENTRY_SCORE_MIN):
@@ -645,12 +714,9 @@ class DecisionModel:
                         f"entry ({entry_score:.0f}/100) — LONG."
                     )
                     return "LONG"
-                elif trend_health >= self.CONSERVATIVE_TREND_HEALTH_MIN and macro_bias == "BULLISH":
-                    reasons.append(
-                        f"Bias is bullish and the broader macro trend agrees, {trend_note}, "
-                        f"but the entry quality ({entry_score:.0f}/100) isn't strong "
-                        f"enough — CONSERVATIVE LONG."
-                    )
+                elif trend_health >= self.CONSERVATIVE_TREND_HEALTH_MIN:
+                    reasons.append(self._conservative_reason(
+                        "bullish", "LONG", trend_note, trend_health, entry_score))
                     return "CONSERVATIVE LONG"
 
             if raw_bias == "BEARISH":
@@ -676,12 +742,9 @@ class DecisionModel:
                         f"entry ({entry_score:.0f}/100) — SHORT."
                     )
                     return "SHORT"
-                elif trend_health >= self.CONSERVATIVE_TREND_HEALTH_MIN and macro_bias == "BEARISH":
-                    reasons.append(
-                        f"Bias is bearish and the broader macro trend agrees, {trend_note}, "
-                        f"but the entry quality ({entry_score:.0f}/100) isn't strong "
-                        f"enough — CONSERVATIVE SHORT."
-                    )
+                elif trend_health >= self.CONSERVATIVE_TREND_HEALTH_MIN:
+                    reasons.append(self._conservative_reason(
+                        "bearish", "SHORT", trend_note, trend_health, entry_score))
                     return "CONSERVATIVE SHORT"
 
             reasons.append(

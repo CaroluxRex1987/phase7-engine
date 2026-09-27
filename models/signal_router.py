@@ -277,8 +277,14 @@ class SignalRouter:
             # reading it (see decision_model.py's _compute_confidence). It is
             # still used below, to build this function's own "structure"
             # block of the decision object.
+            # WORK ORDER G, 27 September 2026: macro_bias is no longer
+            # passed. The decision model stopped reading it when the
+            # CONSERVATIVE clause went (see decision_model.py). It is still
+            # this function's parameter because the decision object records
+            # it, below.
             dm_result = self.decision_model.evaluate(
-                bias, trend, entry, risk, macro_bias, btc_context,
+                bias, trend, entry, risk,
+                btc_context=btc_context,
                 degradation=degradation,
                 symbol=symbol,
             )

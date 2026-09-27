@@ -147,7 +147,7 @@ def test_decision_reasoning_says_trend_strength_was_not_computed():
             entry={"score": 40.0, "entry_status": "AWAY FROM ZONE"},
             risk={"risk_valid": True, "risk_regime": "NORMAL RISK",
                   "validation_state": "NEUTRAL"},
-            macro_bias="NEUTRAL",
+            # Work order G, 27 September 2026: no macro_bias parameter.
             reasons=reasons,
         )
         assert action == "WAIT", action

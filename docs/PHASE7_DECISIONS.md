@@ -1617,6 +1617,95 @@ first. Recorded that way, as for findings 5 and 6.
 before the commit (the change moves `code_hash`, though no decision). Ruling and code
 land in the same commit; the commit message has the evidence.
 
+## Work order G, 27 September 2026 — macro no longer decides the CONSERVATIVE tier (finding 17)
+
+*New in this file on 27 September 2026, the last item on the closed list before the
+independent audit. Claude's work order under Viktor's delegation, with one ruling of
+his inside it; recorded, with the code, by the same commit.*
+
+**The question.** Finding 17 (review of 21 September): both CONSERVATIVE branches of
+`decision_model`'s ladder required `macro_bias` to agree with the side
+(`and macro_bias == "BULLISH"`, and `"BEARISH"` on the short side). Macro is already a
+10% factor inside `bias_score`, so the requirement counted the same evidence twice —
+the double count Viktor removed from direction on 2 September and from the entry
+signal at work order F. Left out of F so that each change to which trades are taken
+lands in its own commit.
+
+**What Claude found before building, from the code and the log.**
+
+- The two upper tiers never had the condition; only the tier with the weakest case
+  did.
+- Macro reaches the decision in four places: `bias_score` (10%), the entry score's
+  confluence multiplier (×1.05 / ×0.90), the validation score (+10 / −20), and this
+  clause. G touches only the clause. Claude's reading, from the wording and not
+  confirmed with Viktor: the first three are the "one volume/macro disagreement adding
+  up to three penalties" item in the 22 September ruling above, which waits for after
+  the audit.
+- From reading, no test pinned the clause.
+- Viktor's `logs/phase7_decision_log_aerousdt.jsonl`, staged off his disk (43 records,
+  6–27 September, AEROUSDT 4h), replayed through the router before and after the
+  change: the pre-change code reproduces 42 of the 43 logged actions (the miss is a
+  16 September SHORT from before F's gate). G changes 2 runs, both on 15 September,
+  bearish bias with bullish macro: WAIT on the ladder becomes CONSERVATIVE SHORT. Both
+  are then refused as NO-TRADE (SIGNAL UNCONFIRMED), because those records predate F
+  and carry no short signal — so whether either would have traded cannot be read from
+  the log. Macro agreed with the bias in every other directional run. The log barely
+  exercises G.
+
+**Claude's calls under the delegation, each reversible by Viktor.**
+
+1. The macro condition is removed from both CONSERVATIVE branches. The tier is now: a
+   side at `MIN_ACTION_BIAS` or more, trend health at
+   `CONSERVATIVE_TREND_HEALTH_MIN` or more, below the upper tier — then the
+   confirmation gate, as for every tier.
+2. `macro_bias` is removed from `DecisionModel.evaluate()` and
+   `_determine_final_action()`, since nothing there read it once the clause was gone.
+   Keeping an unread parameter would be the item-14 shape (a declared input nothing
+   reads), and removing it means macro cannot come back into the ladder without a
+   signature change a test catches. The router still takes `macro_bias` and records
+   it in the decision object.
+3. Everything after `risk` in `evaluate()` is keyword-only, and `reasons` in
+   `_determine_final_action()`, so a caller still passing macro in the old fifth
+   place fails with a TypeError instead of the string landing in `btc_context`.
+
+**Viktor's ruling inside G — by agreeing to Claude's suggestion, not by writing his
+position first.** The CONSERVATIVE sentence read "...but the entry quality (N/100)
+isn't strong enough" in every case. The tier is also reached with a strong entry and
+trend strength between 50 and 75, and then the sentence blamed a number that had
+passed. G rewrites that sentence anyway, so Claude asked whether to fix the false
+clause inside G or put it on the list for after the audit; Viktor chose to fix it
+inside G. The sentence now names what fell short — trend strength, entry quality, or
+both — from the same constants the ladder compares against, through one helper for
+both sides. It no longer mentions macro.
+
+**What it weakens**, stated per this project's amendment practice:
+
+- **The CONSERVATIVE tier admits setups whose higher timeframe disagrees or is flat.**
+  The requirement was a double count, but it was also the only place the higher
+  timeframe could veto that tier outright. A weak-entry trade against the daily trend
+  can now be authorised if the bias is at 30 or more and the confirmation gate passes.
+  Neither the old filter nor its removal has been measured on data where macro
+  disagrees; this log does not contain enough of it.
+- `DecisionModel.evaluate()` no longer accepts `macro_bias`, and its later arguments
+  must be passed by name. A script outside the repository that called it either way
+  breaks; inside it, the router and eight test files were changed (every `.py` file
+  searched).
+- `tests/test_direction_source.py`'s helper, and one test in
+  `tests/test_signal_confirms.py`, now go through the router instead of
+  `evaluate()` directly, because the router is where a macro reading still enters.
+  They exercise more code per test, so a failure there is less precisely located.
+
+**Stated for the auditor.** Whether a higher-timeframe veto belongs on the weakest
+tier is a design question this change answers "not as a second count"; it has not been
+backtested either way. The other three places macro reaches the decision are
+unchanged and wait for after the audit.
+
+**Done when** the code lands, with the live run done and its decision-log record read
+before the commit (the change moves `code_hash`; on live data it changes a decision
+only at CONSERVATIVE strength with a macro that disagrees or is neutral). Ruling and code land
+in the same commit; the commit message has the evidence. With it, the closed list is
+done and the independent audit is next.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then

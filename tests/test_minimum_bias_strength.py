@@ -56,7 +56,7 @@ from models.bias_engine import RAW_BIAS_THRESHOLD
 
 
 def _decide(score, raw="BULLISH", health=90.0, sign=1, entry=80.0,
-            status="ACTIVE ENTRY ZONE", macro="BULLISH"):
+            status="ACTIVE ENTRY ZONE"):
     reasons = []
     action = DecisionModel()._determine_final_action(
         bias={"raw": raw, "score": score},
@@ -65,7 +65,8 @@ def _decide(score, raw="BULLISH", health=90.0, sign=1, entry=80.0,
         entry={"score": entry, "entry_status": status},
         risk={"risk_valid": True, "risk_regime": "NORMAL RISK",
               "validation_state": "NEUTRAL"},
-        macro_bias=macro,
+        # Work order G, 27 September 2026: the ladder no longer takes
+        # macro_bias, and this helper's `macro` parameter is gone with it.
         reasons=reasons,
     )
     return action, reasons
@@ -89,7 +90,7 @@ def test_a_weak_lean_does_not_authorise_a_direction():
 
 
 def test_the_same_floor_applies_to_the_short_side():
-    action, _ = _decide(score=-21.0, raw="BEARISH", sign=-1, macro="BEARISH")
+    action, _ = _decide(score=-21.0, raw="BEARISH", sign=-1)
     assert action == "WAIT"
 
 
@@ -173,13 +174,13 @@ def test_every_directional_reason_carries_the_direction():
     Sweep. No reason string may quote trend health without saying which way
     the trend points.
     """
-    for score, raw, sign, macro in ((60.0, "BULLISH", 1, "BULLISH"),
-                                    (-60.0, "BEARISH", -1, "BEARISH"),
-                                    (60.0, "BULLISH", -1, "BULLISH"),
-                                    (-60.0, "BEARISH", 1, "BEARISH")):
+    for score, raw, sign in ((60.0, "BULLISH", 1),
+                             (-60.0, "BEARISH", -1),
+                             (60.0, "BULLISH", -1),
+                             (-60.0, "BEARISH", 1)):
         for entry, status in ((80.0, "ACTIVE ENTRY ZONE"), (40.0, "APPROACHING ZONE")):
             _, reasons = _decide(score=score, raw=raw, sign=sign,
-                                 entry=entry, status=status, macro=macro)
+                                 entry=entry, status=status)
             text = " ".join(reasons)
             if "trend strength" in text:
                 assert ("(up)" in text or "(down)" in text or "(flat)" in text), (

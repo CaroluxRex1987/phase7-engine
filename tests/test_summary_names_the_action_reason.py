@@ -55,7 +55,6 @@ def _evaluate(risk_valid=True, degradation=None, targets=(1.1, 1.2, 1.3),
               "risk_regime": "NORMAL RISK",
               "validation_state": "NEUTRAL",
               "targets": list(targets)},
-        macro_bias="BULLISH",
         degradation=list(degradation) if degradation else None,
     )
 

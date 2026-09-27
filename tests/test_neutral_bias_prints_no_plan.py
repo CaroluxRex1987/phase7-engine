@@ -229,8 +229,12 @@ def _grid_actions(raw):
     actions = set()
     calls = [0]
     model = DecisionModel()
+    # Work order G, 27 September 2026: the grid had a macro dimension
+    # ("BULLISH", "BEARISH", "NEUTRAL"), passed as macro_bias. evaluate() no
+    # longer takes it, so the dimension is gone and the grid is a third the
+    # size; no remaining input is affected.
     for ((stop, targets), score, health, entry_score, status, risk_valid, regime,
-         validation, macro, confirmed) in itertools.product(
+         validation, confirmed) in itertools.product(
             plans,
             scores,
             (NAN, 0.0, 49.0, 50.0, 75.0, 100.0),
@@ -239,7 +243,6 @@ def _grid_actions(raw):
             (True, False),
             ("NORMAL RISK", "HIGH VOLATILITY RISK"),
             ("STRONG", "NEUTRAL", "WEAK"),
-            ("BULLISH", "BEARISH", "NEUTRAL"),
             (True, False)):
         blockers = [] if confirmed else ["test blocker"]
         result = model.evaluate(
@@ -251,7 +254,6 @@ def _grid_actions(raw):
             risk={"risk_valid": risk_valid, "risk_reason": "test",
                   "risk_regime": regime, "validation_state": validation,
                   "atr_stop": stop, "targets": targets},
-            macro_bias=macro,
         )
         actions.add(result["final_action"])
         calls[0] += 1
@@ -266,7 +268,7 @@ def test_a_neutral_bias_never_reaches_long_or_short():
     ladder's two answers that choose no side.
     """
     actions, calls = _grid_actions("NEUTRAL")
-    assert calls == 2 * 7 * 6 * 4 * 2 * 2 * 2 * 3 * 3 * 2, calls
+    assert calls == 2 * 7 * 6 * 4 * 2 * 2 * 2 * 3 * 2, calls
     assert actions == {"WAIT", "NO-TRADE (RISK TOO HIGH)"}, sorted(actions)
 
 

@@ -90,7 +90,7 @@ def _final_action(risk):
             "short_signal": False,
         },
         risk=risk,
-        macro_bias="NEUTRAL",
+        # Work order G, 27 September 2026: the ladder no longer takes macro_bias.
         reasons=reasons,
     )
     return action, reasons

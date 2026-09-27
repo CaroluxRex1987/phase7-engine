@@ -41,7 +41,7 @@ def _signals(structure="BULLISH TREND", exhaustion=False,
 
 
 def _evaluate(raw="BULLISH", score=78.0, health=90.0, entry_score=80.0,
-              status="ACTIVE ENTRY ZONE", macro="BULLISH", risk_valid=True,
+              status="ACTIVE ENTRY ZONE", risk_valid=True,
               signals=None, degradation=None, trend_divergence=False):
     """
     A full DecisionModel.evaluate() -- the ladder AND the gate after it.
@@ -64,7 +64,8 @@ def _evaluate(raw="BULLISH", score=78.0, health=90.0, entry_score=80.0,
               "risk_regime": "NORMAL RISK",
               "validation_state": "NEUTRAL",
               "targets": [1.1, 1.2, 1.3] if long_plan else [0.9, 0.8, 0.7]},
-        macro_bias=macro,
+        # Work order G, 27 September 2026: evaluate() no longer takes
+        # macro_bias; the `macro` parameter this helper had is gone with it.
         degradation=degradation,
     )
 
@@ -149,7 +150,7 @@ def test_a_confirmed_long_is_still_taken():
 
 
 def test_a_confirmed_short_is_still_taken():
-    out = _evaluate(raw="BEARISH", macro="BEARISH",
+    out = _evaluate(raw="BEARISH",
                     signals=_signals(structure="BEARISH TREND"))
     assert out["final_action"] == "AGGRESSIVE SHORT", out["explanation"]
 
@@ -168,8 +169,9 @@ def test_an_unconfirmed_long_becomes_no_trade_and_says_why():
 def test_a_counter_divergence_now_blocks_a_conservative_trade():
     """
     Before work order F the CONSERVATIVE branch had no divergence check at
-    all. Trend health 60 and entry 40 with an agreeing macro is CONSERVATIVE
-    LONG on the ladder; a bearish divergence now refuses it.
+    all. Trend health 60 and entry 40 is CONSERVATIVE LONG on the ladder (it
+    also needed an agreeing macro until work order G); a bearish divergence
+    now refuses it.
     """
     clean = _evaluate(health=60.0, entry_score=40.0, signals=_signals())
     assert clean["final_action"] == "CONSERVATIVE LONG", clean["explanation"]
@@ -211,14 +213,35 @@ def test_the_ladder_no_longer_reads_divergence_at_all():
             entry={"score": 80.0, "entry_status": "ACTIVE ENTRY ZONE"},
             risk={"risk_valid": True, "risk_regime": "NORMAL RISK",
                   "validation_state": "NEUTRAL"},
-            macro_bias="BULLISH", reasons=[]))
+            reasons=[]))
     assert actions == ["AGGRESSIVE LONG", "AGGRESSIVE LONG"], actions
 
 
 def test_an_opposing_macro_does_not_block_a_confirmed_trade():
-    """Macro was removed from the signal; it still votes inside bias_score."""
-    out = _evaluate(macro="BEARISH", signals=_signals())
-    assert out["final_action"] == "AGGRESSIVE LONG", out["explanation"]
+    """
+    Macro was removed from the signal; it still votes inside bias_score.
+
+    Work order G, 27 September 2026: through the router, the one place the
+    engine still receives a macro reading, since DecisionModel.evaluate() no
+    longer takes one. The exact-action assertion cannot pass on the router's
+    error record, which has no "exit".
+    """
+    from models.signal_router import SignalRouter
+    entry = {"score": 80.0, "entry_status": "ACTIVE ENTRY ZONE", **_signals()}
+    out = SignalRouter(engine_core=object())._build_decision_object(
+        symbol="TESTUSDT", timeframe="4h",
+        bias={"raw": "BULLISH", "score": 78.0},
+        trend={"trend_health": 90.0, "trend_direction_sign": 1,
+               "momentum_divergence": False},
+        structure={}, entry=entry,
+        risk={"risk_valid": True, "risk_reason": "OK",
+              "risk_regime": "NORMAL RISK", "validation_state": "NEUTRAL",
+              "targets": [1.1, 1.2, 1.3]},
+        exit_data={"current_price": 1.0},
+        macro_bias="BEARISH", chart_path="",
+    )
+    assert out["exit"]["action"] == "AGGRESSIVE LONG", out["explanation"]
+    assert out["macro_bias"] == "BEARISH"
 
 
 def test_a_missing_signal_record_fails_safe():

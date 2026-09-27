@@ -63,7 +63,7 @@ HIGH_CONVICTION_BIAS_SCORE = 60.0
 
 
 def _final_action(raw_bias, risk_regime, risk_valid=True,
-                   long_signal=False, short_signal=False, macro_bias="NEUTRAL"):
+                   long_signal=False, short_signal=False):
     reasons = []
     action = DecisionModel()._determine_final_action(
         bias={"raw": raw_bias, "score": HIGH_CONVICTION_BIAS_SCORE},
@@ -84,7 +84,8 @@ def _final_action(raw_bias, risk_regime, risk_valid=True,
             "validation_state": "NEUTRAL",
             "risk_regime": risk_regime,
         },
-        macro_bias=macro_bias,
+        # Work order G, 27 September 2026: the ladder no longer takes
+        # macro_bias; this helper's parameter for it is gone.
         reasons=reasons,
     )
     return action, reasons
