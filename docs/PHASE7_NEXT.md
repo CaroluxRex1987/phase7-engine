@@ -1,9 +1,10 @@
 # Next step — read this first
 
-*29 September 2026. Rewritten by the twenty-fourth session's first commit, which adds
-the pre-send token check (item 2 of the preparation list for the independent audit) and
-files the push of `d5ced0c`; the version it replaced — as it stood at `d5ced0c` — is in
-HISTORY verbatim.
+*29 September 2026. Rewritten by the twenty-fifth session's commit, which traces points
+3–5 of the 15 September PDF and classifies the test bugs (items 7 and 6 of the
+preparation list for the independent audit), files Viktor's ruling that four usable
+test bugs are enough, and files the push of `59b747a`; the version it replaced — as it
+stood at `59b747a` — is in HISTORY verbatim.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
 rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
@@ -34,10 +35,13 @@ The auditor is Laguna S 2.1, pinned to Poolside, with the full package in one se
 what it sees, the test of the auditor and what opens backtesting are ruled too
 (DECISIONS, the three rulings of 29 September), and so are the six smaller questions
 left before the send (DECISIONS, "Ruling, 29 September 2026 — six questions before the
-send"). **Item 2 of the preparation list, the pre-send token check, lands with the
-commit that writes this line**; measured with Laguna's own tokenizer, a trial package
-fits with room for both replies (the twenty-fourth session, below). Anything found in
-the meantime goes on the list for after the audit (below), not onto the closed list.
+send"). **Item 2, the pre-send token check, landed at `59b747a`**; measured with
+Laguna's own tokenizer, a trial package fits with room for both replies (the
+twenty-fourth session, below). **Items 7 and 6 land with the commit that writes this
+line:** four entries of the list for after the audit are usable as test bugs, and
+Viktor ruled that four is enough (DECISIONS, "Ruling, 29 September 2026 — the test
+bugs: four usable, and four is enough"). Anything found in the meantime goes on the
+list for after the audit (below), not onto the closed list.
 
 **Since 28–29 September the project has a finish line** — DECISIONS, "Ruling,
 28 September 2026 — what "finished" means, and how the engine is judged". In short: a
@@ -97,7 +101,7 @@ suggestion, two by his own answers. `d5ced0c` filed them. Claude also read Lagun
 2.1's listing on OpenRouter and Poolside's release post (in that ruling). No code
 changed. Its account is in HISTORY, in this file's previous version.
 
-**This session (the twenty-fourth, 29 September)**, under Claude Opus 5.5, opened on
+**The twenty-fourth session (29 September)**, under Claude Opus 5.5, opened on
 "Continue Phase 7". Claude read the tip from GitHub (a clone) and, later, `master` and
 `origin/master` off Viktor's disk: all `d5ced0c`. Asked what it suggested, Claude
 proposed item 2 of the preparation list, the pre-send token check, as the one item
@@ -120,8 +124,29 @@ same package as one message, with every commit message, would need 904,590 and f
 sent: rev 8 and the rest of Part 7 are not written yet, and the check runs again on the
 real payload at the send.
 
+**This session (the twenty-fifth, 29 September)**, under Claude Opus 5.5, opened on
+"Continue Phase 7". Claude read `master` and `origin/master` off Viktor's disk and
+GitHub's tip (a clone): all `59b747a`. Asked what it suggested, Claude proposed items
+7 and 6 first, 7 before 6 — the only items left whose result could reopen a ruling —
+and items 3 and 4 as one commit, since both rewrite `send_audit_round.py`; Viktor
+agreed ("Go."). Both are Claude's under the delegation of 21 September. Claude traced
+points 3–5 of the 15 September PDF from the PDF itself (Viktor granted the session
+`G:\Phase_7_Engine_Random_Files\Docs`): 3 and 4 are live and move onto the list for
+after the audit; 5 is not. It then checked each entry of that list against the code
+comments, docstrings and test names that ship: five are new trading rules, point 4
+asks how large a weight should be, five are given away by a shipped line, and four
+are usable. Viktor checked the classification ("I agree") and, asked whether four is
+enough, chose "four is enough" from three options Claude put to him with no
+recommendation. Docs only; the commit message has the evidence.
+
 ## Ruled — in force
 
+- **New, 29 September — the test bugs: four usable, and four is enough** (DECISIONS,
+  same title). The classification is Claude's (Claude scores, Viktor checks), checked
+  by Viktor; "four is enough" is his choice from three options Claude put to him, with
+  no recommendation. Usable: the risk gate's order, `trend_health` missing from
+  `lineage.risk_inputs`, the entry score under a NEUTRAL bias, and the
+  weak-validation WAIT. None or one found means a rerun; two or more, a pass. No code.
 - **New, 29 September — six questions before the send** (DECISIONS, same title).
   Points 1, 2, 4 and 5 by agreeing to Claude's suggestion; 3 and 6 Viktor's own
   answers. (1) The package's commit is tagged and engine code and tests are frozen
@@ -254,7 +279,8 @@ real payload at the send.
 ## Where things stand, right now
 
 - **Tip:** the commit that writes this line (a commit cannot name its own hash) —
-  tooling and tests, no engine code: the pre-send token check. Before it: `d5ced0c`
+  docs only: items 7 and 6 of the preparation list and one ruling. Before it:
+  `59b747a` (the twenty-fourth session's commit: the pre-send token check), `d5ced0c`
   (the twenty-third session's second commit: six rulings before the send), `e7a94d1`
   (the twenty-third session's first commit: the rulings of 29 September on the audit
   and on what opens backtesting), `ec4e5fd` (the twenty-first
@@ -283,23 +309,19 @@ real payload at the send.
   to `E:\phase7_engine`". Run the engine and every command from `E:\phase7_engine` (in
   cmd, changing drive needs `cd /d`). A dated record that names the D: paths means the
   same folders before the move; dated records are not edited.
-- **The push of `d5ced0c`** happened: on 29 September Claude read `master` and
-  `origin/master` off Viktor's disk (`.git/refs`, staged) and GitHub's tip with
-  `git ls-remote`: all three `d5ced0c`. It went as predicted, so it is recorded here
-  once and **nothing is owed** (ruling on proposal (b)). The same holds for the push of
-  the commit that writes this line unless it deviates. Earlier pushes are recorded in
-  this file's previous versions, in HISTORY.
+- **The push of `59b747a`** happened: on 29 September Claude read `master` and
+  `origin/master` off Viktor's disk (`.git/refs`, staged) and GitHub's tip with a clone
+  and `git ls-remote`: all three `59b747a`. No deviation was reported, so it is
+  recorded here once and **nothing is owed** (ruling on proposal (b)). The same holds
+  for the push of the commit that writes this line unless it deviates. Earlier pushes
+  are recorded in this file's previous versions, in HISTORY.
 - **Before this commit**, every file it changes matched Viktor's disk on E: byte for
-  byte (`README.md`, `docs/PHASE7_NEXT.md`, `docs/PHASE7_HISTORY.md`,
-  `docs/audit_change_list.md` and `docs/build/README.md`, staged off his disk on
-  29 September and compared with the clone at `d5ced0c`). The two files it adds,
-  `docs/build/package_token_check.py` and `tests/test_package_token_check.py`, were not
-  on his disk.
+  byte (`docs/PHASE7_NEXT.md`, `docs/PHASE7_HISTORY.md` and `docs/PHASE7_DECISIONS.md`,
+  staged off his disk on 29 September and compared with the clone at `59b747a`). It
+  adds no file.
 - **code_hash:** `c6a44d4d7ab1c8d36f2a07f6f2c78a1967ecfc135259cbe828b3daa275e571c9`,
-  unmoved by the commit that writes this line: its two new `.py` files are under
-  `docs/` and `tests/`, which `core/code_fingerprint.py` excludes by directory, and it
-  changes no other `.py` file. Computed on the tree before and after it, under Python
-  3.12.3.
+  unmoved by the commit that writes this line, which changes no `.py` file. Computed on
+  the tree before and after it, under Python 3.12.3.
   It last moved at `7d0024e` (from `f4b23f94…`), in
   `models/decision_model.py` and `models/signal_router.py`, confirmed on Windows by
   Viktor's live run before that commit.
@@ -313,16 +335,16 @@ real payload at the send.
 - **Test suite** — **678 passed / 0 failed, no warnings line** with `pandas_ta`;
   **533 passed / 134 skipped** without it; `run_tests.py` **607 passed / 0 failed /
   32 errors**, all 32 fixture-collection `TypeError`s. The commit that writes this line
-  adds the 15 tests of `tests/test_package_token_check.py`, none using a fixture and
-  none needing `pandas_ta` or `tokenizers`; before it, 663 / 518 + 134 / 592 + 32.
-  Linux sandbox, autocrlf clone, Python 3.12.3, pinned requirements, run on the tree
-  before the change and on the applied tree. **On Windows**, the counts at `d5ced0c`
-  are Viktor's confirmation by proceeding; this commit's command sequence gives the new
-  counts to stop on.
-- **Engineering Notes:** through Entry #183 (v1.36), which covers `68c6191`. **Four
+  changes no test and no file a test reads (no test or `run_tests.py` opens the three
+  documents it changes, by a search of both), and the counts are unchanged. Linux
+  sandbox, autocrlf clone, Python 3.12.3, pinned requirements, run on the tree before the
+  change and on the applied tree. **On Windows**, the counts at `59b747a` are Viktor's
+  confirmation by proceeding; this commit's command sequence gives the same counts to
+  stop on.
+- **Engineering Notes:** through Entry #183 (v1.36), which covers `68c6191`. **Five
   commits behind** — `ec4e5fd`, the floor (a commit that regenerates the Notes cannot
-  cover itself, Entry #144), `e7a94d1`, `d5ced0c` and the commit that writes this
-  line. Every later commit adds one until the next regeneration. Batched, by the
+  cover itself, Entry #144), `e7a94d1`, `d5ced0c`, `59b747a` and the commit that writes
+  this line. Every later commit adds one until the next regeneration. Batched, by the
   15 September rule; no time pressure. v1.36 records the round-1 recovery, the rulings of 22
   (filed 26), 26, 27, 28 and 29 September, the move to E:, the code for findings 16, 7,
   4, 6, 5 and 18, work order G and the Aider correction. Its PDF's extracted text
@@ -333,10 +355,10 @@ real payload at the send.
   identical to the committed PDF. Neither changes in the commit that writes this line;
   the Attribution Statement's script last changed at `68c6191`, the Portfolio
   Document's at `6e1baba`.
-- **README.md:** its two test-count statements brought current by the commit that
-  writes this line (663 → 678, 518 → 533, 592 → 607); nothing else in it changes, and
-  the hook's section 5 will report 0 commits since it was touched. Two of its status
-  rows are stale and not changed here (Open items).
+- **README.md:** its test counts are current (678, 533 and 607, brought current at
+  `59b747a`). The commit that writes this line does not touch it, so the hook's
+  section 5 will report 1 commit since it was touched. Two of its status rows are stale
+  and not changed here (Open items).
 - **The round-1 audit outputs are in the repository**, in
   `docs/audit_reports/round1_deepseek-v4-pro_kimi-k3_2026-08-27/`, byte-identical to the
   hashes Viktor took on 23 September. The account is in HISTORY, "26 September 2026 —
@@ -640,7 +662,11 @@ the audit. **Ruled 29 September:** the auditor sees this list only in Part 7, af
 has saved Parts 1–6, and the list is the test of the auditor (DECISIONS, "what the
 auditor sees, and no planted bugs"). Before the send, each item is checked against the
 code comments, docstrings and test names that ship, by the rule in "six questions
-before the send", point 4 (Open items).
+before the send", point 4 (Open items). **Classified 29 September** (DECISIONS,
+"Ruling, 29 September 2026 — the test bugs: four usable, and four is enough"): usable —
+the risk gate's order, `lineage.risk_inputs`, the entry score under a NEUTRAL bias and
+the weak-validation WAIT; every other entry is a new trading rule, not a defect, or
+given away by a shipped line that entry names.
 
 - **The risk gate runs before the bias checks.** The risk verdict returns at
   `models/decision_model.py:551–553`, before the weak-validation and lean checks at
@@ -725,8 +751,26 @@ before the send", point 4 (Open items).
   with the rest of the 20 September list, found still live on 29 September (read from
   the code), and **moved back onto this list by the ruling of 29 September** on what
   the auditor sees. Not usable as a test bug: its docstring names the problem (point 4
-  of "six questions before the send"). Points 3–5 of the PDF are not yet traced (Open
-  items).
+  of "six questions before the send"). Points 3 and 4 of the PDF are the next two
+  entries; point 5 is not live (DECISIONS, "the test bugs", item 7).
+- **The BTC adjustment has no baseline (point 3 of the 15 September PDF).**
+  `DecisionModel._compute_btc_adjusted` (`models/decision_model.py`) moves a second
+  confidence figure by up to ±20 points on BTC's bias and the pair's correlation with
+  BTC, and by −15 under broad market stress; nothing has tested whether that predicts
+  anything. It decides nothing: only the record and the panel read it. Unchanged since
+  the PDF, traced from the code on 29 September and **moved onto this list by the
+  ruling of 29 September** on what the auditor sees. Not usable as a test bug: the
+  panel's own line says "empirically unvalidated — no backtest supports this
+  adjustment" (`core/panel_render.py:676`).
+- **Is ×0.90 enough against the macro trend? (point 4 of the 15 September PDF).**
+  `models/entry_model.py:384–385` multiplies the entry score by
+  `CONFLUENCE_PENALTY_MULT` (0.90) when macro opposes the trade. Since work order G it
+  is one of three things left that act against a trade opposing macro, with the
+  validation score's −20 and macro's 10% in `bias_score`, which G read, unconfirmed
+  with Viktor, as the 22 September ruling's "three penalties" item. Traced on
+  29 September and **moved onto this list by the same ruling**. Not a test bug: it
+  asks how large a weight should be, and `models/decision_model.py:692` names it
+  anyway.
 - **Fable 5.1 works on this list after the audit** (DECISIONS, "Ruling, 29 September
   2026 — Fable 5.1 works on the list for after the audit, not before it"). Not a
   finding; recorded here so the list says who works on it after the audit.
@@ -747,12 +791,16 @@ Each code commit is its own commit and updates this file for its own landing.
 
 ## Resolved this session
 
-- **Item 2 of the preparation list — the pre-send token check** — lands with the
-  commit that writes this line: `docs/build/package_token_check.py`, 15 tests, its line
-  in `docs/audit_change_list.md` and its install line in `docs/build/README.md`. A
-  trial package fits (above).
-- **The push of `d5ced0c`** — filed above, once, as predicted.
-- **The once-per-session rewrite of this file.** The previous version, as at `d5ced0c`,
+- **Item 7 of the preparation list — points 3–5 of the 15 September PDF traced.** 3
+  and 4 are live and on the list for after the audit; 5 is not live (DECISIONS, "the
+  test bugs").
+- **Item 6 — the list for after the audit checked against what ships.** Four usable;
+  every other entry recorded with its reason and, for each one given away, the line.
+  Viktor checked the classification and ruled that four is enough. Committed before
+  the send, as point 4 of "six questions before the send" requires; checked again at
+  the send (Open items).
+- **The push of `59b747a`** — filed above, once; no deviation reported.
+- **The once-per-session rewrite of this file.** The previous version, as at `59b747a`,
   is in HISTORY verbatim, headings demoted one level, proven by un-demotion with a
   negative control (this commit's message has the result).
 
@@ -768,8 +816,11 @@ Claude critiques it.
   G: (HISTORY, 26 September, ninth session). Not urgent.
 - **The independent audit — the preparation list, before the send** (DECISIONS, the
   three rulings of 29 September). The list is kept in Viktor's roadmap document, Phase
-  4. Item 2 is done; item 1's page check is done and its API query waits for the send;
-  nothing else is started. When he says so, in this order unless he changes it:
+  4. Items 2, 6 and 7 are done; item 1's page check is done and its API query waits
+  for the send; nothing else is started. The order changed on 29 September — Claude's
+  under the delegation, Viktor agreeing: 7 before 6, since 7 can add entries 6
+  classifies, and 3 and 4 as one commit, since both rewrite `send_audit_round.py`.
+  When he says so, in this order unless he changes it:
   1. Re-check Laguna S 2.1 on OpenRouter. Read from its model page on 29 September:
      1,048,576 tokens of context, Poolside the only provider, 131,072 output tokens,
      $0.09 / $0.18 per million input / output tokens. Still to do at the send: the live
@@ -780,16 +831,16 @@ Claude critiques it.
      each pinned by SHA-256; `pip install tokenizers==0.23.2`, per
      `docs/build/README.md`). It refuses nothing on its own until item 3 wires it into
      the send.
-  3. Move `docs/build/build_audit_package.py` and `docs/build/send_audit_round.py` from
-     round 6 to this round: the output folder, the model, the provider, the prices, the
-     output reserve. Round 6's folder stays untouched. **With it, wire the token check
-     into `--send`** (Claude's choice of 29 September under the delegation: the check
-     was built on its own first so that each script changes in one commit): the send
-     counts its own payload, passes its own `max_tokens` as the reserve, and stops before
-     any network call when it does not fit — so "refuses the send" holds without a
-     second command to remember. Also check whether OpenRouter can compress or cut a
-     long prompt on its own (its `transforms` option) and pin that off in the request if
-     the API allows — not checked yet.
+  3. **Lands with item 4, as one commit.** Move `docs/build/build_audit_package.py` and
+     `docs/build/send_audit_round.py` from round 6 to this round: the output folder, the
+     model, the provider, the prices, the output reserve. Round 6's folder stays
+     untouched. **With it, wire the token check into `--send`** (Claude's choice of 29
+     September under the delegation: the check was built on its own first so that each
+     script changes in one commit): the send counts its own payload, passes its own
+     `max_tokens` as the reserve, and stops before any network call when it does not fit
+     — so "refuses the send" holds without a second command to remember. Also check
+     whether OpenRouter can compress or cut a long prompt on its own (its `transforms`
+     option) and pin that off in the request if the API allows — not checked yet.
   4. Change `send_audit_round.py` to send two messages, Part 7 only after Parts 1–6 are
      saved. Today `build_request_body` puts the whole payload in one user message
      (read from the code at `ec4e5fd`), and its own comment calls the Part 7 file's
@@ -801,18 +852,21 @@ Claude critiques it.
      which bounds reasoning and answer together.
   5. Cut the commit messages to those since `e65a0f7` (82 commits, counted with
      `git rev-list` at `ec4e5fd`).
-  6. Check each item on the list for after the audit against the code comments,
-     docstrings and test names that ship; record each one ruled out with the line that
-     gives it away; commit the usable set with its classification before the send. The
-     scoring rule is ruled (DECISIONS, "six questions before the send", point 4); two
-     are out already (the 30.0 boundary and point 1).
-  7. Trace points 3–5 of the 15 September PDF in the code; move any still live onto the
-     list for after the audit (point 1 was moved at `e7a94d1`).
+  6. **Done** at the commit that writes this line: each entry of the list for after
+     the audit checked against the code comments, docstrings and test names that
+     ship — four usable, every other entry recorded with its reason and, for each one
+     given away, the line (DECISIONS, "Ruling, 29 September 2026 — the test bugs: four
+     usable, and four is enough"). **Check it again at the send**, against the package
+     as built (item 3) and rev 8 (item 9), and commit any change before the send.
+  7. **Done** at the commit that writes this line: points 3 and 4 of the 15 September
+     PDF are live and on the list for after the audit; point 5 is not live (the same
+     DECISIONS entry).
   8. Reissue the roster outside the repository with the Nemotron correction.
   9. Write the instruction for this round, rev 8: with the ruled behaviour as plain
      requirements and the files changed since `e65a0f7` (point 2), and without saying
      that the ratings open backtesting (point 5). **Viktor approves it** before the
-     send.
+     send. No requirement line may name any of the four test bugs; "a NEUTRAL bias
+     prints no plan" points the auditor at NEUTRAL panels, where the third is.
   10. A cost estimate before the send, from the token check's counts rather than a
       character count. At the send: tag the commit the package is
       built from, confirm the package's file hashes match it, and land no commit
@@ -865,8 +919,8 @@ Claude critiques it.
   folder, so `Phase7_Audit_Findings_Complete.pdf` could be rebuilt. A tooling change;
   not done.
 - **Claude's — README.md's "Independent audit" and "Backtesting" rows are stale**
-  (seen 29 September; not changed by the commit that writes this line, which touched
-  only README's test counts). The first still says the next round is paused until work
+  (seen 29 September; not changed since — `59b747a` touched only README's test
+  counts). The first still says the next round is paused until work
   order G and the six findings are done, which happened at `7d0024e`; the second
   predates the ruling of 29 September on what opens backtesting. Both are written in
   Viktor's voice, so the new wording goes to him before it lands.

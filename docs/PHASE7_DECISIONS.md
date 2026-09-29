@@ -2162,6 +2162,119 @@ parameters, 8B active per token. Poolside's long-context claims are about agenti
 runs, not about reading ~500K tokens of someone else's code, which is why the test-bug
 rule matters.
 
+## Ruling, 29 September 2026 — the test bugs: four usable, and four is enough
+
+*New in this file on 29 September 2026, filed with the twenty-fifth session's commit.
+The classification below is Claude's, by point 4 of "six questions before the send"
+(Claude scores, Viktor checks); Viktor checked it in chat ("I agree"). That four is
+enough is Viktor's ruling: Claude put three options to him — four is enough; reopen
+"plant nothing"; leave it open until the send — with no recommendation, and he chose
+the first. He gave no written reasoning.*
+
+**How it came about.** Items 7 and 6 of the preparation list (PHASE7_NEXT.md, Open
+items), done in that order. Claude suggested them before the send scripts (items 3–5)
+because they were the only items left whose result could reopen a ruling: "no planted
+bugs" rests on the list for after the audit being the test. 7 came first because it
+can add entries that 6 classifies. The order is Claude's under the delegation of
+21 September; Viktor agreed ("Go.").
+
+**Item 7 — points 3–5 of the 15 September PDF, traced.** Read from the PDF itself
+(`Docs\02_Reviews_and_Feedback\Questions_on_Engine_Output_2026-09-15.pdf` in
+`G:\Phase_7_Engine_Random_Files`, staged on 29 September) and from the code at
+`59b747a`.
+
+- *Point 3: "Boosting confidence by +10.55 points purely based on BTC correlation adds
+  a major layer of complexity that has no baseline justification."* **Live.**
+  `DecisionModel._compute_btc_adjusted` (`models/decision_model.py`) still moves a
+  second confidence figure by up to ±20 points (`BTC_ADJUSTMENT_CAP`) and by −15 under
+  broad market stress (`BTC_STRESS_PENALTY`); nothing in it has changed since the PDF.
+  It decides nothing: `btc_adjusted_confidence` is read only by the router's merge
+  into the record (`models/signal_router.py`, `_merge_btc_context`), the decision
+  contract and the panel. Moved onto the list for after the audit.
+- *Point 4: "The confluence multiplier applies a penalty (macro x0.90), but is a 10%
+  reduction sufficient when trading directly against the macro trend?"* **Live.**
+  `models/entry_model.py:384–385` still multiplies the entry score by
+  `CONFLUENCE_PENALTY_MULT` (0.90) when macro opposes the trade, and no ruling has said
+  whether that is enough. Since work order G macro no longer vetoes the CONSERVATIVE
+  tier, so a trade against macro meets only this multiplier, the validation score's
+  −20 and macro's 10% inside `bias_score` — the three places Work order G (above) read,
+  unconfirmed with Viktor, as the 22 September ruling's "three penalties" item. Moved
+  onto the list for after the audit.
+- *Point 5: "VALIDATION : WEAK (Score: 5.00). What is this score out of?"* **Not
+  live.** The panel has printed "/100" since `a9d4b1f` (20 September), through the one
+  function every score line uses since work order B (`a530006`, 21 September). The
+  PDF's second clause, a weak validation beside an 88.32 trend strength as "an internal
+  conflict", is the design: since `101bb05` (30 August, sequence item 11) validation
+  starts at 50 and moves only on macro and volume, never on trend health
+  (`core/engine_core.py`, the VALIDATION block). The 5.00 was 50 − 20 (macro
+  disagreeing) − 25 (volume divergence), which is the PDF's own panel.
+
+**Item 6 — each entry checked against what ships.** What ships in Parts 1–6 is taken
+from round 6's builder (`docs/build/build_audit_package.py` at `59b747a`): every `.py`
+file outside `docs/`, five project files, the instruction, the Constitution's text,
+the manifest, the history without commit messages, and the execution transcripts.
+The shipped `.py` files were searched for each entry and for the phrases that mark a
+deferred issue ("after the audit", "not fixed", "recorded, not changed", "open
+question"); every line cited below was read at `59b747a`.
+
+- *Not counted — new trading rules* (point 4's own list): entering at the EMA band; a
+  side holding for N closed candles; renaming CONFIRMED; the 3% floor on T1; the range
+  mode.
+- *Not counted — not a defect:* point 4 of the PDF, which asks how large a weight
+  should be — the class of question the 22 September ruling put after the audit. It
+  would be out anyway: `models/decision_model.py:692` names the confluence multiplier
+  among "the weighting questions ruled for after the independent audit".
+- *Out — given away by a shipped line:*
+  - checking the candles for bad data — `indicators/indicators.py:126`, "Checking the
+    CANDLES for bad data is a different question and is on the list for after the
+    audit";
+  - nothing gates on HVN proximity — `models/entry_model.py:507–513` ("no gate checks
+    HVN proximity … vetoes nothing. On the list for after the audit") and
+    `tests/test_stop_is_atr_only.py:16`;
+  - the 30.0 boundary — `models/decision_model.py:72` (out since `e7a94d1`);
+  - point 1 of the PDF, confidence read as a win rate — `models/decision_model.py:899`,
+    `_compute_ev`'s docstring (out since `e7a94d1`);
+  - point 3 of the PDF, the BTC adjustment — `core/panel_render.py:676`, which prints
+    "computationally validated, empirically unvalidated — no backtest supports this
+    adjustment" under every BTC-adjusted confidence.
+- *Usable — four:*
+  1. **The risk gate runs before the bias checks** (`models/decision_model.py:551–553`,
+     before `:656–668`). No shipped line names it.
+     `tests/test_neutral_bias_prints_no_plan.py:272` asserts that a NEUTRAL grid gives
+     exactly WAIT and NO-TRADE (RISK TOO HIGH), without calling it a problem; an
+     auditor may read the behaviour as intended.
+  2. **`lineage.risk_inputs` leaves out `trend_health`**, which sets the stop through
+     `trend_factor` (`models/risk_model.py:335`). No shipped line names it; the ITEM 14
+     comment inside the `risk_inputs` literal (`core/engine_core.py`) and
+     `LineageBlock`'s docstring (`core/decision_contract.py:328–330`) say the
+     opposite. It bears on Item 6, Traceability.
+  3. **Under a NEUTRAL bias the entry score is measured for a side nothing chose**
+     (`core/engine_core.py:1009`). No shipped line names it. Borderline: the same fault
+     in the plan is described at `core/panel_render.py:357–370` (finding 5) — a
+     pointer, not a naming, under point 4's rule.
+  4. **The weak-validation WAIT decides nothing** (`models/decision_model.py:656–660`).
+     No shipped line names it.
+
+**What it means.** With four usable, a run that finds none or one is run again; two
+or more is a pass (point 4: fewer than half means a rerun).
+
+**What it weakens.** Three of the four change no trade — the risk gate's order changes
+what the panel says, and the entry score and the WAIT decide nothing — so a careful
+auditor may leave them out as cosmetic, and a miss is weak evidence that it cannot
+see. The fourth is a gap in the record, on one of the four items that open
+backtesting. Viktor accepted that by choosing "four is enough"; "no planted bugs"
+stands.
+
+**What it answers.** "Points 3–5 are not yet traced", in "what the auditor sees, and
+no planted bugs" (above).
+
+**Still to do before the send** (Claude's). The classification is checked again
+against the package as actually built (item 3 moves the builder to this round) and
+against rev 8 of the instruction (item 9). No requirement line in rev 8 may name any
+of the four; "a NEUTRAL bias prints no plan" points the auditor at NEUTRAL panels,
+where the third is. Any change is committed before the send, with the line that
+causes it.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then
