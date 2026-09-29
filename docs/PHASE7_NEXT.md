@@ -1,10 +1,9 @@
 # Next step — read this first
 
-*29 September 2026. Rewritten by the twenty-third session's first commit, `e7a94d1`,
-which filed the rulings of 29 September on the independent audit and on what opens
-backtesting, and the push of `ec4e5fd`; the version it replaced — as it stood at
-`ec4e5fd` — is in HISTORY verbatim. Updated by the same session's second commit, which
-files six more rulings of the same day and the push of `e7a94d1`.
+*29 September 2026. Rewritten by the twenty-fourth session's first commit, which adds
+the pre-send token check (item 2 of the preparation list for the independent audit) and
+files the push of `d5ced0c`; the version it replaced — as it stood at `d5ced0c` — is in
+HISTORY verbatim.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
 rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
@@ -35,8 +34,10 @@ The auditor is Laguna S 2.1, pinned to Poolside, with the full package in one se
 what it sees, the test of the auditor and what opens backtesting are ruled too
 (DECISIONS, the three rulings of 29 September), and so are the six smaller questions
 left before the send (DECISIONS, "Ruling, 29 September 2026 — six questions before the
-send"). Anything found in the meantime goes on the list for after the audit (below),
-not onto the closed list.
+send"). **Item 2 of the preparation list, the pre-send token check, lands with the
+commit that writes this line**; measured with Laguna's own tokenizer, a trial package
+fits with room for both replies (the twenty-fourth session, below). Anything found in
+the meantime goes on the list for after the audit (below), not onto the closed list.
 
 **Since 28–29 September the project has a finish line** — DECISIONS, "Ruling,
 28 September 2026 — what "finished" means, and how the engine is judged". In short: a
@@ -73,10 +74,6 @@ built and tested and a known-good checkpoint. Claude's second point of 21 Septem
 the rule exists only as text — is answered inside it: the entry-point guard is built
 with the first backtest code.
 
-**The twenty-first session (29 September)**, under Claude Opus 5.5, regenerated the
-Engineering Notes through Entry #183 (v1.36) and landed them at `ec4e5fd` (docs only).
-Its account is in HISTORY, in this file's previous version.
-
 **The twenty-second session (29 September)** started preparing the independent audit
 and landed no commit. Viktor asked for a preparation list; Claude drafted it at
 `ec4e5fd` in his roadmap document ("Phase 7 roadmap to the independent audit", Claude
@@ -87,7 +84,7 @@ OpenRouter serves Nemotron 3 Super at 262K, not the roster's 1M; the full packag
 about 700K tokens by character count, not ~400K+; `send_audit_round.py` sends one
 message; and point 1 of the 15 September PDF is still live in the code.
 
-**This session (the twenty-third, 29 September)**, under Claude Opus 5.5, opened on
+**The twenty-third session (29 September)**, under Claude Opus 5.5, opened on
 "Continue Phase 7 — file the 29 September rulings". Claude read `master` and
 `origin/master` off Viktor's disk and GitHub's tip with `git ls-remote`: all `ec4e5fd`.
 Its first commit, `e7a94d1`, filed the three rulings in DECISIONS from the roadmap
@@ -96,9 +93,32 @@ moved point 1 of the 15 September PDF onto the list for after the audit, as the 
 on what the auditor sees requires. Claude then brought the roadmap document current.
 Viktor asked whether every question before the audit had been answered; Claude listed
 six still open, and he ruled all six the same evening — four by agreeing to Claude's
-suggestion, two by his own answers. The commit that writes this line files them. Claude
-also read Laguna S 2.1's listing on OpenRouter and Poolside's release post (in that
-ruling). No code changed.
+suggestion, two by his own answers. `d5ced0c` filed them. Claude also read Laguna S
+2.1's listing on OpenRouter and Poolside's release post (in that ruling). No code
+changed. Its account is in HISTORY, in this file's previous version.
+
+**This session (the twenty-fourth, 29 September)**, under Claude Opus 5.5, opened on
+"Continue Phase 7". Claude read the tip from GitHub (a clone) and, later, `master` and
+`origin/master` off Viktor's disk: all `d5ced0c`. Asked what it suggested, Claude
+proposed item 2 of the preparation list, the pre-send token check, as the one item
+whose result could change the rest of the list; Viktor agreed ("Alright let's go"). The
+order is Claude's under the delegation of 21 September; the check itself Viktor ruled
+on 26 September. Viktor downloaded Laguna S 2.1's tokenizer files from Poolside's
+Hugging Face repository at revision `e80da38` into
+`G:\Phase_7_Engine_Random_Files\Docs\04_Data\Laguna-S-2.1_tokenizer_e80da38\`;
+Claude staged them, pinned their SHA-256 in the tool, and wrote the tool and its tests.
+**Measured with that tokenizer** in the sandbox (Linux, an autocrlf clone at
+`d5ced0c`), a trial package — round 6's builder run at `d5ced0c`, rev 7 of the
+instruction standing in for rev 8, and Part 7 as the commit messages since `e65a0f7`
+only (84 commits) — needs 442,342 tokens for the first request and 571,677 for the
+second (reply 1 left empty), and 833,821 at the worst case with both replies at the
+full 131,072: **it fits, with 214,755 tokens to spare (20.5% of the context).** Its
+content alone is 571,624 tokens, about 11% more than the estimate of about 515K made at
+`ec4e5fd` from four characters a token; the text runs 3.5–3.8 characters a token. The
+same package as one message, with every commit message, would need 904,590 and fit with
+143,986 to spare. These are numbers about a trial package, not the one that will be
+sent: rev 8 and the rest of Part 7 are not written yet, and the check runs again on the
+real payload at the send.
 
 ## Ruled — in force
 
@@ -234,9 +254,10 @@ ruling). No code changed.
 ## Where things stand, right now
 
 - **Tip:** the commit that writes this line (a commit cannot name its own hash) —
-  docs only: six more rulings of 29 September filed. Before it: `e7a94d1` (the
-  twenty-third session's first commit: the rulings of 29 September on the audit and on
-  what opens backtesting), `ec4e5fd` (the twenty-first
+  tooling and tests, no engine code: the pre-send token check. Before it: `d5ced0c`
+  (the twenty-third session's second commit: six rulings before the send), `e7a94d1`
+  (the twenty-third session's first commit: the rulings of 29 September on the audit
+  and on what opens backtesting), `ec4e5fd` (the twenty-first
   session's commit: the Engineering Notes regenerated at v1.36), `68c6191` (the
   twentieth session's commit: the ruling on Fable 5.1 and the corrected list of Aider
   models), `22cb39b` (the nineteenth session's commit: the ruling of 28 September),
@@ -262,22 +283,23 @@ ruling). No code changed.
   to `E:\phase7_engine`". Run the engine and every command from `E:\phase7_engine` (in
   cmd, changing drive needs `cd /d`). A dated record that names the D: paths means the
   same folders before the move; dated records are not edited.
-- **The push of `ec4e5fd`** happened: on 29 September Claude read `master` and
+- **The push of `d5ced0c`** happened: on 29 September Claude read `master` and
   `origin/master` off Viktor's disk (`.git/refs`, staged) and GitHub's tip with
-  `git ls-remote`: all three `ec4e5fd`. It went as predicted, so it is recorded here
-  once and **nothing is owed** (ruling on proposal (b)).
-- **The push of `e7a94d1`** happened: on 29 September Claude read `master` and
-  `origin/master` off Viktor's disk (`.git/refs`, staged) and GitHub's tip with
-  `git ls-remote`: all three `e7a94d1`, and the three files on GitHub have the content
-  Claude verified. It went as predicted, so **nothing is owed**. The same holds for the
-  push of the commit that writes this line unless it deviates.
+  `git ls-remote`: all three `d5ced0c`. It went as predicted, so it is recorded here
+  once and **nothing is owed** (ruling on proposal (b)). The same holds for the push of
+  the commit that writes this line unless it deviates. Earlier pushes are recorded in
+  this file's previous versions, in HISTORY.
 - **Before this commit**, every file it changes matched Viktor's disk on E: byte for
-  byte (both staged off his disk on 29 September and compared with the clone at
-  `e7a94d1`). It adds no file, and it does not change HISTORY: this file is updated in
-  place within one session, not moved.
+  byte (`README.md`, `docs/PHASE7_NEXT.md`, `docs/PHASE7_HISTORY.md`,
+  `docs/audit_change_list.md` and `docs/build/README.md`, staged off his disk on
+  29 September and compared with the clone at `d5ced0c`). The two files it adds,
+  `docs/build/package_token_check.py` and `tests/test_package_token_check.py`, were not
+  on his disk.
 - **code_hash:** `c6a44d4d7ab1c8d36f2a07f6f2c78a1967ecfc135259cbe828b3daa275e571c9`,
-  unmoved by the commit that writes this line: it changes no `.py` file. Computed on
-  the tree before and after it, under Python 3.12.3.
+  unmoved by the commit that writes this line: its two new `.py` files are under
+  `docs/` and `tests/`, which `core/code_fingerprint.py` excludes by directory, and it
+  changes no other `.py` file. Computed on the tree before and after it, under Python
+  3.12.3.
   It last moved at `7d0024e` (from `f4b23f94…`), in
   `models/decision_model.py` and `models/signal_router.py`, confirmed on Windows by
   Viktor's live run before that commit.
@@ -288,18 +310,20 @@ ruling). No code changed.
 - **Golden snapshot:** unmoved by the commit that writes this line. Last re-baselined
   at `7d0024e`, 2 fields (`explanation.reasons[0]` and `explanation.summary`, the
   CONSERVATIVE sentence), with `run_hash` unmoved; before that at `76c8cde`, 11 fields.
-- **Test suite** — unchanged by the commit that writes this line: **663 passed /
-  0 failed, no warnings line** with `pandas_ta`; **518 passed / 134 skipped** without
-  it; `run_tests.py` **592 passed / 0 failed / 32 errors**, all 32 fixture-collection
-  `TypeError`s. Linux sandbox, autocrlf clone, Python 3.12.3, pinned requirements, run
-  on the tree before the change and on the applied tree. **On Windows**, the counts at
-  `e7a94d1` are Viktor's confirmation by proceeding; this commit's command sequence
-  gives the same counts to stop on.
-- **Engineering Notes:** through Entry #183 (v1.36), which covers `68c6191`. **Three
+- **Test suite** — **678 passed / 0 failed, no warnings line** with `pandas_ta`;
+  **533 passed / 134 skipped** without it; `run_tests.py` **607 passed / 0 failed /
+  32 errors**, all 32 fixture-collection `TypeError`s. The commit that writes this line
+  adds the 15 tests of `tests/test_package_token_check.py`, none using a fixture and
+  none needing `pandas_ta` or `tokenizers`; before it, 663 / 518 + 134 / 592 + 32.
+  Linux sandbox, autocrlf clone, Python 3.12.3, pinned requirements, run on the tree
+  before the change and on the applied tree. **On Windows**, the counts at `d5ced0c`
+  are Viktor's confirmation by proceeding; this commit's command sequence gives the new
+  counts to stop on.
+- **Engineering Notes:** through Entry #183 (v1.36), which covers `68c6191`. **Four
   commits behind** — `ec4e5fd`, the floor (a commit that regenerates the Notes cannot
-  cover itself, Entry #144), `e7a94d1` and the commit that writes this line. Every later
-  commit adds one until the next regeneration. Batched, by the 15 September rule; no time
-  pressure. v1.36 records the round-1 recovery, the rulings of 22
+  cover itself, Entry #144), `e7a94d1`, `d5ced0c` and the commit that writes this
+  line. Every later commit adds one until the next regeneration. Batched, by the
+  15 September rule; no time pressure. v1.36 records the round-1 recovery, the rulings of 22
   (filed 26), 26, 27, 28 and 29 September, the move to E:, the code for findings 16, 7,
   4, 6, 5 and 18, work order G and the Aider correction. Its PDF's extracted text
   differs from v1.35's only by the seventeen entries, the new Document History row and
@@ -309,8 +333,10 @@ ruling). No code changed.
   identical to the committed PDF. Neither changes in the commit that writes this line;
   the Attribution Statement's script last changed at `68c6191`, the Portfolio
   Document's at `6e1baba`.
-- **README.md:** unchanged by the commit that writes this line; it was last touched at
-  `68c6191`, so the hook's section 5 will report README.md 3 commits behind (expected).
+- **README.md:** its two test-count statements brought current by the commit that
+  writes this line (663 → 678, 518 → 533, 592 → 607); nothing else in it changes, and
+  the hook's section 5 will report 0 commits since it was touched. Two of its status
+  rows are stale and not changed here (Open items).
 - **The round-1 audit outputs are in the repository**, in
   `docs/audit_reports/round1_deepseek-v4-pro_kimi-k3_2026-08-27/`, byte-identical to the
   hashes Viktor took on 23 September. The account is in HISTORY, "26 September 2026 —
@@ -410,6 +436,14 @@ live run in the first 60 seconds after a 4h close (00:00, 04:00, 08:00, 12:00, 1
   document's Phase 4 list. Claude's notes between sessions lagged that list on one
   ruling (what the auditor sees, noted as open, was ruled). File from the written
   record, and say which record.
+- **29 September (twenty-fourth session):** the sandbox cannot reach `huggingface.co`
+  or `openrouter.ai` either (the proxy refuses both), so the tokenizer files came off
+  Viktor's disk, staged from G:, and the live models API query stays with him. The
+  token check runs in a third virtualenv — Python 3.12 with `tokenizers==0.23.2`, which
+  pulls in `huggingface_hub` — kept apart from the two test virtualenvs, whose counts
+  assume the pinned requirements only. Laguna's chat template uses a `{% generation %}`
+  tag that plain `jinja2` cannot parse; to render it in the sandbox, register a small
+  extension that parses the tag as a pass-through.
 
 ## Review findings, 21 September 2026
 
@@ -713,23 +747,14 @@ Each code commit is its own commit and updates this file for its own landing.
 
 ## Resolved this session
 
-- **The rulings of 29 September filed** in DECISIONS at `e7a94d1` — three entries:
-  the audit (now, Laguna S 2.1, the full package in one session); what the auditor
-  sees, and no planted bugs; what opens backtesting.
-- **The push of `ec4e5fd`** — filed above, once, as predicted.
-- **Point 1 of the 15 September PDF** moved onto the list for after the audit, as the
-  ruling on what the auditor sees requires.
-- **The roadmap document brought current** (outside the repository): the filing item
-  marked done, the three open rows of its Decisions table ruled, "Where we are" and
-  "What I need" updated.
-- **Six questions before the send** — ruled the same evening and filed by the commit
-  that writes this line.
-- **The push of `e7a94d1`** — filed above, once, as predicted.
-- **Claude's point (2) of 21 September** — answered by the ruling on what opens
-  backtesting, and taken off Open items.
-- **The once-per-session rewrite of this file.** The previous version, as at `ec4e5fd`,
+- **Item 2 of the preparation list — the pre-send token check** — lands with the
+  commit that writes this line: `docs/build/package_token_check.py`, 15 tests, its line
+  in `docs/audit_change_list.md` and its install line in `docs/build/README.md`. A
+  trial package fits (above).
+- **The push of `d5ced0c`** — filed above, once, as predicted.
+- **The once-per-session rewrite of this file.** The previous version, as at `d5ced0c`,
   is in HISTORY verbatim, headings demoted one level, proven by un-demotion with a
-  negative control (`e7a94d1`'s commit message has the result).
+  negative control (this commit's message has the result).
 
 ## Open items
 
@@ -743,24 +768,37 @@ Claude critiques it.
   G: (HISTORY, 26 September, ninth session). Not urgent.
 - **The independent audit — the preparation list, before the send** (DECISIONS, the
   three rulings of 29 September). The list is kept in Viktor's roadmap document, Phase
-  4. Nothing on it is started except the page check in item 1. When he says so, in
-  this order unless he changes it:
+  4. Item 2 is done; item 1's page check is done and its API query waits for the send;
+  nothing else is started. When he says so, in this order unless he changes it:
   1. Re-check Laguna S 2.1 on OpenRouter. Read from its model page on 29 September:
      1,048,576 tokens of context, Poolside the only provider, 131,072 output tokens,
      $0.09 / $0.18 per million input / output tokens. Still to do at the send: the live
      models API query, as round 6's send script did.
-  2. The pre-send token check (ruled 26 September), pinned to Laguna's tokenizer. It
-     goes under `docs/`, which `core/code_fingerprint.py` excludes by directory, so it
-     cannot move `code_hash`; it takes a line in `docs/audit_change_list.md`.
+  2. **Done** at the commit that writes this line: `docs/build/package_token_check.py`,
+     pinned to Laguna's tokenizer at Poolside's revision `e80da38` (the files in
+     `G:\Phase_7_Engine_Random_Files\Docs\04_Data\Laguna-S-2.1_tokenizer_e80da38\`,
+     each pinned by SHA-256; `pip install tokenizers==0.23.2`, per
+     `docs/build/README.md`). It refuses nothing on its own until item 3 wires it into
+     the send.
   3. Move `docs/build/build_audit_package.py` and `docs/build/send_audit_round.py` from
      round 6 to this round: the output folder, the model, the provider, the prices, the
-     output reserve. Round 6's folder stays untouched.
+     output reserve. Round 6's folder stays untouched. **With it, wire the token check
+     into `--send`** (Claude's choice of 29 September under the delegation: the check
+     was built on its own first so that each script changes in one commit): the send
+     counts its own payload, passes its own `max_tokens` as the reserve, and stops before
+     any network call when it does not fit — so "refuses the send" holds without a
+     second command to remember. Also check whether OpenRouter can compress or cut a
+     long prompt on its own (its `transforms` option) and pin that off in the request if
+     the API allows — not checked yet.
   4. Change `send_audit_round.py` to send two messages, Part 7 only after Parts 1–6 are
      saved. Today `build_request_body` puts the whole payload in one user message
      (read from the code at `ec4e5fd`), and its own comment calls the Part 7 file's
      header "a reading discipline", not a withholding mechanism. **A correction is
      owed with it:** in rounds 5 and 6 the Part 7 commit messages were in the same
      message as Parts 1–6 — not yet checked against those rounds' saved requests.
+     Whether the second request carries reply 1's reasoning or only its answer is decided
+     here; the token check holds either way, since it counts reply 1 at the full reserve,
+     which bounds reasoning and answer together.
   5. Cut the commit messages to those since `e65a0f7` (82 commits, counted with
      `git rev-list` at `ec4e5fd`).
   6. Check each item on the list for after the audit against the code comments,
@@ -775,13 +813,16 @@ Claude critiques it.
      requirements and the files changed since `e65a0f7` (point 2), and without saying
      that the ratings open backtesting (point 5). **Viktor approves it** before the
      send.
-  10. A cost estimate before the send. At the send: tag the commit the package is
+  10. A cost estimate before the send, from the token check's counts rather than a
+      character count. At the send: tag the commit the package is
       built from, confirm the package's file hashes match it, and land no commit
       touching engine code or tests until the report is triaged (point 1). **Viktor
       runs the send**, and the auditor is entered in the independence ledger at that
       time.
   11. When the report and reasoning arrive: saved into `docs/audit_reports/`, hashed,
-      and committed the same day (round 1's outputs were lost once).
+      and committed the same day (round 1's outputs were lost once). Compare
+      `native_tokens_prompt` in `run_metadata.json` with the token check's count for the
+      same request: the provider's count is the test of the check's.
   12. Triage, and the same auditor verifies the fixes (the 14 September precedent).
 - **The model roster**, reissued 29 September as
   `Docs\Phase7_Model_Roster_2026-09-29.pdf` in `G:\Phase_7_Engine_Random_Files`: clean
@@ -823,6 +864,12 @@ Claude critiques it.
 - **Viktor's call — repointing `docs/build/build_findings_bundle.py`** at the round-1
   folder, so `Phase7_Audit_Findings_Complete.pdf` could be rebuilt. A tooling change;
   not done.
+- **Claude's — README.md's "Independent audit" and "Backtesting" rows are stale**
+  (seen 29 September; not changed by the commit that writes this line, which touched
+  only README's test counts). The first still says the next round is paused until work
+  order G and the six findings are done, which happened at `7d0024e`; the second
+  predates the ruling of 29 September on what opens backtesting. Both are written in
+  Viktor's voice, so the new wording goes to him before it lands.
 - **Claude's — the running change list for the audit:** `docs/audit_change_list.md`,
   from the baseline `e65a0f7` (the tree round 6's fix-verification was sent). **Every
   later commit that changes engine code, tests or tooling adds its line there in the

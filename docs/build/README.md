@@ -58,6 +58,26 @@ paragraph said no copy of the round-1 outputs had been found (searched 20 Septem
 `docs/PHASE7_HISTORY.md`, "20 September 2026 — correction: the round-1 audit outputs were
 lost", and "26 September 2026 — correction: the round-1 audit outputs were recovered").
 
+## The pre-send token check
+
+`package_token_check.py` builds no document. It measures an audit package with the
+auditor's own tokenizer and says whether it fits the model's context with room for the
+answer, and refuses when it does not (PHASE7_DECISIONS.md, "Ruling, 26 September 2026 —
+the pre-send token check is audit preparation, not an engine item"). It needs one
+package that is deliberately not in `requirements.txt`, for the same reason reportlab is
+not:
+
+```
+pip install tokenizers==0.23.2
+```
+
+The tokenizer files are the model maker's, not this project's, so they are kept outside
+the repository and passed with `--tokenizer-dir`. The script pins each file by SHA-256
+and refuses a folder whose files differ. For Laguna S 2.1 they were downloaded from
+Poolside's Hugging Face repository at revision `e80da38` into
+`G:\Phase_7_Engine_Random_Files\Docs\04_Data\Laguna-S-2.1_tokenizer_e80da38\` on
+29 September 2026. Its own docstring says what it counts and what it cannot know.
+
 ## House style
 
 All scripts share the same visual system, and changes to one should be mirrored rather
