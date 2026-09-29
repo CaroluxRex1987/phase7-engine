@@ -1907,6 +1907,169 @@ commit message.
 **What it weakens.** The early warning is given up: a serious defect Fable might have
 found before the audit is left for the auditor, or for Fable afterwards.
 
+## Ruling, 29 September 2026 — the independent audit: now, by Laguna S 2.1, the full package in one session
+
+*New in this file on 29 September 2026, filed with the twenty-third session's commit.
+Ruled in chat in the twenty-second session, the same day, which landed no commit. This
+entry and the two after it are filed from the record that session kept as it ruled —
+the Phase 4 list of Viktor's roadmap document ("Phase 7 roadmap to the independent
+audit", Claude Docs, outside the repository) — not from the chat, which the filing
+session could not read. That record paraphrases Viktor, so nothing here quotes him.*
+
+**What was ruled.** Two points, both by agreeing to Claude's suggestion — not by Viktor
+writing his position first.
+
+1. **Audit now.** The preparation starts now, and the package is sent when the
+   preparation list is done (PHASE7_NEXT.md, Open items), at Viktor's pace. Claude's
+   reasons, written in PHASE7_NEXT.md before the ruling: waiting does not save a lab;
+   later re-audits of what changed can be scoped and go to the scoped-only labs; and
+   fix-verification by the same auditor spends none (ruling of 14 September).
+2. **The auditor is Laguna S 2.1, pinned to Poolside, and it is sent the full package
+   in one session.** The package is not split. NVIDIA is kept for a smaller, scoped
+   round later. Viktor had raised splitting the package in two so that an NVIDIA model
+   could take it; he chose this after Claude's critique of the split. The critique's
+   reasons are not in the record this entry is filed from, and are not reconstructed
+   here.
+
+**Nemotron 3 Super withdrawn — a correction.** Claude had recommended Nemotron 3 Super
+(NVIDIA) first and Laguna S 2.1 second (PHASE7_NEXT.md at `ec4e5fd`, Open items), on the
+model roster's figure of a 1M context. In the twenty-second session it was found that
+OpenRouter serves Nemotron 3 Super at 262K, which cannot hold the package, and the
+recommendation was withdrawn. The roster's model facts had not been checked since
+22 September. The roster, outside the repository, is to be reissued with the correction
+(PHASE7_NEXT.md, Open items). Whether NVIDIA's part in Mistral NeMo counts against
+NVIDIA is moot for this round.
+
+**What it rests on.** The package, with room for the answer, has to fit Laguna S 2.1's
+context in one session. Measured on 29 September at `ec4e5fd` by character count, at
+about four characters a token — not with Laguna's tokenizer — the full package is about
+700K tokens: engine source ~150K, tests ~205K, the full commit messages ~300K, the
+Constitution, the instruction and the history ~50K. That is not the ~400K+ this project
+has used as the package's size until now. With the commit messages cut to those since
+`e65a0f7` (the next ruling), the same estimate gives about 515K. Laguna S 2.1's 1M
+context is the roster's figure, checked on 22 September and not since. The pre-send
+token check (ruling of 26 September) is what confirms the fit before the send. No
+fallback has been ruled for a package that does not fit.
+
+**What it weakens.** It spends Poolside. After this round the roster's labs still clean
+for a full round are NVIDIA, whose 262K cannot take the full package in one session, and
+Amazon (Nova 2 Pro, a preview release).
+
+## Ruling, 29 September 2026 — what the auditor sees, and no planted bugs
+
+*Filed with the same commit, from the same record, as the entry above.*
+
+**What was ruled.** Two points, both by agreeing to Claude's suggestion.
+
+1. **The package goes in two messages.** The first carries Parts 1–6: the code, the
+   tests, the Constitution, the instruction, the manifest, the version-control history
+   as metadata only (no commit messages), and the execution transcripts. The second
+   carries the Part 7 material, and is sent only after the auditor has saved Parts 1–6:
+   the `bias_score` findings, the list for after the audit, any point of the
+   15 September PDF still live in the code (moved back onto that list), and the commit
+   messages since `e65a0f7` only — 82 commits, about 110K tokens instead of about 300K.
+   The rest of the 20 September list is not shown.
+2. **Nothing is planted.** The list for after the audit, held back until Part 7, is the
+   test of the auditor: the real, dated defects Claude found and put on it, which the
+   auditor is not told of while it writes Parts 1–6.
+
+**The precedent.** It is the method ruled on 3 September (HISTORY, "Round 2, attempt
+three — and what an unfinished audit found, 3 September 2026", "Rulings made
+3 September 2026"): the auditor grades blind, saves Parts 1–6, and only then sees what
+it is measured against. The alternative put to Viktor — bugs planted in a copy — would
+measure whether the auditor finds a shape he chooses, at three costs: the package would
+no longer be the repository's tree its SHA-256 manifest claims; the instruction would
+have to say planted bugs may exist; and with about five seeds the result is rough
+(three found of five fits anything from about 15% to 95%, the exact binomial interval).
+
+**What it answers.** The question open since 20 September — whether the auditor is
+shown the scrapped findings — is closed. The `bias_score` findings, which the ruling of
+22 September said the auditor is shown, come in Part 7, so the auditor grades the
+engine before it sees them. The rest of the 20 September list is not shown, including
+the thesis half of its item (1), which the 22 September ruling left open.
+
+**Moved back onto the list for after the audit by this ruling:** point 1 of the
+15 September PDF. `models/decision_model.py:910` (at `ec4e5fd`) still turns the
+confidence score into an assumed win rate, and the EV figure in R is computed from it.
+Read from the code on 29 September. Points 3–5 are not yet traced (PHASE7_NEXT.md, Open
+items).
+
+**What still has to be done for it** (Claude's, before the send; PHASE7_NEXT.md, Open
+items). `docs/build/send_audit_round.py` sends one message today, so it must be changed
+to send two. Each item on the list for after the audit is checked against the code
+comments and commit messages that ship with the package; an item they give away is
+dropped; the usable set and the rule for scoring it are committed before the send.
+
+**What it weakens.** The test is rough. The list holds about seven such defects, and
+some are named in commit messages or code comments that ship with the package, so fewer
+will be usable once the check above is done. Point 1 is one: its own docstring and a
+20 September comment say what the figure is. And the Part 7 pass that compares plan
+with execution sees 82 commit messages, not all of them.
+
+## Ruling, 29 September 2026 — what opens backtesting
+
+*Filed with the same commit, from the same record, as the two entries above. Ruled by
+Viktor's position first: he wrote it, Claude critiqued it, and he agreed to the merged
+version.*
+
+**His position**, as the record gives it: backtesting can start when the engine is
+functional, the fixes and patches after the audit are done, and a safety harness
+exists, so that backtesting cannot break the engine.
+
+**What was ruled — the merged version.**
+
+*Backtesting may be built* once all four hold:
+
+1. Items 2, 3, 6 and 18 of the Constitution are rated Compliant by the independent
+   auditor, or each gap is fixed and the fix confirmed by the same auditor;
+2. no Critical or Major finding is open, and every other finding is ruled;
+3. every fix is confirmed by the same auditor;
+4. Viktor declares it in this file.
+
+*A backtest may be run* only once Goal B's harness — the write guard, the look-ahead
+check, `cut_checkpoint.py` and the entry-point guard — is built and tested, and the
+engine passes a known-good checkpoint.
+
+*If the auditor finds fewer than half of the usable test bugs* (the ruling above), it
+runs a second time before its Compliant ratings are trusted.
+
+*The list for after the audit is not a condition.*
+
+**The structural no-backtest guard.** Claude's point (2) of 21 September — the rule "no
+backtesting before re-audit" exists only as text — is answered inside this ruling: the
+entry-point guard is built with the first backtest code, as part of Goal B's harness,
+not now.
+
+**How the critique changed it** (compared by Claude at filing, from the two texts
+above). "Functional" became four named Constitution items, rated by the auditor. "The
+fixes done" became no Critical or Major finding open, every other finding ruled, and
+every fix confirmed by the auditor. "A safety harness" became four named parts and a
+known-good checkpoint, all already in Goal B (above, 15 September) except the
+entry-point guard. Added: building and running are separate gates; Viktor declares the
+first in this file; the auditor's ratings count only if it found at least half the test
+bugs; and the list for after the audit is named as not a condition.
+
+**What it settles.** The Constitution's backtest-start condition (Items 2, 3, 6, 18),
+which "still stands as written" and was never declared met (ruling of 20 September), now
+has a stated way to be met.
+
+**Not settled by the record** (named at filing, not ruled): which model and package the
+second run uses, if one is needed; and what counts as "usable" and as "found" — the
+scoring rule is committed before the send (the ruling above).
+
+**Claude's reading, not ruled.** Goal B's other preconditions — the 100-decision timing
+benchmark, the fix to `PHASE7_PINNED_DATA`'s silent live fallback, the time cursor with
+its negative control, the dataset build — stand as ratified on 15 September. This
+ruling adds gates and removes none.
+
+**What it weakens** (stated by Claude at filing; not in the record it is filed from).
+The list for after the audit holds rules that change which trades are taken: the 3%
+floor on T1, entering at the EMA band, a side that must hold for N closed candles.
+Since the list is not a condition, the backtest may run before any of them is decided.
+Under Goal B's re-run clause, the first out-of-sample evaluation is then the verdict of
+record for the engine without them, and adopting one afterwards is a new phase with its
+own pre-registration.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then
