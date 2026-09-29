@@ -2070,6 +2070,98 @@ Under Goal B's re-run clause, the first out-of-sample evaluation is then the ver
 record for the engine without them, and adopting one afterwards is a new phase with its
 own pre-registration.
 
+## Ruling, 29 September 2026 — six questions before the send
+
+*New in this file on 29 September 2026, filed with the twenty-third session's second
+commit. Ruled in chat the same session, the same evening. Points 1, 2, 4 and 5, and the
+details added to point 3, by agreeing to Claude's suggestion: Viktor asked for Claude's
+suggestion on each and agreed to all of them. Point 2 had been marked for his position
+first; he chose to ask for the suggestion instead. Points 3 and 6 are his own answers.*
+
+**How it came about.** Viktor asked whether every question needed before the audit had
+been answered, and whether everything had been done to make the audit as useful as
+possible. Claude's answer: the large questions were ruled earlier the same day (the
+three rulings above); six smaller ones were not; and none of the twelve items on the
+preparation list (PHASE7_NEXT.md, Open items) had started.
+
+1. **The code is frozen at a tag.** The commit the package is built from is tagged,
+   with a name that gives the round and the date of the send (for example
+   `round7-sent-<date>`). Until the report is in and triaged, no commit touches engine
+   code or tests; docs-only commits, such as recording the send or saving the report,
+   are allowed. Before the send, Claude confirms that the package's file hashes match
+   the tagged commit. Why: every line number and rating in the report then points at
+   one exact tree, and each fix afterwards is checked against the tag.
+2. **The auditor is given the intended behaviour, not the reasoning.** The instruction
+   for this round carries, in Parts 1–6, a short list of what the engine is required to
+   do — one plain line for each ruled behaviour, with no reasons and no history (for
+   example "decide on the last closed candle", "a NEUTRAL bias prints no plan", "the
+   stop comes from ATR alone") — and the list of files changed since `e65a0f7`, without
+   the reasons. DECISIONS and the reasoning stay out. The instruction also asks the
+   auditor to say where a requirement itself looks wrong, not only whether the code
+   meets it. Nothing from the list for after the audit enters the requirements, because
+   that list is the test. Why: the auditor can catch code that departs from a ruling,
+   and will not report ruled behaviour as a defect, without reading the arguments for
+   it. **What it weakens:** knowing the intent, the auditor may check the code against
+   it instead of questioning it; the last instruction line is there against that.
+   **How it fits the earlier rulings:** "what the auditor sees, and no planted bugs"
+   (above) put the instruction in Parts 1–6; this says what the instruction carries and
+   changes nothing else in that ruling. It meets the aim of the 21 September ruling —
+   the change list as the auditor's scope, and the engine judged against stated
+   intent — which the package as ruled earlier the same day did not carry. The code
+   comments already carry part of the intent.
+3. **The second pass is Laguna S 2.1 again, as many times as needed.** Viktor: "We run
+   it twice as you said, or three times for that matter, doesn't matter to me." Added
+   by agreeing to Claude's suggestion: each rerun is a fresh session that has not seen
+   Part 7; each run is scored on its own, and Compliant ratings count only from a run
+   that finds at least half the usable test bugs; if run after run stays under half,
+   the fault is the model's, and the next step is another auditor, not another run.
+4. **How the test bugs are scored.**
+   - *Which count:* only the defects on the list for after the audit. The new trading
+     rules on it — the 3% floor on T1, the range mode, entering at the EMA band, a side
+     holding for N closed candles, renaming CONFIRMED — are design choices, not bugs.
+   - *Usable:* still in the code as sent, and nothing in the package gives it away — a
+     code comment, docstring or test name that names the problem. Each one ruled out is
+     recorded with the line that gives it away. Two are out already, read from the code
+     at `e7a94d1`: the 30.0 boundary (a comment at `models/decision_model.py:72`) and
+     point 1 of the 15 September PDF (the docstring of `_compute_ev` says confidence
+     stands in for the win rate).
+   - *Found:* the auditor's saved Parts 1–6 name the same place (file and function) and
+     the same thing going wrong. The right file with the wrong problem does not count,
+     and nothing found after Part 7 counts.
+   - *Rerun:* a run that finds fewer than half the usable test bugs is run again (with
+     5 usable, 2 found means a rerun and 3 a pass).
+   - *Locked before the send:* the list, each item's classification and this rule are
+     committed before the send, so nothing can be adjusted after the report is read.
+     Claude scores; Viktor checks.
+
+   **What it weakens:** Claude wrote most of the code, chose the test bugs and scores
+   them. The commit before the send is what stops the scoring from moving afterwards;
+   Viktor's check is the rest.
+5. **The instruction does not say that the ratings open backtesting.** The auditor
+   should rate Items 2, 3, 6 and 18 the same way whatever follows from them. Knowing the
+   consequence adds pressure one way or the other and gives it nothing it needs. The
+   instruction says nothing untrue; it leaves the consequence out.
+6. **No fallback is decided in advance for a package that does not fit.** Viktor: "I
+   think it will run fine, if it doesn't we figure something out." If the token check
+   fails, the next step is decided then.
+
+**What it settles.** Both points the backtesting ruling (above) named as not settled by
+its record: which model runs the second time (point 3), and what counts as usable and
+as found (point 4). And the proposal to tag and freeze, open on the preparation list
+(point 1).
+
+**Checked the same day, for points 3 and 6** (read by Claude on 29 September).
+OpenRouter's model page lists Laguna S 2.1 with 1,048,576 tokens of context, Poolside as
+the only provider, up to 131,072 output tokens, and $0.09 / $0.18 per million input /
+output tokens — well under 1 USD for one send, so reruns cost nothing that matters. That
+is the page, not the live models API query round 6's send script used; the API query is
+still to do at the send. Poolside's release post (21 July 2026) says, in one of its case
+studies, that the model's knowledge cutoff is November 2025 — before this repository's
+first commit (24 August 2026), so it cannot have trained on it. The model is small: 118B
+parameters, 8B active per token. Poolside's long-context claims are about agentic coding
+runs, not about reading ~500K tokens of someone else's code, which is why the test-bug
+rule matters.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then

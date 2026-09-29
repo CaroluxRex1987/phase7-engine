@@ -1,8 +1,10 @@
 # Next step — read this first
 
-*29 September 2026. Rewritten by the commit that files the rulings of 29 September on
-the independent audit and on what opens backtesting, which also files the push of
-`ec4e5fd`; the version it replaces — as it stood at `ec4e5fd` — is in HISTORY verbatim.
+*29 September 2026. Rewritten by the twenty-third session's first commit, `e7a94d1`,
+which filed the rulings of 29 September on the independent audit and on what opens
+backtesting, and the push of `ec4e5fd`; the version it replaced — as it stood at
+`ec4e5fd` — is in HISTORY verbatim. Updated by the same session's second commit, which
+files six more rulings of the same day and the push of `e7a94d1`.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
 rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
@@ -31,8 +33,10 @@ is being prepared.** Viktor ruled on 29 September to audit now: the preparation 
 (Open items) is worked through, and the package is sent when it is done, at his pace.
 The auditor is Laguna S 2.1, pinned to Poolside, with the full package in one session;
 what it sees, the test of the auditor and what opens backtesting are ruled too
-(DECISIONS, the three rulings of 29 September). Anything found in the meantime goes on
-the list for after the audit (below), not onto the closed list.
+(DECISIONS, the three rulings of 29 September), and so are the six smaller questions
+left before the send (DECISIONS, "Ruling, 29 September 2026 — six questions before the
+send"). Anything found in the meantime goes on the list for after the audit (below),
+not onto the closed list.
 
 **Since 28–29 September the project has a finish line** — DECISIONS, "Ruling,
 28 September 2026 — what "finished" means, and how the engine is judged". In short: a
@@ -76,7 +80,8 @@ Its account is in HISTORY, in this file's previous version.
 **The twenty-second session (29 September)** started preparing the independent audit
 and landed no commit. Viktor asked for a preparation list; Claude drafted it at
 `ec4e5fd` in his roadmap document ("Phase 7 roadmap to the independent audit", Claude
-Docs, outside the repository), where it is still kept. Viktor ruled on it the same day: audit now; the auditor; what the auditor sees; no planted bugs; and
+Docs, outside the repository), where it is still kept. Viktor ruled on it the same day:
+audit now; the auditor; what the auditor sees; no planted bugs; and
 what opens backtesting, with the structural guard inside it. Found on the way:
 OpenRouter serves Nemotron 3 Super at 262K, not the roster's 1M; the full package is
 about 700K tokens by character count, not ~400K+; `send_audit_round.py` sends one
@@ -85,13 +90,29 @@ message; and point 1 of the 15 September PDF is still live in the code.
 **This session (the twenty-third, 29 September)**, under Claude Opus 5.5, opened on
 "Continue Phase 7 — file the 29 September rulings". Claude read `master` and
 `origin/master` off Viktor's disk and GitHub's tip with `git ls-remote`: all `ec4e5fd`.
-The commit that writes this line files the rulings in DECISIONS from the roadmap
+Its first commit, `e7a94d1`, filed the three rulings in DECISIONS from the roadmap
 document's Phase 4 list — not from the chat, which this session could not read — and
-moves point 1 of the 15 September PDF onto the list for after the audit, as the ruling
-on what the auditor sees requires. Nothing new was ruled, and no code changed.
+moved point 1 of the 15 September PDF onto the list for after the audit, as the ruling
+on what the auditor sees requires. Claude then brought the roadmap document current.
+Viktor asked whether every question before the audit had been answered; Claude listed
+six still open, and he ruled all six the same evening — four by agreeing to Claude's
+suggestion, two by his own answers. The commit that writes this line files them. Claude
+also read Laguna S 2.1's listing on OpenRouter and Poolside's release post (in that
+ruling). No code changed.
 
 ## Ruled — in force
 
+- **New, 29 September — six questions before the send** (DECISIONS, same title).
+  Points 1, 2, 4 and 5 by agreeing to Claude's suggestion; 3 and 6 Viktor's own
+  answers. (1) The package's commit is tagged and engine code and tests are frozen
+  until the report is triaged. (2) The instruction carries the ruled behaviour as plain
+  requirements and the files changed since `e65a0f7`, without reasons, and asks where a
+  requirement itself looks wrong. (3) The second pass is Laguna again, as often as
+  needed, each run a fresh session scored on its own. (4) How the test bugs are scored:
+  defects only, usable only if nothing shipped gives them away, found only with the same
+  place and the same fault in Parts 1–6, locked by a commit before the send. (5) The
+  instruction does not say the ratings open backtesting. (6) No fallback decided in
+  advance for a package that does not fit. No code.
 - **New, 29 September — the independent audit: now, by Laguna S 2.1, the full package
   in one session** (DECISIONS, same title). Both points by agreeing to Claude's
   suggestion. Not split; NVIDIA is kept for a smaller, scoped round later. Claude's
@@ -213,7 +234,9 @@ on what the auditor sees requires. Nothing new was ruled, and no code changed.
 ## Where things stand, right now
 
 - **Tip:** the commit that writes this line (a commit cannot name its own hash) —
-  docs only: the rulings of 29 September filed. Before it: `ec4e5fd` (the twenty-first
+  docs only: six more rulings of 29 September filed. Before it: `e7a94d1` (the
+  twenty-third session's first commit: the rulings of 29 September on the audit and on
+  what opens backtesting), `ec4e5fd` (the twenty-first
   session's commit: the Engineering Notes regenerated at v1.36), `68c6191` (the
   twentieth session's commit: the ruling on Fable 5.1 and the corrected list of Aider
   models), `22cb39b` (the nineteenth session's commit: the ruling of 28 September),
@@ -242,11 +265,16 @@ on what the auditor sees requires. Nothing new was ruled, and no code changed.
 - **The push of `ec4e5fd`** happened: on 29 September Claude read `master` and
   `origin/master` off Viktor's disk (`.git/refs`, staged) and GitHub's tip with
   `git ls-remote`: all three `ec4e5fd`. It went as predicted, so it is recorded here
-  once and **nothing is owed** (ruling on proposal (b)). The same holds for the push of
-  the commit that writes this line unless it deviates.
+  once and **nothing is owed** (ruling on proposal (b)).
+- **The push of `e7a94d1`** happened: on 29 September Claude read `master` and
+  `origin/master` off Viktor's disk (`.git/refs`, staged) and GitHub's tip with
+  `git ls-remote`: all three `e7a94d1`, and the three files on GitHub have the content
+  Claude verified. It went as predicted, so **nothing is owed**. The same holds for the
+  push of the commit that writes this line unless it deviates.
 - **Before this commit**, every file it changes matched Viktor's disk on E: byte for
-  byte (all three staged off his disk on 29 September and compared with the clone at
-  `ec4e5fd`). It adds no file.
+  byte (both staged off his disk on 29 September and compared with the clone at
+  `e7a94d1`). It adds no file, and it does not change HISTORY: this file is updated in
+  place within one session, not moved.
 - **code_hash:** `c6a44d4d7ab1c8d36f2a07f6f2c78a1967ecfc135259cbe828b3daa275e571c9`,
   unmoved by the commit that writes this line: it changes no `.py` file. Computed on
   the tree before and after it, under Python 3.12.3.
@@ -265,12 +293,12 @@ on what the auditor sees requires. Nothing new was ruled, and no code changed.
   it; `run_tests.py` **592 passed / 0 failed / 32 errors**, all 32 fixture-collection
   `TypeError`s. Linux sandbox, autocrlf clone, Python 3.12.3, pinned requirements, run
   on the tree before the change and on the applied tree. **On Windows**, the counts at
-  `ec4e5fd` are Viktor's confirmation by proceeding; this commit's command sequence
+  `e7a94d1` are Viktor's confirmation by proceeding; this commit's command sequence
   gives the same counts to stop on.
-- **Engineering Notes:** through Entry #183 (v1.36), which covers `68c6191`. **Two
+- **Engineering Notes:** through Entry #183 (v1.36), which covers `68c6191`. **Three
   commits behind** — `ec4e5fd`, the floor (a commit that regenerates the Notes cannot
-  cover itself, Entry #144), and the commit that writes this line. Every later commit
-  adds one until the next regeneration. Batched, by the 15 September rule; no time
+  cover itself, Entry #144), `e7a94d1` and the commit that writes this line. Every later
+  commit adds one until the next regeneration. Batched, by the 15 September rule; no time
   pressure. v1.36 records the round-1 recovery, the rulings of 22
   (filed 26), 26, 27, 28 and 29 September, the move to E:, the code for findings 16, 7,
   4, 6, 5 and 18, work order G and the Aider correction. Its PDF's extracted text
@@ -282,7 +310,7 @@ on what the auditor sees requires. Nothing new was ruled, and no code changed.
   the Attribution Statement's script last changed at `68c6191`, the Portfolio
   Document's at `6e1baba`.
 - **README.md:** unchanged by the commit that writes this line; it was last touched at
-  `68c6191`, so the hook's section 5 will report README.md 2 commits behind (expected).
+  `68c6191`, so the hook's section 5 will report README.md 3 commits behind (expected).
 - **The round-1 audit outputs are in the repository**, in
   `docs/audit_reports/round1_deepseek-v4-pro_kimi-k3_2026-08-27/`, byte-identical to the
   hashes Viktor took on 23 September. The account is in HISTORY, "26 September 2026 —
@@ -577,7 +605,8 @@ here, with its evidence, and waits until after the independent audit; it does no
 the audit. **Ruled 29 September:** the auditor sees this list only in Part 7, after it
 has saved Parts 1–6, and the list is the test of the auditor (DECISIONS, "what the
 auditor sees, and no planted bugs"). Before the send, each item is checked against the
-code comments and commit messages that ship (Open items).
+code comments, docstrings and test names that ship, by the rule in "six questions
+before the send", point 4 (Open items).
 
 - **The risk gate runs before the bias checks.** The risk verdict returns at
   `models/decision_model.py:551–553`, before the weak-validation and lean checks at
@@ -661,7 +690,9 @@ code comments and commit messages that ship (Open items).
   restatement of confidence and not a backtested number; it decides nothing. Scrapped
   with the rest of the 20 September list, found still live on 29 September (read from
   the code), and **moved back onto this list by the ruling of 29 September** on what
-  the auditor sees. Points 3–5 of the PDF are not yet traced (Open items).
+  the auditor sees. Not usable as a test bug: its docstring names the problem (point 4
+  of "six questions before the send"). Points 3–5 of the PDF are not yet traced (Open
+  items).
 - **Fable 5.1 works on this list after the audit** (DECISIONS, "Ruling, 29 September
   2026 — Fable 5.1 works on the list for after the audit, not before it"). Not a
   finding; recorded here so the list says who works on it after the audit.
@@ -682,17 +713,23 @@ Each code commit is its own commit and updates this file for its own landing.
 
 ## Resolved this session
 
-- **The rulings of 29 September filed** in DECISIONS by the commit that writes this
-  line — three entries: the audit (now, Laguna S 2.1, the full package in one session);
-  what the auditor sees, and no planted bugs; what opens backtesting.
+- **The rulings of 29 September filed** in DECISIONS at `e7a94d1` — three entries:
+  the audit (now, Laguna S 2.1, the full package in one session); what the auditor
+  sees, and no planted bugs; what opens backtesting.
 - **The push of `ec4e5fd`** — filed above, once, as predicted.
 - **Point 1 of the 15 September PDF** moved onto the list for after the audit, as the
   ruling on what the auditor sees requires.
+- **The roadmap document brought current** (outside the repository): the filing item
+  marked done, the three open rows of its Decisions table ruled, "Where we are" and
+  "What I need" updated.
+- **Six questions before the send** — ruled the same evening and filed by the commit
+  that writes this line.
+- **The push of `e7a94d1`** — filed above, once, as predicted.
 - **Claude's point (2) of 21 September** — answered by the ruling on what opens
   backtesting, and taken off Open items.
 - **The once-per-session rewrite of this file.** The previous version, as at `ec4e5fd`,
   is in HISTORY verbatim, headings demoted one level, proven by un-demotion with a
-  negative control (the commit message has the result).
+  negative control (`e7a94d1`'s commit message has the result).
 
 ## Open items
 
@@ -706,9 +743,12 @@ Claude critiques it.
   G: (HISTORY, 26 September, ninth session). Not urgent.
 - **The independent audit — the preparation list, before the send** (DECISIONS, the
   three rulings of 29 September). The list is kept in Viktor's roadmap document, Phase
-  4. Nothing on it is started. When he says so, in this order unless he changes it:
-  1. Re-check Laguna S 2.1 on OpenRouter: the endpoint, the provider (Poolside), the
-     context window, the price. Last checked 22 September.
+  4. Nothing on it is started except the page check in item 1. When he says so, in
+  this order unless he changes it:
+  1. Re-check Laguna S 2.1 on OpenRouter. Read from its model page on 29 September:
+     1,048,576 tokens of context, Poolside the only provider, 131,072 output tokens,
+     $0.09 / $0.18 per million input / output tokens. Still to do at the send: the live
+     models API query, as round 6's send script did.
   2. The pre-send token check (ruled 26 September), pinned to Laguna's tokenizer. It
      goes under `docs/`, which `core/code_fingerprint.py` excludes by directory, so it
      cannot move `code_hash`; it takes a line in `docs/audit_change_list.md`.
@@ -723,22 +763,26 @@ Claude critiques it.
      message as Parts 1–6 — not yet checked against those rounds' saved requests.
   5. Cut the commit messages to those since `e65a0f7` (82 commits, counted with
      `git rev-list` at `ec4e5fd`).
-  6. Check each item on the list for after the audit against the code comments and
-     commit messages that ship; drop any they give away; commit the usable set and the
-     scoring rule before the send.
+  6. Check each item on the list for after the audit against the code comments,
+     docstrings and test names that ship; record each one ruled out with the line that
+     gives it away; commit the usable set with its classification before the send. The
+     scoring rule is ruled (DECISIONS, "six questions before the send", point 4); two
+     are out already (the 30.0 boundary and point 1).
   7. Trace points 3–5 of the 15 September PDF in the code; move any still live onto the
-     list for after the audit (point 1 was moved by the commit that writes this line).
+     list for after the audit (point 1 was moved at `e7a94d1`).
   8. Reissue the roster outside the repository with the Nemotron correction.
-  9. Write the instruction for this round, rev 8. **Viktor approves it** before the
+  9. Write the instruction for this round, rev 8: with the ruled behaviour as plain
+     requirements and the files changed since `e65a0f7` (point 2), and without saying
+     that the ratings open backtesting (point 5). **Viktor approves it** before the
      send.
-  10. A cost estimate before the send. **Viktor runs the send**, and the auditor is
-      entered in the independence ledger at that time.
+  10. A cost estimate before the send. At the send: tag the commit the package is
+      built from, confirm the package's file hashes match it, and land no commit
+      touching engine code or tests until the report is triaged (point 1). **Viktor
+      runs the send**, and the auditor is entered in the independence ledger at that
+      time.
   11. When the report and reasoning arrive: saved into `docs/audit_reports/`, hashed,
       and committed the same day (round 1's outputs were lost once).
   12. Triage, and the same auditor verifies the fixes (the 14 September precedent).
-
-  **Viktor's call, proposed and not ruled:** tag the commit the package is built from,
-  and land no engine commits until the report is in.
 - **The model roster**, reissued 29 September as
   `Docs\Phase7_Model_Roster_2026-09-29.pdf` in `G:\Phase_7_Engine_Random_Files`: clean
   for a full round — NVIDIA, Poolside, Amazon (Nova 2 Pro, a preview release); scoped
