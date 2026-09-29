@@ -301,6 +301,14 @@ control (precondition 2) is what covers it.
   after the decision candle and records the gap from the decision close — "Ruling,
   27 September 2026 — the plan is measured from the decision close (finding 4)", which
   states what it weakens.
+- **Spot only** *(added 29 September 2026)*: SHORT is not traded. It closes an open
+  long, and the backtest then holds USDT until the next long. Each SHORT is still
+  scored for whether it was right, as information. "Ruling, 28 September 2026 — what
+  "finished" means, and how the engine is judged", point B, states what it weakens.
+- **How a trade ends** *(added 29 September 2026)*: T1 before the stop is a win, the
+  stop first a loss. At T1 half is sold and the stop moves to the entry; the rest runs
+  to T2 or T3, back to the entry, or to a SHORT signal. The same rules as paper
+  trading — the same ruling, points 8 and C; C states what it weakens.
 
 ### The verdict — pre-registered, before any result exists
 
@@ -336,6 +344,12 @@ catastrophically misleading if that word reaches the portfolio document without 
 absolute figure beside it. And Sharpe structurally favours sitting in cash: a strategy in
 the market a tenth of the time can post an attractive ratio on trivial returns. Printing
 the numbers solves both without adding a judgment rule.
+
+*(Added 29 September 2026.)* Beside the verdict, the same OOS trades are scored
+against the finish criteria of "Ruling, 28 September 2026 — what "finished" means,
+and how the engine is judged", point 7: the share reaching T1 before the stop, the
+average profit per trade after fees, and the comparison with random longs. They are
+reported, not graded; the verdict above is unchanged (point A of that ruling).
 
 ### Completion boundary
 
@@ -1705,6 +1719,150 @@ before the commit (the change moves `code_hash`; on live data it changes a decis
 only at CONSERVATIVE strength with a macro that disagrees or is neutral). Ruling and code land
 in the same commit; the commit message has the evidence. With it, the closed list is
 done and the independent audit is next.
+
+## Ruling, 28 September 2026 — what "finished" means, and how the engine is judged
+
+**Why this exists.** Until now the project had no stated claim a test could check, and
+no finish line except Goal B's verdict on a backtest. On 28 September, before choosing
+any work, Viktor asked which questions the project should ask itself about its logic,
+integrity and functionality. Claude listed sixteen (docs/PHASE7_NEXT.md, Open items,
+"The questions of 28 September"). Viktor answered the four that were his — what the
+engine claims, what result ends development, whether a year of paper trading is enough,
+and what weight the portfolio carries — and the rest of this entry follows from those
+answers.
+
+How each point was ruled is marked. **Viktor's position first** means he wrote his
+position, Claude critiqued it, and he settled it. **By agreeing to Claude's
+suggestion** means he asked for Claude's suggestion and agreed to it. Points A–E were
+ruled on 29 September, the next morning of the same session.
+
+### Viktor's position first
+
+1. **The claim.** A LONG the engine issues should at least reach T1 before its stop.
+   T2 and T3 are a bonus. There is no time limit on a trade: Viktor holds positions for
+   months when needed. At a reading, a trade still open is reported separately and is
+   neither won nor lost.
+2. **T1 must net at least 3% after fees.** Viktor said 3–10%. Read from the code at
+   `7d0024e`: T1 is exactly one stop distance from the entry (`TARGET1_MULT = 1.0`,
+   `models/risk_model.py`), and a stop more than 8% away is classified EXTREME RISK
+   (`REGIME_EXTREME_STOP_PCT = 8.0`), which is NO-TRADE (RISK TOO HIGH). So T1 cannot
+   pay more than 8% while that limit stands. Today the engine issues trades with a stop
+   anywhere from 0.2% (`MIN_STOP_DISTANCE_PCT`) to 8%, so the floor needs a filter in
+   the engine — a new trading rule, on the list for after the audit by the 22 September
+   ruling. Every loss is then also at least 3% plus costs.
+3. **Spot only; no leverage and no futures.** On spot, SHORT means sell to USDT and wait
+   for the next long setup; when nothing is held it means stay in USDT. If futures are
+   ever used, SHORT means a 1× short and never more.
+4. **No weekly trade target and no cap.** The engine trades whenever a valid setup is
+   there and not otherwise; ten trades one week and none the next is fine. The count is
+   never raised by loosening a threshold. More trades come from more pairs.
+5. **Results are read at 3, 6, 9 and 12 months, and a reading changes nothing.** No
+   tuning between readings. A change to the engine is a new version, and its count
+   starts again from zero; the `code_hash` in every decision record separates the
+   versions.
+6. **The portfolio is secondary.** It is not important that this project serves as an
+   exam project; Viktor can make another project for that. Confirmed as a ruling by
+   point E below.
+
+### By agreeing to Claude's suggestion
+
+7. **Finished** means one engine version and at least 100 closed trades on data it was
+   not tuned on, with all of:
+   - at least 60% reach T1 before the stop;
+   - average profit per trade after fees above zero;
+   - it beats random longs that use the same stop and T1 over the same period.
+
+   Fewer than 100 closed trades is "not enough evidence yet", neither pass nor fail, and
+   the test runs on. Why 60 and 100: over 100 trades an engine with no edge (a coin flip
+   at 1:1) reaches 60% about 3% of the time; 55% needs about 400 trades to say the
+   same, and at 55% costs eat most of the edge — as an illustration, not measured fees,
+   with a 3.2% stop and 0.2% costs a trade averages +0.12% at 55% and +0.44% at 60%.
+   The fee check stays separate because the entry gap on crypto has not been measured.
+   The benchmark is there because in a rising market random longs also reach T1 first
+   more often than not. Viktor first proposed 51% as the minimum; Claude showed that at
+   1:1 it leaves +0.02 of the stop distance per trade before costs, which fees can
+   exceed, and that telling 51% from luck takes about 10,000 trades.
+8. **Scoring.** The win is decided at T1: T1 before the stop is a win, the stop first
+   is a loss, and the win rate counts only those two. A long closed by a SHORT signal
+   before either is scored by its net result after fees, reported as its own group
+   ("closed by signal") together with its share of all trades. At T1 half is sold and
+   the stop moves to the entry; the rest runs to T2 or T3, back to the entry, or to a
+   SHORT signal. That changes only the profit total, never the win count. Every trade
+   counts in the profit total.
+9. **Trends only, for now.** Range trading — buying at support and selling at
+   resistance on levels drawn by hand, which is Viktor's own style — is a second
+   strategy: new entry logic, stops at levels, new code, its own log and its own
+   verdict. Two strategies judged in one verdict could not be told apart. It goes on the
+   list for after the audit. **Its first test case** is the chart Viktor marked on
+   28 September: BLESSUSDT, 2h, MEXC, roughly 10–26 September 2026 — six buys, about
+   11, 17, 20, 22, 24 and 25 September, at roughly 0.0078–0.0093, and six sells, about
+   16, 19, 21, 23, 24 and 25 September, at roughly 0.0094–0.0105, read by eye from his
+   screenshot. The screenshot is not in the repository; it shows his browser, and the
+   repository is public. **The cost, stated:** trends only means the engine will not
+   trade the way Viktor does. On that chart Claude expects it would mostly have waited —
+   an expectation, not a run.
+10. **Capital, for paper trading.** The paper account is split into 10 equal slices of
+    10%, with one open position per pair. With the 8% stop limit, one trade can lose at
+    most 0.8% of the account. When all ten slices are in use, a new valid setup is
+    logged as "missed: no cash" and still scored as if taken, so the engine is judged
+    on every setup it finds and the account shows what the money could actually do.
+11. **Reports show how many trades were opened together.** Most pairs move with BTC,
+    and ten longs opened on one day are closer to one bet made ten times than to ten
+    bets.
+
+### Reconciled with Goal B — ruled 29 September 2026, by agreeing to Claude's suggestion
+
+Claude read Goal B (above, 15 September) against points 1–11 before anything was
+written, and found five places where they meet.
+
+- **A. Two finish lines, in stages.** Goal B's verdict stays exactly as pre-registered
+  (Sharpe ratio against buy-and-hold; INCONCLUSIVE under 30 OOS trades) and judges the
+  backtest. The criteria of point 7 are also reported on the backtest's OOS trades,
+  beside the verdict, without changing it. "Finished" is declared only when paper
+  trading meets them. This weakens nothing in Goal B; it adds a bar.
+- **B. Spot only applies to Goal B** — added to its methodology. **What it weakens:**
+  the backtest no longer measures the engine's SHORT calls as trades; they are scored
+  as information only.
+- **C. Goal B uses point 8's exit rules** — added to its methodology, so the backtest
+  and paper trading measure one strategy. **What it weakens:** Goal B had no exit rule,
+  and this fixes one before any result exists, so the verdict of record measures that
+  policy only. Another exit policy (all out at T1, or hold for T3) is a new phase under
+  the re-run clause.
+- **D. Goal B's dataset is unchanged** — AEROUSDT 4h, AEROUSDT 1d and BTCUSDT 4h,
+  pinned. Several pairs are for paper trading only. Goal B's scope-honesty sentence
+  stands: one pair is not evidence that the engine generalises.
+- **E. The project's purpose from now on is an engine that is profitable by points
+  1–11.** Goal A stands as achieved (declared and tagged `portfolio-v1` on
+  15 September), and its text is not edited: "It does not have to make money" was true
+  of goal A and still is. Goal B's "What goal B is actually for" also stands — a
+  trustworthy verdict, not a favourable number.
+
+### What this ruling does not do
+
+- It changes no code, so `code_hash` and the golden snapshot do not move.
+- It does not amend the Constitution. Tier 0 asks for "reliable, testable, interpretable
+  information and decisions under real-world conditions"; point 7 is how "reliable under
+  real-world conditions" is now measured.
+- It does not move the audit or reopen the closed list. The 3% floor (point 2) and the
+  range mode (point 9) wait for after the audit.
+- It does not lift "no backtesting before an independent re-audit" (Constitution
+  step 8).
+- Nothing of the paper-trading setup exists yet: unattended runs every 4h per pair, the
+  paper account with its ten slices, the scoring of points 7–11. Building it is not an
+  engine change. When it is built is Viktor's call.
+
+### Claude's errors on the way, recorded
+
+- Claude first said a trade needed a time limit because "almost any LONG reaches T1
+  eventually if you wait long enough or ignore the stop". With the stop in place,
+  "T1 before the stop" is well defined with no time limit, and Claude said so when
+  Viktor answered that he holds positions for months.
+- Claude first read Viktor's "10% profit" as 10% on the account over a year and
+  proposed measuring in R (units of risk). He meant 10% on the position, per trade;
+  without leverage that needs no sizing rule, and his unit was adopted.
+
+The binomial figures above were computed in the sandbox; the code facts were read at
+`7d0024e` from an autocrlf clone.
 
 ## Working practice
 
