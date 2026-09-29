@@ -1,8 +1,8 @@
 # Next step — read this first
 
-*29 September 2026. Rewritten by the commit that records the ruling on Fable 5.1 and
-corrects the list of models that ran through Aider, which also files the push of
-`22cb39b`; the version it replaces — as it stood at `22cb39b` — is in HISTORY verbatim.
+*29 September 2026. Rewritten by the commit that regenerates the Engineering Notes
+through Entry #183 (v1.36), which also files the push of `68c6191`; the version it
+replaces — as it stood at `68c6191` — is in HISTORY verbatim.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
 rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
@@ -60,24 +60,20 @@ build the backtesting architecture." No engine change since the last independent
 backtesting before an independent re-audit.** Claude's second point in the 21 September
 ruling is still open: the no-backtest rule exists only as text.
 
-**The nineteenth session (28–29 September)**, under Claude Opus 5.5, produced the
-ruling on what "finished" means and landed it at `22cb39b` (docs only). Its account is
-in HISTORY, in this file's previous version.
+**The twentieth session (29 September)**, under Claude Opus 5.5, produced the ruling on
+Fable 5.1 and the corrected list of the models that ran through Aider, and landed them
+at `68c6191` (docs only). Its account is in HISTORY, in this file's previous version,
+and in "29 September 2026 (twentieth session) — Mistral put back among the clean labs by
+mistake, and taken off again".
 
-**This session (the twentieth, 29 September)**, under Claude Opus 5.5, opened on
-"Continue Phase 7". Claude read `master` and `origin/master` off Viktor's disk and
-GitHub's tip with `git ls-remote`: all `22cb39b`. Viktor asked whether Fable 5.1 should
-review the engine before the audit, and ruled option A: the audit first, Fable after
-(DECISIONS, 29 September). He then asked which auditor, and whether to audit now with
-few auditors left; Claude recommended Nemotron 3 Super, and auditing now with a plan
-for the reserve (Open items) — not ruled. Viktor supplied OpenRouter's activity export.
-Reconciling it against the 22 September ledger showed that ledger — and the roster
-Claude built from it — had put Mistral back among the clean labs, because README.md and
-the AI-Attribution Statement named only three of the five models that ran through
-Aider. The commit that writes this line corrects both; the roster and the ledger are
-reissued outside the repository, dated 29 September (Open items). Viktor briefly held
-that Mistral was not spent, then withdrew it: Mistral stays spent (HISTORY,
-29 September).
+**This session (the twenty-first, 29 September)**, under Claude Opus 5.5, opened on
+"Continue Phase 7 — regenerate the Engineering Notes". Claude read `master` and
+`origin/master` off Viktor's disk and GitHub's tip with `git ls-remote`: all `68c6191`.
+The Notes were sixteen commits behind. The commit that writes this line regenerates
+them through Entry #183 (v1.36): seventeen entries for fifteen commits, each written
+from its commit's own message and, for the rulings, DECISIONS — not re-checked against
+the code or the running engine. `code_hash` was recomputed on all sixteen trees, and
+every value matched its commit message. Nothing was ruled, and no code changed.
 
 ## Ruled — in force
 
@@ -182,8 +178,9 @@ that Mistral was not spent, then withdrew it: Mistral stays spent (HISTORY,
 ## Where things stand, right now
 
 - **Tip:** the commit that writes this line (a commit cannot name its own hash) —
-  docs only: the ruling on Fable 5.1 and the corrected list of Aider models. Before it:
-  `22cb39b` (the nineteenth session's commit: the ruling of 28 September),
+  docs only: the Engineering Notes regenerated at v1.36. Before it: `68c6191` (the
+  twentieth session's commit: the ruling on Fable 5.1 and the corrected list of Aider
+  models), `22cb39b` (the nineteenth session's commit: the ruling of 28 September),
   `7d0024e` (the seventeenth
   session's commit: work order G), `d76ddfd` (the sixteenth session's commit: finding
   18's code), `8b9ac1e` (the fifteenth session's commit:
@@ -206,18 +203,18 @@ that Mistral was not spent, then withdrew it: Mistral stays spent (HISTORY,
   to `E:\phase7_engine`". Run the engine and every command from `E:\phase7_engine` (in
   cmd, changing drive needs `cd /d`). A dated record that names the D: paths means the
   same folders before the move; dated records are not edited.
-- **The push of `22cb39b`** happened: on 29 September Claude read `master` and
+- **The push of `68c6191`** happened: on 29 September Claude read `master` and
   `origin/master` off Viktor's disk (`.git/refs`, staged) and GitHub's tip with
-  `git ls-remote`: all three `22cb39b`. It went as predicted, so it is recorded here
+  `git ls-remote`: all three `68c6191`. It went as predicted, so it is recorded here
   once and **nothing is owed** (ruling on proposal (b)). The same holds for the push of
   the commit that writes this line unless it deviates.
 - **Before this commit**, every file it changes matched Viktor's disk on E: byte for
-  byte (all six staged off his disk on 29 September and compared with the clone at
-  `22cb39b`). It adds no file.
+  byte (all four staged off his disk on 29 September and compared with the clone at
+  `68c6191`). It adds no file.
 - **code_hash:** `c6a44d4d7ab1c8d36f2a07f6f2c78a1967ecfc135259cbe828b3daa275e571c9`,
   unmoved by the commit that writes this line: the only `.py` it changes is under
-  `docs/`, which `core/code_fingerprint.py` excludes by directory, and README.md is not
-  a `.py` file. Computed on the tree before and after it, under Python 3.12.3.
+  `docs/`, which `core/code_fingerprint.py` excludes by directory. Computed on the tree
+  before and after it, under Python 3.12.3.
   It last moved at `7d0024e` (from `f4b23f94…`), in
   `models/decision_model.py` and `models/signal_router.py`, confirmed on Windows by
   Viktor's live run before that commit.
@@ -233,27 +230,23 @@ that Mistral was not spent, then withdrew it: Mistral stays spent (HISTORY,
   it; `run_tests.py` **592 passed / 0 failed / 32 errors**, all 32 fixture-collection
   `TypeError`s. Linux sandbox, autocrlf clone, Python 3.12.3, pinned requirements, run
   on the tree before the change and on the applied tree. **On Windows**, the counts at
-  `22cb39b` are Viktor's confirmation by proceeding; this commit's command sequence
+  `68c6191` are Viktor's confirmation by proceeding; this commit's command sequence
   gives the same counts to stop on.
-- **Engineering Notes:** through Entry #166 (v1.35), which covers `c5dc4cd`. **Sixteen
-  commits behind** — `bc48f59`, the floor (a commit that regenerates the Notes cannot
-  cover itself, Entry #144), `75682ee`, `2582994`, `1861208`, `eba6a2a`, `7d103d7`,
-  `bf2e802`, `add8540`, `57f0521`, `b0efe23`, `76c8cde`, `8b9ac1e`, `d76ddfd`, `7d0024e`,
-  `22cb39b`, and the commit that writes this line. Every later commit adds one until
-  the next
-  regeneration, which also records the round-1 recovery, the rulings of 26 and
-  27 September, the phase-3 order, the move to E:, the code for findings 16, 7, 4, 6, 5
-  and 18, work order G, the ruling of 28 September, the Fable ruling and the Aider
-  correction of 29 September. No time pressure (Viktor, 26 September). With the closed
-  list done, regenerating them before the audit package is built is a natural point;
-  Viktor's call.
-- **Portfolio Document and AI-Attribution Statement:** both current with their scripts.
-  The Attribution Statement's script changes in the commit that writes this line (its
-  Aider passage), and the PDF is regenerated with it; the Portfolio Document's script
-  last changed at `6e1baba`.
-- **README.md:** changed by the commit that writes this line (the Aider passage in "How
-  this was built"), so the hook's section 5 will report 0 commits since README.md was
-  touched (expected).
+- **Engineering Notes:** through Entry #183 (v1.36), which covers `68c6191`. **One
+  commit behind** — the commit that writes this line, the floor (a commit that
+  regenerates the Notes cannot cover itself, Entry #144). Every later commit adds one
+  until the next regeneration. v1.36 records the round-1 recovery, the rulings of 22
+  (filed 26), 26, 27, 28 and 29 September, the move to E:, the code for findings 16, 7,
+  4, 6, 5 and 18, work order G and the Aider correction. Its PDF's extracted text
+  differs from v1.35's only by the seventeen entries, the new Document History row and
+  fourteen footer page numbers (127 pages to 143), compared word by word.
+- **Portfolio Document and AI-Attribution Statement:** both current with their scripts —
+  each rebuilt from `68c6191` in the sandbox (reportlab 5.0.1), its extracted text
+  identical to the committed PDF. Neither changes in the commit that writes this line;
+  the Attribution Statement's script last changed at `68c6191`, the Portfolio
+  Document's at `6e1baba`.
+- **README.md:** unchanged by the commit that writes this line; it was last touched at
+  `68c6191`, so the hook's section 5 will report README.md 1 commit behind (expected).
 - **The round-1 audit outputs are in the repository**, in
   `docs/audit_reports/round1_deepseek-v4-pro_kimi-k3_2026-08-27/`, byte-identical to the
   hashes Viktor took on 23 September. The account is in HISTORY, "26 September 2026 —
@@ -637,14 +630,14 @@ Each code commit is its own commit and updates this file for its own landing.
 
 ## Resolved this session
 
-- **Fable 5.1, before or after the audit** — ruled 29 September, option A (DECISIONS).
-- **The list of models that ran through Aider** — README.md and the AI-Attribution
-  Statement now name all five, corrected by the commit that writes this line; the
-  account is in HISTORY, 29 September.
-- **The independence ledger reconciled against OpenRouter's export** — reissued outside
-  the repository (Open items).
-- **The push of `22cb39b`** — filed above, once, as predicted.
-- **The once-per-session rewrite of this file.** The previous version, as at `22cb39b`,
+- **The Engineering Notes regenerated** through Entry #183 (v1.36) by the commit that
+  writes this line; one commit behind now, the floor.
+- **The push of `68c6191`** — filed above, once, as predicted.
+- **A stale self-reference corrected.** The change-list item under Open items said "The
+  commit that writes this line adds the ruling of 28 September …"; that commit was
+  `22cb39b`, and the sentence was carried unchanged through `68c6191`'s rewrite. It
+  now names `22cb39b`.
+- **The once-per-session rewrite of this file.** The previous version, as at `68c6191`,
   is in HISTORY verbatim, headings demoted one level, proven by un-demotion with a
   negative control (the commit message has the result).
 
@@ -721,9 +714,8 @@ Claude critiques it.
 - **Claude's — the running change list for the audit:** `docs/audit_change_list.md`,
   from the baseline `e65a0f7` (the tree round 6's fix-verification was sent). **Every
   later commit that changes engine code, tests or tooling adds its line there in the
-  same commit.** The commit that writes this line adds the ruling of 28 September to
-  its rulings section and names `7d0024e` where G's commit wrote "the commit that adds
-  this line".
+  same commit.** `22cb39b` added the ruling of 28 September to its rulings section
+  and named `7d0024e` where G's commit wrote "the commit that adds this line".
 - **The pre-push hook is installed per clone, not per repository.** After any re-clone
   (including after a machine wipe), run `git config core.hooksPath githooks`;
   `session_handover_check.py` section 6 flags a clone without it.
