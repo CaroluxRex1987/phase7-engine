@@ -314,12 +314,14 @@ story.append(P(
     "rather than a formality, and checks explicitly before naming an auditor for a given round.",
     "Body"))
 story.append(P(
-    "One exposure is stated rather than glossed over: three models (Claude Sonnet 4, DeepSeek "
-    "V3, and DeepSeek R1) touched this codebase during the build itself via an AI coding tool, "
-    "which means a later, nominally blind audit run by a DeepSeek-lineage model carried weaker "
-    "independence than it first appeared. Independence is tracked at the lab level for exactly "
-    "this reason, not at the model-version level, since treating a version bump as a reset would "
-    "make the safeguard ceremonial.", "Body"))
+    "One exposure is stated rather than glossed over: five models (Claude Sonnet 4, DeepSeek "
+    "V3, DeepSeek R1, Mistral Nemo, and Claude 3 Haiku) ran through an AI coding tool during the "
+    "build itself, which means a later, nominally blind audit run by a DeepSeek-lineage model "
+    "carried weaker independence than it first appeared, and that Mistral cannot audit this "
+    "engine either. Until 29 September 2026 this statement named only the first three; the "
+    "provider's activity export shows all five. Independence is tracked at the lab level for "
+    "exactly this reason, not at the model-version level, since treating a version bump as a "
+    "reset would make the safeguard ceremonial.", "Body"))
 
 doc = SimpleDocTemplate(OUTPUT_PATH, pagesize=LETTER,
     leftMargin=0.75 * inch, rightMargin=0.75 * inch,

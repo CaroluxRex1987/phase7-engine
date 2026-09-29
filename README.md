@@ -213,10 +213,12 @@ Meta Muse Spark 1.3 — Luna Pro's own independence for that round is a separate
 claim than the others', for reasons the engineering log states plainly rather than
 smoothing over.
 
-One caveat I have to state rather than bury: three models touched this codebase during
-the build itself via Aider — Claude Sonnet 4, DeepSeek V3 and DeepSeek R1. That means
-DeepSeek's lineage had prior exposure to the code it later reviewed blind, so Run 1's
-independence is weaker than it first appears. Independence is tracked at the lab level,
+One caveat I have to state rather than bury: five models ran through Aider during the
+build itself — Claude Sonnet 4, DeepSeek V3, DeepSeek R1, Mistral Nemo and Claude 3
+Haiku. Until 29 September 2026 this README named only the first three; OpenRouter's
+activity export shows all five. That means DeepSeek's lineage had prior exposure to the
+code it later reviewed blind, so Run 1's independence is weaker than it first appears,
+and Mistral cannot audit this engine either. Independence is tracked at the lab level,
 not the model-version level, because treating a version bump as a reset would make the
 safeguard ceremonial.
 

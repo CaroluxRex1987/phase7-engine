@@ -1,8 +1,8 @@
 # Next step — read this first
 
-*29 September 2026. Rewritten by the commit that records the ruling of 28 September on
-what "finished" means, which also files the push of `7d0024e`; the version it replaces
-— as it stood at `7d0024e` — is in HISTORY verbatim.
+*29 September 2026. Rewritten by the commit that records the ruling on Fable 5.1 and
+corrects the list of models that ran through Aider, which also files the push of
+`22cb39b`; the version it replaces — as it stood at `22cb39b` — is in HISTORY verbatim.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
 rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
@@ -30,7 +30,7 @@ with any code it called for landed; the last, G, at `7d0024e`. **The independent
 is next**, and planning it is Viktor's (Open items). Anything found in the meantime
 goes on the list for after the audit (below), not onto the closed list.
 
-**New, 28–29 September: the project has a finish line** — DECISIONS, "Ruling,
+**Since 28–29 September the project has a finish line** — DECISIONS, "Ruling,
 28 September 2026 — what "finished" means, and how the engine is judged". In short: a
 trade's goal is T1 before the stop, with T1 netting at least 3% after fees; spot only,
 no leverage, and on spot SHORT means sell to USDT; "finished" is at least 100 closed
@@ -60,27 +60,31 @@ build the backtesting architecture." No engine change since the last independent
 backtesting before an independent re-audit.** Claude's second point in the 21 September
 ruling is still open: the no-backtest rule exists only as text.
 
-**The eighteenth session (27 September, after `7d0024e`)** opened on "Continue
-Phase 7". Claude read `master` and `origin/master` off Viktor's disk and GitHub's tip
-from a fresh clone: all three `7d0024e`. Viktor stopped for a break before choosing any
-work. The handover check found nothing owed: no untracked files and no loose patch on
-his disk (listed over the device bridge and compared with the clone's tracked and
-ignored files), and no committed file changed since the commit — checked by
-modification time, not by content. Outside the repository, Claude brought the "Phase 7
-roadmap to the independent audit" doc current. No commit.
+**The nineteenth session (28–29 September)**, under Claude Opus 5.5, produced the
+ruling on what "finished" means and landed it at `22cb39b` (docs only). Its account is
+in HISTORY, in this file's previous version.
 
-**This session (the nineteenth, 28–29 September)**, under Claude Opus 5.5, opened on
-"Continue Phase 7". Claude read the two refs off Viktor's disk (unchanged since the
-eighteenth session) and GitHub's tip with `git ls-remote`: all `7d0024e`. Before
-choosing work, Viktor asked which questions the project should ask itself about its
-logic, integrity and functionality. Claude listed sixteen (Open items, "The questions
-of 28 September"); Viktor answered the four that were his, and the discussion became
-the ruling above. Before anything was written, Claude read Goal B against it and found
-five places where they meet; Viktor ruled them on 29 September (points A–E). Claude's
-two errors on the way are recorded in the ruling.
+**This session (the twentieth, 29 September)**, under Claude Opus 5.5, opened on
+"Continue Phase 7". Claude read `master` and `origin/master` off Viktor's disk and
+GitHub's tip with `git ls-remote`: all `22cb39b`. Viktor asked whether Fable 5.1 should
+review the engine before the audit, and ruled option A: the audit first, Fable after
+(DECISIONS, 29 September). He then asked which auditor, and whether to audit now with
+few auditors left; Claude recommended Nemotron 3 Super, and auditing now with a plan
+for the reserve (Open items) — not ruled. Viktor supplied OpenRouter's activity export.
+Reconciling it against the 22 September ledger showed that ledger — and the roster
+Claude built from it — had put Mistral back among the clean labs, because README.md and
+the AI-Attribution Statement named only three of the five models that ran through
+Aider. The commit that writes this line corrects both; the roster and the ledger are
+reissued outside the repository, dated 29 September (Open items). Viktor briefly held
+that Mistral was not spent, then withdrew it: Mistral stays spent (HISTORY,
+29 September).
 
 ## Ruled — in force
 
+- **New, 29 September — Fable 5.1 works on the list for after the audit, not before
+  it** (DECISIONS, "Ruling, 29 September 2026 — Fable 5.1 works on the list for after
+  the audit, not before it"). Option A of three, by agreeing to Claude's suggestion.
+  No code.
 - **New, 28 September — what "finished" means, and how the engine is judged**
   (DECISIONS, "Ruling, 28 September 2026 — what "finished" means, and how the engine is
   judged"). Points 1–6 by Viktor's position first; 7–11, and A–E (reconciling it with
@@ -178,7 +182,9 @@ two errors on the way are recorded in the ruling.
 ## Where things stand, right now
 
 - **Tip:** the commit that writes this line (a commit cannot name its own hash) —
-  docs only: the ruling of 28 September. Before it: `7d0024e` (the seventeenth
+  docs only: the ruling on Fable 5.1 and the corrected list of Aider models. Before it:
+  `22cb39b` (the nineteenth session's commit: the ruling of 28 September),
+  `7d0024e` (the seventeenth
   session's commit: work order G), `d76ddfd` (the sixteenth session's commit: finding
   18's code), `8b9ac1e` (the fifteenth session's commit:
   finding 5's code), `76c8cde` (the fourteenth session's commit: finding 6's code),
@@ -200,20 +206,19 @@ two errors on the way are recorded in the ruling.
   to `E:\phase7_engine`". Run the engine and every command from `E:\phase7_engine` (in
   cmd, changing drive needs `cd /d`). A dated record that names the D: paths means the
   same folders before the move; dated records are not edited.
-- **The push of `7d0024e`** happened: on 27 September Claude read `master` and
-  `origin/master` off Viktor's disk (`.git/refs`, staged) and GitHub's tip from a fresh
-  clone, all three `7d0024e`; on 28 September the two refs were unchanged and
-  `git ls-remote` gave the same. Viktor reported the push complete with no deviation, so
-  it is recorded here once, as predicted, and **nothing is owed** (ruling on proposal
-  (b)). The same holds for the push of the commit that writes this line unless it
-  deviates.
+- **The push of `22cb39b`** happened: on 29 September Claude read `master` and
+  `origin/master` off Viktor's disk (`.git/refs`, staged) and GitHub's tip with
+  `git ls-remote`: all three `22cb39b`. It went as predicted, so it is recorded here
+  once and **nothing is owed** (ruling on proposal (b)). The same holds for the push of
+  the commit that writes this line unless it deviates.
 - **Before this commit**, every file it changes matched Viktor's disk on E: byte for
-  byte (all four staged off his disk on 29 September and compared with the clone at
-  `7d0024e`). It adds no file.
+  byte (all six staged off his disk on 29 September and compared with the clone at
+  `22cb39b`). It adds no file.
 - **code_hash:** `c6a44d4d7ab1c8d36f2a07f6f2c78a1967ecfc135259cbe828b3daa275e571c9`,
-  unmoved by the commit that writes this line: it is docs only, and
-  `core/code_fingerprint.py` excludes `docs/` by directory. Computed on the tree before
-  and after it, under Python 3.12.3. It last moved at `7d0024e` (from `f4b23f94…`), in
+  unmoved by the commit that writes this line: the only `.py` it changes is under
+  `docs/`, which `core/code_fingerprint.py` excludes by directory, and README.md is not
+  a `.py` file. Computed on the tree before and after it, under Python 3.12.3.
+  It last moved at `7d0024e` (from `f4b23f94…`), in
   `models/decision_model.py` and `models/signal_router.py`, confirmed on Windows by
   Viktor's live run before that commit.
 - **code_hash is only comparable within one Python minor version.** It hashes `ast.dump`
@@ -228,23 +233,27 @@ two errors on the way are recorded in the ruling.
   it; `run_tests.py` **592 passed / 0 failed / 32 errors**, all 32 fixture-collection
   `TypeError`s. Linux sandbox, autocrlf clone, Python 3.12.3, pinned requirements, run
   on the tree before the change and on the applied tree. **On Windows**, the counts at
-  `7d0024e` are Viktor's confirmation by proceeding; this commit's command sequence
+  `22cb39b` are Viktor's confirmation by proceeding; this commit's command sequence
   gives the same counts to stop on.
-- **Engineering Notes:** through Entry #166 (v1.35), which covers `c5dc4cd`. **Fifteen
+- **Engineering Notes:** through Entry #166 (v1.35), which covers `c5dc4cd`. **Sixteen
   commits behind** — `bc48f59`, the floor (a commit that regenerates the Notes cannot
   cover itself, Entry #144), `75682ee`, `2582994`, `1861208`, `eba6a2a`, `7d103d7`,
   `bf2e802`, `add8540`, `57f0521`, `b0efe23`, `76c8cde`, `8b9ac1e`, `d76ddfd`, `7d0024e`,
-  and the commit that writes this line. Every later commit adds one until the next
+  `22cb39b`, and the commit that writes this line. Every later commit adds one until
+  the next
   regeneration, which also records the round-1 recovery, the rulings of 26 and
   27 September, the phase-3 order, the move to E:, the code for findings 16, 7, 4, 6, 5
-  and 18, work order G, and the ruling of 28 September. No time pressure (Viktor, 26 September). With the closed
+  and 18, work order G, the ruling of 28 September, the Fable ruling and the Aider
+  correction of 29 September. No time pressure (Viktor, 26 September). With the closed
   list done, regenerating them before the audit package is built is a natural point;
   Viktor's call.
-- **Portfolio Document and AI-Attribution Statement:** both current with their scripts,
-  which last changed at `6e1baba`.
-- **README.md:** unchanged by the commit that writes this line; last changed at
-  `7d0024e` (its two test-count passages). So the hook's section 5 will report 1 commit
-  since README.md was touched (expected).
+- **Portfolio Document and AI-Attribution Statement:** both current with their scripts.
+  The Attribution Statement's script changes in the commit that writes this line (its
+  Aider passage), and the PDF is regenerated with it; the Portfolio Document's script
+  last changed at `6e1baba`.
+- **README.md:** changed by the commit that writes this line (the Aider passage in "How
+  this was built"), so the hook's section 5 will report 0 commits since README.md was
+  touched (expected).
 - **The round-1 audit outputs are in the repository**, in
   `docs/audit_reports/round1_deepseek-v4-pro_kimi-k3_2026-08-27/`, byte-identical to the
   hashes Viktor took on 23 September. The account is in HISTORY, "26 September 2026 —
@@ -608,6 +617,9 @@ Viktor's when the audit is planned.
   and its own verdict (point 9 of the same ruling, which describes its first test case,
   his BLESSUSDT chart). **Ruled for after the audit** (Viktor, 28 September, by
   agreeing to Claude's suggestion).
+- **Fable 5.1 works on this list after the audit** (DECISIONS, "Ruling, 29 September
+  2026 — Fable 5.1 works on the list for after the audit, not before it"). Not a
+  finding; recorded here so the list says who works on it after the audit.
 
 ## Work order — Claude's, under Viktor's delegation
 
@@ -625,13 +637,14 @@ Each code commit is its own commit and updates this file for its own landing.
 
 ## Resolved this session
 
-- **What "finished" means** — ruled 28 September (points 1–11) and reconciled with Goal B
-  on 29 September (points A–E); recorded by the commit that writes this line, with two
-  lines added to Goal B's methodology and one to its verdict, and a line in
-  `docs/audit_change_list.md`.
-- **The push of `7d0024e`** — filed above, once, as predicted.
-- **The eighteenth session's handover check** — nothing owed; filed above.
-- **The once-per-session rewrite of this file.** The previous version, as at `7d0024e`,
+- **Fable 5.1, before or after the audit** — ruled 29 September, option A (DECISIONS).
+- **The list of models that ran through Aider** — README.md and the AI-Attribution
+  Statement now name all five, corrected by the commit that writes this line; the
+  account is in HISTORY, 29 September.
+- **The independence ledger reconciled against OpenRouter's export** — reissued outside
+  the repository (Open items).
+- **The push of `22cb39b`** — filed above, once, as predicted.
+- **The once-per-session rewrite of this file.** The previous version, as at `22cb39b`,
   is in HISTORY verbatim, headings demoted one level, proven by un-demotion with a
   negative control (the commit message has the result).
 
@@ -651,11 +664,20 @@ Claude critiques it.
   `docs/`, which `core/code_fingerprint.py` excludes by directory, so it cannot move
   `code_hash`; it takes a line in `docs/audit_change_list.md`. Not started. With the
   closed list done, it is the next piece of Claude's work, when Viktor says so.
-- **Viktor's call — the next independent auditor.** Claude recommends Nemotron 3 Super or
-  Poolside Laguna S 2.1 (both 1M context, open weights, pinnable, labs not in the
-  project's record). Mistral Large 3 is out for a full round (256K context). The ranking
-  is in "Phase-7 — Model Roster" (22 September, outside the repository, filed as
-  `The_clean_slate_model_list.pdf`; it supersedes the clean-slate list). Not decided.
+- **Viktor's call — the next independent auditor, and whether to audit now.** Claude
+  recommends Nemotron 3 Super (NVIDIA), with Laguna S 2.1 (Poolside) second, and
+  auditing now: waiting does not save a lab, later re-audits of what changed can be
+  scoped and go to the scoped-only labs, and fix-verification by the same auditor
+  spends none (ruling of 14 September). The roster, reissued 29 September as
+  `Docs\Phase7_Model_Roster_2026-09-29.pdf` in `G:\Phase_7_Engine_Random_Files`: clean
+  for a full round — NVIDIA, Poolside, Amazon (Nova 2 Pro, a preview release); scoped
+  rounds only — Upstage, Cohere, AI21. Mistral is spent (HISTORY, 2 September;
+  reaffirmed 29 September). Viktor stated on 29 September that he has never used an
+  NVIDIA or Poolside model anywhere. **Also his:** whether NVIDIA's co-development of
+  Mistral NeMo counts against NVIDIA. Claude's view: no — Nemotron 3 Super was
+  pretrained from scratch, and the rule tracks lineage; Laguna S 2.1 avoids the
+  question. The roster's model facts were checked on 22 September and not since. Not
+  decided.
 - **The independent audit — next; the closed list is done** (DECISIONS, 21 and
   22 September; the condition met at `7d0024e`). Planning it is
   Viktor's: which model, the package (the
@@ -663,19 +685,23 @@ Claude critiques it.
   sees the rest of the 20 September scrapped findings and the list for after the audit,
   and the instruction for the selected model. The auditor is shown the `bias_score`
   weighting findings (ruled). No backtesting before the audit.
-- **The independence ledger is outside the repository and not yet reconciled** —
-  `Phase7_Spent_Models_Ledger_2026-09-22.pdf`, built from README.md and the
-  AI-Attribution Statement, not from provider exports. **Owed to it: Grok's entry.** The
-  ledger shows Grok as not having seen engine source. Grok's own account of what it read,
-  given on 26 September: the Constitution and the Assistant Instruction in full; README
-  and this file at about `c5dc4cd`; production code in `main.py`, `live_trading.py`,
-  `data/`, `core/`, `models/`, `indicators/` and `structure/`; the full `tests/` tree and
-  fixtures; one live panel Viktor pasted. It is Grok's account, not a provider export.
-  Saved unchanged, at Viktor's request, as
+- **The independence ledger is outside the repository, reconciled 29 September**
+  against OpenRouter's activity export — 727 requests, 22 August to 14 September 2026,
+  kept as `Docs\04_Data\OpenRouter_Activity_Export_2026-09-29.csv` in
+  `G:\Phase_7_Engine_Random_Files` (SHA256 `d0edf17e0c42b35e3879a206e8a2c1d0`
+  `6c9c8cfdb8bb6945615ea25baef336b8`) — and reissued as
+  `Docs\Phase7_Spent_Models_Ledger_2026-09-29.pdf`; the 22 September version is kept as
+  it was. Every lab in the export was already spent except Mistral (above). The export
+  covers OpenRouter only: Gemini, ChatGPT, Copilot, Grok and the second Claude instance
+  were used elsewhere and stand on the repository's record. **Grok's entry**, owed since
+  26 September, is in the reissued ledger from Grok's own account of what it read: the
+  Constitution and the Assistant Instruction in full; README and this file at about
+  `c5dc4cd`; production code in `main.py`, `live_trading.py`, `data/`, `core/`,
+  `models/`, `indicators/` and `structure/`; the full `tests/` tree and fixtures; one
+  live panel Viktor pasted. It is Grok's account, not a provider export, saved as
   `Docs\02_Reviews_and_Feedback\Grok_Inventory_of_What_It_Read_2026-09-26.txt` in
   `G:\Phase_7_Engine_Random_Files` (SHA256 `0d923a095bc112bda5ad11e6be39a98f0d5a48ad`
-  `139938ed119d18ebd96a71ed`, as written by Claude; unchanged after the move from D:
-  on 26 September).
+  `139938ed119d18ebd96a71ed`).
   Grok is ineligible to audit the engine (DECISIONS, 26 September). Its review
   (`ASSISTING_MODEL_REVIEW_2026-09-23.md`, outside the repository) is received, not
   triaged; by its own text it is not an audit, and anything accepted from it goes on the

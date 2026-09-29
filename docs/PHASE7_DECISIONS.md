@@ -1864,6 +1864,49 @@ written, and found five places where they meet.
 The binomial figures above were computed in the sandbox; the code facts were read at
 `7d0024e` from an autocrlf clone.
 
+## Ruling, 29 September 2026 — Fable 5.1 works on the list for after the audit, not before it
+
+*New in this file on 29 September 2026, filed with the twentieth session's commit.
+Ruled in chat the same day, by agreeing to Claude's suggestion — not by Viktor writing
+his position first.*
+
+**The question.** Viktor has 100 USD of Claude credit for Fable 5.1, an Anthropic model,
+and asked whether it should review the engine and suggest improvements before the
+independent audit.
+
+**What was ruled.** Option A of three: the independent audit comes first; after it,
+Fable 5.1 works on the list for after the audit. Not taken: (B) Fable reviews now and
+everything it finds goes straight onto the list for after the audit, the audit plan
+unchanged; (C) the closed list is reopened for what Fable finds.
+
+**Claude's reasons, given before the ruling.**
+
+- The closed list already sends anything found before the audit to the list for after
+  it (DECISIONS, "Ruling, 22 September 2026 — when the audit resumes"). Fable's
+  suggestions could not be built before the audit without reopening that list, and the
+  auditor would then be checking new code nobody had reviewed.
+- Suggestions and improvements are what the list for after the audit holds: the
+  `bias_score` weighting, indicator changes, the range mode, the 3% floor.
+- Fable is an Anthropic model, as Claude is. Claude's expectation — not tested — is that
+  it shares many of Claude's blind spots, which makes it a weak second opinion on
+  Claude's work; the independent audit, by another lab, is the real check. Using it costs
+  no audit candidate: Anthropic is spent already.
+- The best case for B was an early warning of a serious defect. The 2 September
+  precedent (fix known defects before an audit rather than leave them for the auditor)
+  would then have made reopening the list a deliberate decision, not a routine one.
+- Cost was not the constraint. Fable 5.1 is priced at 10 USD per million input tokens
+  and 50 USD per million output tokens, with no long-context surcharge (Anthropic's
+  pricing page, read 29 September 2026). Claude's estimate for one pass over the ~400K
+  full package was 5–7 USD. Its context window was not confirmed.
+
+**What goes with it.** Fable is entered in the independence ledger at the time of use
+(DECISIONS, 26 September); it reads the Constitution and the Assistant Instruction
+first; its work reaches the repository as a patch under the normal gates, named in the
+commit message.
+
+**What it weakens.** The early warning is given up: a serious defect Fable might have
+found before the audit is left for the auditor, or for Fable afterwards.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then
