@@ -2557,6 +2557,64 @@ message has the tests and their negative controls.
 "six questions before the send" leaves the like question to be decided when it comes
 up, and so does this one. Why run 1's generation lookup failed was not found.
 
+## Round 7 ended, 30 September 2026 — run 2 found 0 of 4
+
+*New in this file on 30 September 2026, filed with the thirty-first session's second
+commit, which commits run 2's reply. Nothing new is ruled: this applies point 4 of
+"Ruling, 30 September 2026 — what follows round 7's first reply" (above). Claude scored
+run 2 and Viktor checked the score (asked in chat: "Yes, checked").*
+
+**Run 2.** Viktor sent it on 30 September at 11:43 UTC, from the same package, with the
+send script as changed at `3e8191a`. The probe's reply showed 1,102 reasoning tokens and
+the answer 408. The reply itself came from Poolside and finished normally after 45
+seconds: 4,415 completion tokens, 2,166 of them reasoning, and 455,360 prompt tokens. Of
+those, 455,328 were served from the provider's cache of the identical first message,
+which run 1 had sent less than two hours earlier. That cache holds the prompt; run 1's
+reply was never part of this prompt. Cost: $0.0049. The generation lookup found the
+record within its tries. The files are in
+`docs/audit_reports/round7_laguna-s-2.1_run2_2026-09-30/`.
+
+**What it said.** 42 rules Compliant; Item 11 Partially compliant (Major), because four
+of the six bias factors read the direction of close; T3-1 Not verifiable; the release
+gate met. It named itself "Poolside's Meta-Muse Spark 1.3". Its reasoning says that, for
+a package this size, it would "focus on the most critical parts".
+
+**The score: 0 of 4.** Scored from the committed `turn1_report.md`, against the Part 7
+document's four "Found means" sentences.
+
+- S1 and S4: `_determine_final_action` is not named.
+- S2: `risk_inputs` and `trend_factor` are not named. Its one mention of trend_health
+  (Part 6, point 1) repeats the claim of the ITEM 14 comment, which S2 says is
+  misleading.
+- S3: "NEUTRAL" and "entry quality" are not in the report. The reasoning file holds one
+  near miss: "since the code allows for a NEUTRAL bias to still reach a side". It is
+  written about Item 11, names no file or function, and is not about the entry score.
+  The reasoning is not Parts 1–6 in any case.
+
+The Item 11 finding is not a test bug. The shipped comment in `models/bias_engine.py`
+names the overlap (it has since `e2c6637`), the reply itself says so, and it is one of
+the `bias_score` findings the Part 7 document carries.
+
+**What follows, as ruled.** Two runs, both under half: round 7 has ended. Neither run's
+Compliant ratings count, and neither does either run's verdict on the release gate. Part
+7 was sent to neither run. The next step is another auditor, not a third run (point 4).
+Run 2 is closed in `send_audit_round.py` like run 1, because the script cannot know a
+score; `--send` already refuses a third run.
+
+**Open, Viktor's.** Named here, not ruled:
+
+- the next auditor;
+- whether it is sent the same package, built from the tag `round7-sent-2026-09-30`, or a
+  new build;
+- with that, whether the freeze of point 1 of "six questions before the send" holds
+  until that auditor's report is triaged. As written, the freeze lasts "until the
+  report is in and triaged", and round 7 produced no report that counts.
+
+**What the result does not show.** The measure has not yet been tried on an auditor that
+does the work. Two runs of one small model (8B active parameters per token) found none
+of the four. That says this model did not do the work; it does not yet show that the
+four test bugs can be found by a model that does.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then

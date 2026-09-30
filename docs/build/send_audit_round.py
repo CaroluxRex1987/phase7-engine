@@ -140,7 +140,10 @@ runs in all. The design below is Claude's under the delegation of
   * each run writes to a folder of its own, and --send never writes into a
     folder that holds a reply. --force and --out-dir are refused with
     --send; both remain for --send-part7;
-  * run 1 is closed (CLOSED_RUNS): --send-part7 never continues it;
+  * run 1 is closed (CLOSED_RUNS): --send-part7 never continues it. Run 2
+    was closed the same day, once it had scored 0 of 4 and Viktor had
+    checked the score: with two runs under half, round 7 ended, and Part 7
+    goes to neither run (the same ruling, point 4);
   * the generation lookup waits about five minutes in all
     (GENERATION_LOOKUP_WAITS), not about 44 seconds: run 1's lookup ran out
     of tries, which is why its turn1_run_metadata.json names no provider.
@@ -269,6 +272,10 @@ CLOSED_RUNS = {
         "run 1 (30 September 2026) is closed: Part 7 does not go to it "
         "(PHASE7_DECISIONS.md, \"Ruling, 30 September 2026 -- what follows round "
         "7's first reply\", point 1)"),
+    "round7_laguna-s-2.1_run2_2026-09-30": (
+        "run 2 (30 September 2026) is closed: it found 0 of the 4 test bugs, so "
+        "round 7 has ended and Part 7 does not go to it (PHASE7_DECISIONS.md, "
+        "\"Round 7 ended, 30 September 2026 -- run 2 found 0 of 4\")"),
 }
 # OpenRouter's unified reasoning parameter. `enabled` asks for the model's own
 # default; no effort level is named, because nothing read says how Poolside's

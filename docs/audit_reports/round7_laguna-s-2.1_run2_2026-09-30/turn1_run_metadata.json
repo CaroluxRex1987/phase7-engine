@@ -1,0 +1,126 @@
+{
+  "model": "poolside/laguna-s-2.1",
+  "provider_pinned": "poolside",
+  "max_output_tokens": 131072,
+  "package_dir": "E:\\phase7_engine\\docs\\audit_package\\round7\\MESSAGE1_PARTS1-6",
+  "files": [
+    {
+      "name": "item16_review_instruction_rev8.md",
+      "bytes": 62747,
+      "sha256": "028304ef0949ccf246b6dc96f5f492f81f3461a0d4f2f61c666f06bec820a428"
+    },
+    {
+      "name": "Phase7_Constitution_v1.0_RATIFIED_AUDITCOPY.txt",
+      "bytes": 107216,
+      "sha256": "08f663a3b591c50e9ac0c62a3512c2a96c00ffb5234a5ed40814c52015aea700"
+    },
+    {
+      "name": "phase7_engine_source.md",
+      "bytes": 609170,
+      "sha256": "d294caf35cbd944089ee037ce8a73eaf6d4c052012e0f0be99b149cf6895ad3a"
+    },
+    {
+      "name": "phase7_test_suite.md",
+      "bytes": 860855,
+      "sha256": "8f6a31bd3306d9e6225bb24c552473f7397e331bdd36b17413d6dafe9086a82e"
+    },
+    {
+      "name": "MANIFEST.md",
+      "bytes": 13841,
+      "sha256": "732e411b6ef26d1c67a97bcec971bfe4374bdaaa0fa8a8c55393dcc17d58e267"
+    },
+    {
+      "name": "version_control_history.md",
+      "bytes": 66463,
+      "sha256": "a68235cb3d9300aedbe1a90bdaa9a2bc5612b05ddaa5071b314c4b7177fdd057"
+    },
+    {
+      "name": "execution_transcripts.md",
+      "bytes": 12115,
+      "sha256": "62e313a6a8e4e73b7e166c5d426762bd81e312552f336d8fc9d859dc6e8cd292"
+    }
+  ],
+  "payload_sha256": "1b8b80954769efcac37cf9a83c04c7a5ea265804735ce090c9a62f1c0cebb5a9",
+  "payload_bytes": 1733301,
+  "data_collection": "deny",
+  "reasoning_requested": {
+    "enabled": true
+  },
+  "turn": 1,
+  "token_check": {
+    "model": "Laguna S 2.1",
+    "hf_revision": "e80da38da3ed4c4e56888cc1ba39582946a164ba",
+    "context": 1048576,
+    "reserve": 131072,
+    "request1_prompt_tokens": 455359,
+    "request2_prompt_tokens_worst_case": 735764,
+    "worst_case_margin": 181740
+  },
+  "reasoning_probe": {
+    "http_status": 200,
+    "generation_id": "gen-1790768611-ZN3kPzrJmHB7bU6Zj3Fr",
+    "finish_reason": "stop",
+    "usage": {
+      "prompt_tokens": 59,
+      "completion_tokens": 1106,
+      "total_tokens": 1165,
+      "cost": 0.000201798,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 32,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 0.000201798,
+        "upstream_inference_prompt_cost": 2.718e-06,
+        "upstream_inference_completions_cost": 0.00019908
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 1102,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    },
+    "answer": "408",
+    "reasoning_chars": 2900,
+    "reasoning_tokens": 1102
+  },
+  "started_utc": "2026-09-30T11:43:40.893892+00:00",
+  "finished_utc": "2026-09-30T11:44:26.037479+00:00",
+  "elapsed_seconds": 45.1,
+  "generation_id": "gen-1790768622-Qf5xYOF6V1MpzpsmsNlq",
+  "finish_reason": "stop",
+  "usage": {
+    "prompt_tokens": 455360,
+    "completion_tokens": 4415,
+    "total_tokens": 459775,
+    "cost": 0.004895532,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 455328,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.004895532,
+      "upstream_inference_prompt_cost": 0.004100832,
+      "upstream_inference_completions_cost": 0.0007947
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 2166,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  },
+  "report_chars": 9809,
+  "reasoning_chars": 9749,
+  "report_sha256": "8d6222ecf9ffc46c5830ff689b6ab93dc48edf715011c827f479aa7c9da8462c",
+  "reasoning_sha256": "87a914be02801174638fd5e6402abb36e7508fb14199c3a2109bb03715d53f0e",
+  "provider_reported": "Poolside",
+  "native_tokens_prompt": 455360,
+  "native_tokens_completion": 4415,
+  "total_cost_usd": 0.004895532
+}

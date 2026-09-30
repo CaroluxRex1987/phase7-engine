@@ -36,7 +36,9 @@ the four test bugs. Added the same day:
     or not; a folder with only an HTTP error in it is not a run;
   * every run sends the bytes every earlier run sent;
   * no run is written over, and --send takes neither --out-dir nor --force;
-  * Part 7 never goes to run 1, which is closed, even when it is named;
+  * Part 7 never goes to run 1, which is closed, even when it is named --
+    nor to run 2, closed the same day once it scored 0 of 4 and round 7
+    ended; and round 7 has had its two runs, so a third is refused;
   * the generation lookup waits about five minutes before giving up.
 
 This file is the one test file changed while the code is frozen for round 7
@@ -579,31 +581,59 @@ def test_send_takes_no_out_dir_or_force_and_never_writes_over_a_run():
         repo.close()
 
 
+RUN1 = "round7_laguna-s-2.1_2026-09-30"
+RUN2 = "round7_laguna-s-2.1_run2_2026-09-30"
+ROUND7_PAYLOAD = "1b8b80954769efcac37cf9a83c04c7a5ea265804735ce090c9a62f1c0cebb5a9"
+
+
 def test_part7_never_goes_to_a_closed_run_even_when_it_is_named():
-    repo = _Repo()
-    try:
-        [closed] = sar.CLOSED_RUNS
-        repo.run_dir = repo.root / "docs" / "audit_reports" / closed
-        _part7_ready(repo)
-        argv = ["--tokenizer-dir", str(repo.tok), "--send-part7"]
-        text = repo.refused(argv)
-        assert "found 0 run directories waiting for Part 7" in text
-        text = repo.refused(argv + ["--out-dir", str(repo.run_dir)])
-        assert "run 1 (30 September 2026) is closed" in text
-    finally:
-        repo.close()
+    assert sorted(sar.CLOSED_RUNS) == [RUN1, RUN2]
+    assert sar.CLOSED_RUNS[RUN1].startswith("run 1 (30 September 2026) is closed")
+    assert sar.CLOSED_RUNS[RUN2].startswith("run 2 (30 September 2026) is closed")
+    for closed, reason in sar.CLOSED_RUNS.items():
+        repo = _Repo()
+        try:
+            repo.run_dir = repo.root / "docs" / "audit_reports" / closed
+            _part7_ready(repo)
+            argv = ["--tokenizer-dir", str(repo.tok), "--send-part7"]
+            text = repo.refused(argv)
+            assert "found 0 run directories waiting for Part 7" in text
+            text = repo.refused(argv + ["--out-dir", str(repo.run_dir)])
+            assert reason in text
+        finally:
+            repo.close()
 
 
-def test_the_closed_run_is_round_7s_run_1_as_committed():
-    [closed] = sar.CLOSED_RUNS
-    meta_path = os.path.join(REPO_ROOT, "docs", "audit_reports", closed,
-                             "turn1_run_metadata.json")
-    with open(meta_path, encoding="utf-8") as fh:
-        meta = json.load(fh)
-    assert meta["payload_sha256"] == (
-        "1b8b80954769efcac37cf9a83c04c7a5ea265804735ce090c9a62f1c0cebb5a9")
-    assert meta["usage"]["completion_tokens_details"]["reasoning_tokens"] == 0
-    assert "provider_reported" not in meta
+def _committed_metadata(name):
+    path = os.path.join(REPO_ROOT, "docs", "audit_reports", name, "turn1_run_metadata.json")
+    with open(path, encoding="utf-8") as fh:
+        return json.load(fh)
+
+
+def test_the_closed_runs_are_round_7s_two_runs_as_committed():
+    run1, run2 = _committed_metadata(RUN1), _committed_metadata(RUN2)
+    for meta in (run1, run2):
+        assert meta["payload_sha256"] == ROUND7_PAYLOAD
+        assert meta["finish_reason"] == "stop"
+    # Run 1 asked for no reasoning and got none, and its lookup of the
+    # generation record ran out, so it names no provider.
+    assert run1["usage"]["completion_tokens_details"]["reasoning_tokens"] == 0
+    assert "provider_reported" not in run1
+    # Run 2 asked for it, the probe showed it, the reply carried it, and the
+    # lookup found the provider.
+    assert run2["reasoning_requested"] == {"enabled": True}
+    assert run2["reasoning_probe"]["reasoning_tokens"] > 0
+    assert run2["usage"]["completion_tokens_details"]["reasoning_tokens"] > 0
+    assert run2["provider_reported"] == "Poolside"
+
+
+def test_round_7_has_had_its_two_runs():
+    root = Path(REPO_ROOT)
+    assert [d.name for d in sar.recorded_runs(root)] == [RUN1, RUN2]
+    with pytest.raises(SystemExit) as info:
+        sar.check_another_run(root, ROUND7_PAYLOAD)
+    assert "has had its 2 runs" in str(info.value)
+    assert "another auditor, not another run" in str(info.value)
 
 
 class _Session:
