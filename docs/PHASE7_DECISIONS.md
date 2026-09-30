@@ -2381,6 +2381,87 @@ carries — direction from the bias score alone; degrade, don't halt; each run's
 hashed and its candles archived — so that the auditor does not report ruled behaviour as
 a defect.
 
+## Ruling, 30 September 2026 — the Part 7 document approved
+
+*New in this file on 30 September 2026, filed with the twenty-eighth session's commit,
+which adds the Part 7 document (item 13 of the preparation list). Claude drafted it;
+Viktor read the draft and approved it: "I approve if you are satisfied also."*
+
+**What was approved.** `docs/audit_package/part7_material_PART7_ONLY.md`, the document
+the second message carries beside the commit messages. It holds what the ruling of
+29 September on what the auditor sees requires — the `bias_score` findings, the list for
+after the audit, and the points of the 15 September PDF, here all six, each with where
+it stands — and opens as the first ruling of 30 September requires: what it is, and that
+its entries were known to the project and held back until Part 7 on purpose. It tells
+the auditor the whole scoring rule, the threshold and the rerun, who scores (Claude,
+which wrote the code and chose the entries) and every entry's classification, since
+Parts 1–6 are committed before it is sent; and it asks the auditor to challenge any
+classification it disagrees with.
+
+**What it adds to the scoring rule** ("six questions before the send", point 4; "the
+test bugs", above). Claude's under point 4, Viktor checking; put to him as the part to
+check most closely.
+
+1. **What "found" means, for each of the four test bugs:** the place (file and function)
+   and the fault, one sentence each. It narrows the 29 September wording, "the same
+   place and the same thing going wrong". Two allow more than one name for the place:
+   the second (the `risk_inputs` block in `Phase7Engine.run`, or the same lineage as
+   `LineageBlock` describes it) and the third (the entry-quality direction in
+   `Phase7Engine.run`, or `calculate_entry_quality` as called from it).
+2. **Two entries added on 30 September, classified:** "ROUND 6" in seven test comments —
+   not scored, since the shipped line is itself the defect; and the always-true
+   comparison below — not scored, since it changes nothing observable. Four usable
+   stays four.
+
+**Found while writing it.**
+
+- **An always-true comparison.** `calculate_entry_quality` (`models/entry_model.py:384`,
+  at `01f2892`) tests `macro_bias != trade_direction`, two vocabularies that never
+  match. The branches above it catch agreement and the engine passes only BULLISH,
+  BEARISH or NEUTRAL, so the result is right for every value a caller passes. On the
+  list for after the audit (PHASE7_NEXT.md).
+- **Point 2 of the 15 September PDF had never been traced by the preparation list.**
+  Item 7 traced points 3–5 ("the test bugs", above) and point 1 was read on
+  29 September; point 2, "triple volume accounting", was not taken up. The code had
+  answered it on 20 September, in the comment at `models/bias_engine.py:62–89` (from
+  `a9d4b1f`). Read again from the code on 30 September: the panel's "Vol:" field is
+  volatility (ATR over price, `calculate_dynamic_regime`), not volume; volume sentiment
+  reaches `bias_score` and the validation score, and volume reaches the entry score
+  through the VWMA distance. What is left open is that comment's own question, "whether
+  three separate penalties for one disagreement is the right total weight". **Claude's
+  reading, from the matching words, Viktor's to correct:** that comment is the source of
+  the 22 September ruling's item "one volume/macro disagreement adding up to three
+  penalties", which this file recorded on 26 September as not found as a finding, and
+  which Work order G read, unconfirmed, as macro's three places. The comment names both
+  volume and macro; G's reading is its macro half. The Part 7 document gives the auditor
+  both halves (its Section 4, item 4).
+- **Items 3, 4 and 5 of PHASE7_NEXT.md's preparation list** still said "the commit that
+  writes this line" at `01f2892`, carried unchanged from `12b483e`, where they landed.
+  Corrected in the new version; the version moved into HISTORY is left as it was, with a
+  note in its header.
+
+**Corrected after the approval.** Re-reading the approved draft before building the
+patch, Claude found three statements that were not accurate and corrected them. Viktor
+sees the corrected document before he applies it.
+
+1. The opening said the first message "did not point you to any of them" and that four
+   entries are not named in the code. The first message does name some of them, in the
+   code comments Section 3.2 cites, and more than four are unnamed: the always-true
+   comparison is too. It now says that some are named in comments, and that four of the
+   others are what Parts 1–6 are measured against.
+2. Section 1 said every entry was found between 26 and 30 September and deferred under
+   the 22 September ruling. Three — the three points of the 15 September PDF on the list
+   — come from 15 September, were set aside with the open items on 20 September, and
+   were moved onto the list on 29 September. It now says so.
+3. "for the reason above" became "for the reasons above".
+
+**What it weakens.** The four "found" sentences are Claude's, written by the party that
+scores; a sentence drawn too narrowly would make a real find not count. Viktor's check
+is what stands against that, and the auditor is invited to say so in Part 7 — after
+Parts 1–6 are fixed, so it cannot move the score. The citations are line numbers at
+`01f2892`: the document tells the auditor the engine code and tests have not changed
+since, which item 10 must confirm at the tag.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then
