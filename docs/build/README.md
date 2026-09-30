@@ -86,7 +86,15 @@ first message, built by `build_audit_package.py` into `MESSAGE1_PARTS1-6/`, afte
 the whole conversation with the first reply at the full reserve; `--send-part7` sends the
 Part 7 material from `MESSAGE2_PART7/` only once the first reply is committed, and measures
 that request exactly, with the first reply as written. A dry run (neither flag) prints both
-counts and the most the two requests can cost. The send script's docstring has the rest.
+counts, the most the two requests can cost, and the runs on record. The send script's
+docstring has the rest.
+
+From 30 September 2026, after round 7's first run (PHASE7_DECISIONS.md, "Ruling,
+30 September 2026 — what follows round 7's first reply"), every request asks for
+reasoning, and `--send` sends a one-line probe first and refuses the real send unless the
+probe shows reasoning tokens. A round has two runs in all, a run being any reply on record;
+each run goes to a folder of its own and sends the same first message as the runs before
+it; and `--send-part7` never continues run 1.
 
 ## House style
 

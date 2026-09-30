@@ -26,8 +26,9 @@ two, per "what the auditor sees, and no planted bugs" the same day: Parts 1-6 ar
 graded on the first message alone, and the Part 7 material goes in a second
 request.
 
-Five failures in this project's audit history are what this script exists to
-make impossible (until 29 September this line said three and listed four):
+Six failures in this project's audit history are what this script exists to
+make impossible (until 29 September this line said three and listed four; it
+said five until 30 September):
 
   * a run that went to whatever the Auto Router picked (round 3, GLM 5.3 Flash) --
     here the model AND the serving provider are pinned, with fallbacks off, so a
@@ -55,7 +56,13 @@ make impossible (until 29 September this line said three and listed four):
     with that file inside it. Here the Part 7 material is a second request,
     and --send-part7 refuses to make it until the first reply finished
     normally, came from the pinned provider, and is committed in git -- so
-    what Parts 1-6 said before Part 7 existed is on record, not asserted.
+    what Parts 1-6 said before Part 7 existed is on record, not asserted;
+  * a run whose request never asked for reasoning (round 7, run 1, Laguna S
+    2.1, 30 September 2026) -- 0 reasoning tokens in Poolside's own record,
+    52 seconds on 455,360 prompt tokens, every rule rated Compliant and none
+    of the four test bugs found. Here every request asks for reasoning, and
+    --send refuses the real send until a one-line probe has shown that the
+    endpoint reasons when asked (ROUND 7'S SECOND RUN, below).
 
 And one check that is not a past failure but was ruled before the send
 (PHASE7_DECISIONS.md, "Ruling, 26 September 2026 -- the pre-send token check
@@ -70,19 +77,25 @@ TWO COMMANDS, AND A COMMIT BETWEEN THEM
 
 Nothing is sent without --send or --send-part7. Without either the script
 assembles both messages, hashes them, runs the token check when given the
-tokenizer folder, prints the sizes and the cost, and stops.
+tokenizer folder, prints the sizes, the cost and the runs on record, and
+stops. The probe is part of --send, not of the dry run.
 
     --send        sends the first message (the instruction and Parts 1-6's
                   material) and writes the reply as turn1_* under
-                  docs/audit_reports/round7_laguna-s-2.1_<date>/.
+                  docs/audit_reports/round7_laguna-s-2.1_<date>/ for run 1,
+                  and round7_laguna-s-2.1_run<N>_<date>/ for run N after it.
+                  Refused once the round has had MAX_RUNS runs, when the
+                  first message is not the bytes every earlier run sent, and
+                  when the reasoning probe shows no reasoning.
     --send-part7  sends the second request: the first message again, the
                   first reply as written, and the Part 7 material. Refused
                   unless turn1_report.md, turn1_reasoning.txt and
                   turn1_run_metadata.json are committed and unchanged, the
                   reply finished with finish_reason=stop, the provider
-                  reported was the pinned one, the report is not empty, and
-                  the first message rebuilds to the same bytes it was sent
-                  as. The reply is written as turn2_*.
+                  reported was the pinned one, the report is not empty, the
+                  first message rebuilds to the same bytes it was sent as,
+                  and the run is not closed (CLOSED_RUNS). The reply is
+                  written as turn2_*.
 
 The commit between them is Claude's design under Viktor's delegation of
 21 September (items 3 and 4 of the preparation list); Viktor did not object
@@ -101,6 +114,37 @@ reasoning-tokens guide, read 29 September). Whether Poolside's endpoint passes
 it through to the template was not checked before the send. The token check
 counts the second request both ways and records both, and the provider's own
 count afterwards (native_tokens_prompt) says which one it saw.
+
+ROUND 7'S SECOND RUN
+
+Ruled 30 September 2026, by agreeing to Claude's suggestion
+(PHASE7_DECISIONS.md, "Ruling, 30 September 2026 -- what follows round 7's
+first reply"). Run 1's reply had no reasoning -- 0 reasoning tokens in the
+provider's own record -- and found none of the four test bugs; its request
+had not asked for reasoning. The ruling: no Part 7 to run 1; run 2 with
+reasoning requested and nothing else changed; run 1 counts as a run; two
+runs in all. The design below is Claude's under the delegation of
+21 September, put to Viktor before it was built:
+
+  * every request asks for reasoning (REASONING), and --send first sends a
+    one-line probe with the same pins (build_probe_body) and refuses the
+    real send unless the probe's usage reports reasoning tokens above zero.
+    The probe carries nothing from the package;
+  * a round has at most MAX_RUNS runs. A run is any send that left a reply
+    on record -- a folder holding turn1_run_metadata.json or a non-empty
+    turn1_report.md -- whatever its finish reason, a reply cut off at the
+    output ceiling included (Viktor's answer, the same day). A send that
+    failed before any reply came back is not a run;
+  * every run sends the same first message: --send refuses unless the
+    payload hashes to the payload_sha256 each earlier run recorded;
+  * each run writes to a folder of its own, and --send never writes into a
+    folder that holds a reply. --force and --out-dir are refused with
+    --send; both remain for --send-part7;
+  * run 1 is closed (CLOSED_RUNS): --send-part7 never continues it;
+  * the generation lookup waits about five minutes in all
+    (GENERATION_LOOKUP_WAITS), not about 44 seconds: run 1's lookup ran out
+    of tries, which is why its turn1_run_metadata.json names no provider.
+    Why the record was late was not found.
 
 Usage (from the repository root):
 
@@ -154,7 +198,11 @@ TOKEN_CHECK_MODEL = "laguna-s-2.1"
 # 29 September that a trial package fits with both replies at this size
 # (PHASE7_NEXT.md, the twenty-fourth session). Reasoning counts against it on
 # most providers (OpenRouter's reasoning-tokens guide), so it bounds a reply's
-# thinking and its answer together; that is not confirmed for Poolside.
+# thinking and its answer together; that is not confirmed for Poolside. Run 1
+# (30 September) asked for no reasoning and got none, so it says nothing either
+# way. If a reply's reasoning and answer together exceed the reserve, the
+# second request is still measured exactly before it is sent
+# (check_part7_send) and refused if it does not fit.
 MAX_OUTPUT_TOKENS = 131_072
 # Kimi K3, round 4, 5 September 2026: 41,861 completion tokens, finish_reason
 # stop (docs/audit_reports/round4_kimi-k3_2026-09-05/run_metadata.json).
@@ -212,6 +260,29 @@ DELIVERY_NOTE_2 = (
 RUN_DIR_PREFIX = "round7_laguna-s-2.1_"
 TURN1 = "turn1_"
 TURN2 = "turn2_"
+
+# ROUND 7'S SECOND RUN (the docstring). Two runs in all, run 1 included.
+MAX_RUNS = 2
+# Run folders --send-part7 never continues, each with the reason it gives.
+CLOSED_RUNS = {
+    "round7_laguna-s-2.1_2026-09-30": (
+        "run 1 (30 September 2026) is closed: Part 7 does not go to it "
+        "(PHASE7_DECISIONS.md, \"Ruling, 30 September 2026 -- what follows round "
+        "7's first reply\", point 1)"),
+}
+# OpenRouter's unified reasoning parameter. `enabled` asks for the model's own
+# default; no effort level is named, because nothing read says how Poolside's
+# endpoint maps one.
+REASONING = {"enabled": True}
+# The probe: a question with nothing from the package in it, and a small
+# ceiling. At $0.18 per million output tokens, 4,096 cost under a tenth of a
+# cent. A reply cut off at the ceiling still shows whether reasoning happened.
+PROBE_PROMPT = "What is 17 multiplied by 24? Reply with the number only."
+PROBE_MAX_TOKENS = 4_096
+# Seconds to wait before each try of the generation lookup: about five
+# minutes in all. Until 30 September it was eight tries after 2-9 seconds
+# each, about 44 seconds, and run 1's lookup ran out inside it.
+GENERATION_LOOKUP_WAITS = (5,) * 6 + (15,) * 6 + (30,) * 6
 
 
 def _load_token_check():
@@ -303,6 +374,12 @@ def _request(messages: list[dict], allow_data_collection: bool) -> dict:
         # quietly shortened (OpenRouter's context-compression page, read
         # 29 September 2026; the older name for this was `transforms`).
         "plugins": [{"id": "context-compression", "enabled": False}],
+        # Ruled 30 September 2026: run 1 did not ask for reasoning and got none
+        # (0 reasoning tokens in Poolside's own record). OpenRouter's endpoint
+        # listing for Laguna S 2.1 names `reasoning` among its supported
+        # parameters (read 29 September, and again on 30 September through a
+        # web tool). Whether the endpoint acts on it is what the probe checks.
+        "reasoning": dict(REASONING),
         "provider": {
             # "only" is the exclusive whitelist; allow_fallbacks is belt and
             # braces. If the pinned provider cannot serve the request the call
@@ -332,6 +409,14 @@ def build_part7_request_body(payload: str, reply_reasoning: str, reply_answer: s
         ],
         allow_data_collection,
     )
+
+
+def build_probe_body(allow_data_collection: bool) -> dict:
+    """The reasoning probe: one short question, with the same model, pins and
+    reasoning request as a real send, and a small output ceiling."""
+    body = _request([{"role": "user", "content": PROBE_PROMPT}], allow_data_collection)
+    body["max_tokens"] = PROBE_MAX_TOKENS
+    return body
 
 
 # --- the token check ---------------------------------------------------------
@@ -496,12 +581,63 @@ def verify_first_reply(run_dir: Path, repo_root: Path, payload_sha256: str) -> t
     return texts[reasoning_path], texts[report_path], meta
 
 
+def _holds_a_run(run_dir: Path) -> bool:
+    """Whether a folder holds a reply on record: turn1_run_metadata.json, or a
+    turn1_report.md that is not empty (a stream that broke off after the reply
+    had started)."""
+    report = run_dir / f"{TURN1}report.md"
+    return ((run_dir / f"{TURN1}run_metadata.json").is_file()
+            or (report.is_file() and report.stat().st_size > 0))
+
+
+def recorded_runs(repo_root: Path) -> list[Path]:
+    """Every run of this round on record, whatever its finish reason. A send
+    that failed before any reply came back left no reply, and is not a run."""
+    base = repo_root / "docs" / "audit_reports"
+    if not base.is_dir():
+        return []
+    return sorted(d for d in base.glob(RUN_DIR_PREFIX + "*")
+                  if d.is_dir() and _holds_a_run(d))
+
+
+def check_another_run(repo_root: Path, payload_sha256: str) -> list[Path]:
+    """Refuses, sending nothing, when the round has had its runs, or when the
+    first message is not the bytes every earlier run sent. Returns the runs on
+    record."""
+    runs = recorded_runs(repo_root)
+    if len(runs) >= MAX_RUNS:
+        raise SystemExit(
+            f"Round 7 has had its {MAX_RUNS} runs:"
+            + "".join(f"\n  {d.name}" for d in runs)
+            + "\nThe next step is another auditor, not another run (PHASE7_DECISIONS.md, "
+            "\"Ruling, 30 September 2026 -- what follows round 7's first reply\", "
+            "point 4). Nothing was sent.")
+    problems = []
+    for run in runs:
+        meta_path = run / f"{TURN1}run_metadata.json"
+        try:
+            recorded = json.loads(meta_path.read_text(encoding="utf-8")).get("payload_sha256")
+        except (OSError, ValueError):
+            recorded = None
+        if recorded is None:
+            problems.append(f"{run.name}: no payload_sha256 on record to compare with")
+        elif recorded != payload_sha256:
+            problems.append(f"{run.name} sent {recorded}; this first message is "
+                            f"{payload_sha256}")
+    if problems:
+        raise SystemExit("Refusing to send: every run sends the same first message.\n  "
+                         + "\n  ".join(problems) + "\nNothing was sent.")
+    return runs
+
+
 def _find_waiting_run(repo_root: Path) -> Path:
-    """The one run directory whose first reply has no Part 7 yet."""
+    """The one run directory whose first reply has no Part 7 yet. Closed runs
+    (CLOSED_RUNS) are never waiting."""
     base = repo_root / "docs" / "audit_reports"
     waiting = sorted(
         d for d in base.glob(RUN_DIR_PREFIX + "*")
-        if (d / f"{TURN1}run_metadata.json").is_file()
+        if d.name not in CLOSED_RUNS
+        and (d / f"{TURN1}run_metadata.json").is_file()
         and not ((d / f"{TURN2}report.md").is_file()
                  and (d / f"{TURN2}report.md").stat().st_size > 0)
     ) if base.is_dir() else []
@@ -513,26 +649,29 @@ def _find_waiting_run(repo_root: Path) -> Path:
     return waiting[0]
 
 
-def _open_run_dir(repo_root: Path, force: bool) -> Path:
+def _next_run_dir(repo_root: Path) -> Path:
+    """The folder for the next run: round7_laguna-s-2.1_<date> for run 1,
+    round7_laguna-s-2.1_run<N>_<date> for run N after it. Refused if it
+    already holds a reply: a run on record is never written over. Not
+    created here: main() creates it once the probe has passed."""
+    number = len(recorded_runs(repo_root)) + 1
     stamp = _utc_now().strftime("%Y-%m-%d")
-    run_dir = repo_root / "docs" / "audit_reports" / f"{RUN_DIR_PREFIX}{stamp}"
-    report = run_dir / f"{TURN1}report.md"
-    if report.exists() and report.stat().st_size > 0 and not force:
-        raise SystemExit(
-            f"{report} already holds a response. Refusing to overwrite a paid run.\n"
-            "Move it aside, or pass --force if you are sure."
-        )
-    run_dir.mkdir(parents=True, exist_ok=True)
+    name = f"{RUN_DIR_PREFIX}{stamp}" if number == 1 else f"{RUN_DIR_PREFIX}run{number}_{stamp}"
+    run_dir = repo_root / "docs" / "audit_reports" / name
+    if _holds_a_run(run_dir):
+        raise SystemExit(f"{run_dir} already holds a reply. A run on record is never "
+                         "written over. Nothing was sent.")
     return run_dir
 
 
 # --- the network -----------------------------------------------------------------
 
 
-def _fetch_generation(session, api_key: str, gen_id: str) -> dict | None:
-    """The billing row for the call: provider actually used, native token counts, cost."""
-    for attempt in range(8):
-        time.sleep(2 + attempt)
+def _fetch_generation(session, api_key: str, gen_id: str, sleep=time.sleep) -> dict | None:
+    """The billing row for the call: provider actually used, native token counts,
+    cost. One try after each wait in GENERATION_LOOKUP_WAITS."""
+    for attempt, wait in enumerate(GENERATION_LOOKUP_WAITS, 1):
+        sleep(wait)
         try:
             resp = session.get(
                 GENERATION_URL,
@@ -544,7 +683,75 @@ def _fetch_generation(session, api_key: str, gen_id: str) -> dict | None:
                 return resp.json()
         except Exception:  # noqa: BLE001 - metadata is best effort, the report is not
             pass
+        print(f"  generation record not available yet (try {attempt} of "
+              f"{len(GENERATION_LOOKUP_WAITS)})", flush=True)
     return None
+
+
+def reasoning_tokens(usage) -> int | None:
+    """The reasoning-token count a usage block reports, or None when it reports none."""
+    details = (usage or {}).get("completion_tokens_details") or {}
+    value = details.get("reasoning_tokens")
+    return value if isinstance(value, int) and not isinstance(value, bool) else None
+
+
+def read_stream(lines) -> dict:
+    """What a streamed reply carried, from its server-sent-event lines: the
+    generation id, the finish reason, the usage block, and the answer and the
+    reasoning as text. Used by the probe; send() keeps its own loop, which
+    writes to disk as it reads."""
+    got = {"generation_id": None, "finish_reason": None, "usage": None,
+           "content": "", "reasoning": ""}
+    for raw_line in lines:
+        if not raw_line or not raw_line.startswith("data: "):
+            continue  # blank lines and OPENROUTER PROCESSING keep-alives
+        data = raw_line[6:].strip()
+        if data == "[DONE]":
+            break
+        try:
+            event = json.loads(data)
+        except json.JSONDecodeError:
+            continue
+        got["generation_id"] = event.get("id") or got["generation_id"]
+        if event.get("usage"):
+            got["usage"] = event["usage"]
+        for choice in event.get("choices") or []:
+            delta = choice.get("delta") or {}
+            got["content"] += delta.get("content") or ""
+            got["reasoning"] += delta.get("reasoning") or ""
+            if choice.get("finish_reason"):
+                got["finish_reason"] = choice["finish_reason"]
+    return got
+
+
+def probe_reasoning(body: dict, api_key: str) -> dict:
+    """Sends the probe and reports what came back, for the record. Decides
+    nothing: main() refuses the real send unless reasoning_tokens is above 0."""
+    import requests  # pinned at 2.32.5 in requirements.txt
+
+    print(f"POST {API_URL}  probe  model={MODEL}  provider={PROVIDER_SLUG}  "
+          f"max_tokens={body['max_tokens']}  reasoning={body.get('reasoning')}", flush=True)
+    resp = requests.post(
+        API_URL,
+        headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+        json=body,
+        stream=True,
+        timeout=(30, 300),
+    )
+    resp.encoding = "utf-8"  # as in send(): the header names no charset
+    if resp.status_code != 200:
+        return {"http_status": resp.status_code, "error": resp.text[:2000],
+                "reasoning_tokens": None}
+    got = read_stream(resp.iter_lines(decode_unicode=True))
+    return {
+        "http_status": 200,
+        "generation_id": got["generation_id"],
+        "finish_reason": got["finish_reason"],
+        "usage": got["usage"],
+        "answer": got["content"][:200],
+        "reasoning_chars": len(got["reasoning"]),
+        "reasoning_tokens": reasoning_tokens(got["usage"]),
+    }
 
 
 def send(body: dict, api_key: str, run_dir: Path, metadata: dict, prefix: str) -> int:
@@ -710,6 +917,12 @@ def send(body: dict, api_key: str, run_dir: Path, metadata: dict, prefix: str) -
             "no report content was returned -- only reasoning, if anything. This is "
             "what happened on 2 September: 36,085 tokens of reasoning and no report."
         )
+    if body.get("reasoning") and not (reasoning_tokens(usage) or reasoning_chars):
+        problems.append(
+            "reasoning was requested and the reply carries none (no reasoning tokens, "
+            "no reasoning text). The probe had shown reasoning; this reply did not. "
+            "It is still a run (ruling of 30 September): score it as it stands."
+        )
     for problem in problems:
         print(f"\nWARNING: {problem}", file=sys.stderr)
     if prefix == TURN1 and not problems:
@@ -718,10 +931,11 @@ def send(body: dict, api_key: str, run_dir: Path, metadata: dict, prefix: str) -
 
 
 def main(argv: list[str] | None = None, repo_root: Path | None = None, models=None,
-         counter_factory=None, send_fn=None) -> int:
+         counter_factory=None, send_fn=None, probe_fn=None) -> int:
     repo_root = repo_root or Path(__file__).resolve().parents[2]
     round_dir = repo_root / "docs" / "audit_package" / "round7"
     send_fn = send_fn or send
+    probe_fn = probe_fn or probe_reasoning
 
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("--package-dir", type=Path, default=round_dir / "MESSAGE1_PARTS1-6",
@@ -732,14 +946,15 @@ def main(argv: list[str] | None = None, repo_root: Path | None = None, models=No
                         help="the auditor's pinned tokenizer files (package_token_check.py); "
                              "required to send")
     parser.add_argument("--out-dir", type=Path, default=None,
-                        help="where the replies are written (default: under docs/audit_reports/)")
+                        help="with --send-part7 only: the run folder to continue (default: "
+                             "the one run waiting for Part 7)")
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument("--send", action="store_true",
                       help="send the first message; without --send or --send-part7 this is a dry run")
     mode.add_argument("--send-part7", action="store_true",
                       help="send the Part 7 material, once the first reply is committed")
     parser.add_argument("--force", action="store_true",
-                        help="overwrite an existing response in the output directory")
+                        help="with --send-part7 only: overwrite an existing Part 7 reply")
     parser.add_argument("--allow-data-collection", action="store_true",
                         help="permit providers that may train on the prompt (default: deny)")
     args = parser.parse_args(argv)
@@ -776,6 +991,7 @@ def main(argv: list[str] | None = None, repo_root: Path | None = None, models=No
         "payload_sha256": payload_sha256,
         "payload_bytes": len(payload.encode("utf-8")),
         "data_collection": "allow" if args.allow_data_collection else "deny",
+        "reasoning_requested": dict(REASONING),
     }
 
     if args.send_part7:
@@ -783,6 +999,9 @@ def main(argv: list[str] | None = None, repo_root: Path | None = None, models=No
             raise SystemExit("--send-part7 needs --tokenizer-dir: the second request is "
                              "measured before it is sent. Nothing was sent.")
         run_dir = args.out_dir or _find_waiting_run(repo_root)
+        if Path(run_dir).name in CLOSED_RUNS:
+            raise SystemExit(f"Refusing to send Part 7: {CLOSED_RUNS[Path(run_dir).name]}. "
+                             "Nothing was sent.")
         report2 = run_dir / f"{TURN2}report.md"
         if report2.exists() and report2.stat().st_size > 0 and not args.force:
             raise SystemExit(f"{report2} already holds a response. Refusing to overwrite "
@@ -821,12 +1040,21 @@ def main(argv: list[str] | None = None, repo_root: Path | None = None, models=No
         else:
             print("token check    not made: pass --tokenizer-dir. --send and "
                   "--send-part7 refuse without it.")
+        runs = recorded_runs(repo_root)
+        print(f"runs on record {len(runs)} of {MAX_RUNS}"
+              + "".join(f"\n  {d.name}" + ("  (closed)" if d.name in CLOSED_RUNS else "")
+                        for d in runs))
         if not args.send:
             print("\nDry run. Nothing was sent. Re-run with --send to send the first message.")
             return 0
+        if args.out_dir is not None or args.force:
+            raise SystemExit("--out-dir and --force are for --send-part7 only: --send writes "
+                             "each run to a folder of its own and never over a run on "
+                             "record. Nothing was sent.")
         if counted is None:
             raise SystemExit("--send needs --tokenizer-dir: the conversation is measured "
                              "before anything is sent. Nothing was sent.")
+        check_another_run(repo_root, payload_sha256)
         metadata.update({"turn": 1, "token_check": counted})
         body = build_request_body(payload, args.allow_data_collection)
         prefix = TURN1
@@ -840,7 +1068,18 @@ def main(argv: list[str] | None = None, repo_root: Path | None = None, models=No
         )
 
     if prefix == TURN1:
-        run_dir = args.out_dir or _open_run_dir(repo_root, args.force)
+        run_dir = _next_run_dir(repo_root)
+        probe = probe_fn(build_probe_body(args.allow_data_collection), api_key)
+        metadata["reasoning_probe"] = probe
+        shown = probe.get("reasoning_tokens")
+        print(f"reasoning probe {shown if shown is not None else 'none reported'} reasoning "
+              f"tokens (HTTP {probe.get('http_status')})")
+        if not (shown or 0) > 0:
+            raise SystemExit(
+                "Refusing to send: the reasoning probe shows no reasoning. The audit was "
+                "not sent; only the probe was. The ruling of 30 September sends run 2 "
+                "with reasoning requested -- why it did not come back is to be found out "
+                "first.")
     run_dir.mkdir(parents=True, exist_ok=True)
     return send_fn(body, api_key, run_dir, metadata, prefix)
 

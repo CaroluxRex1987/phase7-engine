@@ -2462,6 +2462,101 @@ Parts 1–6 are fixed, so it cannot move the score. The citations are line numbe
 `01f2892`: the document tells the auditor the engine code and tests have not changed
 since, which item 10 must confirm at the tag.
 
+## Ruling, 30 September 2026 — what follows round 7's first reply
+
+*New in this file on 30 September 2026, filed with the thirty-first session's commit,
+which changes the send script this ruling calls for. Points 1–4 by agreeing to Claude's
+suggestion: Viktor asked for Claude's suggestion on the three questions PHASE7_NEXT.md
+left open after round 7's first reply, and answered "Agreed." to all of them and to a
+fourth that Claude raised. He did not write his position first. Point 5 is his own
+choice between two options Claude put to him, one of them marked as Claude's
+recommendation, which he chose. He also confirmed he had checked Claude's scoring
+(below).*
+
+**How it came about.** Round 7's first message went to Laguna S 2.1 on 30 September
+(PHASE7_NEXT.md, the thirtieth session). The reply rated all 44 rules Compliant, found
+nothing, and named none of the four test bugs. Poolside's own generation record shows
+0 reasoning tokens: 3,626 completion tokens in 52 seconds, on 455,360 prompt tokens.
+The request had not asked for reasoning. Three questions were left open for Viktor:
+whether Part 7 goes to this run, whether the rerun goes unchanged or with reasoning
+requested, and whether a run with no reasoning counts under point 3 of "six questions
+before the send" (above).
+
+**The scoring, checked.** Claude re-scored the reply on 30 September from the committed
+`turn1_report.md`, against the four "Found means" sentences of the Part 7 document
+(Section 3.1). Part 2 of the reply has no finding, so nothing in it names both the place
+and the fault of a test bug. Two near misses both fail the rule. Line 84 names
+`_determine_final_action`, the function where S1 and S4 are, only to call its direction
+source correct. Line 92 (Item 14) is in S2's area, but it repeats the claim of the ITEM 14
+comment that S2 says is misleading, and never mentions `risk_inputs` or `trend_factor`.
+"NEUTRAL" and "entry quality" (S3) appear nowhere. **0 of 4.** Viktor checked it (asked
+in chat: "Yes, I checked it"). Under point 3 of "six questions before the send", run 1's
+Compliant ratings do not count.
+
+**What was ruled.**
+
+1. **Part 7 does not go to run 1.** The score comes from Parts 1–6 alone, so Part 7
+   cannot change it. The run's Compliant ratings already do not count, so there is no
+   audit for Part 7 to finish. What Part 7 would add is the run's view of the list for
+   after the audit, from a run that spent 52 seconds and no reasoning on 455K tokens.
+   `turn1_run_metadata.json` stays as the send wrote it, with no provider in it;
+   `turn1_generation.json`, fetched afterwards, is the provider record.
+   **What it weakens:** a cheap look at how Laguna reads Part 7, and which test bugs it
+   would claim, is not taken.
+2. **Run 2 asks for reasoning, and nothing else changes.** The same first message,
+   checked by its hash against run 1's `1b8b8095…`; the same instruction; the same
+   pins. Unchanged, it would most likely repeat run 1, since the request is the only
+   thing the project controls. OpenRouter's endpoint listing names `reasoning` among
+   Laguna S 2.1's supported parameters (read on 29 September and again on 30 September,
+   the second time through a web tool; the sandbox's direct call was refused by its
+   proxy). Whether Poolside's endpoint acts on it was not checked, so a one-line probe
+   goes first, and the real send is refused unless the probe's reply shows reasoning
+   tokens above zero. The generation lookup is lengthened in the same change, since the
+   failure that left run 1 with no provider on record would block Part 7 after a
+   passing run 2 as well. **The freeze has one exception:** `tests/test_send_audit_round.py`
+   may change while engine code and tests are frozen (point 1 of "six questions before
+   the send"). It tests a script that is not part of the engine and is not in the
+   package, and run 2 sends the first message by its hash from the tag, so the report
+   still points at one exact tree. The other option, the script changed and its test
+   owed until after triage, would cut verification. **What it weakens:** the freeze
+   gets its first exception, and `tests/` on `master` differs from the tag's in that
+   one file until the report is triaged. `docs/audit_package/round7/MANIFEST.md` keeps
+   the file's hash as it was sent.
+3. **Run 1 counts as a run.** It was the ruled package, sent to the ruled model and
+   scored by the rule committed before the send. Leaving it out now that it scored 0 of
+   4 is the adjustment after the fact that committing the rule first exists to prevent.
+   It is recorded as run 1: no reasoning requested, 0 of 4.
+4. **Two runs in all.** Point 3 of "six questions before the send" said "if run after
+   run stays under half, the fault is the model's", with no number. Each further run of
+   the same model raises the chance that a shallow run passes by luck, and a passing
+   run's Compliant ratings are then trusted. As an illustration only: a run that passes
+   by luck one time in five passes at least once in three tries about half the time
+   (1 − 0.8³ ≈ 0.49). So if run 2 also finds fewer than two of the four, the next step
+   is another auditor, not a third run. **What it weakens:** Laguna gets one run with
+   reasoning requested; a model that might have passed on a third try is dropped.
+5. **What counts as a run** (Viktor's choice of two options; Claude recommended this
+   one). Any send that left a reply on record counts, a reply cut off at the output
+   ceiling included: the ceiling is the model's own maximum, 131,072, so a cut-off is
+   the model's limit, not the setup's. A send that fails before any reply comes back,
+   such as an HTTP error, does not count. The other option counted only replies that
+   finished normally, which would let a model gain tries by running out of room.
+
+**How the script carries it** (Claude's design under the delegation of 21 September,
+put to Viktor before it was built; he did not object). `docs/build/send_audit_round.py`:
+every request asks for reasoning (`reasoning: {"enabled": true}`); `--send` sends a
+probe first and refuses unless it shows reasoning tokens; `--send` refuses a third run,
+counting any folder that holds `turn1_run_metadata.json` or a non-empty
+`turn1_report.md`; it refuses a first message whose hash differs from any earlier
+run's; run 2 goes to `round7_laguna-s-2.1_run2_<date>/`, and a folder holding a reply is
+never written over; `--out-dir` and `--force` are refused with `--send`; run 1's folder
+is closed, so `--send-part7` never continues it, even when it is named; and the
+generation lookup waits about five minutes instead of about 44 seconds. The commit
+message has the tests and their negative controls.
+
+**What it does not settle.** Which auditor comes next if run 2 also fails. Point 6 of
+"six questions before the send" leaves the like question to be decided when it comes
+up, and so does this one. Why run 1's generation lookup failed was not found.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then

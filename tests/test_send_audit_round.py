@@ -26,11 +26,30 @@ Items 3, 4 and 5 of the preparation list for the audit.
     and from the pinned provider, and the first message is the one it
     answered.
 
+PHASE7_DECISIONS.md, "Ruling, 30 September 2026 -- what follows round 7's
+first reply": run 1 asked for no reasoning and got none, and found none of
+the four test bugs. Added the same day:
+
+  * every request asks for reasoning, and --send refuses the real send
+    unless a probe shows reasoning tokens above zero;
+  * a round has two runs at most, and a run is any reply on record, cut off
+    or not; a folder with only an HTTP error in it is not a run;
+  * every run sends the bytes every earlier run sent;
+  * no run is written over, and --send takes neither --out-dir nor --force;
+  * Part 7 never goes to run 1, which is closed, even when it is named;
+  * the generation lookup waits about five minutes before giving up.
+
+This file is the one test file changed while the code is frozen for round 7
+(the same ruling, point 2): it tests a script that is not part of the engine,
+and the rerun sends the first message by its hash from the tag.
+
 WHAT THESE TESTS DO NOT COVER
 
 Nothing here touches the network: the function that would POST is replaced by a
-spy. The streaming loop, the generation lookup and the provider's answers are
-checked only by a real send. As in test_package_token_check.py, no real
+spy, and the probe by a stand-in. The streaming loop in send(), the probe's own
+POST and the provider's answers are checked only by a real send; the stream
+reader the probe uses is fed recorded lines, and the generation lookup a
+stand-in session. As in test_package_token_check.py, no real
 tokenizer is loaded: a counter of whitespace-separated words stands in, so the
 arithmetic, the refusals and what is sent are what is asserted. No test takes a
 fixture, so `run_tests.py` runs every one.
@@ -120,6 +139,19 @@ class _Spy:
         return 0
 
 
+class _Probe:
+    """Stands in for probe_reasoning(): records the body, sends nothing, and
+    reports the reasoning tokens it was given."""
+
+    def __init__(self, reasoning_tokens=7):
+        self.reasoning_tokens = reasoning_tokens
+        self.calls = []
+
+    def __call__(self, body, api_key):
+        self.calls.append(body)
+        return {"http_status": 200, "reasoning_tokens": self.reasoning_tokens}
+
+
 class _Repo:
     """A throwaway git repository holding a round-7 package, a pinned
     stand-in tokenizer folder, and optionally a first reply."""
@@ -172,15 +204,26 @@ class _Repo:
         meta.update(overrides)
         _write(str(self.run_dir / "turn1_run_metadata.json"), json.dumps(meta, indent=2))
 
-    def main(self, argv, context=10_000_000, spy=None):
+    def recorded_run(self, name, payload_sha256=None, metadata=True, report="Part 1.\n"):
+        """A run on record in docs/audit_reports/<name>/, as a send leaves it."""
+        run_dir = self.root / "docs" / "audit_reports" / name
+        if report is not None:
+            _write(str(run_dir / "turn1_report.md"), report)
+        if metadata:
+            meta = {"payload_sha256": payload_sha256 or self.payload_sha256()}
+            _write(str(run_dir / "turn1_run_metadata.json"), json.dumps(meta))
+        return run_dir
+
+    def main(self, argv, context=10_000_000, spy=None, probe=None):
         spy = spy if spy is not None else _Spy()
+        probe = probe if probe is not None else _Probe()
         models = {sar.TOKEN_CHECK_MODEL: _spec(str(self.tok), context)}
         saved = os.environ.get("OPENROUTER_API_KEY")
         os.environ["OPENROUTER_API_KEY"] = "sk-or-test"
         try:
             with contextlib.redirect_stdout(io.StringIO()):
                 code = sar.main(argv, repo_root=self.root, models=models,
-                                counter_factory=_words, send_fn=spy)
+                                counter_factory=_words, send_fn=spy, probe_fn=probe)
         finally:
             if saved is None:
                 os.environ.pop("OPENROUTER_API_KEY", None)
@@ -188,11 +231,15 @@ class _Repo:
                 os.environ["OPENROUTER_API_KEY"] = saved
         return code, spy
 
-    def refused(self, argv, context=10_000_000):
+    def refused(self, argv, context=10_000_000, probe=None, probed=False):
+        """The refusal's text. Nothing is sent; the probe is sent only when
+        `probed` says the refusal comes after it."""
         spy = _Spy()
+        probe = probe if probe is not None else _Probe()
         with pytest.raises(SystemExit) as info:
-            self.main(argv, context=context, spy=spy)
+            self.main(argv, context=context, spy=spy, probe=probe)
         assert spy.calls == [], "a refusal sent something"
+        assert len(probe.calls) == (1 if probed else 0), "the probe went out when it should not"
         return str(info.value)
 
     def close(self):
@@ -405,8 +452,188 @@ def test_send_sends_the_first_message_alone_once_it_is_measured():
                 > counted["request1_prompt_tokens"] + sar.MAX_OUTPUT_TOKENS)
         assert call["metadata"]["payload_sha256"] == repo.payload_sha256()
         assert call["run_dir"].name.startswith("round7_laguna-s-2.1_")
+        assert call["metadata"]["reasoning_probe"]["reasoning_tokens"] == 7
+        assert call["metadata"]["reasoning_requested"] == {"enabled": True}
     finally:
         repo.close()
+
+
+# --- round 7's second run: ruled 30 September 2026 -------------------------------
+
+
+def test_every_request_and_the_probe_ask_for_reasoning():
+    payload = sar.build_payload(_texts(sar.MESSAGE1_FILES, "one"))
+    part7 = sar.build_part7_payload(_texts(sar.MESSAGE2_FILES, "seven"))
+    probe = sar.build_probe_body(allow_data_collection=False)
+    for body in (sar.build_request_body(payload, False),
+                 sar.build_part7_request_body(payload, "r", "a", part7, False), probe):
+        assert body["reasoning"] == {"enabled": True}
+        assert body["model"] == "poolside/laguna-s-2.1"
+        assert body["provider"]["only"] == ["poolside"]
+        assert body["provider"]["allow_fallbacks"] is False
+        assert body["provider"]["data_collection"] == "deny"
+    # The probe carries one short question and nothing from the package.
+    assert probe["messages"] == [{"role": "user", "content": sar.PROBE_PROMPT}]
+    assert probe["max_tokens"] == sar.PROBE_MAX_TOKENS < sar.MAX_OUTPUT_TOKENS
+    assert "BEGIN FILE" not in json.dumps(probe)
+
+
+def _sse(*events):
+    lines = [": OPENROUTER PROCESSING", ""]
+    for event in events:
+        lines += ["data: " + json.dumps(event), ""]
+    return lines + ["data: [DONE]", ""]
+
+
+def test_the_probe_reads_reasoning_tokens_from_the_stream():
+    usage = {"prompt_tokens": 20, "completion_tokens": 50,
+             "completion_tokens_details": {"reasoning_tokens": 37}}
+    got = sar.read_stream(_sse(
+        {"id": "gen-1", "choices": [{"delta": {"reasoning": "17 times 24 is "}}]},
+        {"id": "gen-1", "choices": [{"delta": {"reasoning": "408."}}]},
+        {"id": "gen-1", "choices": [{"delta": {"content": "408"}, "finish_reason": "stop"}]},
+        {"id": "gen-1", "choices": [], "usage": usage},
+    ))
+    assert got["generation_id"] == "gen-1"
+    assert got["finish_reason"] == "stop"
+    assert got["content"] == "408"
+    assert got["reasoning"] == "17 times 24 is 408."
+    assert sar.reasoning_tokens(got["usage"]) == 37
+    # Run 1's usage block, as its turn1_run_metadata.json recorded it: none.
+    assert sar.reasoning_tokens({"completion_tokens_details": {"reasoning_tokens": 0}}) == 0
+    # A usage block that reports nothing about reasoning, and none at all.
+    assert sar.reasoning_tokens({"completion_tokens": 5}) is None
+    assert sar.reasoning_tokens(None) is None
+
+
+def test_send_is_refused_when_the_probe_shows_no_reasoning():
+    repo = _Repo()
+    try:
+        argv = ["--tokenizer-dir", str(repo.tok), "--send"]
+        for shown in (0, None):
+            text = repo.refused(argv, probe=_Probe(reasoning_tokens=shown), probed=True)
+            assert "the reasoning probe shows no reasoning" in text
+        # Nothing is left behind that would count as a run.
+        assert sar.recorded_runs(repo.root) == []
+        probe = _Probe(reasoning_tokens=1)
+        code, spy = repo.main(argv, probe=probe)
+        assert code == 0 and len(spy.calls) == 1
+        assert probe.calls == [sar.build_probe_body(False)]
+    finally:
+        repo.close()
+
+
+def test_a_round_has_two_runs_at_most_and_a_run_is_any_reply_on_record():
+    repo = _Repo()
+    try:
+        argv = ["--tokenizer-dir", str(repo.tok), "--send"]
+        # A folder that holds only an HTTP error is not a run.
+        _write(str(repo.root / "docs" / "audit_reports" / "round7_laguna-s-2.1_2026-10-02"
+                   / "turn1_http_error.txt"), "HTTP 502\n")
+        assert sar.recorded_runs(repo.root) == []
+        repo.recorded_run("round7_laguna-s-2.1_2026-10-01")
+        code, spy = repo.main(argv)
+        [call] = spy.calls
+        assert call["run_dir"].name.startswith("round7_laguna-s-2.1_run2_")
+        # A reply cut off with no metadata written is on record too: two runs.
+        repo.recorded_run("round7_laguna-s-2.1_run2_2026-10-03", metadata=False)
+        assert len(sar.recorded_runs(repo.root)) == 2
+        text = repo.refused(argv)
+        assert "has had its 2 runs" in text
+        assert "another auditor, not another run" in text
+    finally:
+        repo.close()
+
+
+def test_every_run_sends_the_bytes_the_earlier_runs_sent():
+    repo = _Repo()
+    try:
+        argv = ["--tokenizer-dir", str(repo.tok), "--send"]
+        run = repo.recorded_run("round7_laguna-s-2.1_2026-10-01", payload_sha256="0" * 64)
+        text = repo.refused(argv)
+        assert "every run sends the same first message" in text
+        assert "0" * 64 in text
+        os.remove(run / "turn1_run_metadata.json")
+        text = repo.refused(argv)
+        assert "no payload_sha256 on record" in text
+        repo.recorded_run("round7_laguna-s-2.1_2026-10-01")
+        assert repo.main(argv)[0] == 0
+    finally:
+        repo.close()
+
+
+def test_send_takes_no_out_dir_or_force_and_never_writes_over_a_run():
+    repo = _Repo()
+    try:
+        argv = ["--tokenizer-dir", str(repo.tok), "--send"]
+        for extra in (["--out-dir", str(repo.run_dir)], ["--force"]):
+            assert "for --send-part7 only" in repo.refused(argv + extra)
+        # A run on record under the name the next run would be given (one run
+        # on record, so the next is run 2): refused before the probe, and not
+        # written over.
+        stamp = sar._utc_now().strftime("%Y-%m-%d")
+        repo.recorded_run(f"round7_laguna-s-2.1_run2_{stamp}")
+        text = repo.refused(argv)
+        assert "never written over" in text
+    finally:
+        repo.close()
+
+
+def test_part7_never_goes_to_a_closed_run_even_when_it_is_named():
+    repo = _Repo()
+    try:
+        [closed] = sar.CLOSED_RUNS
+        repo.run_dir = repo.root / "docs" / "audit_reports" / closed
+        _part7_ready(repo)
+        argv = ["--tokenizer-dir", str(repo.tok), "--send-part7"]
+        text = repo.refused(argv)
+        assert "found 0 run directories waiting for Part 7" in text
+        text = repo.refused(argv + ["--out-dir", str(repo.run_dir)])
+        assert "run 1 (30 September 2026) is closed" in text
+    finally:
+        repo.close()
+
+
+def test_the_closed_run_is_round_7s_run_1_as_committed():
+    [closed] = sar.CLOSED_RUNS
+    meta_path = os.path.join(REPO_ROOT, "docs", "audit_reports", closed,
+                             "turn1_run_metadata.json")
+    with open(meta_path, encoding="utf-8") as fh:
+        meta = json.load(fh)
+    assert meta["payload_sha256"] == (
+        "1b8b80954769efcac37cf9a83c04c7a5ea265804735ce090c9a62f1c0cebb5a9")
+    assert meta["usage"]["completion_tokens_details"]["reasoning_tokens"] == 0
+    assert "provider_reported" not in meta
+
+
+class _Session:
+    """Stands in for requests.Session in the generation lookup."""
+
+    def __init__(self, failures):
+        self.failures = failures
+        self.calls = 0
+
+    def get(self, url, params, headers, timeout):
+        self.calls += 1
+        status = 404 if self.calls <= self.failures else 200
+        return type("Resp", (), {"status_code": status,
+                                 "json": lambda _self: {"data": {"provider_name": "Poolside"}}})()
+
+
+def test_the_generation_lookup_waits_about_five_minutes():
+    waits = sar.GENERATION_LOOKUP_WAITS
+    assert sum(waits) >= 240
+    tries = len(waits)
+    slept = []
+    with contextlib.redirect_stdout(io.StringIO()):
+        found = sar._fetch_generation(_Session(tries - 1), "k", "gen", sleep=slept.append)
+    assert found == {"data": {"provider_name": "Poolside"}}
+    assert slept == list(waits)
+    slept.clear()
+    session = _Session(tries)
+    with contextlib.redirect_stdout(io.StringIO()):
+        assert sar._fetch_generation(session, "k", "gen", sleep=slept.append) is None
+    assert session.calls == tries and slept == list(waits)
 
 
 # --- the second send: only after the first reply is committed ---------------------
