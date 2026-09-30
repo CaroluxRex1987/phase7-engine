@@ -2328,6 +2328,59 @@ commit messages in the same message as Parts 1–6 — is confirmed, from those 
 saved requests: HISTORY, "29 September 2026 — checked: rounds 5 and 6 sent the Part 7
 file in the same message as Parts 1–6".
 
+## Ruling, 30 September 2026 — rev 8 says nothing about this round's test
+
+*New in this file on 30 September 2026, filed with the twenty-seventh session's commit,
+which adds rev 8 of the instruction (item 9 of the preparation list). Ruled in chat the
+same session, by agreeing to Claude's suggestion: Claude put three options to Viktor as
+his call, he asked "What do you suggest?", and answered "Good, because i was looking at
+B too. Agreed."*
+
+**The question.** Rev 7 told the auditor twice that nothing was held back to test it —
+"The fixes went in first" (Section 4a, about the eleven observations of 5 September) and
+"none were held back to test you" (Section 9, about round 5's ten). For round 7 that is
+no longer true: the list for after the audit is held back, and it is the test ("what the
+auditor sees, and no planted bugs", 29 September). And the instruction says nothing
+untrue ("six questions before the send", point 5).
+
+**The options.** A — say it plainly, without content: some defects the project already
+knows of are not fixed, they come in the second message, and Parts 1–6 are measured partly
+on whether they found them. B — say nothing about this round's test, and narrow the two
+old sentences so each speaks only of the round it describes. C — something else.
+
+**What was ruled: B**, with one addition Claude proposed: Section 12 describes the second
+message truthfully but neutrally — the commit messages, and "a document the project wrote
+for the Part 7 pass" — without saying that its entries are unfixed or that they are a
+test. The Part 7 document says so when it arrives.
+
+**Claude's reasons.** (1) It is the principle of point 5: say nothing untrue, and leave
+out what would only add pressure; knowing it is measured against a hidden list changes how
+an auditor reads, which is the cost counted against planted bugs. (2) The auditor's task
+does not change: Section 9 already tells it to expect defects. (3) Nothing stays hidden:
+the second message says all of it, once Parts 1–6 are committed — the same sequencing as
+the commit messages.
+
+**What it weakens.** The auditor writes Parts 1–6 without knowing it is being measured,
+and a reader could call that withholding. The answer on record: nothing untrue is said,
+and it is disclosed in the same conversation, one message later.
+
+**How rev 8 carries it** (Claude's drafting, which Viktor then read and approved).
+Section 4a's paragraph on the eleven observations speaks only of that round; it had also
+said the report would be compared with them, which is not planned for round 7, and that
+is gone. The sentence "That is the situation, stated plainly, so that nothing in your
+report has to be a guess about it" is gone, since the situation is no longer stated in
+full. Section 9 says round 5's ten were "fixed and landed before round 6". And the Part 7
+document is named `part7_material_PART7_ONLY.md` rather than `part7_findings_…`: its name
+reaches the auditor in the first message, through the version-control history, once it is
+committed (Claude's call under the delegation, in the same commit).
+
+**Approved the same session.** Viktor read the draft of rev 8 and approved it: "I read it,
+sounds great. I approve." That includes the scope of its requirement lines, which Claude
+had put to him as his: the rulings since `e65a0f7`, plus three older ones the code
+carries — direction from the bias score alone; degrade, don't halt; each run's input
+hashed and its candles archived — so that the auditor does not report ruled behaviour as
+a defect.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then

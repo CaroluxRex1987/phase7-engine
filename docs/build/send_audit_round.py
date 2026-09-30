@@ -186,12 +186,12 @@ MESSAGE1_ATTACHMENTS = [
 MESSAGE1_FILES = [INSTRUCTION_FILE] + MESSAGE1_ATTACHMENTS
 
 # The second message: the Part 7 material (ruling of 29 September, "what the
-# auditor sees"). part7_findings_PART7_ONLY.md is written by hand -- the
+# auditor sees"). part7_material_PART7_ONLY.md is written by hand -- the
 # bias_score findings, the list for after the audit, and the points of the
 # 15 September PDF still live -- and commit_messages_PART7_ONLY.md is built,
 # cut to the commits since e65a0f7.
 MESSAGE2_FILES = [
-    "part7_findings_PART7_ONLY.md",
+    "part7_material_PART7_ONLY.md",
     "commit_messages_PART7_ONLY.md",
 ]
 

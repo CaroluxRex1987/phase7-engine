@@ -145,8 +145,15 @@ MESSAGE1_HAND_WRITTEN = [
 # sees"): the bias_score findings, the list for after the audit, and the points
 # of the 15 September PDF still live in the code. Not yet written when round 7
 # was set up; the build refuses until it exists, as it does for rev8.
+#
+# Its name says what it is for, not what it holds. The file's contents go only in
+# the second message, but its NAME reaches the auditor in the first: once it is
+# committed, version_control_history.md lists it. Named part7_findings_* until
+# 30 September 2026, when rev 8 was written to describe it to the auditor only as
+# "a document the project wrote for the Part 7 pass" (PHASE7_DECISIONS.md, the
+# ruling of 30 September on what rev 8 says about this round's test).
 MESSAGE2_HAND_WRITTEN = [
-    "part7_findings_PART7_ONLY.md",
+    "part7_material_PART7_ONLY.md",
 ]
 HAND_WRITTEN = MESSAGE1_HAND_WRITTEN + MESSAGE2_HAND_WRITTEN
 
