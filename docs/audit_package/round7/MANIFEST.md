@@ -1,0 +1,128 @@
+# Audit package manifest
+
+- Built: 2026-09-30T09:55:48.979067+00:00
+- Repository HEAD: `e1864234c3f8ebc056d86a71e3b924d58fc5d105`
+- Round: round7
+- Source files: 36
+- Test files: 75
+
+Every file's SHA-256 is listed below, computed from the exact bytes placed in
+the bundle. If a file in the bundle does not hash to the value here, the
+package was altered after it was built and you should say so in your report.
+
+## Source
+
+- `__init__.py` — 0 bytes — `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`
+- `live_trading.py` — 10706 bytes — `dca8ec6788f03416edf4d64edf0890af541569233553c5640cce20d847033d0a`
+- `main.py` — 3092 bytes — `6365fac5c98588a82bb66f2eea114741a0c55499cd2accef06ed914a61184df8`
+- `core/__init__.py` — 0 bytes — `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`
+- `core/code_fingerprint.py` — 12492 bytes — `50fa368001ba4b1763b362c1fb92c042d68bc10a639b3a9557f4d64695726f43`
+- `core/config.py` — 5640 bytes — `379d996999fe5a74335af877717778d105ebca066b504c21b02d05a18aeea7b0`
+- `core/decision_contract.py` — 18262 bytes — `c9223dc36a2ad6256609b2da0c494025a8372157e7e8ed1c7c9da377dbff243a`
+- `core/decision_log.py` — 22064 bytes — `3e14468ed277c5f5c8d954c620041858234af0be980ef03011a28285f3465f18`
+- `core/engine_core.py` — 86003 bytes — `d34e2ef6adf947fbd7ac793bdb653796b6b26ba09be8daa1eceecbfc7cbb1a1f`
+- `core/lineage.py` — 20526 bytes — `a8b1bf85f8f4caf1912518930ae919bd83728ad3ccf1009813da141d714ed46f`
+- `core/panel_render.py` — 46660 bytes — `6840dacb4ea5ad96c4eba76060dd812d4f0f7764e3ac2f66ce276788d3495389`
+- `data/__init__.py` — 0 bytes — `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`
+- `data/data_fetcher.py` — 25351 bytes — `77dde956d76ac99dce53542a84eff610d1b64f9f8f57a921e7dae3c6828b6701`
+- `data/validation.py` — 20563 bytes — `59a00e8812812131368066ab4287b2c6ad8684df4f1fe0aec215c59fc8a5fdf9`
+- `indicators/__init__.py` — 0 bytes — `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`
+- `indicators/indicators.py` — 46243 bytes — `ecf62d0739daecd65fbeeb08e496d9732ba093d4c8ca809372972d6f9503ff53`
+- `indicators/trend_health.py` — 27340 bytes — `72e02cf91e5ae052e25a29fb79595957db286721d0bee932ac991a2d3bd8df63`
+- `indicators/volume_profile.py` — 10291 bytes — `450a637dda5cee14f755b10a56a5824546b923315c483132b46da53237e18893`
+- `models/__init__.py` — 0 bytes — `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`
+- `models/bias_engine.py` — 30539 bytes — `6f25790f3e86258b97a0190810274b09befdc7c3772f1f5599e1ad097fa17aaa`
+- `models/btc_context.py` — 8680 bytes — `5fc7cae60d568de631aa07bd9e78bf99ba03b52a5fe324483b5929c7ce9a4296`
+- `models/decision_model.py` — 57555 bytes — `269d37e60cce8b82cd25083649b53d2f15ed6f8ecfc26c873e3d3a1566ea26a7`
+- `models/entry_model.py` — 30620 bytes — `c0726d9d505e7d9248bbe68239222cd74c30a7402c7d16f3a0a71b536bf369ce`
+- `models/exit_model.py` — 9243 bytes — `a8ca9a2e5433ed5081b8326f216d1bdf86747e6d8bad75f465cdfbfb5297d806`
+- `models/risk_model.py` — 29436 bytes — `97d569f5c1c5c69864eba1c6d75b77600b49b7e23f24493d85f39667b9003d43`
+- `models/signal_router.py` — 35832 bytes — `536ccfac833dd6681d834a7a996c4fd0e78411770a5834b8a51b76c403ea6b14`
+- `structure/__init__.py` — 0 bytes — `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`
+- `structure/structure.py` — 25803 bytes — `89663d3d6885152b1b98aaf66b1736ab2b46c4d30ed52f86a002835d744e8ffc`
+- `utils/__init__.py` — 0 bytes — `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`
+- `utils/decision_log_backup.py` — 5699 bytes — `6cc2dbcec6de9029adad58a024ca0e161b94ceecf11dc315790fd300b381462b`
+- `utils/plotting.py` — 12241 bytes — `d4e0f8dd6c049930ad7d6424589e2d7ace69efd4bb0901aaa4bba03b34323a63`
+- `pytest.ini` — 102 bytes — `c14b489a30afe60312242394d2e54d37d23e99ccef8d68f203807b76e325c758`
+- `requirements.txt` — 624 bytes — `f41f43c9d5eaff35cf7b420ee71eb965613a0877e8b390c46f8b22cab1c4db95`
+- `requirements-dev.txt` — 273 bytes — `0c67eda7468aa430882a1c656d55f83d074ae34919d2019b32bd2d59fb9edecc`
+- `.gitattributes` — 1157 bytes — `81df538d4f876ef53e73bd75f2a6f71b5d6a0c4c5469fffcebd56b2049a0639f`
+- `.gitignore` — 3822 bytes — `7769b8566ae7e7bedfe946d0795a0d91695fd8baf4233d10d6ce7c960649d068`
+
+## Tests
+
+- `run_tests.py` — 9600 bytes — `608ff21b19decbb0357f6d43b9b380d20e8d698dc73b12b130877a97c15e3401`
+- `test_live.py` — 285 bytes — `b628810f1c89f6a0193ee9fef4bc8894bb37e67ec42e2a89d7f1940d7365f812`
+- `tests/conftest.py` — 7754 bytes — `f6bab9918eccb91b06fdc7e7f6d5f4ac421750260c3aa3a32547dc77b15137b0`
+- `tests/test_bias_label.py` — 6877 bytes — `29d017d067798378a6ccf639564275e5d2f94529e4af37535c1f610dbbdc3c57`
+- `tests/test_btc_correlation_alignment.py` — 14899 bytes — `835ce272c890784063123c458482ffb7ea01a6ea0a79ca4c3ac7ecfd731726a5`
+- `tests/test_btc_degradation_stays_informational.py` — 7432 bytes — `8b525d31a00c5cdaae061cb8816bf1d2df7d264b8e8b5f28d2783cb0a4b0ce31`
+- `tests/test_clean_checkout.py` — 3892 bytes — `52abff0851110cd3f84d3ecf600df07eaeccc811470ecf2cbcf22a185ffb5388`
+- `tests/test_closed_candles.py` — 12591 bytes — `823e474f2a77b7661b621c5773cfe3de30072b0ed83689ea64333f4a82b4b10a`
+- `tests/test_code_fingerprint.py` — 31882 bytes — `d495ff87e7dda4caceed942eec3b952b4cddbdf0cb0bbf34f16aac2f213f0bf9`
+- `tests/test_data_integrity.py` — 12558 bytes — `4c9b153ba2558541c5e8c73feee8825863dd980bfb9ccc681c12146ee171acf7`
+- `tests/test_decision_bar_integrity.py` — 25635 bytes — `3a88030db3a75805cb4104c5f43bb0370b2f3c0725ec398a3d3283982e3b08c0`
+- `tests/test_decision_contract.py` — 14051 bytes — `a568748a2b490ddf52c51b35e2066c9f697d994843e70a00c9fe33e96d7de186`
+- `tests/test_decision_log_backup.py` — 5522 bytes — `408d4d519b8fa755525ecfcca411f1cb07db773f5ca146a0599e76c52d927aae`
+- `tests/test_decision_log_record_format.py` — 7137 bytes — `ca0b25a146dfa2b9ebfe8f31ee00cc79c2a58e8a6290d326d3acfd0ea3ffcb1d`
+- `tests/test_degraded_state.py` — 23062 bytes — `dda43737f50b469105ba003ab4f82078577d8d292a2f86c47a20d3cdc9b23bf0`
+- `tests/test_direction_source.py` — 13224 bytes — `3e2b5e748806dc5ddcf00c471c3682f99e17b8a12e4038d2a8db03f4cf777de8`
+- `tests/test_docs_build_writes_into_the_repository.py` — 8698 bytes — `b887e3c3cef69daccfa48cce1979c842c9f2a4578bd4ccf9525023382108de28`
+- `tests/test_engine_core_confidence_score_not_duplicated.py` — 5483 bytes — `b8f4e21457c5701355286c69e7a8575bbcf03b818d50244b97afe8711543c395`
+- `tests/test_engine_state_atomic_write.py` — 6128 bytes — `fc0e5253ae32707ee1b515b93b3f438cbf274766c495c3398489363db99a0247`
+- `tests/test_entry_score_reconciles.py` — 15006 bytes — `90aeae3db22f13b2c7fc1d1288b6f0ad9c3dc7bae75b95ade3ef692012a24421`
+- `tests/test_entry_zone_is_measured.py` — 15604 bytes — `9b0e4295ded2214aaccf2f42b2bdcd81b53c8b6cc1f3792aa307f078f4ab9507`
+- `tests/test_execution_surface.py` — 7740 bytes — `cc15f8dfcd8af008a2b9f7f5c627aa750bc43dcca7260081cad02fdf75f5358b`
+- `tests/test_exit_model_removal.py` — 9602 bytes — `0d92ce24fa1b28ec0c9b3239c4afba33a6aa4a13cb759873ed509c05293b9bf6`
+- `tests/test_explicit_configuration.py` — 16720 bytes — `5c162d34d068e8d24a72ff67d9a497bc4987158c38624e762e1a6969d68debe0`
+- `tests/test_fetch_and_import_hygiene.py` — 10934 bytes — `52168a09482de293e3d76552f7bead68019d3902dd2f42291b8cd58ba09beb5a`
+- `tests/test_fetch_reports_exchange_error.py` — 4527 bytes — `109e08ef4a23f594797aac7177add526dbb1de2b04616cf446e798ee790aace0`
+- `tests/test_fingerprint_names_every_constant.py` — 4174 bytes — `9369f9421ba76f49a303c7ca7ff2c3180257b44e71f1dc74a0781d4dec01a65c`
+- `tests/test_frame_ownership.py` — 16014 bytes — `1d1a3440b5324bcddd2ad8a18d0e71cd68ea2c07a16a9b6e1989cbbb90bb7763`
+- `tests/test_golden_path.py` — 27221 bytes — `417617595fca6ea344716da3ba074208e28896143d2396eb05551dc2f0a75fe0`
+- `tests/test_imports.py` — 13654 bytes — `d146e829e467793e8b5dfbb1a482a681f09708d5b2d385e03b41e942ca8a7bb7`
+- `tests/test_lineage.py` — 32425 bytes — `e862455ffb13d1e9e374ed2ac1d43aa40d97122a67e1a97007c6c125e79fabd0`
+- `tests/test_lineage_against_record.py` — 10909 bytes — `ca9c381b0b495be4b9cf963029bee9fc43368c6cf1626ca2df6f9fdedb626c4e`
+- `tests/test_macro_agreement.py` — 5451 bytes — `baaa833bd79230ec9a8811db78fed69b31a0b6a368e5cd7552350a7e5c06cbd3`
+- `tests/test_macro_counts_once.py` — 8506 bytes — `8fa38b4596ea15dbb7d8003fcc676dcc30c259e0e9279b7fae85d36cf3e2b9df`
+- `tests/test_minimum_bias_strength.py` — 7158 bytes — `745ea9cb76842fc060fc6afd4ef51905b3e90b562a104d01a8876d8011e5e599`
+- `tests/test_neutral_bias_prints_no_plan.py` — 11919 bytes — `73f234a41b2b0ca51e93e4a66141766ac9fcb26eff39ef0b9710b8f18cb5e31e`
+- `tests/test_no_circular_reasoning.py` — 26666 bytes — `fecfb0bc10e4438aa4beace0a1a9fb25f3f5157f5f702ba2d4ac5ff646ed8443`
+- `tests/test_no_dead_columns.py` — 6712 bytes — `c40abeb73a8b243ce95780984793ce7b0f81b8c66559bce20b3ac063b7657787`
+- `tests/test_no_fabricated_defaults_remain.py` — 7151 bytes — `98330069c452d15a99389342886699c6f20c451cd1ab178e7b284b65907bb966`
+- `tests/test_no_fabricated_fallbacks.py` — 15332 bytes — `8a4fa997a76418b751f8471226a13da2205f9aabe081852d451f4b12ef00007e`
+- `tests/test_no_lookahead.py` — 16662 bytes — `6da994224dec95850771df4ddb73fb1d7309056910135a55e5ae534282bd8ebe`
+- `tests/test_no_outlier_replacement.py` — 17102 bytes — `701da3ee44c5754efc016e0e71fb22108bdd8530b66287feb4fc99f51491806c`
+- `tests/test_no_position_sizing.py` — 11736 bytes — `9288db678429928fd15dbcb92ad059ece9f89e329d8487a8a4d45593ae6de4c0`
+- `tests/test_no_risk_free_conviction.py` — 11476 bytes — `d0f071803b40e1bae0308f30c8b4c2543f03c4b5899846e5ad56c2fe8426e4b9`
+- `tests/test_package_token_check.py` — 12155 bytes — `91e54f7fc4fb64177fb2c59429c2ad172542d9421ea20e56f84dbb76dabbe72c`
+- `tests/test_panel_no_fabricated_price_defaults.py` — 10003 bytes — `772f5c1647e4042cbb8faf00e482c874424789123a8d4887c43752212a1c8675`
+- `tests/test_panel_prints_only_what_was_computed.py` — 8900 bytes — `a4a554a93ffdf2710d4e288069108a6a129e976b638411572daed29550dfeebd`
+- `tests/test_pinned_source.py` — 13595 bytes — `088b63c3836168ca668d2c916a46aec967cfa59f58376dfcaf9cb80b96e22c64`
+- `tests/test_plan_direction_and_side.py` — 7810 bytes — `163e1269179266f6a4a254c73fb5f4308385ace69a7079473ca8a0a4447a1dfd`
+- `tests/test_plan_entry_is_the_decision_close.py` — 7191 bytes — `29f24efd657527d01c10775fcc4d18b2da851d8b525ffcd1fae48cacfff9f43b`
+- `tests/test_pre_push_hook.py` — 10016 bytes — `e4ac0b6736a605e70438e5057111811617830a5d7e63e0b1395f6e3c9ce803bf`
+- `tests/test_real_log_directory_untouched.py` — 10838 bytes — `b3c3cccd6bc1a894b96b1df962f52896e7721e72b6cf182892a0ff0729b3a98f`
+- `tests/test_risk_fingerprint.py` — 10957 bytes — `4b5356470a8ed5820cfe2e8b68e3ed1d2f00489777915c5cd224c9df6a8705d1`
+- `tests/test_risk_regime_independence.py` — 10034 bytes — `3d0477edd3642f4b3af2e40782996655968342fcc9936579b2817207d3b9acf9`
+- `tests/test_risk_verdict_is_read_not_assumed.py` — 17344 bytes — `94496337417bc477b0fe663087789ba0a2bdb55f123e2ef9a6bbbbae8d861060`
+- `tests/test_router_btc_seam.py` — 11335 bytes — `c2177396d4282c558a60033debd7091cf8306d5010b31c8c3644abc44442a263`
+- `tests/test_router_no_fabricated_zero_defaults.py` — 7643 bytes — `bfa2e60e4d06bc464a94b731cffee4abb7186149cd658f2a381e5612ce912bd2`
+- `tests/test_run_tests_filter_matching.py` — 4701 bytes — `17499ac3c63a2f5f013d49b94b20f41f675287853a7002405ea8e5372b631159`
+- `tests/test_send_audit_round.py` — 21499 bytes — `e7eb422dd7ec122470b7910714e833a0346511ea5f3ecf1bdeddfb75272c9a6c`
+- `tests/test_session_handover_check_ignored_filter.py` — 5917 bytes — `9ba126fb250b169897576440bea15418545ebb3194dc5dad69cf4b9b5029b105`
+- `tests/test_setup_direction_box.py` — 4319 bytes — `eca498ccaff2a289952d89a568e4cbcd34aa1955323eef5785ad73f8a512041b`
+- `tests/test_signal_confirms.py` — 13078 bytes — `c4e10fd93ef9d54a738251a81cd414167b212d7b74c07328db890fbb578ddc27`
+- `tests/test_smoke.py` — 7344 bytes — `91a8a135c47f28eb38a201d386928d0fbfe8687e2bd099771c2d743138561ee2`
+- `tests/test_stop_is_atr_only.py` — 9059 bytes — `ff72ba0e4327dd15468938a48a4dbad15bc439cded4da74d48106f3146743e63`
+- `tests/test_structure_fallbacks.py` — 10158 bytes — `5e2fa359d22cd3c85b32647db2e016fc22bc597e8b304c511487c02bcc10fde1`
+- `tests/test_summary_names_the_action_reason.py` — 7810 bytes — `ba2b20ad0981735af2d4446bee95da794d35877b95253e6a96ecaf808a9df405`
+- `tests/test_swing_structure_is_not_invented.py` — 13976 bytes — `c5e85b37caef3211d8d0c924c82c6452118881504a812563d8f9dc3bb295f22a`
+- `tests/test_timeframe_disagreement.py` — 15461 bytes — `61562e189bc592411e461ed5983019b5ce7c431994dcb6e0ce7950e44db844d9`
+- `tests/test_timestamp_currency.py` — 7516 bytes — `0e40db824e8d76a2a65114cc870b09024df9efbe851b080ec73c60cbd442cf74`
+- `tests/test_traceability.py` — 12037 bytes — `b9401b553863f4a2894c21368bda1df42c021807fba0ef7c76484299033bccec`
+- `tests/test_trend_direction_source.py` — 9789 bytes — `1cfa04f43ced69d6523216545e25c5b635edc1d0152f7443da0e79937a1f6e0f`
+- `tests/test_trend_score_has_a_denominator.py` — 6121 bytes — `a2906045f955e7981cf134d065eaa6afd88e2e34b921ca352c880ad2fb7aceca`
+- `tests/test_unwritable_log_dir.py` — 10351 bytes — `8b81e5b2a22c925c96f62b3e46f997519ee6394006aa5af27162c275e1a4a233`
+- `tests/test_validation_score_has_a_denominator.py` — 3498 bytes — `87bc95a55aaf42d9e6c04239200bc6409c765854e638e32bcc935eb00e979065`
+- `tests/test_volume_agreement.py` — 7830 bytes — `09ba698fa45c53d259e9bb691cfbfef85c699efa0b741b43c00424c5148a8ba0`
