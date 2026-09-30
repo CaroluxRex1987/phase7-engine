@@ -77,7 +77,13 @@ REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 # commits (2387717, 88e47e9, 044b055) that have never been independently
 # reviewed, batched in per Viktor's ruling the same day rather than sent as a
 # separate round.
-ROUND = "round6"
+#
+# round6/ (above) is what Muse Spark 1.3 graded on 13 September. round7/ is this
+# build: it goes to Laguna S 2.1, pinned to Poolside (PHASE7_DECISIONS.md, the
+# rulings of 29 September 2026), and it splits the package again -- the first
+# build since round 4 to do so -- this time into two folders that are two
+# requests, not one folder sent and one kept back. See MESSAGE1_DIR below.
+ROUND = "round7"
 PACKAGE_DIR = os.path.join(REPO, "docs", "audit_package")
 OUT_DIR = os.path.join(PACKAGE_DIR, ROUND)
 
@@ -101,7 +107,19 @@ OUT_DIR = os.path.join(PACKAGE_DIR, ROUND)
 # withholding anything real -- it was just where a file nobody sent happened to
 # sit. One folder now, and the file's own header is what asks the reviewer not
 # to open it before Parts 1-6 are saved.
-UPLOAD_DIR = os.path.join(OUT_DIR, "UPLOAD_THESE")
+#
+# That request was all that held it back in rounds 5 and 6: send_audit_round.py
+# sent the one folder as one message, the Part 7 file inside it (checked
+# 29 September 2026 by rebuilding both rounds' requests; see that script's
+# docstring). From round 7 there are two folders again, and this time each is a
+# request: MESSAGE1_DIR is the first message, graded for Parts 1-6 alone, and
+# MESSAGE2_DIR is sent by `send_audit_round.py --send-part7`, which refuses until
+# the reply to the first is committed (ruling of 29 September, "what the auditor
+# sees"). Every file the build writes into a folder is a file the script sends
+# in that message, and nothing else: tests/test_send_audit_round.py builds both
+# folders and reads them back with the script's own reader.
+MESSAGE1_DIR = os.path.join(OUT_DIR, "MESSAGE1_PARTS1-6")
+MESSAGE2_DIR = os.path.join(OUT_DIR, "MESSAGE2_PART7")
 
 # Copied in from docs/audit_package/ rather than referenced, so the upload
 # folder is complete on its own.
@@ -118,10 +136,27 @@ UPLOAD_DIR = os.path.join(OUT_DIR, "UPLOAD_THESE")
 # NOT in this list. Shipping both would put two files in the upload folder each
 # claiming to be the standard, which is the same defect check 7.6 asks the
 # auditor to look for.
-HAND_WRITTEN = [
-    "item16_review_instruction_rev7.md",
+MESSAGE1_HAND_WRITTEN = [
+    "item16_review_instruction_rev8.md",
     "Phase7_Constitution_v1.0_RATIFIED_AUDITCOPY.txt",
 ]
+
+# The Part 7 material written by hand (ruling of 29 September, "what the auditor
+# sees"): the bias_score findings, the list for after the audit, and the points
+# of the 15 September PDF still live in the code. Not yet written when round 7
+# was set up; the build refuses until it exists, as it does for rev8.
+MESSAGE2_HAND_WRITTEN = [
+    "part7_findings_PART7_ONLY.md",
+]
+HAND_WRITTEN = MESSAGE1_HAND_WRITTEN + MESSAGE2_HAND_WRITTEN
+
+# Part 7 shows the commit messages since this commit only, not the whole
+# history (ruling of 29 September, "what the auditor sees": 82 commits at
+# ec4e5fd, about 110K tokens instead of about 300K). The range excludes it:
+# e65a0f7 is the baseline of docs/audit_change_list.md, the tree the last
+# independent round (the round-6 fix-verification of 14 September) was checked
+# against.
+PART7_COMMITS_SINCE = "e65a0f7"
 
 # Part 8 is gone, so this script no longer reads the four qwen_reasoning_*.txt in
 # the repository root. Two things follow and neither is obvious.
@@ -238,8 +273,9 @@ def _history_metadata():
     Findings 6 and 7: make a run reconstructable and traceable" would leak both
     a finding number and its outcome in eleven words.
 
-    The full messages are written to a separate file for the optional Part 7
-    pass, after the reviewer has committed to Parts 1-6.
+    The messages since PART7_COMMITS_SINCE are written to a separate file for
+    Part 7, sent in a second message after the reviewer has committed to
+    Parts 1-6.
     """
     lines = [
         "# Version-control history — metadata only",
@@ -247,8 +283,8 @@ def _history_metadata():
         "**Subject lines and commit bodies are deliberately withheld from this file.**",
         "They contain the previous auditor's findings and the fixer's reasoning, and",
         "reading them before you have formed your own view would make your report a",
-        "review of someone else's audit. They are supplied separately for the optional",
-        "Part 7 pass, after Parts 1-6 are saved.",
+        "review of someone else's audit. The messages of the most recent commits are",
+        "supplied for Part 7, in a second message, after Parts 1-6 are saved.",
         "",
         "What is here is the shape of the history: whether version control exists,",
         "whether changes are made in controlled increments, whether known-good points",
@@ -292,20 +328,31 @@ def _history_metadata():
     return "\n".join(lines) + "\n"
 
 
-def _full_messages():
+def _full_messages(since=PART7_COMMITS_SINCE):
+    base = _git("rev-parse", "--verify", f"{since}^{{commit}}")
+    count = _git("rev-list", "--count", f"{since}..HEAD")
+    log = _git("log", "--format=commit %H%nDate: %ad%n%n%B%n---%n", "--date=iso",
+               f"{since}..HEAD")
+    failed = [out for out in (base, count, log) if out.startswith("<git")]
+    if failed:
+        # Previously a failed git call went into the file as its text. This
+        # file is what Part 7 is graded on; a package whose commit messages
+        # are an error string must not look complete.
+        sys.exit(f"REFUSING TO BUILD: the commit messages since {since} could not be "
+                 f"read: {failed[0]}")
     header = (
         "# Commit messages — FOR PART 7 ONLY\n\n"
-        "**Do not read this file until Parts 1 through 6 of your report are written\n"
-        "and saved.**\n\n"
+        "**This file comes in a second message, after Parts 1 through 6 of your report\n"
+        "were written and saved.**\n\n"
         "These are the fixer's own account of what was changed and why, and they name\n"
-        "findings from a previous audit along with their severities. Reading them first\n"
-        "would replace your independent view with someone else's, and there is no second\n"
-        "chance to be independent.\n\n"
-        "Once your report is committed, these support Part 7: places where the stated\n"
-        "intent and the shipped code differ, and any claim here your own reading does\n"
-        "not support.\n\n---\n\n"
+        "findings from previous audits along with their severities.\n\n"
+        f"They are the messages of the {count} commits made after `{base}`, newest\n"
+        "first -- not the whole history, whose shape the metadata-only file in the\n"
+        "first message covers.\n\n"
+        "They support Part 7: places where the stated intent and the shipped code\n"
+        "differ, and any claim here your own reading does not support.\n\n---\n\n"
     )
-    return header + _git("log", "--format=commit %H%nDate: %ad%n%n%B%n---%n", "--date=iso") + "\n"
+    return header + log + "\n"
 
 
 def _capture(label, why, run, redact=None):
@@ -448,7 +495,9 @@ def _transcripts():
 
 
 def main():
-    os.makedirs(OUT_DIR, exist_ok=True)
+    # The round directory is made by the first write into it, not here: a
+    # build that refuses below says "Nothing has been written", and until
+    # 29 September 2026 it had already made an empty round directory.
 
     source_files = _walk("source")
     test_files = _walk("tests")
@@ -509,84 +558,100 @@ def main():
 
     import shutil
 
-    # Rebuilt from empty each time. A stale file left behind in the upload
-    # folder from a previous build is the same hazard this layout exists to
-    # remove, one level down.
-    for directory in (UPLOAD_DIR,):
-        shutil.rmtree(directory, ignore_errors=True)
-        os.makedirs(directory, exist_ok=True)
-
-    upload = {
+    # Every text is made before anything is removed or written, so a refusal
+    # (the commit messages could not be read, say) leaves the last build as it
+    # was rather than half-replaced.
+    message1 = {
         "phase7_engine_source.md": source_text,
         "phase7_test_suite.md": test_text,
         "MANIFEST.md": "\n".join(manifest),
         "version_control_history.md": _history_metadata(),
         "execution_transcripts.md": _transcripts(),
-        # Ruling 3, 11 September 2026: folded into the single upload set from
-        # round 5 on, rather than staying in a second folder nothing ever sent.
-        # The file's own header (see _full_messages()) still tells the reviewer
-        # not to open it before Parts 1-6 are written and saved.
+    }
+    message2 = {
+        # Ruling 3, 11 September 2026 folded this file into the single upload
+        # set from round 5 on, rather than leaving it in a second folder nothing
+        # ever sent. From round 7 it is sent -- in the second request, after
+        # Parts 1-6 are committed -- and cut to the commits since
+        # PART7_COMMITS_SINCE (ruling of 29 September 2026).
         "commit_messages_PART7_ONLY.md": _full_messages(),
     }
 
-    print("\nUPLOAD_THESE/ -- give the auditor everything in this folder:")
-    for name, text in upload.items():
-        with open(os.path.join(UPLOAD_DIR, name), "w",
-                  encoding="utf-8", newline="\n") as fh:
-            fh.write(text)
-        print(f"  {name:38} {len(text.encode('utf-8')):>9,} bytes")
+    # Rebuilt from empty each time. A stale file left behind in either folder
+    # from a previous build is the same hazard this layout exists to remove,
+    # one level down.
+    for directory in (MESSAGE1_DIR, MESSAGE2_DIR):
+        shutil.rmtree(directory, ignore_errors=True)
+        os.makedirs(directory, exist_ok=True)
 
-    copied = 0
-    for name in HAND_WRITTEN:
-        source = os.path.join(PACKAGE_DIR, name)
-        if not os.path.exists(source):
-            # Previously a printed warning at the end of a long, otherwise
-            # successful run. An incomplete upload folder that announces itself
-            # in the last line of output is exactly the hazard this layout exists
-            # to remove: the folder still looks complete, and 'upload everything
-            # in here' is then wrong. Nothing may be shipped, so nothing is built.
-            sys.exit(f"REFUSING TO BUILD: {name} is not in {PACKAGE_DIR}. The upload "
-                     f"folder would be incomplete and would look complete.")
-        shutil.copy2(source, os.path.join(UPLOAD_DIR, name))
-        copied += 1
-        print(f"  {name:38} {os.path.getsize(source):>9,} bytes")
+    written = 0
+    total_bytes = 0
+    for folder, built, hand_written, what in (
+            (MESSAGE1_DIR, message1, MESSAGE1_HAND_WRITTEN,
+             "the first message: the instruction and Parts 1-6's material"),
+            (MESSAGE2_DIR, message2, MESSAGE2_HAND_WRITTEN,
+             "the second message, sent only after the reply to the first is committed")):
+        print(f"\n{os.path.basename(folder)}/ -- {what}:")
+        for name, text in built.items():
+            with open(os.path.join(folder, name), "w",
+                      encoding="utf-8", newline="\n") as fh:
+                fh.write(text)
+            size = len(text.encode("utf-8"))
+            written += 1
+            total_bytes += size
+            print(f"  {name:38} {size:>9,} bytes")
+        for name in hand_written:
+            source = os.path.join(PACKAGE_DIR, name)
+            if not os.path.exists(source):
+                # Previously a printed warning at the end of a long, otherwise
+                # successful run. An incomplete upload folder that announces itself
+                # in the last line of output is exactly the hazard this layout exists
+                # to remove: the folder still looks complete, and 'upload everything
+                # in here' is then wrong. Nothing may be shipped, so nothing is built.
+                sys.exit(f"REFUSING TO BUILD: {name} is not in {PACKAGE_DIR}. The "
+                         f"folder would be incomplete and would look complete.")
+            shutil.copy2(source, os.path.join(folder, name))
+            size = os.path.getsize(source)
+            written += 1
+            total_bytes += size
+            print(f"  {name:38} {size:>9,} bytes")
 
     with open(os.path.join(OUT_DIR, "MANIFEST.md"), "w",
               encoding="utf-8", newline="\n") as fh:
         fh.write("\n".join(manifest))
 
-    # A round directory contains an upload folder and -- in round2, from an
-    # older layout, and in round3/round4, which also split off a withheld
-    # PART7_LATER folder -- loose copies or a second folder at its root. An
-    # earlier attempt at this audit went out carrying a superseded revision of
-    # the reviewer instruction, and nothing in its report revealed that. So
-    # each round says, in its own directory, which folder is the one to send.
+    # A round directory contains its folders and -- in round2, from an older
+    # layout, and in round3/round4, which also split off a withheld PART7_LATER
+    # folder -- loose copies or a second folder at its root. An earlier attempt
+    # at this audit went out carrying a superseded revision of the reviewer
+    # instruction, and nothing in its report revealed that. So each round says,
+    # in its own directory, what is sent and how.
     with open(os.path.join(OUT_DIR, "README.md"), "w",
               encoding="utf-8", newline="\n") as fh:
         fh.write(
             f"# {ROUND}\n\n"
             f"Built {datetime.now(timezone.utc).isoformat()} from `{head}`.\n\n"
-            "**Upload every file in `UPLOAD_THESE/`, and nothing else.** Not the files\n"
-            "at this directory's root, and not anything from another round directory:\n"
-            "several carry the same filenames and differ only by size and date.\n\n"
-            "There is no separate withheld folder as of this round (see the `ROUND`\n"
-            "comment at the top of `build_audit_package.py`). `UPLOAD_THESE/` includes\n"
-            "`commit_messages_PART7_ONLY.md`; its own header, and Section 12 of the\n"
-            "reviewer instruction, ask the reviewer not to open it before Parts 1-6 of\n"
-            "the report are written and saved -- that is now a reading discipline the\n"
-            "instruction asks for, not something this build withholds by omission.\n\n"
+            "**Nothing in here is uploaded by hand.** `docs/build/send_audit_round.py`\n"
+            "sends `MESSAGE1_PARTS1-6/` as the first request (`--send`) and\n"
+            "`MESSAGE2_PART7/` as the second (`--send-part7`), which it refuses to send\n"
+            "until the reply to the first is committed. Each folder must hold exactly\n"
+            "the files the script sends in that message; it refuses otherwise. Not the\n"
+            "files at this directory's root, and not anything from another round\n"
+            "directory: several carry the same filenames and differ only by size and\n"
+            "date.\n\n"
+            "In rounds 5 and 6 the Part 7 file travelled in the same message as\n"
+            "Parts 1-6, held back only by a request in its header. From this round it\n"
+            "is a second request (see the `ROUND` comment at the top of\n"
+            "`build_audit_package.py`).\n\n"
             "Regenerate with `python docs/build/build_audit_package.py`. Do not edit\n"
             "anything in here by hand: `MANIFEST.md` is computed from the bytes that\n"
             "were written, and a hand edit makes it a false claim.\n")
 
-    upload_bytes = sum(len(t.encode("utf-8")) for t in upload.values()) + sum(
-        os.path.getsize(os.path.join(PACKAGE_DIR, n))
-        for n in HAND_WRITTEN if os.path.exists(os.path.join(PACKAGE_DIR, n)))
-    print(f"\n{len(upload) + copied} files to upload, {upload_bytes:,} bytes "
-          f"(roughly {upload_bytes // 4:,} tokens -- treat as a floor; code "
-          f"tokenizes denser than four bytes per token).")
+    print(f"\n{written} files in two folders, {total_bytes:,} bytes (roughly "
+          f"{total_bytes // 4:,} tokens at four bytes a token -- a floor, not a "
+          f"measurement: send_audit_round.py's dry run with --tokenizer-dir counts "
+          f"them with the auditor's own tokenizer).")
     print(f"HEAD: {head}")
-
 
 if __name__ == "__main__":
     main()

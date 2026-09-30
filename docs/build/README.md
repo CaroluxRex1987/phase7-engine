@@ -78,6 +78,16 @@ Poolside's Hugging Face repository at revision `e80da38` into
 `G:\Phase_7_Engine_Random_Files\Docs\04_Data\Laguna-S-2.1_tokenizer_e80da38\` on
 29 September 2026. Its own docstring says what it counts and what it cannot know.
 
+From 29 September 2026 `send_audit_round.py` runs the check itself, so it cannot be
+forgotten: `--send` and `--send-part7` refuse without `--tokenizer-dir`, and refuse before
+any network call when the request does not fit. The send is two requests (PHASE7_DECISIONS.md,
+"Ruling, 29 September 2026 — what the auditor sees, and no planted bugs"): `--send` sends the
+first message, built by `build_audit_package.py` into `MESSAGE1_PARTS1-6/`, after measuring
+the whole conversation with the first reply at the full reserve; `--send-part7` sends the
+Part 7 material from `MESSAGE2_PART7/` only once the first reply is committed, and measures
+that request exactly, with the first reply as written. A dry run (neither flag) prints both
+counts and the most the two requests can cost. The send script's docstring has the rest.
+
 ## House style
 
 All scripts share the same visual system, and changes to one should be mirrored rather

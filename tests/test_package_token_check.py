@@ -154,6 +154,29 @@ def test_lagunas_renderer_writes_the_templates_frame_around_each_message():
                                   "<user>C</user>\n<assistant><think>")
 
 
+def test_lagunas_renderer_writes_a_written_reply_with_its_reasoning():
+    # The second request of the audit's send carries the first reply as it was
+    # written. The template (at e80da38, rendered by jinja2 on 29 September
+    # 2026) writes it <assistant><think>REASONING</think>ANSWER</assistant>.
+    render = ptc.MODELS["laguna-s-2.1"].render
+    head = render(["A"])[:-len("<user>A</user>\n<assistant><think>")]
+    assert render(["A", "C"], replies=[("thought\n", "answer\r\n")]) == (
+        head + "<user>A</user>\n"
+        "<assistant><think>thought\n</think>answer\r\n</assistant>\n"
+        "<user>C</user>\n<assistant><think>")
+    # No reasoning is an empty think block, the same as the worst-case frame.
+    assert render(["A", "C"], replies=[("", "")]) == render(["A", "C"])
+
+
+def test_a_request_with_its_replies_written_is_counted_exactly():
+    result = ptc.check_known(700, turn=2, reserve=100, context=800)
+    assert result.fits and result.needed == 800 and result.margin == 0
+    assert result.turns[0].number == 2 and result.turns[0].prompt_tokens == 700
+    assert not ptc.check_known(701, turn=2, reserve=100, context=800).fits
+    with pytest.raises(ptc.CheckError):
+        ptc.check_known(700, turn=2, reserve=0, context=800)
+
+
 def test_a_tokenizer_file_that_does_not_match_its_hash_is_refused():
     with tempfile.TemporaryDirectory() as tmp:
         _write(os.path.join(tmp, "tokenizer.json"), "{}")

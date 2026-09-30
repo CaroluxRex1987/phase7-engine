@@ -2275,6 +2275,59 @@ of the four; "a NEUTRAL bias prints no plan" points the auditor at NEUTRAL panel
 where the third is. Any change is committed before the send, with the line that
 causes it.
 
+## Ruling, 29 September 2026 — the second request carries the first reply's reasoning
+
+*New in this file on 29 September 2026, filed with the twenty-sixth session's commit,
+which builds items 3, 4 and 5 of the preparation list. Ruled in chat the same session,
+by agreeing to Claude's suggestion: Claude put the two questions to Viktor, he asked
+"What is your suggestion?", and answered "Go." to it.*
+
+**What was ruled.**
+
+1. **The second request carries the first reply's reasoning**, not only its answer.
+   Claude's reasons: Laguna S 2.1's chat template at `e80da38` shows every earlier
+   reply's reasoning in full when a request carries it, and an empty `<think></think>`
+   when it does not, so a request with it is the conversation the model is built for
+   (read from the template); Part 7 compares the commit messages with the code the
+   auditor read, and its reasoning is its notes from that reading; it is the auditor's
+   own reasoning, so it costs no independence; and only the committed Parts 1–6 are
+   scored, so it cannot move the score.
+2. **Item 5 — the commit messages cut to those since `e65a0f7` — lands in the same
+   commit as items 3 and 4.** The cut is one line in the function that commit already
+   rewrites for the second message (`_full_messages()` in
+   `docs/build/build_audit_package.py`); separately, that function would change twice
+   in two commits.
+
+**Claude's design under the delegation, put to Viktor before the build.** He did not
+object to it. `--send` sends the first message alone; `--send-part7` refuses unless the
+first reply finished with `finish_reason=stop`, was reported as served by Poolside, has
+report content, is committed in git and unchanged since, and the first message rebuilds
+to the bytes it was sent as. That puts a commit of the first reply between the two
+requests — a docs-only commit, which the freeze allows ("six questions before the
+send", point 1). It makes "Parts 1–6 are saved" a fact git records with a time, which
+the scoring rule's "nothing found after Part 7 counts" (the same ruling, point 4) needs
+in order to be checked.
+
+**What was checked for it** (read by Claude on 29 September). OpenRouter accepts the
+reasoning back as a `reasoning` string on the assistant message (its reasoning-tokens
+guide). **Not checked:** whether Poolside's endpoint passes it on to the template. The
+send's token check counts the second request with the reasoning and without it, and
+records both; the provider's count afterwards (`native_tokens_prompt`) shows which one
+the model was given.
+
+**What it weakens.** The second request is longer by the reasoning, up to the 131,072
+reserve; the check counts it exactly before the send. If Poolside drops the field
+without saying so, the second request is answer-only, and that is found only
+afterwards, from the counts. The reasoning may hold doubts the auditor set aside while
+writing Parts 1–6, which it may take up again in Part 7: that cannot move the score,
+since Part 7 is not scored for test bugs, but it can change what Part 7 says. And the
+commit between the two requests is one more step in the send.
+
+**Also recorded.** The correction owed with item 4 — rounds 5 and 6 sent the Part 7
+commit messages in the same message as Parts 1–6 — is confirmed, from those rounds'
+saved requests: HISTORY, "29 September 2026 — checked: rounds 5 and 6 sent the Part 7
+file in the same message as Parts 1–6".
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then

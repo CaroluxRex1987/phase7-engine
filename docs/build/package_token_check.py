@@ -47,6 +47,12 @@ reserve each, because a reply's length cannot be known before it is written and
 a reasoning model spends part of it thinking. That makes the check the worst
 case, not a forecast. With one message it is: template + message + reserve.
 
+Once a reply has been written it is no longer a guess. send_audit_round.py's
+second request -- the Part 7 material, sent after the reply to the first is
+committed -- carries that reply, and its reasoning, as they were written. That
+request is counted exactly (`check_known`): rendered with the real reply in it,
+plus the reserve for the reply still to come.
+
 A request fits when prompt + reserve <= context, the same comparison a provider
 makes when it accepts or refuses `max_tokens`.
 
@@ -106,17 +112,28 @@ TOKENIZER_FILE = "tokenizer.json"
 # send uses. With no system message the template supplies this one; with thinking
 # on (its default) a reply opens with <think>. Checked against the template itself
 # rendered by jinja2 on 29 September 2026, for one message and for two with an
-# empty reply between (the commit that adds this file).
+# empty reply between (the commit that adds this file), and for two with a written
+# reply and its reasoning between (the commit that wires this check into the send).
+#
+# An earlier reply is written <assistant><think>REASONING</think>ANSWER</assistant>:
+# with thinking on, the template shows every earlier reply's reasoning in full when
+# the request carries it (as `reasoning` or `reasoning_content`), and an empty
+# <think></think> when it does not.
 _LAGUNA_SYSTEM = ("You are a helpful, conversationally-fluent assistant made by "
                   "Poolside. You are here to be helpful to users through natural "
                   "language conversations.")
 
 
-def _render_laguna(user_messages):
+def _render_laguna(user_messages, replies=()):
+    """`replies[k]` is (reasoning, answer) of the reply to `user_messages[k]`.
+    A reply not given is rendered empty, which is how the worst-case count
+    leaves room for it."""
     parts = ["〈|EOS|〉", "<system>", _LAGUNA_SYSTEM, "</system>\n"]
     for i, text in enumerate(user_messages):
         if i:
-            parts.append("<assistant><think></think></assistant>\n")
+            reasoning, answer = replies[i - 1] if i - 1 < len(replies) else ("", "")
+            parts.append("<assistant><think>" + reasoning + "</think>" + answer
+                         + "</assistant>\n")
         parts.append("<user>" + text + "</user>\n")
     parts.append("<assistant><think>")
     return "".join(parts)
@@ -242,6 +259,18 @@ def check_fit(rendered_tokens, reserve, context):
         needed = prompt + reserve
         turns.append(Turn(k, prompt, needed, needed <= context))
     return FitResult(reserve, context, tuple(turns))
+
+
+def check_known(prompt_tokens, turn, reserve, context):
+    """The last request of a conversation whose earlier replies are already
+    written. `prompt_tokens` is that request as rendered WITH those replies in
+    it, so nothing is added for them: it fits when prompt + reserve <= context,
+    the same comparison as `check_fit`, with no guess left in it."""
+    if reserve <= 0:
+        raise CheckError(f"the output reserve must be positive, got {reserve}")
+    needed = prompt_tokens + reserve
+    return FitResult(reserve, context,
+                     (Turn(turn, prompt_tokens, needed, needed <= context),))
 
 
 def _read_text(path):
