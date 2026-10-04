@@ -3171,6 +3171,76 @@ classify O3 (Section 3.3 of the Part 7 document) as a defect.
 repository, reissued once now that round 8's runs are done (round 7's two entries,
 round 8's three requests, Xiaomi on the roster).
 
+## Ruling, 4 October 2026 — round 8's result: the findings go to triage, the ratings do not count, backtesting stays closed
+
+*New in this file on 4 October 2026. Viktor's, ruled by agreeing to Claude's
+suggestion — not by writing his position first. Filed in the session he ruled it.*
+
+**What was ruled.** Round 8's result is accepted in a narrow form. Run 2's findings —
+F1 to F10 of its Parts 1–6, and the points of its Part 7 reply — are accepted as input
+to triage. Its ratings (29 Compliant, 13 Partially compliant, 2 Not verifiable) are
+kept as the auditor's view and go to triage with the findings, but **none of them counts
+toward opening backtesting** ("Ruling, 29 September 2026 — what opens backtesting",
+condition 1), and **backtesting stays closed**. In his words: "I approve the narrow
+version, backtesting remain closed." This narrows "Decision, 4 October 2026 — round 8's
+second run", which said run 2's ratings count under the ruling of 29 September; that
+entry is not edited.
+
+**How it was ruled.** Asked to check the two scores and write his position on the
+result first, Viktor said he would not read the report and would approve it regardless,
+and asked whether Claude approved. Claude's answer: accept the findings, and do not let
+the ratings count for much. Its approval cannot stand in for his — Claude chose the test
+bugs, scored both runs and wrote many of the fixes the auditor graded, which the
+auditor's Part 7 reply names as its third caveat on the measure — and his own standing
+rule is to pause rather than decide without doing the work. Claude offered the narrow
+version as the one that needs no reading, and a pause as the alternative; he chose the
+narrow version. **Viktor did not check the two scores** (run 1: 0 of 4; run 2: 2 of 4).
+They rest on Claude's scoring alone, and on the auditor's own reading of its Parts 1–6,
+which agrees (2 of 4, S2 and S4).
+
+**Why the ratings do not count**, as Claude put it before the ruling: the pass is the
+minimum, two of four; both entries found were defects the project had already
+recorded, and one of them (S4) is a branch the Part 7 document itself calls weak
+evidence; both runs named themselves Claude although the provider's record is
+Xiaomi's.
+
+**What Claude checked of the findings before recommending**, this session, by reading
+the code on a clone of `040a529` (Linux sandbox): F5 — `distance_from_zone` is the
+distance from the band's midpoint (`models/entry_model.py:202–205`), printed as
+"BAND DISTANCE : … away from the band" (`core/panel_render.py:591`); F6 —
+`clean_series` keeps a `method="interpolate"` branch that fills from later rows
+(`indicators/indicators.py:160–161`), which no module outside `tests/` calls with that
+method (a text search), so latent, not live — the claim that
+`tests/test_no_lookahead.py` cannot see it was not checked; Part 4, shape 5 —
+`tests/test_golden_path.py::test_the_snapshot_covers_every_top_level_field` returns,
+not skips, when the golden file is missing; and Part 7's correction of the watched
+error count — `tests/test_risk_regime_independence.py:158` says 29 where the suite runs
+at 32. A keyword search of PHASE7_NEXT.md, the Part 7 document and
+`docs/audit_change_list.md` found none of these four on the project's own lists. F1 and
+F10 are S2 and S4. F2, F3, F4, F7, F8 and F9 were not checked by Claude.
+
+**What follows.**
+
+1. Triage of F1–F10 and the Part 7 points — Viktor's, his position first. The freeze
+   holds until it is done ("Decision, 4 October 2026 — round 8's package: the tag's,
+   with only the instruction and the Part 7 document corrected; the freeze holds").
+2. Fixes, each through the usual patch; the same auditor verifies them (the
+   14 September precedent).
+3. Not ruled, and Viktor's before backtesting is next: what would make a rating count
+   toward opening it, given that round 8's do not; and whether condition 1's second
+   path — "each gap is fixed and the fix confirmed by the same auditor" — is open
+   through round 8's auditor.
+
+**What it weakens.**
+
+- The adjudication the Constitution gives Viktor was made without reading the report or
+  checking the scores. The findings reach triage on Claude's partial check and the
+  auditor's word; triage, which is his, is where each is read.
+- The scores rest on a scorer who is also the fixer, checked by no one else.
+- Nothing in the backtest gate: it is stricter. The cost is that run 2's Compliant
+  ratings — Item 18's among them — earn nothing toward backtesting, so whatever later
+  opens it needs Items 2, 3, 6 and 18 rated from somewhere other than run 2's Parts 1–6.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then

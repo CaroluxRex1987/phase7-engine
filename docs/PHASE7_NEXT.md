@@ -1,10 +1,8 @@
 # Next step — read this first
 
-*4 October 2026. Rewritten by `d27743f`, which records round 8's first run, scores it
-0 of 4 and closes it to Part 7 — item 5 of round 8's preparation list; the version it
-replaced — as it stood at `217ede6` — is in HISTORY verbatim. Brought current, in the
-same session, by `a0276dd`, which records round 8's second run (2 of 4, a pass), and by
-the commit that records its Part 7 reply.
+*4 October 2026. Rewritten by the commit that records Viktor's ruling on round 8's
+result — the findings go to triage, the ratings do not count, backtesting stays closed;
+the version it replaced — as it stood at `040a529` — is in HISTORY verbatim.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
 rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
@@ -54,15 +52,19 @@ send. How the tooling builds and sends round 8 is Claude's, in DECISIONS ("Decis
 4 October 2026 — round 8's tooling"); what rev 9 and the Part 7 correction say,
 likewise ("Decision, 4 October 2026 — rev 9 and the Part 7 correction"). **Round 8's
 first run was sent on 4 October, from `217ede6` (tagged `round8-sent-2026-10-04`), and
-found 0 of the 4 test bugs** — Claude's score, which Viktor checks; it reasoned at
+found 0 of the 4 test bugs** — Claude's score; it reasoned at
 length (40,434 reasoning tokens) and named itself Claude, though the provider's record
 is Xiaomi's (DECISIONS, "Decision, 4 October 2026 — round 8's first run: 0 of 4, no
 Part 7 to it, run 2 next"). Part 7 does not go to it. **Run 2 found 2 of the 4 — a
 pass** (DECISIONS, "Decision, 4 October 2026 — round 8's second run: 2 of 4, a pass;
 Part 7 to it"), so its ratings count. Part 7 went to run 2 the same day and was
 answered (DECISIONS, "Round 8, 4 October 2026 — Part 7 answered; the result goes to
-Viktor"). **Next — Viktor's:** check the two scores, then accept or reject round 8's
-result; triage follows if he accepts (Open items).
+Viktor"). **Viktor ruled on the result the same evening, by agreeing to Claude's
+suggestion and without reading the report or checking the two scores:** the findings go
+to triage, the ratings do not count toward opening backtesting, and backtesting stays
+closed (DECISIONS, "Ruling, 4 October 2026 — round 8's result: the findings go to
+triage, the ratings do not count, backtesting stays closed"). **Next — Viktor's:**
+triage of run 2's ten findings and the Part 7 points, his position first (Open items).
 Anything found meanwhile goes on the list for after the audit (below), not onto the
 closed list.
 
@@ -167,7 +169,8 @@ MiMo's knowledge cutoff: one statement found, a sample system prompt in the API 
 code on Xiaomi's model page ("December 2024"). Its commit was docs only: rev 9, the
 Part 7 document corrected, a DECISIONS entry, this file and HISTORY.
 
-**This session (4 October, the fifth that day)**, under Claude Opus 5.5, opened on
+**The session of 4 October that sent round 8** (`d27743f`, `a0276dd`, `040a529`, the
+fifth that day), under Claude Opus 5.5, opened on
 "Continue Phase 7" and went to item 5 of round 8's list, the send (PACE FIRST, the
 exception). Claude read GitHub's tip (a clone) and `master` off Viktor's disk: both
 `217ede6`. Viktor built round 8's package, which matched the sandbox's build file for
@@ -181,17 +184,37 @@ Part 7 to it, run 2 next"); Viktor pushed it with the tag, and GitHub's tip matc
 tree verified in the sandbox. He then sent run 2: Xiaomi's endpoint again, nineteen
 minutes, 68,464 reasoning tokens, and Claude scored it 2 of 4 — S2 and S4 found. The
 reply was recorded at `a0276dd`. Part 7 then went to run 2: Xiaomi's endpoint,
-fourteen minutes, 2 of 4 by its own reading too; the commit that writes this line
-records that reply — docs and the reply's files only.
+fourteen minutes, 2 of 4 by its own reading too; `040a529` records that reply — docs
+and the reply's files only.
+
+**This session (4 October, the sixth that day)**, under Claude Opus 5.5, opened on
+"Continue Phase" ("Phase 7, that is what i meant"). Claude read GitHub's tip (a clone):
+`040a529`. The session was not linked to Viktor's computer, so nothing was staged off
+his disk this time; the files this commit changes are taken from GitHub at `040a529`.
+GitHub's tip being `040a529` shows he pushed it; that `master` on his disk is still
+`040a529` was not checked this session — `git apply --check` is what checks it. Viktor asked whether the
+audit was complete and whether it gave anything useful. Claude checked four of the
+findings in the code (DECISIONS, the ruling's entry, says which), recommended accepting
+the findings and not counting the ratings, and told him its approval could not stand in
+for his. He ruled the narrow version. The commit that writes this line is docs only:
+the ruling in DECISIONS, this file and HISTORY.
 
 ## Ruled — in force
 
+- **New, 4 October — Viktor's, by agreeing to Claude's suggestion: round 8's result**
+  (DECISIONS, "Ruling, 4 October 2026 — round 8's result: the findings go to triage,
+  the ratings do not count, backtesting stays closed"). Run 2's findings and Part 7
+  points go to triage; its ratings do not count toward opening backtesting; backtesting
+  stays closed. Ruled without reading the report; the two scores are unchecked by him.
+  It narrows the entry below, which said run 2's ratings count. **Filed at the commit
+  that writes this line.**
 - **New, 4 October — Claude's, under the delegation: round 8's second run** (DECISIONS,
   "Decision, 4 October 2026 — round 8's second run: 2 of 4, a pass; Part 7 to it").
-  Scored 2 of 4 (S2, S4), a pass, so its ratings count; Part 7 goes to it. **Filed at
+  Scored 2 of 4 (S2, S4), a pass, so its ratings count — narrowed by the ruling above:
+  not toward opening backtesting; Part 7 goes to it. **Filed at
   `a0276dd`**, with the run's four files. Part 7 was sent and answered; the record is
   DECISIONS, "Round 8, 4 October 2026 — Part 7 answered; the result goes to Viktor",
-  filed at the commit that writes this line.
+  filed at `040a529`.
 - **New, 4 October — Claude's, under the delegation: round 8's first run** (DECISIONS,
   "Decision, 4 October 2026 — round 8's first run: 0 of 4, no Part 7 to it, run 2
   next"). Scored 0 of 4; no Part 7 to it, closed in the send script; run 2 unchanged.
@@ -373,8 +396,9 @@ records that reply — docs and the reply's files only.
 ## Where things stand, right now
 
 - **Tip:** the commit that writes this line (a commit cannot name its own hash) —
-  round 8's Part 7 reply and its record: docs only. Before it: `a0276dd` (this
-  session's second commit: round 8's second run: docs only), `d27743f` (this session's
+  Viktor's ruling on round 8's result: docs only. Before it: `040a529` (the fifth
+  session of 4 October's third commit: round 8's Part 7 reply and its record: docs
+  only), `a0276dd` (its second commit: round 8's second run: docs only), `d27743f` (its
   first commit: round 8's first run and its record, the send script and one test),
   `217ede6` (the session of 4 October that wrote rev 9:
   docs only), `4a4c6ce` (the session of
@@ -433,6 +457,11 @@ records that reply — docs and the reply's files only.
   to `E:\phase7_engine`". Run the engine and every command from `E:\phase7_engine` (in
   cmd, changing drive needs `cd /d`). A dated record that names the D: paths means the
   same folders before the move; dated records are not edited.
+- **The push of `040a529`** happened: it is GitHub's tip, read this session by a clone.
+  No deviation was reported, so nothing is owed (ruling on proposal (b)). Whether
+  `master` on Viktor's disk is still `040a529` was not checked — the session was not
+  linked to his computer — and `git apply --check` on this commit's patch is what
+  checks it.
 - **The pushes of `217ede6`, `d27743f` and `a0276dd`** happened; `a0276dd` was on
   GitHub and on Viktor's disk before Part 7 was sent. At the start of this session
   GitHub's tip (a clone) and `master` on Viktor's disk were both `217ede6`; after his
@@ -443,12 +472,13 @@ records that reply — docs and the reply's files only.
   on proposal (b)). The same holds for the push of
   the commit that writes this line unless it deviates. Earlier pushes and deviations
   are recorded in this file's previous versions, in HISTORY.
-- **Before this commit**, the files it changes were taken from GitHub at `a0276dd`,
-  which is `master` on Viktor's disk; the four `turn2_*` files were staged off his disk
-  and hash to what their metadata records.
+- **Before this commit**, the files it changes were taken from GitHub at `040a529`
+  (above). `040a529`'s own account: its files were taken from GitHub at `a0276dd`, and
+  the four `turn2_*` files were staged off his disk and hash to what their metadata
+  records.
 - **code_hash:** `c6a44d4d7ab1c8d36f2a07f6f2c78a1967ecfc135259cbe828b3daa275e571c9`,
-  unmoved by the commit that writes this line, which changes no `.py` file, and by
-  `d27743f`, whose `.py` files are all under `docs/` and `tests/`, which the
+  unmoved by the commit that writes this line and by `040a529`, which change no `.py`
+  file, and by `d27743f`, whose `.py` files are all under `docs/` and `tests/`, which the
   fingerprint excludes by directory. Computed on the tree before
   and after it, under Python 3.12.3.
   It last moved at `7d0024e` (from `f4b23f94…`), in
@@ -458,24 +488,25 @@ records that reply — docs and the reply's files only.
   output, a CPython implementation detail (`core/code_fingerprint.py`, "WHAT IT DOES NOT
   SURVIVE"). **Every `code_hash` claim about this project is computed under Python 3.12**
   (Viktor runs 3.12.10).
-- **Golden snapshot:** unmoved by the commit that writes this line. Last re-baselined
+- **Golden snapshot:** unmoved by the commit that writes this line and by `040a529`. Last re-baselined
   at `7d0024e`, 2 fields (`explanation.reasons[0]` and `explanation.summary`, the
   CONSERVATIVE sentence), with `run_hash` unmoved; before that at `76c8cde`, 11 fields.
 - **Test suite** — **728 passed / 0 failed, no warnings line** with `pandas_ta`;
   **583 passed / 134 skipped** without it; `run_tests.py` **657 passed / 0 failed /
   32 errors**, all 32 fixture-collection `TypeError`s; unchanged by the commit that
-  writes this line, which changes no test (re-run with run 2's files in place: the same
-  counts). `d27743f` added one test to `tests/test_send_audit_round.py`, with no fixture and not needing
+  writes this line and by `040a529`, neither of which changes a test (re-run before and
+  after this commit's patch, applied to a clone of `040a529`: the same counts). `d27743f` added one test to `tests/test_send_audit_round.py`, with no fixture and not needing
   `pandas_ta`; before it, 727, 582 / 134 and 656 / 0 / 32, confirmed on Windows at
   `4a4c6ce` by Viktor proceeding. Linux sandbox, autocrlf clone, Python 3.12.3, pinned
   requirements, run on the applied tree with run 1's files in place. One new test,
   `test_the_commit_messages_up_to_the_tag_are_round_7s_to_the_byte`, runs `git log` up
   to the tag `round7-sent-2026-09-30`: it needs the tag, which a full clone has.
-- **Engineering Notes:** through Entry #183 (v1.36), which covers `68c6191`. **Eighteen
+- **Engineering Notes:** through Entry #183 (v1.36), which covers `68c6191`. **Nineteen
   commits behind** — `ec4e5fd`, the floor (a commit that regenerates the Notes cannot
   cover itself, Entry #144), `e7a94d1`, `d5ced0c`, `59b747a`, `f256937`, `12b483e`,
   `01f2892`, `8b6fd00`, `e186423`, `86f30f1`, `3e8191a`, `1523e0c`, `ff12e17`,
-  `4a4c6ce`, `217ede6`, `d27743f`, `a0276dd` and the commit that writes this line. Every later commit adds one until the next regeneration. Batched, by the
+  `4a4c6ce`, `217ede6`, `d27743f`, `a0276dd`, `040a529` and the commit that writes this
+  line. Every later commit adds one until the next regeneration. Batched, by the
   15 September rule; no time pressure. v1.36 records the round-1 recovery, the rulings of 22
   (filed 26), 26, 27, 28 and 29 September, the move to E:, the code for findings 16, 7,
   4, 6, 5 and 18, work order G and the Aider correction. Its PDF's extracted text
@@ -487,8 +518,8 @@ records that reply — docs and the reply's files only.
   the Attribution Statement's script last changed at `68c6191`, the Portfolio
   Document's at `6e1baba`.
 - **README.md:** its test counts are current (728, 583 and 657), changed at `d27743f`,
-  so the hook's section 5 will report 2 commits since it was touched — `a0276dd` and
-  the commit that writes this line, neither of which changes a count. Two of its status rows are stale and not changed here (Open items).
+  so the hook's section 5 will report 3 commits since it was touched — `a0276dd`,
+  `040a529` and the commit that writes this line, none of which changes a count. Two of its status rows are stale and not changed here (Open items).
 - **The round-1 audit outputs are in the repository**, in
   `docs/audit_reports/round1_deepseek-v4-pro_kimi-k3_2026-08-27/`, byte-identical to the
   hashes Viktor took on 23 September. The account is in HISTORY, "26 September 2026 —
@@ -958,18 +989,15 @@ Each code commit is its own commit and updates this file for its own landing.
 
 ## Resolved this session
 
-- **Item 5 of round 8's preparation list, run 1** — built, checked, tagged and sent;
-  scored 0 of 4; closed to Part 7 (`d27743f`; DECISIONS, "Decision, 4 October 2026 —
-  round 8's first run: 0 of 4, no Part 7 to it, run 2 next").
-- **Run 2** — sent, scored 2 of 4, a pass (`a0276dd`; DECISIONS,
-  "Decision, 4 October 2026 — round 8's second run: 2 of 4, a pass; Part 7 to it").
-- **Part 7 to run 2** — sent and answered (the commit that writes this line; DECISIONS,
-  "Round 8, 4 October 2026 — Part 7 answered; the result goes to Viktor").
-- **The pushes of `217ede6`, `d27743f` and `a0276dd`** — filed above, once; no deviation
-  reported.
-- **The once-per-session rewrite of this file.** The previous version, as at `217ede6`,
+- **Round 8's result — ruled** (the commit that writes this line; DECISIONS, "Ruling,
+  4 October 2026 — round 8's result: the findings go to triage, the ratings do not
+  count, backtesting stays closed"). Viktor's, by agreeing to Claude's suggestion,
+  without reading the report; the two scores are unchecked by him.
+- **The once-per-session rewrite of this file.** The previous version, as at `040a529`,
   is in HISTORY verbatim, headings demoted one level, proven by un-demotion with a
   negative control (this commit's message has the result).
+- **Round 8's sending session** (`d27743f`, `a0276dd`, `040a529`) — run 1, run 2 and
+  Part 7, all done; its account is above and, in full, in HISTORY.
 
 ## Open items
 
@@ -1028,16 +1056,22 @@ Claude critiques it.
      commit that writes this line (DECISIONS, "Round 8, 4 October 2026 — Part 7
      answered").
   6. **Scoring:** Claude scores against the four "Found means" sentences of the Part 7
-     document and Viktor checks. Run 1: 0 of 4. Run 2: 2 of 4 (S2, S4), a pass. Two runs in all; fewer than two of the
+     document and Viktor checks. Run 1: 0 of 4. Run 2: 2 of 4 (S2, S4), a pass.
+     **Viktor did not check either score** (4 October, the ruling in item 7). Two runs in all; fewer than two of the
      four found in both runs means the fallback (DECISIONS, "Decision, 4 October 2026 — the fallback:
      scoped packages").
-  7. **Next — Viktor's: the result is his to accept or reject**, after checking the two
-     scores; then triage (his), and the same auditor verifies the fixes (the 14
-     September precedent). His position first. What he is deciding on: run 2's Parts
-     1–6 (`turn1_report.md`) and Part 7 reply (`turn2_report.md`) in
-     `docs/audit_reports/round8_mimo-v2.6-pro_run2_2026-10-04/`; both runs named
-     themselves Claude, and the reply's Section 5 puts three caveats on the measure.
-     The engine freeze holds until the report is triaged.
+  7. **Ruled, 4 October — Viktor's, by agreeing to Claude's suggestion:** the findings
+     go to triage, the ratings do not count toward opening backtesting, backtesting
+     stays closed (DECISIONS, "Ruling, 4 October 2026 — round 8's result: the findings
+     go to triage, the ratings do not count, backtesting stays closed"). Ruled without
+     reading the report.
+  8. **Next — Viktor's: triage**, his position first — run 2's F1–F10
+     (`turn1_report.md`) and the points of its Part 7 reply (`turn2_report.md`), in
+     `docs/audit_reports/round8_mimo-v2.6-pro_run2_2026-10-04/`, with the 13 Partially
+     compliant and 2 Not verifiable ratings. Then the fixes, which the same auditor
+     verifies (the 14 September precedent). The engine freeze holds until the report is
+     triaged. Not ruled, his before backtesting is next: what would make a rating
+     count toward opening it (the ruling's entry, "What follows", point 3).
 - **The ledger entry for round 7**, which the roster-and-ledger document asks for at the
   send, from the provider's record: Poolside, `poolside/laguna-s-2.1` (OpenRouter's
   permaslug `poolside/laguna-s-2.1-20260720`), 30 September 2026 at 09:58 UTC, through
@@ -1055,7 +1089,9 @@ Claude critiques it.
   round 7, run 2, Parts 1–6; 0 of 4, no Part 7. Round 7's runs are done, so the reissue
   is now due. **Claude's, under the delegation of 4 October:** reissued once, after round
   8's runs, so it carries round 7's two entries, round 8's, and Xiaomi added to the
-  roster with the facts checked on 4 October. **Round 8's run 1 entry**, from the
+  roster with the facts checked on 4 October. **Still owed after the sixth session of
+  4 October**, which was not linked to Viktor's computer and could not reach G:.
+  **Round 8's run 1 entry**, from the
   provider's record: Xiaomi, `xiaomi/mimo-v2.6-pro` (permaslug
   `xiaomi/mimo-v2.6-pro-20260921`), 4 October 2026, 15:51:46 to 16:02:09 UTC, through
   the API with Viktor's key; a probe (24 prompt tokens, nothing from the package) and one
