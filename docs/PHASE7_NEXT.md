@@ -3,7 +3,8 @@
 *4 October 2026. Rewritten by `d27743f`, which records round 8's first run, scores it
 0 of 4 and closes it to Part 7 — item 5 of round 8's preparation list; the version it
 replaced — as it stood at `217ede6` — is in HISTORY verbatim. Brought current, in the
-same session, by the commit that records round 8's second run (2 of 4, a pass).
+same session, by `a0276dd`, which records round 8's second run (2 of 4, a pass), and by
+the commit that records its Part 7 reply.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
 rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
@@ -58,7 +59,10 @@ length (40,434 reasoning tokens) and named itself Claude, though the provider's 
 is Xiaomi's (DECISIONS, "Decision, 4 October 2026 — round 8's first run: 0 of 4, no
 Part 7 to it, run 2 next"). Part 7 does not go to it. **Run 2 found 2 of the 4 — a
 pass** (DECISIONS, "Decision, 4 October 2026 — round 8's second run: 2 of 4, a pass;
-Part 7 to it"), so its ratings count. **Next:** Part 7 to run 2 (Open items).
+Part 7 to it"), so its ratings count. Part 7 went to run 2 the same day and was
+answered (DECISIONS, "Round 8, 4 October 2026 — Part 7 answered; the result goes to
+Viktor"). **Next — Viktor's:** check the two scores, then accept or reject round 8's
+result; triage follows if he accepts (Open items).
 Anything found meanwhile goes on the list for after the audit (below), not onto the
 closed list.
 
@@ -176,14 +180,18 @@ cannot go to it (DECISIONS, "Decision, 4 October 2026 — round 8's first run: 0
 Part 7 to it, run 2 next"); Viktor pushed it with the tag, and GitHub's tip matched the
 tree verified in the sandbox. He then sent run 2: Xiaomi's endpoint again, nineteen
 minutes, 68,464 reasoning tokens, and Claude scored it 2 of 4 — S2 and S4 found. The
-commit that writes this line records it; it is docs and the run's files only.
+reply was recorded at `a0276dd`. Part 7 then went to run 2: Xiaomi's endpoint,
+fourteen minutes, 2 of 4 by its own reading too; the commit that writes this line
+records that reply — docs and the reply's files only.
 
 ## Ruled — in force
 
 - **New, 4 October — Claude's, under the delegation: round 8's second run** (DECISIONS,
   "Decision, 4 October 2026 — round 8's second run: 2 of 4, a pass; Part 7 to it").
   Scored 2 of 4 (S2, S4), a pass, so its ratings count; Part 7 goes to it. **Filed at
-  the commit that writes this line**, with the run's four files.
+  `a0276dd`**, with the run's four files. Part 7 was sent and answered; the record is
+  DECISIONS, "Round 8, 4 October 2026 — Part 7 answered; the result goes to Viktor",
+  filed at the commit that writes this line.
 - **New, 4 October — Claude's, under the delegation: round 8's first run** (DECISIONS,
   "Decision, 4 October 2026 — round 8's first run: 0 of 4, no Part 7 to it, run 2
   next"). Scored 0 of 4; no Part 7 to it, closed in the send script; run 2 unchanged.
@@ -365,7 +373,8 @@ commit that writes this line records it; it is docs and the run's files only.
 ## Where things stand, right now
 
 - **Tip:** the commit that writes this line (a commit cannot name its own hash) —
-  round 8's second run and its record: docs only. Before it: `d27743f` (this session's
+  round 8's Part 7 reply and its record: docs only. Before it: `a0276dd` (this
+  session's second commit: round 8's second run: docs only), `d27743f` (this session's
   first commit: round 8's first run and its record, the send script and one test),
   `217ede6` (the session of 4 October that wrote rev 9:
   docs only), `4a4c6ce` (the session of
@@ -424,7 +433,8 @@ commit that writes this line records it; it is docs and the run's files only.
   to `E:\phase7_engine`". Run the engine and every command from `E:\phase7_engine` (in
   cmd, changing drive needs `cd /d`). A dated record that names the D: paths means the
   same folders before the move; dated records are not edited.
-- **The pushes of `217ede6` and `d27743f`** happened. At the start of this session
+- **The pushes of `217ede6`, `d27743f` and `a0276dd`** happened; `a0276dd` was on
+  GitHub and on Viktor's disk before Part 7 was sent. At the start of this session
   GitHub's tip (a clone) and `master` on Viktor's disk were both `217ede6`; after his
   push of `d27743f` and the tag, GitHub's tip was `d27743f`, every file in it the same
   as the tree verified in the sandbox, and the tag at `217ede6`. Viktor reported no
@@ -433,9 +443,9 @@ commit that writes this line records it; it is docs and the run's files only.
   on proposal (b)). The same holds for the push of
   the commit that writes this line unless it deviates. Earlier pushes and deviations
   are recorded in this file's previous versions, in HISTORY.
-- **Before this commit**, the files it changes were taken from GitHub at `d27743f`,
-  which matched what was delivered to Viktor's disk; run 2's four files were staged off
-  his disk and hash to what their metadata records.
+- **Before this commit**, the files it changes were taken from GitHub at `a0276dd`,
+  which is `master` on Viktor's disk; the four `turn2_*` files were staged off his disk
+  and hash to what their metadata records.
 - **code_hash:** `c6a44d4d7ab1c8d36f2a07f6f2c78a1967ecfc135259cbe828b3daa275e571c9`,
   unmoved by the commit that writes this line, which changes no `.py` file, and by
   `d27743f`, whose `.py` files are all under `docs/` and `tests/`, which the
@@ -461,11 +471,11 @@ commit that writes this line records it; it is docs and the run's files only.
   requirements, run on the applied tree with run 1's files in place. One new test,
   `test_the_commit_messages_up_to_the_tag_are_round_7s_to_the_byte`, runs `git log` up
   to the tag `round7-sent-2026-09-30`: it needs the tag, which a full clone has.
-- **Engineering Notes:** through Entry #183 (v1.36), which covers `68c6191`. **Seventeen
+- **Engineering Notes:** through Entry #183 (v1.36), which covers `68c6191`. **Eighteen
   commits behind** — `ec4e5fd`, the floor (a commit that regenerates the Notes cannot
   cover itself, Entry #144), `e7a94d1`, `d5ced0c`, `59b747a`, `f256937`, `12b483e`,
   `01f2892`, `8b6fd00`, `e186423`, `86f30f1`, `3e8191a`, `1523e0c`, `ff12e17`,
-  `4a4c6ce`, `217ede6`, `d27743f` and the commit that writes this line. Every later commit adds one until the next regeneration. Batched, by the
+  `4a4c6ce`, `217ede6`, `d27743f`, `a0276dd` and the commit that writes this line. Every later commit adds one until the next regeneration. Batched, by the
   15 September rule; no time pressure. v1.36 records the round-1 recovery, the rulings of 22
   (filed 26), 26, 27, 28 and 29 September, the move to E:, the code for findings 16, 7,
   4, 6, 5 and 18, work order G and the Aider correction. Its PDF's extracted text
@@ -477,8 +487,8 @@ commit that writes this line records it; it is docs and the run's files only.
   the Attribution Statement's script last changed at `68c6191`, the Portfolio
   Document's at `6e1baba`.
 - **README.md:** its test counts are current (728, 583 and 657), changed at `d27743f`,
-  so the hook's section 5 will report 1 commit since it was touched — the commit that
-  writes this line, which changes no count. Two of its status rows are stale and not changed here (Open items).
+  so the hook's section 5 will report 2 commits since it was touched — `a0276dd` and
+  the commit that writes this line, neither of which changes a count. Two of its status rows are stale and not changed here (Open items).
 - **The round-1 audit outputs are in the repository**, in
   `docs/audit_reports/round1_deepseek-v4-pro_kimi-k3_2026-08-27/`, byte-identical to the
   hashes Viktor took on 23 September. The account is in HISTORY, "26 September 2026 —
@@ -951,9 +961,12 @@ Each code commit is its own commit and updates this file for its own landing.
 - **Item 5 of round 8's preparation list, run 1** — built, checked, tagged and sent;
   scored 0 of 4; closed to Part 7 (`d27743f`; DECISIONS, "Decision, 4 October 2026 —
   round 8's first run: 0 of 4, no Part 7 to it, run 2 next").
-- **Run 2** — sent, scored 2 of 4, a pass (the commit that writes this line; DECISIONS,
+- **Run 2** — sent, scored 2 of 4, a pass (`a0276dd`; DECISIONS,
   "Decision, 4 October 2026 — round 8's second run: 2 of 4, a pass; Part 7 to it").
-- **The pushes of `217ede6` and `d27743f`** — filed above, once; no deviation reported.
+- **Part 7 to run 2** — sent and answered (the commit that writes this line; DECISIONS,
+  "Round 8, 4 October 2026 — Part 7 answered; the result goes to Viktor").
+- **The pushes of `217ede6`, `d27743f` and `a0276dd`** — filed above, once; no deviation
+  reported.
 - **The once-per-session rewrite of this file.** The previous version, as at `217ede6`,
   is in HISTORY verbatim, headings demoted one level, proven by un-demotion with a
   negative control (this commit's message has the result).
@@ -1007,18 +1020,24 @@ Claude critiques it.
      and is closed in the send script (DECISIONS, "Decision, 4 October 2026 — round 8's
      first run: 0 of 4, no Part 7 to it, run 2 next"). **Viktor checks the score.**
   5a. **Run 2 — done, 4 October; 2 of 4, a pass.** The same first message, Xiaomi's
-     endpoint, the probe first; its reply committed the same day by the commit that
-     writes this line (DECISIONS, "Decision, 4 October 2026 — round 8's second run").
-  5b. **Next — Part 7 to run 2**, after the commit that writes this line is pushed:
-     `--send-part7`, with no `--provider` (it goes to Xiaomi's endpoint, which answered).
-     Counted in the sandbox at 658,197 tokens with the first reply's reasoning: fits,
-     259,307 to spare. Its reply (`turn2_*`) is committed the same day.
+     endpoint, the probe first; its reply committed the same day at `a0276dd`
+     (DECISIONS, "Decision, 4 October 2026 — round 8's second run").
+  5b. **Part 7 to run 2 — done, 4 October.** `--send-part7` to Xiaomi's endpoint;
+     658,197 prompt tokens, the sandbox's count with the first reply's reasoning, so the
+     reasoning reached the model. Its reply (`turn2_*`) committed the same day by the
+     commit that writes this line (DECISIONS, "Round 8, 4 October 2026 — Part 7
+     answered").
   6. **Scoring:** Claude scores against the four "Found means" sentences of the Part 7
      document and Viktor checks. Run 1: 0 of 4. Run 2: 2 of 4 (S2, S4), a pass. Two runs in all; fewer than two of the
      four found in both runs means the fallback (DECISIONS, "Decision, 4 October 2026 — the fallback:
      scoped packages").
-  7. **The result is Viktor's to accept or reject**; then triage (his), and the same
-     auditor verifies the fixes (the 14 September precedent).
+  7. **Next — Viktor's: the result is his to accept or reject**, after checking the two
+     scores; then triage (his), and the same auditor verifies the fixes (the 14
+     September precedent). His position first. What he is deciding on: run 2's Parts
+     1–6 (`turn1_report.md`) and Part 7 reply (`turn2_report.md`) in
+     `docs/audit_reports/round8_mimo-v2.6-pro_run2_2026-10-04/`; both runs named
+     themselves Claude, and the reply's Section 5 puts three caveats on the measure.
+     The engine freeze holds until the report is triaged.
 - **The ledger entry for round 7**, which the roster-and-ledger document asks for at the
   send, from the provider's record: Poolside, `poolside/laguna-s-2.1` (OpenRouter's
   permaslug `poolside/laguna-s-2.1-20260720`), 30 September 2026 at 09:58 UTC, through
@@ -1050,7 +1069,11 @@ Claude critiques it.
   (nothing from the package) and one request, 430,820 prompt tokens (430,720 from the
   provider's prompt cache), reasoning requested (68,464 reasoning tokens); shown the
   same first message; role: independent auditor, round 8, run 2, Parts 1–6; 2 of 4.
-  Part 7 to follow; its entry is added when it is sent.
+  **Its Part 7 request:** the same endpoint and model, 4 October 2026, 19:20:11 to
+  19:34:07 UTC; one request, 658,197 prompt tokens (430,720 from the cache); shown the
+  first message again, its own first reply with its reasoning, and the Part 7 material
+  (the Part 7 document and the commit messages after `e65a0f7` up to `e186423`); role:
+  independent auditor, round 8, run 2, Part 7.
 - **Viktor, outside the repository:** delete `D:\phase7_engine_MOVED_TO_E` and
   `D:\Phase_7_Engine_Random_Files_MOVED_TO_G` once satisfied with the copies on E: and
   G: (HISTORY, 26 September, ninth session). Not urgent.

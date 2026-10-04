@@ -3126,6 +3126,51 @@ tokens. It is a check that the output cap exceeds the largest reply on record, a
 still does. It is not changed during the round, to keep the send script as it was for
 both runs; updating it goes with the next change to the script.
 
+## Round 8, 4 October 2026 — Part 7 answered; the result goes to Viktor
+
+*New in this file on 4 October 2026. A record, not a decision: under the delegation the
+audit is Claude's to run, and its result is Viktor's to accept or reject. Filed in the
+session that sent it.*
+
+**The send.** `--send-part7` after `a0276dd` (run 2's first reply) was pushed; it picked
+run 2 (run 1 is closed) and went to Xiaomi's endpoint, which had answered the first
+message. 19:20:11 to 19:34:07 UTC; finish reason `stop`; provider reported Xiaomi.
+658,197 prompt tokens by the provider's count — exactly the token check's count *with*
+the first reply's reasoning (589,796 without it). That settles what the send script and
+the round-8 tooling decision left open: the reasoning, sent as `reasoning`, reached the
+model, although MiMo's template reads only `reasoning_content`. 430,720 prompt tokens
+from the provider's cache; 63,761 completion tokens, 58,054 of them reasoning; $0.156.
+The four `turn2_*` files are committed with this entry, unchanged (their SHA-256s are the
+ones `turn2_run_metadata.json` records; it records the first reply as committed in
+`a0276dd`).
+
+**What the reply says.** Its own reading of Parts 1–6 against the four "Found means"
+sentences is 2 of 4 — S2 and S4 — the same as Claude's score. It retracts nothing, refines
+two findings (F4's macro paths: two that can move an action, not three; F3: a second
+route to skipped temporal checks, an unlisted timeframe spelling), and corrects its own
+Part 4 count (32 fixture errors, not 29, noting that one test file still says 29). It
+names six places where a stated intent and the shipped code differ — among them that
+work order G removed macro's gate from the CONSERVATIVE branches but not from the
+LONG/CONSERVATIVE boundary, which the entry score's macro multiplier still moves — and
+three things a reader of the score should hold beside it: all four scored entries are
+named in the commit messages it was shown in Part 7; the two-run threshold was ruled
+after a score existed; and the scorer is the party whose fixes were graded. It would
+classify O3 (Section 3.3 of the Part 7 document) as a defect.
+
+**What is Viktor's now, and in this order** (none of it is under the delegation):
+
+1. Check Claude's two scores (run 1: 0 of 4; run 2: 2 of 4).
+2. Accept or reject round 8's result — run 2's Parts 1–6 and its Part 7 reply. Two
+   facts for that judgement, recorded above: both runs named themselves Claude, and the
+   three caveats on the measure in the reply's Section 5.
+3. If accepted: triage of run 2's ten findings and the Part 7 points; the freeze lifts
+   once the report is triaged ("Decision, 4 October 2026 — round 8's package"); the
+   same auditor verifies the fixes (the 14 September precedent).
+
+**Still Claude's under the delegation:** the roster-and-ledger document outside the
+repository, reissued once now that round 8's runs are done (round 7's two entries,
+round 8's three requests, Xiaomi on the roster).
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then
