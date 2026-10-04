@@ -2615,6 +2615,209 @@ does the work. Two runs of one small model (8B active parameters per token) foun
 of the four. That says this model did not do the work; it does not yet show that the
 four test bugs can be found by a model that does.
 
+## Delegation, 4 October 2026 — the next independent audit is Claude's to run
+
+*New in this file on 4 October 2026. Given in chat in a session earlier the same day,
+which landed no commit, and filed by the next session from the record that session kept
+(Claude's memory notes), not from the chat, which the filing session could not read.
+Viktor's words are quoted as that record holds them. Sessions after the thirty-first are
+named by date in this file and in PHASE7_NEXT.md: the filing session cannot count them
+from the record it has.*
+
+**What Viktor said.** "you do all the work, take all decisions and see through that the
+Audit take place, if you have to send 3 or 4 packages instead of one full audit so be
+it". He asked for no more questions and no more decisions to make on it.
+
+**What it covers.** Every decision needed to get an independent audit done: the
+auditor, the package and its form (one full package or several scoped ones), the
+instruction, the pins, the order of the work, and applying the rules already ruled —
+the scoring rule and what "found" means (the Part 7 document), two runs per auditor and
+what counts as a run ("Ruling, 30 September 2026 — what follows round 7's first
+reply"). Each decision is filed in this file, with its reasons and what it weakens,
+before the send it governs, so Viktor can reverse it.
+
+**What stays Viktor's.**
+
+1. Accepting or rejecting the audit's result. The Constitution has Viktor adjudicate and
+   does not let the builder certify its own work, and Claude wrote most of the code
+   under audit.
+2. Running the commands and pushing: the terminal and his GitHub login are his.
+3. What the delegation does not name: rulings on what the engine should do, triage of
+   the findings a report brings, amendments to the Constitution, and the declaration
+   that opens backtesting ("Ruling, 29 September 2026 — what opens backtesting").
+
+The boundary is Claude's reading of his words; he can widen or narrow it.
+
+**What it weakens.** For this audit, Viktor's practice of writing his position first is
+set aside, and the party that wrote most of the code chooses its examiner and how the
+examination is sent. What limits that: the test of the auditor was locked by a commit
+before round 7 and does not change (the four test bugs and their "Found means"
+sentences, in the Part 7 document); each choice is filed before the send it governs;
+and the result is still Viktor's to accept.
+
+## Decision, 4 October 2026 — round 8: Xiaomi MiMo-V2.6-Pro, the full package in one session
+
+*New in this file on 4 October 2026. Claude's, under the delegation above. Made in the
+session that received the delegation; filed by the next session, which also made the
+checks below as far as they could be made before the tokenizer files are on disk.*
+
+**What was decided.** Round 8's auditor is Xiaomi's MiMo-V2.6-Pro
+(`xiaomi/mimo-v2.6-pro` on OpenRouter), sent the full package in one session — round
+7's two messages, Parts 1–6 first and Part 7 after the first reply is committed —
+provided it passes four checks before the send: its served context and output cap; its
+lineage; reasoning; and a count of the whole conversation with its own tokenizer.
+Round 8 gets two runs in all, as round 7 did (point 4 of the ruling of 30 September).
+
+**Why this model.**
+
+- **No exposure on record.** Viktor confirmed, in the session that delegated, that he
+  has never used a Xiaomi or MiMo model anywhere. His OpenRouter activity export (727
+  requests, 22 August to 14 September 2026, the reconciled ledger's source) has no
+  Xiaomi or MiMo row and no row for an unnamed preview model; read by Claude on
+  4 October. After 14 September his statement is the record. Xiaomi was on no roster:
+  MiMo-V2.6 was released on 21–22 September, after the roster's model facts were last
+  checked (22 September).
+- **It fits on paper.** OpenRouter lists 1,050,000 tokens of context and 131,072 of
+  output; Xiaomi's own endpoint serves 1,048,576 and 131,072 — the same figures as
+  Laguna S 2.1's, so round 7's worst-case arithmetic carries over in form. Round 7's
+  real first request was 455,360 prompt tokens by Poolside's count, and Viktor's dry run
+  before that send found the whole conversation fitting with 181,740 tokens to spare at
+  the worst case, counted with Laguna's tokenizer. Not yet counted with MiMo's
+  (check 4).
+- **Its size.** 1.02T parameters, 42B active per token (its model card), against Laguna
+  S 2.1's 8B active. Round 7 showed that Laguna did not do the work; that a larger model
+  will is Claude's expectation, not a tested claim.
+- **The alternatives.** Amazon's Nova 2 Pro: Viktor could not get it on 30 September,
+  and a check of Amazon Bedrock through the AWS account he set up was left unfinished
+  on 1 October. The roster's other
+  clean labs — Upstage, NVIDIA, Cohere, AI21 — are listed for scoped rounds only (the
+  roster-and-ledger document of 30 September; their model facts checked on 22 and 30
+  September, not since).
+
+**The pin.** Xiaomi's own endpoint (fp8), as round 7 was pinned to the model's maker.
+If that endpoint refuses the request — including the 404 OpenRouter returns when
+`data_collection: deny` rules an endpoint out — the order is GMICloud (bf16), then
+DeepInfra (fp8), then Novita (fp8): the same model served by others. `data_collection:
+deny` is not dropped to reach an endpoint. Which checkpoint each endpoint serves — the
+`-RL` release or its `-MOPD` upgrade — is not published.
+
+**The four checks, as they stand on 4 October.**
+
+1. **Served context and output cap — passed, subject to the send's own query.** Read
+   from OpenRouter's endpoints API for `xiaomi/mimo-v2.6-pro` through a web tool that
+   summarises the page, not as raw JSON: Xiaomi 1,048,576 / 131,072 (fp8); Novita
+   1,048,576 / 131,072 (fp8); GMICloud 1,050,000 / 945,000 (bf16); DeepInfra
+   1,048,576 / 943,718 (fp8). `max_tokens` stays at 131,072, the pinned endpoint's
+   whole ceiling and the token check's reserve.
+2. **Lineage — no disqualifier found.** This project's disqualifiers are exposure (a
+   model shown the project's material) and authorship (a model that wrote code under
+   review). Neither applies to Xiaomi. Not published by Xiaomi, so not checked: whether
+   pre-training started from scratch, and which teachers its on-policy distillation used
+   (the `-MOPD` card says "several domain-specialized teachers", unnamed). If a teacher
+   was another lab's model, that lab's blind spots may be shared; this cannot be
+   checked. The team's lead previously worked at DeepSeek (Wikipedia, read 4 October); a
+   person's move carries no exposure, since DeepSeek's was a conversation (round 1), not
+   weights. Also not checked: whether this public repository was in its training data.
+   The repository's first commit is 24 August 2026; Xiaomi's knowledge cutoff for this
+   model was not found. Rev 9 asks the auditor to say so if it recognises the code, as
+   rev 8 did.
+3. **Reasoning — listed, not yet shown.** `reasoning` is a supported parameter on all
+   four endpoints (the same read). Whether the endpoint returns reasoning text was not
+   checked. The probe ruled for round 7 runs before the send, and the send is refused
+   unless it shows reasoning tokens above zero.
+4. **The count with its own tokenizer — not yet made.** The sandbox cannot reach Hugging
+   Face (its proxy refuses the host by policy, 4 October), so Viktor downloads the
+   files, as he did Laguna's. Pinned to `XiaomiMiMo/MiMo-V2.6-Pro-MOPD` at revision
+   `adea8e2c5373181e5a973fa1ecb343cb31af214b` (27 September 2026), read from Hugging
+   Face's API through the same summarising tool. That listing gives `tokenizer.json`,
+   `tokenizer_config.json` and `chat_template.jinja` the same blob ids in the `-RL`
+   repository; Claude checks that on the downloaded files by recomputing the ids, which
+   would also catch a summary that misread them. The count needs a MiMo entry in
+   `docs/build/package_token_check.py`: a tooling commit after this one.
+
+If check 4 shows the conversation does not fit, or MiMo fails another check, the
+fallback below applies.
+
+**What it weakens.** It spends Xiaomi. After it, no lab on the roster is known to take
+the full package in one session unless Amazon's route is checked and works. And a model
+released twelve days before this decision has the shortest public record of any auditor
+this project has used.
+
+## Decision, 4 October 2026 — round 8's package: the tag's, with only the instruction and the Part 7 document corrected; the freeze holds
+
+*New in this file on 4 October 2026. Claude's, under the delegation above; made and
+filed as the entry above.*
+
+**What was decided.** Round 8's package is built from the tag `round7-sent-2026-09-30`
+(`e186423`), as round 7's was: the same source and test bundles, the Constitution's
+audit copy, the manifest, the history without messages and the execution transcripts,
+and in Part 7 the commit messages after `e65a0f7` up to the tag only. Two documents
+change, and nothing else: rev 9 of the instruction replaces rev 8, and the Part 7
+document is corrected.
+
+**Why the tag, not a new build.** No engine code or test has changed since the tag
+(`git diff --stat round7-sent-2026-09-30 1523e0c -- "*.py"` names only
+`docs/build/send_audit_round.py` and `tests/test_send_audit_round.py`, the freeze's one
+exception), so the four test bugs and their "Found means" sentences point at the same
+lines. A build from `master` would ship round 7's runs and their scores: the commits
+after the tag record "0 of 4", and `tests/test_send_audit_round.py` as changed since
+names run 2 and says it "scored 0 of 4". That would tell the auditor it is being
+scored.
+
+**What rev 9 changes.** Rev 8 is written for round 7: its Section 5 addresses Poolside
+and states Poolside's knowledge cutoff, and its revision table ends at round 7. Rev 9 is
+readdressed to Xiaomi and round 8, gains a revision row, and says that round 7 took
+place, that it produced no report this project could use, and that nothing from it is
+in the package. It gives none of round 7's ratings and not its one finding (Item 11,
+which the Part 7 document already carries among the `bias_score` findings), so it adds
+no prior judgement the package does not hold. It discloses that two test files in the
+package (`tests/test_package_token_check.py` and `tests/test_send_audit_round.py`, as
+at the tag) name round 7's auditor, Laguna S 2.1, which is not the model reading it. It
+says nothing about the test, as rev 8 did ("Ruling, 30 September 2026 — rev 8 says
+nothing about this round's test"). Section 2's counts and Section 4a's file list are
+re-run on the package as built.
+
+**What the Part 7 document's correction is.** Only where it names round 7, or round 7's
+date, as its own. Its entries, their classifications and the four "Found means"
+sentences do not change. Its line citations were read at `01f2892`; the engine has not
+changed since (checked at the tag on 30 September), and the check is repeated at the
+send.
+
+**The freeze holds** until round 8's report is triaged: no commit touches engine code or
+tests. The exception of 30 September for `tests/test_send_audit_round.py` stands, and
+`tests/test_package_token_check.py` joins it, since the MiMo entry the token check needs
+must be tested. Both test tooling that is not part of the engine, and the package is
+built from the tag, so neither change reaches the auditor.
+
+**What it weakens.**
+
+- The freeze gets a second exception, and `tests/` on `master` differs from the tag's in
+  two files until the report is triaged.
+- The auditor does not see the commit messages after the tag. They record round 7's
+  runs, the send script's change for run 2 and documentation; none changes the engine.
+- No engine fix lands while round 8 runs, however long it takes; the list for after the
+  audit waits, as before.
+
+## Decision, 4 October 2026 — the fallback: scoped packages
+
+*New in this file on 4 October 2026. Claude's, under the delegation above; Viktor's own
+words allow it ("if you have to send 3 or 4 packages instead of one full audit so be
+it"). Made and filed as the entries above.*
+
+**What was decided.** If MiMo-V2.6-Pro fails a check before the send, or both its runs
+find fewer than two of the four test bugs, the audit goes ahead as scoped packages, one
+lab per package, from Upstage, NVIDIA, Cohere and AI21. Each package covers Items 2, 3,
+6 and 18 — the items that open backtesting — and the code of the test bugs it is scored
+on, so every package can still be scored. Which model of each lab, and how the packages
+are cut, is decided if the fallback is used, after checking each model's served context
+as MiMo's was checked; each is filed here before its send.
+
+**What it weakens.** A scoped round rates only what it is shown. The condition of
+29 September that no Critical or Major finding is open before backtesting is built would
+then rest on rounds that never read the rest of the engine. Claude records this as a
+weaker basis for that condition; weighing it is Viktor's, when he declares. Scoring a
+package on one or two test bugs is a coarser test than four in one.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then

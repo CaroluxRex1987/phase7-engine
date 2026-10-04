@@ -1,10 +1,9 @@
 # Next step — read this first
 
-*30 September 2026. Rewritten by the thirty-first session's commit, which files
-Viktor's ruling on what follows round 7's first reply and changes the send script for
-round 7's second run (`3e8191a`); the version it replaced — as it stood at `86f30f1` — is
-in HISTORY verbatim. Updated in place by the same session's second commit, which commits
-run 2's reply, closes run 2 in the send script and records that round 7 ended.
+*4 October 2026. Rewritten by the commit that files Viktor's delegation of the next
+independent audit to Claude, Claude's four decisions under it, and what happened between
+the thirty-first session and this one; the version it replaced — as it stood at
+`1523e0c` — is in HISTORY verbatim.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
 rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
@@ -25,49 +24,35 @@ ruled to slow down considerably (15 September 2026). **Do not open a session by
 proposing work from "Open items" below, and do not treat it as a queue to clear.**
 Ask what he wants to do first.
 
+**One exception, since 4 October: the independent audit.** Viktor delegated it to
+Claude outright and asked for no more questions or decisions on it (DECISIONS,
+"Delegation, 4 October 2026 — the next independent audit is Claude's to run"). Work on
+the audit — round 8's preparation list in Open items — goes ahead without asking what
+he wants first; he runs the commands. Everything else still follows the rule above.
+
 ## Where the project is
 
-**The closed list is done** — work order G and findings 4, 5, 6, 7, 16 and 18, each ruled
-with any code it called for landed; the last, G, at `7d0024e`. **The independent audit
-has started: round 7's first message was sent on 30 September** (below). Viktor ruled on
-29 September to audit now: the preparation list
-(Open items) is worked through, and the package is sent when it is done, at his pace.
-The auditor is Laguna S 2.1, pinned to Poolside, with the full package in one session;
-what it sees, the test of the auditor and what opens backtesting are ruled too
-(DECISIONS, the three rulings of 29 September), and so are the six smaller questions
-left before the send (DECISIONS, "Ruling, 29 September 2026 — six questions before the
-send"). **Item 2, the pre-send token check, landed at `59b747a`**; measured with
-Laguna's own tokenizer, a trial package fits with room for both replies (the
-twenty-fourth session, below). **Items 7 and 6 landed at `f256937`:** four entries of
-the list for after the audit are usable as test bugs, and Viktor ruled that four is
-enough (DECISIONS, "Ruling, 29 September 2026 — the test bugs: four usable, and four is
-enough"). **Items 3, 4 and 5 landed at `12b483e`:** the send is two requests — the
-first message alone, then the Part 7 material, which `send_audit_round.py --send-part7`
-refuses to send until the first reply is committed, and which carries that reply and its
-reasoning back (DECISIONS, "Ruling, 29 September 2026 — the second request carries the
-first reply's reasoning") — and the send runs the token check itself before any network
-call. **Item 9, rev 8 of the instruction, landed at `01f2892`**, approved by Viktor; it
-says nothing about this round's test (DECISIONS, "Ruling, 30 September 2026 — rev 8 says
-nothing about this round's test"). **Item 13, the Part 7 document, landed at `8b6fd00`**,
-approved by Viktor (DECISIONS, "Ruling, 30 September 2026 — the Part 7 document
-approved"): it tells the auditor what the second message is, how Parts 1–6 are scored,
-and every entry of the list for after the audit with its classification. Measured on a
-trial build with it in (the twenty-eighth session, below), the whole conversation fits
-with 186,143 tokens to spare. **Item 8, the roster, is done** — reissued outside the
-repository on 30 September and fused with the independence ledger into one document
-(Open items). **Item 10: the first message was sent on 30 September**, from the tag
-`round7-sent-2026-09-30` at `e186423`, and its reply is committed at `86f30f1`. **The
-reply is not a usable audit** (the thirtieth session, below): all 44 rules Compliant, no
-finding, none of the four test bugs found, no reasoning, and a wrong name for itself.
-**Ruled on 30 September** (DECISIONS, "Ruling, 30 September 2026 — what follows round
-7's first reply"): Part 7 does not go to run 1; run 2 asks for reasoning and changes
-nothing else; run 1 counts as a run; two runs in all, and a run is any reply on record.
-Viktor checked Claude's scoring, 0 of 4. The send script carries the ruling since
-`3e8191a`. **Run 2 was sent the same day and found 0 of 4 as well; Viktor checked the
-score. Round 7 has ended** (DECISIONS, "Round 7 ended, 30 September 2026 — run 2 found 0
-of 4"). No Compliant rating from either run counts, and Part 7 went to neither. **Next:
-Viktor's call — the next auditor** (Open items). Anything found in the meantime goes on
-the list for after the audit (below), not onto the closed list.
+**The closed list is done** — work order G and findings 4, 5, 6, 7, 16 and 18, each
+ruled with any code it called for landed; the last, G, at `7d0024e`. **Round 7 of the
+independent audit is over, with no report that counts.** Laguna S 2.1 (Poolside) was
+sent the full package on 30 September, built from the tag `round7-sent-2026-09-30`
+(`e186423`), twice: run 1 without reasoning requested and run 2 with it. Both runs
+found 0 of the 4 test bugs, and Viktor checked both scores (DECISIONS, "Round 7 ended,
+30 September 2026 — run 2 found 0 of 4"). How the round was prepared and sent — the
+preparation list, items 1 to 13 — is in HISTORY, in this file's versions from
+`d5ced0c` to `1523e0c`. **On 4 October Viktor delegated the next audit to Claude
+outright** (DECISIONS, "Delegation, 4 October 2026 — the next independent audit is
+Claude's to run"); accepting or rejecting its result stays his, and he runs the
+commands. **Claude's decisions under it**, each in DECISIONS with what it weakens:
+round 8 goes to Xiaomi's MiMo-V2.6-Pro, the full package in one session, if it passes
+four checks before the send; the package is the tag's, with only rev 9 of the
+instruction and a corrected Part 7 document; the freeze holds, with a second exception
+for the token check's tests; and if MiMo fails, scoped packages go to Upstage, NVIDIA,
+Cohere and AI21. **Of the four checks, two pass as far as they can be checked from here,
+one — reasoning — is settled by the probe at the send, and one — the count with MiMo's own tokenizer — waits for its
+files** (this session, below). **Next:** round 8's preparation list (Open items).
+Anything found meanwhile goes on the list for after the audit (below), not onto the
+closed list.
 
 **Since 28–29 September the project has a finish line** — DECISIONS, "Ruling,
 28 September 2026 — what "finished" means, and how the engine is judged". In short: a
@@ -104,207 +89,56 @@ built and tested and a known-good checkpoint. Claude's second point of 21 Septem
 the rule exists only as text — is answered inside it: the entry-point guard is built
 with the first backtest code.
 
-**The twenty-second session (29 September)** started preparing the independent audit
-and landed no commit. Viktor asked for a preparation list; Claude drafted it at
-`ec4e5fd` in his roadmap document ("Phase 7 roadmap to the independent audit", Claude
-Docs, outside the repository), where it is still kept. Viktor ruled on it the same day:
-audit now; the auditor; what the auditor sees; no planted bugs; and
-what opens backtesting, with the structural guard inside it. Found on the way:
-OpenRouter serves Nemotron 3 Super at 262K, not the roster's 1M; the full package is
-about 700K tokens by character count, not ~400K+; `send_audit_round.py` sends one
-message; and point 1 of the 15 September PDF is still live in the code.
+**The twenty-second to thirty-first sessions (29–30 September)** prepared round 7, sent
+it and closed it. Their accounts are in HISTORY, in this file's earlier versions; the
+last, as it stood at `1523e0c`, was moved there by the commit that writes this line.
 
-**The twenty-third session (29 September)**, under Claude Opus 5.5, opened on
-"Continue Phase 7 — file the 29 September rulings". Claude read `master` and
-`origin/master` off Viktor's disk and GitHub's tip with `git ls-remote`: all `ec4e5fd`.
-Its first commit, `e7a94d1`, filed the three rulings in DECISIONS from the roadmap
-document's Phase 4 list — not from the chat, which that session could not read — and
-moved point 1 of the 15 September PDF onto the list for after the audit, as the ruling
-on what the auditor sees requires. Claude then brought the roadmap document current.
-Viktor asked whether every question before the audit had been answered; Claude listed
-six still open, and he ruled all six the same evening — four by agreeing to Claude's
-suggestion, two by his own answers. `d5ced0c` filed them. Claude also read Laguna S
-2.1's listing on OpenRouter and Poolside's release post (in that ruling). No code
-changed. Its account is in HISTORY, in this file's previous version.
+**After the thirty-first session, no commit until this one.** What follows is filed
+from Claude's memory notes of those sessions, not from their chats, which this session
+could not read. Those notes do not number the sessions, so they are named by date.
+Nothing in them was ruled except the delegation.
 
-**The twenty-fourth session (29 September)**, under Claude Opus 5.5, opened on
-"Continue Phase 7". Claude read the tip from GitHub (a clone) and, later, `master` and
-`origin/master` off Viktor's disk: all `d5ced0c`. Asked what it suggested, Claude
-proposed item 2 of the preparation list, the pre-send token check, as the one item
-whose result could change the rest of the list; Viktor agreed ("Alright let's go"). The
-order is Claude's under the delegation of 21 September; the check itself Viktor ruled
-on 26 September. Viktor downloaded Laguna S 2.1's tokenizer files from Poolside's
-Hugging Face repository at revision `e80da38` into
-`G:\Phase_7_Engine_Random_Files\Docs\04_Data\Laguna-S-2.1_tokenizer_e80da38\`;
-Claude staged them, pinned their SHA-256 in the tool, and wrote the tool and its tests.
-**Measured with that tokenizer** in the sandbox (Linux, an autocrlf clone at
-`d5ced0c`), a trial package — round 6's builder run at `d5ced0c`, rev 7 of the
-instruction standing in for rev 8, and Part 7 as the commit messages since `e65a0f7`
-only (84 commits) — needs 442,342 tokens for the first request and 571,677 for the
-second (reply 1 left empty), and 833,821 at the worst case with both replies at the
-full 131,072: **it fits, with 214,755 tokens to spare (20.5% of the context).** Its
-content alone is 571,624 tokens, about 11% more than the estimate of about 515K made at
-`ec4e5fd` from four characters a token; the text runs 3.5–3.8 characters a token. The
-same package as one message, with every commit message, would need 904,590 and fit with
-143,986 to spare. These are numbers about a trial package, not the one that will be
-sent: rev 8 and the rest of Part 7 are not written yet, and the check runs again on the
-real payload at the send.
+- **30 September to 1 October — the next auditor.** Viktor's positions, none ruled: he
+  first chose Amazon's Nova 2 Pro, then found he could not get it; he would prefer an
+  auditor reachable through OpenRouter; the freeze stays; he raised Upstage and, if
+  forced, reusing an auditor already used — "if the constitution blocks us from doing
+  what is needed, it needs to be changed". Whether the same package or a new build was
+  left for Claude's suggestion. He set up an AWS account to reach Amazon's models; a
+  check of whether Nova 2 Pro is reachable through Amazon Bedrock was left unfinished on
+  1 October.
+- **1 October — ten questions to ask of the engine**, and hostile reviews of the
+  Constitution (Open items). Both came from a ChatGPT conversation Viktor shared;
+  OpenAI is spent already. What to do with them is not chosen.
+- **4 October — the delegation, and Claude's four decisions under it** (above). Viktor
+  confirmed he has never used a Xiaomi or MiMo model anywhere, and granted the session
+  `G:\Phase_7_Engine_Random_Files`.
 
-**The twenty-fifth session (29 September)**, under Claude Opus 5.5, opened on
-"Continue Phase 7". Claude read `master` and `origin/master` off Viktor's disk and
-GitHub's tip (a clone): all `59b747a`. Asked what it suggested, Claude proposed items
-7 and 6 first, 7 before 6 — the only items left whose result could reopen a ruling —
-and items 3 and 4 as one commit, since both rewrite `send_audit_round.py`; Viktor
-agreed ("Go."). Both are Claude's under the delegation of 21 September. Claude traced
-points 3–5 of the 15 September PDF from the PDF itself (Viktor granted the session
-`G:\Phase_7_Engine_Random_Files\Docs`): 3 and 4 are live and move onto the list for
-after the audit; 5 is not. It then checked each entry of that list against the code
-comments, docstrings and test names that ship: five are new trading rules, point 4
-asks how large a weight should be, five are given away by a shipped line, and four
-are usable. Viktor checked the classification ("I agree") and, asked whether four is
-enough, chose "four is enough" from three options Claude put to him with no
-recommendation. Docs only; the commit message has the evidence.
-
-**The twenty-sixth session (29–30 September)**, under Claude Opus 5.5, opened on
-"Continue Phase 7". Claude read `master` and `origin/master` off Viktor's disk and
-GitHub's tip (a clone and `git ls-remote`): all `f256937`. Asked what it suggested,
-Claude proposed items 3 and 4 as one commit, as agreed the session before; Viktor
-agreed ("Go."). Reading the scripts, Claude found item 5 in the same function, and that
-no item writes the Part 7 document the ruling of 29 September on what the auditor sees
-calls for (now item 13). It put two questions to Viktor — whether the second request
-carries the first reply's reasoning, and whether item 5 joins this commit — and
-stated its own design, a commit between the two requests, for him to object to.
-Asked for its suggestion, Claude suggested yes to both; Viktor agreed ("Go."), and did
-not object to the design. Claude confirmed the correction owed for rounds 5 and 6
-(HISTORY, "29 September 2026 — checked: rounds 5 and 6 sent the Part 7 file in the same
-message as Parts 1–6") and read Laguna S 2.1's live endpoint listing and Poolside's
-data-policy page (Open items, item 1). **Measured with Laguna's tokenizer** in the
-sandbox (Linux, an autocrlf clone at `f256937` with this change applied, not
-committed), a trial build — rev 7 standing in for rev 8, and a one-line stand-in for
-the Part 7 document — gives a first message of 452,080 tokens and a second of 134,284
-(the 86 commit messages since `e65a0f7`): 452,122 for the first request, 848,561 at the
-worst case for the second with both replies at the full 131,072, **fitting with
-200,015 to spare (19.1% of the context)**; at most $0.15 for both. These are numbers
-about a trial build: rev 8 and the Part 7 document are not written, and the send
-counts the real payload again. The commit message has the rest.
-
-**The twenty-seventh session (30 September)** was the same conversation, resumed the
-next day. Viktor applied and pushed `12b483e`; Claude read GitHub's tip after the push and
-compared its tracked files with the tree it had tested: equal. Viktor chose item 9. Claude
-read rev 7 in full and found that it tells the auditor twice that nothing is held back to
-test it, which is no longer true for this round; it put three options to Viktor as his
-call, and, asked, suggested B — say nothing about this round's test, and narrow the old
-sentences to the rounds they describe. Viktor agreed, saying he had been leaning to B
-himself (DECISIONS, the first ruling of 30 September). Claude then wrote rev 8, re-ran rev 7's
-counted disclosure against a trial round-7 package, and found that rev 7 had undercounted:
-it counted verdict words only, and it missed Grok. Viktor read the draft and approved it
-("I read it, sounds great. I approve."). **Measured with Laguna's tokenizer** in the
-sandbox (Linux, a clone at `12b483e` with this change applied, not committed), a trial
-build with rev 8 and a one-line stand-in for the Part 7 document: first message 454,947
-tokens, second 137,561; 454,989 for the first request and 854,705 at the worst case for
-the second, **fitting with 193,871 to spare (18.5% of the context)**; at most $0.15.
-The commit message has the rest.
-
-**The twenty-eighth session (30 September)**, under Claude Opus 5.5, opened on
-"Continue Phase 7". Claude read GitHub's tip (a clone) and `master` off Viktor's disk:
-both `01f2892`. Asked what it suggested, Claude suggested item 13, the only item left
-that blocks the package build; Viktor agreed ("Yes."). Claude drafted the Part 7
-document and checked every file-and-line citation in it by script against the code at
-`01f2892`, with a negative control (a citation shifted by one line fails). Found on the
-way: an always-true comparison in `calculate_entry_quality` (now on the list for after
-the audit, below); that point 2 of the 15 September PDF had never been traced by the
-preparation list, which took points 3–5 in item 7 and point 1 on 29 September — the code
-had answered it on 20 September (`models/bias_engine.py:62–89`, from `a9d4b1f`); and
-that items 3, 4 and 5 below still said "the commit that writes this line" at `01f2892`,
-though they landed at `12b483e` (corrected at `8b6fd00`). Viktor approved the draft ("I
-approve if you are satisfied also."). Re-reading it before the build, Claude made three
-corrections of fact, listed in DECISIONS' entry, where Viktor could see them before
-applying.
-**Measured with Laguna's tokenizer** in the sandbox (Linux, a clone at `01f2892` with
-this change applied, not committed), a trial build with rev 8 and the real Part 7
-document: first message 455,108 tokens, second 145,128; 455,150 for the first request
-and 862,433 at the worst case for the second, **fitting with 186,143 to spare (17.8% of
-the context)**; at most $0.15. `8b6fd00`'s commit message has the rest.
-
-**The twenty-ninth session (30 September)** opened on "Continue Phase 7" and landed no
-commit. Asked what it suggested, Claude suggested item 8 before item 10; Viktor agreed,
-and waited for a usage reset first. Item 8 was done outside the repository: the roster
-reissued as `Docs\Phase7_Model_Roster_2026-09-30.pdf` in
-`G:\Phase_7_Engine_Random_Files`, with Nemotron 3 Super at the 262K OpenRouter serves,
-which leaves NVIDIA for scoped rounds only. Viktor then asked for the roster and the
-ledgers fused into one current document, choosing that over stapling them together:
-`Docs\Phase7_Model_Roster_and_Ledger_2026-09-30.pdf`, same folder (Open items, the
-model roster). Nothing changed in the repository; the thirtieth session filed it, at
-`e186423`.
-
-**The thirtieth session (30 September)**, under Claude Opus 5.5, opened on
-"Continue Phase 7". Claude read GitHub's tip (a clone and `git ls-remote`) and `master`
-and `origin/master` off Viktor's disk: all `8b6fd00`. Asked what it suggested, Claude
-suggested filing what was owed in a docs commit first — the send tags the commit the
-package is built from and freezes engine commits, so the tagged commit should leave
-nothing owed — and item 10 after it; Viktor agreed ("Let's go."). Claude read both
-30 September roster files and the moved Part 7 draft off Viktor's disk (G:, granted that
-session) and hashed them. **Found on the way:** the twenty-seventh session's deviation,
-owed since `01f2892`, was not filed at `8b6fd00`, whose account of `01f2892` records only
-that its push did not deviate — true of the push; the deviation came earlier, at
-`git status --short`. Both deviations are filed below (Where things stand).
-`e186423` landed and was pushed, the hook clean, as predicted. Claude then built the
-round-7 package from `e186423` in the sandbox and made the checks item 10 lists (Open
-items, item 10); Viktor built it on his machine, and Claude compared his build with its
-own before anything was sent. Viktor tagged `e186423` as `round7-sent-2026-09-30` and
-sent the first message at 09:58 UTC. **The reply**, in
-`docs/audit_reports/round7_laguna-s-2.1_2026-09-30/`, read by Claude: finish_reason
-`stop` after 52 seconds, 3,626 completion tokens and **0 reasoning tokens** (the
-reasoning file is empty); all 44 rules rated Compliant, no finding, the release gate
-called met; Item 14 rated Compliant in Part 1 and listed as not verifiable in Part 3;
-and it names itself "Poolside's Muse Spark 1.3" — round 6's reviewer, a Meta model —
-where it is Laguna S 2.1. It names none of S1–S4, so it found 0 of the 4 usable test
-bugs (Claude's scoring, checked by Viktor in the thirty-first session): under half, so by point 3 of "six
-questions before the send" (DECISIONS, 29 September) its Compliant ratings do not count
-and the ruled answer is a rerun. The request did not ask for reasoning. Laguna's chat
-template at `e80da38` turns thinking on by default (`enable_thinking | default(true)`),
-but what Poolside's endpoint does with a request that does not ask was not checked, so
-why no reasoning happened is not known. The send's own lookup of OpenRouter's
-generation record failed within its eight tries, so `turn1_run_metadata.json` records no
-provider; Viktor fetched the record afterwards with curl, as `turn1_generation.json`:
-Poolside, one provider response, status 200, `poolside/laguna-s-2.1-20260720`,
-$0.0416. Part 7 was not sent.
-
-**This session (the thirty-first, 30 September)**, under Claude Opus 5.5, opened on
-"Continue Phase 7 — I want your suggestion on the three questions after round 7's first
-reply, and I'll check your 0-of-4 scoring." Claude read `master` and `origin/master` off
-Viktor's disk and GitHub's tip (`git ls-remote` and a clone): all `86f30f1`, with the
-tag `round7-sent-2026-09-30` on GitHub at `e186423`. It re-scored the reply against the
-four "Found means" sentences: 0 of 4, with two near misses, both failing the rule
-(DECISIONS, the ruling of 30 September). It suggested an answer to each of the three
-questions and raised a fourth, a number for "run after run"; Viktor agreed to all four
-("Agreed."). Asked, he chose what counts as a run from two options, taking the one
-Claude recommended, and confirmed he had checked the scoring. Claude re-read Laguna S
-2.1's endpoint listing on OpenRouter through a web tool, since the sandbox's proxy
-refused a direct call: `reasoning` and `include_reasoning` are among its supported
-parameters, as on 29 September. It then changed `docs/build/send_audit_round.py` for
-run 2, under the delegation of 21 September, after putting the design to Viktor, who
-did not object: every request asks for reasoning, `--send` sends a one-line probe
-first, and the script refuses a third run, a first message with different bytes, a
-folder that already holds a reply, and Part 7 to run 1. The generation lookup now
-waits about five minutes. `tests/test_send_audit_round.py` is the one test file the
-ruling lets change during the freeze. Nine tests were added, and nineteen negative
-controls each fail their test. The commit message has the rest.
-`3e8191a` landed and was pushed; Claude read GitHub's tip and `master` and
-`origin/master` off Viktor's disk after it: all `3e8191a`, its eight files equal to the
-tree Claude had tested. **Run 2:** Viktor ran `--send` at 11:43 UTC; what it printed
-before sending matched the prediction (read from his screenshot): the first message's
-hash `1b8b8095…`, FITS with 181,740 to spare, `runs on record 1 of 2` with run 1
-closed. The probe showed 1,102 reasoning
-tokens. The reply: Poolside, `finish_reason` stop, 45 seconds, 2,166 reasoning tokens.
-It rated 42 rules Compliant, Item 11 Partially compliant and T3-1 Not verifiable. Its one
-finding, four bias factors reading the direction of close, is a known item and not a
-test bug. It named none of the four test bugs: 0 of 4, which Viktor checked. Round 7
-ended under point 4 of the ruling. The second commit commits run 2's files, closes run 2
-in the send script, and files the end of the round.
+**This session (4 October, later the same day)**, under Claude Opus 5.5, opened on
+"Continue Phase 7" and went straight to the work the delegation names (PACE FIRST, the
+exception). Claude read GitHub's tip (a clone) and `master` and `origin/master` off
+Viktor's disk: all `1523e0c`. It made the checks of the round-8 decision as far as
+they can be made from here: MiMo-V2.6-Pro's four endpoints on OpenRouter, its model
+cards and its Hugging Face file listings — all read through a web tool that summarises
+the page — and Viktor's OpenRouter activity export, read directly: no Xiaomi or MiMo
+row. The sandbox's proxy refuses Hugging Face by policy, so the count with MiMo's own
+tokenizer waits for Viktor to download the files. The commit that writes this line is
+docs only: the delegation, the four decisions with the checks as they stand, and the
+record since the thirty-first session.
 
 ## Ruled — in force
 
+- **New, 4 October — the next independent audit is delegated to Claude** (DECISIONS,
+  "Delegation, 4 October 2026 — the next independent audit is Claude's to run"). Viktor
+  keeps accepting or rejecting the result, running the commands, and everything the
+  delegation does not name: rulings on the engine, triage, Constitution amendments, the
+  declaration that opens backtesting. No code.
+- **New, 4 October — Claude's, under the delegation:** round 8 to Xiaomi
+  MiMo-V2.6-Pro, the full package in one session, if four checks pass, pinned to
+  Xiaomi with GMICloud, DeepInfra and Novita after it, two runs in all; the package
+  from the tag with only rev 9 and the Part 7 document corrected; the freeze holds,
+  `tests/test_package_token_check.py` joining the exception; scoped packages to
+  Upstage, NVIDIA, Cohere and AI21 as the fallback (DECISIONS, the three entries
+  "Decision, 4 October 2026 — …"). No code yet.
 - **New, 30 September — what follows round 7's first reply** (DECISIONS, same title).
   Points 1–4 by agreeing to Claude's suggestion; point 5 is Viktor's choice of two
   options (he chose the one Claude recommended). (1) Part 7 does not go to run 1.
@@ -454,10 +288,12 @@ in the send script, and files the end of the round.
 ## Where things stand, right now
 
 - **Tip:** the commit that writes this line (a commit cannot name its own hash) —
-  round 7's second run, committed the same day, run 2 closed in the send script, and
-  the end of round 7. Before it: `3e8191a` (this session's first commit: the send script
-  and its test for round 7's second run, and the ruling of 30 September on what follows
-  the first reply), `86f30f1` (the thirtieth session's second
+  docs only: the delegation of 4 October, Claude's four decisions under it, and the
+  record since the thirty-first session. Before it: `1523e0c` (the thirty-first
+  session's second commit: round 7's second run, run 2 closed in the send script, and
+  the end of round 7), `3e8191a` (the thirty-first session's first commit: the send
+  script and its test for round 7's second run, and the ruling of 30 September on what
+  follows the first reply), `86f30f1` (the thirtieth session's second
   commit: round 7's first reply and its record), `e186423` (the thirtieth session's
   first commit: item 8 and two deviations; round 7's package was built from it),
   `8b6fd00` (the twenty-eighth session's commit: the Part 7 document, item 13),
@@ -488,15 +324,15 @@ in the send script, and files the end of the round.
   at `e186423`, the commit round 7's package was built from, made on Viktor's machine
   before the send and pushed after `86f30f1`. **Release gate:**
   open, declared 15 September 2026.
-- **Frozen until round 7's report is triaged:** no commit touches engine code or tests
-  (DECISIONS, "six questions before the send", point 1). Docs-only commits are allowed.
-  **One exception, ruled 30 September:** `tests/test_send_audit_round.py`, which tests
-  the send script and not the engine (DECISIONS, "what follows round 7's first reply",
-  point 2). Changed at `3e8191a` and by the commit that writes this line, so `tests/`
-  on `master` now differs from the tag's in that one file;
-  `docs/audit_package/round7/MANIFEST.md` keeps its hash as sent. **Round 7 ended with
-  no report that counts.** As written, the freeze lasts until a report is triaged;
-  whether it holds until the next auditor's report is Viktor's call (Open items).
+- **Frozen until round 8's report is triaged** (DECISIONS, "Decision, 4 October 2026 —
+  round 8's package: the tag's, with only the instruction and the Part 7 document
+  corrected; the freeze holds"): no commit touches engine code or tests. Docs-only
+  commits are allowed. **Two exceptions**, both tests of tooling that is not the engine:
+  `tests/test_send_audit_round.py` (ruled 30 September) and
+  `tests/test_package_token_check.py` (decided 4 October). `tests/` on `master` differs
+  from the tag's in the first since `3e8191a`; `docs/audit_package/round7/MANIFEST.md`
+  keeps its hash as sent. Round 8's package is built from the tag, so neither exception
+  reaches the auditor.
 - **Where the project lives, from 26 September:** `E:\phase7_engine` on Viktor's machine;
   the files kept outside the repository in `G:\Phase_7_Engine_Random_Files`. Copied with
   robocopy, verified — git's own checks on Windows for the tracked files, SHA-256 for the
@@ -505,30 +341,18 @@ in the send script, and files the end of the round.
   to `E:\phase7_engine`". Run the engine and every command from `E:\phase7_engine` (in
   cmd, changing drive needs `cd /d`). A dated record that names the D: paths means the
   same folders before the move; dated records are not edited.
-- **The push of `86f30f1`** happened: at the start of this session, 30 September,
-  GitHub's tip (read by `git ls-remote` and a clone) and `master` and `origin/master`
-  on Viktor's disk were all `86f30f1`, and the tag `round7-sent-2026-09-30` was on
-  GitHub at `e186423`. Viktor reported no deviation from that commit's command
-  sequence, so its test counts on Windows (700, 555 / 134, 629 / 0 / 32) are his
-  confirmation by proceeding, and **nothing is owed** for it (ruling on proposal (b)).
-  Earlier pushes and deviations are recorded in this file's previous versions, in
-  HISTORY.
-- **The push of `3e8191a`** happened: after it, GitHub's tip (`git ls-remote` and a
-  fetch) and `master` and `origin/master` on Viktor's disk were all `3e8191a`, and its
-  eight files equal the tree Claude had tested (read by Claude). Viktor reported no
-  deviation, so its test counts on Windows (709, 564 / 134, 638 / 0 / 32) are his
-  confirmation by proceeding, and **nothing is owed** for it. The same holds for the
-  push of the commit that writes this line unless it deviates.
-- **Before this commit**, the six files it changes matched Viktor's disk on E: byte for
-  byte (staged after the push of `3e8191a` and compared with the clone at `3e8191a`). It
-  adds four files written on Viktor's machine by the send and read off his disk by
-  Claude, none written by Claude: run 2's `turn1_*` files, added by name. Each report
-  and reasoning file hashes to the value its `turn1_run_metadata.json` records.
+- **The push of `1523e0c`** happened: at the start of this session, 4 October, GitHub's
+  tip (a clone) and `master` and `origin/master` on Viktor's disk were all `1523e0c`.
+  Viktor reported no deviation from that commit's command sequence, so its test counts
+  on Windows (710, 565 / 134, 639 / 0 / 32) are his confirmation by proceeding, and
+  **nothing is owed** for it (ruling on proposal (b)). The same holds for the push of
+  the commit that writes this line unless it deviates. Earlier pushes and deviations
+  are recorded in this file's previous versions, in HISTORY.
+- **Before this commit**, the three files it changes matched Viktor's disk on E: byte
+  for byte (staged this session and compared with the clone at `1523e0c`).
 - **code_hash:** `c6a44d4d7ab1c8d36f2a07f6f2c78a1967ecfc135259cbe828b3daa275e571c9`,
-  unmoved by `3e8191a` and by the commit that writes this line. The two `.py` files
-  each changes are in `docs/build/` and `tests/`, which `core/code_fingerprint.py`
-  leaves out by directory.
-  Computed on the tree before and after it, under Python 3.12.3.
+  unmoved by the commit that writes this line, which changes no `.py` file. Computed
+  on the tree before and after it, under Python 3.12.3.
   It last moved at `7d0024e` (from `f4b23f94…`), in
   `models/decision_model.py` and `models/signal_router.py`, confirmed on Windows by
   Viktor's live run before that commit.
@@ -541,17 +365,15 @@ in the send script, and files the end of the round.
   CONSERVATIVE sentence), with `run_hash` unmoved; before that at `76c8cde`, 11 fields.
 - **Test suite** — **710 passed / 0 failed, no warnings line** with `pandas_ta`;
   **565 passed / 134 skipped** without it; `run_tests.py` **639 passed / 0 failed /
-  32 errors**, all 32 fixture-collection `TypeError`s. `3e8191a` added nine tests to
-  `tests/test_send_audit_round.py`; the commit that writes this line replaces one of
-  them with two, none with a fixture and none needing `pandas_ta`, so each count grows
-  by one more and the errors stay at 32. Linux sandbox, autocrlf clone, Python 3.12.3,
-  pinned requirements, run on the applied tree with run 2's four files in place.
-  **On Windows**, the counts at `3e8191a` are Viktor's confirmation by proceeding
-  (above); this commit's command sequence gives the new counts to stop on.
-- **Engineering Notes:** through Entry #183 (v1.36), which covers `68c6191`. **Twelve
+  32 errors**, all 32 fixture-collection `TypeError`s. Unchanged by the commit that
+  writes this line, which changes no test. Linux sandbox, autocrlf clone, Python
+  3.12.3, pinned requirements, run on the applied tree. **On Windows**, the counts at
+  `1523e0c` are Viktor's confirmation by proceeding (above).
+- **Engineering Notes:** through Entry #183 (v1.36), which covers `68c6191`. **Thirteen
   commits behind** — `ec4e5fd`, the floor (a commit that regenerates the Notes cannot
   cover itself, Entry #144), `e7a94d1`, `d5ced0c`, `59b747a`, `f256937`, `12b483e`,
-  `01f2892`, `8b6fd00`, `e186423`, `86f30f1`, `3e8191a` and the commit that writes this line. Every later commit adds one until the next regeneration. Batched, by the
+  `01f2892`, `8b6fd00`, `e186423`, `86f30f1`, `3e8191a`, `1523e0c` and the commit that
+  writes this line. Every later commit adds one until the next regeneration. Batched, by the
   15 September rule; no time pressure. v1.36 records the round-1 recovery, the rulings of 22
   (filed 26), 26, 27, 28 and 29 September, the move to E:, the code for findings 16, 7,
   4, 6, 5 and 18, work order G and the Aider correction. Its PDF's extracted text
@@ -562,9 +384,10 @@ in the send script, and files the end of the round.
   identical to the committed PDF. Neither changes in the commit that writes this line;
   the Attribution Statement's script last changed at `68c6191`, the Portfolio
   Document's at `6e1baba`.
-- **README.md:** its test counts are current (710, 565 and 639), brought current by the
-  commit that writes this line, so the hook's section 5 will report 0 commits since it
-  was touched. Two of its status rows are stale and not changed here (Open items).
+- **README.md:** its test counts are current (710, 565 and 639), last touched at
+  `1523e0c`; the commit that writes this line does not touch it, so the hook's section 5
+  will report 1 commit since it was touched. Two of its status rows are stale and not
+  changed here (Open items).
 - **The round-1 audit outputs are in the repository**, in
   `docs/audit_reports/round1_deepseek-v4-pro_kimi-k3_2026-08-27/`, byte-identical to the
   hashes Viktor took on 23 September. The account is in HISTORY, "26 September 2026 —
@@ -1018,21 +841,15 @@ Each code commit is its own commit and updates this file for its own landing.
 
 ## Resolved this session
 
-- **The three questions after round 7's first reply, and a fourth** — ruled
-  (DECISIONS, "Ruling, 30 September 2026 — what follows round 7's first reply"), with
-  what counts as a run as a fifth point.
-- **Viktor's check of Claude's scoring of run 1** — done: 0 of 4.
-- **The send script, for round 7's second run** — landed at `3e8191a`; its line is in
-  `docs/audit_change_list.md`, under tests and tooling.
-- **The push of `86f30f1`** — filed above, once; no deviation reported.
-- **The push of `3e8191a`** — filed above, once; no deviation reported.
-- **Round 7's second run** — sent, committed the same day by the commit that writes
-  this line, scored 0 of 4 by Claude and checked by Viktor. **Round 7 ended**
-  (DECISIONS, "Round 7 ended, 30 September 2026 — run 2 found 0 of 4"), and run 2 is
-  closed in the send script like run 1.
-- **README.md's test counts and `docs/build/README.md`'s paragraph on the send** —
-  brought current.
-- **The once-per-session rewrite of this file.** The previous version, as at `86f30f1`,
+- **The record since the thirty-first session** — filed above, from Claude's memory
+  notes, with the delegation and Claude's four decisions under it in DECISIONS.
+- **The push of `1523e0c`** — filed above, once; no deviation reported.
+- **Checks 1–3 of the round-8 decision**, as far as they can be made before the send
+  (DECISIONS, "Decision, 4 October 2026 — round 8: Xiaomi MiMo-V2.6-Pro, the full
+  package in one session").
+- **"Viktor's call — the next auditor"**, open since round 7 ended — decided under the
+  delegation, with the package and the freeze that went with it.
+- **The once-per-session rewrite of this file.** The previous version, as at `1523e0c`,
   is in HISTORY verbatim, headings demoted one level, proven by un-demotion with a
   negative control (this commit's message has the result).
 
@@ -1043,15 +860,43 @@ Claude critiques it.
 
 - **Owed to the next commit:** nothing, unless this commit's push deviates from its
   prediction (ruling on proposal (b), 27 September).
-- **Viktor's call — the next auditor** (DECISIONS, "Round 7 ended, 30 September 2026 —
-  run 2 found 0 of 4"). He writes his position first. Round 7 ended with two runs of
-  Laguna S 2.1, both 0 of 4, and the ruling makes the next step another auditor, not a
-  third run. Open with it: which auditor; whether it is sent the same package, built
-  from the tag `round7-sent-2026-09-30`, or a new build; and with that, whether the
-  freeze holds until that auditor's report is triaged. The roster-and-ledger document
-  (below) lists Amazon (Nova 2 Pro, a preview release) as the only lab left for a full
-  round, and Upstage, NVIDIA, Cohere and AI21 for scoped rounds only; those model facts
-  were checked on 22 and 30 September, not since. Poolside is spent.
+- **The independent audit, round 8 — the preparation list.** Claude's, under the
+  delegation of 4 October; Viktor runs the commands. In this order:
+  1. **Done, 4 October:** checks 1–3 of the round-8 decision, as far as they can be made
+     before the send (DECISIONS, "Decision, 4 October 2026 — round 8: Xiaomi
+     MiMo-V2.6-Pro, the full package in one session").
+  2. **Viktor: download MiMo's tokenizer files** — `tokenizer.json`,
+     `tokenizer_config.json` and `chat_template.jinja` from
+     `XiaomiMiMo/MiMo-V2.6-Pro-MOPD` at revision
+     `adea8e2c5373181e5a973fa1ecb343cb31af214b` — into
+     `G:\Phase_7_Engine_Random_Files\Docs\04_Data\MiMo-V2.6-Pro-MOPD_tokenizer_adea8e2\`.
+     The commands come with this commit's delivery. Claude then stages the files, hashes
+     them, recomputes their git blob ids against both repositories' listings, and reads
+     the chat template.
+  3. **A tooling commit:** a MiMo entry in `docs/build/package_token_check.py` (files
+     pinned by SHA-256, a renderer checked against the template as jinja2 renders it),
+     with tests; `docs/build/send_audit_round.py` moved to round 8 — model, provider
+     order, prices, round-8 run folders, two runs; and the build taking the engine's
+     files from the tag and rev 9 and the Part 7 document from `master`. The design is
+     Claude's, in that commit. **Check 4, the count of the whole conversation with
+     MiMo's tokenizer, is made there on a trial build.**
+  4. **A docs commit: rev 9 of the instruction and the corrected Part 7 document**, as the
+     decision on the package says. Rev 9's Section 2 counts and Section 4a file list are
+     re-run on the package as built; MiMo's knowledge cutoff is looked for and stated if
+     found.
+  5. **At the send**, as round 7's item 10 did (HISTORY, this file as it stood at
+     `1523e0c`): Viktor builds the package and Claude compares his build with the
+     sandbox's; the endpoints are re-read by the send's own query;
+     `git diff --stat 01f2892 round7-sent-2026-09-30 -- "*.py" ":!docs"` prints
+     nothing; the commit the send is made from is tagged; the probe, then `--send`; the
+     first reply committed the same day; then `--send-part7`. The auditor goes into the
+     independence ledger at the time of use.
+  6. **Scoring:** Claude scores against the four "Found means" sentences of the Part 7
+     document and Viktor checks. Two runs in all; fewer than two of the four found in
+     both runs means the fallback (DECISIONS, "Decision, 4 October 2026 — the fallback:
+     scoped packages").
+  7. **The result is Viktor's to accept or reject**; then triage (his), and the same
+     auditor verifies the fixes (the 14 September precedent).
 - **The ledger entry for round 7**, which the roster-and-ledger document asks for at the
   send, from the provider's record: Poolside, `poolside/laguna-s-2.1` (OpenRouter's
   permaslug `poolside/laguna-s-2.1-20260720`), 30 September 2026 at 09:58 UTC, through
@@ -1067,152 +912,15 @@ Claude critiques it.
   (59 prompt tokens, nothing from the package) and one request, 455,360 prompt tokens,
   with reasoning requested; shown the same first message; role: independent auditor,
   round 7, run 2, Parts 1–6; 0 of 4, no Part 7. Round 7's runs are done, so the reissue
-  is now due, whenever Viktor wants it.
+  is now due. **Claude's, under the delegation of 4 October:** reissued once, after round
+  8's runs, so it carries round 7's two entries, round 8's, and Xiaomi added to the
+  roster with the facts checked on 4 October.
 - **Viktor, outside the repository:** delete `D:\phase7_engine_MOVED_TO_E` and
   `D:\Phase_7_Engine_Random_Files_MOVED_TO_G` once satisfied with the copies on E: and
   G: (HISTORY, 26 September, ninth session). Not urgent.
-- **The independent audit — the preparation list, before the send** (DECISIONS, the
-  three rulings of 29 September). The list is kept in Viktor's roadmap document, Phase
-  4. Items 2 to 9 and 13 are done, and item 10's first half (the first message sent,
-  30 September). Item 1's re-check was made again at the send, by a web fetch (item 10),
-  not by a query of the send's own. Item 10's second half, Part 7, went to neither run:
-  both found 0 of 4, and round 7 ended (30 September). The order changed on 29 September — Claude's
-  under the delegation, Viktor agreeing: 7 before 6, since 7 can add entries 6
-  classifies, and 3 and 4 as one commit, since both rewrite `send_audit_round.py`;
-  item 5 joined them (Viktor agreeing to Claude's suggestion). Item 13, added on
-  29 September, came before item 10. When he says so, in this order unless he changes it:
-  1. Re-check Laguna S 2.1 on OpenRouter. Read from its model page on 29 September:
-     1,048,576 tokens of context, Poolside the only provider, 131,072 output tokens,
-     $0.09 / $0.18 per million input / output tokens. Read again the same day by Claude
-     from OpenRouter's endpoints API for `poolside/laguna-s-2.1` (a web fetch, not the
-     send's own query): the same figures, one endpoint, tag `poolside/fp4` (fp4
-     quantization), and a `"discount": 0.1` whose meaning was not checked. Still to do
-     at the send: the live models API query. **Found the same day:** Poolside's
-     provider page on OpenRouter says inputs and outputs from *free* use may be used for
-     training, and says nothing about paid use. The send asks `data_collection: deny`;
-     if OpenRouter classes the endpoint as one that may train, the send is refused with
-     a 404, and what to do then is Viktor's call — not a flag to flip.
-  2. **Done** at `59b747a`: `docs/build/package_token_check.py`,
-     pinned to Laguna's tokenizer at Poolside's revision `e80da38` (the files in
-     `G:\Phase_7_Engine_Random_Files\Docs\04_Data\Laguna-S-2.1_tokenizer_e80da38\`,
-     each pinned by SHA-256; `pip install tokenizers==0.23.2`, per
-     `docs/build/README.md`). Since `12b483e` the send runs it itself (item 3).
-  3. **Done** at `12b483e`, with items 4 and 5. Both scripts
-     moved to round 7: `docs/build/build_audit_package.py` writes
-     `docs/audit_package/round7/` (round 6's folder untouched); `send_audit_round.py`
-     sends to `poolside/laguna-s-2.1`, pinned to `poolside`, at $0.09 / $0.18, with
-     `max_tokens` 131,072 — the model's whole ceiling, and the token check's reserve.
-     **The send runs the token check itself**: `--send` and `--send-part7` refuse
-     without `--tokenizer-dir`, and refuse before any network call when the request
-     does not fit. OpenRouter's prompt cutting is now called context compression; it is
-     on by default only for endpoints of 8,192 tokens or less, and the request pins it
-     off anyway (`plugins`, read from OpenRouter's docs on 29 September; whether the
-     endpoint accepts that field is known only at the send). `LARGEST_PRIOR_RESPONSE` is
-     corrected to 41,861 (Kimi K3, round 4); it said 36,085, which round 4 had already
-     exceeded.
-  4. **Done** at `12b483e`. The build writes two folders,
-     `MESSAGE1_PARTS1-6/` and `MESSAGE2_PART7/`, and the send sends them as two
-     requests: `--send` the first message alone, after measuring the whole conversation
-     with the first reply at the full reserve; then **a commit of the first reply's
-     `turn1_*` files**; then `--send-part7`, which refuses unless the first reply
-     finished with `finish_reason=stop`, came from Poolside, has report content, is
-     committed and unchanged, and the first message rebuilds to the bytes it was sent
-     as — and which measures the second request exactly, with the first reply and its
-     reasoning in it. **Ruled 29 September**, by agreeing to Claude's suggestion: the
-     reasoning goes back with the reply (DECISIONS). **The correction owed is
-     confirmed**: rounds 5 and 6 each sent the Part 7 file in the same message as
-     Parts 1–6 (HISTORY, same date).
-  5. **Done** at `12b483e`: `commit_messages_PART7_ONLY.md` holds
-     the commits after `e65a0f7` only — 86 at `f256937` — and the build refuses when git
-     cannot read them, rather than writing the error into the file.
-  6. **Done** at `f256937`: each entry of the list for after
-     the audit checked against the code comments, docstrings and test names that
-     ship — four usable, every other entry recorded with its reason and, for each one
-     given away, the line (DECISIONS, "Ruling, 29 September 2026 — the test bugs: four
-     usable, and four is enough"). **Check it again at the send**, against the package
-     as built (item 3) and rev 8 (item 9), and commit any change before the send. The
-     commit `12b483e` added one file that ships, `tests/test_send_audit_round.py`;
-     read by Claude on 29 September, it names none of the four, and its docstring's
-     citation of the ruling on what the auditor sees was reworded before landing so the
-     words "planted bugs" do not ship. **Added to the list on 30 September**, and to be
-     classified with the rest at the send: "ROUND 6" in seven test comments (Found after
-     22 September, below) — not usable, since the shipped line is itself the defect.
-     The Part 7 document (item 13) now records that classification, and that of the
-     always-true comparison added the same day (not scored: it changes nothing
-     observable); the check at the send is against the document as committed.
-  7. **Done** at `f256937`: points 3 and 4 of the 15 September
-     PDF are live and on the list for after the audit; point 5 is not live (the same
-     DECISIONS entry).
-  8. **Done** on 30 September, outside the repository, by the twenty-ninth session:
-     `Docs\Phase7_Model_Roster_2026-09-30.pdf` in `G:\Phase_7_Engine_Random_Files`
-     (SHA-256 `b23cd56b6933e217346dc8bae5bd74f83d46cf8c9be2e528703f817b1d7383da`),
-     Nemotron 3 Super at 262K; then fused with the ledger (the model roster, below).
-     Filed at `e186423`.
-  9. **Done** at `01f2892`:
-     `docs/audit_package/item16_review_instruction_rev8.md`, **approved by Viktor** on
-     30 September. It carries eleven requirement lines — the rulings since `e65a0f7`, and
-     three older ones the code carries (direction from the bias score alone; degrade,
-     don't halt; each run's input hashed and archived) — and the 70 shipped files changed
-     since `e65a0f7`; it does not say that the ratings open backtesting, and says nothing
-     about this round's test (the first ruling of 30 September). No requirement line names any of
-     the four test bugs; the NEUTRAL line points the auditor at NEUTRAL panels, as
-     accepted on 29 September. Part 7 is described as a second message, sent after
-     Parts 1–6 are committed, with the first reply carried back, and agrees with
-     `DELIVERY_NOTE_2` in `send_audit_round.py`. **At the send:** re-run Section 2's
-     counts and the file list against the package as built from the tag, and commit
-     any change to rev 8 before the send (item 10).
-  10. A cost estimate before the send, from the token check's counts rather than a
-      character count — the send's dry run now prints it ("cost, at most"; $0.15 on the
-      trial build). At the send: tag the commit the package is
-      built from, confirm the package's file hashes match it, re-run rev 8's counted
-      disclosure (Section 2) and its list of files changed since `e65a0f7` against the
-      package as built — both were made on a trial build at `12b483e` — confirm that
-      `git diff --stat 01f2892 <tag> -- "*.py" ":!docs"` prints nothing, since the Part 7
-      document (item 13) read its line citations at `01f2892` and tells the auditor the
-      engine code and tests have not changed since (if anything prints, re-check every
-      citation and correct the document before the send), and land no commit touching
-      engine code or tests until the report is triaged (point 1). **Viktor
-      runs the send** — two commands with a commit of the first reply between them —
-      and the auditor is entered in the independence ledger at that time.
-      **First half done, 30 September.** Checked before the send — in the sandbox
-      (Linux, a clone at `e186423`) and on Viktor's build: the 111 hashes in his build's
-      manifest equal the files at `e186423` (negative control: a changed digest is
-      caught); his build equals the sandbox's byte for byte except the build times in
-      `MANIFEST.md` and `README.md` and four path lines in `execution_transcripts.md`,
-      printed with Windows backslashes; the `git diff --stat` prints nothing; rev 8's
-      Section 2 counts re-run on the built package (Muse Spark 14 + 12, GPT-6 Astra
-      5 + 10, Grok 1, the auditor named in two test files, the same reviewer-named
-      folders in `version_control_history.md`), and its Section 4a list equal to the
-      package's 70 changed files, new-file marks included — no change to rev 8; the test
-      bugs' classification (item 6) stands, since no shipped code or test file changed
-      since `12b483e` and the history's new entries name only `docs/` files; Laguna's
-      endpoint read again (a web fetch through a summarising tool, not the raw JSON): the
-      same figures, status 0. Viktor's dry run: 455,317 and 149,322 tokens, FITS with
-      181,740 to spare, at most $0.15. Tagged, then sent at 09:58 UTC. The ledger entry
-      is above.
-  11. When the report and reasoning arrive: saved into `docs/audit_reports/`, hashed,
-      and committed the same day (round 1's outputs were lost once); the first reply's
-      commit is also what lets Part 7 be sent (item 4). Compare `native_tokens_prompt`
-      in each `turn*_run_metadata.json` with the token check's count for the same
-      request, which the send prints beside it: the provider's count is the test of the
-      check's. For the second request the check records two counts, with the first
-      reply's reasoning and without; the one the provider matches shows whether the
-      reasoning reached the model.
-      **Done for the first reply** at `86f30f1`: the four
-      `turn1_*` files and the build's manifest, committed the same day.
-      `native_tokens_prompt` 455,360 against the check's 455,359. **Done for run 2** by
-      the commit that writes this line, the same day: 455,360 against 455,359 again.
-  12. Triage, and the same auditor verifies the fixes (the 14 September precedent).
-      Round 7 produced no report that counts, so there is nothing to triage from it.
-  13. **Done** at `8b6fd00`:
-      `docs/audit_package/part7_material_PART7_ONLY.md`, drafted by Claude and **approved
-      by Viktor** on 30 September (DECISIONS, "Ruling, 30 September 2026 — the Part 7
-      document approved"). It opens by saying what it is, and that its entries were known
-      and held back until Part 7 on purpose; then why the list exists, the scoring rule
-      with what "found" means for each of the four test bugs, every finding on the list
-      for after the audit with its classification, the `bias_score` findings, and all six
-      questions of the 15 September PDF with where each stands. Its line citations were
-      read at `01f2892`; item 10 checks they still hold at the tag.
+- **Round 7's preparation list (items 1–13)** is closed: every item done, or ended
+  with the round. Its full text, with item 10's checks at the send, is in HISTORY, in
+  this file as it stood at `1523e0c`; round 8's list (above) points to it.
 - **The model roster and the independence ledger are one document since
   30 September:** `Docs\Phase7_Model_Roster_and_Ledger_2026-09-30.pdf` in
   `G:\Phase_7_Engine_Random_Files` (5 pages, SHA-256
@@ -1229,7 +937,10 @@ Claude critiques it.
   has never used an NVIDIA or Poolside model anywhere. NVIDIA is kept for a scoped
   round; whether its part in Mistral NeMo counts against it is moot for this round.
   Model facts other than Laguna S 2.1's and Nemotron 3 Super's served context and output
-  cap were checked on 22 September and not since.
+  cap were checked on 22 September and not since. **Xiaomi is not on it:** MiMo-V2.6
+  was released on 21–22 September, after the last check. Round 8's decision
+  (DECISIONS, 4 October) records Xiaomi's facts as read on 4 October; the reissue
+  (above) adds it.
 - **The independence ledger is outside the repository, reconciled 29 September**
   against OpenRouter's activity export — 727 requests, 22 August to 14 September 2026,
   kept as `Docs\04_Data\OpenRouter_Activity_Export_2026-09-29.csv` in
@@ -1266,8 +977,8 @@ Claude critiques it.
   folder, so `Phase7_Audit_Findings_Complete.pdf` could be rebuilt. A tooling change;
   not done.
 - **Claude's — README.md's "Independent audit" and "Backtesting" rows are stale**
-  (seen 29 September; not changed since — `59b747a`, `12b483e`, `3e8191a` and the
-  commit that writes this line touched only README's test counts). The first still says the next round is paused until work
+  (seen 29 September; not changed since — `59b747a`, `12b483e`, `3e8191a` and `1523e0c`
+  touched only README's test counts). The first still says the next round is paused until work
   order G and the six findings are done, which happened at `7d0024e`; the second
   predates the ruling of 29 September on what opens backtesting. Both are written in
   Viktor's voice, so the new wording goes to him before it lands.
@@ -1313,3 +1024,16 @@ Claude critiques it.
   12. Does the engine work live on a pair other than AEROUSDT?
   13. How often does it run degraded on live data, and would anyone notice?
   14. Can it run unattended for a year and keep a clean log?
+- **Viktor's, not chosen — ten questions to ask of the engine (1 October).** He asked
+  for them to be kept: What does it take in? What does it produce? What assumptions
+  does it make? What mathematical or technical principle is it based on? What can make
+  it fail? How do we know it is working correctly? What tests would expose a false
+  result? Which parts are deterministic and which stochastic? Which parts are
+  empirically validated and which theoretically justified? What would convince us that
+  the entire thing is wrong? What to do with them — Claude answers from the code, his
+  answers first, given to the auditor, or made standing questions — is not chosen. With
+  them, from the same ChatGPT conversation, hostile reviews of the Constitution (for
+  example, "construct a compliant implementation that is nevertheless obviously
+  wrong"); he agreed to take that up when the questions are, starting with whether each
+  of round 7's four test bugs breaks a specific Constitution rule. Neither is part of
+  the delegated audit, and neither goes to round 8's auditor unless he says so.
