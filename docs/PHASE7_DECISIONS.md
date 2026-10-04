@@ -2908,6 +2908,96 @@ stays 131,072, the smallest output cap of the four. `package_token_check.py`'s `
 has no default any more: it named round 7's model. Round 7's two closed runs stay in
 `CLOSED_RUNS`, and `--send-part7` refuses a folder that is not one of round 8's.
 
+## Decision, 4 October 2026 — rev 9 and the Part 7 correction
+
+*New in this file on 4 October 2026. Claude's, under the delegation above; made and
+filed by the commit that adds rev 9 of the instruction (item 4 of round 8's preparation
+list in PHASE7_NEXT.md). Neither document was shown to Viktor before it landed: the
+delegation asked for no more decisions on the audit, and both are his to read and
+reverse.*
+
+**What rev 9 is.** Rev 8 edited, not rewritten, as the decision on the package says:
+readdressed to round 8, a revision row, and a new subsection in Section 4, "This package
+was built for round 7", saying why the manifest reads `Round: round7` with a build time
+of 30 September. Round 7's outcome is stated three times — in Section 4a, in an eighth
+disclosure in Section 5, and in Section 9's tally — always as a round that produced no
+report the project could use, with none of its ratings, its finding or its scores. The two test
+files that name Laguna S 2.1 and Poolside are disclosed as naming round 7's reviewer.
+Sections 4 and 12 say the commit messages stop at `e186423`. Like rev 8, it does not
+name the model it is sent to, says nothing about the test (the ruling of 30 September),
+and does not say that the ratings open backtesting.
+
+**Section 2's counts, re-run on the package as built.** Round 7's built files, staged off
+Viktor's disk, each hashing to what both of round 7's runs recorded; split into their
+files and searched for every way the code names a rule ("Item N", "Items N/M", "TN-M",
+"Tier N, item M", the rule's own name), then each hit read in context. **Rev 8 was short
+by six rules**: twenty-one carry a prior judgement, not fifteen. The twelve with a verdict
+or severity are unchanged; the kind "a defect attributed, no verdict" grows from three
+(Items 2, 5, 11) to nine — Items 4 and 12 ("a dispute two audit runs disagreed about",
+`tests/test_frame_ownership.py` and `core/engine_core.py`), "T2-1" (*Separation of
+responsibilities*, by the table's order: `models/bias_engine.py`, `data/data_fetcher.py`,
+`tests/test_pinned_source.py`), "T2-3" (*Explicit interfaces/contracts*:
+`core/decision_contract.py`), "Tier 2, item 6" (*Controlled dependencies*:
+`tests/test_imports.py`) and "T3-5" (*Fixed evaluation datasets*:
+`tests/test_pinned_source.py`). All six were in rev 8's package; no file in either bundle
+changed between rev 8's trial build at `12b483e` and the tag. Not counted, with the
+reason in rev 9: Item 7 and Items 19–21, cited beside a test or a printed line with no
+defect stated. Rev 8's other counts held: five Critical count-or-ordinal phrases; seven
+AI parties with the same per-bundle counts (GPT-6 Astra 5 and 10, Muse Spark 1.3 14 and
+12, Grok 1, Claude in four places as recommending against a ruling); Laguna and Poolside
+only in the two test files. Section 4a's list of changed files was regenerated from
+`git diff --name-status e65a0f7 e186423` against the bundles' own file lists: the same 24
+and 46 files, the same 25 marked new. Section 9's "25 commits changed engine code" and the
+90 commit messages were re-counted: both hold.
+
+**MiMo's knowledge cutoff.** One statement found: Xiaomi's model page for MiMo-V2.6-Pro,
+in a sample system prompt inside its API example code ("Your knowledge cutoff date is
+December 2024", in a prompt dated 16 December 2025), read on 4 October through a web tool
+that summarises the page and asked twice for the passage. A third-party model listing
+leaves the field blank. Rev 9 states it as an example, not a specification. Rev 8 did the
+same for Laguna's ("in one of its examples").
+
+**Left out of rev 9, deliberately.** MiMo's tokenizer being of Qwen2's class
+("Decision, 4 October 2026 — round 8's tooling"), and the MiMo team lead's earlier time at
+DeepSeek (round 8's decision, check 2). Rev 9 does not name the lab it is addressed to, so
+that the auditor names itself; either fact would point it towards an identity. Neither
+changes what the auditor is asked to do. Both stay in this file for the reader of the
+report.
+
+**What the Part 7 correction is.** Four places that named round 7 as the document's own
+round: the header now says it was written for round 7, that round 7 never reached its
+Part 7 pass so no reviewer has been sent it before, and that it was corrected for round 8
+by Claude; Section 1's "measure this round" becomes "measure the audit", committed before
+round 7 and used unchanged; Section 2's "committed before the send" becomes "before round
+7's send" (twice); the line-number check is dated for both rounds (re-run on 4 October:
+`git diff --stat 01f2892 e186423 -- "*.py" ":!docs"` prints nothing). **One place beyond
+the letter of the decision**, which said "only where it names round 7": the threshold
+read "if run after run stays under half, the next step is a different auditor, not
+another run", which the ruling of 30 September (two runs in all) had made untrue. It now
+says two runs in all, and says that this was ruled after the document was first written
+and after round 7's first run was scored. Saying nothing untrue to the auditor is the rule
+rev 8 and the Part 7 document were held to; leaving the sentence would have broken it.
+The entries, their classifications and the four "Found means" sentences are unchanged.
+
+**A forward claim, and what holds it.** Rev 9's Section 4 says no engine code or test
+changed between `e186423` and the commit the round is sent from, except the two tests of
+the sending tools. True at this commit; at the send it rests on the freeze, and item 5 of
+the preparation list adds a check that it still holds before `--send`.
+
+**The trial count.** In the sandbox (Linux), round 7's files staged from E:, rev 9 and the
+Part 7 document written with CRLF as a Windows checkout has them,
+`build_round8_package.py` built both folders and the send's dry run counted with MiMo's
+tokenizer: first message 430,813 tokens, second 147,409; turn 2 at the worst case
+709,311 + 131,072 = 840,383 of 1,048,576 — **fits, 208,193 to spare (19.9%)**, at most
+$0.72. 1,570 tokens fewer to spare than the stand-in trial of the tooling commit.
+
+**What it weakens.** The auditor is told round 7 happened and produced nothing usable; a
+model told that a predecessor failed may read more carefully, or more defensively, than
+one that was not, and round 8 can no longer be compared with round 7 as two equal first
+looks. Not saying it was not an option: the manifest and two test files show round 7's
+name. And the corrected Part 7 document was checked by Claude alone, where round 7's was
+checked by Viktor before its send.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then

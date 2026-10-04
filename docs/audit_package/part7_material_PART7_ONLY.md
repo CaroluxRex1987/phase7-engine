@@ -1,8 +1,13 @@
 # Material for Part 7
 
-*Written for the Part 7 pass of round 7, 30 September 2026. It was drafted by Claude and
-checked by the project owner before the send. Section 12 of your instruction said the
-second message would say what this document is. This is that statement.*
+*Written for the Part 7 pass of round 7, 30 September 2026, drafted by Claude and checked
+by the project owner before that round's send. Round 7 never reached its Part 7 pass, so
+no reviewer has been sent this document before you. Corrected for round 8 on 4 October
+2026, by Claude under the project owner's delegation of this audit, only where it named
+round 7 as its own round and where a later ruling made a sentence untrue (Section 2, the
+threshold): the list, each entry's classification and what "found" means for each entry
+are unchanged. Section 12 of your instruction said the second message would say what this
+document is. This is that statement.*
 
 **Every entry in Section 3 was known to the project before your package was sent, and
 none has been fixed. Some are named in code comments you read (Section 3.2). Four of the
@@ -18,7 +23,7 @@ against it, and what else the project decided to show you only now.
 
 Line numbers were read at commit `01f2892`, 30 September 2026. The engine code and the
 tests have not changed between that commit and the tagged commit your package was built
-from; this was checked before the send.
+from; this was checked before round 7's send, and again on 4 October 2026 for this one.
 
 ---
 
@@ -33,10 +38,11 @@ that, between 26 and 30 September. Three (N4, N5 and O1) come from questions ask
 
 **None was left unfixed in order to test you.** Each was deferred for another reason
 first: most under the 22 September ruling, three when the open items were set aside on
-20 September. On 29 September the project decided to measure this round against
-the ones already on the list. It rejected the alternative, which was to plant defects in
-a copy of the code, for three reasons. The package would no longer be the repository tree
-that its SHA-256 manifest claims. Your instruction would have had to warn you that
+20 September. On 29 September the project decided to measure the audit against
+the ones already on the list. That measure was committed before round 7 was sent, and
+this round is measured by it unchanged. The project rejected the alternative, which was
+to plant defects in a copy of the code, for three reasons. The package would no longer be
+the repository tree that its SHA-256 manifest claims. Your instruction would have had to warn you that
 planted defects might exist. And with about five seeds the result would be very rough:
 three found out of five fits anything from about 15% to 95%.
 
@@ -50,11 +56,14 @@ to judge.
 
 ## 2. How Parts 1–6 are measured
 
-This rule, the list and each entry's classification were committed before the send, so
-that none of it can be adjusted after your report is read. The rule and the first
-classification are in the project's decision record (29 September). The entries added
+This rule, the list and each entry's classification were committed before round 7's
+send, on 29 and 30 September, so that none of it can be adjusted after a report is read.
+One thing has been ruled since: how many runs an auditor gets (the threshold, below),
+decided after round 7's first run was scored. It changes no entry, no classification and
+no "found" sentence. The rule and the first classification are in the project's
+decision record (29 September). The entries added
 since then, and what "found" means for each of S1–S4, are in this document, which was
-committed before the send.
+committed before round 7's send; the correction for this round changed none of them.
 
 - **What counts:** only the defects on the list for after the audit (Section 3). New
   trading rules on that list are design choices, not defects, and do not count.
@@ -68,8 +77,9 @@ committed before the send.
 - **The threshold:** fewer than half, meaning none or one of the four, and the round is
   run again, in a fresh session that has not seen this document. Two or more is a pass.
   Each run is scored on its own, and Compliant ratings count only from a run that passes.
-  If run after run stays under half, the next step is a different auditor, not another
-  run.
+  Two runs in all: if both stay under half, the next step is a different auditor, not a
+  third run. (Ruled on 30 September 2026, after this document was first written; it
+  read "if run after run stays under half".)
 - **Who scores.** Claude, which wrote this engine and its fixes (Section 5 of your
   instruction), chose these entries and classified them. It scores from the committed
   text of Parts 1–6, and the project owner checks the scoring.
