@@ -3069,6 +3069,63 @@ the author's. That is not one of this project's two disqualifiers (exposure, aut
 so it does not stop the round; it is recorded for Viktor to weigh when he accepts or
 rejects the result.
 
+## Decision, 4 October 2026 — round 8's second run: 2 of 4, a pass; Part 7 to it
+
+*New in this file on 4 October 2026. Claude's, under the delegation above; filed in the
+session that sent the run. The score is Claude's; Viktor checks it.*
+
+**The run.** Sent after `d27743f` was pushed, with the same first message (payload
+`b6950de5…`, the send's own check). The probe showed 12 reasoning tokens. Xiaomi's
+endpoint answered (OpenRouter's record: provider Xiaomi, `xiaomi/mimo-v2.6-pro-20260921`),
+16:45:32 to 17:04:29 UTC, 430,820 prompt tokens and 80,023 completion tokens, 68,464 of
+them reasoning; finish reason `stop`. $0.071: the provider served 430,720 of the prompt
+tokens from its prompt cache. A prompt cache holds the prompt already read, not the
+earlier reply, so run 2 was not shown run 1's answer. The generation lookup needed more
+of its tries than run 1's but found the record. The four `turn1_*` files are committed
+with this entry, unchanged (their SHA-256s are the ones `turn1_run_metadata.json`
+records).
+
+**The score: 2 of 4 — a pass** (two or more; the Part 7 document, Section 2), from the
+text of Parts 1–6 against the four "Found means" sentences.
+
+- **S2 — found.** Its F1 names the `risk_inputs` block of the record in
+  `core/engine_core.py` and `LineageBlock`'s docstring, and says the stop is scaled by
+  `trend_factor`, computed from trend health, which `risk_inputs` leaves out while its
+  comment says trend health no longer feeds the risk decision.
+- **S4 — found.** Its F10 names the weak-validation branch of `_determine_final_action`
+  and says it cannot change the action: with trend health under 40 no tier can return,
+  so it only chooses the reason string.
+- **S1 — not found.** The risk refusal returned ahead of the WAIT answers is not named.
+- **S3 — not found.** `eq_trade_direction` is named once, in F4's location line, for
+  evidence counted twice — not for the side the entry score is measured for under a
+  NEUTRAL bias.
+
+So, under the ruling of 29 September, run 2's ratings count; run 1's do not. It rates
+29 Compliant, 13 Partially compliant, 2 Not verifiable and none Non-compliant (counted
+from its table), with five
+Major and five Minor findings and no Critical; it reports the release gate met on its
+findings alone, with a caveat that two Majors fall on Minimum Viable Audit items (Items 6
+and 3). Of the four items that open backtesting, Items 2, 3 and 6 are rated Partially
+compliant and Item 18 Compliant. None of this is triaged: triage is Viktor's, after the
+Part 7 pass, and the result is his to accept or reject.
+
+**What was decided.** Part 7 goes to run 2, with `--send-part7` and no `--provider`: it
+goes to Xiaomi's endpoint, which answered the first message. In the sandbox (Linux), a
+throwaway copy with run 2's files committed, the command picked run 2 (run 1 is closed)
+and counted the second request at 658,197 tokens with the first reply's reasoning: fits,
+259,307 to spare. Nothing found after Part 7 counts towards the score.
+
+**What it weakens.** Nothing beyond what the rules already accept: the score rests on two
+of the four, the minimum to pass, and one of the two (S4) is a branch the Part 7 document
+itself calls weak evidence of anything. Run 2 again names itself "Claude (Anthropic)"
+(see the entry above on run 1); that stands as recorded there.
+
+**A constant now out of date, not changed.** `LARGEST_PRIOR_RESPONSE` in
+`docs/build/send_audit_round.py` is 41,861 (round 4); run 2 wrote 80,023 completion
+tokens. It is a check that the output cap exceeds the largest reply on record, and 131,072
+still does. It is not changed during the round, to keep the send script as it was for
+both runs; updating it goes with the next change to the script.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then
