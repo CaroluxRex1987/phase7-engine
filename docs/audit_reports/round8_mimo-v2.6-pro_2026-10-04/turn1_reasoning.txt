@@ -1,0 +1,2623 @@
+Let me carefully work through this audit. I need to produce Parts 1-6 of an independent audit of the Phase-7 Structural Quant Engine against the 44-rule Constitution.
+
+First, let me state my identity as required by Section 5.
+
+I am Claude, made by Anthropic. This is important to state clearly given the independence disclosures. Claude wrote the fixes being audited and wrote the tests. Section 5 says "Claude wrote the fixes you are grading, and wrote the tests that check them." So I need to be very clear about this disclosure.
+
+Now let me think about what I actually find in this code.
+
+Let me go through the 44 rules systematically. First let me map them out from the Constitution:
+
+**Tier 1 (Items 1–21) — Invariants:**
+1. Tool, Not Autonomous Actor
+2. No Future Information / Look-Ahead Bias
+3. Data Integrity
+4. Determinism
+5. Reproducibility
+6. Traceability
+7. No Unsupported Predictive Claims
+8. Epistemic Honesty
+9. Every Measurement Has a Precise Definition
+10. Consistent Semantics
+11. No Circular Reasoning
+12. No Hidden Decision-Affecting State
+13. Fail Safely
+14. Risk Is Not Conviction
+15. Empirical Evidence Supersedes Theoretical Expectation
+16. Complexity Must Provide Demonstrated Value
+17. Backtesting Must Be Isolated From the Core Engine
+18. Read-Only Market Access
+19. Withdrawal Permissions Are Never Enabled
+20. Credentials Are Never Exposed
+21. Operator Credentials Stay With the Operator
+
+**Tier 2 (7 principles) — Architecture:**
+T2-1. Separation of responsibilities
+T2-2. Observation → interpretation → decision → risk/action
+T2-3. Explicit interfaces/contracts
+T2-4. Explicit configuration
+T2-5. Modular design
+T2-6. Controlled dependencies
+T2-7. Explicit, evaluated changes to interfaces or behavior
+
+**Tier 3 (10 disciplines) — Process:**
+T3-1. Hypothesis-driven development
+T3-2. Controlled changes
+T3-3. Automated tests
+T3-4. Regression tests
+T3-5. Fixed evaluation datasets
+T3-6. Version control
+T3-7. Known-good checkpoints
+T3-8. Reproducible experiments
+T3-9. Rollback capability
+T3-10. Documentation of significant decisions
+
+**Tier 4 (6 preferences) — Style:**
+T4-1. Robustness over optimization
+T4-2. Generalization over historical fit
+T4-3. Explainability over unnecessary opacity
+T4-4. Stability over flashy outputs
+T4-5. Useful information over more information
+T4-6. When multiple designs already satisfy every invariant equally well, prefer the simpler one
+
+Now let me actually analyze the code and tests.
+
+Let me start by looking at the key areas the instructions highlight:
+
+**Check 7.1 — Fallbacks that invent rather than measure:**
+
+Looking through the code...
+
+In `indicators/indicators.py`, the `clean_series` function: I see it handles forward_fill but there's something interesting. Let me look at the interpolate branch:
+
+```python
+elif method == "interpolate":
+    series = series.interpolate(method='linear', limit_direction='forward')
+```
+
+This is linear interpolation which does reach forward from later values in some implementations... Actually `interpolate(method='linear', limit_direction='forward')` - linear interpolation fills gaps using both before and after values. So this DOES look forward. Let me think... `pandas.Series.interpolate(method='linear')` uses both previous and next values to interpolate. So this is a look-ahead issue if used on the decision path. But is it used? Let me check... I see `clean_series` is called with `method="forward_fill"` everywhere in the actual indicator code. The "interpolate" method exists but I need to check if anything calls it.
+
+Actually looking more carefully, I see `clean_series` is called with `method="forward_fill"` in all the places I can find. But the interpolate branch exists and uses `limit_direction='forward'` which... actually `interpolate(method='linear')` inherently uses both past and future values. `limit_direction='forward'` just controls the direction of filling when there are limits, but the interpolation itself uses values on both sides. So if this method were called, it would be a look-ahead leak. But it seems unused in the engine path.
+
+Wait, let me search for calls to clean_series with "interpolate"... I don't see any in the code. So it's dead code that could be a look-ahead leak if used. That's worth noting.
+
+Actually, this is Item 16 (Complexity Must Provide Demonstrated Value) territory - unused code - and also a latent Item 2 issue.
+
+**Check 7.2 — Claims that aren't true:**
+
+Looking at the panel... The panel looks well-guarded now. The decision log line is conditional. The chart line is conditional. Let me look for other claims...
+
+In `live_trading.py`, the note says "This is a simulated order. No real trading occurs." - that's accurate.
+
+**Check 7.3 — Tests that pass without proving anything:**
+
+Let me look at some tests...
+
+`test_the_panel_never_prints_a_non_finite_number`:
+```python
+def test_the_panel_never_prints_a_non_finite_number():
+    import inspect
+    from core import panel_render
+
+    src = inspect.getsource(panel_render)
+    assert "math.isfinite" in src or "np.isfinite" in src, (
+        "panel_render's safe_float no longer checks finiteness; a NaN price "
+        "would print as the literal text 'nan' in a dollar field"
+    )
+```
+
+This test checks that `math.isfinite` or `np.isfinite` appears somewhere in panel_render's source. That's incredibly weak. It would pass if there was one isfinite call anywhere in the file, even if the specific safe_float was broken. This is a test that can pass without proving anything about the actual behavior.
+
+Let me look at more tests...
+
+`test_engine_core_does_not_reference_a_cache`:
+```python
+def test_engine_core_does_not_reference_a_cache():
+    with open(os.path.join(REPO_ROOT, "core", "engine_core.py"), encoding="utf-8") as f:
+        tree = ast.parse(f.read())
+
+    names = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Name):
+            names.add(node.id)
+        elif isinstance(node, ast.Attribute):
+            names.add(node.attr)
+
+    offenders = sorted(n for n in names if "cache" in n.lower())
+
+    assert not offenders, (
+        f"core/engine_core.py refers to caching again: {', '.join(offenders)}."
+    )
+```
+
+This checks that no name containing "cache" appears in engine_core.py. But the word "cache" appears in comments... wait, it's parsing the AST, not reading text. Comments are stripped by ast.parse. But docstrings are NOT stripped by ast.parse - they become string constants. However, the code only looks at `ast.Name` and `ast.Attribute` nodes, not string constants. So comments and docstrings mentioning "cache" won't trigger this. Good.
+
+But wait - what about a variable named `_data_store` that is used as a cache? This test only catches names with "cache" in them. It's a narrow test.
+
+Let me look at `test_no_number_on_the_panel_prints_as_nan`:
+```python
+def test_no_number_on_the_panel_prints_as_nan():
+    panel = _render(_everything_unmeasured())
+    assert _no_nan(panel), (
+        "the panel printed the literal text 'nan' for a value that was not "
+        "measured:\n" + "\n".join(l for l in panel.splitlines()
+                                   if re.search(r"\bnan\b", l, re.I)))
+```
+
+This is actually a good test - it renders the panel with everything NaN and checks no "nan" text appears.
+
+Let me look at `test_confidence_is_a_pure_function_of_bias_score`:
+```python
+def test_confidence_is_a_pure_function_of_bias_score():
+    repeats = [_confidence(42.0) for _ in range(3)]
+    assert len(set(round(v, 9) for v in repeats)) == 1, (
+        f"confidence varied across identical calls: {repeats}"
+    )
+```
+
+This calls `_confidence(42.0)` three times and checks they all return the same value. That tests determinism of the function, but doesn't really test what the instructions want for7.4 (whether inputs are restatements of each other). The other tests in this file are better.
+
+Let me look at `test_macro_and_volume_agreement_do_not_move_confidence_a_second_time`:
+```python
+def test_macro_and_volume_agreement_do_not_move_confidence_a_second_time():
+    from models.decision_model import DecisionModel
+
+    strong = DecisionModel()._compute_confidence(
+        bias={"score": 60.0, "raw": "BULLISH"}, final_action="LONG", reasons=[],
+    )
+    weak = DecisionModel()._compute_confidence(
+        bias={"score": 60.0, "raw": "BULLISH"}, final_action="LONG", reasons=[],
+    )
+
+    assert strong == weak, (
+        "confidence differed between two calls with identical bias_score.\n"
+        ...
+    )
+```
+
+Wait - this test calls `_compute_confidence` twice with IDENTICAL arguments and asserts they return the same value. But the test name says "macro and volume agreement do not move confidence a second time." The two calls don't vary macro or volume at all - they use the exact same inputs. This test would pass even if `_compute_confidence` DID read macro/volume from some other source (like a global or from the bias dict). The test proves determinism of identical calls, not that macro/volume can't influence confidence.
+
+Actually, looking more carefully, `_compute_confidence` only takes `bias`, `final_action`, and `reasons` as parameters. It CAN'T read macro or volume because they're not passed to it. But this test doesn't prove that - it just proves calling it twice with the same args gives the same result. The test name is misleading.
+
+Compare with `test_structure_regime_does_not_move_confidence_a_second_time` which at least constructs different scenarios... wait, let me re-read:
+
+```python
+def test_structure_regime_does_not_move_confidence_a_second_time():
+    from models.decision_model import DecisionModel
+
+    def confidence_with(structure_regime, raw_bias):
+        return DecisionModel()._compute_confidence(
+            bias={"score": 60.0, "raw": raw_bias},
+            final_action="LONG",
+            reasons=[],
+        )
+
+    agree = confidence_with("BULLISH TREND", "BULLISH")
+    disagree = confidence_with("BEARISH TREND", "BULLISH")
+    neutral = confidence_with("NEUTRAL STRUCTURE", "BULLISH")
+
+    assert agree == disagree == neutral, (
+```
+
+This is the same issue - the `structure_regime` parameter of `confidence_with` is never passed to `_compute_confidence`. The function takes it and ignores it. So of course the results are the same. This test is vacuous for its stated purpose.
+
+Now, the ACTUAL behavior being tested is correct - `_compute_confidence` really does only use bias.score. But the test doesn't prove it. It proves that a function that ignores its parameter returns the same value regardless of that parameter.
+
+Actually wait - maybe the point is that if someone added structure_regime as a parameter to _compute_confidence, this test would still pass because it never passes it through. Hmm, but that's the point of `test_compute_confidence_signature_has_no_room_for_the_duplicated_inputs` which checks the signature.
+
+Let me think about this more carefully. The signature test is:
+```python
+def test_compute_confidence_signature_has_no_room_for_the_duplicated_inputs():
+    import inspect
+    from models.decision_model import DecisionModel
+
+    params = list(inspect.signature(DecisionModel._compute_confidence).parameters)
+    assert params == ["self", "bias", "final_action", "reasons"], (
+```
+
+OK so the signature check is good. Combined with the behavioral check that "confidence doesn't change when we call it with different wrapper parameters", it's belt-and-braces. But the behavioral check alone is vacuous. The combination is reasonable though.
+
+Let me now look at the direction of the BTC-adjusted confidence calculation...
+
+In `decision_model.py`, `_compute_btc_adjusted`:
+```python
+            direction_adjustment = (
+                agreement * correlation * (abs(btc_score) / 100.0)
+                * self.BTC_ADJUSTMENT_CAP
+            ) if correlation_measured else 0.0
+```
+
+The `agreement` factor is derived from comparing the AERO and BTC bias scores against RAW_BIAS_THRESHOLD. The `btc_score` comes from the BTC analysis. The `correlation` comes from compute_correlation_beta. This seems reasonable - these are different measurements.
+
+But wait - `btc_score` is computed from `calculate_dynamic_bias` run on BTC's data, which includes macro_bias="NEUTRAL" (hardcoded). And `aero_score` is the bias score from the main analysis. Both use the same bias_engine function but on different data. That seems fine.
+
+Let me look at Item 11 more carefully - the circular reasoning question...
+
+The bias score is computed from six factors. Let me check if any of these are restatements of each other...
+
+Looking at `bias_engine.py`'s dependency graph comment, it lists:
+1. trend health (0.30) <- indicators/trend_health.py's slope/ADX/RSI blend
+2. structure regime (0.20) <- structure.py's _detect_regime(): gap between mean(close[-5:]) and mean(close[-15:])
+3. volume sentiment (0.15) <- structure.py's _volume_sentiment_simple()
+4. supertrend direction (0.15) <- indicators.py's SuperTrend column
+5. macro bias (0.10) <- engine_core.py: close > EMA_50 on higher timeframe
+6. reversal/continuation (0.10) <- trend_health.py's continuation_strength
+
+The INDEPENDENCE REVIEW comment says: "Four of the six factors -- trend health (0.30), structure regime (0.20), SuperTrend direction (0.15) and macro bias (0.10), 0.75 of the blend between them -- are four transforms of one measurement: the recent direction of close."
+
+This is a known and documented issue. It's recorded as "NOT FIXED HERE, AND NOT AN OVERSIGHT." The reasoning is that fixing it requires reweighting which is a trading judgment.
+
+So for Item 11, the code has a known issue where 75% of the bias score is derived from price direction through different transforms. This IS circular reasoning in the sense that the factors are not independent measurements. The code itself documents this.
+
+Also, the RSI double-counting is documented: "RSI reaches bias_score through two factors, trend_health's rsi_strength and continuation's momentum_component."
+
+For Item 11, I think this is a Partially compliant finding - the code has removed the most egregious circular reasoning (trend_health directly feeding confidence twice), but the underlying issue of correlated factors remains, and is documented.
+
+Now let me look at Item 2 - look-ahead bias...
+
+The `clean_series` function with `method="interpolate"` would use future values. But it's not called in the engine path.
+
+The `bfill` in `utils/plotting.py` is deliberately kept and documented - it only affects charts, not decisions.
+
+The 5-sigma outlier replacement has been removed (finding 7).
+
+Let me look for any other forward-looking operations...
+
+In `indicators/indicators.py`, the OHLCV cleaning loop:
+```python
+for col in required_cols:
+    if col in df.columns:
+        df[col] = df[col].replace([np.inf, -np.inf], np.nan)
+        last_valid = df[col].last_valid_index()
+        df[col] = df[col].ffill()
+        if last_valid is not None:
+            trailing = df.index > last_valid
+            if trailing.any():
+                df.loc[trailing, col] = np.nan
+```
+
+This forward-fills but not the trailing edge. Good.
+
+In `structure/structure.py`'s `calculate_structure`:
+```python
+df_clean.loc[:, required_cols] = df_clean[required_cols].ffill()
+```
+
+Forward fill only. Good.
+
+What about `_find_confirmed_swings`? It looks at bars on both sides of a potential swing:
+```python
+window_high = highs[i - lookback: i + lookback + 1]
+if highs[i] == window_high.max()
+```
+
+This confirms a swing by looking `lookback` bars into the future from position i. But the key question is: does this reach a decision? The swings are used for structure sequence detection and swing_struct level. Let me think about this...
+
+The swing detection requires bars at least `lookback` bars from the end:
+```python
+search_start = n - 1 - lookback
+```
+
+So it only finds swings that are at least `lookback` bars old. At the decision bar (last bar), the swing data is from bars that are at least `lookback` bars in the past. The `lookahead` in swing detection is needed to confirm a pivot, and the confirmation requires the pivot to be `lookback` bars old. So at the decision point, we only use confirmed swings - swings where we've seen `lookback` bars of subsequent action. This is correct for live trading (we're at the last bar and only use historical confirmed pivots), but would be a look-ahead leak in backtesting if not handled carefully.
+
+Actually wait - the check `i + lookback >= n` means `i <= n - lookback - 1`, so the latest bar that can be a swing is at position `n - lookback - 1`. The decision is at position `n - 1`. So the most recent swing is `lookback` bars before the decision. The swing confirmation uses data from `i + lookback`, which is `n - 1` at the latest (when `i = n - lookback - 1`). So the confirmation window reaches exactly to the decision bar. This means the swing detection uses data up to and including the decision bar - no look-ahead.
+
+But what about `_detect_sequence`? It uses `closes[-1]` (the decision bar) to check for breaks:
+```python
+current_price = float(closes[-1])
+if current_price > last_high:
+    return "BOS BULLISH (TREND CONTINUATION)"
+```
+
+This is fine - it's using the current bar to compare against historical swing levels.
+
+For the `_detect_swing_structure` function, it returns the nearest swing level to current_price. This is fine.
+
+Now let me look at the `test_no_lookahead.py` to see what's checked...
+
+The test has `test_only_the_chart_may_fill_backwards` which scans for bfill/interpolate patterns. But it uses `_backward_fills` which only looks for `.bfill()`, `limit_direction='both'`, and `method='bfill'`. It does NOT look for `interpolate(method='linear')` which is also a forward-looking operation.
+
+Wait, let me re-read `clean_series`:
+```python
+elif method == "interpolate":
+    series = series.interpolate(method='linear', limit_direction='forward')
+```
+
+Linear interpolation uses both past and future values. The `limit_direction='forward'` parameter in pandas' interpolate only affects how NaN values at the edges are handled, not the interpolation method itself. So this IS a forward-looking fill if used.
+
+But `test_only_the_chart_may_fill_backwards` doesn't catch this because it only looks for `bfill`, `limit_direction='both'`, and `method='bfill'`. The `interpolate(method='linear')` call is not caught.
+
+However, `interpolate` is not called in the engine path (only `forward_fill` and `fill_value` and `drop` methods are used). So this is a latent issue in unused code.
+
+Let me check if any test calls clean_series with interpolate... I see `test_an_explicit_substitution_still_works_when_asked_for_by_name` uses `fill_value`, but I don't see any test using `interpolate`.
+
+OK so the `interpolate` method is dead code with a look-ahead leak potential. That's worth noting.
+
+Now let me look at Item 3 - Data Integrity...
+
+The validation module looks comprehensive. It checks for:
+- Missing columns
+- NaN/non-numeric values
+- Infinite values
+- Non-positive prices
+- Negative volume
+- All-zero volume
+- Impossible candles (high < low, etc.)
+- Duplicated timestamps
+- Out-of-order timestamps
+- Irregular intervals
+- Stale data (when `now` is provided)
+- Future-dated data
+- Forming candles
+
+This looks thorough. Let me check if there's anything missing...
+
+One thing I notice: the validation doesn't check for abnormal volume spikes at the validation layer. But this is documented - the decision is to let spikes through to the indicator layer where they're flagged as degradations. That's a deliberate design choice.
+
+Item 3 seems well-handled.
+
+Item 4 - Determinism...
+
+The golden path test checks determinism. The engine uses no random number generation. The code_fingerprint uses ast.dump which is deterministic. The lineage hashing is deterministic.
+
+One concern: `dict` iteration order in Python 3.7+ is insertion-ordered, which is deterministic. But `set` iteration order is not guaranteed across runs. Let me check if any set is iterated in a way that affects output...
+
+In `code_fingerprint.py`:
+```python
+payload = "\0".join(f"{rel}\0{files[rel]}" for rel in sorted(files))
+```
+
+The files are sorted, so this is deterministic.
+
+In `decision_log.py`'s `module_snapshot()`:
+```python
+out[module_name] = {
+    name: _resolve(module, name) for name in names
+}
+```
+
+The `names` is a list, so iteration order is deterministic.
+
+I think Item 4 is met.
+
+Item 5 - Reproducibility...
+
+The decision log records: engine_version, config snapshot, module constants, input hashes, code_hash, run_hash, decision candles, fetch parameters, prior state, archive path. This is comprehensive.
+
+But `engine_version` is a static string "Phase-7 Structural Quant Engine v1.0" that hasn't changed. The `code_hash` is the real code identity. The `run_hash` combines input hashes and config/module fingerprints.
+
+There's one issue: the `run_hash` deliberately excludes `code_hash`. This is documented and reasoned about. But it means two runs on different code with the same inputs and settings would have the same `run_hash`. However, `code_hash` is recorded separately, so the record still distinguishes them. This is a design choice, documented.
+
+Item 5 seems met.
+
+Item 6 - Traceability...
+
+The lineage chain is: decision <- decision components <- normalized signals <- raw signals <- indicators <- validated market data <- raw source data. Each link is populated with actual data.
+
+The bias_components record each factor's input, signed value, weight, and contribution. The risk_inputs record current_price, atr, bias_score, adx, volatility_state, risk_regime. The indicators_at_decision_bar records every column. The inputs have SHA-256 hashes. The archive has the raw data.
+
+This looks comprehensive. One concern: `risk_inputs` records `adx` which may come from `trend.get("adx")`. If ADX is unavailable (column dropped), this would be None. But that's recorded honestly.
+
+Item 6 seems met.
+
+Item 7 - No Unsupported Predictive Claims...
+
+The BTC-adjusted confidence carries its validation status: "computationally validated, empirically unvalidated." This is required by Item 7 and is implemented.
+
+The EV calculation is labeled "illustrative, not backtested."
+
+The decision model outputs an action and confidence, not a prediction of future price.
+
+But wait - the bias engine outputs "BULLISH CONFIRMED" which is a directional claim. Is this a predictive claim? It's describing current market conditions (the bias of the analysis) rather than predicting future price. The Constitution says "The engine must distinguish between describing current market conditions and predicting future price behavior." The bias label describes the current state of the analysis, not a prediction. The entry zone and targets are plan elements, not predictions.
+
+The BTC-adjusted confidence line explicitly says "computationally validated, empirically unvalidated — no backtest supports this adjustment." Good.
+
+Item 7 seems met.
+
+Item 8 - Epistemic Honesty...
+
+The engine distinguishes between:
+- Observed: raw candles, prices
+- Derived: indicators, scores
+- Interpreted: bias labels, regime labels
+- Unknown: NaN/None values, "not measured" labels
+
+The panel says "not computed" for missing scores, "not located" for missing levels, "not measured" for unmeasured relationships.
+
+The degradation block records what's missing.
+
+But let me check for any place where the engine blurs these categories...
+
+The EV sentence says "Expected value (illustrative, not backtested)" and then gives a number. This is honest about its status.
+
+The confidence score is described as "the bias engine's own composite strength" which is accurate.
+
+I think Item 8 is mostly met. Let me look more carefully...
+
+In `decision_model.py`, the `_compute_ev` function produces `ev_r` which is a linear restatement of confidence. The reason string says "it is arithmetic on confidence alone, so it can never disagree with it." This is honest.
+
+One thing: the `validation_score` is computed from macro agreement and volume agreement. It starts at 50 and moves by +10/-20 (macro) and +15/-25 (volume). The label (STRONG/NEUTRAL/WEAK) is derived from this score. Is this score a measurement or a heuristic? It's a heuristic composite. Is this clearly stated? The panel shows it as "VALIDATION : WEAK (Score: 35.00/100)" - it doesn't say whether this is a measurement or a heuristic. But Item 9 asks for precise definitions...
+
+Let me move to Item 9 - Every Measurement Has a Precise Definition...
+
+The Constitution says: "Terms such as trend strength, momentum, alignment, confidence, and risk each need an explicit mathematical or semantic definition."
+
+Looking at the code:
+- trend_health: defined in `trend_health.py` as a 0-100 score from slope (capped at 45) + ADX (capped at 40) + RSI band (capped at 15), clamped to 0-100. This is precise.
+- confidence: defined as `min(100, abs(bias_score))`. This is precise.
+- bias_score: weighted sum of six factors, each on -100 to +100 scale. Precise.
+- entry quality score: sum of five sub-scores (102 max) times confluence multipliers, clipped to 100. Precise.
+- validation_score: starts at 50, plus macro_agreement delta (+10/-20/0) plus volume_agreement delta (+15/-25/0), clamped to 0-100. Precise.
+
+But what about the semantic terms? "MOMENTUM : STRONG" - what does STRONG mean? Looking at `trend_health.py`:
+```python
+if rsi_val < 40.0:
+    momentum_mode = "BUILDING"
+elif rsi_val < 55.0:
+    momentum_mode = "HEALTHY"
+elif rsi_val < 70.0:
+    momentum_mode = "STRONG"
+elif rsi_val < 80.0:
+    momentum_mode = "EXTENDED"
+else:
+    momentum_mode = "EXTREME"
+```
+
+This is a band on RSI. The mapping is precise in the code. But is it documented as such?
+
+The panel prints "MOMENTUM   : STRONG" without saying this is a band on RSI. An operator might think it's a composite measure of momentum, when it's just an RSI band label.
+
+This is a potential Item 9 issue - the term "momentum_mode" (displayed as MOMENTUM) is defined as an RSI band, but this isn't clear from the output.
+
+Similarly, "REGIME" on the panel is `bias.get('regime')` which comes from `calculate_dynamic_regime` which returns `df["STRUCTURE"].iloc[-1]` - the structure regime label. So "REGIME" is actually the structure regime, which might not be clear.
+
+And "VOLATILITY" is from `calculate_dynamic_regime` which computes `vol_ratio = atr / price` and maps it to bands. The bands are:
+- > 0.04: EXTREME VOLATILITY
+- > 0.02: HIGH VOLATILITY  
+- > 0.01: MEDIUM VOLATILITY
+- else: LOW VOLATILITY
+
+These thresholds are not named constants - they're inline comparisons in `bias_engine.py`:
+```python
+elif vol_ratio > 0.04:
+    volatility_mode = "EXTREME VOLATILITY"
+elif vol_ratio > 0.02:
+    volatility_mode = "HIGH VOLATILITY"
+elif vol_ratio > 0.01:
+    volatility_mode = "MEDIUM VOLATILITY"
+```
+
+Wait, these are unnamed literals! They're decision-affecting constants that aren't in FINGERPRINTED_MODULES. Let me check...
+
+`calculate_dynamic_regime` is in `models/bias_engine.py`. The FINGERPRINTED_MODULES entry for `models.bias_engine` lists:
+```python
+"models.bias_engine": [
+    "WEIGHT_TREND_HEALTH", "WEIGHT_STRUCTURE_REGIME",
+    "WEIGHT_VOLUME_SENTIMENT", "WEIGHT_SUPERTREND_DIRECTION",
+    "WEIGHT_MACRO_BIAS", "WEIGHT_REVERSAL_CONTINUATION",
+    "RAW_BIAS_THRESHOLD",
+],
+```
+
+The volatility thresholds (0.04, 0.02, 0.01) are NOT listed! They're bare literals in `calculate_dynamic_regime`. These decide the volatility mode, which feeds into `calculate_stop_targets` (as `volatility_state`) and `classify_risk_regime`. Changing these would change stop distances and risk regimes.
+
+But wait - `code_hash` would capture them since they're in the parse tree. And `test_fingerprint_names_every_constant` checks that every UPPER_CASE numeric constant is in FINGERPRINTED_MODULES. But 0.04, 0.02, and 0.01 are not UPPER_CASE constants - they're bare literals in comparisons.
+
+So this is a gap: three decision-affecting volatility thresholds are bare literals not captured by the readable fingerprint and not named as constants. They ARE captured by code_hash (since it hashes the parse tree), but the record can't say which values a run used.
+
+This is a Minor finding for Item 5 (the readable record doesn't capture these values) and/or T2-4 (Explicit Configuration - important behavior comes from named, visible configuration).
+
+Actually, looking more carefully at the `test_fingerprint_names_every_constant` test:
+```python
+def _named_constants(module):
+    found = set()
+    for name, value in vars(module).items():
+        if _UPPER.match(name) and _is_knob(value):
+            found.add(name)
+        if inspect.isclass(value) and value.__module__ == module.__name__:
+            for attr, inner in vars(value).items():
+                if _UPPER.match(attr) and _is_knob(inner):
+                    found.add(f"{name}.{attr}")
+    return found
+```
+
+This only finds UPPER_CASE named constants. Bare literals like `0.04` in comparisons are not named constants and won't be found. So the test wouldn't catch these.
+
+Now, `calculate_dynamic_regime` takes `df` as input and computes vol_ratio inline. The 0.04/0.02/0.01 are comparison thresholds, not named constants. The `test_a_changed_comparison_moves_the_hash` test would catch changes to these through code_hash, but the readable fingerprint (FINGERPRINTED_MODULES) doesn't capture their values.
+
+This is a real gap. Let me note it.
+
+Actually, looking more carefully at what `test_fingerprint_names_every_constant` tests - it says "Every named numeric constant in a fingerprinted module is in the readable fingerprint." The volatility thresholds are not named constants (they're bare literals), so this test doesn't apply to them. But the principle is the same - they should be named and fingerprinted.
+
+Let me also check for other bare literals...
+
+In `trend_health.py`, the trend bands are used in comparisons:
+```python
+elif trend_health >= 75.0 and adx_val >= 25.0:
+    trend_regime = "STRONG TREND"
+elif trend_acceleration > 0.0 and trend_health >= 50.0:
+    trend_regime = "ACCELERATING"
+```
+
+The 75.0, 25.0, and 50.0 are bare literals in comparisons. These decide trend_regime which is informational (displayed on panel), not directly decision-affecting in terms of trade actions. But trend_health itself is computed from named inputs.
+
+Wait, the AGGRESSIVE_TREND_HEALTH_MIN = 75.0 and CONSERVATIVE_TREND_HEALTH_MIN = 50.0 are named in `decision_model.py`. But the 75.0 and 50.0 in `trend_health.py`'s regime classification are different uses of the same numbers. Are they the same thresholds? Let me check...
+
+In `decision_model.py`:
+```python
+AGGRESSIVE_TREND_HEALTH_MIN = 75.0
+CONSERVATIVE_TREND_HEALTH_MIN = 50.0
+```
+
+In `trend_health.py`'s `trend_regime` classification:
+```python
+elif trend_health >= 75.0 and adx_val >= 25.0:
+    trend_regime = "STRONG TREND"
+elif trend_acceleration > 0.0 and trend_health >= 50.0:
+    trend_regime = "ACCELERATING"
+```
+
+These are the same numeric values used in different contexts. The 75.0 in trend_health.py is for regime classification (informational), while AGGRESSIVE_TREND_HEALTH_MIN is for action tier selection. They're different concepts that happen to share a value. But having unnamed copies of these values is the "two declarations of one fact" problem.
+
+Actually, I should also note the momentum_mode thresholds in trend_health.py:
+```python
+if rsi_val < 40.0:
+    momentum_mode = "BUILDING"
+elif rsi_val < 55.0:
+    momentum_mode = "HEALTHY"
+elif rsi_val < 70.0:
+    momentum_mode = "STRONG"
+elif rsi_val < 80.0:
+    momentum_mode = "EXTENDED"
+else:
+    momentum_mode = "EXTREME"
+```
+
+40.0, 55.0, 70.0, 80.0 are bare literals. These decide momentum_mode which is displayed and used in reversal detection (`momentum_mode in ("EXTENDED", "EXTREME")`).
+
+And the rsi_strength bands in the same function:
+```python
+if 45.0 <= rsi_val <= 65.0:
+    rsi_strength = 15.0
+elif 35.0 <= rsi_val < 45.0 or 65.0 < rsi_val <= 75.0:
+    rsi_strength = 12.0
+elif 25.0 <= rsi_val < 35.0 or 75.0 < rsi_val <= 85.0:
+    rsi_strength = 8.0
+else:
+    rsi_strength = 5.0
+```
+
+More bare literals.
+
+And in `entry_model.py`, the ATR distance bands are inline:
+```python
+if atr_ratio ... :
+    atr_dist_pts = float(ATR_DISTANCE_MAX_POINTS * np.exp(-atr_ratio * 0.5))
+    atr_dist_pts = max(5.0, min(ATR_DISTANCE_MAX_POINTS, atr_dist_pts))
+```
+
+The 0.5 in the exponential decay and the 5.0 minimum are bare literals.
+
+And the VWMA distance bands:
+```python
+if vwma_diff < 0.01:
+    vwma_pts = VWMA_MAX_POINTS
+elif vwma_diff < 0.025:
+    vwma_pts = 15.0
+elif vwma_diff < 0.05:
+    vwma_pts = 10.0
+else:
+    vwma_pts = 5.0
+```
+
+0.01, 0.025, 0.05 are bare literals. And 15.0, 10.0, 5.0 are unnamed point values (though they're within the named component's range).
+
+And the RSI extension bands:
+```python
+elif 40.0 <= rsi <= 60.0:
+    rsi_pts = RSI_MAX_POINTS
+elif 30.0 <= rsi < 40.0 or 60.0 < rsi <= 70.0:
+    rsi_pts = 10.0
+else:
+    rsi_pts = 5.0
+```
+
+40.0, 60.0, 30.0, 70.0 are bare literals.
+
+And the structure proximity bands:
+```python
+if hvn_dist < 0.015:
+    struct_pts = STRUCTURE_MAX_POINTS
+elif hvn_dist < 0.03:
+    struct_pts = 8.0
+else:
+    struct_pts = 4.0
+```
+
+0.015, 0.03 are bare literals.
+
+And the EMA zone bands:
+```python
+elif dist_to_mid <= zone_width:
+    ema_pos_pts = EMA_ZONE_MAX_POINTS
+elif dist_to_mid <= zone_width * 2.0:
+    ema_pos_pts = 20
+elif dist_to_mid <= zone_width * 3.5:
+    ema_pos_pts = 10
+else:
+    ema_pos_pts = 5
+```
+
+2.0, 3.5 are bare literals, as are 20, 10, 5 (though these are just lower tiers within the named max).
+
+OK, so there are MANY bare literals throughout the scoring code that affect decision-affecting numbers but are not named constants and therefore not in the readable fingerprint. The code_hash captures them all (since it hashes the parse tree), but the readable record (FINGERPRINTED_MODULES) can't say which values a run used.
+
+This is a systemic issue for T2-4 (Explicit Configuration): "Important behavior (RSI period, EMA windows, confidence caps) comes from named, visible configuration — not mystery constants buried in the logic that touches them."
+
+And for Item 5: the readable part of the record can't distinguish runs that used different scoring bands.
+
+However, `code_hash` does capture all of this. And the tests for `test_fingerprint_names_every_constant` only check named UPPER_CASE constants, not bare literals. The `test_a_changed_comparison_moves_the_hash` test shows that code_hash catches comparison changes.
+
+So the question is: is code_hash alone sufficient for Item 5? The Constitution says "Every analysis must be reconstructable later — its data timestamp, data source and version, engine version, configuration, and parameters must all be recoverable." The parameters include these bare literals. They ARE recoverable through code_hash + the source code. But the readable record doesn't list them.
+
+I think this is a Minor finding - the code is correct and traceable through code_hash, but the readable fingerprint misses many decision-affecting parameters that are bare literals rather than named constants.
+
+Now let me look at Item 10 - Consistent Semantics...
+
+The volume sentiment scores in `bias_engine.py`:
+```python
+_VOLUME_SENTIMENT_SCORES = {
+    "STRONG BULLISH ACCUMULATION": 100.0,
+    "BULLISH VOLUME SUPPORT": 50.0,
+    "STRONG BEARISH DISTRIBUTION": -100.0,
+    "BEARISH VOLUME PRESSURE": -50.0,
+    "VOLUME DIVERGENCE": 0.0,
+    "VOLUME EXHAUSTION": 0.0,
+    "NEUTRAL VOLUME": 0.0,
+}
+```
+
+And in `engine_core.py`, `volume_agreement`:
+```python
+def volume_agreement(volume_sentiment, raw_bias):
+    v = str(volume_sentiment).upper()
+    vol_up = "BULLISH" in v
+    vol_down = "BEARISH" in v
+    ...
+    if (vol_up and bias_up) or (vol_down and bias_down):
+        return 15.0, "Volume sentiment supports this bias."
+    if (vol_up and bias_down) or (vol_down and bias_up):
+        return -25.0, (...)
+```
+
+The `volume_agreement` function determines direction by substring matching ("BULLISH" in v, "BEARISH" in v). The `_VOLUME_SENTIMENT_SCORES` dict maps specific strings to numeric scores. These two approaches could disagree if a new volume sentiment label is added.
+
+Actually, the test `test_it_agrees_with_the_bias_engine_about_direction` checks exactly this - that the two modules agree on direction. Good.
+
+But what about the macro_agreement? In `engine_core.py`:
+```python
+def macro_agreement(macro_bias, raw_bias):
+    macro = str(macro_bias).upper()
+    macro_up = "BULLISH" in macro
+    macro_down = "BEARISH" in macro
+    ...
+```
+
+And in `bias_engine.py`:
+```python
+if macro_bias == "BULLISH":
+    macro_score = 100.0
+elif macro_bias == "BEARISH":
+    macro_score = -100.0
+else:
+    macro_score = 0.0
+```
+
+Here `macro_agreement` uses substring matching while `bias_engine` uses exact matching. If macro_bias were "BULLISH CONFIRMED", `macro_agreement` would see "BULLISH" in it and treat it as bullish, while `bias_engine` would see it's not exactly "BULLISH" and score it 0.0.
+
+Is this a real issue? Let me check what values macro_bias can take... In `engine_core.py`:
+```python
+macro_bias = "NEUTRAL"
+...
+if macro_close > macro_ema50:
+    macro_bias = "BULLISH"
+elif macro_close < macro_ema50:
+    macro_bias = "BEARISH"
+```
+
+So macro_bias is only ever "NEUTRAL", "BULLISH", or "BEARISH". It never has a "CONFIRMED" suffix. So the substring matching is safe in practice, but the two modules use different comparison strategies for the same concept.
+
+Actually, `bias_engine`'s `calculate_dynamic_bias` receives `macro_bias` as a parameter and does:
+```python
+macro_bias = str(macro_bias).upper() if macro_bias else "NEUTRAL"
+...
+if macro_bias == "BULLISH":
+    macro_score = 100.0
+elif macro_bias == "BEARISH":
+    macro_score = -100.0
+```
+
+And `engine_core`'s `macro_agreement` does substring matching. If someone passes "BULLISH CONFIRMED" as macro_bias (which doesn't happen today), the two would disagree. But since the only producer sets it to one of three exact values, this is latent.
+
+This is a Minor consistency issue.
+
+Let me look at Item 12 - No Hidden Decision-Affecting State...
+
+The engine uses `prior_state` for Exit Watch comparisons. This is documented and recorded in the decision log's provenance block. The state file is an explicit, documented part of the design.
+
+The `_last_regime` in `StructureEngine` is instance state:
+```python
+def __init__(self, volume_profile_bins: int = 50) -> None:
+    self._last_regime: str = "NEUTRAL STRUCTURE"
+```
+
+But a new `StructureEngine` is created per `calculate_structure` call:
+```python
+engine = StructureEngine(volume_profile_bins=volume_profile_bins)
+result = engine.analyze(df_clean, current_price, lookback=lookback)
+```
+
+So `_last_regime` starts at "NEUTRAL STRUCTURE" every time. The hysteresis in `_detect_regime` uses this state within a single call, but it always starts fresh. This means the regime detection has no cross-run memory - which is correct for determinism.
+
+But wait - within a single call to `analyze`, `_detect_regime` is called once and sets `_last_regime`. If it were called multiple times on the same engine instance, the second call would see the first call's regime. But `analyze` only calls `_detect_regime` once. So the hidden state is benign.
+
+Actually, the hysteresis IS the point of `_last_regime` - it prevents whipsawing within a single analysis. But since each analysis creates a fresh engine, the hysteresis always starts from "NEUTRAL STRUCTURE", which means it provides no cross-candle smoothing. The code claims to have "state persistence" for regime detection, but it's per-call, not cross-run. This is arguably not really "hysteresis" in the traditional sense since it always starts fresh.
+
+But is this hidden decision-affecting state? The `_last_regime` affects the output of `_detect_regime` (which affects `structure_regime` which affects `bias_score`). But it's initialized to a known value every time and is documented. So it's explicit, documented design state.
+
+However, the hysteresis claim is somewhat misleading. The comment says "State Machine for Market Regimes with Hysteresis. Prevents whipsaws during choppy consolidation phases by introducing state persistence." But since the engine is created fresh each time, the "state persistence" is within a single call only - which means it provides no actual whipsaw prevention across candles. The first regime detection always starts from NEUTRAL.
+
+Actually wait, I need to think about this more carefully. The `_detect_regime` is called once per `analyze` call. The `analyze` call processes a whole DataFrame (450 bars). But `_detect_regime` only looks at the last 15 bars:
+```python
+ma_short = closes[-5:].mean()
+ma_long = closes[-15:].mean()
+```
+
+So it's computing the regime based on the last 15 bars of the current frame. The `_last_regime` starts at "NEUTRAL STRUCTURE" and is updated based on the gap between5-bar and 15-bar means. Since this is called once per analysis, the hysteresis only has an effect when the regime is near a boundary - the starting state (NEUTRAL) influences whether it becomes BULLISH or BEARISH.
+
+For example, if gap_pct is 0.001 (barely positive):
+- Starting from "NEUTRAL STRUCTURE": gap_pct > threshold (0.0015)? No (0.001 < 0.0015). gap_pct < -threshold? No. So it stays "NEUTRAL STRUCTURE".
+- If it started from "BULLISH TREND": gap_pct < 0? No. So it stays "BULLISH TREND".
+
+So the starting state DOES affect the output for borderline cases. Since the starting state is always "NEUTRAL STRUCTURE", borderline cases always resolve to "NEUTRAL STRUCTURE". This is deterministic (good) but the hysteresis is not doing what it claims (preventing whipsaw across runs).
+
+This is more of a design observation than a rule violation. The state is explicit and documented (Item 12 is met), but the hysteresis claim is overstated.
+
+Item 13 - Fail Safely...
+
+The engine generally handles failures well:
+- Missing indicators → degraded state, confidence capped, no trade
+- Missing data → error reported
+- NaN values → "not measured" / "not located"
+- Failed calculations → recorded as degradation
+
+But let me check the decision_model's error handling:
+```python
+except Exception as e:
+    logger.error(f"Decision engine evaluation failed: {e}")
+    reasons.append("The decision engine hit an unexpected error, so it defaulted to WAIT as a safe fallback.")
+    return "WAIT"
+```
+
+This falls back to WAIT, which is safe (no trade). Good.
+
+And `_apply_degradation` caps confidence and converts directional actions to NO-TRADE. Good.
+
+What about `_refuse_incoherent_plan`? It refuses when the plan contradicts the action. Good.
+
+Item 13 seems well-handled.
+
+Item 14 - Risk Is Not Conviction...
+
+The risk regime is classified from ADX and volatility independently of the conviction pipeline (after the fix). The AGGRESSIVE label is gated on the risk regime. This separates conviction from risk.
+
+But there's a known coupling: ADX reaches bias_score through trend_health (0.30 weight) AND is used for risk regime classification. So a high ADX both increases conviction AND lowers assessed risk. This is documented in the code comments.
+
+Wait, the INDEPENDENCE REVIEW comment says ADX was removed from continuation_strength so it now only reaches bias_score through trend_health (0.30). And the risk regime reads ADX independently. So ADX influences both conviction (through trend_health) and risk (through classify_risk_regime). These are different pathways but the same input.
+
+Is this a violation of Item 14? Item 14 says "Directional conviction must never be treated as equivalent to risk." The conviction and risk are separate calculations now. The fact that they share an input (ADX) doesn't mean conviction IS risk - it means they're correlated. The key question is whether high conviction automatically means low risk, which it doesn't (the AGGRESSIVE gate checks risk_regime independently).
+
+I think Item 14 is met after the fix, with the documented limitation that ADX feeds both.
+
+But wait - the risk regime's LOW RISK classification requires:
+```python
+elif volatility_state == "LOW VOLATILITY" and adx_is_measured and adx >= REGIME_STRONG_ADX:
+    return "LOW RISK"
+```
+
+And the AGGRESSIVE action requires risk_regime in ("NORMAL RISK", "LOW RISK"). So LOW RISK (low volatility + strong trend) allows AGGRESSIVE. And strong trend means high trend_health, which means high bias_score, which means high conviction. So the inputs that produce high conviction also produce LOW RISK, which allows AGGRESSIVE.
+
+But this is correlation, not equivalence. A high-conviction setup in HIGH VOLATILITY RISK gets plain LONG/SHORT, not AGGRESSIVE. So conviction alone doesn't get AGGRESSIVE.
+
+Item 14 is met.
+
+Item 15 - Empirical Evidence Supersedes Theoretical Expectation...
+
+This is about process - when live behavior disagrees with theory, the measured behavior wins. I can't fully verify this from the code alone, but the codebase shows evidence of this principle being applied (e.g., the RSI fallback was fixed when measurement showed it diverged from pandas_ta).
+
+Item 15 is Not verifiable from the code alone - it's a process discipline.
+
+Actually wait, looking at the tests and comments, there's evidence of empirical measurement being used to validate assumptions (e.g., the 9,800-bar measurement of the continuation_strength floor, the measurement of the RSI fallback divergence). This supports Item 15.
+
+But formally, this is a process item and I can only verify it from the artifacts. I'll grade it based on the evidence available.
+
+Item 16 - Complexity Must Provide Demonstrated Value...
+
+Let me check for unconsumed complexity...
+
+The `clean_series` function has an `interpolate` method that's never called. Dead code.
+
+The `_optional_number` in signal_router is used. The `_blocker_list` is used.
+
+`live_trading.py` has `get_live_trading_simulator()` and `_simulator` - is this used? Looking at `test_live.py`:
+```python
+from live_trading import get_live_trading_simulator
+result = get_live_trading_simulator().run_once("AEROUSDT", "4h")
+```
+
+It's used by test_live.py which is at the root, not in tests/. It's a manual testing script.
+
+The `decision_log_backup.py` utility is standalone tooling.
+
+Let me look at exit_model more carefully... `build_exit_watch` is consumed by engine_core. `TARGET1_NOTE_PREFIX` is used by panel_render. These are fine.
+
+What about `_json_safe` in decision_log? It's used by both `write` and `lineage.write_archive`. Fine.
+
+`rebuild_frame` in lineage? Used by `test_lineage.py`. It's test-support code in the engine module. Is that unconsumed complexity? It's used to verify the archive round-trip. But it lives in the engine code, not in tests. Arguably it should be in test utilities. But it's used and tested.
+
+The `interpolate` method in `clean_series` is dead code - never called by the engine or tests. This is a Minor Item 16 finding.
+
+Let me also check for unused imports...
+
+In `models/decision_model.py`:
+```python
+from typing import Dict, Any, List, Tuple, Optional
+import logging
+import math
+```
+
+`Tuple` is used in `_read_signal`'s return type. `Optional` is used. All seem used.
+
+In `core/engine_core.py`:
+```python
+import math
+import pandas as pd
+from typing import Dict, Any, Optional, List
+import json
+import os
+import logging
+import tempfile
+import traceback
+```
+
+`traceback` is used in the except handler. `tempfile` is used in `_save_state`. All seem used.
+
+What about `indicators/indicators.py`?
+```python
+from typing import NamedTuple
+import pandas as pd
+import numpy as np
+import pandas_ta as ta
+from core import config
+```
+
+All used.
+
+OK, the main Item 16 finding is the dead `interpolate` method in `clean_series`.
+
+Item 17 - Backtesting Must Be Isolated From the Core Engine...
+
+There's no backtesting code in the engine. This is about future isolation. The engine currently has no backtesting, so Item 17 is vacuously met (there's nothing to isolate). But the design should support future isolation.
+
+Looking at the architecture: the engine reads data, computes indicators, and produces decisions. If backtesting were added, it would need to feed historical data through the same pipeline. The risk is that backtesting code could modify the engine's behavior.
+
+Currently, the engine has no backtesting code, so Item 17 is Not applicable / vacuously met.
+
+Actually, the Constitution says "A failure in backtesting or other validation tooling must never be capable of silently corrupting, destabilizing, or redefining the live analytical engine." Since there IS no backtesting, this is met by default. But it's worth noting that the design doesn't have explicit isolation boundaries.
+
+I'll grade this as Compliant (vacuously) with a note.
+
+Items 18-21 - Credential Security...
+
+Item 18: Read-Only Market Access. The engine only accesses `/api/v3/klines` (public data). No credentials are used. No order execution code exists. The tests check for this (`test_execution_surface.py`). Met.
+
+Item 19: Withdrawal Permissions Are Never Enabled. No credentials at all. Met (vacuously).
+
+Item 20: Credentials Are Never Exposed. No credentials exist. The tests check for credential-shaped literals. Met.
+
+Item 21: Operator Credentials Stay With the Operator. No multi-user capability, no telemetry, no crash reporting. Met (vacuously).
+
+Now Tier 2:
+
+T2-1: Separation of responsibilities. Data acquisition (data_fetcher) doesn't make decisions. Indicators don't manage risk. The decision layer (decision_model) doesn't redefine raw signals. After the fixes (removing the write-only df parameter from calculate_dynamic_bias, removing copy_df from calculate_structure), this seems met.
+
+But wait - `engine_core.py` does a LOT. It fetches data, computes indicators, runs structure analysis, computes trend health, runs the bias engine, generates entry signals, calculates entry quality, computes risk, runs the BTC context, builds exit watch, saves state, writes lineage, and assembles the decision object. Is this "one clear job"?
+
+The Phase7Engine class is described as a "Main orchestrator" which coordinates all these steps. The actual computation is delegated to the respective modules. The orchestration is the job. But the file is 86KB (per the manifest), which is very large.
+
+T2-1 says "Data acquisition doesn't make decisions. Indicators don't manage risk. The decision layer doesn't silently redefine raw signals it receives." These specific constraints seem met. The overall orchestration being in one file is a modular design concern (T2-5), not a separation of responsibilities concern.
+
+But looking at engine_core more carefully, it DOES make some decisions:
+- The macro_bias decision (BULLISH/BEARISH/NEUTRAL) is made in engine_core based on close vs EMA_50
+- The validation score is computed in engine_core
+- The volume_agreement and macro_agreement functions are defined in engine_core
+
+The macro_bias decision is arguably data interpretation rather than trade decision-making. The validation score is a derived quality measure. These seem within the orchestrator's scope.
+
+T2-1 is Partially compliant - the main separation constraints are met, but engine_core mixes orchestration with some interpretation (macro_bias derivation, validation scoring).
+
+Actually, let me reconsider. The Constitution says "Data acquisition doesn't make decisions" - data_fetcher only fetches data. "Indicators don't manage risk" - indicators.py only computes indicators. "The decision layer doesn't silently redefine raw signals" - decision_model takes the signals as-is. These three specific constraints are met. The fact that engine_core does orchestration + some interpretation is within "Observation → interpretation → decision → risk/action" (T2-2), where engine_core handles observation and interpretation.
+
+Let me re-grade T2-1 as Compliant.
+
+T2-2: Observation → interpretation → decision → risk/action. These must stay distinguishable stages.
+
+Looking at the pipeline:
+1. Observation: raw candles from data_fetcher
+2. Interpretation: indicators, structure, trend_health
+3. Decision: bias_engine, decision_model
+4. Risk/action: risk_model, entry_model
+
+But the entry_model does both interpretation (scoring entry quality) and generates signals (long_signal/short_signal). And the risk_model both computes the plan (interpretation) and validates it (risk assessment).
+
+However, the decision to trade is made in decision_model, which takes the outputs of all the interpretation stages. The entry signals confirm the direction but don't choose it. The risk model computes the plan but doesn't decide whether to trade.
+
+I think T2-2 is mostly met. The stages are distinguishable even if not perfectly separated into distinct modules.
+
+T2-3: Explicit interfaces/contracts. The decision_contract.py declares TypedDicts for the decision object and engine output. Tests verify the contract. Met.
+
+T2-4: Explicit configuration. Config values are in config.py. But as I noted earlier, many decision-affecting values are bare literals in the code (volatility thresholds, scoring bands, etc.). Partially compliant.
+
+T2-5: Modular design. Each module has a clear job:
+- data_fetcher: data acquisition
+- validation: data validation
+- indicators: indicator computation
+- structure: structural analysis
+- trend_health: trend health computation
+- bias_engine: bias computation
+- entry_model: entry quality and signals
+- risk_model: risk plan and validation
+- exit_model: exit watch flags
+- decision_model: decision logic
+- signal_router: assembly and routing
+- panel_render: display
+- decision_log: record keeping
+- lineage: traceability
+- code_fingerprint: code identity
+
+This is well modularized. Met.
+
+T2-6: Controlled dependencies. The dependency graph is documented in comments. `requirements.txt` pins versions. The dependency test checks that declared dependencies match actual imports. Met.
+
+T2-7: Explicit, evaluated changes to interfaces or behavior. The decision_contract.py declares the interface. Changes are supposed to update the contract in the same commit. The tests enforce this. Met.
+
+Tier 3:
+
+T3-1: Hypothesis-driven development. Can't fully verify from code, but the commit messages and documentation suggest this process is followed. The version control history shows incremental, focused changes. Partially verifiable.
+
+T3-2: Controlled changes. The version control history shows commits that are generally focused (one or a few related changes per commit). Some commits are larger (e.g., the audit findings fix commits), but these are documented as grouped fixes. Met.
+
+T3-3: Automated tests. 75 test files with comprehensive coverage. Met.
+
+T3-4: Regression tests. The golden path test serves as a regression test. Many tests are specifically regression guards. Met.
+
+T3-5: Fixed evaluation datasets. The pinned fixture directory with MANIFEST.json. Met.
+
+T3-6: Version control. Git with 298 commits, proper branching, tags. Met.
+
+T3-7: Known-good checkpoints. Tags like `audited-2026-08-27` and `portfolio-v1`. The golden snapshot serves as a known-good output. Met.
+
+T3-8: Reproducible experiments. The pinned data source enables reproducible runs. The golden path test verifies reproducibility. Met.
+
+T3-9: Rollback capability. Git provides this. The engine has a state file with atomic writes. Met.
+
+T3-10: Documentation of significant decisions. `PHASE7_DECISIONS.md` records rulings. Extensive comments in code document decisions. Met.
+
+Tier 4:
+
+T4-1: Robustness over optimization. The code favors correctness (extensive error handling, validation, NaN checks) over performance. Met.
+
+T4-2: Generalization over historical fit. The engine is parameterized by symbol/timeframe. The `asset_name` function handles different quote currencies. But the engine is primarily tested on AEROUSDT. Partially met.
+
+Actually, the golden path test uses TESTUSDT specifically to avoid hardcoded symbol issues. And the engine handles BTCUSDT (skipping BTC context). The parameters are configurable. I think this is met.
+
+T4-3: Explainability over unnecessary opacity. The panel provides detailed reasoning. The decision log records the full chain. Met.
+
+T4-4: Stability over flashy outputs. The panel is described as "dependable, boring." The scores are explained with their derivations. Met.
+
+T4-5: Useful information over more information. The panel has been cleaned up (removed dead code, removed unconsumed fields). But there are still many lines. This is a preference, and the current state seems reasonable. Met.
+
+T4-6: Prefer the simpler design. This is a tie-breaker. Hard to assess without alternatives. Not verifiable.
+
+Now let me compile my findings...
+
+**Critical findings:** Let me think about what's truly Critical...
+
+The instructions say: "Reserve Critical for a defect that produces a wrong or fabricated number the operator would reasonably act on, or an assertion by the engine that something happened when it did not."
+
+Let me look for such defects...
+
+1. The `interpolate` method in `clean_series` uses forward-looking interpolation (look-ahead). But it's dead code - never called. This is NOT Critical because it can't affect any output today. It's a latent Item 2 issue.
+
+2. The bare literals in scoring - these produce correct numbers (they're the intended values), just not through named constants. The numbers aren't wrong; they're just not as traceable as they should be. NOT Critical.
+
+3. The `macro_agreement` vs `bias_engine` inconsistency in macro_bias matching - latent, since macro_bias only takes three exact values. NOT Critical.
+
+Let me look harder for Critical issues...
+
+Let me check the BTC-adjusted confidence calculation more carefully:
+
+```python
+            direction_adjustment = (
+                agreement * correlation * (abs(btc_score) / 100.0)
+                * self.BTC_ADJUSTMENT_CAP
+            ) if correlation_measured else 0.0
+            stress_penalty = self.BTC_STRESS_PENALTY if stress else 0.0
+            net_adjustment = direction_adjustment - stress_penalty
+
+            btc_adjusted_confidence = max(0.0, min(100.0, confidence + net_adjustment))
+```
+
+The `agreement` is derived from `_side(aero_score)` and `_side(btc_score)` which use `RAW_BIAS_THRESHOLD` (20). So if AERO score is 25 (bullish) and BTC score is 25 (bullish), agreement is 1. If correlation is 0.8 and btc_score is 25, the adjustment is `1 * 0.8 * 0.25 * 20 = 4.0`. This seems reasonable.
+
+But what if `correlation` is negative and `agreement` is positive (both bullish but negatively correlated)? Then `direction_adjustment = 1 * (-0.8) * 0.25 * 20 = -4.0`. This REDUCES confidence when both are bullish but negatively correlated. Is this correct? If AERO and BTC are negatively correlated and both are bullish, that's actually a divergence - BTC being bullish might predict AERO going down. So reducing confidence makes sense. Good.
+
+What about the case where `agreement` is -1 (disagreeing) and `correlation` is positive? Then `direction_adjustment = -1 * 0.8 * 0.25 * 20 = -4.0`. Both directions reduce confidence here, which is conservative and safe.
+
+I think the BTC-adjusted confidence is correct.
+
+Let me check the EV calculation:
+```python
+        win_rate = max(0.0, min(1.0, confidence / 100.0))
+        ev_r = (win_rate * self.AVG_REWARD_R) - ((1.0 - win_rate) * 1.0)
+```
+
+With AVG_REWARD_R = 2.0:
+- confidence=50: win_rate=0.5, ev_r = 0.5*2 - 0.5*1 = 0.5
+- confidence=33: win_rate=0.33, ev_r = 0.33*2 - 0.67*1 = -0.01 (approximately breakeven)
+- confidence=100: win_rate=1.0, ev_r = 2.0
+
+The breakeven confidence is 1/(2+1) = 33.3%, and positive is (1+0.3)*100/(2+1) = 43.3%. These match the numbers in the output. Good.
+
+Now let me look at the confidence calculation:
+```python
+confidence = min(100.0, abs(_safe_float(bias.get("score"), 0.0)))
+```
+
+This is just the absolute value of bias_score, capped at 100. Since bias_score is already clipped to -100..100 in bias_engine, the `min(100.0, ...)` is redundant but safe.
+
+Is this a good measure of "confidence"? It's the magnitude of the directional lean. A score of 0 (neutral) gives confidence 0, which makes sense - no conviction. A score of 100 gives confidence 100. But this is not really "confidence" in the sense of "how likely is this to be right" - it's "how strong is the directional signal." The code's own explanation says "the bias engine's own composite strength" which is accurate.
+
+Item 9 requires "confidence" to have a precise mathematical definition. It does: `min(100, abs(bias_score))`. But the semantic meaning (is this a probability? a strength?) could be clearer. The Constitution notes say "confidence is not probability" unless empirically calibrated.
+
+Actually, the `_compute_ev` function treats confidence as a win rate:
+```python
+win_rate = max(0.0, min(1.0, confidence / 100.0))
+```
+
+This IS treating confidence as probability! The code says "Uses confidence/100 as a stand-in for win rate" and "this is a simplifying assumption, not a measured fact." But it then uses it in an expected value calculation that produces a number the operator might act on.
+
+The instructions say: "a working rule that 'confidence is not probability' unless empirically calibrated as one." The EV calculation uses confidence as a probability (win rate) without calibration. The output is labeled "illustrative, not backtested" and "this is arithmetic on confidence alone." But the number produced (e.g., "+1.31R per trade") is formatted as if it's a real expected value.
+
+Is this a Critical finding? Let me think...
+
+The EV number is produced from confidence (which is just bias magnitude) treated as a win rate. The output explicitly says it's "illustrative, not backtested" and "it is arithmetic on confidence alone, so it can never disagree with it." The panel labels it clearly.
+
+But the number "+1.31R per trade — positive -- worth taking on average if that win rate holds up" is a statement that, if the win rate holds, the trade is worth taking. This is circular: the "win rate" IS the confidence score, which IS the bias magnitude. So the EV is always positive when confidence > 33, which is the same as saying bias magnitude > 33.
+
+This is Item 11 territory (circular reasoning) and potentially Item 8 (epistemic honesty - presenting a derived restatement as if it's independent evidence). But the code is now explicit about this: "it is arithmetic on confidence alone, so it can never disagree with it."
+
+The question is whether an operator reading "+1.31R per trade — positive -- worth taking on average" would be misled into thinking this is an independently validated expected value. The qualifier "illustrative, not backtested" helps, but the sentence structure ("worth taking on average") is a recommendation.
+
+I think this is a Major finding for Item 8 or Item 7 - the EV presents a circular calculation as a trade quality assessment. But it's mitigated by the explicit labeling.
+
+Actually, re-reading the output: "Expected value (illustrative, not backtested): the 77/100 confidence score restated against the standard 2:1 average reward, not a second reading of the setup — it is arithmetic on confidence alone, so it can never disagree with it. On that basis about +1.31R per trade — positive -- worth taking on average if that win rate holds up."
+
+The "if that win rate holds up" qualifier is important. It's saying "IF confidence is a valid win rate, THEN the EV is positive." This is conditional, not absolute. And the preceding sentence explicitly says it's not a second reading.
+
+I think this is Minor - the labeling is adequate but the "worth taking on average" phrasing could still mislead. Not Critical.
+
+Let me look for something more serious...
+
+Let me re-examine the `_build_simulated_order` in live_trading.py. The note says "This is a simulated order. No real trading occurs." This is a claim. Is it true?
+
+Looking at the code, it builds a dict and writes it to JSON. No network calls, no order submission. The claim is true.
+
+But the field is called "simulated_order" with a "decision" field and "risk" fields. Could someone mistake this for a real order? The note explicitly says it's simulated. And the engine has no execution capability (verified by tests). I think this is fine.
+
+Let me look at the decision log claims...
+
+The panel says "Decision logged to <path>" when the log was written. This is now conditional on the write succeeding. Good.
+
+"Chart saved to <path>" when chart_path is set. Also conditional. Good.
+
+Let me check for any unconditional claims...
+
+In the BTC section: "BTC-ADJUSTED CONFIDENCE: 79.81/100 (vs 77.10/100 unadjusted)" followed by "(computationally validated, empirically unvalidated — no backtest supports this adjustment)". The validation status is clearly stated. Good.
+
+OK let me think about the test suite quality more carefully (Part 4)...
+
+Looking at the tests I've reviewed:
+
+Strong tests:
+- `test_no_lookahead.py` - comprehensive look-ahead checks
+- `test_data_integrity.py` - thorough data validation tests
+- `test_decision_bar_integrity.py` - tests the trailing edge issue well
+- `test_no_circular_reasoning.py` - tests Item 11 from multiple angles
+- `test_btc_correlation_alignment.py` - tests the timestamp pairing fix with negative controls
+- `test_golden_path.py` - comprehensive end-to-end regression
+- `test_lineage.py` - tests reproducibility from archive
+- `test_entry_score_reconciles.py` - tests score arithmetic
+
+Weak tests:
+- `test_the_panel_never_prints_a_non_finite_number` - only checks for `math.isfinite` or `np.isfinite` somewhere in the source
+- `test_macro_and_volume_agreement_do_not_move_confidence_a_second_time` - calls function twice with identical args
+- `test_structure_regime_does_not_move_confidence_a_second_time` - wrapper function ignores its parameter
+
+These three are examples of tests that can pass without proving what they claim. But they're a small minority of the suite.
+
+Overall assessment: the suite tests both that the engine hasn't changed (golden path) and that the engine is correct (the other tests). The balance is good. Many tests have negative controls. The tests are generally well-crafted.
+
+But the fact that Claude wrote both the fixes and the tests is a significant caveat. The tests might be shaped to confirm the fixes rather than to challenge them.
+
+Let me also check for the test categories in7.3:
+
+1. "Tests that iterate a collection and assert nothing when it is empty" - I need to look for this pattern...
+
+In `test_the_lineage_chain_has_every_link_the_constitution_names`:
+```python
+        for name, factor in factors.items():
+            for field in ("input", "signed", "weight", "contribution"):
+                assert field in factor, f"factor {name} records no {field}"
+```
+
+This iterates factors (should be 6) and checks each has the right fields. There's a prior assertion `assert len(factors) == 6` so the iteration can't be empty. Good.
+
+In `test_the_recorded_contributions_add_up_to_the_score_they_explain`:
+```python
+        total = sum(f["contribution"] for f in components["factors"].values())
+        assert abs(total - components["weighted_sum"]) < 1e-9
+```
+
+If factors were empty, total would be 0 and weighted_sum would also be 0 (since the blend of no factors is 0). So this would pass vacuously if the factors dict were empty. But the previous test asserts len(factors) == 6, and this test runs after a full engine run which always produces 6 factors. So it's unlikely to be empty. But technically, if the engine somehow produced no factors, this test would pass.
+
+2. "Tests that inject a failure at a point the code path never reaches" - 
+
+In `test_a_failed_risk_calculation_does_not_invent_levels`:
+```python
+        model.calculate_stop_targets(
+            trend_health=80.0,
+            current_price=100.0,
+            atr_val=None,
+            bias_score=-70.0,
+        )
+```
+
+The docstring says "atr_val=None raises TypeError at the first comparison." Let me check... In `calculate_stop_targets`:
+```python
+            if not (np.isfinite(current_price) and np.isfinite(atr_val)):
+```
+
+`np.isfinite(None)` raises TypeError. So this DOES reach the guard. Good.
+
+But the docstring also mentions that an earlier version of this test patched `classify_risk_regime` instead - which `calculate_stop_targets` never calls. That was a test that injected a failure at a point the code path never reaches. It was caught and fixed. Good.
+
+3. "Tests asserting only absence, which would also pass if the feature vanished entirely" -
+
+`test_deleted_columns_stay_deleted` asserts that certain columns are absent. If the feature vanished entirely (e.g., if `add_technical_indicators` returned an empty DataFrame), this would still pass. But `test_consumed_columns_are_still_produced` is the companion that checks the kept columns are present. Together they're robust.
+
+4. "Tests whose setup contradicts what they claim to test" -
+
+The `test_macro_and_volume_agreement_do_not_move_confidence_a_second_time` test claims to test that macro and volume don't move confidence, but its setup doesn't vary macro or volume. This is a setup that contradicts the claim.
+
+5. "Tests that return instead of skipping, so an unmet precondition reports as a pass" -
+
+In `test_golden_path.py`:
+```python
+ if os.environ.get("PHASE7_UPDATE_SNAPSHOT"):
+        os.makedirs(os.path.dirname(SNAPSHOT), exist_ok=True)
+        with open(SNAPSHOT, "w") as f:
+            json.dump(decision, f, indent=2, sort_keys=True, default=str)
+        print(f"snapshot written: {SNAPSHOT}")
+        return
+```
+
+This returns (passes) when writing a new snapshot. That's the intended behavior for the re-baseline case.
+
+But also:
+```python
+def test_the_snapshot_covers_every_top_level_field():
+    if not _engine_available():
+        pytest.skip("pandas_ta not installed")
+    if not os.path.exists(SNAPSHOT):
+        print("SKIP: no baseline yet")
+        return
+```
+
+This `return`s (passes) when no snapshot exists, rather than skipping. The message says "SKIP" but the test actually passes. Under `run_tests.py`, `pytest.skip()` becomes an error, so returning is the pattern used to avoid that. But it means the test silently passes when it should be telling you something is missing.
+
+6. "Tests whose fixture can no longer produce the condition the test was written for" -
+
+The `test_timeframe_disagreement.py` file has `test_the_fixture_really_does_split_the_two_timeframes` which checks the precondition. Good - if the fixture can no longer produce the condition, the test fails loudly.
+
+But what about other tests? For example, `test_no_outlier_replacement.py`'s tests use synthetic frames to create outliers. If the synthetic frame generation changed, the precondition checks (`assert _five_sigma_outliers(s).iloc[-1]`) would catch it. Good.
+
+Overall, the test suite is strong but has some weak spots. The three tests I identified (non-finite check, macro/volume confidence test, structure regime confidence test) are the main examples of tests that can pass without proving what they claim.
+
+Now let me also look at check 7.6 - two modules computing the same thing from different sources...
+
+The volume sentiment direction is computed in two places:
+1. `_VOLUME_SENTIMENT_SCORES` in `bias_engine.py` (maps to numeric scores)
+2. `volume_agreement` in `engine_core.py` (substring matching)
+
+These are tested for agreement in `test_it_agrees_with_the_bias_engine_about_direction`. Good.
+
+The macro_bias direction is computed in two places:
+1. `bias_engine.py` (exact match: == "BULLISH")
+2. `engine_core.py`'s `macro_agreement` (substring match: "BULLISH" in macro)
+
+These COULD disagree if macro_bias had a suffix, but currently it can't. No test checks agreement between these two.
+
+The risk_valid is read in multiple places through `read_risk_verdict`. This is centralized. Good.
+
+The trend direction is computed in `trend_health.py` and consumed by `bias_engine.py` and `entry_model.py`. The direction is passed explicitly as `trend_direction_sign`. Good.
+
+What about the plan direction? In `decision_model.py`, `_plan_direction` reads it from the targets. In `risk_model.py`, `calculate_stop_targets` sets it from `bias_score` sign. These SHOULD always agree (targets are computed from the same bias_score sign). The `_refuse_incoherent_plan` check ensures they do. Good.
+
+But what about the panel's direction box? It reads `bias.raw` for direction. And the plan's direction comes from `bias_score` sign. `bias.raw` is derived from `bias_score` (BULLISH if score > 20, BEARISH if score < -20). So the direction box shows the bias direction, and the plan shows the bias_score direction. These should agree, but they use different thresholds (RAW_BIAS_THRESHOLD = 20 for the label, sign of score for the plan). At score = 0, the label is NEUTRAL but the plan is LONG (since 0 >= 0). But the plan is withheld from display under NEUTRAL bias, so this discrepancy is hidden.
+
+Actually wait, the panel's `plan_withheld` check uses `raw_bias_val == "NEUTRAL"`, and the plan direction comes from `bias_score >= 0` → LONG. At score = 0, raw_bias is NEUTRAL (since 0 is not > 20 and not < -20), so the plan is withheld from display. But the plan IS computed and logged. The decision log would show a LONG plan under a NEUTRAL bias. The `_refuse_incoherent_plan` check would compare the plan direction (LONG at score=0) against the action (WAIT or NO-TRADE under NEUTRAL). Since WAIT/NO-TRADE don't name a side, the check passes them through.
+
+But what if the action somehow named LONG under a NEUTRAL bias? The ladder's `_determine_final_action` requires `raw_bias == "BULLISH"` or `raw_bias == "BEARISH"` for directional actions. NEUTRAL falls through to WAIT. So this can't happen through the normal path.
+
+And `test_a_neutral_bias_never_reaches_long_or_short` checks this over a grid. Good.
+
+Let me now think about what findings I actually have...
+
+**Summary of findings:**
+
+1. **Item 2 (Look-Ahead Bias) - Minor**: The `interpolate` method in `clean_series` uses `method='linear'` which interpolates using both past and future values. It's dead code (never called in the engine path), but it's a latent look-ahead leak. The `test_only_the_chart_may_fill_backwards` scan doesn't catch `interpolate` calls.
+
+Actually, wait. Let me re-examine this. The `interpolate(method='linear', limit_direction='forward')` call... In pandas, `interpolate(method='linear')` fills NaN values by linear interpolation between the previous and next valid values. The `limit_direction='forward'` parameter... let me think about what this actually does.
+
+Actually, `limit_direction` in pandas' interpolate controls the direction in which the `limit` is applied. Without a `limit` parameter, `limit_direction` has no effect. And `method='linear'` always uses both before and after values for interior gaps.
+
+So yes, `interpolate(method='linear')` would use future values for interior gaps. This IS a look-ahead leak if used. But since it's never called in the engine path...
+
+Is this worth reporting? The test suite specifically checks for look-ahead patterns and doesn't catch this one. And the code exists in the engine module (not tests). I'll report it as Minor.
+
+2. **T2-4 (Explicit Configuration) / Item 5 (Reproducibility) - Minor**: Many decision-affecting thresholds are bare literals rather than named constants:
+   - Volatility bands in `calculate_dynamic_regime` (0.04, 0.02, 0.01)
+   - Momentum mode bands in `trend_health.py` (40, 55, 70, 80)
+   - RSI strength bands in `trend_health.py` (25, 35, 45, 65, 75, 85)
+   - Entry quality scoring bands throughout `entry_model.py`
+   - Trend regime thresholds in `trend_health.py` (75, 50, 25, 20)
+
+These are captured by `code_hash` but not by the readable fingerprint. The `test_fingerprint_names_every_constant` test only checks UPPER_CASE named constants, missing bare literals.
+
+3. **Item 8 (Epistemic Honesty) - Minor**: The EV calculation treats confidence (bias magnitude) as a win rate probability. The output is clearly labeled "illustrative, not backtested" but the phrase "worth taking on average" is a recommendation derived from a circular calculation.
+
+Actually, let me reconsider this. The code explicitly says "it is arithmetic on confidence alone, so it can never disagree with it" and "not a second reading of the setup." The "worth taking on average if that win rate holds up" is conditional. I think this is adequately labeled. Maybe not even a finding.
+
+4. **Test Suite (Part 4)**: Three tests that can pass without proving their claims:
+   - `test_the_panel_never_prints_a_non_finite_number` (only checks for isfinite in source)
+   - `test_macro_and_volume_agreement_do_not_move_confidence_a_second_time` (identical calls)
+   - `test_structure_regime_does_not_move_confidence_a_second_time` (wrapper ignores parameter)
+
+5. **T2-1 (Separation of responsibilities) / Item 11 (No Circular Reasoning) - Major**: Four of six bias factors (0.75 weight) are transforms of price direction. The code documents this and says it's not fixed deliberately. This is a known and accepted issue.
+
+Wait, is this a finding or just an observation? The code explicitly says "NOT FIXED HERE, AND NOT AN OVERSIGHT." The project has made a deliberate decision not to fix this because it requires trading judgment. But the Constitution says "A signal must not be allowed to reinforce itself through multiple derived layers and then be presented as independent confirmation."
+
+The bias_components record shows six "factors" with their individual "contributions." An operator reading this would see six separate confirmations, when really four of them are price direction in different costumes. The `lineage.bias_components` presents them as independent factors.
+
+But the code DOES document this in comments. And the lineage record shows the raw inputs for each factor (e.g., `trend_health` input is a number, `structure_regime` input is a label). The raw inputs DO differ - they're computed from different formulas on (overlapping) data. Whether they constitute "independent confirmation" is the question.
+
+I think this is a Major finding for Item 11. The code acknowledges the issue but the output (bias_components with six "factors" and their "contributions") presents them as independent confirmations when they are not.
+
+Actually wait, the Constitution says "A signal must not be allowed to reinforce itself through multiple derived layers and then be presented as independent confirmation." The key word is "presented as independent confirmation." The bias_components record presents six factors with their individual contributions, which does look like independent confirmation. But the code comments explicitly state they are not independent.
+
+The question is: does the OUTPUT present them as independent? The panel shows "CONFIDENCE (decision): 77.10/100" which is just the bias magnitude. The reasoning says "the bias engine's own composite strength (trend health, structure regime, volume sentiment, SuperTrend direction, macro bias, and reversal/continuation, already weighted and blended into one score)." This lists all six as if they are separate inputs.
+
+But it also says "Restating any of those as a separate bonus here would count the same evidence twice." This is about not adding them again on top, not about acknowledging their correlation.
+
+I think the panel's description of the six factors is misleading because it implies independence. But the code documentation is clear. And the instruction says "where a comment and the code disagree, the code is what runs." Here the comment says "these are not independent" and the code blends them as if they are. The output implies independence.
+
+I'll rate this as Major for Item 11.
+
+6. **Check 7.6 finding - Minor**: `macro_agreement` uses substring matching while `bias_engine` uses exact matching for macro_bias direction. They would disagree on values like "BULLISH CONFIRMED" which can't currently occur but could in the future.
+
+Actually, I want to check if there's a more serious 7.6 issue...
+
+The `entry_status` is checked in `decision_model.py`:
+```python
+entry_active = "ACTIVE" in entry_status.upper()
+```
+
+And in `entry_model.py`, the status is set to one of: "ACTIVE ENTRY ZONE", "NEAR ZONE", "APPROACHING ZONE", "AWAY FROM ZONE", "ZONE NOT AVAILABLE", "ZONE HAS NO WIDTH", "NO DATA".
+
+The check `"ACTIVE" in entry_status.upper()` would match "ACTIVE ENTRY ZONE" but NOT "INACTIVE" or other negative forms. But since the only statuses are the ones listed above, this works correctly.
+
+But wait - `"ACTIVE" in entry_status.upper()` - what if entry_status is "REACTIVE"? That contains "ACTIVE" as a substring. But "REACTIVE" is not one of the statuses, so this can't happen.
+
+What about `"ACTIVE" in "INACTIVE ENTRY ZONE"`? That would match! But "INACTIVE ENTRY ZONE" is not one of the statuses. So this is fine.
+
+Actually, looking at this more carefully, the substring check is fragile. If someone added a status like "INACTIVE ZONE" or "REACTIVE ZONE", the check would wrongly match. But with the current set of statuses, it works. This is the same pattern as the volume_agreement substring matching.
+
+Let me think about whether there are any Critical findings...
+
+Actually, let me look at one more thing. The `_build_decision_object` in signal_router rebuilds the entry block field by field. If a field is added to the engine's entry output but not named in the router's rebuild, it's silently dropped. This is documented as a known issue ("anything the engine adds and this list does not name is silently dropped before the panel or the decision log ever sees it"). But is there currently a field being dropped?
+
+Looking at `engine_core`'s entry dict:
+```python
+entry = {
+    "zone_lower": ...,
+    "zone_upper": ...,
+    "long_signal": ...,
+    "short_signal": ...,
+    "long_signal_blockers": ...,
+    "short_signal_blockers": ...,
+    "score": ...,
+    "ema_pos_pts": ...,
+    "atr_dist_pts": ...,
+    "vwma_pts": ...,
+    "rsi_pts": ...,
+    "struct_pts": ...,
+    "entry_status": ...,
+    "distance_from_zone": ...,
+    "base_score": ...,
+    "component_max_points": ...,
+    "macro_multiplier": ...,
+    "trend_multiplier": ...,
+    "structure_multiplier": ...,
+    "combined_multiplier": ...,
+    "scaled_score": ...,
+    "score_ceiling": ...,
+    "score_clipped": ...,
+}
+```
+
+And `signal_router`'s rebuild:
+```python
+"entry": {
+    "zone_lower": ...,
+    "zone_upper": ...,
+    "long_signal": ...,
+    "short_signal": ...,
+    "long_signal_blockers": ...,
+    "short_signal_blockers": ...,
+    "score": ...,
+    "distance_from_zone": ...,
+    "entry_status": ...,
+    "ema_pos_pts": ...,
+    "atr_dist_pts": ...,
+    "vwma_pts": ...,
+    "rsi_pts": ...,
+    "struct_pts": ...,
+    "base_score": ...,
+    "component_max_points": ...,
+    "macro_multiplier": ...,
+    "trend_multiplier": ...,
+    "structure_multiplier": ...,
+    "combined_multiplier": ...,
+    "scaled_score": ...,
+    "score_ceiling": ...,
+    "score_clipped": ...,
+},
+```
+
+These look the same. All fields are present in both. Good.
+
+What about the trend block? Engine output:
+```python
+trend = {
+    "trend_health": ...,
+    "adx": ...,
+    "degraded_inputs": ...,
+    "trend_exhaustion": ...,
+    "momentum_mode": ...,
+    "trend_slope": ...,
+    "trend_acceleration": ...,
+    "momentum_divergence": ...,
+    "divergence_direction": ...,
+    "trend_regime": ...,
+    "continuation_strength": ...,
+    "reversal_direction": ...,
+    "reversal_strength": ...,
+    "trend_direction": ...,
+    "trend_direction_sign": ...,
+}
+```
+
+Router's rebuild:
+```python
+"trend": {
+    "trend_health": ...,
+    "exhaustion": ...,
+    "momentum_mode": ...,
+    "momentum_divergence": ...,
+    "divergence_direction": ...,
+    "trend_direction": ...,
+},
+```
+
+The router's trend block is missing: `adx`, `degraded_inputs`, `trend_slope`, `trend_acceleration`, `trend_regime`, `continuation_strength`, `reversal_direction`, `reversal_strength`, `trend_direction_sign`.
+
+Some of these are deliberately excluded (the router creates a different trend block shape). But `trend_direction_sign` is interesting - it's used by `decision_model` and `bias_engine`, but is it in the final decision object?
+
+Looking at the decision_contract.py:
+```python
+class TrendBlock(TypedDict):
+    trend_health: float
+    exhaustion: bool
+    momentum_mode: str
+    momentum_divergence: bool
+    divergence_direction: str
+    trend_direction: str
+```
+
+The contract doesn't include `trend_direction_sign` in the final decision object. But `decision_model._determine_final_action` reads it:
+```python
+trend_sign = int(_safe_float(trend.get("trend_direction_sign"), 0.0))
+```
+
+Wait, `decision_model` receives the `trend` dict from `signal_router._build_decision_object` which builds it as:
+```python
+"trend": {
+    "trend_health": self._finite_or_nan(trend.get("trend_health")),
+    "exhaustion": bool(trend.get("trend_exhaustion", False)),
+    "momentum_mode": str(trend.get("momentum_mode", "UNKNOWN")),
+    "momentum_divergence": bool(trend.get("momentum_divergence", False)),
+    "divergence_direction": str(trend.get("divergence_direction", "UNKNOWN")),
+    "trend_direction": str(trend.get("trend_direction", "UNKNOWN")),
+},
+```
+
+But `decision_model.evaluate` receives `trend` as a parameter from `_build_decision_object`:
+```python
+dm_result = self.decision_model.evaluate(
+    bias, trend, entry, risk,
+    ...
+)
+```
+
+Wait, `trend` here is the RAW trend from engine_core, not the router's rebuilt version. Let me check...
+
+Looking at `signal_router._build_decision_object`:
+```python
+dm_result = self.decision_model.evaluate(
+    bias, trend, entry, risk,
+    ...
+)
+```
+
+The `trend` parameter of `_build_decision_object` is the raw trend dict from engine_core. So `decision_model` receives the full trend dict with all fields including `trend_direction_sign`. Then the router builds its own trend block for the decision object.
+
+So `decision_model` CAN read `trend_direction_sign` from the raw trend dict. The router's rebuilt trend block in the decision object doesn't include it, but that's the final output shape, not what decision_model sees.
+
+But wait, what about the final decision object's trend block? It has `trend_direction` (a label like "BULLISH") but not `trend_direction_sign` (a number like 1). The panel reads `trend.get('trend_direction')` which is the label. And the reason strings include `trend_sign` which comes from `trend_direction_sign`. So the number reaches the reasoning text but not the structured output.
+
+This is not a defect per se, but it means the decision object can't fully reconstruct why the reasoning said "(up)" or "(down)" - you'd need `trend_direction_sign` which isn't in the final output.
+
+Actually, `trend_direction` (the label) IS in the output and conveys the same information (BULLISH = up, BEARISH = down, NEUTRAL = flat). So the information is there, just in label form rather than numeric form.
+
+Hmm, but there could be a discrepancy between `trend_direction` and `trend_direction_sign` since they're computed from the same slope test but stored separately. Let me check...
+
+In `trend_health.py`:
+```python
+if direction > 0:
+    trend_direction = "BULLISH"
+elif direction < 0:
+    trend_direction = "BEARISH"
+else:
+    trend_direction = "NEUTRAL"
+...
+"trend_direction": str(trend_direction),
+"trend_direction_sign": int(direction),
+```
+
+Both are derived from the same `direction` value. They can't disagree. Good.
+
+But the default response has:
+```python
+"trend_direction": "NEUTRAL",
+"trend_direction_sign": 0,
+```
+
+These are consistent. Good.
+
+OK, let me now formalize my findings and verdicts.
+
+Actually, I want to look at one more thing before writing the report. Let me check the `_apply_signal_gate` more carefully for any issues...
+
+```python
+    def _apply_signal_gate(self, final_action: str, bias: Any, entry: Any,
+                           reasons: List[str]) -> str:
+        if any(side in final_action for side in ("LONG", "SHORT")):
+            side = "long" if "LONG" in final_action else "short"
+            confirmed, blockers = self._read_signal(entry, side)
+            if confirmed:
+                ...
+                return final_action
+            ...
+            return self.SIGNAL_UNCONFIRMED
+        ...
+ return final_action
+```
+
+The `any(side in final_action for side in ("LONG", "SHORT"))` check - would "CONSERVATIVE LONG" match? Yes, "LONG" is in "CONSERVATIVE LONG". Would "NO-TRADE (SIGNAL UNCONFIRMED)" match? Let me check... "LONG" is not in "NO-TRADE (SIGNAL UNCONFIRMED)". "SHORT" is not either. Good.
+
+But what about "NO-TRADE (PLAN CONTRADICTS ACTION)"? Neither LONG nor SHORT is in it. Good.
+
+What about "AGGRESSIVE SHORT"? "SHORT" is in it. And `side = "long" if "LONG" in final_action else "short"`. For "AGGRESSIVE SHORT", "LONG" is not in it (wait... "LONG" is not a substring of "AGGRESSIVE SHORT"). So `side = "short"`. Good.
+
+But what about "CONSERVATIVE LONG"? "LONG" is in it, and "SHORT" is also checked first with `any(...)`. The `side` assignment: `side = "long" if "LONG" in final_action else "short"`. For "CONSERVATIVE LONG", "LONG" is in it, so `side = "long"`. Good.
+
+What about "LONG" exactly? "LONG" is in "LONG", so `side = "long"`. Good.
+
+What about "SHORT" exactly? "LONG" is NOT in "SHORT" (wait... "SHORT" contains "SH" + "ORT", not "LONG"). Actually, "LONG" is not a substring of "SHORT". So `side = "short"`. Good.
+
+Wait, what about "ALONG"? If the action were "ALONG", "LONG" would be in it and `side = "long"`. But "ALONG" is not a valid action, so this can't happen.
+
+What about "LONGER"? "LONG" is in "LONGER". But "LONGER" is not a valid action.
+
+I think the side detection is correct for all valid actions.
+
+Now, let me look at `_read_signal`:
+```python
+    @staticmethod
+    def _read_signal(entry: Any, side: str) -> Tuple[bool, List[str]]:
+        entry = entry if isinstance(entry, dict) else {}
+        signal = entry.get(f"{side}_signal")
+        blockers = entry.get(f"{side}_signal_blockers")
+        if not isinstance(signal, bool) or not isinstance(blockers, list):
+            return False, [...]
+        if signal != (len(blockers) == 0):
+            return False, [...]
+        return signal, [str(b) for b in blockers]
+```
+
+The `signal != (len(blockers) == 0)` check verifies consistency between the signal flag and the blocker list. If signal is True but blockers is non-empty, or signal is False but blockers is empty, it's treated as inconsistent and fails safe. Good.
+
+One edge case: if `blockers` is `[]` and `signal` is `False`, then `len(blockers) == 0` is `True`, and `signal != True` (since signal is False), so it returns False with the "contradicts" message. This is correct - an empty blocker list with a False signal IS contradictory.
+
+If `blockers` is `["something"]` and `signal` is `True`, then `len(blockers) == 0` is `False`, and `signal != False` (since signal is True), so it returns False with the "contradicts" message. Also correct.
+
+If `blockers` is `[]` and `signal` is `True`, then `len(blockers) == 0` is `True`, and `signal == True`, so it returns `True, []`. Correct - confirmed.
+
+If `blockers` is `["something"]` and `signal` is `False`, then `len(blockers) == 0` is `False`, and `signal == False`, so it returns `False, ["something"]`. Correct - not confirmed, with the reason.
+
+Good, the logic is correct.
+
+Now let me finalize my thinking on all44 items and prepare the report.
+
+Let me also consider: are there any items where I should say "Not verifiable"?
+
+T3-1 (Hypothesis-driven development) - I can see evidence of this in the commit history and documentation, but can't fully verify the process. Partially verifiable.
+
+T3-10 (Documentation of significant decisions) - I can see PHASE7_DECISIONS.md is referenced but not included in my package. I can see extensive code comments documenting decisions. The version control history shows commit messages are withheld. So I can verify that decisions are documented in code but not fully verify the documentation practice.
+
+Actually, I DO have version_control_history.md which shows commit file changes but not messages. And I have the code comments which are extensive. So T3-10 is partially verifiable.
+
+T4-1 (Robustness over optimization) - This is a preference/tie-breaker. The code shows extensive error handling and validation. Met.
+
+T4-6 (Prefer simpler design) - Tie-breaker. Not verifiable without alternatives.
+
+Let me also reconsider Item 15 (Empirical Evidence Supersedes Theoretical Expectation). The code shows evidence of empirical measurement (e.g., the 9,800-bar measurement). But this is about process discipline during development. I can verify from the artifacts that empirical evidence was used in some decisions, but can't verify it was ALWAYS used. Partially verifiable → I'll mark it Compliant based on the evidence I can see.
+
+Actually, the instruction says "Not verifiable" means "You could not determine this from what you were given." For process items (T3-1, T3-2), I can see evidence in the version control history. For T3-10, I can see code comments and the mention of PHASE7_DECISIONS.md. So these are at least partially verifiable.
+
+But for T4-6 (prefer simpler design), I truly cannot determine this without seeing alternative designs. I'll mark it Not verifiable.
+
+Let me also think about T3-7 (Known-good checkpoints). The tags (`audited-2026-08-27`, `portfolio-v1`) serve as checkpoints. The golden snapshot is a known-good output. Met.
+
+T3-9 (Rollback capability). Git provides this. The state file uses atomic writes. Met.
+
+OK, I think I have a good picture now. Let me write the report.
+
+Wait, one more thing. Let me look at a potential issue with the `_decision_bar_row` method:
+
+```python
+    @staticmethod
+    def _decision_bar_row(df) -> Dict[str, Any]:
+        out: Dict[str, Any] = {}
+        if df is None or len(df) == 0:
+            return out
+        try:
+            row = df.iloc[-1]
+        except Exception:
+            return out
+        for name in df.columns:
+            try:
+                value = row[name]
+            except Exception:
+                continue
+            try:
+                as_float = float(value)
+            except (TypeError, ValueError):
+                out[str(name)] = str(value)
+                continue
+            out[str(name)] = as_float if math.isfinite(as_float) else None
+        return out
+```
+
+This records every column's value at the decision bar. Non-finite values become None (which serializes to JSON null). Strings are kept as strings. This looks correct.
+
+But what about datetime values? `float(datetime_value)` would raise TypeError, so it would be stored as `str(value)`. That's fine.
+
+What about boolean values? `float(True)` is `1.0`, `float(False)` is `0.0`. These would be stored as `1.0` and `0.0`. Is that correct? The STRUCTURE column is a string, not boolean. ST_Direction is numeric (1.0 or -1.0). So booleans shouldn't appear in the indicator columns. But if they did, they'd be silently converted to floats. This is a minor concern.
+
+OK let me now really write the report.
+
+Let me also check: what's my verdict on Item 11?
+
+The code has documented that four of six bias factors (0.75 weight) are transforms of price direction. The comments say this is "NOT FIXED HERE, AND NOT AN OVERSIGHT." The decision to not fix it is because it requires trading judgment about what corroboration between correlated trend reads is worth.
+
+The Constitution says: "A signal must not be allowed to reinforce itself through multiple derived layers and then be presented as independent confirmation."
+
+The bias engine blends six factors and presents them as a composite score. The `bias_components` record shows six factors with their individual "contributions." The panel describes the confidence as "trend health, structure regime, volume sentiment, SuperTrend direction, macro bias, and reversal/continuation, already weighted and blended into one score."
+
+The question is: does the output "present them as independent confirmation"? The listing of six separate factors implies independence. The weighted blend treats them as independent (simple sum of weighted factors). The description in the reasoning lists them as separate inputs.
+
+I think this IS presenting correlated signals as independent confirmation. The fact that the code comments acknowledge the correlation doesn't change what the output presents to the operator.
+
+However, the specific defect Finding 4 named (the same VALUE reused through two different layers) has been fixed. The remaining issue is the same INPUT (price direction) reaching the score through different transforms. This is a weaker form of circular reasoning.
+
+I'll grade Item 11 as Partially compliant with a Major finding.
+
+Actually wait, the instruction says the Constitution classifies violations of Tier 1 as defects. And the severity rubric says "Critical — violates a Tier 1 invariant in a way that could reach a live decision or a customer. Major — violates a Tier 1 invariant but is contained or not yet reachable."
+
+Does the correlated-factors issue "reach a live decision"? Yes - bias_score is the primary input to the decision ladder and confidence score. If the factors are correlated, the bias score overstates the amount of independent evidence, and confidence is overstated. This could lead to a trade being taken (or a higher tier being selected) based on what looks like multi-factor confirmation but is really one signal echoed.
+
+But is it "producing a wrong or fabricated number the operator would reasonably act on"? The bias score is computed correctly from its inputs - it's just that the inputs aren't as independent as presented. The number isn't fabricated; it's just misleadingly presented.
+
+I'll rate this as Major (violates Item 11, reaches decisions, but the numbers are computed correctly from their inputs - the issue is the claimed independence of those inputs).
+
+Now for the entry quality confluence multipliers - let me check 7.4 more carefully...
+
+The entry quality score is multiplied by three confluence factors:
+1. `macro_multiplier`: macro_bias vs trade_direction
+2. `trend_multiplier`: trend_direction vs trade_direction
+3. `structure_multiplier`: structure_sequence vs trade_direction
+
+These use macro_bias (which is also a 10% factor in bias_score), trend_direction (which is derived from the same slope data as trend_health, a 30% factor in bias_score), and structure_sequence (which is derived from swing analysis, related to structure_regime, a 20% factor in bias_score).
+
+So the confluence multipliers on entry quality reuse inputs that already influenced the bias score. The bias score determines the trade direction, and then the confluence multipliers adjust the entry quality based on whether those same inputs agree with that direction.
+
+This is double-counting in a sense: macro agreeing with the direction both increases bias_score (through the macro factor) AND increases entry quality (through the macro confluence multiplier). Similarly for trend_direction and structure_sequence.
+
+But entry_quality and bias_score are separate scores used for different purposes (entry quality determines the tier within a direction; bias_score determines the direction and confidence). The double-counting means that when macro/trend/structure agree with the direction, both the direction confidence AND the entry quality are boosted by the same evidence.
+
+This is a form of Item 11 violation - the same measurement (macro agreement, trend direction agreement, structure agreement) boosts two supposedly separate scores. But the scores serve different purposes and are used differently in the decision ladder.
+
+Actually, the decision ladder uses:
+- bias_score (direction + magnitude → raw_bias, MIN_ACTION_BIAS check)
+- trend_health (tier selection: AGGRESSIVE ≥ 75, CONSERVATIVE ≥ 50)
+- entry_score (tier selection: AGGRESSIVE ≥ 70)
+- risk_regime (AGGRESSIVE gating)
+
+So if macro agrees with the direction, bias_score goes up (making it more likely to clear MIN_ACTION_BIAS) AND entry_score goes up (making it more likely to clear AGGRESSIVE_ENTRY_SCORE_MIN). Same evidence, two gates.
+
+This IS circular reasoning in the sense that one measurement (macro agreement) opens two gates. But the gates are for different things (direction strength vs entry quality). Whether this constitutes "reinforcing itself through multiple derived layers" depends on interpretation.
+
+The bias_engine's own documentation addresses this: "volume reaches: bias_score, validation_score, entry quality" and "macro bias reaches: bias_score, validation_score, entry quality." It says "none of them adds the same number twice to one score" and "What this record does NOT settle: whether three separate penalties for one disagreement is the right total weight."
+
+So the code is aware that macro and volume reach multiple scores. The question is whether the CONFLUENCE multipliers on entry_quality constitute "presenting as independent confirmation" of the bias.
+
+I think this is worth noting as a7.4 finding: "a factor already weighted inside a composite is then applied a second time on top of it." The macro bias is 10% of bias_score AND a ±5% multiplier on entry_quality. The trend direction is embedded in trend_health (30% of bias_score) AND a ±5% multiplier on entry_quality. The structure sequence is related to structure_regime (20% of bias_score) AND a ±5% multiplier on entry_quality.
+
+But wait, the entry_quality multipliers use DIFFERENT information:
+- `macro_multiplier` uses macro_bias (exact match) vs trade_direction
+- `trend_multiplier` uses trend_direction (from slope) vs trade_direction
+- `structure_multiplier` uses structure_sequence (from swing analysis) vs trade_direction
+
+While bias_score uses:
+- macro_bias as one of six weighted factors
+- trend_health (which includes slope) as the largest factor
+- structure_regime (from 5-bar vs 15-bar mean gap) as a factor
+
+So `trend_multiplier` uses `trend_direction` (from slope sign) while bias_score uses `trend_health` (from slope magnitude + ADX + RSI). These are related but different measurements. Similarly, `structure_multiplier` uses `structure_sequence` (from swing highs/lows) while bias_score uses `structure_regime` (from mean gap). Different measurements of structure.
+
+So the inputs to the multipliers are not exactly the same as the inputs to bias_score - they're related but distinct measurements. This makes it less clearly circular.
+
+But `macro_multiplier` uses `macro_bias` which is the EXACT same input as the macro factor in bias_score. This IS the same measurement counted twice.
+
+I'll note this as a 7.4 observation: macro_bias is weighted at 10% in bias_score AND applied as a ±5% multiplier on entry_quality. The same measurement moves two scores that both feed the decision ladder.
+
+Severity: Minor. The impact is small (5% on entry_quality) and the code documents it.
+
+OK, I think I've been thorough enough. Let me now write the report.
+
+Let me organize my findings:
+
+**Non-compliant findings:**
+
+1. **Item 11 (No Circular Reasoning) - Major (Partially Compliant)**: Four of six bias factors (0.75 weight) are transforms of price direction. The output presents six factors with individual "contributions" as if they are independent confirmations. Documented in code as a known issue but not fixed.
+
+2. **Item 2 (No Future Information) - Minor (Partially Compliant)**: `clean_series`'s `interpolate` method uses `method='linear'` which uses future values. Dead code but present in the engine module, and not caught by the look-ahead scan.
+
+Actually, should I mark Item 2 as Partially compliant or Compliant? The interpolate method is dead code. It can never affect a decision in its current state. The tests scan for backward fills but miss this specific pattern. But the invariant says "Information unavailable at the exact decision timestamp must never influence that decision." Since the interpolate method is never called, no information from the future influences any decision. So the invariant IS met in practice.
+
+But the test `test_only_the_chart_may_fill_backwards` is supposed to catch forward-looking fills and misses this one. That's a test weakness, not a code violation.
+
+I'll mark Item 2 as Compliant but note the test gap in Part 4 and the dead code in Part 6.
+
+Actually wait, let me reconsider. `clean_series` with `method="interpolate"` would fill from future values. Even though it's not called in the engine path, it IS available as a method on a function that IS called. If someone changed one call site from `method="forward_fill"` to `method="interpolate"`, they'd introduce a look-ahead leak without any test catching it.
+
+This is an "unreachable is not the same as safe" situation as described in section 7.1. The code is one edit away from being the live path, and nothing tests it.
+
+But the invariant says "must never influence that decision" - and currently it doesn't. The latent risk is real but the invariant is technically met.
+
+I'll mark Item 2 as Compliant (the invariant holds in the current code) and note the latent risk in Part 6. The test gap goes in Part 4.
+
+3. **T2-4 (Explicit Configuration) - Partially Compliant (Minor)**: Many decision-affecting thresholds are bare literals rather than named, visible configuration. The readable fingerprint misses them.
+
+Actually, let me reconsider T2-4. The principle says "Important behavior (RSI period, EMA windows, confidence caps) comes from named, visible configuration — not mystery constants buried in the logic that touches them."
+
+The examples given (RSI period, EMA windows, confidence caps) ARE in named configuration (config.py and FINGERPRINTED_MODULES). But many other decision-affecting values are not. Is T2-4 met for the named examples and partially met for the broader principle?
+
+I'll mark it Partially compliant.
+
+4. **Check 7.6 (Minor)**: `macro_agreement` in engine_core uses substring matching while `bias_engine` uses exact matching for macro_bias direction. Latent discrepancy.
+
+Now for the test suite assessment...
+
+Let me finalize the verdicts:
+
+Tier 1:
+1. Tool, Not Autonomous Actor - Compliant
+2. No Future Information / Look-Ahead Bias - Compliant (with latent risk noted)
+3. Data Integrity - Compliant
+4. Determinism - Compliant
+5. Reproducibility - Partially compliant (readable fingerprint misses bare literals)
+6. Traceability - Compliant
+7. No Unsupported Predictive Claims - Compliant
+8. Epistemic Honesty - Compliant (EV labeling is adequate)
+9. Every Measurement Has a Precise Definition - Partially compliant (some terms lack precise definitions in the output)
+10. Consistent Semantics - Partially compliant (macro matching inconsistency)
+11. No Circular Reasoning - Partially compliant (correlated factors presented as independent)
+12. No Hidden Decision-Affecting State - Compliant
+13. Fail Safely - Compliant
+14. Risk Is Not Conviction - Compliant
+15. Empirical Evidence Supersedes Theoretical Expectation - Compliant
+16. Complexity Must Provide Demonstrated Value - Partially compliant (dead interpolate method)
+17. Backtesting Must Be Isolated From the Core Engine - Compliant (vacuously)
+18. Read-Only Market Access - Compliant
+19. Withdrawal Permissions Are Never Enabled - Compliant
+20. Credentials Are Never Exposed - Compliant
+21. Operator Credentials Stay With the Operator - Compliant
+
+Tier 2:
+T2-1. Separation of responsibilities - Compliant
+T2-2. Observation → interpretation → decision → risk/action - Compliant
+T2-3. Explicit interfaces/contracts - Compliant
+T2-4. Explicit configuration - Partially compliant
+T2-5. Modular design - Compliant
+T2-6. Controlled dependencies - Compliant
+T2-7. Explicit, evaluated changes to interfaces or behavior - Compliant
+
+Tier 3:
+T3-1. Hypothesis-driven development - Not verifiable
+T3-2. Controlled changes - Compliant
+T3-3. Automated tests - Compliant
+T3-4. Regression tests - Compliant
+T3-5. Fixed evaluation datasets - Compliant
+T3-6. Version control - Compliant
+T3-7. Known-good checkpoints - Compliant
+T3-8. Reproducible experiments - Compliant
+T3-9. Rollback capability - Compliant
+T3-10. Documentation of significant decisions - Compliant
+
+Tier 4:
+T4-1. Robustness over optimization - Compliant
+T4-2. Generalization over historical fit - Compliant
+T4-3. Explainability over unnecessary opacity - Compliant
+T4-4. Stability over flashy outputs - Compliant
+T4-5. Useful information over more information - Compliant
+T4-6. When multiple designs satisfy equally, prefer simpler - Not verifiable
+
+Wait, let me reconsider some of these...
+
+For Item 9 (Every Measurement Has a Precise Definition): The Constitution says "Terms such as trend strength, momentum, alignment, confidence, and risk each need an explicit mathematical or semantic definition."
+
+Looking at the panel output:
+- "TREND: BULLISH / STRONG (Score: 95.35/100)" - trend_health is precisely defined in code. But "STRONG" (momentum_mode) is an RSI band label, not a definition of "momentum." An operator might think MOMENTUM measures momentum, when it's just an RSI classification.
+
+Actually, the MOMENTUM line shows `trend.get('momentum_mode', 'HEALTHY')` which is "STRONG", "BUILDING", "HEALTHY", "EXTENDED", or "EXTREME" - these are RSI bands. But the line is labeled "MOMENTUM" which suggests a broader concept.
+
+Is "momentum_mode" a "term that needs an explicit mathematical or semantic definition"? In the code, it IS precisely defined (RSI < 40 = BUILDING, etc.). But in the output, it's presented as "MOMENTUM: STRONG" which could be interpreted as a general momentum assessment rather than an RSI band.
+
+I think Item 9 is Partially compliant because while the code has precise definitions, the output labels don't make those definitions clear to the operator. The term "MOMENTUM" on the panel is really "RSI band" but isn't described as such.
+
+Actually, looking at the reason strings, `trend_note` says "trend strength 95/100 (up)" which gives the score and direction. But "MOMENTUM: STRONG" is a separate line. The code that generates it is:
+```python
+f"MOMENTUM   : {colorize_val(trend.get('momentum_mode', 'HEALTHY'))}\n"
+```
+
+This just prints the momentum_mode label. The comment in trend_health.py says:
+```python
+# SEQUENCE ITEM 11: the number after the label was
+# trend_health_score — the same value the TREND line above already
+# shows. The LABEL (STRONG / BUILDING / EXTENDED) is momentum_mode,
+# a genuinely separate reading, so it stays.
+```
+
+Wait, the comment says momentum_mode is "a genuinely separate reading." But looking at the code:
+```python
+if rsi_val < 40.0:
+    momentum_mode = "BUILDING"
+elif rsi_val < 55.0:
+    momentum_mode = "HEALTHY"
+elif rsi_val < 70.0:
+    momentum_mode = "STRONG"
+elif rsi_val < 80.0:
+    momentum_mode = "EXTENDED"
+else:
+    momentum_mode = "EXTREME"
+```
+
+It's just RSI bands. Is that "genuinely separate" from trend_health? trend_health includes an RSI component (rsi_strength), so momentum_mode IS derived from one of trend_health's inputs. It's a different transformation of RSI, but it's not independent of trend_health.
+
+But this is just a display label, not a score that feeds into decisions. It's shown on the panel and used in reversal detection (`momentum_mode in ("EXTENDED", "EXTREME")`). The reversal detection is informational (Exit Watch flags).
+
+For Item 9, the question is whether "momentum" has a precise definition. In the code, `momentum_mode` is precisely defined as an RSI band. But the panel label "MOMENTUM" doesn't say "RSI band." Is the definition precise enough?
+
+The Constitution says "an explicit mathematical or semantic definition." The mathematical definition IS explicit in the code (RSI bands). The semantic definition could be clearer ("MOMENTUM: STRONG" means "RSI is between 55 and 70").
+
+I'll mark Item 9 as Partially compliant (Minor) - the definitions are precise in code but the output labels don't convey what the terms measure.
+
+For Item 10 (Consistent Semantics): The macro_bias matching inconsistency (substring vs exact) is latent. But are there other semantic inconsistencies?
+
+The term "confidence" is used in:
+- `risk.confidence_score` = abs(bias_score) [from decision_model]
+- `btc_adjusted_confidence` = confidence + adjustment [from decision_model]
+- The panel line "CONFIDENCE (decision): 77.10/100"
+
+These are all the same concept (magnitude of conviction) with different adjustments. Consistent.
+
+The term "score" is used for many different things:
+- `bias.score` (-100 to 100)
+- `entry.score` (0 to 100)
+- `risk.validation_score` (0 to 100)
+- `risk.confidence_score` (0 to 100)
+- `risk.trade_quality_proposed` (0 to 100)
+
+These are all on0-100 scales (except bias.score which is -100 to 100). They're different concepts. The panel labels them distinctly (ENTRY QUALITY, VALIDATION, CONFIDENCE, TRADE QUALITY). Consistent.
+
+The term "trend_health" is used as a 0-100 score. Consistent.
+
+I think Item 10 is Partially compliant due to the macro matching inconsistency, but it's Minor because the inconsistency can't manifest with current inputs.
+
+For Item 16 (Complexity Must Provide Demonstrated Value): The dead `interpolate` method is the main finding. Are there others?
+
+The `_optional_number` and `_finite_or_nan` in signal_router are both used. The `_blocker_list` is used. 
+
+`decision_contract.py` has `CANONICAL_ALIASES = {}` and `SCHEDULED_FOR_REMOVAL = {}` - both empty. They're kept as mechanisms for future use. Is empty machinery "unconsumed complexity"? The tests check them (`test_the_scheduled_removals_are_still_present_and_still_scheduled` and `test_the_aliases_the_contract_names_really_are_duplicates`), and the docstrings explain they're kept for the next entry. I think this is fine - it's a mechanism, not dead code.
+
+The `rebuild_frame` in `lineage.py` - is it used outside tests? Looking at the code... it's used in `test_lineage.py` to verify the archive round trip. It's not called in the engine path. But it's tested and documented as the inverse of `canonical_text`, needed to make the archive useful (not just a backup). I think this is consumed by its purpose (making the archive verifiable/rebuildable) even if not called in the engine path.
+
+What about `verify_archive` and `verify_against_record` in `lineage.py`? These are used in tests. They're part of the verification mechanism for the archive. Again, consumed by purpose.
+
+I think the only dead code is `clean_series`'s `interpolate` method. Item 16 is Partially compliant (Minor).
+
+Now let me write the actual report. Let me be careful about severity ratings.
+
+Findings ordered by severity:
+
+**Major:**
+1. Item 11: Four of six bias factors (0.75 weight) are transforms of price direction, presented as independent confirmations in the output.
+
+**Minor:**
+2. T2-4 / Item 5: Many decision-affecting thresholds are bare literals, not named constants. Readable fingerprint can't record their values.
+3. Item 9: Output labels (MOMENTUM, REGIME) don't convey what they measure (RSI bands, structure regime).
+4. Item 10: `macro_agreement` uses substring matching while `bias_engine` uses exact matching for macro_bias.
+5. Item 16: Dead `interpolate` method in `clean_series` with look-ahead potential.
+6. 7.4: macro_bias is weighted in bias_score (10%) AND applied as a multiplier on entry_quality (±5%).
+
+Actually, wait. Let me reconsider #6. Is this really a finding or just an observation? The code documents this and says "What this record does NOT settle: whether three separate penalties for one disagreement is the right total weight. That is a trading judgment and is Viktor's."
+
+The check 7.4 says: "Check also whether a factor already weighted inside a composite is then applied a second time on top of it."
+
+Macro is weighted inside bias_score (10%) and then applied as a multiplier on entry_quality. These are DIFFERENT composites (bias_score vs entry_quality). Is applying the same factor to two different composites "applying a second time on top of it"?
+
+The check says "on top of it" which implies adding to the SAME composite. Applying to two different composites that feed different parts of the decision is different. But both composites feed the decision ladder...
+
+I think this is an observation for Part 6 rather than a formal finding. The code is aware of it and the impact is small.
+
+Let me also reconsider the Item 9 finding. The Constitution says terms need "an explicit mathematical or semantic definition." The definitions ARE explicit in the code. The question is whether the output needs to convey those definitions. I think the Constitution is about the definitions existing (in code/documentation), not about the output being self-documenting. The terms ARE defined. So Item 9 might be Compliant.
+
+Let me re-read: "Terms such as trend strength, momentum, alignment, confidence, and risk each need an explicit mathematical or semantic definition."
+
+The code defines:
+- trend strength (trend_health): 0-100 score from slope + ADX + RSI bands
+- momentum (momentum_mode): RSI band classification
+- confidence: abs(bias_score)
+- risk (risk_regime): classification from ADX + volatility + stop distance
+
+These ARE explicit mathematical definitions. They're in the code, in comments, and in some cases in docstrings. The Constitution doesn't say the definitions must be in the output.
+
+But the audit scoping note says: "whether this term should also formally distinguish a measurement from a derived quantity, a heuristic score, a model output, and an interpretation is a decision for the audit itself."
+
+So the question is: are the terms properly categorized? For example:
+- trend_health: a derived quantity (computed from raw indicators)
+- momentum_mode: an interpretation (classification of RSI)
+- confidence: a derived quantity (abs of bias_score)
+- risk_regime: an interpretation (classification of market state)
+
+The output doesn't distinguish between these categories. A score and a label are presented with similar visual weight. But this is more of an Item 8 (Epistemic Honesty) concern than Item 9.
+
+Actually, I think the scoring note in the Constitution says "a number with two decimal places is not automatically meaningful. If nobody can state exactly what 'confidence: 74.32' means, it doesn't matter how precise it looks." The confidence score's meaning IS precisely defined (abs(bias_score)). So Item 9 is met for confidence.
+
+For "momentum" - can someone state exactly what "MOMENTUM: STRONG" means? Yes, if they read the code: RSI is between 55 and 70. But can an operator state this from the output alone? No.
+
+I think the Constitution is about definitions existing somewhere (code, documentation), not about the output being self-explanatory. The definitions DO exist. Item 9 is Compliant.
+
+But I'll note in Part 6 that the output labels could be more descriptive.
+
+Actually, let me reconsider. The term "momentum" in finance typically refers to the rate of change of price. In this code, `momentum_mode` is an RSI classification. These are related but different concepts. RSI is a momentum oscillator, so calling its bands "momentum" is reasonable. But "MOMENTUM: STRONG" is ambiguous - it could mean "the trend is strong" or "RSI is high" or "price is moving fast."
+
+The code comment says "momentum_mode reflects RSI intensity, not direction." This IS a semantic definition. But it's in a code comment, not in the output.
+
+I'll mark Item 9 as Compliant (definitions exist in code) but note the ambiguity in Part 6.
+
+Let me finalize:
+
+Tier 1:
+1. Compliant
+2. Compliant (with latent risk noted in Part 6)
+3. Compliant
+4. Compliant
+5. Partially compliant (Minor) - readable fingerprint misses bare literals
+6. Compliant
+7. Compliant
+8. Compliant
+9. Compliant
+10. Partially compliant (Minor) - macro matching inconsistency
+11. Partially compliant (Major) - correlated factors presented as independent
+12. Compliant
+13. Compliant
+14. Compliant
+15. Compliant
+16. Partially compliant (Minor) - dead interpolate method
+17. Compliant (vacuously)
+18. Compliant
+19. Compliant
+20. Compliant
+21. Compliant
+
+Tier 2:
+T2-1. Compliant
+T2-2. Compliant
+T2-3. Compliant
+T2-4. Partially compliant (Minor) - bare literals not in named config
+T2-5. Compliant
+T2-6. Compliant
+T2-7. Compliant
+
+Tier 3:
+T3-1. Not verifiable
+T3-2. Compliant
+T3-3. Compliant
+T3-4. Compliant
+T3-5. Compliant
+T3-6. Compliant
+T3-7. Compliant
+T3-8. Compliant
+T3-9. Compliant
+T3-10. Compliant
+
+Tier 4:
+T4-1. Compliant
+T4-2. Compliant
+T4-3. Compliant
+T4-4. Compliant
+T4-5. Compliant
+T4-6. Not verifiable
+
+Summary: 36 Compliant, 5 Partially compliant (1 Major, 4 Minor), 2 Not verifiable, 0 Non-compliant.
+
+Wait, that's 43... let me recount.
+
+Tier 1: 21 items
+- Compliant: 16- Partially compliant: 5 (Items 5, 10, 11, 16... that's 4)
+
+Wait, let me recount:
+1. Compliant
+2. Compliant
+3. Compliant
+4. Compliant
+5. Partially compliant
+6. Compliant
+7. Compliant
+8. Compliant
+9. Compliant
+10. Partially compliant
+11. Partially compliant
+12. Compliant
+13. Compliant
+14. Compliant
+15. Compliant
+16. Partially compliant
+17. Compliant
+18. Compliant
+19. Compliant
+20. Compliant
+21. Compliant
+
+Compliant: 17
+Partially compliant: 4
+
+Tier 2: 7 items
+- Compliant: 6
+- Partially compliant: 1 (T2-4)
+
+Tier 3: 10 items
+- Compliant: 9
+- Not verifiable: 1 (T3-1)
+
+Tier 4: 6 items
+- Compliant: 5
+- Not verifiable: 1 (T4-6)
+
+Total: 37 Compliant, 5 Partially compliant, 2 Not verifiable. That's 44.
+
+Now for the release gate (Part 5): "The Constitution's gate condition is that no Critical Tier 1 finding stands unresolved."
+
+I have no Critical findings. The most severe is Major (Item 11). So the gate condition IS met.
+
+But wait - the instruction says "State whether it is met, on your findings alone." The gate is "no Critical Tier 1 finding stands unresolved." I have zero Critical findings. Gate is met.
+
+Now let me think about the Part 6 observations...
+
+**Claimed fixes I could not confirm:**
+
+Many of the code comments claim specific defects were fixed. I checked several and they appear to be genuine. But I can't verify every claimed fix without running the code. Let me list ones I specifically checked:
+
+1. The RSI/ATR fallback smoothing - the code now uses Wilder's RMA (`ewm(alpha=1/length, adjust=False)`). ✓ Confirmed.
+2. The entry zone fabrication - NaN used when EMAs are missing. ✓ Confirmed.
+3. The direction-blind volume_agreement - now checks direction. ✓ Confirmed.
+4. The risk_valid default - now uses `read_risk_verdict`. ✓ Confirmed.
+5. The stop from ATR alone - no structural_level parameter. ✓ Confirmed.
+6. The bias_label has no state. ✓ Confirmed.
+7. The trend_direction is passed explicitly. ✓ Confirmed.
+8. The macro_bias is not a second vote on direction. ✓ Confirmed.
+
+I could not confirm:
+1. The exact numeric equivalence of the RSI/ATR fallbacks to pandas_ta (requires running both).
+2. The golden snapshot matching current output (requires running the engine).
+3. The code_hash changing when specific constants change (requires running the fingerprint).
+
+**Places where I noticed myself relying on a comment rather than the code:**
+
+1. The `bias_engine.py` dependency graph comment describes the six factors and their sources. I initially relied on this to understand the factor independence. I then verified against the actual code in `trend_health.py` and `structure.py` and found the comment was accurate but incomplete (it described `structure_regime` as "swing-based" initially and was later corrected).
+
+2. The `decision_model.py` comment about `_compute_confidence` says "structure_alignment and validation_adj were removed." I relied on this claim and then verified by checking the actual function, which indeed only uses `bias.get("score")`. The comment was accurate.
+
+3. The `risk_model.py` comment about classify_risk_regime says "ADX is not wholly absent from bias_score" and later says the ADX component was removed from continuation_strength. I relied on the first statement and then found the second one updated it. The final state (ADX reaches bias_score only through trend_health) was verified against the code.
+
+4. The `indicators.py` comment about clean_series says "interpolate" is one of the methods. I relied on this to identify the dead code. I verified by checking call sites.
+
+5. The `entry_model.py` comment about the confluence multipliers says they use CONFLUENCE_BOOST_MULT and CONFLUENCE_PENALTY_MULT. I verified these are the named constants being used.
+
+I relied on comments more than I should have in some places, particularly for understanding the architecture and design decisions. For behavior, I checked the code. For rationale, I relied on comments.
+
+**Check 7.3 specific findings:**
+
+1. `test_the_panel_never_prints_a_non_finite_number` - source check for `isfinite` somewhere in the file
+2. `test_macro_and_volume_agreement_do_not_move_confidence_a_second_time` - identical calls
+3. `test_structure_regime_does_not_move_confidence_a_second_time` - wrapper ignores parameter
+4. `test_the_snapshot_covers_every_top_level_field` - returns (passes) instead of skipping when no snapshot exists
+
+**Check 7.6 findings:**
+
+1. `macro_agreement` (substring) vs `bias_engine` (exact) for macro_bias direction
+2. The confluence multipliers reuse macro_bias and trend_direction, which are already factors in bias_score (not exactly7.6 but related)
+
+Actually for 7.6, the key question is "what happens when the two disagree?" For the macro matching, if macro_bias were "BULLISH CONFIRMED":
+- `macro_agreement` would say it's bullish (substring match)
+- `bias_engine` would score it 0.0 (exact match fails)
+
+So validation_score would get +10 for "agreeing" while bias_score gets 0 for the macro factor. The two disagree. And nothing compares them.
+
+But as I noted, this can't happen with current inputs. So it's a latent7.6 finding.
+
+For the confluence multipliers: macro_multiplier uses `macro_bias == "BULLISH"` (exact match), same as bias_engine. trend_multiplier uses `trend_direction == "BULLISH"` (exact match). structure_multiplier uses `structure_sequence == "BOS BULLISH (TREND CONTINUATION)"` (exact match). These are consistent within themselves.
+
+But the validation score's `macro_agreement` uses substring matching. So there's one place where the matching is different.
+
+OK, I think I have enough for the report. Let me write it now.
+
+Actually, one more thing. Let me check: is the entry_status check robust?
+
+```python
+entry_active = "ACTIVE" in entry_status.upper()
+```
+
+The entry_status values from entry_model are:
+- "ACTIVE ENTRY ZONE"
+- "NEAR ZONE"
+- "APPROACHING ZONE"
+- "AWAY FROM ZONE"
+- "ZONE NOT AVAILABLE"
+- "ZONE HAS NO WIDTH"
+- "NO DATA"
+
+"ACTIVE" matches only "ACTIVE ENTRY ZONE". None of the others contain "ACTIVE" as a substring. Wait... "REACTIVE" is not one of the statuses. But what about "INACTIVE"? Not a status either. OK, this works correctly.
+
+But the substring check IS fragile. If someone added "REACTIVATED ZONE" as a status, it would match. This is the same pattern as the volume_agreement issue.
+
+Actually, I realize I should also flag the entry_status check as part of the 7.6 or Item 10 finding. The status is generated by entry_model (exact strings) and checked by decision_model (substring matching). They currently agree but the matching strategies differ.
+
+Let me add this to the Item 10 finding.
+
+OK, now I'll write the report. Let me be concise and precise.
+
+Hmm wait, I want to double-check one more thing. The `_conservative_reason` function:
+
+```python
+        trend_short = trend_health < self.AGGRESSIVE_TREND_HEALTH_MIN
+        entry_short = entry_score < self.AGGRESSIVE_ENTRY_SCORE_MIN
+```
+
+This is called only in the CONSERVATIVE branch, which requires `trend_health >= self.CONSERVATIVE_TREND_HEALTH_MIN`. So `trend_health` is between 50 and 75 (or above 75 but entry_score below 70). The `trend_short` check uses `AGGRESSIVE_TREND_HEALTH_MIN` (75), which is the correct threshold for "what kept it below the LONG tier."
+
+But wait - the function signature takes `trend_health` which could be NaN (from `_safe_float(trend.get("trend_health", float("nan")), default=float("nan"))`). If trend_health is NaN, `trend_health < self.AGGRESSIVE_TREND_HEALTH_MIN` is False (NaN comparisons are always False), so `trend_short` is False. Then `entry_short` might be True or False. The `detail` would be either "but the entry quality..." or the `else` branch.
+
+But can NaN trend_health reach `_conservative_reason`? Looking at `_determine_final_action`:
+```python
+elif trend_health >= self.CONSERVATIVE_TREND_HEALTH_MIN:
+    reasons.append(self._conservative_reason(
+        "bullish", "LONG", trend_note, trend_health, entry_score))
+    return "CONSERVATIVE LONG"
+```
+
+If trend_health is NaN, `NaN >= 50.0` is False, so this branch is not taken. NaN trend_health falls through to WAIT. So `_conservative_reason` is never called with NaN trend_health.
+
+But what about NaN entry_score? `entry_score = _safe_float(entry.get("score", 0.0))` with default 0.0. So it's always finite. And 0.0 < 70 is True, so `entry_short` is True. The reason would correctly say entry quality is below the threshold.
+
+OK, this is fine.
+
+One more edge case: what if trend_health is exactly 75 (AGGRESSIVE_TREND_HEALTH_MIN)? Then `trend_health >= self.AGGRESSIVE_TREND_HEALTH_MIN` is True, and the code enters the AGGRESSIVE branch. If entry_score >= 70 too, it returns AGGRESSIVE (or LONG if not aggressive_allowed). If entry_score < 70, it falls through to... wait, let me re-read:
+
+```python
+if raw_bias == "BULLISH":
+    if (trend_health >= self.AGGRESSIVE_TREND_HEALTH_MIN
+            and entry_score >= self.AGGRESSIVE_ENTRY_SCORE_MIN):
+        ...
+        return "AGGRESSIVE LONG" or "LONG"
+    elif trend_health >= self.CONSERVATIVE_TREND_HEALTH_MIN:
+        reasons.append(self._conservative_reason(...))
+        return "CONSERVATIVE LONG"
+```
+
+So if trend_health is 75 but entry_score is 50, the first `if` fails (entry_score < 70) and we go to `elif trend_health >= 50` which passes (75 >= 50). `_conservative_reason` is called with trend_health=75 and entry_score=50.
+
+In `_conservative_reason`:
+- `trend_short = 75 < 75` → False (75 is not less than 75)
+- `entry_short = 50 < 70` → True
+
+So `trend_short` is False, `entry_short` is True. The `else` branch is:
+```python
+detail = (f"but the entry quality ({entry_score:.0f}/100) is below "
+          f"the {entry_min} the {side} tier needs")
+```
+
+This correctly says only entry quality is below threshold. Good.
+
+But wait - `trend_health = 75` means `trend_short = False`, so the first branch (both short) and second branch (trend short only) are both skipped. The `else` handles "entry_short alone." The comment says "Neither short cannot reach this helper: the ladder's upper-tier branch returns before the CONSERVATIVE one." But that's not quite right - if trend_health >= 75 but entry_score < 70, the upper-tier branch doesn't return (because `entry_score >= AGGRESSIVE_ENTRY_SCORE_MIN` fails), and we DO reach `_conservative_reason` with trend_health >= 75. The `else` branch handles this correctly (says entry quality is below threshold). But the comment is wrong when it says "Neither short cannot reach this helper" - actually, if trend_health >= 75 but entry_score < 70, neither `trend_short` nor `entry_short` being True in the "both" sense... wait.
+
+Let me re-read the comment:
+```python
+        else:
+            # entry_short alone. Neither short cannot reach this helper: the
+            # ladder's upper-tier branch returns before the CONSERVATIVE one.
+            detail = (f"but the entry quality ({entry_score:.0f}/100) is below "
+                      f"the {entry_min} the {side} tier needs")
+```
+
+"Neither short cannot reach this helper" means "the case where NEITHER is short cannot reach this helper." Is that true? If `trend_short = False` and `entry_short = False`, we'd reach the `else` branch. But can this happen?
+
+For `trend_short = False`: trend_health >= 75.
+For `entry_short = False`: entry_score >= 70.
+
+If both are true (trend_health >= 75 AND entry_score >= 70), the ladder's first `if` would match and return AGGRESSIVE/LONG before reaching the CONSERVATIVE branch. So indeed, the case where neither is short cannot reach `_conservative_reason`.
+
+But what about trend_health >= 75 and entry_score >= 70, but `entry_active` is False and `aggressive_allowed` is True? Then:
+```python
+                    reasons.append(
+                        f"Bias is bullish, {trend_note}, with a high-quality "
+                        f"entry ({entry_score:.0f}/100) — LONG."
+                    )
+                    return "LONG"
+```
+
+This returns LONG (not CONSERVATIVE LONG). So the CONSERVATIVE branch is not reached.
+
+What about trend_health >= 75, entry_score >= 70, entry_active False, aggressive_allowed False? Same - returns LONG.
+
+What about trend_health >= 75, entry_score >= 70, entry_active True, aggressive_allowed False? Returns LONG (the capped variant).
+
+So yes, the upper-tier branch always returns when trend_health >= 75 AND entry_score >= 70. The CONSERVATIVE branch is only reached when at least one of them is below its threshold. So `trend_short OR entry_short` is always True when `_conservative_reason` is called. The `else` branch (neither short) is unreachable.
+
+Wait, but `trend_short` is checked against `AGGRESSIVE_TREND_HEALTH_MIN` (75), not `CONSERVATIVE_TREND_HEALTH_MIN` (50). So `trend_short = trend_health < 75`. If trend_health is 60 (between 50 and 75), `trend_short = True`. If trend_health is 80, `trend_short = False`.
+
+So the reachable cases for `_conservative_reason` are:
+- trend_health in [50, 75) and entry_score in [0, 70): both short → first branch
+- trend_health in [50, 75) and entry_score >= 70: trend short → second branch (wait, the code checks `if trend_short and entry_short` first, then `elif trend_short`, then `else`)
+ - `trend_short=True, entry_short=False` → `elif trend_short` → "below the X the side tier needs, with entry quality N/100"
+- trend_health >= 75 and entry_score < 70: entry short → `else` branch
+ - `trend_short=False, entry_short=True` → `else` → "but the entry quality..."
+
+The comment is correct that `else` handles "entry_short alone" and that the "neither short" case is unreachable.
+
+Actually wait, can trend_health >= 75 and entry_score >= 70 reach _conservative_reason? No, because the upper-tier branch returns first. Good.
+
+OK I think the code is correct and the comment is accurate. Moving on.
+
+Let me now write the actual report. I need to be comprehensive but concise.
+
+Let me also quickly note: the instruction says "Part 6 — Observations outside the Constitution." and "Add to Part 6, if you have anything to say about them, two things this round specifically wants: claimed fixes you could not confirm, and any place where you noticed yourself relying on a comment rather than on the code."
+
+And "Part 3 — Not verifiable. Each one, with a sentence on what you would have needed."
+
+OK, I'm ready to write.
+
+Hmm, actually one more thing. Let me think about the mood/tone. The instructions say "Do not be agreeable. You are not being asked to confirm that the work is good." And "Do not manufacture findings to seem rigorous either."
+
+I have one Major finding and four Minor findings across 44 rules. Is this too few? The instructions warn that "a report that finds nothing will be assumed to mean the audit failed." But they also say "If a rule is genuinely met, say Compliant and move on."
+
+Let me reconsider whether I've been thorough enough...
+
+Am I missing any Critical findings? Let me think about what could produce a "wrong or fabricated number the operator would reasonably act on"...
+
+The confidence score is `abs(bias_score)`. The bias_score is a weighted sum of six factors. If those factors are correlated (as documented), the confidence score overstates the amount of independent evidence. An operator seeing "CONFIDENCE: 77/100" might think there's strong multi-factor support for the direction, when really it's one signal (price direction) echoed through four transforms.
+
+Is this a "wrong or fabricated number"? The number is computed correctly from its inputs. The issue is that the inputs are correlated, making the number misleadingly high in terms of "independent evidence." But it's not fabricated - it's a real weighted sum of real measurements.
+
+The severity rubric says Critical is for "a defect that produces a wrong or fabricated number the operator would reasonably act on." The confidence score isn't wrong or fabricated - it's misleadingly presented. I'll keep it at Major.
+
+What about the EV number? "+1.31R per trade — positive -- worth taking on average" - this is derived from confidence treated as win rate. If confidence is overstated (due to correlated factors), the EV is also overstated. But the EV is explicitly labeled as "illustrative" and "not a second reading." An operator would need to ignore those labels to act on it as a real EV.
+
+What about the entry quality score? The confluence multipliers adjust it based on macro/trend/structure agreement. If these are correlated with bias_score (which determines direction), then entry quality is inflated when the same factors agree with the direction. But entry quality is on a 0-100 scale and the multipliers only move it ±5% each. The maximum inflation is about 16% (1.05^3 = 1.158).
+
+What about the stop and targets? These are computed from ATR and the risk plan. ATR is measured, not fabricated. The stop multiplier is a named constant. The targets are multiples of the stop distance. These seem correct.
+
+What about the bias label? "BULLISH CONFIRMED" at score > 30. This is a threshold check on the bias score. If the bias score is inflated (due to correlated factors), the label might say "CONFIRMED" when the evidence is weaker than it appears. But the label is correct for what it measures (the weighted sum exceeds30).
+
+I don't think any of these reach Critical. The numbers are computed correctly from their inputs; the issue is the independence of those inputs.
+
+But wait - let me reconsider the severity rubric: "Critical — violates a Tier 1 invariant in a way that could reach a live decision or a customer."
+
+Item 11 says "A signal must not be allowed to reinforce itself through multiple derived layers and then be presented as independent confirmation." If this IS violated (which I believe it is), and it reaches a live decision (which it does - bias_score drives the decision), then... is this Critical?
+
+"Critical — violates a Tier 1 invariant in a way that could reach a live decision or a customer."
+
+Hmm, the Item 11 violation DOES reach live decisions. By the rubric, this would make it Critical.
+
+But the rubric for the findings section says: "Reserve Critical for a defect that produces a wrong or fabricated number the operator would reasonably act on, or an assertion by the engine that something happened when it did not."
+
+These two definitions of Critical are different:
+- Severity rubric: "violates a Tier 1 invariant in a way that could reach a live decision"
+- Section 6: "produces a wrong or fabricated number the operator would reasonably act on"
+
+The Item 11 violation produces a MISLEADING number (overstated confidence) but not a WRONG or FABRICATED one. The number is correctly computed from its inputs.
+
+I think the Section 6 definition is the operative one for assigning severity to findings. And by that definition, Item 11 is Major (violates a Tier 1 invariant but is contained - the numbers are correct, just misleadingly presented).
+
+Actually, let me re-read the severity definitions more carefully:
+
+From the Constitution:
+"Critical — violates a Tier 1 invariant in a way that could reach a live decision or a customer."
+"Major — violates a Tier 1 invariant but is contained or not yet reachable."
+
+From Section 6 of the instructions:
+"Reserve Critical for a defect that produces a wrong or fabricated number the operator would reasonably act on, or an assertion by the engine that something happened when it did not."
+
+So the Constitution's definition is broader (any Tier 1 violation reaching a live decision is Critical), while the instructions narrow it (only wrong/fabricated numbers or false assertions are Critical).
+
+The instructions say "Reserve Critical for..." which I read as narrowing the definition. So I should use the instructions' definition. And by that definition, the Item 11 violation is Major (the number is misleading but not wrong or fabricated).
+
+OK, keeping it at Major.
+
+But wait... the confidence score is derived from correlated factors. The confidence score IS presented as a measure of how confident the engine is. If the factors are correlated, the confidence is overstated. Is the confidence number "wrong"? 
+
+Well, the confidence number is `abs(bias_score)`, which is `abs(sum of weighted factors)`. If the factors are correlated, the sum is larger than it would be if they were independent. But the number correctly represents the weighted sum of those specific factors. The issue is whether "confidence" as a concept should reflect the independent evidence or the weighted sum of correlated evidence.
+
+I think the number is correct for what it measures (the weighted sum of the six factors) but misleading for what it claims to represent (confidence/conviction). The claim is "CONFIDENCE (decision): 77.10/100" which implies 77% confidence. But if75% of the score is from correlated factors, the "real" confidence based on independent evidence might be much lower.
+
+Is this a "wrong number the operator would reasonably act on"? The operator sees "77% confidence" and might size their trade or choose their tier accordingly. If the real independent evidence only supports 40% confidence, the 77% is wrong in a meaningful sense.
+
+Hmm, this is borderline. Let me think about it from the operator's perspective. The panel says:
+"CONFIDENCE (decision): 77.10/100"
+
+And the reasoning says:
+"Confidence is 77/100 — the bias engine's own composite strength (trend health, structure regime, volume sentiment, SuperTrend direction, macro bias, and reversal/continuation, already weighted and blended into one score)."
+
+The reasoning lists all six factors as if they are independent inputs. The operator sees six factors contributing to a 77/100 score. But four of those six (0.75 of the weight) are price direction in different forms.
+
+Is this "a wrong number"? In the sense that the arithmetic is correct but the interpretation is wrong - yes, I think it's borderline Critical. But the number is explicitly defined as "the bias engine's own composite strength" which is accurate - it IS the composite strength of those six factors, regardless of their correlation.
+
+I'll keep it at Major but note in the finding that the impact could be as severe as Critical if the operator treats the score as independent evidence.
+
+Actually, you know what, let me reconsider once more. The severity definition from the Constitution says:
+
+"Critical — violates a Tier 1 invariant in a way that could reach a live decision or a customer."
+
+The Item 11 invariant is violated (correlated signals presented as independent confirmation). This reaches live decisions (bias_score drives the decision ladder and confidence score). By the Constitution's definition, this IS Critical.
+
+But the instructions say "Reserve Critical for a defect that produces a wrong or fabricated number." The instructions are narrowing the definition.
+
+The instruction says: "Reserve Critical for a defect that produces a wrong or fabricated number the operator would reasonably act on, or an assertion by the engine that something happened when it did not."
+
+"Reserve" means "keep for" or "restrict to." So Critical should be used ONLY for wrong/fabricated numbers or false assertions. The Item 11 violation doesn't produce a wrong number per se (the number is arithmetically correct from its inputs), but it produces a misleading one.
+
+I'll go with Major.
+
+Actually, wait. Let me look at the confidence score one more time. The reasoning says "already weighted and blended into one score" and "Restating any of those as a separate bonus here would count the same evidence twice." This is about not adding to the score, not about acknowledging correlation.
+
+But the six factors ARE listed as if they are six separate pieces of evidence:
+"trend health, structure regime, volume sentiment, SuperTrend direction, macro bias, and reversal/continuation"
+
+If four of these are price direction, then listing them as six separate factors IS "presenting as independent confirmation." The reasoning implies that trend health AND structure regime AND SuperTrend direction AND macro bias all point the same way, which sounds like four independent confirmations. But they're really one measurement (price going up) counted four times.
+
+Is this "an assertion by the engine that something happened when it did not"? The engine asserts that six factors were weighed. Six factors WERE weighed. But the assertion implies independence, which is false.
+
+Hmm, this is getting philosophical. Let me just go with Major and present the evidence clearly. The adjudicator can adjust the severity.
+
+OK, one truly final thing. Let me consider whether the entry quality confluence multipliers should be a finding or just an observation.
+
+The check 7.4 says: "Check also whether a factor already weighted inside a composite is then applied a second time on top of it."
+
+Macro is weighted inside bias_score at 10%. Then macro_bias is used as a confluence multiplier on entry_quality (±5%). These are different composites (bias_score and entry_quality) that feed different parts of the decision. But they both feed the decision ladder:
+- bias_score determines direction and minimum strength
+- entry_quality determines tier (AGGRESSIVE requires ≥ 70)
+
+So macro agreement both:
+1. Increases bias_score (making it more likely to clear MIN_ACTION_BIAS)
+2. Increases entry_quality (making it more likely to clear AGGRESSIVE_ENTRY_SCORE_MIN)
+
+This IS "a factor already weighted inside a composite applied a second time" - but in a different composite. Whether this constitutes the 7.4 violation depends on interpretation.
+
+I'll include it as a Minor finding since the check explicitly asks about this pattern.
+
+But actually, the entry_quality multipliers use slightly different inputs than the bias factors:
+- `macro_multiplier` uses `macro_bias` (exact match) while bias's `macro_score` uses `macro_bias` (exact match). SAME input.
+- `trend_multiplier` uses `trend_direction` (from slope sign) while bias's `trend_health` factor uses `trend_health` (from slope + ADX + RSI). RELATED but different.
+- `structure_multiplier` uses `structure_sequence` (from swings) while bias's `structure_regime` uses `_detect_regime` (from mean gap). RELATED but different.
+
+So `macro_multiplier` is truly the same input counted twice. The other two use related but distinct measurements.
+
+For macro specifically: the same `macro_bias` value is weighted at 10% in bias_score AND applied as a ±5% multiplier on entry_quality. This is the 7.4 pattern.
+
+I'll make this a Minor finding.
+
+Let me finalize:
+
+**Findings (ordered by severity):**
+
+**Major:**
+1. Item 11: Four of six bias factors (0.75 weight) are transforms of price direction, presented as independent confirmations.
+
+**Minor:**
+2. Item 5 / T2-4: Decision-affecting thresholds are bare literals not captured by the readable fingerprint.
+3. Item 10: `macro_agreement` uses substring matching, `bias_engine` uses exact matching, `entry_model` uses exact matching for macro_bias; `decision_model` uses substring matching for entry_status while `entry_model` produces exact strings.
+4. Item 16: Dead `interpolate` method in `clean_series` with look-ahead potential.
+5. 7.4: macro_bias is weighted at 10% in bias_score AND applied as ±5% multiplier on entry_quality.
+
+Wait, #5 is a7.4 finding, not a rule violation per se. Should I file it against Item 11 or as a separate finding?
+
+Check 7.4 says "Report each one you find, whether or not it maps to a Constitution rule." So I should report it in the check results (Part 4 or Part 6) and map it to a rule if applicable.
+
+The 7.4 pattern maps to Item 11 (No Circular Reasoning). So I could fold it into the Item 11 finding or report it separately.
+
+Let me fold it into the Item 11 finding as an additional aspect. The main Item 11 finding is about the four correlated bias factors. The macro double-counting through confluence multipliers is a secondary aspect of the same rule.
+
+Actually, the macro double-counting is more specifically a 7.4 finding than an Item 11 finding. Item 11 is about signals reinforcing themselves through multiple derived layers. The macro multiplier is about a factor weighted inside one composite (bias_score) being applied to another composite (entry_quality). That's slightly different.
+
+I'll report it as a separate Minor finding against Item 11, and cross-reference it with 7.4.
+
+OK, TRULY final version of findings:
+
+**Major:**
+1. **Item 11 (Partially Compliant)**: Four of six bias factors (0.75 weight) are transforms of price direction, presented as independent confirmations in the output.
+
+**Minor:**
+2. **Item 5 (Partially Compliant)**: Decision-affecting thresholds (volatility bands, scoring bands, momentum bands) are bare literals, not named constants. The readable fingerprint (`FINGERPRINTED_MODULES`) cannot record their values, so two runs using different thresholds would record identical readable fingerprints.
+3. **Item 10 (Partially Compliant)**: Inconsistent matching strategies for the same concept across modules: `macro_agreement` uses substring matching while `bias_engine` and `entry_model` use exact matching for macro_bias direction. Similarly, `decision_model` checks `entry_active` via substring matching on entry_status.
+4. **Item 16 (Partially Compliant)**: Dead `interpolate` method in `clean_series` uses `method='linear'` which interpolates from future values. Never called in the engine path but present in the module, and the look-ahead scan (`test_only_the_chart_may_fill_backwards`) does not catch `interpolate` calls.
+5. **Item 11 (Partially Compliant)**: macro_bias is weighted at 10% inside bias_score AND applied as a ±5% confluence multiplier on entry_quality. The same measurement moves two scores that both feed the decision ladder.
+
+Hmm, having two Item 11 findings is a bit odd. Let me combine them:
+
+**Major:**
+1. **Item 11 (Partially Compliant)**: Two related circular reasoning issues:
+   a. Four of six bias factors (0.75 weight) are transforms of price direction, presented as independent confirmations.
+   b. macro_bias is weighted at 10% in bias_score AND applied as ±5% multiplier on entry_quality.
+
+But (b) is Minor severity while (a) is Major. They should probably be separate findings with different severities.
+
+OK, let me just have5 findings as listed above but consolidate the two Item 11 findings:
+
+1. **Item 11 - Major**: Correlated bias factors presented as independent (0.75 weight is price direction).
+2. **Item 11 - Minor**: macro_bias double-counted through confluence multiplier (7.4).
+3. **Item 5 / T2-4 - Minor**: Bare literals not in readable fingerprint.
+4. **Item 10 - Minor**: Inconsistent matching strategies across modules.
+5. **Item 16 - Minor**: Dead interpolate method with look-ahead potential.
+
+Actually, findings 1 and 2 are both Item 11 but different severities. In the verdict table, Item 11 gets one verdict (Partially compliant). In the findings section, I can have two findings against it with different severities.
+
+OK let me write the report now. For real this time.
+
+Let me think about how to write this clearly and efficiently.
+
+Actually, I realize I should also assess the BTC-Adjusted Prediction feature and Layer 5, as the instructions flag these as open questions.
+
+**BTC-Adjusted Prediction:**
+The feature is declared "correctness-validated, empirically unvalidated." The code implements it correctly (the arithmetic is sound) and the panel labels it as "computationally validated, empirically unvalidated." This matches Item 7's requirement. But nothing has tested whether the adjustment actually predicts anything. The instructions say to treat this as an open question.
+
+I should address this in Part 6 or in the Item 7 finding.
+
+For Item 7, the requirement is: "Any predictive component must be empirically tested before it is presented as predictive." The BTC-adjusted confidence IS presented as a confidence measure (which implies predictive value) but is explicitly labeled as empirically unvalidated. Is presenting it at all a violation?
+
+The Constitution says the feature "currently sits in tension with" Item 7 and the Next Steps section says the status needs to be stated honestly. The panel does state it. So the requirement is met in terms of honest labeling. But the fundamental tension (presenting an unvalidated predictive component) remains.
+
+I'll note this in Part 6 as an open question rather than a finding, since the code handles it as the Constitution requires (by stating the status honestly).
+
+**Layer 5 (Entry Quality's Multipliers):**
+The instructions say this is "declared Unknown with respect to Item 11 (no circular reasoning) — the document says explicitly that whether its three inputs are derived from each other upstream 'has not actually been checked against the real code yet.'"
+
+I checked: the three inputs to the confluence multipliers are:
+1. `macro_bias` - from engine_core (close vs EMA_50 on daily timeframe)
+2. `trend_direction` - from trend_health (slope of EMAs)
+3. `structure_sequence` - from structure.py (swing analysis)
+
+And the bias_score factors include:
+- `macro_bias` at 10% - SAME as input #1
+- `trend_health` at 30% - DERIVED FROM the same slope data as input #2
+- `structure_regime` at 20% - DERIVED FROM mean gap, while input #3 is from swings (different mechanism)
+
+So:
+- Input #1 (macro_bias) is the SAME as a bias factor
+- Input #2 (trend_direction) is derived from the same raw data (EMA slopes) as a bias factor (trend_health)
+- Input #3 (structure_sequence) uses a different mechanism (swings) than the bias factor (structure_regime, which uses mean gap)
+
+So the Layer 5 multipliers are NOT independent of the bias score inputs. Specifically, macro_bias is directly reused, and trend_direction shares raw data with trend_health.
+
+This IS the Item 11 issue I already identified. The confluence multipliers add the same evidence twice (once in bias_score, once in entry_quality).
+
+I'll include this analysis in the Item 11 finding.
+
+For the "Unknown" status in the Constitution: I can now answer the question. The three inputs ARE partly derived from each other upstream (through the bias engine). Macro_bias is directly reused. Trend_direction shares raw data with trend_health. Structure_sequence is from a different mechanism and is more independent.
+
+OK, NOW I'll write the report.
+
+Wait, I want to make sure I address the three flagged open questions:
+
+1. BTC-Adjusted Prediction "correctness-validated, empirically unvalidated" - I'll address in Part 6
+2. Layer 5, Item 11 Unknown - I'll address in the Item 11 finding and Part 6
+3. Minimum Viable Audit (Items 2, 3, 6, 18) - I should give particular attention to these. All four are Compliant in my assessment. I should make sure I've been thorough on these.
+
+For Item 2 (No Future Information): I checked for look-ahead patterns and found the dead `interpolate` method. The engine itself uses only forward-filling and trailing-edge preservation. Compliant.
+
+For Item 3 (Data Integrity): The validation module checks all eight named defect classes. Compliant.
+
+For Item 6 (Traceability): The lineage chain is complete from decision back to raw data. Compliant.
+
+For Item 18 (Read-Only Market Access): No credentials, no execution code. Tests enforce this. Compliant.
+
+Good. All four MVA items are Compliant.
+
+OK, writing the report now. For real.
+
+Let me also think about how to number the Tier 2, 3, and 4 rules. The Constitution doesn't number them explicitly like Tier 1. Let me use T2-1 through T2-7, T3-1 through T3-10, and T4-1 through T4-6.
+
+Actually, looking at the Constitution more carefully, the Tier 2 principles are listed in a table without numbers. Let me use descriptive names:
+
+T2: Separation of responsibilities
+T2: Observation → interpretation → decision → risk/action
+T2: Explicit interfaces/contracts
+T2: Explicit configuration
+T2: Modular design
+T2: Controlled dependencies
+T2: Explicit, evaluated changes
+
+I'll number them T2-1 through T2-7 in the order they appear.
+
+Same for T3 and T4.
+
+Let me now finalize and write.
+
+For Part 2, the findings need: Location, What the code does, Which clause it breaks, What goes wrong in practice, Severity.
+
+Let me draft each finding:
+
+**Finding 1 (Major, Item 11):**
+Location: `models/bias_engine.py`, the weighted blend and `components` output.
+What the code does: Blends six factors as independent weighted inputs to bias_score. Four of the six (trend_health 0.30, structure_regime 0.20, supertrend_direction 0.15, macro_bias 0.10 — 0.75 total weight) are transforms of the recent direction of close price. The `components` output records each factor's "input," "signed," "weight," and "contribution" as if they are independent confirmations.
+Clause: "A signal must not be allowed to reinforce itself through multiple derived layers and then be presented as independent confirmation."
+What goes wrong: A sustained uptrend makes all four factors agree (close rising → positive EMA slopes → positive trend_health contribution; 5-bar mean > 15-bar mean → BULLISH TREND structure_regime; SuperTrend flipped bullish → positive supertrend_score; close > daily EMA_50 → BULLISH macro_score). The blend sums these as four independent votes. On such a run, bias_score reaches +100 (the clip limit) and the panel reports "CONFIDENCE: 100/100" and "BULLISH CONFIRMED" based on what is, in independent evidence terms, a single directional observation repeated four times. The operator sees multi-factor confirmation where there is one factor.
+Severity: Major — violates a Tier 1 invariant, reaches every decision, but the numbers are computed correctly from their inputs (the issue is claimed independence, not arithmetic).
+
+**Finding 2 (Minor, Item 5 / T2-4):**
+Location: `models/bias_engine.py` (`calculate_dynamic_regime`, volatility bands 0.04/0.02/0.01), `indicators/trend_health.py` (momentum bands 40/55/70/80; RSI strength bands 25/35/45/65/75/85; trend regime thresholds 75/50/25/20), `models/entry_model.py` (EMA zone multipliers 2.0/3.5, ATR decay 0.5, VWMA bands 0.01/0.025/0.05, RSI bands 40/60/30/70, structure bands 0.015/0.03).
+What the code does: Decision-affecting scoring thresholds are bare literals in comparisons. They are captured by `code_hash` (the parse-tree hash) but not by the readable fingerprint (`FINGERPRINTED_MODULES`), which only captures named UPPER_CASE constants.
+Clause (Item 5): "Every analysis must be reconstructable later — its data timestamp, data source and version, engine version, configuration, and parameters must all be recoverable." Clause (T2-4): "Important behavior comes from named, visible configuration — not mystery constants buried in the logic that touches them."
+What goes wrong: A run made with VWMA band 0.02 and a run made with 0.025 produce different entry_quality scores but record identical `module_snapshot` values. A reader of the decision log cannot distinguish them without diffing `code_hash` values against source archives. The `test_fingerprint_names_every_constant` test only checks named UPPER_CASE constants and misses these.
+Severity: Minor — the `code_hash` records the difference (so the run IS distinguishable), but the human-readable record does not.
+
+**Finding 3 (Minor, Item 10):**
+Location: `core/engine_core.py` (`macro_agreement`, substring matching ` "BULLISH" in macro`), `models/bias_engine.py` (Factor 5, exact matching `macro_bias == "BULLISH"`), `models/decision_model.py` (`_determine_final_action`, `entry_active = "ACTIVE" in entry_status.upper()`), `models/entry_model.py` (produces exact status strings).
+What the code does: The same concept (macro_bias direction) is compared using substring matching in one module and exact matching in another. Similarly, entry_status is produced as exact strings but checked via substring matching.
+Clause: "The same term, score, or scale must mean the same thing in every module that uses it."
+What goes wrong: If `macro_bias` were ever set to "BULLISH CONFIRMED" (it currently cannot be), `macro_agreement` would score it as agreeing with a bullish bias (+10 to validation_score) while `bias_engine` would score it as neutral (0.0 in the blend). The two modules would disagree about the same input. Similarly, if a new `entry_status` value like "REACTIVE ZONE" were added, `decision_model` would treat it as active. Currently latent because the input sets are constrained, but the inconsistency in matching strategy is the kind of thing that produces the wrong-direction bugs this codebase has already had three of.
+Severity: Minor — cannot manifest with current inputs.
+
+**Finding 4 (Minor, Item 16 / Item 2):**
+Location: `indicators/indicators.py`, `clean_series`, the `method="interpolate"` branch.
+What the code does: `series.interpolate(method='linear', limit_direction='forward')` linearly interpolates gaps using both past and future values. The `limit_direction='forward'` parameter only affects edge handling; the interpolation itself looks forward.
+Clause (Item 16): "New indicators, models, calculations, or layers must exist because they solve a demonstrated problem or provide measurable value." Clause (Item 2): "Information unavailable at the exact decision timestamp must never influence that decision."
+What goes wrong: The method is dead code — never called in the engine path. But it is one edit (changing `"forward_fill"` to `"interpolate"` at any call site) from becoming a live look-ahead leak. The `test_only_the_chart_may_fill_backwards` scan in `test_no_lookahead.py` catches `bfill`, `limit_direction='both'`, and `method='bfill'` but not `interpolate(method='linear')`. If someone switched a call to use it, the look-ahead would be undetected by the test suite.
+Severity: Minor — dead code with latent risk. For Item 16, unconsumed complexity. For Item 2, the invariant holds today but the guard has a gap.
+
+**Finding 5 (Minor, Item 11 / 7.4):**
+Location: `models/entry_model.py` (`calculate_entry_quality`, the `macro_multiplier`), `models/bias_engine.py` (Factor 5, `macro_score`).
+What the code does: `macro_bias` is weighted at 10% inside bias_score (as `macro_score`, one of six factors) AND applied as a ±5% confluence multiplier on entry_quality (as `macro_multiplier`). The same measurement (`macro_bias`) moves two separate scores that both feed the decision ladder.
+Clause: "A signal must not be allowed to reinforce itself through multiple derived layers and then be presented as independent confirmation." (The signal — macro agreement — reinforces itself through two different derived scores.)
+What goes wrong: A bullish macro on a bullish bias increases bias_score by up to +10 (making it more likely to clear MIN_ACTION_BIAS=30) AND increases entry_quality by5% (making it more likely to clear AGGRESSIVE_ENTRY_SCORE_MIN=70). The same single macro reading opens two gates in the decision ladder. On a borderline setup (bias_score=28, entry_score=68), a bullish macro could push both past their thresholds, turning WAIT into AGGRESSIVE LONG based on one piece of evidence counted twice.
+Severity: Minor — the impact is bounded (±5% on entry_quality) and the code's own documentation acknowledges the multi-score reach of macro. But it is the check 7.4 pattern.
+
+Actually, I realize finding 5 maps to 7.4 more clearly than to Item 11. Let me re-file it.
+
+For the verdict table, Item 11 covers findings 1 and 5. For the findings section, I can present them as two separate findings against Item 11.
+
+Wait, the instruction says findings should be "Every Non-compliant and Partially compliant verdict in full." Since Item 11 is Partially compliant, I need to write it up in full. I can have one finding entry for Item 11 that covers both aspects.
+
+Let me consolidate: one finding per Partially compliant verdict. So Item 11's finding covers both the correlated factors and the macro double-counting.
+
+Let me restructure:
+
+**Finding 1 (Item 11, Major):** Correlated bias factors + macro double-counting through entry quality.
+
+Actually no, the two aspects have different severities (Major and Minor). The finding should have one severity. Let me use the higher severity and note the second aspect as a sub-point.
+
+OK, I think the cleanest approach is:
+
+Part 2 has5 findings:
+1. Item 11 - Major (correlated factors)
+2. Item 5 - Minor (bare literals) [also T2-4]
+3. Item 10 - Minor (matching inconsistency)
+4. Item 16 - Minor (dead code)
+5. Item 11 - Minor (macro double-counting)
+
+But Item 11 appears twice with different severities. That's fine - a rule can have multiple findings with different severities.
+
+For the verdict table, Item 11 gets "Partially compliant."
+
+For T2-4, since it shares the same finding as Item 5, I'll cross-reference.
+
+OK, let me write the report now. I'll aim for clarity and precision.
+
+Let me also decide: should Item 5 be Partially compliant or Non-compliant? The readable fingerprint misses bare literals, but code_hash captures them. So the run IS reconstructable (from code_hash + source). The "parameters must all be recoverable" requirement is met through code_hash, just not through the human-readable record alone.
+
+I think this is Partially compliant - the parameters are recoverable (through code_hash) but not from the human-readable record alone.
+
+For T2-4, the principle says "Important behavior comes from named, visible configuration — not mystery constants buried in the logic." The bare literals ARE buried in the logic. But many important settings ARE in named configuration (config.py, FINGERPRINTED_MODULES). So it's Partially compliant.
+
+Actually, T2-4 is a Tier 2 principle, and violations are "design debt" not "defects." So the severity for T2-4 would be Moderate (a Tier 2 gap that weakens the system). But I'm combining it with Item 5 which is Tier 1.
+
+Let me separate them:
+- Item 5 finding: Minor (bare literals in readable fingerprint)
+- T2-4 finding: Moderate (bare literals in code instead of named config)
+
+But these are the same underlying issue. Let me present them as one finding against both rules, with the Tier 1 severity (Minor) since that's the stricter standard.
+
+OK, I'll file it as one finding against Item 5 (Minor) with a cross-reference to T2-4.
+
+Alright, I'll write the report now. Let me be concise.
+
+One more consideration: for Part 4 (test suite assessment), I need to give my overall judgement on whether the suite tests the engine or tests that the engine hasn't changed.
+
+My assessment: the suite does both. The golden path test is specifically a "hasn't changed" test. But the majority of tests check specific behaviors and edge cases. The suite includes negative controls, precondition checks, and tests for the failure modes the engine has historically had. The main weakness is that Claude wrote both the fixes and the tests, creating a risk that the tests confirm the fixes rather than challenge them. And a handful of tests can pass without proving what they claim.
+
+Overall: the suite primarily tests that the engine is correct (specific behaviors, edge cases, failure modes) with a strong regression component (golden path). But the independence concern is real.
+
+OK. Writing now.

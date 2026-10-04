@@ -2998,6 +2998,77 @@ looks. Not saying it was not an option: the manifest and two test files show rou
 name. And the corrected Part 7 document was checked by Claude alone, where round 7's was
 checked by Viktor before its send.
 
+## Decision, 4 October 2026 — round 8's first run: 0 of 4, no Part 7 to it, run 2 next
+
+*New in this file on 4 October 2026. Claude's, under the delegation above; made and filed
+in the session that sent the run (item 5 of round 8's preparation list in
+PHASE7_NEXT.md). The score is Claude's; Viktor checks it.*
+
+**The run.** Sent from `217ede6`, tagged `round8-sent-2026-10-04` on Viktor's machine
+before the send. Before it: his build of round 8's package matched the sandbox's file for
+file (nine files, the same sizes and SHA-256s; `round8/MANIFEST.md` the same text); both
+`git diff --stat` checks of item 5 printed what they were predicted to; the dry run on
+his machine counted the same as the sandbox (FITS, 208,193 to spare, at most $0.72); and
+OpenRouter's endpoints for `xiaomi/mimo-v2.6-pro` were read as raw JSON for the first
+time — Viktor fetched them with curl, since the sandbox's proxy refuses openrouter.ai
+by policy, into `Docs\04_Data\MiMo_endpoints_2026-10-04.json` in
+`G:\Phase_7_Engine_Random_Files` (SHA-256 `bba8f379b9d4d446…`): all four endpoints
+listed with status 0, their context and output caps as recorded from the summary on
+4 October, `reasoning` supported on all four, no price above the send's. The probe
+showed 12 reasoning tokens. The run went to Xiaomi's endpoint (OpenRouter's generation
+record: provider Xiaomi, `xiaomi/mimo-v2.6-pro-20260921`), 15:51:46 to 16:02:09 UTC,
+430,820 prompt tokens — exactly the count `package_token_check.py` made with MiMo's own
+tokenizer — and 47,832 completion tokens, 40,434 of them reasoning; finish reason `stop`;
+$0.229. The reply's four `turn1_*` files are committed with this entry, unchanged (their
+SHA-256s are the ones `turn1_run_metadata.json` records).
+
+**The score: 0 of 4**, from the text of Parts 1–6 against the four "Found means"
+sentences of the Part 7 document. S1: `_determine_final_action` is named twice — for the
+substring test on `entry_status` (Finding 3) and as a fix confirmed (macro no longer
+overrides direction) — never for the risk refusal returned ahead of the WAIT answers.
+S2: `risk_inputs` is not named in the reply; the reasoning looks at it once and asks only
+whether ADX could be missing. S3: `calculate_entry_quality` is named for the macro
+multiplier (Finding 5), not for the side it is scored on under a NEUTRAL bias. S4: the
+weak-validation branch is not named; the reasoning discusses the validation score only as
+a heuristic label. So the run is under half: it is run again (the Part 7 document,
+Section 2), and its ratings — 37 Compliant, 5 Partially compliant, 2 Not verifiable —
+do not count. Its findings (five, the most severe Major under Item 11) and its Part 4
+notes on four tests are on record, received and not triaged; triage is Viktor's, after the
+round. Unlike round 7's runs, this one reasoned at length: 40,434 reasoning tokens, ten
+minutes, and findings that cite code.
+
+**What was decided.**
+
+1. **No Part 7 to run 1.** Part 7 is the pass for a run whose Parts 1–6 count; round 7's
+   two runs, both under half, got none. It is closed in the send script (`CLOSED_RUNS`),
+   because before this commit `--send-part7` would have found run 1 as the one run
+   waiting once its files were committed — shown in the sandbox on `217ede6` with the
+   files in place, where the command got as far as refusing them only for being
+   uncommitted. Closing it in the script makes a mistaken command refuse, rather than
+   relying on nobody typing it.
+2. **Run 2 next, unchanged:** the same first message (the send refuses any other bytes),
+   Xiaomi's endpoint first and the order after it, the probe first. If run 2 also finds
+   fewer than two of the four, round 8 ends and the fallback applies ("Decision,
+   4 October 2026 — the fallback: scoped packages").
+
+**What it weakens.** Run 1's reading of the list for after the audit and of the commit
+messages is not collected, and if run 2 also fails, MiMo never sees Part 7 at all. One
+more file changes in `tests/` during the freeze, inside the exception already granted.
+
+**The reply names itself Claude.** Its Parts 1–6 open "Model identity: Claude
+(Anthropic)", and the first line of its reasoning says "I am Claude, made by Anthropic".
+Against that: OpenRouter's record names Xiaomi's endpoint and MiMo's permaslug, and the
+provider's prompt count equals MiMo's own tokenizer's to the token; Laguna's tokenizer
+counts round 7's first message about 26,000 tokens higher than MiMo's does (455,317
+against 429,491, "round 8's tooling"), so another tokenizer would not match exactly. Claude reads it as a model misnaming itself, as round 7's run 1 named
+itself "Poolside's Muse Spark 1.3". Rev 9 does not name the lab it is sent to and states
+that Claude wrote the code, which may have led it there. What it could also mean, and
+cannot be checked: that MiMo was trained on Claude's outputs (its distillation teachers
+are not named, check 2 of the round-8 decision). If so, its blind spots may overlap with
+the author's. That is not one of this project's two disqualifiers (exposure, authorship),
+so it does not stop the round; it is recorded for Viktor to weigh when he accepts or
+rejects the result.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then

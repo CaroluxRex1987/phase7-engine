@@ -62,6 +62,14 @@ test files the freeze lets change until round 8's report is triaged. Added:
   * build_audit_package.py refuses to rebuild round 7's folders;
   * the commit messages can end at a named commit (the tag), not only at HEAD.
 
+Added 4 October 2026, once round 8's first run had scored 0 of 4
+(PHASE7_DECISIONS.md, "Decision, 4 October 2026 -- round 8's first run: 0 of
+4, no Part 7 to it, run 2 next"):
+
+  * Part 7 never goes to round 8's run 1, even when it is named, and that
+    run is the one committed: round 8's first message, answered by Xiaomi,
+    with reasoning, finished normally.
+
 WHAT THESE TESTS DO NOT COVER
 
 Nothing here touches the network: the function that would POST is replaced by a
@@ -617,12 +625,15 @@ def test_send_takes_no_out_dir_or_force_and_never_writes_over_a_run():
 RUN1 = "round7_laguna-s-2.1_2026-09-30"
 RUN2 = "round7_laguna-s-2.1_run2_2026-09-30"
 ROUND7_PAYLOAD = "1b8b80954769efcac37cf9a83c04c7a5ea265804735ce090c9a62f1c0cebb5a9"
+R8_RUN1 = "round8_mimo-v2.6-pro_2026-10-04"
+ROUND8_PAYLOAD = "b6950de5809bc68aca36ef01f68c8ef9f9ba840528e62bf8a0768da48de39ca9"
 
 
 def test_part7_never_goes_to_a_closed_run_even_when_it_is_named():
-    assert sorted(sar.CLOSED_RUNS) == [RUN1, RUN2]
+    assert sorted(sar.CLOSED_RUNS) == [RUN1, RUN2, R8_RUN1]
     assert sar.CLOSED_RUNS[RUN1].startswith("run 1 (30 September 2026) is closed")
     assert sar.CLOSED_RUNS[RUN2].startswith("run 2 (30 September 2026) is closed")
+    assert sar.CLOSED_RUNS[R8_RUN1].startswith("run 1 (4 October 2026) is closed")
     for closed, reason in sar.CLOSED_RUNS.items():
         repo = _Repo()
         try:
@@ -658,6 +669,21 @@ def test_the_closed_runs_are_round_7s_two_runs_as_committed():
     assert run2["reasoning_probe"]["reasoning_tokens"] > 0
     assert run2["usage"]["completion_tokens_details"]["reasoning_tokens"] > 0
     assert run2["provider_reported"] == "Poolside"
+
+
+def test_round_8s_closed_run_is_its_first_run_as_committed():
+    # The folder closed on 4 October 2026 is round 8's run 1 as sent: round
+    # 8's first message, answered by the pinned provider, with reasoning, and
+    # finished normally -- so closing it withholds Part 7 from a run that
+    # completed, not from one that broke off.
+    meta = _committed_metadata(R8_RUN1)
+    assert meta["payload_sha256"] == ROUND8_PAYLOAD
+    assert meta["finish_reason"] == "stop"
+    assert meta["provider_pinned"] == "xiaomi"
+    assert meta["provider_reported"] == "Xiaomi"
+    assert meta["reasoning_probe"]["reasoning_tokens"] > 0
+    assert meta["usage"]["completion_tokens_details"]["reasoning_tokens"] > 0
+    assert [d.name for d in sar.recorded_runs(Path(REPO_ROOT))][:1] == [R8_RUN1]
 
 
 def test_round_7s_runs_are_on_record_and_are_not_round_8s():

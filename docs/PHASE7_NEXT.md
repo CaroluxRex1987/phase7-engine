@@ -1,8 +1,8 @@
 # Next step — read this first
 
-*4 October 2026. Rewritten by the commit that adds rev 9 of the auditor's instruction
-and corrects the Part 7 document — item 4 of round 8's preparation list; the version it
-replaced — as it stood at `4a4c6ce` — is in HISTORY verbatim.
+*4 October 2026. Rewritten by the commit that records round 8's first run, scores it
+0 of 4 and closes it to Part 7 — item 5 of round 8's preparation list; the version it
+replaced — as it stood at `217ede6` — is in HISTORY verbatim.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
 rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
@@ -47,14 +47,15 @@ round 8 goes to Xiaomi's MiMo-V2.6-Pro, the full package in one session, if it p
 four checks before the send; the package is the tag's, with only rev 9 of the
 instruction and a corrected Part 7 document; the freeze holds, with a second exception
 for the token check's tests; and if MiMo fails, scoped packages go to Upstage, NVIDIA,
-Cohere and AI21. **Of the four checks, three have passed as far as they can before the
-send — check 4, the count with MiMo's own tokenizer, on a trial build (208,193 tokens to
-spare with rev 9 and the corrected Part 7 document in place) — and one, reasoning, is
-settled by the probe at the send.** How the tooling builds and sends round 8 is
-Claude's, in DECISIONS ("Decision, 4 October 2026 — round 8's tooling"); what rev 9 and
-the Part 7 correction say, likewise ("Decision, 4 October 2026 — rev 9 and the Part 7
-correction"). **The package is ready to build. Next:** item 5 of round 8's preparation
-list, the send (Open items).
+Cohere and AI21. **All four checks passed** — the last, reasoning, by the probe at the
+send. How the tooling builds and sends round 8 is Claude's, in DECISIONS ("Decision,
+4 October 2026 — round 8's tooling"); what rev 9 and the Part 7 correction say,
+likewise ("Decision, 4 October 2026 — rev 9 and the Part 7 correction"). **Round 8's
+first run was sent on 4 October, from `217ede6` (tagged `round8-sent-2026-10-04`), and
+found 0 of the 4 test bugs** — Claude's score, which Viktor checks; it reasoned at
+length (40,434 reasoning tokens) and named itself Claude, though the provider's record
+is Xiaomi's (DECISIONS, "Decision, 4 October 2026 — round 8's first run: 0 of 4, no
+Part 7 to it, run 2 next"). Part 7 does not go to it. **Next:** run 2 (Open items).
 Anything found meanwhile goes on the list for after the audit (below), not onto the
 closed list.
 
@@ -144,8 +145,9 @@ commit that writes this line is tooling and tests only, no engine code: MiMo in
 `docs/build/build_audit_package.py` refusing to rebuild round 7, and the two test files
 the freeze allows.
 
-**This session (4 October, the fourth that day)**, under Claude Opus 5.5, opened on
-"Continue Phase 7" and went to item 4 of round 8's list (PACE FIRST, the exception).
+**The session of 4 October that wrote rev 9** (`217ede6`, the fourth that day), under
+Claude Opus 5.5, opened on "Continue Phase 7" and went to item 4 of round 8's list
+(PACE FIRST, the exception).
 Claude read GitHub's tip (a clone) and `master` and `origin/master` off Viktor's disk:
 all `4a4c6ce`. It staged round 7's built package off his disk — every first-message file
 hashes to what both of round 7's runs recorded — and wrote rev 9 and the Part 7
@@ -155,19 +157,36 @@ and one Tier 3 item, cited in the code by table position ("T2-1", "T2-3", "T3-5"
 "Tier 2, item 6") or under a dispute with no verdict word, all of them in rev 8's
 package. Its other counts held, and Section 4a's list of changed files held exactly.
 MiMo's knowledge cutoff: one statement found, a sample system prompt in the API example
-code on Xiaomi's model page ("December 2024"). The commit that writes this line is docs
-only: rev 9, the Part 7 document corrected, a DECISIONS entry, this file and HISTORY.
+code on Xiaomi's model page ("December 2024"). Its commit was docs only: rev 9, the
+Part 7 document corrected, a DECISIONS entry, this file and HISTORY.
+
+**This session (4 October, the fifth that day)**, under Claude Opus 5.5, opened on
+"Continue Phase 7" and went to item 5 of round 8's list, the send (PACE FIRST, the
+exception). Claude read GitHub's tip (a clone) and `master` off Viktor's disk: both
+`217ede6`. Viktor built round 8's package, which matched the sandbox's build file for
+file; ran the two freeze checks and the dry run, which printed what was predicted; and
+fetched OpenRouter's endpoint list for MiMo as raw JSON with curl, since the sandbox's
+proxy refuses openrouter.ai by policy. He tagged `217ede6` and sent run 1: the probe
+showed reasoning, Xiaomi's endpoint answered in ten minutes, and Claude scored the
+reply 0 of 4. The commit that writes this line records the run and closes it in the send
+script, so Part 7 cannot go to it (DECISIONS, "Decision, 4 October 2026 — round 8's
+first run: 0 of 4, no Part 7 to it, run 2 next").
 
 ## Ruled — in force
 
+- **New, 4 October — Claude's, under the delegation: round 8's first run** (DECISIONS,
+  "Decision, 4 October 2026 — round 8's first run: 0 of 4, no Part 7 to it, run 2
+  next"). Scored 0 of 4; no Part 7 to it, closed in the send script; run 2 unchanged.
+  Its self-naming as Claude is recorded for Viktor to weigh. **Landed at the commit that
+  writes this line**, with the run's four files.
 - **New, 4 October — Claude's, under the delegation: rev 9 and the Part 7 correction**
   (DECISIONS, "Decision, 4 October 2026 — rev 9 and the Part 7 correction"). Rev 9 is
   rev 8 readdressed to round 8, with round 7's outcome stated without its ratings and
   Section 2's counts corrected to twenty-one rules; the Part 7 document is corrected
   where it named round 7 as its own and where the ruling of 30 September made its
   threshold sentence untrue. MiMo's Qwen2-class tokenizer and its team lead's time at
-  DeepSeek are left out of rev 9, so the auditor names itself. **Landed at the commit
-  that writes this line.**
+  DeepSeek are left out of rev 9, so the auditor names itself. **Landed at
+  `217ede6`.**
 - **New, 4 October — Claude's, under the delegation: round 8's tooling** (DECISIONS,
   "Decision, 4 October 2026 — round 8's tooling: round 7's files reused by hash, the
   provider order run by hand, and check 4"). Round 7's built files are reused, each
@@ -336,7 +355,9 @@ only: rev 9, the Part 7 document corrected, a DECISIONS entry, this file and HIS
 ## Where things stand, right now
 
 - **Tip:** the commit that writes this line (a commit cannot name its own hash) —
-  docs only: item 4 of round 8's preparation list. Before it: `4a4c6ce` (the session of
+  round 8's first run and its record, the send script and one test: item 5 of round 8's
+  preparation list. Before it: `217ede6` (the session of 4 October that wrote rev 9:
+  docs only), `4a4c6ce` (the session of
   4 October that landed round 8's tooling: tooling and tests), `ff12e17` (the
   session of 4 October that filed the delegation: docs only), `1523e0c` (the thirty-first
   session's second commit: round 7's second run, run 2 closed in the send script, and
@@ -371,7 +392,9 @@ only: rev 9, the Part 7 document corrected, a DECISIONS entry, this file and HIS
   `c5dc4cd`, `e804b64`, `5e55eb8`, `3bfa6b7` (`data/data_fetcher.py`: finding 27). F
   itself is `3f263c2`. **Tags:** `portfolio-v1` at `99e022e`; `round7-sent-2026-09-30`
   at `e186423`, the commit round 7's package was built from, made on Viktor's machine
-  before the send and pushed after `86f30f1`. **Release gate:**
+  before the send and pushed after `86f30f1`; `round8-sent-2026-10-04` at `217ede6`, the
+  commit round 8 was sent from, made on Viktor's machine before run 1 and pushed with the
+  commit that writes this line. **Release gate:**
   open, declared 15 September 2026.
 - **Frozen until round 8's report is triaged** (DECISIONS, "Decision, 4 October 2026 —
   round 8's package: the tag's, with only the instruction and the Part 7 document
@@ -379,7 +402,8 @@ only: rev 9, the Part 7 document corrected, a DECISIONS entry, this file and HIS
   commits are allowed. **Two exceptions**, both tests of tooling that is not the engine:
   `tests/test_send_audit_round.py` (ruled 30 September) and
   `tests/test_package_token_check.py` (decided 4 October). `tests/` on `master` differs
-  from the tag's in both, the first since `3e8191a`, the second since `4a4c6ce`; `docs/audit_package/round7/MANIFEST.md` keeps its hash as sent.
+  from the tag's in both, the first since `3e8191a` (and again at the commit that writes
+  this line), the second since `4a4c6ce`; `docs/audit_package/round7/MANIFEST.md` keeps its hash as sent.
   Round 8's package is round 7's files, checked by hash, so neither exception reaches
   the auditor. `docs/build/build_round8_package.py`, new, is tooling, not engine code.
 - **Where the project lives, from 26 September:** `E:\phase7_engine` on Viktor's machine;
@@ -390,18 +414,18 @@ only: rev 9, the Part 7 document corrected, a DECISIONS entry, this file and HIS
   to `E:\phase7_engine`". Run the engine and every command from `E:\phase7_engine` (in
   cmd, changing drive needs `cd /d`). A dated record that names the D: paths means the
   same folders before the move; dated records are not edited.
-- **The push of `4a4c6ce`** happened: at the start of this session GitHub's tip (a
-  clone) and `master` and `origin/master` on Viktor's disk were all `4a4c6ce`. Viktor
-  reported no deviation from that commit's command sequence, so its test counts on
-  Windows (727, 582 / 134, 656 / 0 / 32) are his confirmation by proceeding, and
-  **nothing is owed** for it (ruling on proposal (b)). The same holds for the push of
+- **The push of `217ede6`** happened: at the start of this session GitHub's tip (a
+  clone) and `master` on Viktor's disk were both `217ede6`. Viktor reported no deviation
+  from that commit's command sequence, and **nothing is owed** for it (ruling on
+  proposal (b)). The same holds for the push of
   the commit that writes this line unless it deviates. Earlier pushes and deviations
   are recorded in this file's previous versions, in HISTORY.
 - **Before this commit**, the files it changes matched Viktor's disk on E: byte for
-  byte (staged this session and compared with the clone at `4a4c6ce`).
+  byte (staged this session and compared with the clone at `217ede6`); run 1's four
+  files were staged off his disk and hash to what their metadata records.
 - **code_hash:** `c6a44d4d7ab1c8d36f2a07f6f2c78a1967ecfc135259cbe828b3daa275e571c9`,
-  unmoved by the commit that writes this line, which changes no `.py` file; `4a4c6ce`'s
-  were all under `docs/` and `tests/`, which the fingerprint excludes by directory. Computed on the tree before
+  unmoved by the commit that writes this line, whose `.py` files are all under `docs/`
+  and `tests/`, which the fingerprint excludes by directory, as `4a4c6ce`'s were. Computed on the tree before
   and after it, under Python 3.12.3.
   It last moved at `7d0024e` (from `f4b23f94…`), in
   `models/decision_model.py` and `models/signal_router.py`, confirmed on Windows by
@@ -413,22 +437,20 @@ only: rev 9, the Part 7 document corrected, a DECISIONS entry, this file and HIS
 - **Golden snapshot:** unmoved by the commit that writes this line. Last re-baselined
   at `7d0024e`, 2 fields (`explanation.reasons[0]` and `explanation.summary`, the
   CONSERVATIVE sentence), with `run_hash` unmoved; before that at `76c8cde`, 11 fields.
-- **Test suite** — **727 passed / 0 failed, no warnings line** with `pandas_ta`;
-  **582 passed / 134 skipped** without it; `run_tests.py` **656 passed / 0 failed /
-  32 errors**, all 32 fixture-collection `TypeError`s; unchanged by the commit that
-  writes this line, which changes no test. `4a4c6ce` added 17 tests, none with a fixture
-  and none needing `pandas_ta`: 13 in `tests/test_send_audit_round.py` and 4 in
-  `tests/test_package_token_check.py`; before it, 710, 565 / 134 and 639 / 0 / 32.
-  Linux sandbox, autocrlf clone, Python 3.12.3, pinned requirements, run on the
-  applied tree. **On Windows**, the counts at `4a4c6ce` are Viktor's confirmation by
-  proceeding (above). One new test,
+- **Test suite** — **728 passed / 0 failed, no warnings line** with `pandas_ta`;
+  **583 passed / 134 skipped** without it; `run_tests.py` **657 passed / 0 failed /
+  32 errors**, all 32 fixture-collection `TypeError`s. The commit that writes this line
+  adds one test to `tests/test_send_audit_round.py`, with no fixture and not needing
+  `pandas_ta`; before it, 727, 582 / 134 and 656 / 0 / 32, confirmed on Windows at
+  `4a4c6ce` by Viktor proceeding. Linux sandbox, autocrlf clone, Python 3.12.3, pinned
+  requirements, run on the applied tree with run 1's files in place. One new test,
   `test_the_commit_messages_up_to_the_tag_are_round_7s_to_the_byte`, runs `git log` up
   to the tag `round7-sent-2026-09-30`: it needs the tag, which a full clone has.
-- **Engineering Notes:** through Entry #183 (v1.36), which covers `68c6191`. **Fifteen
+- **Engineering Notes:** through Entry #183 (v1.36), which covers `68c6191`. **Sixteen
   commits behind** — `ec4e5fd`, the floor (a commit that regenerates the Notes cannot
   cover itself, Entry #144), `e7a94d1`, `d5ced0c`, `59b747a`, `f256937`, `12b483e`,
   `01f2892`, `8b6fd00`, `e186423`, `86f30f1`, `3e8191a`, `1523e0c`, `ff12e17`,
-  `4a4c6ce` and the commit that writes this line. Every later commit adds one until the next regeneration. Batched, by the
+  `4a4c6ce`, `217ede6` and the commit that writes this line. Every later commit adds one until the next regeneration. Batched, by the
   15 September rule; no time pressure. v1.36 records the round-1 recovery, the rulings of 22
   (filed 26), 26, 27, 28 and 29 September, the move to E:, the code for findings 16, 7,
   4, 6, 5 and 18, work order G and the Aider correction. Its PDF's extracted text
@@ -439,9 +461,9 @@ only: rev 9, the Part 7 document corrected, a DECISIONS entry, this file and HIS
   identical to the committed PDF. Neither changes in the commit that writes this line;
   the Attribution Statement's script last changed at `68c6191`, the Portfolio
   Document's at `6e1baba`.
-- **README.md:** its test counts are current (727, 582 and 656), last touched at
-  `4a4c6ce`, so the hook's section 5 will report 1 commit since it was touched — the
-  commit that writes this line, which changes no count. Two of its status rows are stale and not changed here (Open items).
+- **README.md:** its test counts are current (728, 583 and 657), changed by the commit
+  that writes this line, so the hook's section 5 will report 0 commits since it was
+  touched. Two of its status rows are stale and not changed here (Open items).
 - **The round-1 audit outputs are in the repository**, in
   `docs/audit_reports/round1_deepseek-v4-pro_kimi-k3_2026-08-27/`, byte-identical to the
   hashes Viktor took on 23 September. The account is in HISTORY, "26 September 2026 —
@@ -912,12 +934,12 @@ Each code commit is its own commit and updates this file for its own landing.
 
 ## Resolved this session
 
-- **Item 4 of round 8's preparation list** — rev 9 and the Part 7 correction (the
-  commit that writes this line; DECISIONS, "Decision, 4 October 2026 — rev 9 and the
-  Part 7 correction"). `build_round8_package.py` now builds; check 4 on the trial build:
-  208,193 tokens to spare.
-- **The push of `4a4c6ce`** — filed above, once; no deviation reported.
-- **The once-per-session rewrite of this file.** The previous version, as at `4a4c6ce`,
+- **Item 5 of round 8's preparation list, run 1** — built, checked, tagged and sent;
+  scored 0 of 4; closed to Part 7 (the commit that writes this line; DECISIONS,
+  "Decision, 4 October 2026 — round 8's first run: 0 of 4, no Part 7 to it, run 2
+  next").
+- **The push of `217ede6`** — filed above, once; no deviation reported.
+- **The once-per-session rewrite of this file.** The previous version, as at `217ede6`,
   is in HISTORY verbatim, headings demoted one level, proven by un-demotion with a
   negative control (this commit's message has the result).
 
@@ -943,7 +965,7 @@ Claude critiques it.
      folders from round 7's built files checked by hash (a refinement of "built from the
      tag": DECISIONS, the same entry). **Check 4 passed on a trial build**: 209,763
      tokens to spare.
-  4. **Done, 4 October, at the commit that writes this line:** rev 9 of the
+  4. **Done, 4 October, at `217ede6`:** rev 9 of the
      instruction (`docs/audit_package/item16_review_instruction_rev9.md`, new) and the
      Part 7 document corrected in place (DECISIONS, "Decision, 4 October 2026 — rev 9
      and the Part 7 correction"). Rev 9 says why the manifest reads `Round: round7`;
@@ -953,7 +975,7 @@ Claude critiques it.
      E:, rev 9 and the Part 7 document with CRLF as on a Windows checkout) the first
      message is 430,813 tokens by MiMo's tokenizer and the whole conversation fits with
      208,193 to spare (19.9%), at most $0.72.
-  5. **Next — the send**, as round 7's item 10 did (HISTORY, this file as it stood at
+  5. **Run 1 — done, 4 October; 0 of 4.** The send, as round 7's item 10 did (HISTORY, this file as it stood at
      `1523e0c`): Viktor runs `python docs/build/build_round8_package.py` and Claude
      compares his build with the sandbox's (rev 9's SHA-256 on a Windows checkout:
      `579db7a12d12858d…`, the Part 7 document's `487b42b99e7e564e…`, payload
@@ -965,10 +987,17 @@ Claude critiques it.
      (Xiaomi first; if its endpoint refuses, `--provider` names the next in the order);
      the first reply committed the same day, with `docs/audit_package/round8/MANIFEST.md`,
      which git tracks; then `--send-part7`, to the provider that answered. The auditor
-     goes into the independence ledger at the time of use.
+     goes into the independence ledger at the time of use. Every check came out as
+     predicted; run 1 went to Xiaomi's endpoint and scored 0 of 4, so it gets no Part 7
+     and is closed in the send script (DECISIONS, "Decision, 4 October 2026 — round 8's
+     first run: 0 of 4, no Part 7 to it, run 2 next"). **Viktor checks the score.**
+  5a. **Next — run 2**, after the commit that writes this line is pushed: the same first
+     message (the send refuses any other bytes), `--send` without `--provider`, so
+     Xiaomi's endpoint first; the probe first. Its reply is committed the same day; if
+     it finds two or more of the four, Part 7 goes to it with `--send-part7`.
   6. **Scoring:** Claude scores against the four "Found means" sentences of the Part 7
-     document and Viktor checks. Two runs in all; fewer than two of the four found in
-     both runs means the fallback (DECISIONS, "Decision, 4 October 2026 — the fallback:
+     document and Viktor checks. Run 1: 0 of 4. Two runs in all; fewer than two of the
+     four found in both runs means the fallback (DECISIONS, "Decision, 4 October 2026 — the fallback:
      scoped packages").
   7. **The result is Viktor's to accept or reject**; then triage (his), and the same
      auditor verifies the fixes (the 14 September precedent).
@@ -989,7 +1018,15 @@ Claude critiques it.
   round 7, run 2, Parts 1–6; 0 of 4, no Part 7. Round 7's runs are done, so the reissue
   is now due. **Claude's, under the delegation of 4 October:** reissued once, after round
   8's runs, so it carries round 7's two entries, round 8's, and Xiaomi added to the
-  roster with the facts checked on 4 October.
+  roster with the facts checked on 4 October. **Round 8's run 1 entry**, from the
+  provider's record: Xiaomi, `xiaomi/mimo-v2.6-pro` (permaslug
+  `xiaomi/mimo-v2.6-pro-20260921`), 4 October 2026, 15:51:46 to 16:02:09 UTC, through
+  the API with Viktor's key; a probe (24 prompt tokens, nothing from the package) and one
+  request, 430,820 prompt tokens, reasoning requested (40,434 reasoning tokens); shown
+  the first message — rev 9, the Constitution's audit copy, the source and test bundles,
+  the manifest, the history without messages and the execution transcripts; role:
+  independent auditor, round 8, run 1, Parts 1–6; 0 of 4, no Part 7. It named itself
+  Claude (DECISIONS, the same entry).
 - **Viktor, outside the repository:** delete `D:\phase7_engine_MOVED_TO_E` and
   `D:\Phase_7_Engine_Random_Files_MOVED_TO_G` once satisfied with the copies on E: and
   G: (HISTORY, 26 September, ninth session). Not urgent.

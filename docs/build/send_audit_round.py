@@ -38,6 +38,12 @@ whichever answered the first message (PROVIDERS). The first message is round
 folders and checks each reused file against the hash round 7's runs recorded.
 Two runs in all, as for round 7.
 
+Round 8's first run (4 October 2026, Xiaomi's endpoint, reasoning on) found
+0 of the 4 test bugs; Viktor checks the score. It is closed here
+(CLOSED_RUNS), so Part 7 cannot go to it by mistake: Part 7 goes only to a
+run whose Parts 1-6 pass (PHASE7_DECISIONS.md, "Decision, 4 October 2026 --
+round 8's first run: 0 of 4, no Part 7 to it, run 2 next").
+
 Six failures in this project's audit history are what this script exists to
 make impossible (until 29 September this line said three and listed four; it
 said five until 30 September):
@@ -320,6 +326,8 @@ MAX_RUNS = 2
 # Run folders --send-part7 never continues, each with the reason it gives.
 # Round 7's, kept since round 8: their names no longer carry this round's
 # prefix, and a folder without it is refused anyway (main()); these say why.
+# Round 8's run 1 closed on 4 October 2026, once it had scored 0 of 4: until
+# then it was the one folder --send-part7 would have found waiting.
 CLOSED_RUNS = {
     "round7_laguna-s-2.1_2026-09-30": (
         "run 1 (30 September 2026) is closed: Part 7 does not go to it "
@@ -329,6 +337,10 @@ CLOSED_RUNS = {
         "run 2 (30 September 2026) is closed: it found 0 of the 4 test bugs, so "
         "round 7 has ended and Part 7 does not go to it (PHASE7_DECISIONS.md, "
         "\"Round 7 ended, 30 September 2026 -- run 2 found 0 of 4\")"),
+    "round8_mimo-v2.6-pro_2026-10-04": (
+        "run 1 (4 October 2026) is closed: it found 0 of the 4 test bugs, so "
+        "Part 7 does not go to it (PHASE7_DECISIONS.md, \"Decision, 4 October "
+        "2026 -- round 8's first run: 0 of 4, no Part 7 to it, run 2 next\")"),
 }
 # OpenRouter's unified reasoning parameter. `enabled` asks for the model's own
 # default; no effort level is named, because nothing read says how Poolside's

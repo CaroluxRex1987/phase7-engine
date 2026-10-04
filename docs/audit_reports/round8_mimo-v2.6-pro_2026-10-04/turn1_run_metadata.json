@@ -1,0 +1,126 @@
+{
+  "model": "xiaomi/mimo-v2.6-pro",
+  "provider_pinned": "xiaomi",
+  "max_output_tokens": 131072,
+  "package_dir": "E:\\phase7_engine\\docs\\audit_package\\round8\\MESSAGE1_PARTS1-6",
+  "files": [
+    {
+      "name": "item16_review_instruction_rev9.md",
+      "bytes": 67930,
+      "sha256": "579db7a12d12858d776051c7fc47ba8460c11f170dd88416d4ef27082b2a3d9d"
+    },
+    {
+      "name": "Phase7_Constitution_v1.0_RATIFIED_AUDITCOPY.txt",
+      "bytes": 107216,
+      "sha256": "08f663a3b591c50e9ac0c62a3512c2a96c00ffb5234a5ed40814c52015aea700"
+    },
+    {
+      "name": "phase7_engine_source.md",
+      "bytes": 609170,
+      "sha256": "d294caf35cbd944089ee037ce8a73eaf6d4c052012e0f0be99b149cf6895ad3a"
+    },
+    {
+      "name": "phase7_test_suite.md",
+      "bytes": 860855,
+      "sha256": "8f6a31bd3306d9e6225bb24c552473f7397e331bdd36b17413d6dafe9086a82e"
+    },
+    {
+      "name": "MANIFEST.md",
+      "bytes": 13841,
+      "sha256": "732e411b6ef26d1c67a97bcec971bfe4374bdaaa0fa8a8c55393dcc17d58e267"
+    },
+    {
+      "name": "version_control_history.md",
+      "bytes": 66463,
+      "sha256": "a68235cb3d9300aedbe1a90bdaa9a2bc5612b05ddaa5071b314c4b7177fdd057"
+    },
+    {
+      "name": "execution_transcripts.md",
+      "bytes": 12115,
+      "sha256": "62e313a6a8e4e73b7e166c5d426762bd81e312552f336d8fc9d859dc6e8cd292"
+    }
+  ],
+  "payload_sha256": "b6950de5809bc68aca36ef01f68c8ef9f9ba840528e62bf8a0768da48de39ca9",
+  "payload_bytes": 1738484,
+  "data_collection": "deny",
+  "reasoning_requested": {
+    "enabled": true
+  },
+  "turn": 1,
+  "token_check": {
+    "model": "MiMo-V2.6-Pro",
+    "hf_revision": "adea8e2c5373181e5a973fa1ecb343cb31af214b",
+    "context": 1048576,
+    "reserve": 131072,
+    "request1_prompt_tokens": 430820,
+    "request2_prompt_tokens_worst_case": 709311,
+    "worst_case_margin": 208193
+  },
+  "reasoning_probe": {
+    "http_status": 200,
+    "generation_id": "gen-1791129106-2zrgFiMK60c3uHUGq8FG",
+    "finish_reason": "stop",
+    "usage": {
+      "prompt_tokens": 24,
+      "completion_tokens": 17,
+      "total_tokens": 41,
+      "cost": 2.523e-05,
+      "is_byok": false,
+      "prompt_tokens_details": {
+        "cached_tokens": 0,
+        "cache_write_tokens": 0,
+        "audio_tokens": 0,
+        "video_tokens": 0
+      },
+      "cost_details": {
+        "upstream_inference_cost": 2.523e-05,
+        "upstream_inference_prompt_cost": 1.044e-05,
+        "upstream_inference_completions_cost": 1.479e-05
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 12,
+        "image_tokens": 0,
+        "audio_tokens": 0
+      }
+    },
+    "answer": "408",
+    "reasoning_chars": 13,
+    "reasoning_tokens": 12
+  },
+  "started_utc": "2026-10-04T15:51:46.628168+00:00",
+  "finished_utc": "2026-10-04T16:02:09.294399+00:00",
+  "elapsed_seconds": 622.7,
+  "generation_id": "gen-1791129134-X6E59zrbQNPAndSXKWza",
+  "finish_reason": "stop",
+  "usage": {
+    "prompt_tokens": 430820,
+    "completion_tokens": 47832,
+    "total_tokens": 478652,
+    "cost": 0.22902054,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.22902054,
+      "upstream_inference_prompt_cost": 0.1874067,
+      "upstream_inference_completions_cost": 0.04161384
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 40434,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  },
+  "report_chars": 31144,
+  "reasoning_chars": 167584,
+  "report_sha256": "78f470b87d080976322ee3093c450f53d01ba8b7294a05e226ba55e8da642f07",
+  "reasoning_sha256": "3d7964387d94730e2b899138d9ecc0300ed74fc3ba15fb8643708e7895507b27",
+  "provider_reported": "Xiaomi",
+  "native_tokens_prompt": 430820,
+  "native_tokens_completion": 47832,
+  "total_cost_usd": 0.22902054
+}
