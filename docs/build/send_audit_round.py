@@ -26,6 +26,18 @@ two, per "what the auditor sees, and no planted bugs" the same day: Parts 1-6 ar
 graded on the first message alone, and the Part 7 material goes in a second
 request.
 
+Repointed for round 8 (Xiaomi MiMo-V2.6-Pro) on 4 October 2026, under
+Viktor's delegation of the next audit to Claude (PHASE7_DECISIONS.md,
+"Delegation, 4 October 2026" and the decisions after it). Round 7 ended with
+no usable report: both runs found 0 of the 4 test bugs. What changed for
+round 8, and nothing else: the model, its tokenizer entry, the prices, the
+instruction (rev 9), the run folders, and the provider -- one of four
+endpoints in a decided order, chosen with --provider, Part 7 going to
+whichever answered the first message (PROVIDERS). The first message is round
+7's, file for file, except the instruction; build_round8_package.py makes both
+folders and checks each reused file against the hash round 7's runs recorded.
+Two runs in all, as for round 7.
+
 Six failures in this project's audit history are what this script exists to
 make impossible (until 29 September this line said three and listed four; it
 said five until 30 September):
@@ -82,8 +94,10 @@ stops. The probe is part of --send, not of the dry run.
 
     --send        sends the first message (the instruction and Parts 1-6's
                   material) and writes the reply as turn1_* under
-                  docs/audit_reports/round7_laguna-s-2.1_<date>/ for run 1,
-                  and round7_laguna-s-2.1_run<N>_<date>/ for run N after it.
+                  docs/audit_reports/round8_mimo-v2.6-pro_<date>/ for run 1,
+                  and round8_mimo-v2.6-pro_run<N>_<date>/ for run N after it
+                  (round7_laguna-s-2.1_* until 4 October 2026). --provider
+                  names the endpoint; without it, the first in the order.
                   Refused once the round has had MAX_RUNS runs, when the
                   first message is not the bytes every earlier run sent, and
                   when the reasoning probe shows no reasoning.
@@ -94,8 +108,10 @@ stops. The probe is part of --send, not of the dry run.
                   reply finished with finish_reason=stop, the provider
                   reported was the pinned one, the report is not empty, the
                   first message rebuilds to the same bytes it was sent as,
-                  and the run is not closed (CLOSED_RUNS). The reply is
-                  written as turn2_*.
+                  and the run is not closed (CLOSED_RUNS) and is this
+                  round's. It goes to the provider that answered the first
+                  message, and takes no --provider. The reply is written as
+                  turn2_*.
 
 The commit between them is Claude's design under Viktor's delegation of
 21 September (items 3 and 4 of the preparation list); Viktor did not object
@@ -114,6 +130,14 @@ reasoning-tokens guide, read 29 September). Whether Poolside's endpoint passes
 it through to the template was not checked before the send. The token check
 counts the second request both ways and records both, and the provider's own
 count afterwards (native_tokens_prompt) says which one it saw.
+
+For round 8 the same holds with one difference found on 4 October 2026:
+MiMo-V2.6-Pro's template (at adea8e2) reads an earlier reply's reasoning only
+from a field named `reasoning_content`, and ignores one named `reasoning`,
+which is what this script sends, as OpenRouter's API names it. Whether
+OpenRouter or the endpoint renames it on the way is not published. Nothing
+here changes because of it: the two counts are still both made, and the
+provider's count decides afterwards which one reached the model.
 
 ROUND 7'S SECOND RUN
 
@@ -152,9 +176,15 @@ runs in all. The design below is Claude's under the delegation of
 Usage (from the repository root):
 
     set OPENROUTER_API_KEY=sk-or-...
+    python docs/build/build_round8_package.py
     python docs/build/send_audit_round.py --tokenizer-dir <folder>
     python docs/build/send_audit_round.py --tokenizer-dir <folder> --send
+    python docs/build/send_audit_round.py --tokenizer-dir <folder> --send --provider gmicloud
     python docs/build/send_audit_round.py --tokenizer-dir <folder> --send-part7
+
+The fourth only if the third's endpoint refused the request, and so on down
+the order. The tokenizer folder is MiMo's:
+G:\\Phase_7_Engine_Random_Files\\Docs\\04_Data\\MiMo-V2.6-Pro-MOPD_tokenizer_adea8e2
 """
 
 from __future__ import annotations
@@ -173,39 +203,57 @@ from pathlib import Path
 API_URL = "https://openrouter.ai/api/v1/chat/completions"
 GENERATION_URL = "https://openrouter.ai/api/v1/generation"
 
-MODEL = "poolside/laguna-s-2.1"
-PROVIDER_SLUG = "poolside"
-PROVIDER_DISPLAY_NAME = "Poolside"
+ROUND = "round8"
+MODEL = "xiaomi/mimo-v2.6-pro"
+# The pin and the order after it (PHASE7_DECISIONS.md, "Decision, 4 October
+# 2026 -- round 8: Xiaomi MiMo-V2.6-Pro, the full package in one session",
+# "The pin"): Xiaomi's own endpoint, and if it refuses the request, GMICloud,
+# then DeepInfra, then Novita -- the same model served by others. Each pair is
+# (OpenRouter's provider slug, the provider name its generation record
+# reports). The order is run by hand, one provider per send, with
+# --provider: OpenRouter's own fallback would choose for itself mid-request,
+# and which endpoint answered would then be found out afterwards instead of
+# chosen. A send names its provider in `only`, with fallbacks off, as round 7's
+# did; Part 7 goes to the provider that answered the first message, whatever
+# the order says (verify_first_reply).
+PROVIDERS = (
+    ("xiaomi", "Xiaomi"),
+    ("gmicloud", "GMICloud"),
+    ("deepinfra", "DeepInfra"),
+    ("novita", "Novita"),
+)
+PROVIDER_SLUG = PROVIDERS[0][0]
+PROVIDER_NAMES = dict(PROVIDERS)
 # The entry in package_token_check.MODELS that is this model: its tokenizer,
 # its chat template, its context and its maximum output.
-TOKEN_CHECK_MODEL = "laguna-s-2.1"
+TOKEN_CHECK_MODEL = "mimo-v2.6-pro"
 
-# Read by Claude on 29 September 2026 from OpenRouter's endpoints API for
-# poolside/laguna-s-2.1 (fetched with a web tool, not by this script): one
-# endpoint, provider "Poolside", tag poolside/fp4 (fp4 quantization), context
-# 1,048,576, max completion 131,072, $0.09 / $0.18 per million input / output
-# tokens, supported parameters reasoning, include_reasoning, tools,
-# tool_choice, temperature, max_tokens. The same figures as the model page
-# read the same day (PHASE7_DECISIONS.md, "six questions before the send").
-# The live query at the send is still owed (preparation list, item 1).
+# Read by Claude on 4 October 2026 from OpenRouter's endpoints API for
+# xiaomi/mimo-v2.6-pro (fetched with a web tool that summarises the page, not
+# by this script; permaslug xiaomi/mimo-v2.6-pro-20260921). Four endpoints:
+#   Xiaomi     xiaomi/fp8     context 1,048,576  output 131,072
+#   GMICloud   gmicloud/bf16  context 1,050,000  output 945,000
+#   DeepInfra  deepinfra/fp8  context 1,048,576  output 943,718
+#   Novita     novita/fp8     context 1,048,576  output 131,072
+# All four list `reasoning` and `include_reasoning` among their supported
+# parameters. Which checkpoint each serves -- the -RL release or its -MOPD
+# upgrade -- is not published. The send's own pre-flight read of the endpoints
+# is item 5 of round 8's preparation list, not done by this script.
 #
-# Poolside's provider page on OpenRouter, read the same day, says inputs and
-# outputs from FREE use of Laguna S 2.1 may be used for training, and says
-# nothing about paid use. data_collection stays "deny" below; if OpenRouter
-# classes the endpoint as one that may train, the send is refused with a 404
-# (see send()). That is a decision to make then, not a flag to flip.
+# data_collection stays "deny". Xiaomi's data policy for paid use was not
+# read. If OpenRouter classes an endpoint as one that may train, the send is
+# refused with a 404 (see send()), and the next provider in the order is the
+# answer -- not dropping "deny" (the same decision, "The pin").
 #
-# MAX_OUTPUT_TOKENS is the endpoint's whole ceiling, and it is the token
-# check's reserve for every reply. Round 6 set 100,000 under a 943,718 ceiling;
-# here the ceiling is the model's own 131,072, and the check measured on
-# 29 September that a trial package fits with both replies at this size
-# (PHASE7_NEXT.md, the twenty-fourth session). Reasoning counts against it on
-# most providers (OpenRouter's reasoning-tokens guide), so it bounds a reply's
-# thinking and its answer together; that is not confirmed for Poolside. Run 1
-# (30 September) asked for no reasoning and got none, so it says nothing either
-# way. If a reply's reasoning and answer together exceed the reserve, the
-# second request is still measured exactly before it is sent
-# (check_part7_send) and refused if it does not fit.
+# MAX_OUTPUT_TOKENS is the smallest output ceiling of the four, so it is the
+# whole ceiling on Xiaomi's and Novita's endpoints, and it is the token check's
+# reserve for every reply. Reasoning counts against it on most providers
+# (OpenRouter's reasoning-tokens guide), so it bounds a reply's thinking and
+# its answer together; that is not confirmed for any of the four. Round 7's
+# run 2 (30 September, Laguna S 2.1, reasoning on) wrote 4,415 completion
+# tokens, 2,166 of them reasoning. If a reply's reasoning and answer together
+# exceed the reserve, the second request is still measured exactly before it
+# is sent (check_part7_send) and refused if it does not fit.
 MAX_OUTPUT_TOKENS = 131_072
 # Kimi K3, round 4, 5 September 2026: 41,861 completion tokens, finish_reason
 # stop (docs/audit_reports/round4_kimi-k3_2026-09-05/run_metadata.json).
@@ -213,19 +261,21 @@ MAX_OUTPUT_TOKENS = 131_072
 # round 4 had already exceeded; the assertion held either way.
 LARGEST_PRIOR_RESPONSE = 41_861
 
-# USD per token, from the same endpoints query. The endpoint also carries
-# "discount": 0.1, whose meaning was not checked; the estimate ignores it.
-PRICE_IN = 0.09 / 1_000_000
-PRICE_OUT = 0.18 / 1_000_000
+# USD per token, from the same endpoints query: the highest of the four, so
+# the estimate holds whichever answers ($0.435 in on Xiaomi, GMICloud and
+# Novita, $0.43 on DeepInfra; $0.87 out on all four; "discount": 0 on all).
+PRICE_IN = 0.435 / 1_000_000
+PRICE_OUT = 0.87 / 1_000_000
 
 # The first message: the instruction first, then the files it goes with. The
 # set is asserted exactly: an extra or missing file aborts the run, because
 # several rounds' directories carry the same filenames.
 #
-# rev8 is round 7's instruction (preparation list, item 9 -- not yet written
-# when this was repointed; the build refuses until it exists). Revs 1-7 stay in
-# docs/audit_package/ unedited, per the document's own preservation rule.
-INSTRUCTION_FILE = "item16_review_instruction_rev8.md"
+# rev9 is round 8's instruction (round 8's preparation list, item 4 -- not yet
+# written when this was repointed; build_round8_package.py refuses until it
+# exists). Revs 1-8 stay in docs/audit_package/ unedited, per the document's
+# own preservation rule. Rev 8 is what round 7's two runs were sent.
+INSTRUCTION_FILE = "item16_review_instruction_rev9.md"
 MESSAGE1_ATTACHMENTS = [
     "Phase7_Constitution_v1.0_RATIFIED_AUDITCOPY.txt",
     "phase7_engine_source.md",
@@ -260,13 +310,16 @@ DELIVERY_NOTE_2 = (
     "unmodified.\n"
 )
 
-RUN_DIR_PREFIX = "round7_laguna-s-2.1_"
+RUN_DIR_PREFIX = "round8_mimo-v2.6-pro_"
 TURN1 = "turn1_"
 TURN2 = "turn2_"
 
-# ROUND 7'S SECOND RUN (the docstring). Two runs in all, run 1 included.
+# ROUND 7'S SECOND RUN (the docstring). Two runs in all, run 1 included; the
+# same for round 8 (PHASE7_DECISIONS.md, "Decision, 4 October 2026 -- round 8").
 MAX_RUNS = 2
 # Run folders --send-part7 never continues, each with the reason it gives.
+# Round 7's, kept since round 8: their names no longer carry this round's
+# prefix, and a folder without it is refused anyway (main()); these say why.
 CLOSED_RUNS = {
     "round7_laguna-s-2.1_2026-09-30": (
         "run 1 (30 September 2026) is closed: Part 7 does not go to it "
@@ -279,7 +332,7 @@ CLOSED_RUNS = {
 }
 # OpenRouter's unified reasoning parameter. `enabled` asks for the model's own
 # default; no effort level is named, because nothing read says how Poolside's
-# endpoint maps one.
+# endpoint maps one -- nor, for round 8, how any of MiMo's four does.
 REASONING = {"enabled": True}
 # The probe: a question with nothing from the package in it, and a small
 # ceiling. At $0.18 per million output tokens, 4,096 cost under a tenth of a
@@ -367,7 +420,8 @@ def build_part7_payload(texts: dict[str, str]) -> str:
     return "".join(parts)
 
 
-def _request(messages: list[dict], allow_data_collection: bool) -> dict:
+def _request(messages: list[dict], allow_data_collection: bool,
+             provider: str = PROVIDER_SLUG) -> dict:
     return {
         "model": MODEL,
         "messages": messages,
@@ -391,7 +445,7 @@ def _request(messages: list[dict], allow_data_collection: bool) -> dict:
             # "only" is the exclusive whitelist; allow_fallbacks is belt and
             # braces. If the pinned provider cannot serve the request the call
             # fails loudly instead of quietly becoming a different reviewer.
-            "only": [PROVIDER_SLUG],
+            "only": [provider],
             "allow_fallbacks": False,
             "require_parameters": True,
             "data_collection": "allow" if allow_data_collection else "deny",
@@ -399,13 +453,16 @@ def _request(messages: list[dict], allow_data_collection: bool) -> dict:
     }
 
 
-def build_request_body(payload: str, allow_data_collection: bool) -> dict:
+def build_request_body(payload: str, allow_data_collection: bool,
+                       provider: str = PROVIDER_SLUG) -> dict:
     """The first request: the first message alone."""
-    return _request([{"role": "user", "content": payload}], allow_data_collection)
+    return _request([{"role": "user", "content": payload}], allow_data_collection,
+                    provider)
 
 
 def build_part7_request_body(payload: str, reply_reasoning: str, reply_answer: str,
-                             part7_payload: str, allow_data_collection: bool) -> dict:
+                             part7_payload: str, allow_data_collection: bool,
+                             provider: str = PROVIDER_SLUG) -> dict:
     """The second request: the first message again, the first reply as it was
     written -- its answer and its reasoning -- and the Part 7 material."""
     return _request(
@@ -415,15 +472,25 @@ def build_part7_request_body(payload: str, reply_reasoning: str, reply_answer: s
             {"role": "user", "content": part7_payload},
         ],
         allow_data_collection,
+        provider,
     )
 
 
-def build_probe_body(allow_data_collection: bool) -> dict:
+def build_probe_body(allow_data_collection: bool, provider: str = PROVIDER_SLUG) -> dict:
     """The reasoning probe: one short question, with the same model, pins and
     reasoning request as a real send, and a small output ceiling."""
-    body = _request([{"role": "user", "content": PROBE_PROMPT}], allow_data_collection)
+    body = _request([{"role": "user", "content": PROBE_PROMPT}], allow_data_collection,
+                    provider)
     body["max_tokens"] = PROBE_MAX_TOKENS
     return body
+
+
+def next_provider(slug):
+    """The provider after `slug` in round 8's order, or None after the last."""
+    slugs = [s for s, _ in PROVIDERS]
+    if slug not in slugs or slugs.index(slug) + 1 == len(slugs):
+        return None
+    return slugs[slugs.index(slug) + 1]
 
 
 # --- the token check ---------------------------------------------------------
@@ -553,19 +620,21 @@ def verify_first_reply(run_dir: Path, repo_root: Path, payload_sha256: str) -> t
                          "missing). Send the first message with --send.")
     meta = json.loads(meta_path.read_text(encoding="utf-8"))
     problems = []
-    if meta.get("model") != MODEL or meta.get("provider_pinned") != PROVIDER_SLUG:
+    pinned = meta.get("provider_pinned")
+    if meta.get("model") != MODEL or pinned not in PROVIDER_NAMES:
         problems.append(f"the first reply was requested from {meta.get('model')!r} via "
-                        f"{meta.get('provider_pinned')!r}, not {MODEL!r} via "
-                        f"{PROVIDER_SLUG!r}")
+                        f"{pinned!r}, not {MODEL!r} via one of "
+                        f"{', '.join(PROVIDER_NAMES)}")
     if meta.get("finish_reason") != "stop":
         problems.append(
             f"the first reply did not finish normally (finish_reason="
             f"{meta.get('finish_reason')!r}), so Parts 1-6 may be cut off. The ruled "
             "answer is a rerun in a fresh session, not Part 7 on an incomplete report")
-    if meta.get("provider_reported") != PROVIDER_DISPLAY_NAME:
+    expected = PROVIDER_NAMES.get(pinned)
+    if expected is None or meta.get("provider_reported") != expected:
         problems.append(f"the provider reported for the first reply was "
                         f"{meta.get('provider_reported') or 'unavailable'!r}, not "
-                        f"{PROVIDER_DISPLAY_NAME!r}")
+                        f"{expected or 'one of the four'!r}")
     if not meta.get("report_chars"):
         problems.append("the first reply has no report content")
     if meta.get("payload_sha256") != payload_sha256:
@@ -614,11 +683,12 @@ def check_another_run(repo_root: Path, payload_sha256: str) -> list[Path]:
     runs = recorded_runs(repo_root)
     if len(runs) >= MAX_RUNS:
         raise SystemExit(
-            f"Round 7 has had its {MAX_RUNS} runs:"
+            f"Round 8 has had its {MAX_RUNS} runs:"
             + "".join(f"\n  {d.name}" for d in runs)
-            + "\nThe next step is another auditor, not another run (PHASE7_DECISIONS.md, "
-            "\"Ruling, 30 September 2026 -- what follows round 7's first reply\", "
-            "point 4). Nothing was sent.")
+            + "\nThe next step is not another run: if neither found two of the four "
+            "test bugs, it is the fallback, scoped packages to other labs "
+            "(PHASE7_DECISIONS.md, \"Decision, 4 October 2026 -- the fallback: scoped "
+            "packages\"). Nothing was sent.")
     problems = []
     for run in runs:
         meta_path = run / f"{TURN1}run_metadata.json"
@@ -657,8 +727,8 @@ def _find_waiting_run(repo_root: Path) -> Path:
 
 
 def _next_run_dir(repo_root: Path) -> Path:
-    """The folder for the next run: round7_laguna-s-2.1_<date> for run 1,
-    round7_laguna-s-2.1_run<N>_<date> for run N after it. Refused if it
+    """The folder for the next run: round8_mimo-v2.6-pro_<date> for run 1,
+    round8_mimo-v2.6-pro_run<N>_<date> for run N after it. Refused if it
     already holds a reply: a run on record is never written over. Not
     created here: main() creates it once the probe has passed."""
     number = len(recorded_runs(repo_root)) + 1
@@ -736,7 +806,7 @@ def probe_reasoning(body: dict, api_key: str) -> dict:
     nothing: main() refuses the real send unless reasoning_tokens is above 0."""
     import requests  # pinned at 2.32.5 in requirements.txt
 
-    print(f"POST {API_URL}  probe  model={MODEL}  provider={PROVIDER_SLUG}  "
+    print(f"POST {API_URL}  probe  model={MODEL}  provider={body['provider']['only']}  "
           f"max_tokens={body['max_tokens']}  reasoning={body.get('reasoning')}", flush=True)
     resp = requests.post(
         API_URL,
@@ -769,7 +839,7 @@ def send(body: dict, api_key: str, run_dir: Path, metadata: dict, prefix: str) -
 
     session = requests.Session()
     started = _utc_now()
-    print(f"POST {API_URL}  model={MODEL}  provider={PROVIDER_SLUG}  "
+    print(f"POST {API_URL}  model={MODEL}  provider={body['provider']['only']}  "
           f"max_tokens={MAX_OUTPUT_TOKENS}  messages={len(body['messages'])}", flush=True)
 
     resp = session.post(
@@ -806,6 +876,11 @@ def send(body: dict, api_key: str, run_dir: Path, metadata: dict, prefix: str) -
                 "Router.",
                 file=sys.stderr,
             )
+        nxt = next_provider(metadata.get("provider_pinned"))
+        if prefix == TURN1 and nxt:
+            print(f"Round 8's order names {nxt!r} next: --provider {nxt} "
+                  "(PHASE7_DECISIONS.md, \"Decision, 4 October 2026 -- round 8\", "
+                  "\"The pin\").", file=sys.stderr)
         return 2
 
     gen_id = None
@@ -914,10 +989,11 @@ def send(body: dict, api_key: str, run_dir: Path, metadata: dict, prefix: str) -
             "TRUNCATED. This is the failure mode of 27 August. Do not treat the "
             "report as complete."
         )
-    if provider_reported and provider_reported != PROVIDER_DISPLAY_NAME:
+    expected = PROVIDER_NAMES.get(metadata.get("provider_pinned"))
+    if provider_reported and provider_reported != expected:
         problems.append(
             f"the response was served by {provider_reported!r}, not "
-            f"{PROVIDER_DISPLAY_NAME!r}. The reviewer is not the one that was ruled."
+            f"{expected!r}. The reviewer is not the one that was ruled."
         )
     if content_chars == 0:
         problems.append(
@@ -940,7 +1016,7 @@ def send(body: dict, api_key: str, run_dir: Path, metadata: dict, prefix: str) -
 def main(argv: list[str] | None = None, repo_root: Path | None = None, models=None,
          counter_factory=None, send_fn=None, probe_fn=None) -> int:
     repo_root = repo_root or Path(__file__).resolve().parents[2]
-    round_dir = repo_root / "docs" / "audit_package" / "round7"
+    round_dir = repo_root / "docs" / "audit_package" / ROUND
     send_fn = send_fn or send
     probe_fn = probe_fn or probe_reasoning
 
@@ -962,6 +1038,11 @@ def main(argv: list[str] | None = None, repo_root: Path | None = None, models=No
                       help="send the Part 7 material, once the first reply is committed")
     parser.add_argument("--force", action="store_true",
                         help="with --send-part7 only: overwrite an existing Part 7 reply")
+    parser.add_argument("--provider", choices=list(PROVIDER_NAMES), default=None,
+                        help="with --send only: the endpoint, in the order "
+                             + ", ".join(PROVIDER_NAMES) + " (default: the first). "
+                             "--send-part7 goes to the provider that answered the "
+                             "first message")
     parser.add_argument("--allow-data-collection", action="store_true",
                         help="permit providers that may train on the prompt (default: deny)")
     args = parser.parse_args(argv)
@@ -984,14 +1065,18 @@ def main(argv: list[str] | None = None, repo_root: Path | None = None, models=No
         raw = text.encode("utf-8")
         print(f"  payload {len(raw):,} bytes, {len(text):,} chars, sha256 {_sha256(raw)}")
     print(f"model          {MODEL}")
-    print(f"provider       {PROVIDER_SLUG} only, fallbacks off, context compression off, "
+    if args.send_part7 and args.provider is not None:
+        raise SystemExit("--provider is for --send only: Part 7 goes to the provider that "
+                         "answered the first message. Nothing was sent.")
+    provider = args.provider or PROVIDER_SLUG
+    print(f"provider       {provider} only, fallbacks off, context compression off, "
           f"data_collection {'allow' if args.allow_data_collection else 'deny'}")
     print(f"max output     {MAX_OUTPUT_TOKENS:,} tokens per reply "
           f"(largest prior response {LARGEST_PRIOR_RESPONSE:,})")
 
     metadata = {
         "model": MODEL,
-        "provider_pinned": PROVIDER_SLUG,
+        "provider_pinned": provider,
         "max_output_tokens": MAX_OUTPUT_TOKENS,
         "package_dir": str(args.package_dir),
         "files": records,
@@ -1009,11 +1094,17 @@ def main(argv: list[str] | None = None, repo_root: Path | None = None, models=No
         if Path(run_dir).name in CLOSED_RUNS:
             raise SystemExit(f"Refusing to send Part 7: {CLOSED_RUNS[Path(run_dir).name]}. "
                              "Nothing was sent.")
+        if not Path(run_dir).name.startswith(RUN_DIR_PREFIX):
+            raise SystemExit(f"Refusing to send Part 7: {Path(run_dir).name} is not a "
+                             f"{ROUND} run folder (they start {RUN_DIR_PREFIX}). "
+                             "Nothing was sent.")
         report2 = run_dir / f"{TURN2}report.md"
         if report2.exists() and report2.stat().st_size > 0 and not args.force:
             raise SystemExit(f"{report2} already holds a response. Refusing to overwrite "
                              "a paid run. Nothing was sent.")
         reasoning1, answer1, meta1 = verify_first_reply(run_dir, repo_root, payload_sha256)
+        provider = meta1["provider_pinned"]
+        metadata["provider_pinned"] = provider
         counted = check_part7_send(args.tokenizer_dir, payload, reasoning1, answer1,
                                    part7_payload, models, counter_factory)
         commit = _git(repo_root, "log", "-1", "--format=%H", "--",
@@ -1031,7 +1122,7 @@ def main(argv: list[str] | None = None, repo_root: Path | None = None, models=No
             "token_check": counted,
         })
         body = build_part7_request_body(payload, reasoning1, answer1, part7_payload,
-                                        args.allow_data_collection)
+                                        args.allow_data_collection, provider)
         prefix = TURN2
     else:
         counted = None
@@ -1042,8 +1133,8 @@ def main(argv: list[str] | None = None, repo_root: Path | None = None, models=No
                       + counted["request2_prompt_tokens_worst_case"]) * PRICE_IN
                      + 2 * MAX_OUTPUT_TOKENS * PRICE_OUT)
             print(f"cost, at most  ${upper:.2f} for both requests, both replies at the "
-                  f"full {MAX_OUTPUT_TOKENS:,} (${PRICE_IN * 1e6:.2f} / "
-                  f"${PRICE_OUT * 1e6:.2f} per million)")
+                  f"full {MAX_OUTPUT_TOKENS:,} (${PRICE_IN * 1e6:.3f} / "
+                  f"${PRICE_OUT * 1e6:.3f} per million)")
         else:
             print("token check    not made: pass --tokenizer-dir. --send and "
                   "--send-part7 refuse without it.")
@@ -1063,7 +1154,7 @@ def main(argv: list[str] | None = None, repo_root: Path | None = None, models=No
                              "before anything is sent. Nothing was sent.")
         check_another_run(repo_root, payload_sha256)
         metadata.update({"turn": 1, "token_check": counted})
-        body = build_request_body(payload, args.allow_data_collection)
+        body = build_request_body(payload, args.allow_data_collection, provider)
         prefix = TURN1
 
     api_key = os.environ.get("OPENROUTER_API_KEY", "").strip()
@@ -1076,7 +1167,7 @@ def main(argv: list[str] | None = None, repo_root: Path | None = None, models=No
 
     if prefix == TURN1:
         run_dir = _next_run_dir(repo_root)
-        probe = probe_fn(build_probe_body(args.allow_data_collection), api_key)
+        probe = probe_fn(build_probe_body(args.allow_data_collection, provider), api_key)
         metadata["reasoning_probe"] = probe
         shown = probe.get("reasoning_tokens")
         print(f"reasoning probe {shown if shown is not None else 'none reported'} reasoning "
@@ -1084,9 +1175,9 @@ def main(argv: list[str] | None = None, repo_root: Path | None = None, models=No
         if not (shown or 0) > 0:
             raise SystemExit(
                 "Refusing to send: the reasoning probe shows no reasoning. The audit was "
-                "not sent; only the probe was. The ruling of 30 September sends run 2 "
-                "with reasoning requested -- why it did not come back is to be found out "
-                "first.")
+                "not sent; only the probe was. Every run is sent with reasoning requested "
+                "(ruling of 30 September 2026) -- why it did not come back is to be "
+                "found out first.")
     run_dir.mkdir(parents=True, exist_ok=True)
     return send_fn(body, api_key, run_dir, metadata, prefix)
 

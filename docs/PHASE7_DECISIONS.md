@@ -2818,6 +2818,96 @@ then rest on rounds that never read the rest of the engine. Claude records this 
 weaker basis for that condition; weighing it is Viktor's, when he declares. Scoring a
 package on one or two test bugs is a coarser test than four in one.
 
+## Decision, 4 October 2026 — round 8's tooling: round 7's files reused by hash, the provider order run by hand, and check 4
+
+*New in this file on 4 October 2026. Claude's, under the delegation above; made and
+filed by the commit that adds MiMo-V2.6-Pro to the token check and repoints the send
+to round 8 (item 3 of round 8's preparation list in PHASE7_NEXT.md).*
+
+**Check 4 of the round-8 decision — passed, on a trial build.**
+
+- *The files.* Viktor downloaded `tokenizer.json`, `tokenizer_config.json` and
+  `chat_template.jinja` from `XiaomiMiMo/MiMo-V2.6-Pro-MOPD` at revision `adea8e2` into
+  `G:\Phase_7_Engine_Random_Files\Docs\04_Data\MiMo-V2.6-Pro-MOPD_tokenizer_adea8e2\`.
+  Claude staged them and compared them with Hugging Face's file listing for that
+  revision and for the `-RL` repository's `main`, read through a web tool that
+  summarises the page: the two small files' git blob ids, recomputed from the bytes on
+  his disk, are the listed ones (`92597ade…`, `39a944cb…`) in both repositories, and
+  `tokenizer.json`, stored in LFS, has the listed LFS id, which is its SHA-256
+  (`ff15eb92…`); the sizes match (3,867, 12,150 and 11,423,823 bytes). A summary that
+  had misread a hash could not have produced a match. The template inside
+  `tokenizer_config.json` is the same text as `chat_template.jinja`.
+- *The template.* Plain jinja2, with no tag of its own: no system message by default,
+  no opening token, no newline between messages, and the reply opened by
+  `<|im_start|>assistant\n` alone. The renderer in `package_token_check.py` writes the
+  same string as the template rendered by jinja2 (sandboxed, `trim_blocks` and
+  `lstrip_blocks`, as `transformers` renders it) in four cases: one message; two with an
+  empty reply between; two with a written reply and its reasoning given as
+  `reasoning_content`; and two with it given as `reasoning`, which the template ignores.
+  That last case is new: Laguna's template read either name, MiMo's reads only
+  `reasoning_content`, and the send carries the reasoning as `reasoning`, the name
+  OpenRouter's API uses. Whether it is renamed on the way is not published. The second
+  request is counted both ways, as for round 7, and the provider's count afterwards says
+  which reached the model.
+- *The count.* Round 7's first message, its seven files staged from Viktor's disk —
+  each hashes to what both of round 7's runs recorded — with rev 8 copied in as a
+  stand-in for rev 9, which is not written yet, and the Part 7 document with one
+  stand-in line, through `build_round8_package.py` and the send's dry run, in the
+  sandbox: the first message is 429,491 tokens (Laguna's tokenizer counted the same
+  payload at 455,317); turn 1 needs 560,570 of 1,048,576; turn 2, with the first
+  reply at the full 131,072 reserve, needs 838,813. **Fits, with 209,763 tokens to
+  spare (20.0%)**, against round 7's 181,740. Rev 9 and the corrected Part 7 document
+  move this by their difference in size; the dry run at the send counts the real files.
+  Upper cost of both requests, both replies at the reserve: $0.72.
+- *A lineage fact found on the way.* MiMo's tokenizer is of Qwen2's class
+  (`tokenizer_config.json`: `"Qwen2Tokenizer"`), with Qwen's special tokens at the same
+  ids and Xiaomi's audio and video tokens after them. A vocabulary is not weights, and
+  Qwen's exposure to this project was a conversation (round 2), not training, so check
+  2's finding — no disqualifier — stands. It does show that MiMo's design draws on
+  Qwen's in at least this part; what else it shares cannot be checked from what Xiaomi
+  publishes.
+
+**Round 7's files are reused by hash, not rebuilt from the tag.** The decision on the
+package says "built from the tag". A new build at the tag would not be the tag's bytes:
+the manifest carries its build time, and the history file reads the repository as it
+stands when it runs — its tag list would now include `round7-sent-2026-09-30`. Round 7's
+own folders are the tag's build, and both of round 7's runs recorded every file's
+SHA-256. So `docs/build/build_round8_package.py` copies round 7's six files other than
+rev 8, refuses unless each hashes to what both runs recorded (and the records agree
+with the script), adds rev 9, takes the Part 7 document from `docs/audit_package/` and
+refuses it while it is still the tag's text, and regenerates the commit messages after
+`e65a0f7` up to the tag, refusing unless they hash to the file round 7's build wrote.
+That regeneration was checked in an autocrlf clone on Linux: the same bytes, byte for
+byte. `build_audit_package.py` now refuses to run (`SENT`), since it would rebuild
+round 7's folders from the working tree and destroy the files round 8 is built from.
+
+*What it weakens.* Round 7's built folders are ignored by git, so round 8's package
+rests on files that exist only on Viktor's disk; if they are lost, the script refuses
+and the package would have to be built from the tag another way, with a manifest of its
+own. And the auditor is shown a manifest that says `Round: round7` and the build time
+of 30 September: rev 9 has to say why.
+
+**The provider order is run by hand, one provider per send.** `send_audit_round.py
+--send --provider <slug>` names one of `xiaomi`, `gmicloud`, `deepinfra`, `novita`,
+pinned with `only` and fallbacks off as round 7's was; without the option, Xiaomi. If an
+endpoint refuses, the send says which is next, and the next command names it.
+OpenRouter's own fallback would choose for itself mid-request, and which endpoint
+answered would be found out afterwards instead of chosen. `--send-part7` takes no
+`--provider`: Part 7 goes to the provider that answered the first message, and is
+refused if the provider reported is not the one pinned.
+
+*What it weakens.* A refusal costs a second command rather than none. And round 8's two
+runs, if there are two, may be answered by different endpoints serving different
+quantizations (fp8 or bf16) and possibly different checkpoints (`-RL` or `-MOPD`, not
+published); each run records its provider, and each run is scored on its own, as the
+ruling of 30 September already requires.
+
+**Also in the same commit.** The prices are the highest of the four endpoints ($0.435
+in, $0.87 out per million), so the estimate holds whichever answers. `MAX_OUTPUT_TOKENS`
+stays 131,072, the smallest output cap of the four. `package_token_check.py`'s `--model`
+has no default any more: it named round 7's model. Round 7's two closed runs stay in
+`CLOSED_RUNS`, and `--send-part7` refuses a folder that is not one of round 8's.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then

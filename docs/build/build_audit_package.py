@@ -83,7 +83,19 @@ REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 # rulings of 29 September 2026), and it splits the package again -- the first
 # build since round 4 to do so -- this time into two folders that are two
 # requests, not one folder sent and one kept back. See MESSAGE1_DIR below.
+#
+# round7/ was sent to Laguna S 2.1 on 30 September 2026, twice, and round 8
+# sends its first message again, file for file, with only the instruction
+# replaced (PHASE7_DECISIONS.md, "Decision, 4 October 2026 -- round 8's
+# package"). Round 8's folders are made by build_round8_package.py, which
+# checks each of round7/'s files against the hash both runs recorded before it
+# copies one. This script would rebuild round7/ from the working tree -- a
+# different test bundle and history since the tag, and a new build time in the
+# manifest -- and so destroy the files round 8 is built from. SENT makes it
+# refuse. A new round that is built afresh sets ROUND to its own directory
+# and SENT to False.
 ROUND = "round7"
+SENT = True
 PACKAGE_DIR = os.path.join(REPO, "docs", "audit_package")
 OUT_DIR = os.path.join(PACKAGE_DIR, ROUND)
 
@@ -335,11 +347,14 @@ def _history_metadata():
     return "\n".join(lines) + "\n"
 
 
-def _full_messages(since=PART7_COMMITS_SINCE):
+def _full_messages(since=PART7_COMMITS_SINCE, until="HEAD"):
+    # `until` (4 October 2026): round 8 sends the messages up to the tag its
+    # package was built from, not up to the commit it is sent from
+    # (build_round8_package.py). With the default, what it writes is unchanged.
     base = _git("rev-parse", "--verify", f"{since}^{{commit}}")
-    count = _git("rev-list", "--count", f"{since}..HEAD")
+    count = _git("rev-list", "--count", f"{since}..{until}")
     log = _git("log", "--format=commit %H%nDate: %ad%n%n%B%n---%n", "--date=iso",
-               f"{since}..HEAD")
+               f"{since}..{until}")
     failed = [out for out in (base, count, log) if out.startswith("<git")]
     if failed:
         # Previously a failed git call went into the file as its text. This
@@ -505,6 +520,11 @@ def main():
     # The round directory is made by the first write into it, not here: a
     # build that refuses below says "Nothing has been written", and until
     # 29 September 2026 it had already made an empty round directory.
+
+    if SENT:
+        sys.exit(f"REFUSING TO BUILD: {ROUND} was sent on 30 September 2026, and round 8 "
+                 f"is built from its files (build_round8_package.py). Rebuilding "
+                 f"{ROUND}/ would overwrite them. Nothing has been written.")
 
     source_files = _walk("source")
     test_files = _walk("tests")

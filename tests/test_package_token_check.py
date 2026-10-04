@@ -12,15 +12,23 @@ on 29 September 2026.
 WHAT THESE TESTS DO NOT COVER
 
 They never load a real tokenizer. `tokenizers` is documentation tooling and is
-not in requirements.txt, and Poolside's files are kept outside the repository,
+not in requirements.txt, and the model makers' files are kept outside the repository,
 so a test that needed either would be skipped on every machine that runs this
 suite -- a test that passes by being skipped is the vacuous pass this suite was
 hardened against. The counter is injected instead; the arithmetic, the refusals
 and the exit codes are what is asserted here. Loading the real tokenizer is
 checked by running the tool itself on a known file, on both platforms, with the
 count stated in advance (the commit that adds this file).
+
+From 4 October 2026 it also carries MiMo-V2.6-Pro, round 8's auditor
+(PHASE7_DECISIONS.md, "Decision, 4 October 2026 -- round 8: Xiaomi
+MiMo-V2.6-Pro, the full package in one session"). This file is one of the two
+test files changed while the code is frozen for round 8 (PHASE7_DECISIONS.md,
+"Decision, 4 October 2026 -- round 8's package: the tag's, with only the
+instruction and the Part 7 document corrected; the freeze holds").
 """
 
+import contextlib
 import hashlib
 import importlib.util
 import io
@@ -166,6 +174,57 @@ def test_lagunas_renderer_writes_a_written_reply_with_its_reasoning():
         "<user>C</user>\n<assistant><think>")
     # No reasoning is an empty think block, the same as the worst-case frame.
     assert render(["A", "C"], replies=[("", "")]) == render(["A", "C"])
+
+
+def test_mimos_renderer_writes_the_templates_frame_around_each_message():
+    # The frame of MiMo-V2.6-Pro's chat_template.jinja at adea8e2, for user
+    # messages only, as rendered by the template itself (jinja2, sandboxed,
+    # trim_blocks and lstrip_blocks) on 4 October 2026: no system message, no
+    # opening token, no newline between messages, and the reply opened with
+    # the role alone -- the model writes its own <think>.
+    render = ptc.MODELS["mimo-v2.6-pro"].render
+    assert render(["A\r\nB"]) == "<|im_start|>user\nA\r\nB<|im_end|><|im_start|>assistant\n"
+    assert render(["A", "C"]) == ("<|im_start|>user\nA<|im_end|>"
+                                  "<|im_start|>assistant\n<think></think><|im_end|>"
+                                  "<|im_start|>user\nC<|im_end|>"
+                                  "<|im_start|>assistant\n")
+
+
+def test_mimos_renderer_writes_a_written_reply_with_its_reasoning():
+    # The template writes an earlier reply
+    # <|im_start|>assistant\n<think>REASONING</think>ANSWER<|im_end|>, the
+    # reasoning taken from `reasoning_content` (rendered by jinja2, 4 October
+    # 2026). No reasoning is an empty think block, the worst-case frame.
+    render = ptc.MODELS["mimo-v2.6-pro"].render
+    assert render(["A", "C"], replies=[("thought\n", "answer\r\n")]) == (
+        "<|im_start|>user\nA<|im_end|>"
+        "<|im_start|>assistant\n<think>thought\n</think>answer\r\n<|im_end|>"
+        "<|im_start|>user\nC<|im_end|><|im_start|>assistant\n")
+    assert render(["A", "C"], replies=[("", "")]) == render(["A", "C"])
+
+
+def test_mimos_entry_is_pinned_to_the_files_checked_on_4_october():
+    spec = ptc.MODELS["mimo-v2.6-pro"]
+    assert spec.hf_repo == "XiaomiMiMo/MiMo-V2.6-Pro-MOPD"
+    assert spec.hf_revision == "adea8e2c5373181e5a973fa1ecb343cb31af214b"
+    assert spec.files["tokenizer.json"] == (
+        "ff15eb925890d6b71b5160de4b846fbd13178438ab463b38ecc953e8cd1dcb3e")
+    assert sorted(spec.files) == ["chat_template.jinja", "tokenizer.json",
+                                  "tokenizer_config.json"]
+    assert (spec.context_tokens, spec.max_output_tokens) == (1_048_576, 131_072)
+
+
+def test_the_command_names_its_model_every_time():
+    # Until 4 October 2026 --model defaulted to Laguna S 2.1, round 7's auditor.
+    with tempfile.TemporaryDirectory() as tmp:
+        spec = _spec_for(_tok_dir(tmp), context=100, max_output=40)
+        _write(os.path.join(tmp, "m.txt"), "one")
+        with pytest.raises(SystemExit) as info:
+            with contextlib.redirect_stderr(io.StringIO()):
+                ptc.main(["--tokenizer-dir", os.path.join(tmp, "tok"),
+                          "--message", os.path.join(tmp, "m.txt")],
+                         models={"test": spec}, counter_factory=_words, out=io.StringIO())
+        assert info.value.code == 2
 
 
 def test_a_request_with_its_replies_written_is_counted_exactly():

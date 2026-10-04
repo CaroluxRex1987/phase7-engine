@@ -76,7 +76,11 @@ the repository and passed with `--tokenizer-dir`. The script pins each file by S
 and refuses a folder whose files differ. For Laguna S 2.1 they were downloaded from
 Poolside's Hugging Face repository at revision `e80da38` into
 `G:\Phase_7_Engine_Random_Files\Docs\04_Data\Laguna-S-2.1_tokenizer_e80da38\` on
-29 September 2026. Its own docstring says what it counts and what it cannot know.
+29 September 2026. For MiMo-V2.6-Pro, round 8's auditor, they were downloaded from
+Xiaomi's repository `XiaomiMiMo/MiMo-V2.6-Pro-MOPD` at revision `adea8e2` into
+`G:\Phase_7_Engine_Random_Files\Docs\04_Data\MiMo-V2.6-Pro-MOPD_tokenizer_adea8e2\` on
+4 October 2026. From that day `--model` has no default and is named on every run. Its
+own docstring says what it counts and what it cannot know.
 
 From 29 September 2026 `send_audit_round.py` runs the check itself, so it cannot be
 forgotten: `--send` and `--send-part7` refuse without `--tokenizer-dir`, and refuse before
@@ -95,6 +99,14 @@ reasoning, and `--send` sends a one-line probe first and refuses the real send u
 probe shows reasoning tokens. A round has two runs in all, a run being any reply on record;
 each run goes to a folder of its own and sends the same first message as the runs before
 it; and `--send-part7` never continues run 1.
+
+From 4 October 2026 the send is round 8's (PHASE7_DECISIONS.md, "Decision, 4 October
+2026 — round 8's tooling"): MiMo-V2.6-Pro, with `--provider` naming one of four
+endpoints in the decided order and `--send-part7` going to whichever answered the first
+message. Round 8's folders are made by `build_round8_package.py`, from round 7's built
+files, each checked against the hash round 7's runs recorded, with rev 9 of the
+instruction and the corrected Part 7 document; `build_audit_package.py` now refuses to
+rebuild round 7's folders, which round 8 is built from.
 
 ## House style
 

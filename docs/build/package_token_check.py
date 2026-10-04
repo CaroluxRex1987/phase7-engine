@@ -8,7 +8,12 @@ audit preparation, not an engine item": the check measures the audit package
 with the chosen auditor's own tokenizer and refuses the send if the package plus
 an output reserve does not fit the model's context. It is item 2 of the
 preparation list for the audit ruled on 29 September 2026 (Laguna S 2.1, pinned
-to Poolside, the full package in one session).
+to Poolside, the full package in one session). From 4 October 2026 it also
+carries MiMo-V2.6-Pro, round 8's auditor (PHASE7_DECISIONS.md, "Decision,
+4 October 2026 -- round 8: Xiaomi MiMo-V2.6-Pro, the full package in one
+session", check 4), and --model has no default: the model is named on every
+run, so a count cannot be made for the previous round's auditor by leaving it
+out.
 
 WHY A TOKENIZER AND NOT A CHARACTER COUNT
 
@@ -32,8 +37,9 @@ check refuses a folder whose files do not match. The safe action is then the
 only one available; nobody has to remember which download is the right one.
 
 The files are kept outside this repository, in the folder of project files that
-are not in it, and the path is passed on the command line. They are Poolside's
-files, not the project's; the hashes below are what ties them to this check.
+are not in it, and the path is passed on the command line. They are the model
+maker's files, not the project's; the hashes below are what ties them to this
+check.
 
 WHAT IT COUNTS
 
@@ -56,8 +62,8 @@ plus the reserve for the reply still to come.
 A request fits when prompt + reserve <= context, the same comparison a provider
 makes when it accepts or refuses `max_tokens`.
 
-The template is not run here: it uses a tag (`{% generation %}`) that only the
-`transformers` library understands, and this tool should need nothing but a
+The template is not run here: Laguna's uses a tag (`{% generation %}`) that only
+the `transformers` library understands, and this tool should need nothing but a
 tokenizer. Each model entry carries a renderer that writes the same string for
 the one case the send uses -- user messages only, no system message, no tools,
 the template's defaults otherwise. The template file is pinned by hash with the
@@ -77,7 +83,7 @@ It sends nothing, opens no network connection and writes nothing.
 Usage (from the repository root):
 
     pip install tokenizers==0.23.2
-    python docs/build/package_token_check.py --tokenizer-dir <folder> --message <file>
+    python docs/build/package_token_check.py --model <name> --tokenizer-dir <folder> --message <file>
 
 Repeat --message once per user message, in the order they are sent.
 Exit status: 0 fits, 1 does not fit, 2 the check could not be made.
@@ -139,7 +145,69 @@ def _render_laguna(user_messages, replies=()):
     return "".join(parts)
 
 
+# MiMo-V2.6-Pro's chat_template.jinja at adea8e2 (XiaomiMiMo/MiMo-V2.6-Pro-MOPD),
+# written out for the case the send uses. It has no default system message and
+# no opening token, writes no newline between messages, and with thinking left
+# at its default the reply's opening is "<|im_start|>assistant\n" alone -- the
+# model writes its own <think>. An earlier reply is written
+# <|im_start|>assistant\n<think>REASONING</think>ANSWER<|im_end|>, and the
+# template takes REASONING only from a `reasoning_content` field: a `reasoning`
+# field, the name OpenRouter's API uses, is not read by the template itself.
+# Whether OpenRouter or the endpoint passes it on under the template's name is
+# not published; send_audit_round.py counts the second request both ways.
+# Checked against the template rendered by jinja2 (sandboxed, trim_blocks and
+# lstrip_blocks, as transformers renders it) on 4 October 2026, for one
+# message, for two with an empty reply between, and for two with a written
+# reply and its reasoning between (the commit that adds this entry). The
+# template in tokenizer_config.json is the same text as chat_template.jinja.
+#
+# The tokenizer is Qwen2's class (tokenizer_config.json: "Qwen2Tokenizer"),
+# with Qwen's special tokens at the same ids and Xiaomi's audio and video
+# tokens after them. A tokenizer is a vocabulary, not weights; what it says
+# about lineage is recorded in PHASE7_DECISIONS.md, not decided here.
+def _render_mimo(user_messages, replies=()):
+    """As _render_laguna: `replies[k]` is (reasoning, answer) of the reply to
+    `user_messages[k]`, and a reply not given is rendered empty."""
+    parts = []
+    for i, text in enumerate(user_messages):
+        if i:
+            reasoning, answer = replies[i - 1] if i - 1 < len(replies) else ("", "")
+            parts.append("<|im_start|>assistant\n<think>" + reasoning + "</think>"
+                         + answer + "<|im_end|>")
+        parts.append("<|im_start|>user\n" + text + "<|im_end|>")
+    parts.append("<|im_start|>assistant\n")
+    return "".join(parts)
+
+
 MODELS = {
+    "mimo-v2.6-pro": ModelSpec(
+        name="MiMo-V2.6-Pro",
+        hf_repo="XiaomiMiMo/MiMo-V2.6-Pro-MOPD",
+        hf_revision="adea8e2c5373181e5a973fa1ecb343cb31af214b",
+        # 1,048,576 context and 131,072 output: Xiaomi's own endpoint on
+        # OpenRouter (the endpoints API for xiaomi/mimo-v2.6-pro, read
+        # 4 October 2026 through a web tool). Of the four endpoints round 8 may
+        # use, it and Novita's have the smallest output cap, and GMICloud's the
+        # only larger context (1,050,000), so these figures hold on all four.
+        context_tokens=1_048_576,
+        max_output_tokens=131_072,
+        render=_render_mimo,
+        # Downloaded by Viktor on 4 October 2026 into
+        # G:\Phase_7_Engine_Random_Files\Docs\04_Data\MiMo-V2.6-Pro-MOPD_tokenizer_adea8e2\.
+        # Checked the same day against Hugging Face's file listing at adea8e2,
+        # and at the -RL repository's main: the two small files' git blob ids
+        # recomputed from these bytes (chat_template.jinja 92597ade...,
+        # tokenizer_config.json 39a944cb...), and tokenizer.json, which is
+        # stored in LFS, by the SHA-256 below, which is its LFS id.
+        files={
+            "chat_template.jinja":
+                "11ea52e156de38a458e6b7720ad45915d65b97d4ec979a09f55e3c9bd1b4d059",
+            "tokenizer.json":
+                "ff15eb925890d6b71b5160de4b846fbd13178438ab463b38ecc953e8cd1dcb3e",
+            "tokenizer_config.json":
+                "413a7845f52943ccf4de0e5c838414507d16c44dbf573da9e20bc8902b384d06",
+        },
+    ),
     "laguna-s-2.1": ModelSpec(
         name="Laguna S 2.1",
         hf_repo="poolside/Laguna-S-2.1",
@@ -320,7 +388,8 @@ def run(spec, tokenizer_dir, message_paths, reserve, counter_factory=load_counte
 def main(argv=None, models=None, counter_factory=load_counter, out=sys.stdout):
     models = MODELS if models is None else models
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument("--model", default="laguna-s-2.1", choices=sorted(models))
+    # No default (4 October 2026): a default named the previous round's model.
+    parser.add_argument("--model", required=True, choices=sorted(models))
     parser.add_argument("--tokenizer-dir", required=True,
                         help="the folder holding the model's pinned tokenizer files")
     parser.add_argument("--message", action="append", required=True,

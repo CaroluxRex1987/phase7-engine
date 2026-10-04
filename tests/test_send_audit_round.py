@@ -45,6 +45,23 @@ This file is the one test file changed while the code is frozen for round 7
 (the same ruling, point 2): it tests a script that is not part of the engine,
 and the rerun sends the first message by its hash from the tag.
 
+From 4 October 2026 the send is repointed to round 8 (PHASE7_DECISIONS.md,
+"Decision, 4 October 2026 -- round 8: Xiaomi MiMo-V2.6-Pro, the full package in
+one session", and "-- round 8's tooling"), and this file is one of the two
+test files the freeze lets change until round 8's report is triaged. Added:
+
+  * each send names one of the four endpoints in the decided order, and only
+    those; Part 7 goes to the provider that answered the first message, takes
+    no --provider, and is refused when another provider answered; a 404 names
+    the next in the order;
+  * Part 7 is refused for a folder that is not one of this round's;
+  * round 8's folders are built from round 7's, every reused file checked
+    against the hash both of round 7's runs recorded, the Part 7 document
+    refused while it is still the tag's text, the commit messages refused
+    unless they are round 7's to the byte, and nothing written on a refusal;
+  * build_audit_package.py refuses to rebuild round 7's folders;
+  * the commit messages can end at a named commit (the tag), not only at HEAD.
+
 WHAT THESE TESTS DO NOT COVER
 
 Nothing here touches the network: the function that would POST is replaced by a
@@ -155,7 +172,7 @@ class _Probe:
 
 
 class _Repo:
-    """A throwaway git repository holding a round-7 package, a pinned
+    """A throwaway git repository holding this round's package, a pinned
     stand-in tokenizer folder, and optionally a first reply."""
 
     def __init__(self):
@@ -167,7 +184,7 @@ class _Repo:
         _git(self.root, "config", "user.name", "test")
         _git(self.root, "config", "core.autocrlf", "false")
         _git(self.root, "config", "commit.gpgsign", "false")
-        round_dir = self.root / "docs" / "audit_package" / "round7"
+        round_dir = self.root / "docs" / "audit_package" / sar.ROUND
         self.message1 = round_dir / "MESSAGE1_PARTS1-6"
         self.message2 = round_dir / "MESSAGE2_PART7"
         for name in sar.MESSAGE1_FILES:
@@ -178,7 +195,7 @@ class _Repo:
         _write(str(self.tok / "tokenizer.json"), "{}")
         _write(str(self.root / "README.md"), "throwaway\n")
         self.commit("initial")
-        self.run_dir = self.root / "docs" / "audit_reports" / "round7_laguna-s-2.1_2026-10-01"
+        self.run_dir = self.root / "docs" / "audit_reports" / f"{sar.RUN_DIR_PREFIX}2026-10-05"
 
     def commit(self, message):
         _git(self.root, "add", "-A")
@@ -198,7 +215,7 @@ class _Repo:
             "provider_pinned": sar.PROVIDER_SLUG,
             "payload_sha256": self.payload_sha256(),
             "finish_reason": "stop",
-            "provider_reported": sar.PROVIDER_DISPLAY_NAME,
+            "provider_reported": sar.PROVIDER_NAMES[sar.PROVIDER_SLUG],
             "report_chars": len(answer),
             "report_sha256": hashlib.sha256(answer.encode("utf-8")).hexdigest(),
             "reasoning_sha256": hashlib.sha256(reasoning.encode("utf-8")).hexdigest(),
@@ -285,8 +302,8 @@ def test_both_requests_pin_the_provider_and_turn_compression_off():
     part7 = sar.build_part7_payload(_texts(sar.MESSAGE2_FILES, "seven"))
     for body in (sar.build_request_body(payload, False),
                  sar.build_part7_request_body(payload, "r", "a", part7, False)):
-        assert body["model"] == "poolside/laguna-s-2.1"
-        assert body["provider"]["only"] == ["poolside"]
+        assert body["model"] == "xiaomi/mimo-v2.6-pro"
+        assert body["provider"]["only"] == ["xiaomi"]
         assert body["provider"]["allow_fallbacks"] is False
         assert body["provider"]["data_collection"] == "deny"
         assert body["plugins"] == [{"id": "context-compression", "enabled": False}]
@@ -321,6 +338,9 @@ def _load_builder(tmp):
     bap.OUT_DIR = os.path.join(tmp, "round7")
     bap.MESSAGE1_DIR = os.path.join(bap.OUT_DIR, "MESSAGE1_PARTS1-6")
     bap.MESSAGE2_DIR = os.path.join(bap.OUT_DIR, "MESSAGE2_PART7")
+    # Round 7 was sent, and the script refuses to rebuild it (4 October 2026);
+    # what is checked here is the layout it builds, so the guard is lifted.
+    bap.SENT = False
     # The engine runs and the git history are slow and are not what this
     # checks: which files land in which folder is.
     bap._transcripts = lambda: "transcripts\n"
@@ -337,9 +357,14 @@ def test_every_file_the_build_writes_is_one_the_send_sends():
             _write(os.path.join(tmp, name), f"hand-written {name}\n")
         with contextlib.redirect_stdout(io.StringIO()):
             bap.main()
-        assert sorted(os.listdir(bap.MESSAGE1_DIR)) == sorted(sar.MESSAGE1_FILES)
+        # Round 7's layout: its instruction was rev 8. From 4 October 2026 the
+        # send is round 8's, whose instruction is rev 9 and whose folders
+        # build_round8_package.py makes (checked below, against the send's own
+        # reader); the attachments and the second message are the same names.
+        assert bap.MESSAGE1_HAND_WRITTEN[0] == "item16_review_instruction_rev8.md"
+        assert sorted(os.listdir(bap.MESSAGE1_DIR)) == sorted(
+            [bap.MESSAGE1_HAND_WRITTEN[0]] + sar.MESSAGE1_ATTACHMENTS)
         assert sorted(os.listdir(bap.MESSAGE2_DIR)) == sorted(sar.MESSAGE2_FILES)
-        sar.read_package(Path(bap.MESSAGE1_DIR))
         sar.read_part7(Path(bap.MESSAGE2_DIR))
         assert bap.MESSAGE1_DIR.endswith("MESSAGE1_PARTS1-6")
         assert bap.MESSAGE2_DIR.endswith("MESSAGE2_PART7")
@@ -383,6 +408,10 @@ def test_part7_commit_messages_start_after_the_cut():
         assert "commit alpha" not in text
         assert f"the 2 commits made after `{hashes[0]}`" in text
         assert f"commit {hashes[0]}" not in text
+        # Ended at a named commit, as round 8 ends them at the tag.
+        text = bap._full_messages(since=hashes[0][:7], until=hashes[1])
+        assert "commit bravo" in text and "commit charlie" not in text
+        assert f"the 1 commits made after `{hashes[0]}`" in text
         with pytest.raises(SystemExit) as info:
             bap._full_messages(since="0000000")
         assert "REFUSING TO BUILD" in str(info.value)
@@ -453,7 +482,8 @@ def test_send_sends_the_first_message_alone_once_it_is_measured():
         assert (counted["request2_prompt_tokens_worst_case"]
                 > counted["request1_prompt_tokens"] + sar.MAX_OUTPUT_TOKENS)
         assert call["metadata"]["payload_sha256"] == repo.payload_sha256()
-        assert call["run_dir"].name.startswith("round7_laguna-s-2.1_")
+        assert call["run_dir"].name.startswith("round8_mimo-v2.6-pro_")
+        assert call["metadata"]["provider_pinned"] == "xiaomi"
         assert call["metadata"]["reasoning_probe"]["reasoning_tokens"] == 7
         assert call["metadata"]["reasoning_requested"] == {"enabled": True}
     finally:
@@ -470,8 +500,8 @@ def test_every_request_and_the_probe_ask_for_reasoning():
     for body in (sar.build_request_body(payload, False),
                  sar.build_part7_request_body(payload, "r", "a", part7, False), probe):
         assert body["reasoning"] == {"enabled": True}
-        assert body["model"] == "poolside/laguna-s-2.1"
-        assert body["provider"]["only"] == ["poolside"]
+        assert body["model"] == "xiaomi/mimo-v2.6-pro"
+        assert body["provider"]["only"] == ["xiaomi"]
         assert body["provider"]["allow_fallbacks"] is False
         assert body["provider"]["data_collection"] == "deny"
     # The probe carries one short question and nothing from the package.
@@ -530,19 +560,22 @@ def test_a_round_has_two_runs_at_most_and_a_run_is_any_reply_on_record():
     try:
         argv = ["--tokenizer-dir", str(repo.tok), "--send"]
         # A folder that holds only an HTTP error is not a run.
-        _write(str(repo.root / "docs" / "audit_reports" / "round7_laguna-s-2.1_2026-10-02"
+        _write(str(repo.root / "docs" / "audit_reports" / f"{sar.RUN_DIR_PREFIX}2026-10-02"
                    / "turn1_http_error.txt"), "HTTP 502\n")
         assert sar.recorded_runs(repo.root) == []
-        repo.recorded_run("round7_laguna-s-2.1_2026-10-01")
+        # Round 7's runs are not this round's.
+        repo.recorded_run("round7_laguna-s-2.1_2026-09-30")
+        assert sar.recorded_runs(repo.root) == []
+        repo.recorded_run(f"{sar.RUN_DIR_PREFIX}2026-10-01")
         code, spy = repo.main(argv)
         [call] = spy.calls
-        assert call["run_dir"].name.startswith("round7_laguna-s-2.1_run2_")
+        assert call["run_dir"].name.startswith(f"{sar.RUN_DIR_PREFIX}run2_")
         # A reply cut off with no metadata written is on record too: two runs.
-        repo.recorded_run("round7_laguna-s-2.1_run2_2026-10-03", metadata=False)
+        repo.recorded_run(f"{sar.RUN_DIR_PREFIX}run2_2026-10-03", metadata=False)
         assert len(sar.recorded_runs(repo.root)) == 2
         text = repo.refused(argv)
-        assert "has had its 2 runs" in text
-        assert "another auditor, not another run" in text
+        assert "Round 8 has had its 2 runs" in text
+        assert "the fallback, scoped packages" in text
     finally:
         repo.close()
 
@@ -551,14 +584,14 @@ def test_every_run_sends_the_bytes_the_earlier_runs_sent():
     repo = _Repo()
     try:
         argv = ["--tokenizer-dir", str(repo.tok), "--send"]
-        run = repo.recorded_run("round7_laguna-s-2.1_2026-10-01", payload_sha256="0" * 64)
+        run = repo.recorded_run(f"{sar.RUN_DIR_PREFIX}2026-10-01", payload_sha256="0" * 64)
         text = repo.refused(argv)
         assert "every run sends the same first message" in text
         assert "0" * 64 in text
         os.remove(run / "turn1_run_metadata.json")
         text = repo.refused(argv)
         assert "no payload_sha256 on record" in text
-        repo.recorded_run("round7_laguna-s-2.1_2026-10-01")
+        repo.recorded_run(f"{sar.RUN_DIR_PREFIX}2026-10-01")
         assert repo.main(argv)[0] == 0
     finally:
         repo.close()
@@ -574,7 +607,7 @@ def test_send_takes_no_out_dir_or_force_and_never_writes_over_a_run():
         # on record, so the next is run 2): refused before the probe, and not
         # written over.
         stamp = sar._utc_now().strftime("%Y-%m-%d")
-        repo.recorded_run(f"round7_laguna-s-2.1_run2_{stamp}")
+        repo.recorded_run(f"{sar.RUN_DIR_PREFIX}run2_{stamp}")
         text = repo.refused(argv)
         assert "never written over" in text
     finally:
@@ -627,13 +660,15 @@ def test_the_closed_runs_are_round_7s_two_runs_as_committed():
     assert run2["provider_reported"] == "Poolside"
 
 
-def test_round_7_has_had_its_two_runs():
+def test_round_7s_runs_are_on_record_and_are_not_round_8s():
+    # Until 4 October 2026 this asserted that round 7 had had its two runs and
+    # that a third was refused. Round 7 has ended; its runs stay on record, and
+    # none of them counts against round 8's two.
     root = Path(REPO_ROOT)
-    assert [d.name for d in sar.recorded_runs(root)] == [RUN1, RUN2]
-    with pytest.raises(SystemExit) as info:
-        sar.check_another_run(root, ROUND7_PAYLOAD)
-    assert "has had its 2 runs" in str(info.value)
-    assert "another auditor, not another run" in str(info.value)
+    base = root / "docs" / "audit_reports"
+    assert sorted(d.name for d in base.glob("round7_*") if d.is_dir()) == [RUN1, RUN2]
+    assert not [d for d in sar.recorded_runs(root) if d.name in (RUN1, RUN2)]
+    assert sar.RUN_DIR_PREFIX == "round8_mimo-v2.6-pro_" and sar.ROUND == "round8"
 
 
 class _Session:
@@ -788,3 +823,244 @@ def test_part7_is_refused_when_the_second_request_does_not_fit():
         assert "DOES NOT FIT" in text
     finally:
         repo.close()
+
+
+# --- round 8: the provider order, ruled 4 October 2026 ------------------------------
+
+
+def test_the_provider_order_is_the_decided_one_and_nothing_else():
+    assert sar.PROVIDERS == (("xiaomi", "Xiaomi"), ("gmicloud", "GMICloud"),
+                             ("deepinfra", "DeepInfra"), ("novita", "Novita"))
+    assert sar.PROVIDER_SLUG == "xiaomi"
+    assert [sar.next_provider(p) for p, _ in sar.PROVIDERS] == [
+        "gmicloud", "deepinfra", "novita", None]
+    assert sar.next_provider("poolside") is None
+    assert sar.TOKEN_CHECK_MODEL == "mimo-v2.6-pro"
+    assert sar.MAX_OUTPUT_TOKENS == ptc.MODELS["mimo-v2.6-pro"].max_output_tokens
+    assert sar.INSTRUCTION_FILE == "item16_review_instruction_rev9.md"
+
+
+def test_send_pins_the_provider_it_is_given_in_the_probe_and_the_send():
+    repo = _Repo()
+    try:
+        probe = _Probe()
+        code, spy = repo.main(["--tokenizer-dir", str(repo.tok), "--send",
+                               "--provider", "gmicloud"], probe=probe)
+        assert code == 0
+        [call] = spy.calls
+        assert call["body"]["provider"]["only"] == ["gmicloud"]
+        assert call["body"]["provider"]["allow_fallbacks"] is False
+        assert call["metadata"]["provider_pinned"] == "gmicloud"
+        assert probe.calls == [sar.build_probe_body(False, "gmicloud")]
+        # A provider outside the four is refused by the command line itself.
+        with pytest.raises(SystemExit):
+            with contextlib.redirect_stderr(io.StringIO()):
+                repo.main(["--tokenizer-dir", str(repo.tok), "--send",
+                           "--provider", "poolside"])
+    finally:
+        repo.close()
+
+
+def test_part7_goes_to_the_provider_that_answered_the_first_message():
+    repo = _Repo()
+    try:
+        repo.first_reply(provider_pinned="deepinfra", provider_reported="DeepInfra")
+        repo.commit("the first reply, from DeepInfra")
+        argv = ["--tokenizer-dir", str(repo.tok), "--send-part7"]
+        code, spy = repo.main(argv)
+        assert code == 0
+        [call] = spy.calls
+        assert call["body"]["provider"]["only"] == ["deepinfra"]
+        assert call["metadata"]["provider_pinned"] == "deepinfra"
+        text = repo.refused(argv + ["--provider", "xiaomi"])
+        assert "--provider is for --send only" in text
+    finally:
+        repo.close()
+
+
+def test_part7_is_refused_when_the_provider_reported_is_not_the_one_pinned():
+    repo = _Repo()
+    try:
+        # Pinned to GMICloud, answered as Xiaomi: one of the four, but not the
+        # one asked for.
+        repo.first_reply(provider_pinned="gmicloud", provider_reported="Xiaomi")
+        repo.commit("a mismatched reply")
+        text = repo.refused(["--tokenizer-dir", str(repo.tok), "--send-part7"])
+        assert "'Xiaomi', not 'GMICloud'" in text
+        repo.first_reply(provider_pinned="poolside", provider_reported="Poolside")
+        repo.commit("a reply pinned outside the order")
+        text = repo.refused(["--tokenizer-dir", str(repo.tok), "--send-part7"])
+        assert "via one of xiaomi, gmicloud, deepinfra, novita" in text
+    finally:
+        repo.close()
+
+
+def test_part7_is_refused_for_a_folder_that_is_not_this_rounds():
+    repo = _Repo()
+    try:
+        repo.run_dir = repo.root / "docs" / "audit_reports" / "round9_other_2026-10-05"
+        _part7_ready(repo)
+        text = repo.refused(["--tokenizer-dir", str(repo.tok), "--send-part7",
+                             "--out-dir", str(repo.run_dir)])
+        assert "is not a round8 run folder" in text
+    finally:
+        repo.close()
+
+
+# --- round 8's package: round 7's files, checked by hash ------------------------------
+
+b8 = _load("phase7_build_round8_package", "build_round8_package.py")
+
+
+class _Round8:
+    """A throwaway repository holding round 7's built folders (stand-in bytes,
+    with REUSED pointed at their hashes), round 7's two run records, the
+    instruction and the Part 7 document, with the git calls stood in."""
+
+    def __init__(self):
+        self.base = tempfile.mkdtemp(prefix="phase7_round8_")
+        root = self.root = Path(self.base)
+        self.saved = {k: getattr(b8, k) for k in (
+            "REPO", "PACKAGE_DIR", "REPORTS_DIR", "OUT_DIR", "SOURCE_DIR", "REUSED",
+            "_git_show", "check_commit_messages")}
+        b8.REPO = str(root)
+        b8.PACKAGE_DIR = str(root / "docs" / "audit_package")
+        b8.REPORTS_DIR = str(root / "docs" / "audit_reports")
+        b8.OUT_DIR = os.path.join(b8.PACKAGE_DIR, b8.ROUND)
+        b8.SOURCE_DIR = os.path.join(b8.PACKAGE_DIR, b8.SOURCE_ROUND)
+        source = Path(b8.SOURCE_DIR) / b8.MESSAGE1
+        reused = {}
+        for name in self.saved["REUSED"]:
+            _write(str(source / name), f"round 7 sent {name}\r\n")
+            reused[name] = hashlib.sha256(f"round 7 sent {name}\r\n".encode()).hexdigest()
+        _write(str(source / b8.SOURCE_INSTRUCTION), "rev 8\n")
+        b8.REUSED = reused
+        files = [{"name": n, "sha256": d} for n, d in reused.items()]
+        files.append({"name": b8.SOURCE_INSTRUCTION, "sha256": "8" * 64})
+        for run in b8.SOURCE_RUNS:
+            _write(os.path.join(b8.REPORTS_DIR, run, "turn1_run_metadata.json"),
+                   json.dumps({"files": files}))
+        _write(os.path.join(b8.PACKAGE_DIR, b8.INSTRUCTION), "rev 9\r\n")
+        _write(os.path.join(b8.PACKAGE_DIR, b8.PART7_DOCUMENT), "corrected\r\n")
+        self.at_tag = b"as at the tag\n"
+        b8._git_show = lambda rev_path: self.at_tag
+        b8.check_commit_messages = lambda: (b"the commit messages\n", [])
+
+    def build(self):
+        with contextlib.redirect_stdout(io.StringIO()):
+            b8.main()
+
+    def refused(self):
+        with pytest.raises(SystemExit) as info:
+            self.build()
+        assert not os.path.exists(b8.OUT_DIR), "a refusal wrote something"
+        return str(info.value)
+
+    def close(self):
+        for k, v in self.saved.items():
+            setattr(b8, k, v)
+        shutil.rmtree(self.base, ignore_errors=True)
+
+
+def test_round8_is_round_7s_first_message_with_only_the_instruction_replaced():
+    r8 = _Round8()
+    try:
+        r8.build()
+        m1 = Path(b8.OUT_DIR) / b8.MESSAGE1
+        m2 = Path(b8.OUT_DIR) / b8.MESSAGE2
+        assert sorted(os.listdir(m1)) == sorted(sar.MESSAGE1_FILES)
+        assert sorted(os.listdir(m2)) == sorted(sar.MESSAGE2_FILES)
+        records, texts = sar.read_package(m1)
+        sar.read_part7(m2)
+        for name in b8.REUSED:
+            assert (m1 / name).read_bytes() == (Path(b8.SOURCE_DIR) / b8.MESSAGE1 / name).read_bytes()
+        assert texts[sar.INSTRUCTION_FILE] == "rev 9\r\n"
+        assert (m2 / b8.PART7_DOCUMENT).read_bytes() == b"corrected\r\n"
+        assert (m2 / b8.COMMIT_MESSAGES).read_bytes() == b"the commit messages\n"
+        manifest = (Path(b8.OUT_DIR) / "MANIFEST.md").read_text(encoding="utf-8")
+        for record in records:
+            assert f"`{record['sha256']}` -- `{record['name']}`" in manifest
+    finally:
+        r8.close()
+
+
+def test_round8_is_refused_when_a_reused_file_is_not_what_round_7_sent():
+    r8 = _Round8()
+    try:
+        name = "phase7_test_suite.md"
+        _write(os.path.join(b8.SOURCE_DIR, b8.MESSAGE1, name), "round 7 sent it\n")
+        text = r8.refused()
+        assert f"{name} is not the file round 7 sent" in text
+        os.remove(os.path.join(b8.SOURCE_DIR, b8.MESSAGE1, name))
+        assert f"{name} is missing" in r8.refused()
+    finally:
+        r8.close()
+
+
+def test_round8_is_refused_when_a_run_record_disagrees_with_what_is_reused():
+    r8 = _Round8()
+    try:
+        b8.REUSED = dict(b8.REUSED, **{"MANIFEST.md": "0" * 64})
+        text = r8.refused()
+        assert "round7_laguna-s-2.1_2026-09-30's record does not list" in text
+    finally:
+        r8.close()
+
+
+def test_round8_is_refused_without_rev9_or_with_the_part7_document_uncorrected():
+    r8 = _Round8()
+    try:
+        os.remove(os.path.join(b8.PACKAGE_DIR, b8.INSTRUCTION))
+        assert f"{b8.INSTRUCTION} is not in docs/audit_package/" in r8.refused()
+        _write(os.path.join(b8.PACKAGE_DIR, b8.INSTRUCTION), "rev 9\n")
+        # The tag's text, checked out with CRLF: still uncorrected.
+        _write(os.path.join(b8.PACKAGE_DIR, b8.PART7_DOCUMENT), "as at the tag\r\n")
+        assert "is still the text it had at round7-sent-2026-09-30" in r8.refused()
+    finally:
+        r8.close()
+
+
+def test_round8_is_refused_when_the_commit_messages_are_not_round_7s():
+    r8 = _Round8()
+    try:
+        b8.check_commit_messages = lambda: (None, ["the commit messages differ"])
+        assert "the commit messages differ" in r8.refused()
+    finally:
+        r8.close()
+
+
+def test_round8_reuses_exactly_what_both_of_round_7s_runs_recorded():
+    # Against the committed records, not the stand-ins: the hashes the build
+    # checks are the ones both runs sent.
+    for run, files in b8.recorded_files().items():
+        assert {n: d for n, d in files.items() if n != b8.SOURCE_INSTRUCTION} == b8.REUSED, run
+        assert b8.SOURCE_INSTRUCTION in files
+    assert list(b8.REUSED) == sar.MESSAGE1_ATTACHMENTS
+    assert b8.INSTRUCTION == sar.INSTRUCTION_FILE
+    assert [b8.PART7_DOCUMENT, b8.COMMIT_MESSAGES] == sar.MESSAGE2_FILES
+    assert b8.ROUND == sar.ROUND
+
+
+def test_the_commit_messages_up_to_the_tag_are_round_7s_to_the_byte():
+    # Generated from this repository, through the tag. The tag is on Viktor's
+    # machine and in every full clone of GitHub's repository.
+    raw, problems = b8.check_commit_messages()
+    assert problems == []
+    assert hashlib.sha256(raw).hexdigest() == b8.COMMIT_MESSAGES_SHA256
+
+
+def test_build_audit_package_refuses_to_rebuild_round_7():
+    tmp = tempfile.mkdtemp(prefix="phase7_build_")
+    try:
+        bap = _load_builder(tmp)
+        bap.SENT = True
+        for name in bap.HAND_WRITTEN:
+            _write(os.path.join(tmp, name), f"hand-written {name}\n")
+        with pytest.raises(SystemExit) as info:
+            with contextlib.redirect_stdout(io.StringIO()):
+                bap.main()
+        assert "round7 was sent on 30 September 2026" in str(info.value)
+        assert not os.path.exists(bap.OUT_DIR)
+        assert _load("phase7_build_audit_package_sent", "build_audit_package.py").SENT is True
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
