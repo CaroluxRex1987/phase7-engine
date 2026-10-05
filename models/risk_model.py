@@ -41,10 +41,22 @@ VOL_MULT_HIGH = 1.35           # widen stops in high vol to avoid whipsaws
 VOL_MULT_LOW = 0.85            # tighter stops in calm markets
 VOL_MULT_EXTREME = 1.60
 
-# Structural influence on the stop. A strong trend pushes the stop
-# further out; a strong bias pulls it back in.
-TREND_FACTOR_DIVISOR = 200.0
-BIAS_FACTOR_DIVISOR = 300.0
+# FIX 1, 5 October 2026 (docs/PHASE7_DECISIONS.md, "Ruling, 5 October
+# 2026 -- round 8 triaged ...", point 1). Two constants stood here under the
+# heading "Structural influence on the stop. A strong trend pushes the stop
+# further out; a strong bias pulls it back in.":
+#
+#     TREND_FACTOR_DIVISOR = 200.0
+#     BIAS_FACTOR_DIVISOR = 300.0
+#
+# They scaled the stop multiplier by 1 + trend_health / 200 (x1.0 to x1.5)
+# and by 1 - |bias_score| / 300 (x0.667 at a score of 100). So the same
+# market -- the same price, ATR and volatility -- passed or failed the 8%
+# risk check below depending on how convinced the engine was, which Viktor
+# ruled a break of Item 14: "Directional conviction must never be treated as
+# equivalent to risk." The stop is ATR x ATR_STOP_MULT x the volatility
+# factor, and nothing else scales it. Both constants are gone, and so are
+# their two entries in core/decision_log.py's FINGERPRINTED_MODULES.
 
 # Risk regime boundaries.
 #
@@ -174,7 +186,8 @@ def _refuse_wrong_side_stop(plan_direction, current_price, atr_stop):
     example -- a structural level above price on a long -- is the case min()
     already rules out. (Finding 6, 27 September 2026, removed the structural
     level and the min() / max(); the stop is the ATR stop alone, and the
-    argument above holds for it unchanged.)
+    argument above holds for it unchanged.) (Fix 1, 5 October 2026, removed
+    bias_factor as well -- see the last paragraph.)
 
     WRONG IF IT WERE REACHED. It replaced the DISTANCE and left the stop where
     it was, on the wrong side of price: a stop above a long's entry, returned
@@ -183,7 +196,17 @@ def _refuse_wrong_side_stop(plan_direction, current_price, atr_stop):
     normal-looking 1:1 / 2:1 / 3:1 beside it, and validate_risk_parameters
     measures the distance with abs() too, so the plan could pass the risk
     check. Reachable by calling calculate_stop_targets with |bias_score| of
-    300 or more, which tests/test_plan_direction_and_side.py does.
+    300 or more, which tests/test_plan_direction_and_side.py did until fix 1.
+
+    SINCE FIX 1, 5 October 2026. The stop distance is atr_val x
+    ATR_STOP_MULT x a volatility factor, and every one of those is positive,
+    so no value of bias_score reaches this branch any more. Two things still
+    can. A multiplier constant made zero or negative, which nothing in the
+    engine does; tests/test_plan_direction_and_side.py does it for the length
+    of one test, to show this raise is still load-bearing. And floating point
+    at absurd scales: an ATR under about 1e-16 of price is absorbed when it is
+    subtracted, so the distance comes out zero, and an ATR near the largest
+    float overflows it to infinity (both checked on 5 October).
 
     A stop on the wrong side of entry is not a degenerate plan; it is not a
     plan. This raises, and calculate_stop_targets' own except turns that into
@@ -220,7 +243,7 @@ class RiskModel:
 
     def calculate_stop_targets(
         self,
-        trend_health: float,
+        *,
         current_price: float,
         atr_val: float,
         bias_score: float,
@@ -268,11 +291,27 @@ class RiskModel:
         TypeError. The 8% (EXTREME RISK) and 15% (distance refusal) limits in
         validate_risk_parameters are unchanged by the same ruling.
 
+        FIX 1, 5 October 2026 (round 8's triage, point 1). The first
+        parameter used to be `trend_health`, and the stop multiplier was
+        ATR_STOP_MULT x trend_factor x bias_factor x the volatility factor,
+        with trend_factor = 1 + trend_health / 200 and bias_factor =
+        1 - |bias_score| / 300. Conviction therefore set the stop, and the
+        stop decides the 8% risk verdict: the three LONGs of 27 September
+        passed at a 7.15% stop that is 9.53% without the bias factor. Viktor
+        ruled it a break of Item 14 and the stop is now ATR_STOP_MULT x the
+        volatility factor. That also makes the 27 September ruling, "the stop
+        comes from ATR alone", true as worded. `trend_health` is removed
+        rather than ignored, for the reason given for detailed_bias above,
+        and passing it raises TypeError. bias_score stays: its sign still
+        picks the side, and its size no longer reaches the stop. Every
+        parameter is keyword-only, because removing the first one would
+        otherwise make a call in the old positional order bind trend health
+        to current_price without a word.
+
         Args:
-            trend_health: Trend health score (0-100)
             current_price: Current market price
             atr_val: Average True Range value
-            bias_score: Bias strength score
+            bias_score: Bias score; its sign picks the side (>= 0 is LONG)
             volatility_state: Current volatility regime
 
         Returns:
@@ -331,11 +370,10 @@ class RiskModel:
             elif volatility_state == "EXTREME VOLATILITY":
                 vol_multiplier = VOL_MULT_EXTREME
 
-            # Structural influence: strong trend pushes stop further
-            trend_factor = 1.0 + (max(0.0, min(100.0, trend_health)) / TREND_FACTOR_DIVISOR)
-            bias_factor = 1.0 - (abs(bias_score) / BIAS_FACTOR_DIVISOR)
-
-            stop_mult = ATR_STOP_MULT * trend_factor * bias_factor * vol_multiplier
+            # FIX 1, 5 October 2026: trend_factor and bias_factor stood here
+            # and multiplied into stop_mult -- conviction setting the stop. See
+            # the docstring. Nothing but the volatility state scales it now.
+            stop_mult = ATR_STOP_MULT * vol_multiplier
 
             # A12 FIX: targets are now computed as multiples of the ACTUAL stop
             # distance (i.e. real risk), not fixed ATR multiples independent of
@@ -348,7 +386,9 @@ class RiskModel:
             #
             # FINDING 6, 27 September 2026: the structural level and the
             # min/max named above are gone -- see the docstring. The stop is
-            # the ATR stop, and nothing else moves it.
+            # the ATR stop, and nothing else moves it. (Fix 1, 5 October
+            # 2026: the trend factor named above is gone too; the volatility
+            # factor is the only one left.)
             if plan_direction == "LONG":
                 atr_stop = current_price - (atr_val * stop_mult)
 

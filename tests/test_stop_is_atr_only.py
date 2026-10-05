@@ -21,7 +21,9 @@ WHAT THESE TESTS HOLD
 1. calculate_stop_targets no longer accepts a structural level -- refused by
    name, not silently ignored.
 2. The stop is exactly the ATR stop, from the fingerprinted constants, on
-   every combination of side, trend health and volatility state.
+   every combination of side and volatility state. (Trend health was a third
+   axis until fix 1, 5 October 2026, took it out of the stop;
+   tests/test_stop_ignores_conviction.py holds that.)
 3. engine_core's call passes no structural level, and its lineage no longer
    lists one as a risk input (read from the parse tree, so this runs without
    pandas_ta).
@@ -49,17 +51,21 @@ PRICE = 100.0
 ATR = 2.0
 
 
-def _expected_stop(price, atr, bias_score, trend_health, volatility_state):
-    """The ATR stop, written out from the module's own constants."""
+def _expected_stop(price, atr, bias_score, volatility_state):
+    """
+    The ATR stop, written out from the module's own constants.
+
+    FIX 1, 5 October 2026: this took trend_health too, and the multiplier
+    carried (1 + trend_health / TREND_FACTOR_DIVISOR) and
+    (1 - |bias_score| / BIAS_FACTOR_DIVISOR). Both factors and both constants
+    are gone; bias_score only picks the side.
+    """
     from models import risk_model as rm
 
     vol = {"HIGH VOLATILITY": rm.VOL_MULT_HIGH,
            "LOW VOLATILITY": rm.VOL_MULT_LOW,
            "EXTREME VOLATILITY": rm.VOL_MULT_EXTREME}.get(volatility_state, 1.0)
-    mult = (rm.ATR_STOP_MULT
-            * (1.0 + max(0.0, min(100.0, trend_health)) / rm.TREND_FACTOR_DIVISOR)
-            * (1.0 - abs(bias_score) / rm.BIAS_FACTOR_DIVISOR)
-            * vol)
+    mult = rm.ATR_STOP_MULT * vol
     return price - atr * mult if bias_score >= 0 else price + atr * mult
 
 
@@ -75,9 +81,13 @@ def _engine_core_tree():
 def test_a_structural_level_is_no_longer_accepted():
     from models.risk_model import RiskModel
 
+    # FIX 1, 5 October 2026: trend_health=60.0 stood first in this call. That
+    # parameter is gone too, and left in it would raise the TypeError itself,
+    # naming trend_health -- so it is gone from the call, and the message is
+    # still asserted to name structural_level.
     try:
         RiskModel().calculate_stop_targets(
-            trend_health=60.0, current_price=PRICE, atr_val=ATR,
+            current_price=PRICE, atr_val=ATR,
             structural_level=90.0, bias_score=40.0)
     except TypeError as exc:
         assert "structural_level" in str(exc), exc
@@ -95,16 +105,17 @@ def test_a_structural_level_is_no_longer_accepted():
 def test_the_stop_is_exactly_the_atr_stop():
     from models import risk_model as rm
 
+    # FIX 1, 5 October 2026: a trend-health axis (0, 50, 100) stood here; trend
+    # health no longer reaches the stop and is no longer a parameter.
     scores = [-100.0, -60.0, -0.1, 0.0, 40.0, 100.0]
-    healths = [0.0, 50.0, 100.0]
     vols = ["LOW VOLATILITY", "NORMAL", "HIGH VOLATILITY", "EXTREME VOLATILITY"]
-    for score, health, vol in itertools.product(scores, healths, vols):
+    for score, vol in itertools.product(scores, vols):
         stop, t1, t2, t3 = rm.RiskModel().calculate_stop_targets(
-            trend_health=health, current_price=PRICE, atr_val=ATR,
+            current_price=PRICE, atr_val=ATR,
             bias_score=score, volatility_state=vol)
-        want = _expected_stop(PRICE, ATR, score, health, vol)
+        want = _expected_stop(PRICE, ATR, score, vol)
         assert math.isclose(stop, want, rel_tol=0, abs_tol=1e-12), (
-            score, health, vol, stop, want)
+            score, vol, stop, want)
         distance = abs(PRICE - stop)
         side = 1.0 if score >= 0 else -1.0
         for target, mult in zip((t1, t2, t3), (rm.TARGET1_MULT, rm.TARGET2_MULT,
@@ -172,8 +183,9 @@ def test_on_the_engine_path_the_stop_is_the_atr_stop_not_the_hvn():
     inputs = decision["lineage"]["risk_inputs"]
     price = float(inputs["current_price"])
     score = float(inputs["bias_score"])
+    # FIX 1, 5 October 2026: decision["trend"]["trend_health"] was read here,
+    # because it fed the stop; it no longer does.
     want = _expected_stop(price, float(inputs["atr"]), score,
-                          float(decision["trend"]["trend_health"]),
                           inputs["volatility_state"])
     stop = float(decision["risk"]["atr_stop"])
     assert math.isclose(stop, want, rel_tol=0, abs_tol=1e-12), (stop, want)

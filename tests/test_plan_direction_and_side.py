@@ -29,6 +29,12 @@ tests/test_stop_is_atr_only.py holds that.) The out-of-range tests are the evide
 that the raise is load-bearing: they reach the branch the grid proves the
 engine cannot.
 
+FIX 1, 5 October 2026: trend health no longer reaches the stop and is no
+longer a parameter, so the grid lost that axis; and with bias_factor gone, no
+bias_score reaches the branch either. The out-of-range test now shows those
+scores give an ordinary plan, and reaches the branch through a multiplier
+constant made negative for the length of the test.
+
 Fixture-free, per run_tests.py.
 """
 
@@ -43,11 +49,12 @@ PRICE = 100.0
 ATR = 2.0
 
 
-def _plan(bias_score, trend_health=60.0, volatility_state="NORMAL"):
+def _plan(bias_score, volatility_state="NORMAL"):
     from models.risk_model import RiskModel
 
+    # FIX 1, 5 October 2026: trend_health (default 60.0) was passed here; the
+    # parameter is gone.
     return RiskModel().calculate_stop_targets(
-        trend_health=trend_health,
         current_price=PRICE,
         atr_val=ATR,
         bias_score=bias_score,
@@ -81,9 +88,10 @@ def test_detailed_bias_is_no_longer_accepted():
     # structural_level=None stood in this call until finding 6 removed that
     # parameter too. Left in, it would raise the TypeError by itself and this
     # test would pass whatever became of detailed_bias -- so it is gone, and
-    # the message is asserted to name detailed_bias.
+    # the message is asserted to name detailed_bias. trend_health=60.0 went
+    # from this call at fix 1 (5 October 2026), for the same reason.
     exc = _raises(lambda: RiskModel().calculate_stop_targets(
-        detailed_bias="BULLISH CONFIRMED", trend_health=60.0,
+        detailed_bias="BULLISH CONFIRMED",
         current_price=PRICE, atr_val=ATR, bias_score=40.0))
     assert isinstance(exc, TypeError), (
         "calculate_stop_targets accepts detailed_bias again -- a parameter "
@@ -124,30 +132,52 @@ def test_every_plan_the_engine_can_ask_for_has_its_stop_on_the_correct_side():
     The unreachability claim, checked rather than argued. bias_score is
     clipped to -100..100 by bias_engine and trend_health to 0..100 by
     trend_health.py. A structural level was a fourth axis here until finding
-    6 (27 September 2026) removed it from the stop.
+    6 (27 September 2026) removed it from the stop, and trend health a third
+    until fix 1 (5 October 2026) did the same.
     """
     scores = [-100.0, -99.9, -50.0, -20.0, -0.1, 0.0, 0.1, 20.0, 50.0, 99.9, 100.0]
-    healths = [0.0, 50.0, 100.0]
     vols = ["LOW VOLATILITY", "NORMAL", "HIGH VOLATILITY", "EXTREME VOLATILITY"]
 
-    for score, health, vol in itertools.product(scores, healths, vols):
-        plan = _plan(score, trend_health=health, volatility_state=vol)
+    for score, vol in itertools.product(scores, vols):
+        plan = _plan(score, volatility_state=vol)
         ok = _is_long(plan) if score >= 0 else _is_short(plan)
-        assert ok, (score, health, vol, plan)
+        assert ok, (score, vol, plan)
 
 
 def test_a_stop_that_would_land_on_the_wrong_side_raises():
     """
-    |bias_score| >= 300 makes bias_factor <= 0 and puts the ATR stop on the
-    wrong side of price -- the only way into the branch. It used to return a
-    long with its stop ABOVE the entry.
+    Until fix 1 (5 October 2026), |bias_score| >= 300 made bias_factor <= 0
+    and put the ATR stop on the wrong side of price -- the only way into the
+    branch. It used to return a long with its stop ABOVE the entry.
+
+    Fix 1 removed bias_factor, so those scores now give an ordinary plan,
+    checked first below. What can still reach the branch is a multiplier
+    constant that is not positive. Nothing in the engine sets one, so this
+    test sets ATR_STOP_MULT negative for its own length -- by hand and
+    restored in `finally`, because run_tests.py calls no fixtures -- to show
+    the raise is still load-bearing.
     """
+    from models import risk_model as rm
+
     for score in (300.0, 400.0, -300.0, -400.0):
-        exc = _raises(lambda: _plan(score))
-        assert isinstance(exc, ValueError), (
-            f"bias_score {score} returned a plan instead of refusing: "
-            f"{_plan(score) if exc is None else exc!r}")
-        assert "wrong side" in str(exc), exc
+        plan = _plan(score)
+        ok = _is_long(plan) if score >= 0 else _is_short(plan)
+        assert ok, (
+            f"bias_score {score} no longer gives an ordinary plan: {plan}; "
+            f"since fix 1 the size of the score does not reach the stop")
+
+    original = rm.ATR_STOP_MULT
+    try:
+        rm.ATR_STOP_MULT = -original
+        for score in (40.0, -40.0):
+            exc = _raises(lambda: _plan(score))
+            assert isinstance(exc, ValueError), (
+                f"a negative stop multiplier returned a plan instead of "
+                f"refusing, at bias_score {score}: {exc!r}")
+            assert "wrong side" in str(exc), exc
+    finally:
+        rm.ATR_STOP_MULT = original
+    assert rm.ATR_STOP_MULT == original, rm.ATR_STOP_MULT
 
 
 # test_a_structural_level_on_the_far_side_does_not_move_the_stop_across

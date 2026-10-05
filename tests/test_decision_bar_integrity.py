@@ -449,9 +449,15 @@ def test_calculate_stop_targets_rejects_a_non_finite_atr():
     # structural level (None) fourth. That parameter is gone, and a positional
     # call would now hand 60.0 to volatility_state and None to bias_score, so
     # the calls name their arguments.
+    #
+    # FIX 1, 5 October 2026: trend_health=80.0 stood first in this call, and
+    # the assertion was pytest.raises(Exception). With the parameter gone, the
+    # call would have raised TypeError before reaching the NaN guard, and
+    # Exception would have accepted it -- a pass with the guard deleted. The
+    # keyword is gone, and the assertion now names the error the guard raises.
     model = RiskModel()
-    with pytest.raises(Exception):
-        model.calculate_stop_targets(trend_health=80.0, current_price=100.0,
+    with pytest.raises(ValueError, match="Non-finite price or ATR"):
+        model.calculate_stop_targets(current_price=100.0,
                                      atr_val=float("nan"), bias_score=60.0)
 
 
@@ -468,8 +474,10 @@ def test_valid_inputs_still_produce_levels():
     """The control. A guard that rejects everything is not a guard."""
     from models.risk_model import RiskModel
 
+    # FIX 1, 5 October 2026: trend_health=80.0 stood first here; the
+    # parameter is gone.
     stop, t1, t2, t3 = RiskModel().calculate_stop_targets(
-        trend_health=80.0, current_price=100.0, atr_val=2.0, bias_score=60.0)
+        current_price=100.0, atr_val=2.0, bias_score=60.0)
 
     for value in (stop, t1, t2, t3):
         assert np.isfinite(value), (stop, t1, t2, t3)

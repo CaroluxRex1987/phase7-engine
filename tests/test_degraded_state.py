@@ -365,13 +365,16 @@ def test_a_failed_risk_calculation_does_not_invent_levels():
     # broken anything. Second time in item 9 that the test was wrong and the
     # code was right, which is its own small lesson about injecting failures
     # at a point you have actually confirmed is on the path.
+    # FIX 1, 5 October 2026: trend_health=80.0 stood first in this call. The
+    # parameter is gone, and left in it would raise TypeError at the call,
+    # before the body's except could run -- so this test would fail, on the
+    # missing "risk plan" in the message, without testing the except at all.
     raised = None
     try:
         model.calculate_stop_targets(
-            trend_health=80.0,                   # a SHORT: bias_score below
             current_price=100.0,
             atr_val=None,
-            bias_score=-70.0,
+            bias_score=-70.0,                    # a SHORT
         )
     except Exception as e:
         raised = e

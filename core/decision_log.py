@@ -253,7 +253,11 @@ FINGERPRINTED_MODULES = {
     "models.risk_model": [
         "ATR_STOP_MULT", "TARGET1_MULT", "TARGET2_MULT", "TARGET3_MULT",
         "VOL_MULT_HIGH", "VOL_MULT_LOW", "VOL_MULT_EXTREME",
-        "TREND_FACTOR_DIVISOR", "BIAS_FACTOR_DIVISOR",
+        # FIX 1, 5 October 2026: "TREND_FACTOR_DIVISOR" and
+        # "BIAS_FACTOR_DIVISOR" stood here. The stop no longer scales with
+        # trend health or the bias score, and both constants are gone from
+        # models/risk_model.py, so both names leave the run-hash payload --
+        # which moves run_hash, and with it the archive's file name.
         # ITEM 14, 11 September 2026: REGIME_LOW_TREND_HEALTH and
         # REGIME_HIGH_TREND_HEALTH were renamed to these when the risk regime
         # stopped reading trend_health. Renaming a fingerprinted constant

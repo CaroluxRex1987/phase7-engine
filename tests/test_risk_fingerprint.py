@@ -167,8 +167,9 @@ def test_module_snapshot_actually_carries_the_risk_constants():
 # ======================================================================
 
 def _plan(**overrides):
+    # FIX 1, 5 October 2026: trend_health=50.0 stood first here; the
+    # parameter is gone from calculate_stop_targets.
     kwargs = dict(
-        trend_health=50.0,
         current_price=100.0,
         atr_val=2.0,
         bias_score=40.0,

@@ -1109,8 +1109,15 @@ class Phase7Engine:
             # (DECISIONS, "Ruling, 27 September 2026 -- the stop comes from
             # ATR alone (finding 6)"). The parameter is gone; the HVN is still
             # computed and recorded under structure.hvn.
+            # FIX 1, 5 October 2026 (DECISIONS, "Ruling, 5 October 2026 --
+            # round 8 triaged ...", point 1): trend_health=trend["trend_health"]
+            # was passed here. Inside risk_model it widened the stop by up to
+            # x1.5, and the size of bias_score narrowed it by down to x0.667,
+            # so conviction decided the 8% risk verdict -- ruled a break of
+            # Item 14. The stop is ATR x 1.2 x the volatility factor:
+            # trend_health is no longer passed, and bias_score only picks the
+            # side.
             atr_stop, t1, t2, t3 = self.risk_model.calculate_stop_targets(
-                trend_health=trend["trend_health"],
                 current_price=current_price,
                 atr_val=atr_val,
                 bias_score=bias_score,
@@ -1463,6 +1470,18 @@ class Phase7Engine:
                     # 7-8 September sweep closed elsewhere. trend_health is
                     # still recorded in full under `trend` and inside
                     # bias_components, so nothing is lost from the record.
+                    # FIX 1, 5 October 2026 (round 8's F1): the paragraph
+                    # above was false from 11 September until fix 1.
+                    # trend_health had left the risk REGIME, but it still
+                    # widened the STOP through risk_model's trend_factor, by up
+                    # to 50%, so this block left out an input of the stop while
+                    # saying it had none. Since fix 1 the paragraph is true:
+                    # the stop and the targets read current_price, atr,
+                    # volatility_state and the sign of bias_score, all
+                    # recorded here, and the regime reads the stop,
+                    # volatility_state and adx. bias_score's size, which
+                    # narrowed the stop until the same fix, no longer reaches
+                    # it.
                     "adx": trend.get("adx"),
                     "volatility_state": volatility_mode,
                     "risk_regime": risk_regime,

@@ -62,7 +62,7 @@
     "current_price": 0.80173175
   },
   "exit_watch": [
-    "If you're already in this trade, a common approach is moving your stop to breakeven once price reaches Target 1 ($0.8156)."
+    "If you're already in this trade, a common approach is moving your stop to breakeven once price reaches Target 1 ($0.8144)."
   ],
   "explanation": {
     "reasons": [
@@ -76,7 +76,7 @@
   },
   "lineage": {
     "archive": {
-      "path": "logs/archive/testusdt_4h_51c8f3df520b284c.json.gz",
+      "path": "logs/archive/testusdt_4h_7c08ebe1b9a2c46c.json.gz",
       "pruned_this_run": 0,
       "retention_days": 90
     },
@@ -200,11 +200,11 @@
       "risk_regime": "NORMAL RISK",
       "volatility_state": "MEDIUM VOLATILITY"
     },
-    "run_hash": "51c8f3df520b284c10aed18dd5d85182535864a5ed8af2c1bdf3f5e89ec3191a"
+    "run_hash": "7c08ebe1b9a2c46cf32ed563d69d936fe76353de0c73011a1bcd285472a76d90"
   },
   "macro_bias": "BULLISH",
   "provenance": {
-    "archive_path": "logs/archive/testusdt_4h_51c8f3df520b284c.json.gz",
+    "archive_path": "logs/archive/testusdt_4h_7c08ebe1b9a2c46c.json.gz",
     "canonical_format": 1,
     "decision_candles": {
       "btc": {
@@ -291,7 +291,6 @@
       },
       "models.risk_model": {
         "ATR_STOP_MULT": 1.2,
-        "BIAS_FACTOR_DIVISOR": 300.0,
         "MAX_STOP_DISTANCE_PCT": 15.0,
         "MIN_STOP_DISTANCE_PCT": 0.2,
         "REGIME_CHOP_ADX": 20.0,
@@ -300,7 +299,6 @@
         "TARGET1_MULT": 1.0,
         "TARGET2_MULT": 2.0,
         "TARGET3_MULT": 3.0,
-        "TREND_FACTOR_DIVISOR": 200.0,
         "VOL_MULT_EXTREME": 1.6,
         "VOL_MULT_HIGH": 1.35,
         "VOL_MULT_LOW": 0.85
@@ -311,12 +309,12 @@
     },
     "prior_state": {},
     "row_count": 450,
-    "run_hash": "51c8f3df520b284c10aed18dd5d85182535864a5ed8af2c1bdf3f5e89ec3191a",
+    "run_hash": "7c08ebe1b9a2c46cf32ed563d69d936fe76353de0c73011a1bcd285472a76d90",
     "source": "pinned"
   },
   "risk": {
     "assumed_win_rate": 77.09945429,
-    "atr_stop": 0.78783605,
+    "atr_stop": 0.78906727,
     "avg_reward_r": 2.0,
     "confidence_score": 77.09945429,
     "ev_r": 1.31298363,
@@ -324,9 +322,9 @@
     "risk_regime": "NORMAL RISK",
     "risk_valid": true,
     "targets": [
-      0.81562745,
-      0.82952316,
-      0.84341886
+      0.81439623,
+      0.8270607,
+      0.83972518
     ],
     "trade_quality_proposed": 45.18175716,
     "validation_note": "The higher timeframe agrees with this bias. | Volume divergence or weakness detected.",

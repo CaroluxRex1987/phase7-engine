@@ -1,9 +1,9 @@
 # Next step — read this first
 
-*5 October 2026. Rewritten by the commit that files Viktor's triage of round 8 —
-three decision-path fixes and the label and record fixes now, the release gate closed,
-the freeze lifted; the version it replaced — as it stood at `9e42d30` — is in HISTORY
-verbatim.
+*5 October 2026. Rewritten by the commit that lands the first of round 8's fixes — the
+stop is ATR × 1.2 × the volatility factor, and trend health and the bias score no
+longer scale it (point 1 of the triage, a break of Item 14); the version it replaced —
+as it stood at `eb86846` — is in HISTORY verbatim.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
 rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
@@ -45,19 +45,21 @@ narrow form: the findings go to triage, the ratings do not count toward opening
 backtesting, and backtesting stays closed (DECISIONS, "Ruling, 4 October 2026 — round 8's
 result …"). **He triaged it on the night of 4 to 5 October**, beside a review Claude
 wrote that night at his request, of the engine, the Constitution and round 8 — not
-independent, and counting toward no gate. The commit that writes this line files the
-triage (DECISIONS, "Ruling, 5 October 2026 — round 8 triaged …" and "Correction,
-5 October 2026 — two of rev 9's requirement sentences were wrong"). In short: the stop no
+independent, and counting toward no gate. `eb86846` filed the triage (DECISIONS,
+"Ruling, 5 October 2026 — round 8 triaged …" and "Correction, 5 October 2026 — two of
+rev 9's requirement sentences were wrong"). In short: the stop no
 longer depends on conviction or trend health, a break of Item 14 ruled Critical
 (confirmed by Viktor on 5 October); the release gate is closed until that fix has landed
 and round 8's auditor has verified it; the risk regime comes from volatility alone; no
 trade under ADX 20 replaces the exhaustion flag; the trend score waits; test runs get a
 log of their own; the BTC-adjusted confidence line goes; the label and record fixes are
-made now; F4 stays on the list; and the freeze lifts. **Next:** the fixes, in Claude's
-order — the stop, the trend gate, then the regime, each with a live run before its
-commit; then the label and record batch, one small patch at a time; then the fix
-verification by round 8's auditor on a scoped package, the 14 September precedent (Work
-order). What the triage left open is Viktor's (Open items).
+made now; F4 stays on the list; and the freeze lifts. **The first fix has landed: the
+stop**, at the commit that writes this line. **Next:** the trend gate, then the regime,
+each with a live run before its commit; then the label and record batch, one small
+patch at a time; then the fix verification by round 8's auditor on a scoped package, the
+14 September precedent (Work order). The release gate stays closed until that
+verification has reported on the stop. What the triage left open is Viktor's (Open
+items).
 
 **The review and the comparison are outside the repository**, in
 `G:\Phase_7_Engine_Random_Files\Docs\02_Reviews_and_Feedback`:
@@ -111,9 +113,9 @@ last, as it stood at `1523e0c`, was moved there by `ff12e17`.
 **The sessions of 4 October** (`ff12e17`, `4a4c6ce`, `217ede6`, `d27743f` to `040a529`,
 and `9e42d30`) filed the delegation, built round 8's tooling, wrote rev 9, sent round 8's
 two runs and Part 7, and filed Viktor's ruling on the result. Their accounts are in
-HISTORY, in this file's versions from `ff12e17` to `9e42d30`, the last moved there by the
-commit that writes this line; what was filed from Claude's memory notes rather than from
-a chat is marked there.
+HISTORY, in this file's versions from `ff12e17` to `9e42d30`, the last moved there by
+`eb86846`; what was filed from Claude's memory notes rather than from a chat is marked
+there.
 
 **The session of the night of 4 to 5 October** landed no commit. Viktor asked for a full
 read-only review of the engine, the Constitution and round 8's audit, its findings to go
@@ -125,14 +127,21 @@ suggestion. A comparison with Freqtrade followed, read from Viktor's copy on F:.
 record is a resume note, `Docs\01_Handovers_and_Resume_Prompts\Phase7_Resume_2026-10-05.md`
 in `G:\Phase_7_Engine_Random_Files`, and the reports beside it (above).
 
-**This session (5 October)**, under Claude Opus 5.5, opened on "Continue Phase 7". Claude
-read GitHub's tip (a clone) and `master` off Viktor's disk: both `9e42d30`. As the resume
-note asked, it asked Viktor to confirm point 1 of the triage — he confirmed it — and what
-to do first: he chose this docs commit. It re-derived the triage's figures from the live
-decision log staged off his disk — they hold — and named the test records in it, finding
-a tenth that the ruling's nine did not include (DECISIONS, the ruling's entry). The
-commit that writes this line is docs only: the two DECISIONS entries, the rulings section
-of `docs/audit_change_list.md`, this file and HISTORY.
+**The session of 5 October that filed the triage** (`eb86846`, docs only) had Viktor
+confirm point 1, re-derived the triage's figures from the live log, and named the ten
+test records in it. Its account is in HISTORY, in this file's version at `eb86846`,
+moved there by the commit that writes this line.
+
+**This session (5 October, evening)**, under Claude Opus 5.5, opened on "Continue
+Phase 7". Claude read GitHub's tip (a clone) and `master` off Viktor's disk: both
+`eb86846`. Asked what to do first, Viktor chose fix 1, the stop. Claude scoped it in full
+before any diff — `calculate_stop_targets`, its one caller, the fingerprint list, the
+lineage block and its contract, the decision model that reads the verdict, every test
+that calls the function, and the golden fixture — and replayed the live log (47
+records, the same SHA-256 as the triage's filing) through the decision model on the
+code before and after. The commit that writes this line is the fix: engine code, tests,
+the golden fixture, this file, HISTORY, `docs/audit_change_list.md` and README's counts.
+Its live run came before the commit; the commit message has the record.
 
 ## Ruled — in force
 
@@ -149,7 +158,8 @@ of `docs/audit_change_list.md`, this file and HISTORY.
   archive and state; the test records in the live log are named. (7) The
   BTC-adjusted confidence line is removed. (8) The label and record fixes are made
   now. (9) F4 stays on the list. (10) The score check is declined. (11) The freeze
-  lifts. No code yet. **Filed at the commit that writes this line.**
+  lifts. Filed at `eb86846`. **(1) landed at the commit that writes this line**; the
+  rest is to come, in the order below.
 - **New, 5 October — two of rev 9's requirement sentences corrected** (DECISIONS,
   "Correction, 5 October 2026 — two of rev 9's requirement sentences were wrong"), by
   point 9. Rev 9 itself is not edited.
@@ -351,8 +361,10 @@ of `docs/audit_change_list.md`, this file and HISTORY.
 
 ## Where things stand, right now
 
-- **Tip:** the commit that writes this line (a commit cannot name its own hash) —
-  round 8's triage filed: docs only. Before it: `9e42d30` (the sixth session of
+- **Tip:** the commit that writes this line (a commit cannot name its own hash) — fix
+  1, the stop (point 1 of round 8's triage): engine code, tests, the golden fixture and
+  docs. Before it: `eb86846` (the session of 5 October that filed round 8's triage:
+  docs only), `9e42d30` (the sixth session of
   4 October: Viktor's ruling on round 8's result: docs only), `040a529` (the fifth
   session of 4 October's third commit: round 8's Part 7 reply and its record: docs
   only), `a0276dd` (its second commit: round 8's second run: docs only), `d27743f` (its
@@ -397,12 +409,15 @@ of `docs/audit_change_list.md`, this file and HISTORY.
   commit round 8 was sent from, made on Viktor's machine before run 1 and pushed after
   `d27743f`. **Release gate: closed since 5 October** (DECISIONS, "Ruling, 5 October
   2026 — round 8 triaged …", point 2). Declared open on 15 September, it reopens when
-  the fix of the stop has landed and round 8's auditor has verified it.
+  round 8's auditor has verified the fix of the stop, which landed at the commit that
+  writes this line.
 - **The freeze is lifted** (point 11 of the same ruling): round 8's report is triaged, so
   commits may touch engine code and tests again. It held from 29 September (DECISIONS,
   "Ruling, 29 September 2026 — six questions before the send", point 1) to 5 October,
   with two exceptions for the tests of the sending tools. `tests/` on `master` differs from the tag
-  `round8-sent-2026-10-04` only in `tests/test_send_audit_round.py` (`d27743f`).
+  `round8-sent-2026-10-04` in `tests/test_send_audit_round.py` (`d27743f`) and, since
+  the commit that writes this line, in the six test files and the golden fixture it
+  changes or adds.
 - **Where the project lives, from 26 September:** `E:\phase7_engine` on Viktor's machine;
   the files kept outside the repository in `G:\Phase_7_Engine_Random_Files`. Copied with
   robocopy, verified — git's own checks on Windows for the tracked files, SHA-256 for the
@@ -411,57 +426,50 @@ of `docs/audit_change_list.md`, this file and HISTORY.
   to `E:\phase7_engine`". Run the engine and every command from `E:\phase7_engine` (in
   cmd, changing drive needs `cd /d`). A dated record that names the D: paths means the
   same folders before the move; dated records are not edited.
-- **The push of `9e42d30`** happened: at the start of this session it was GitHub's tip
+- **The push of `eb86846`** happened: at the start of this session it was GitHub's tip
   (a clone) and `master` on Viktor's disk (`.git/refs/heads/master`, staged off it). No
   deviation was reported, so nothing is owed (ruling on proposal (b)). The same holds for
   the push of the commit that writes this line unless it deviates. Earlier pushes and
-  deviations are recorded in this file's previous versions, in HISTORY.
-- **Before this commit**, the four files it changes were staged off Viktor's disk; each
-  matched an autocrlf clone of `9e42d30` byte for byte.
-- **Found before this commit: three untracked PDFs in `Claude outputs\` on Viktor's
-  disk,** dated the night of 4 to 5 October: `Phase7_Claude_Self_Review_2026-10-05.pdf`
-  and `Phase7_Self_Review_Short_2026-10-05.pdf`, byte-identical to the copies in
-  `G:\Phase_7_Engine_Random_Files\Docs\02_Reviews_and_Feedback` (SHA-256 `e87a59d944fb1e95…`
-  and `fe5a7cfaf6a36581…`), and an earlier `Phase7_Freqtrade_Comparison_2026-10-05.pdf`
-  (SHA-256 `a6e6448e205a5b07…`), written before the licence was checked. How they got
-  there is not recorded. The reports were ruled to stay outside the repository, and the
-  pre-push hook stops a push on an untracked file. In this commit's command steps Viktor
-  deleted the two duplicates and moved the earlier comparison to
-  `G:\Phase_7_Engine_Random_Files\Docs\99_Superseded\`, before `git status`. The third
-  time a file meant for G: has landed in `Claude outputs\` (the others: rev 8's draft and
-  the Part 7 draft, both 30 September).
-- **code_hash:** `c6a44d4d7ab1c8d36f2a07f6f2c78a1967ecfc135259cbe828b3daa275e571c9`,
-  unmoved by the commit that writes this line and by `9e42d30`, `040a529` and `a0276dd`,
-  which change no `.py` file, and by `d27743f`, whose `.py` files are all under `docs/`
-  and `tests/`, which the fingerprint excludes by directory. Computed on the tree before
-  and after this commit, under Python 3.12.3. It last moved at `7d0024e` (from
-  `f4b23f94…`), in `models/decision_model.py` and `models/signal_router.py`, confirmed on
-  Windows by Viktor's live run before that commit. **The fix of the stop moves it
-  next.**
+  deviations — among them the three untracked PDFs found in `Claude outputs\` before
+  `eb86846` — are recorded in this file's previous versions, in HISTORY.
+- **Before this commit**, every file it changes was staged off Viktor's disk and matched
+  an autocrlf clone of `eb86846` byte for byte; the file it adds was not there.
+- **code_hash:** `2c6365fb59dfb0b952c457709549f9e9876889f54afc2ac61d0dc4843b52c868`,
+  moved by the commit that writes this line (from `c6a44d4d…`, which held from
+  `7d0024e`): `models/risk_model.py`, `core/engine_core.py` and `core/decision_log.py`,
+  the only three per-file fingerprints that changed (checked against every file).
+  `core/decision_contract.py` changes too, but only in a docstring, which the
+  fingerprint strips. Computed on the working tree and on the applied tree under Python
+  3.12.3. Confirmed on Windows before the commit by Viktor's live run, whose decision-log
+  record Claude read — the commit message has it.
 - **code_hash is only comparable within one Python minor version.** It hashes `ast.dump`
   output, a CPython implementation detail (`core/code_fingerprint.py`, "WHAT IT DOES NOT
   SURVIVE"). **Every `code_hash` claim about this project is computed under Python 3.12**
   (Viktor runs 3.12.10).
-- **Golden snapshot:** unmoved by the commit that writes this line and by `9e42d30`. Last
-  re-baselined at `7d0024e`, 2 fields (`explanation.reasons[0]` and
-  `explanation.summary`, the CONSERVATIVE sentence), with `run_hash` unmoved; before that
-  at `76c8cde`, 11 fields. **The fix of the stop moves it next, and `run_hash` with it**:
-  two fingerprinted constants go.
-- **Test suite** — **728 passed / 0 failed, no warnings line** with `pandas_ta`;
-  **583 passed / 134 skipped** without it; `run_tests.py` **657 passed / 0 failed /
-  32 errors**, all 32 fixture-collection `TypeError`s; unchanged by the commit that
-  writes this line, which changes no test and no file a test reads (re-run before and
-  after its patch, applied to an autocrlf clone of `9e42d30`: the same counts), and by
-  `9e42d30` and `040a529`. Linux sandbox, Python 3.12.3, pinned requirements. Confirmed
-  on Windows at `d27743f` by Viktor proceeding. One test,
+- **Golden snapshot:** re-baselined by the commit that writes this line, 11 leaves, as
+  predicted before the run: `risk.atr_stop` and `risk.targets[0–2]` (the stop 1.58% of
+  price, was 1.73%), `exit_watch[0]` (Target 1 $0.8156 → $0.8144), `lineage.run_hash`
+  and `provenance.run_hash` (`51c8f3df…` → `7c08ebe1…`), `lineage.archive.path` and
+  `provenance.archive_path` (the archive is named by `run_hash`), and the two constants
+  removed from `provenance.module_constants`. The action (CONSERVATIVE LONG), its
+  reasons, the risk verdict and every `lineage.risk_inputs` value are unchanged. Before
+  that at `7d0024e`, 2 fields.
+- **Test suite** — **734 passed / 0 failed, no warnings line** with `pandas_ta`;
+  **588 passed / 135 skipped** without it; `run_tests.py` **663 passed / 0 failed /
+  32 errors**, all 32 fixture-collection `TypeError`s. The commit that writes this line
+  adds 6 tests (`tests/test_stop_ignores_conviction.py`, one of them on the engine
+  path, skipped without `pandas_ta`) and changes five test files and the golden
+  fixture; from 728, 583 / 134 and 657. Linux sandbox, Python 3.12.3, pinned
+  requirements, the patch applied to an autocrlf clone of `eb86846`. Confirmed on
+  Windows before the commit by Viktor proceeding past the counts to the live run. One test,
   `test_the_commit_messages_up_to_the_tag_are_round_7s_to_the_byte`, runs `git log` up
   to the tag `round7-sent-2026-09-30`: it needs the tag, which a full clone has.
-- **Engineering Notes:** through Entry #183 (v1.36), which covers `68c6191`. **Twenty
+- **Engineering Notes:** through Entry #183 (v1.36), which covers `68c6191`. **Twenty-one
   commits behind** — `ec4e5fd`, the floor (a commit that regenerates the Notes cannot
   cover itself, Entry #144), `e7a94d1`, `d5ced0c`, `59b747a`, `f256937`, `12b483e`,
   `01f2892`, `8b6fd00`, `e186423`, `86f30f1`, `3e8191a`, `1523e0c`, `ff12e17`,
-  `4a4c6ce`, `217ede6`, `d27743f`, `a0276dd`, `040a529`, `9e42d30` and the commit that
-  writes this line. Every later commit adds one until the next regeneration. Batched, by
+  `4a4c6ce`, `217ede6`, `d27743f`, `a0276dd`, `040a529`, `9e42d30`, `eb86846` and the
+  commit that writes this line. Every later commit adds one until the next regeneration. Batched, by
   the 15 September rule; no time pressure. v1.36 records the round-1 recovery, the
   rulings of 22 (filed 26), 26, 27, 28 and 29 September, the move to E:, the code for
   findings 16, 7, 4, 6, 5 and 18, work order G and the Aider correction. Its PDF's
@@ -473,11 +481,11 @@ of `docs/audit_change_list.md`, this file and HISTORY.
   identical to the committed PDF. Neither changes in the commit that writes this line;
   the Attribution Statement's script last changed at `68c6191`, the Portfolio
   Document's at `6e1baba`.
-- **README.md:** its test counts are current (728, 583 and 657), changed at `d27743f`, so
-  the hook's section 5 will report 4 commits since it was touched — `a0276dd`, `040a529`,
-  `9e42d30` and the commit that writes this line, none of which changes a count. **Three of
-  its status rows are stale** and not changed here (Open items): "Independent audit",
-  "Backtesting" and, since 5 October, "Release gate", which still reads Open.
+- **README.md:** its test counts are current (734, 588 / 135 and 663), changed by the
+  commit that writes this line, so the hook's section 5 will report 0 commits since it
+  was touched. **Three of its status rows are stale** and not changed here (Open items):
+  "Independent audit", "Backtesting" and, since 5 October, "Release gate", which still
+  reads Open.
 - **The round-1 audit outputs are in the repository**, in
   `docs/audit_reports/round1_deepseek-v4-pro_kimi-k3_2026-08-27/`, byte-identical to the
   hashes Viktor took on 23 September. The account is in HISTORY, "26 September 2026 —
@@ -492,8 +500,9 @@ caught it by reading the log, not from a paste. **On every change that moves
 run and the panel read happen before `git commit`, and Claude checks the decision-log
 record for the new `code_hash` before the commit step, not after the push.** Never
 predict live numbers; check the record. Followed at `2c7a7d1`, `4e2b1c8`, `486f1a5`,
-`3bfa6b7`, `add8540`, `57f0521`, `b0efe23`, `76c8cde`, `8b9ac1e`, `d76ddfd` and `7d0024e`: the command
-list stopped at the live run, Claude read the record, and only then gave the commit steps. **Since finding 16, a
+`3bfa6b7`, `add8540`, `57f0521`, `b0efe23`, `76c8cde`, `8b9ac1e`, `d76ddfd`, `7d0024e` and the commit
+that writes this line: the command list stopped at the live run, Claude read the record,
+and only then gave the commit steps. **Since finding 16, a
 live run in the first 60 seconds after a 4h close (00:00, 04:00, 08:00, 12:00, 16:00,
 20:00 UTC) fails by design** ("not yet final"); run again a minute later.
 
@@ -559,7 +568,7 @@ live run in the first 60 seconds after a 4h close (00:00, 04:00, 08:00, 12:00, 1
   method body never read `self.state`. Read what a unit does before reasoning from what
   it is called. Also: Claude's notes between sessions can be behind the repository —
   read `master` and `origin/master` off Viktor's disk before proposing any build
-  (this session's first finding). And a new UPPER_CASE numeric constant in a
+  (the first finding of finding 18's session). And a new UPPER_CASE numeric constant in a
   fingerprinted module is caught by `test_fingerprint_names_every_constant.py` and has
   to enter `FINGERPRINTED_MODULES`, which moves `run_hash` and the golden snapshot —
   weigh that before naming a number.
@@ -607,6 +616,14 @@ live run in the first 60 seconds after a 4h close (00:00, 04:00, 08:00, 12:00, 1
   (the 27 September lesson); the triage's all held. And a count of the decision log by
   `provenance.source` misses a record that has no provenance: the ruling named nine
   test records, and the log holds ten — record 4 has no provenance at all.
+- **5 October, fix 1:** `pytest.raises(Exception)` accepts any exception, a `TypeError`
+  from a stale keyword included. `test_calculate_stop_targets_rejects_a_non_finite_atr`
+  was already vacuous at `eb86846`: with its NaN guard deleted it still passed, because
+  the wrong-side refusal raises on the NaN stop that follows. It now names the guard's
+  own error, and fails with the guard deleted. Assert the type and the message. And a
+  replay of the live log with today's code reproduces 34 of the 37 logged actions; the
+  three it does not are records 19–21 (15–16 September), which F's gate and G changed,
+  as their own entries predicted — the G lesson's check, passed.
 
 ## Review findings, 21 September 2026
 
@@ -793,10 +810,10 @@ under ATR alone. The two newest records (27 September, 12:31 and 13:08 UTC, on f
 holds since the SHORT of 16 September. The one before them (04:04 UTC) was refused as
 EXTREME RISK, which is refused whatever the stop. Read from the log staged on
 27 September (43 records); two runs are not a rate. **5 October:** a third LONG
-followed at 14:22 UTC the same day, on G's code. Point 1 of the triage changes the
-stop again — ATR × 1.2 × the volatility factor — and under it the three LONGs' stop
-would have been 6.35%, not 7.15% (DECISIONS, "Ruling, 5 October 2026 — round 8
-triaged …").
+followed at 14:22 UTC the same day, on G's code. Point 1 of the triage, landed at the
+commit that writes this line, changes the stop again — ATR × 1.2 × the volatility
+factor — and under it the three LONGs' stop would have been 6.35%, not 7.15%, and all
+three still LONG (the replay through the decision model, in this commit's message).
 
 ## Found after 22 September — for after the next audit
 
@@ -844,20 +861,6 @@ Viktor's to answer.
   reversal reading — but vetoes nothing, so a long can be authorised directly under a
   high-volume node. **Ruled for after the audit** (Viktor, 27 September, point 3 of the
   finding 6 ruling).
-- **`lineage.risk_inputs` leaves out an input to the stop.** `calculate_stop_targets`
-  scales the ATR by `trend_factor`, which reads `trend_health`
-  (`models/risk_model.py`, the line `trend_factor = 1.0 + …`), so trend health sets the
-  stop distance, and through it the 8% and 15% checks. `risk_inputs` does not record
-  it, and its comment in `core/engine_core.py` (ITEM 14, 11 September) says trend_health
-  "no longer" feeds the risk decision — true of the regime classification, not of the
-  stop. The value is still in the record, at `trend.trend_health`: the recount of
-  27 September needed it to reproduce the logged stops. Found by Claude reading the code
-  while building finding 6, 27 September; on this list by the 22 September ruling, not
-  separately ruled. A lineage change would move the golden snapshot. **Settled by
-  point 1 of the triage of 5 October:** once the stop is ATR × 1.2 × the volatility
-  factor, trend health no longer sets it, and `risk_inputs` leaves out nothing that
-  does. Round 8 found it (F1; the Part 7 document's S2). It comes off this list when
-  that fix lands.
 - **Under a NEUTRAL bias the entry score is measured for a side nothing chose.**
   `core/engine_core.py` scores entry quality for `eq_trade_direction`, which under a
   NEUTRAL bias is the sign of `bias_score` (the line `eq_trade_direction = "LONG" if
@@ -893,8 +896,9 @@ Viktor's to answer.
   0.2% to 8% (`models/risk_model.py`, read at `7d0024e`), so this is a filter on the
   stop distance and a new trading rule. How many trades it would remove has not been
   measured; only records since `76c8cde` carry ATR-only stops. **Ruled for after the
-  audit** (Viktor, 28 September). **5 October:** point 1 of the triage narrows T1 with
-  the stop — on the live runs the median from 6.65% to 5.25%.
+  audit** (Viktor, 28 September). **5 October:** point 1 of the triage, landed at the
+  commit that writes this line, narrows T1 with the stop — on the live runs the median
+  from 6.65% to 5.25%.
 - **A range-trading mode.** Buying at support and selling at resistance, on levels,
   with stops at the levels — Viktor's own style, and a second strategy with its own log
   and its own verdict (point 9 of the same ruling, which describes its first test case,
@@ -1027,9 +1031,11 @@ Each code commit is its own commit and updates this file for its own landing.
 - **The fixes of 5 October**, in Claude's order (DECISIONS, "Ruling, 5 October 2026 —
   round 8 triaged …", "The order of the work"). Each is its own commit, bringing this
   file and `docs/audit_change_list.md` current in it:
-  1. **The stop** — ATR × 1.2 × the volatility factor (point 1). Decision path: a live
-     run, and its record read, before the commit. Moves `code_hash`, `run_hash` and the
-     golden snapshot. With it, `lineage.risk_inputs` and its comment (F1).
+  1. **The stop — done at the commit that writes this line.** ATR × 1.2 × the
+     volatility factor (point 1); `trend_health` no longer a parameter; the comment
+     beside `lineage.risk_inputs` true, and its contract's docstring corrected (F1).
+     The live run and its record came before the commit. It moved `code_hash`,
+     `run_hash` and the golden snapshot, as predicted.
   2. **No trend, no trade** — ADX under 20 blocks both sides in the confirmation gate,
      replacing the exhaustion flag; how an unmeasured ADX is treated is proposed in
      the patch, failing safe (point 4). Decision path.
@@ -1045,15 +1051,14 @@ Each code commit is its own commit and updates this file for its own landing.
 
 ## Resolved this session
 
-- **Round 8's triage — filed** (the commit that writes this line; DECISIONS, "Ruling,
-  5 October 2026 — round 8 triaged …" and "Correction, 5 October 2026 — two of rev 9's
-  requirement sentences were wrong"). Ruled on the night of 4 to 5 October; point 1
-  confirmed this session.
-- **The once-per-session rewrite of this file.** The previous version, as at `9e42d30`,
+- **Fix 1, the stop** (point 1 of round 8's triage) — landed at the commit that writes
+  this line. Round 8's F1 (the Part 7 document's S2) is settled with it and comes off
+  the list for after the audit.
+- **A test that passed with its guard deleted** —
+  `test_calculate_stop_targets_rejects_a_non_finite_atr` (Sandbox practice, above).
+- **The once-per-session rewrite of this file.** The previous version, as at `eb86846`,
   is in HISTORY verbatim, headings demoted one level, proven by un-demotion with a
   negative control (this commit's message has the result).
-- **The pointer to the review**, which the review itself said was owed: "Where the
-  project is", above.
 
 ## Open items
 
@@ -1117,8 +1122,9 @@ Claude critiques it.
   round 7, run 2, Parts 1–6; 0 of 4, no Part 7. Round 7's runs are done, so the reissue
   is now due. **Claude's, under the delegation of 4 October:** reissued once, after round
   8's runs, so it carries round 7's two entries, round 8's, and Xiaomi added to the
-  roster with the facts checked on 4 October. **Still owed:** neither the
-  session of the night of 4 to 5 October nor the session of 5 October reissued it.
+  roster with the facts checked on 4 October. **Still owed:** no session since round 8's
+  runs has reissued it — not the night of 4 to 5 October, nor either session of
+  5 October.
   **Round 8's run 1 entry**, from the
   provider's record: Xiaomi, `xiaomi/mimo-v2.6-pro` (permaslug
   `xiaomi/mimo-v2.6-pro-20260921`), 4 October 2026, 15:51:46 to 16:02:09 UTC, through
@@ -1203,8 +1209,8 @@ Claude critiques it.
   not done.
 - **Claude's — README.md's "Independent audit", "Release gate" and "Backtesting" rows
   are stale.** The first and third were seen on 29 September and are not changed since —
-  `59b747a`, `12b483e`, `3e8191a`, `1523e0c` and `d27743f` touched only README's test
-  counts. The first still says the next round is paused until work order G and the six
+  `59b747a`, `12b483e`, `3e8191a`, `1523e0c`, `d27743f` and the commit that writes this
+  line touched only README's test counts. The first still says the next round is paused until work order G and the six
   findings are done, which happened at `7d0024e`; the third predates the ruling of
   29 September on what opens backtesting. The second reads Open; the gate is closed since
   5 October. All three are written in Viktor's voice, so the new wording goes to him
@@ -1215,9 +1221,10 @@ Claude critiques it.
   same commit.** `22cb39b` added the ruling of 28 September to its rulings section
   and named `7d0024e` where G's commit wrote "the commit that adds this line". The
   rulings of 29 September are not added: none changes what the engine must do, or any
-  code. The triage of 5 October is added to its rulings section by the commit that
-  writes this line, which also names `d27743f` where that commit's own line said "the
-  commit that adds this line".
+  code. The triage of 5 October was added to its rulings section by `eb86846`, which
+  also named `d27743f` where that commit's own line said "the commit that adds this
+  line". The commit that writes this line adds fix 1's line, under the same wording, for
+  a later commit to name.
 - **The pre-push hook is installed per clone, not per repository.** After any re-clone
   (including after a machine wipe), run `git config core.hooksPath githooks`;
   `session_handover_check.py` section 6 flags a clone without it.

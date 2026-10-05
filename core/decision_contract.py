@@ -330,6 +330,14 @@ class LineageBlock(TypedDict):
     a target is a number with no derivation. A structural level (the HVN) was
     a third input until finding 6 (27 September 2026) and is no longer one.
 
+    CORRECTED 5 October 2026 (round 8's F1, fixed by fix 1): "computed from
+    price and ATR" left out three inputs until that fix -- the volatility
+    state, trend health (x1.0 to x1.5) and the size of bias_score (down to
+    x0.667) -- and trend health was not recorded in this branch at all. Since
+    fix 1 the stop is ATR x 1.2 x the volatility factor, on the side the
+    sign of bias_score picks: price, atr, volatility_state and bias_score,
+    all four recorded here.
+
     A note on what `archive.path` means when it is None. It means nothing was
     written for this run -- not that the path is unknown. The alternative, a
     record naming the file that WOULD have been used, is the exact defect
