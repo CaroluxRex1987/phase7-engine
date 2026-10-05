@@ -3241,6 +3241,308 @@ F10 are S2 and S4. F2, F3, F4, F7, F8 and F9 were not checked by Claude.
   ratings — Item 18's among them — earn nothing toward backtesting, so whatever later
   opens it needs Items 2, 3, 6 and 18 rated from somewhere other than run 2's Parts 1–6.
 
+## Ruling, 5 October 2026 — round 8 triaged: three decision-path fixes and the label and record fixes now, the release gate closed, the freeze lifted
+
+*New in this file on 5 October 2026. Viktor's, ruled in a session on the night of 4 to
+5 October that landed no commit — every point by agreeing to Claude's suggestion, not by
+writing his position first. Filed by the next session from the record that session kept,
+`Docs\01_Handovers_and_Resume_Prompts\Phase7_Resume_2026-10-05.md` in
+`G:\Phase_7_Engine_Random_Files`, not from its chat, which the filing session could not
+read; Viktor's words are quoted as that record holds them. Point 1 was confirmed in the
+filing session's chat (below).*
+
+**What was triaged.** Round 8's run 2 — F1 to F10 of its Parts 1–6 and the points of its
+Part 7 reply (`turn1_report.md` and `turn2_report.md` in
+`docs/audit_reports/round8_mimo-v2.6-pro_run2_2026-10-04/`) — beside a review Claude
+wrote the same night at Viktor's request, of the engine, the Constitution and round 8:
+`Phase7_Claude_Self_Review_2026-10-05` (.md and .pdf), with a short version,
+`Phase7_Self_Review_Short_2026-10-05`, in `Docs\02_Reviews_and_Feedback` in
+`G:\Phase_7_Engine_Random_Files`. **The review is not an independent audit and counts
+toward no gate:** Claude wrote most of the code it reviews. It ran in a session
+configured for Claude Opus 5.5; Fable 5.1, which Viktor had meant to use, was not used.
+The review names its findings B1–B11 (the engine) and C1–C7 (the Constitution), and calls
+B2 "Finding 1"; round 8's are F1–F10; the Part 7 document's are S1–S4, N1–N5 and O1–O3.
+
+**What was ruled.**
+
+1. **The stop no longer depends on conviction or trend health** (the review's B2, its
+   "Finding 1"). Read at `9e42d30`: the stop multiplier is `1.2 × trend_factor ×
+   bias_factor ×` the volatility factor (`models/risk_model.py:335–338`), with
+   `trend_factor = 1 + trend health / 200` (×1.0 to ×1.5) and `bias_factor = 1 −
+   |bias_score| / 300` (×0.667 at a score of 100), and the risk check refuses a stop
+   wider than 8% of price as EXTREME RISK. So the same market — the same price, ATR and
+   volatility — passed or failed the risk check depending on how convinced the engine
+   was. Ruled a break of Item 14: "Directional conviction must never be treated as
+   equivalent to risk." **The fix:** the stop is ATR × 1.2 × the volatility factor;
+   `trend_factor` and `bias_factor` go. It makes the ruling of 27 September, "the stop
+   comes from ATR alone", true as worded — that ruling's own "What it weakens" still
+   named "the multipliers in `models/risk_model.py` (trend health, bias score,
+   volatility state)" — and it settles round 8's F1 (the Part 7 document's S2): once
+   trend health no longer sets the stop, `lineage.risk_inputs` leaves out nothing that
+   does, and the comment beside it becomes true.
+   **Confirmed 5 October, in the filing session's chat.** The resume note recorded that
+   Claude had read Viktor's "OK" on point 2 as agreement with this point too, and asked
+   for it to be confirmed. Asked, Viktor chose "Confirmed" ("Rule it as agreed").
+2. **The release gate is closed** until point 1's fix has landed and round 8's auditor,
+   MiMo-V2.6-Pro, has verified it (the 14 September precedent). Under the Constitution's
+   rubric (Next Steps, "how a finding gets recorded"), a Tier 1 violation "that could
+   reach a live decision" is Critical, and point 1's reached live decisions: the only
+   three LONGs the engine has proposed on live data (27 September, 12:31, 13:08 and
+   14:22 UTC) passed the risk check at a 7.15% stop, which without the bias factor is
+   9.53% — refused. The gate's condition is "every Critical fixed *and* re-audited, with
+   a report that says so" ("Two goals, and the order they finish in", "Portfolio-ready",
+   criterion 1). It was declared open on 15 September.
+3. **Round 8's F2: the risk regime comes from volatility alone.** `classify_risk_regime`
+   reads raw ADX twice (`models/risk_model.py:456–461`): under 20 makes the regime HIGH
+   VOLATILITY RISK, and LOW VOLATILITY with 25 or more makes it LOW RISK. The same ADX
+   is up to 40 of trend health's 100 points (`indicators/trend_health.py:132`), and trend
+   health is 30% of `bias_score`, so a high ADX raised conviction and lowered the
+   assessed risk together. Both ADX tests go. This also fixes the review's B8: a panel
+   could print `VOLATILITY : LOW VOLATILITY` beside `RISK REGIME : HIGH VOLATILITY RISK`,
+   the cause being chop and the label naming volatility.
+4. **The exhaustion flag leaves the confirmation gate: no trend, no trade** (the
+   review's B3). The flag is `(this bar's range > the last bar's AND ADX < 20) OR (trend
+   health < 35 AND ADX < 15)` (`indicators/trend_health.py:337–341`). Trend health is
+   almost never under 35 (B1), so in practice the flag asks whether the last candle was
+   wider than the one before it, in a low-ADX market, and it blocks both sides
+   (`models/entry_model.py:558–559`). In its place, **ADX under 20 blocks both sides,
+   and the reason is printed.** This implements point 9 of the ruling of 28 September,
+   "trends only, for now". How a run whose ADX could not be measured is treated is the
+   patch's to propose, failing safe.
+5. **The trend score waits** (the review's B1). Trend health was 50 or more on 99.4% of
+   the real bars the review counted, so the tiers' trend requirements gate almost
+   nothing beyond ADX. Its scale goes on the list for after the audit, to be decided
+   before paper trading starts. Claude may first show, on the real candles, how often
+   candidate scales would fire — counting only.
+6. **Test runs get their own log** (the review's B6). Runs on pinned data write to their
+   own decision log, archive and Exit Watch state, chosen by the code from the run's
+   source rather than by a setting someone has to remember. The pinned records already
+   in the live log stay there and are named below, so the paper-trading count excludes
+   them.
+7. **Bitcoin is reference only.** The panel's "BTC-adjusted confidence" line is
+   removed; the Bitcoin section stays, for reference. This resolves the Part 7
+   document's N5 (the BTC adjustment has no baseline). Viktor, as the resume note
+   records him: Bitcoin is "for bearing, not a mandatory thing".
+8. **The label and record fixes are made now**, not after the audit. Viktor: "Let us fix
+   it now. Why would we not?" The batch is the list put to him (the review's Part D):
+   round 8's F3, F5, F6, F8 and F9; the review's B4 (the labels only), B6 (point 6
+   above), B7, B9 and B10; and the three test shapes of round 8's Part 4 — the golden
+   test that returns instead of skipping when its baseline is missing, a test that
+   checks only that a string is in a source file, and a watched error count written as
+   29 where the suite runs at 32. F1 and B8 are fixed by points 1 and 3. None of them
+   changes a trade.
+9. **F4 stays on the list** for after the audit, as the weighting question it already
+   is: macro's ×1.05 / ×0.90 entry-score multiplier can move a setup between LONG and
+   CONSERVATIVE LONG (F4's third path; the Part 7 document's O1 and its Section 4). Rev
+   9's two wrong requirement sentences get a correction note: the entry after this one.
+10. **The check of Claude's 2-of-4 score: declined** ("No").
+11. **Round 8's triage is complete, so the freeze lifts.** "Decision, 4 October 2026 —
+    round 8's package …" held the freeze "until round 8's report is triaged". Engine
+    code and tests may change again.
+
+**Not ruled — still Viktor's.**
+
+- **F7, the spike window**: spike detection watches 20 bars while the volume profile
+  reads 450. Widening it degrades more runs, so it changes trades.
+- **B4's divergence veto.** Its labels are in point 8; whether a momentum divergence,
+  measured as it is, should veto a side is a trading rule.
+- **B5, the fixed percentages** — the volatility bands, the stop limits, the structure,
+  VWMA and HVN bands — that assume the 4h timeframe: on AERO 1d every bar would be
+  EXTREME VOLATILITY. To be decided before any other timeframe is used.
+- **C1–C7, the Constitution.** An amendment to Tier 1 or Tier 2 needs a reviewer who is
+  not Claude.
+- **The ten questions of 1 October.**
+- **Whether the other findings that change no trade join point 8's batch:** the Part 7
+  document's S1, S3 and S4 (round 8's F10 is S4), N1–N4 and O1–O3, and two points of
+  round 8's Part 7 reply — §1(3), a module's default response that the panel prints as
+  `0.00/100`, and §1(5), a failed run that leaves no line in the decision log. Until he
+  answers, they stay on the list for after the audit.
+- **The severity of F2 and of F4's third path.** The review (its C4) noted that both
+  reach live decisions, so either, if upheld as a Tier 1 violation, is Critical. F2 is
+  fixed by point 3 either way; F4's third path is not ruled.
+
+**The evidence, re-derived for this filing** *(Claude, 5 October, from
+`logs/phase7_decision_log_aerousdt.jsonl` staged off Viktor's disk: 47 records, the
+newest of 30 September, SHA-256 `914378203205c5f3…99d61803a31`; computed in the sandbox
+from each record's `lineage.risk_inputs` and `trend.trend_health` — arithmetic, not
+engine output, so the platform does not enter it)*. Of the 47 records, 37 are live runs.
+
+- **Point 1.** The stop each live run gets from today's formula and from the fix: median
+  6.65% → 5.25% of price. The risk check passes 27 of the 37 today and 30 under the fix.
+  Records 15 (12 September), 45 and 46 (29 September) pass newly; none fails newly. All
+  three have |`bias_score`| under 30 (−17.8, 21.0 and 21.0), so the ladder answers WAIT
+  for them (`MIN_ACTION_BIAS`, read from the code, not replayed). The three LONGs of
+  27 September still pass, at 6.35%. Removing only the bias factor would flip the
+  verdict on four runs: the three LONGs and record 47 (30 September, a WAIT). All as the
+  resume note stated.
+- **Point 3.** Volatility was HIGH or EXTREME on all 37 live runs, so neither ADX test
+  decided a live run's regime, and the fix changes no live record's regime. Over the real
+  candles the review counted 70% of bars HIGH VOLATILITY and 15% EXTREME (not re-derived
+  here).
+- **Point 4.** On the 37 live runs ADX was under 20 once (record 47, 30 September, 18.4,
+  a WAIT) and the exhaustion flag never fired, so point 4 would have changed no live
+  action. Over 494 real decision bars, July to September, rebuilt from the run archives
+  (the review's count, not re-derived here), ADX was under 20 on 185 (37%), and the flag
+  fired on 94 of those and on none above 20: point 4 blocks all 185 where the flag
+  blocked about half. The live runs were started by hand, not sampled from the bars,
+  which is why the two counts differ.
+
+**The test records in the live log, named** (point 6). In the log above, records 1–3 and
+5–10 are the nine pinned runs: `provenance.source` "pinned", logged on 6 September 2026
+from 08:51:00 to 08:51:21 UTC, every one with input hash `208ab83f53ef37c1…`, `run_hash`
+`3a68572a835705c5…`, `code_hash` `44e085cfa1fa0b5b…`, decision candle 2025-03-16 20:00
+of the synthetic fixture, archive `logs/archive/aerousdt_4h_3a68572a835705c5.json.gz`,
+and action NO-TRADE (RISK TOO HIGH). Record 4 (08:51:02 UTC) has no provenance at all, a
+price of 1.0, a stop of 0.9 and targets of 1.1, 1.2 and 1.3: a decision object built by a
+test. That makes ten test records, most likely written by the test suite, which wrote
+into the live log until `fc35a2f` (6 September, 10:28 UTC) — inferred from their times
+and values, not traced to a test. **The ruling named the nine pinned records; record 4
+is named here too**, as Claude's reading of the ruling's purpose — no test record counts
+as a run — for Viktor to correct. The first live run, record 11 (08:51:47 UTC), read its
+Exit Watch `prior_state` from record 10, 27 seconds earlier, so its "SuperTrend flipped"
+and "bias changed" flags compared live AERO with the synthetic series. The records stay
+as written.
+
+**The order of the work — Claude's**, under the delegation of the order of work
+(21 September): point 1, then point 4, then point 3, each its own commit with a live run
+before it; then the batch of point 8, one small patch at a time; then the fix
+verification by round 8's auditor, on a scoped package. The resume note put point 3
+before point 4. Swapped because point 3 removes the regime's chop test, which today keeps
+AGGRESSIVE out of a low-ADX market (`aggressive_allowed` needs NORMAL or LOW RISK,
+`models/decision_model.py:568`): landed first, it would leave a window between two
+commits in which a chop market with normal or low volatility could be called
+AGGRESSIVE; landed after point 4, every run under ADX 20 is already blocked, and point 3
+changes labels only. Viktor can reverse it.
+
+**What each point weakens.**
+
+1. *The stop.*
+   - The stop no longer widens with trend health, which put `trend_factor` at ×1.41 to
+     ×1.50 on every live run. Losing it outweighs losing the bias factor, so every live
+     run's stop narrows — by 4% to 28% of its width — and the median stop goes from 6.65%
+     to 5.25% of price. A narrower stop is reached by smaller moves; how often that turns
+     a winner into a loss is not measured — only a backtest or paper trading can.
+   - T1 is one stop distance (`TARGET1_MULT = 1.0`), so T1 narrows with it, the median
+     from 6.65% to 5.25% — nearer the floor of 3% after fees that is on the list for after
+     the audit.
+   - At high conviction the stop is wider than the bias factor made it (×1.33 at a score
+     of 75), so a high-conviction setup no longer gets an easier risk check.
+   - Neither the old multipliers nor the ones that stay (1.2; the volatility factors
+     0.85, 1.35 and 1.60) have been backtested.
+   - It changes which trades are taken: 3 more of the 37 live runs pass the risk check,
+     none fewer, and none of the three would have traded.
+   - Mechanically: `TREND_FACTOR_DIVISOR` and `BIAS_FACTOR_DIVISOR` are fingerprinted
+     (`core/decision_log.py:256`), so removing them moves `run_hash`, and the golden
+     snapshot moves. The patch states its predictions.
+2. *The gate.*
+   - The declaration of 15 September, "The release gate is open", no longer holds, and
+     the tag `portfolio-v1` (`99e022e`) marks code that carries the defect. The tag is not
+     moved and goal A's text is not edited: goal A stands as achieved ("Ruling,
+     28 September 2026 — what "finished" means …", point E), as the record of what the
+     project knew then.
+   - Reopening the gate rests on round 8's auditor, whose two runs named themselves
+     Claude ("Decision, 4 October 2026 — round 8's first run …"), and on a scorer who is
+     also the fixer.
+   - F4's third path is not ruled. If it were upheld as a Tier 1 violation it would be
+     Critical too, and the gate could be reopened over it.
+3. *The regime.*
+   - The regime no longer sees chop at all: a low-ADX market with normal volatility is
+     NORMAL RISK, which allows AGGRESSIVE as far as the regime is concerned. Point 4 is
+     what keeps such a market out, which is why point 4 lands first.
+   - Item 14 is satisfied here by removing the coupling, the strict reading (no shared
+     raw input, the standard of 19 September). Which reading Item 14 requires is not
+     ruled.
+   - How LOW VOLATILITY maps without the strong-trend test is the patch's to state;
+     Claude's reading is LOW RISK. Mechanically, `REGIME_CHOP_ADX` and
+     `REGIME_STRONG_ADX` are fingerprinted (`core/decision_log.py:262–263`), so
+     `run_hash` moves.
+4. *The trend gate.*
+   - About 37% of real 4h bars are blocked outright, where the flag blocked about half
+     of them: fewer setups reach a trade.
+   - A trend that starts out of chop is entered only once ADX reaches 20, and ADX is
+     smoothed and lags.
+   - 20 is the threshold the regime used: chosen, not derived, and not backtested.
+   - Whether a trend is exhausted is no longer asked anywhere: a trend with ADX of 20 or
+     more that is in fact exhausted is not blocked on that ground.
+   - Failing safe on an unmeasured ADX means such a run takes no trade, where "degrade,
+     don't halt" (29 August) caps confidence and carries on. The run still completes and
+     is recorded.
+5. *The trend score.* Until it is decided, the tiers' trend requirements keep gating
+   almost nothing beyond ADX, and the panel's TREND line stays nearly constant.
+6. *Test runs.* The live log keeps ten test records at its head, so every reader must
+   exclude them, by name or by source. From the fix on, a pinned run's history is in a
+   file of its own.
+7. *Bitcoin.* The panel loses the one number that combined the pair's confidence with
+   BTC's state; whoever read it as a market-stress warning has the BTC section's own lines
+   left. Whether the computation and its record field go with the line is the patch's to
+   propose; Claude's reading of "reference only" is that they do.
+8. *The batch.* Each fix changes code round 8 read, so the fix verification has to cover
+   every one. Labels and records change several times, so comparing records across these
+   commits needs `code_hash`. These items skip the list for after the audit, which the
+   ruling of 22 September set up so that new work would not move the audit; round 8 is
+   done, so that reason no longer applies.
+9. *F4.* Macro keeps a second effect on the tier, besides its 10% in `bias_score`, until
+   the weighting is reviewed.
+10. *The score.* Both scores (run 1, 0 of 4; run 2, 2 of 4) rest on Claude's scoring and
+    on the auditor's own reading of its Parts 1–6. The review re-checked the 2 of 4 (its
+    Part A1), and the review is Claude's too.
+11. *The freeze.* The engine changes again, and none of its changes since `e65a0f7` has
+    an independent rating that counts toward opening backtesting (the ruling of
+    4 October). The tags `round7-sent-2026-09-30` and `round8-sent-2026-10-04` mark the
+    code round 8 read.
+
+## Correction, 5 October 2026 — two of rev 9's requirement sentences were wrong
+
+*New in this file on 5 October 2026, by point 9 of the ruling above. Rev 9
+(`docs/audit_package/item16_review_instruction_rev9.md`) is what round 8 was sent, and
+its hash is on record, so it is not edited; this entry corrects it. Both sentences are
+Claude's, written under the delegation of 4 October and not shown to Viktor before the
+send ("Decision, 4 October 2026 — rev 9 and the Part 7 correction"). Both are in its
+Section 4a, under "What the engine is required to do".*
+
+**"Macro is not part of that signal, and only a reversal pointing against the trade
+blocks it."** Wrong in its second half. Read at `9e42d30`, where the engine code is as
+round 8 read it: `signal_blockers` (`models/entry_model.py:537–573`) blocks a side for
+three reasons — a structure regime that is not that side's trend, so that NEUTRAL
+STRUCTURE blocks both sides; the exhaustion flag, whatever the direction; and a momentum
+divergence that points against the trade or whose direction was not recorded. Reversal
+direction and strength are not inputs at all. Round 8 found it (its Part 7 reply,
+§1(2)); the review confirmed it from the code. Point 4 of the ruling above changes the
+gate again: ADX under 20 replaces the exhaustion flag.
+
+**"Macro does not decide the CONSERVATIVE tier, and is not an input to the decision
+model."** Wrong in its first half. Work order G removed macro's condition from both
+CONSERVATIVE branches and `macro_bias` from the decision model, but
+`calculate_entry_quality` multiplies the entry score by 1.05 when macro agrees with the
+trade and by 0.90 when it opposes it (`models/entry_model.py:63–64` and `:379–385`), and
+an entry score of 70 or more is what separates LONG from CONSERVATIVE LONG
+(`models/decision_model.py:463` and `:695–696`). So macro can move a setup between the
+two, and the code says so itself (`models/decision_model.py:690–693`). The second half,
+not an input to the decision model, is true. Round 8 found it (F4's third path, and its
+Part 7 reply, §1(1)); the review confirmed it. It stays on the list as a weighting
+question (point 9 above).
+
+**Two more that round 8 questioned, noted here though the ruling named only the two
+above,** so that the requirement list has one record of what was said against it:
+
+- "The stop is measured from ATR. No volume level moves it." Incomplete rather than
+  wrong: true of volume levels, but trend health and the bias score scaled the stop as
+  well. Round 8 found it as F1 (the Part 7 document's S2) and named the sentence in its
+  Part 6, B2. Point 1 of the ruling above makes the sentence complete.
+- "Trade direction comes from the bias score alone. Macro is one weighted input to that
+  score and has no separate vote." Round 8 (Part 6, B1) read "no separate vote" against
+  macro's two other paths: the entry-score multiplier, which moves the tier (above), and
+  the validation score, which moves no action (its Part 7 reply, §4(1)). Claude reads the
+  sentence as being about direction, where it holds — neither path picks a side — but its
+  wording does not say so. Viktor's to correct.
+
+**What this weakens.** Nothing in the engine. It shows that a requirement written by the
+builder can be wrong in a direction that would hide a defect — the review's C5 — and that
+rev 9's own request, "Say so wherever a requirement itself looks wrong", caught both.
+Round 8 also called the archive sentence sound (Part 6, B3). The other six requirement
+sentences were written and checked by Claude alone before the send; round 8 questioned
+none of them, and they are not re-checked here.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then

@@ -18,6 +18,14 @@ those nine files. `code_hash` at `e65a0f7` and at `ac0a211` is the same, `13908b
 (Python 3.12). Which commit the full round 6 of 13 September read was not checked
 here.
 
+**Round 8 (4 October)** read the whole engine as it stood at `e186423`, the tag
+`round7-sent-2026-09-30`; no engine code changed from there to `9e42d30` (`git diff
+--stat e186423 9e42d30 -- "*.py" ":!docs"` names only the two tooling test files). Its
+ratings do not count toward opening backtesting (DECISIONS, "Ruling, 4 October 2026 —
+round 8's result …"), so the baseline above stands for that purpose. The fix
+verification by round 8's auditor (DECISIONS, "Ruling, 5 October 2026 — round 8
+triaged …") covers the lines added after `9e42d30`.
+
 Everything below landed after `e65a0f7`. Add one line per commit as each lands.
 
 ## Engine code — one line per commit, oldest first
@@ -67,7 +75,7 @@ Each line gives what changed, which finding it closes, and which tests guard it.
 | `3e8191a` | 30 Sep | `docs/build/send_audit_round.py`: round 7's second run, as ruled on 30 September after run 1 (DECISIONS, "Ruling, 30 September 2026 — what follows round 7's first reply") — every request asks for reasoning, and `--send` refuses the real send unless a one-line probe shows reasoning tokens; two runs in all, a run being any reply on record; every run sends the bytes the earlier runs sent; a folder of its own per run, never written over, with `--out-dir` and `--force` refused for `--send`; run 1 closed to `--send-part7`; the generation lookup about five minutes instead of about 44 seconds. The one test file allowed to change during the freeze (same ruling, point 2). No engine code; `code_hash` unmoved | `test_send_audit_round.py` (9 added; the existing send test and every refusal now also check the probe); nineteen negative controls on the script, each failing its test. Not covered by the suite: the network — the probe's own POST, `send()`'s streaming loop and its new warning when a reply carries no reasoning — which a real send checks |
 | `1523e0c` | 30 Sep | `docs/build/send_audit_round.py`: run 2 closed like run 1 (`CLOSED_RUNS`), once it had scored 0 of 4 and Viktor had checked the score — round 7 ended (DECISIONS, "Round 7 ended, 30 September 2026 — run 2 found 0 of 4"); the script cannot know a score, so without it `--send-part7` would have sent Part 7 to run 2 once its files were committed. Lands with run 2's four `turn1_*` files. No engine code; `code_hash` unmoved | `test_send_audit_round.py` (one test replaced by two: both closed runs refused, each with its reason; both runs' committed records; round 7 has had its two runs); four negative controls — run 2's key mistyped, run 2 not closed, `MAX_RUNS` 3, run 2's files absent — each failing its test |
 | `4a4c6ce` | 4 Oct | `docs/build/package_token_check.py`, `docs/build/send_audit_round.py`, `docs/build/build_round8_package.py` (new), `docs/build/build_audit_package.py`: item 3 of round 8's preparation list (DECISIONS, "Decision, 4 October 2026 — round 8's tooling") — MiMo-V2.6-Pro in the token check, its tokenizer pinned by SHA-256 at `XiaomiMiMo/MiMo-V2.6-Pro-MOPD@adea8e2` and its renderer checked against the template by `jinja2` on four cases, and `--model` with no default; the send repointed to round 8 — model, prices, rev 9, `round8_mimo-v2.6-pro_` run folders, two runs — with `--provider` naming one of four endpoints in the decided order, Part 7 sent to whichever answered the first message and refused for a folder not of this round; round 8's folders built from round 7's built files, each checked against the hash both of round 7's runs recorded, the Part 7 document refused while it is still the tag's text, the commit messages up to the tag refused unless they are round 7's to the byte; `build_audit_package.py` refusing to rebuild round 7 (`SENT`), and its commit messages able to end at a named commit. One of the two test files the freeze allows each (DECISIONS, "Decision, 4 October 2026 — round 8's package"). No engine code; `code_hash` unmoved | `test_send_audit_round.py` (13 added; existing tests repointed to round 8, and the build layout test now asserts round 7's layout), `test_package_token_check.py` (4 added); twenty-two negative controls on the four scripts, each failing its test. Not covered by the suite: the network, the real tokenizer (check 4 run on a trial build in the sandbox) and round 7's real built files (staged off Viktor's disk and checked in the sandbox) |
-| the commit that adds this line | 4 Oct | `docs/build/send_audit_round.py`: round 8's run 1 closed (`CLOSED_RUNS`), once it had scored 0 of 4 (DECISIONS, "Decision, 4 October 2026 — round 8's first run: 0 of 4, no Part 7 to it, run 2 next"); without it `--send-part7` would have found run 1 as the one run waiting once its files were committed (shown in the sandbox on `217ede6`). Lands with run 1's four `turn1_*` files. One of the two test files the freeze allows. No engine code; `code_hash` unmoved | `test_send_audit_round.py` (1 added: run 1's committed record; the closed-run test now covers it, refused with and without `--out-dir`); two negative controls — run 1 not closed, its recorded provider changed — each failing its test |
+| `d27743f` | 4 Oct | `docs/build/send_audit_round.py`: round 8's run 1 closed (`CLOSED_RUNS`), once it had scored 0 of 4 (DECISIONS, "Decision, 4 October 2026 — round 8's first run: 0 of 4, no Part 7 to it, run 2 next"); without it `--send-part7` would have found run 1 as the one run waiting once its files were committed (shown in the sandbox on `217ede6`). Lands with run 1's four `turn1_*` files. One of the two test files the freeze allows. No engine code; `code_hash` unmoved | `test_send_audit_round.py` (1 added: run 1's committed record; the closed-run test now covers it, refused with and without `--out-dir`); two negative controls — run 1 not closed, its recorded provider changed — each failing its test |
 
 ## Rulings since the baseline that change what the engine must do
 
@@ -107,6 +115,18 @@ Each line gives what changed, which finding it closes, and which tests guard it.
   one to its verdict (the finish criteria reported beside it, not graded), and puts two
   new trading rules on the list for after the audit: a T1 floor of 3% after fees, and a
   separate range-trading mode.
+- **Round 8 triaged** (DECISIONS, "Ruling, 5 October 2026 — round 8 triaged: three
+  decision-path fixes and the label and record fixes now, the release gate closed, the
+  freeze lifted") — no code yet; each change gets a line above when it lands. Two
+  change which trades are taken: the stop is ATR × 1.2 × the volatility factor, trend
+  health and the bias score no longer scaling it (point 1, a break of Item 14; the
+  release gate is closed until it lands and round 8's auditor verifies it); and ADX
+  under 20 blocks both sides, replacing the exhaustion flag in the confirmation gate
+  (point 4). The risk regime from volatility alone (point 3) would change them too if it
+  landed first; it lands after point 4, and then changes labels only. The rest take no
+  trade: test runs in a log of their own (point 6), the BTC-adjusted confidence line
+  removed (point 7), and the label and record batch (point 8). Each changes code round 8
+  read, so the fix verification covers them all.
 
 ## Found, open, and not yet a change
 
@@ -114,4 +134,5 @@ Nothing from the closed list. Claude's 17 (work order G) and findings 16, 7, 4, 
 and 18 have landed, above (G at `7d0024e`). Findings 19–28 from
 the deferred read have all landed, above. What waits for after the audit is in
 `docs/PHASE7_NEXT.md`, "Found after 22 September — for after the next audit".
-Each gets a line above when it lands.
+Each gets a line above when it lands. **The fixes of 5 October** — round 8's triage,
+above — are next, in the order in `docs/PHASE7_NEXT.md`, "Work order".
