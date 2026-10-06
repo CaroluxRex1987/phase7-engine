@@ -56,19 +56,16 @@ def test_state_round_trips_through_save_and_load():
     if not _engine_available():
         pytest.skip("pandas_ta not installed")
 
-    from core import config
-
     engine = _engine()
+    # B6, 6 October 2026: the directory is an argument -- the run's records
+    # directory, which run() chooses from the run's source -- where these
+    # tests used to point config.LOG_DIR at it. The methods no longer read
+    # config.LOG_DIR at all.
     work = tempfile.mkdtemp(prefix="phase7_state_roundtrip_")
-    original_log = config.LOG_DIR
-    try:
-        config.LOG_DIR = work
-        state = {"flip": True, "price": 123.45}
-        engine._save_state("AEROUSDT", "4h", state)
-        loaded = engine._load_state("AEROUSDT", "4h")
-        assert loaded == state, f"round trip changed the state: {loaded!r}"
-    finally:
-        config.LOG_DIR = original_log
+    state = {"flip": True, "price": 123.45}
+    engine._save_state("AEROUSDT", "4h", state, work)
+    loaded = engine._load_state("AEROUSDT", "4h", work)
+    assert loaded == state, f"round trip changed the state: {loaded!r}"
 
 
 def test_no_temp_file_is_left_behind_after_a_successful_save():
@@ -81,21 +78,14 @@ def test_no_temp_file_is_left_behind_after_a_successful_save():
     if not _engine_available():
         pytest.skip("pandas_ta not installed")
 
-    from core import config
-
     engine = _engine()
     work = tempfile.mkdtemp(prefix="phase7_state_notemp_")
-    original_log = config.LOG_DIR
-    try:
-        config.LOG_DIR = work
-        engine._save_state("AEROUSDT", "4h", {"flip": False})
-        leftovers = [
-            f for f in os.listdir(work)
-            if f != "phase7_state_AEROUSDT_4h.json"
-        ]
-        assert not leftovers, f"unexpected files left in the log dir: {leftovers}"
-    finally:
-        config.LOG_DIR = original_log
+    engine._save_state("AEROUSDT", "4h", {"flip": False}, work)
+    leftovers = [
+        f for f in os.listdir(work)
+        if f != "phase7_state_AEROUSDT_4h.json"
+    ]
+    assert not leftovers, f"unexpected files left in the log dir: {leftovers}"
 
 
 def test_a_dump_failure_midway_leaves_the_prior_state_untouched():
@@ -120,46 +110,40 @@ def test_a_dump_failure_midway_leaves_the_prior_state_untouched():
     if not _engine_available():
         pytest.skip("pandas_ta not installed")
 
-    from core import config
     import core.engine_core as ec
 
     engine = _engine()
     work = tempfile.mkdtemp(prefix="phase7_state_crash_")
-    original_log = config.LOG_DIR
     real_dump = ec.json.dump
+    old_state = {"flip": True, "price": 100.0}
+    engine._save_state("AEROUSDT", "4h", old_state, work)
+
+    def _dump_then_crash(obj, fp):
+        fp.write('{"flip": tr')  # a real partial write, then die
+        raise OSError("simulated crash mid-write")
+
+    ec.json.dump = _dump_then_crash
     try:
-        config.LOG_DIR = work
-        old_state = {"flip": True, "price": 100.0}
-        engine._save_state("AEROUSDT", "4h", old_state)
-
-        def _dump_then_crash(obj, fp):
-            fp.write('{"flip": tr')  # a real partial write, then die
-            raise OSError("simulated crash mid-write")
-
-        ec.json.dump = _dump_then_crash
-        try:
-            engine._save_state("AEROUSDT", "4h", {"flip": False, "price": 200.0})
-        finally:
-            ec.json.dump = real_dump
-
-        recovered = engine._load_state("AEROUSDT", "4h")
-        assert recovered == old_state, (
-            f"a crash mid-write corrupted the prior state: {recovered!r} -- "
-            f"expected the untouched old state {old_state!r}"
-        )
-
-        path = engine._state_path("AEROUSDT", "4h")
-        with open(path) as f:
-            on_disk = json.load(f)
-        assert on_disk == old_state, (
-            "the file on disk is not valid, complete JSON of the old state"
-        )
-
-        leftovers = [
-            f for f in os.listdir(work) if f != os.path.basename(path)
-        ]
-        assert not leftovers, (
-            f"the failed write's temp file was not cleaned up: {leftovers}"
-        )
+        engine._save_state("AEROUSDT", "4h", {"flip": False, "price": 200.0}, work)
     finally:
-        config.LOG_DIR = original_log
+        ec.json.dump = real_dump
+
+    recovered = engine._load_state("AEROUSDT", "4h", work)
+    assert recovered == old_state, (
+        f"a crash mid-write corrupted the prior state: {recovered!r} -- "
+        f"expected the untouched old state {old_state!r}"
+    )
+
+    path = engine._state_path("AEROUSDT", "4h", work)
+    with open(path) as f:
+        on_disk = json.load(f)
+    assert on_disk == old_state, (
+        "the file on disk is not valid, complete JSON of the old state"
+    )
+
+    leftovers = [
+        f for f in os.listdir(work) if f != os.path.basename(path)
+    ]
+    assert not leftovers, (
+        f"the failed write's temp file was not cleaned up: {leftovers}"
+    )

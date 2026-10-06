@@ -106,8 +106,14 @@ def _clear_state(log_dir):
     Exit Watch compares against the previous run, so a second run that can see
     the first one's state is not a repeat of it. Every comparison below starts
     from the same place on purpose.
+
+    B6, 6 October 2026: every run in this file is pinned, so its state is in
+    the log directory's pinned/ subdirectory, which is where this looks.
     """
-    for path in glob.glob(os.path.join(log_dir, "phase7_state_*.json")):
+    from core import decision_log
+
+    pinned = decision_log.records_dir(log_dir, False)
+    for path in glob.glob(os.path.join(pinned, "phase7_state_*.json")):
         try:
             os.remove(path)
         except OSError:
@@ -536,7 +542,8 @@ def test_the_lineage_reaches_the_written_decision_log():
     try:
         log_dir = os.path.join(work, "logs")
         decision = _run(PINNED_DIR, log_dir)
-        records = decision_log.read(log_dir, "AEROUSDT")
+        # B6: a pinned run's record is in the pinned log.
+        records = decision_log.read(decision_log.records_dir(log_dir, False), "AEROUSDT")
         assert records, "nothing was written to the decision log"
 
         stored = records[-1]["decision"]
@@ -567,11 +574,14 @@ def test_the_written_record_is_json_and_holds_no_non_finite_numbers():
     if not _engine_available():
         pytest.skip("pandas_ta not installed")
 
+    from core import decision_log
+
     work = tempfile.mkdtemp(prefix="phase7_json_")
     try:
         log_dir = os.path.join(work, "logs")
         _run(PINNED_DIR, log_dir)
-        path = os.path.join(log_dir, "phase7_decision_log_aerousdt.jsonl")
+        # B6: a pinned run's record is in the pinned log.
+        path = decision_log.log_path(decision_log.records_dir(log_dir, False), "AEROUSDT")
         with open(path, encoding="utf-8") as fh:
             for number, line in enumerate(fh, 1):
                 if not line.strip():
@@ -671,14 +681,17 @@ def test_a_run_whose_archive_is_gone_is_still_verifiable_by_its_hash():
         archived = decision["lineage"]["archive"]["path"]
 
         # Age it past the window and prune, as the engine would in ninety days.
+        # B6: a pinned run's archive and log are in the pinned directory, and
+        # a pinned run's prune looks there.
+        pinned = decision_log.records_dir(log_dir, False)
         ancient = time.time() - (200 * 86400)
         os.utime(archived, (ancient, ancient))
-        removed = lineage.prune(log_dir, max_age_days=90)
+        removed = lineage.prune(pinned, max_age_days=90)
         assert os.path.basename(archived) in removed
         assert not os.path.exists(archived)
 
         # The log is untouched by pruning, and still identifies the input.
-        record = decision_log.read(log_dir, "AEROUSDT")[-1]
+        record = decision_log.read(pinned, "AEROUSDT")[-1]
         stored_hash = record["decision"]["lineage"]["inputs"]["struct"]["sha256"]
         assert stored_hash, "pruning took the hash with the archive"
 
@@ -776,7 +789,8 @@ def test_a_real_run_s_archive_matches_its_decision_log_record():
         archived = decision["lineage"]["archive"]["path"]
         assert archived and os.path.exists(archived)
 
-        records = decision_log.read(log_dir, "AEROUSDT")
+        # B6: a pinned run's record is in the pinned log.
+        records = decision_log.read(decision_log.records_dir(log_dir, False), "AEROUSDT")
         assert len(records) == 1
         result = lineage.verify_against_record(archived, records[-1])
         assert result == {"run_hash": True,

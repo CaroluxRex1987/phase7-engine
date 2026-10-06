@@ -194,6 +194,8 @@ def test_the_docstring_names_the_source_the_engine_records():
     here = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     with open(os.path.join(here, "core", "engine_core.py"), encoding="utf-8") as f:
         engine = f.read()
-    assert '"source": "pinned" if data_fetcher.pinned_source()' in engine
+    # B6, 6 October 2026: the engine records the literal from `live`, the
+    # one answer run() takes at its top, where it asked pinned_source() again.
+    assert '"source": "pinned" if not live else str(data_fetcher.base_url)' in engine
     assert 'the literal "pinned"' in decision_log.__doc__
     assert "source          the pinned directory" not in decision_log.__doc__

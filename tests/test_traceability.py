@@ -98,7 +98,9 @@ def test_the_log_records_what_the_run_saw_not_just_what_it_decided():
     from core import config, decision_log
 
     _run()
-    records = decision_log.read(config.LOG_DIR, "AEROUSDT")
+    # B6, 6 October 2026: _run() is pinned, so its record is in the pinned
+    # log, not in config.LOG_DIR's live one.
+    records = decision_log.read(decision_log.records_dir(config.LOG_DIR, False), "AEROUSDT")
     assert records, "the log is empty after a successful run"
 
     latest = records[-1]

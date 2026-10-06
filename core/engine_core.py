@@ -219,14 +219,41 @@ class Phase7Engine:
     # runs -- it has to be a small file on disk instead. Defensive by design: a missing or corrupt state file
     # just means "nothing to compare against yet," never a crash.
 
-    def _state_path(self, symbol: str, timeframe: str) -> str:
+    @staticmethod
+    def _is_live_run() -> bool:
+        """
+        B6, 6 October 2026: True only when this run's candles come from the
+        live exchange -- no pinned source is set.
+
+        A PHASE7_PINNED_DATA that does not name a directory makes
+        pinned_source() raise. That is a broken pinned request, not a live
+        run, so it answers False: nothing is read from or written to the
+        live record on its account. The fetch then fails on the same error
+        and the run ends there, as it did before this method existed.
+        """
+        try:
+            return data_fetcher.pinned_source() is None
+        except Exception:
+            return False
+
+    def _state_path(self, symbol: str, timeframe: str, records_dir: str) -> str:
         # SEQUENCE ITEM 14: was getattr(config, "LOG_DIR", "Logs/"). A
         # fallback for a name config always defines is a second, undeclared
         # setting that only takes effect when the first goes missing — so a
         # deleted or misspelled config entry relocates the engine's output
         # silently instead of failing where it can be seen.
-        log_dir = config.LOG_DIR
-        return os.path.join(log_dir, f"phase7_state_{symbol}_{timeframe}.json")
+        #
+        # B6, 6 October 2026 (the ruling of 5 October, point 6): the
+        # directory is the run's records directory, which run() decides once
+        # from the run's source -- config.LOG_DIR for a live run, its pinned/
+        # subdirectory otherwise (decision_log.records_dir). It was always
+        # config.LOG_DIR, so a run on pinned candles left its state for the
+        # next live run to compare against: on 6 September the first live
+        # run's Exit Watch read its prior state from a pinned run 27 seconds
+        # earlier, comparing live AERO with a synthetic series. Required,
+        # with no default, for the reason given above: a default would be a
+        # second way to choose the directory.
+        return os.path.join(records_dir, f"phase7_state_{symbol}_{timeframe}.json")
 
     # ============================================================
     # AUDIT FINDINGS 6 AND 7 -- Items 5 (Reproducibility) and 6
@@ -343,9 +370,9 @@ class Phase7Engine:
             "basis": info.get("basis"),
         }
 
-    def _load_state(self, symbol: str, timeframe: str) -> Dict[str, Any]:
+    def _load_state(self, symbol: str, timeframe: str, records_dir: str) -> Dict[str, Any]:
         try:
-            path = self._state_path(symbol, timeframe)
+            path = self._state_path(symbol, timeframe, records_dir)
             if not os.path.exists(path):
                 return {}
             with open(path, "r") as f:
@@ -355,7 +382,8 @@ class Phase7Engine:
             logger.warning(f"Could not load prior engine state (first run, or file is corrupt): {e}")
             return {}
 
-    def _save_state(self, symbol: str, timeframe: str, state: Dict[str, Any]) -> None:
+    def _save_state(self, symbol: str, timeframe: str, state: Dict[str, Any],
+                    records_dir: str) -> None:
         # Was open(path, "w") + json.dump(state, f): that truncates the file
         # to zero length before a single byte of the new state is written, so
         # a process killed or crashing mid-dump (the disk fills, the box
@@ -369,11 +397,10 @@ class Phase7Engine:
         # partial one, on every platform this project targets.
         tmp_path = None
         try:
-            log_dir = config.LOG_DIR
-            os.makedirs(log_dir, exist_ok=True)
-            path = self._state_path(symbol, timeframe)
+            os.makedirs(records_dir, exist_ok=True)
+            path = self._state_path(symbol, timeframe, records_dir)
             fd, tmp_path = tempfile.mkstemp(
-                prefix=f"{os.path.basename(path)}.", suffix=".tmp", dir=log_dir
+                prefix=f"{os.path.basename(path)}.", suffix=".tmp", dir=records_dir
             )
             with os.fdopen(fd, "w") as f:
                 json.dump(state, f)
@@ -448,9 +475,20 @@ class Phase7Engine:
         macro_tf = config.MACRO_TIMEFRAME
         required_base_cols = ["open", "high", "low", "close", "volume"]
 
+        # B6, 6 October 2026 (the ruling of 5 October, point 6): where this
+        # run's records go -- its Exit Watch state, its archive and, through
+        # provenance's source and fetch.pinned below, its decision log --
+        # decided once, here, from the run's source rather than from a
+        # setting someone has to remember. A live run keeps config.LOG_DIR
+        # exactly as before; a run on pinned candles gets config.LOG_DIR's
+        # pinned/ subdirectory.
+        live = self._is_live_run()
+        records_dir = decision_log.records_dir(config.LOG_DIR, live)
+
         # C3: load whatever was persisted from the last run (for the
-        # SuperTrend-flip / bias-flip Exit Watch comparisons below).
-        prior_state = self._load_state(symbol, timeframe)
+        # SuperTrend-flip / bias-flip Exit Watch comparisons below) -- the
+        # last run from the same source.
+        prior_state = self._load_state(symbol, timeframe, records_dir)
 
         # SEQUENCE ITEM 9a: every input this run could not compute, in the
         # operator's words. Empty means the analysis below used everything it
@@ -1289,6 +1327,7 @@ class Phase7Engine:
             self._save_state(
                 symbol, timeframe,
                 {"supertrend_direction": supertrend_direction, "detailed_bias": detailed_bias},
+                records_dir,
             )
 
             # 10. CHARTING
@@ -1390,7 +1429,7 @@ class Phase7Engine:
             try:
                 archive_path = lineage.write_archive(
                     {"struct": raw_struct, "macro": raw_macro, "btc": raw_btc},
-                    config.LOG_DIR, symbol, timeframe, run_id,
+                    records_dir, symbol, timeframe, run_id,
                     meta={
                         "engine_version": config.engine_version,
                         "config": config_fingerprint,
@@ -1411,8 +1450,12 @@ class Phase7Engine:
                 # verifies. The run just written is passed as `keep` so it can
                 # never be removed by its own prune, whatever the clock on this
                 # machine says.
+                #
+                # B6: each source prunes its own archive directory, so a
+                # pinned run never ages out a live run's archive, nor the
+                # other way round.
                 pruned = lineage.prune(
-                    config.LOG_DIR, lineage.RETENTION_DAYS, keep=[archive_path])
+                    records_dir, lineage.RETENTION_DAYS, keep=[archive_path])
             except Exception as exc:
                 # Deliberately NOT appended to `degradation`. That list blocks
                 # the run from authorizing a trade and is about inputs the
@@ -1544,7 +1587,13 @@ class Phase7Engine:
                     # this block is for. WHAT the data was is fingerprinted by
                     # last_candle and row_count above; WHERE it sat is not part
                     # of the identity.
-                    "source": "pinned" if data_fetcher.pinned_source() else str(data_fetcher.base_url),
+                    #
+                    # B6, 6 October 2026: from `live`, decided once at the
+                    # top of run(), where this asked pinned_source() again.
+                    # The same answer on every path that reaches here; one
+                    # evaluation makes the record's statement of its source
+                    # and the directory its records went to the same fact.
+                    "source": "pinned" if not live else str(data_fetcher.base_url),
 
                     # AUDIT FINDING 6. The five fields above identify a run
                     # only as far as a timestamp and a length can, which is not
@@ -1565,7 +1614,10 @@ class Phase7Engine:
                             "macro": int(len(raw_macro)) if raw_macro is not None else 0,
                             "btc": int(len(raw_btc)) if raw_btc is not None else 0,
                         },
-                        "pinned": bool(data_fetcher.pinned_source()),
+                        # B6: decision_log.write() reads this field and
+                        # `source` above to choose the log; a record goes in
+                        # the live log only when both say live.
+                        "pinned": not live,
                     },
                     # FINDING 16, 26 September 2026: which candle each series
                     # decided on, and whether a forming candle was dropped to

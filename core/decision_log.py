@@ -64,6 +64,26 @@ THE LINE THE PANEL PRINTS IS NOW CONDITIONAL
 write() returns the path on success and None on failure, and the panel prints
 the line only when it gets a path. An engine that says "logged" when the disk
 was full would be the same defect wearing a new filename.
+
+WHERE A RECORD GOES -- B6, 6 OCTOBER 2026
+
+Viktor's ruling of 5 October 2026, point 6: runs on pinned data write to their
+own decision log, archive and Exit Watch state, chosen by the code from the
+run's source rather than by a setting someone has to remember. Until then
+every run wrote here, so the live log on Viktor's machine holds nine runs on
+the synthetic fixture and one hand-built record among its live runs, and the
+twelve-month paper-trading count would have had to exclude them by hand. They
+stay where they are; the ruling names them in docs/PHASE7_DECISIONS.md.
+
+records_dir() is the one place the directory is chosen. A live run's records
+stay in config.LOG_DIR, byte for byte where they were. Every other record --
+pinned, or one whose provenance does not say -- goes to its pinned/
+subdirectory. write() chooses from the record itself: a record goes in the
+live log only when its own provenance says its candles were fetched live
+(is_live_record). engine_core makes the same choice once per run for the
+state file and the archive, and records it in that same provenance field, so
+the record's statement of its source and the place it is filed cannot
+disagree.
 """
 
 import json
@@ -75,6 +95,10 @@ from datetime import datetime, timezone
 logger = logging.getLogger(__name__)
 
 LOG_FILENAME = "phase7_decision_log_{symbol}.jsonl"
+
+# B6: the subdirectory of the log directory that holds every record not stated
+# to be live -- its own decision log, archive/ and Exit Watch state.
+PINNED_DIRNAME = "pinned"
 
 # The knobs that change what the engine computes. Not every constant in
 # config — CHART_* and the directory paths do not affect a decision, and a
@@ -367,6 +391,54 @@ def _json_safe(value):
     return value
 
 
+def is_live_record(decision):
+    """
+    B6: True only when the decision says, in both places its provenance
+    records its source, that its candles were fetched live:
+    `provenance.fetch.pinned` is exactly False, and `provenance.source` is a
+    string other than "pinned" (the endpoint).
+
+    Anything else is not a live record: a pinned run, a provenance that is
+    missing, malformed or contradicts itself, a decision built by hand (the
+    live log's fourth record, 6 September, was one). Failing safe: a record
+    this cannot place is kept out of the live log, which is the record the
+    paper-trading verdict will be read from, rather than let into it. On the
+    engine's path every record carries both fields, set from one answer.
+    """
+    provenance = decision.get("provenance") if isinstance(decision, dict) else None
+    if not isinstance(provenance, dict):
+        return False
+    fetch = provenance.get("fetch")
+    source = provenance.get("source")
+    return (isinstance(fetch, dict) and fetch.get("pinned") is False
+            and isinstance(source, str) and source != "pinned")
+
+
+def records_dir(log_dir, live):
+    """
+    B6: the directory a run's records go to, given the log directory.
+
+    Live: `log_dir` itself, unchanged. Otherwise its pinned/ subdirectory,
+    spelled with forward slashes and a trailing one on every platform, so a
+    path joined under it -- the log, the archive, the state file -- is the
+    same string on Windows and on Linux. Paths under it are written into the
+    record, and the golden snapshot pins them (see lineage.write_archive()
+    for the backslash this avoids).
+
+    Built by string operations rather than os.path.join, so the answer for a
+    given string does not depend on the machine: "C:\\x\\logs" gives
+    "C:/x/logs/pinned/" on Linux as on Windows, and the tests can check the
+    Windows case on either. An empty log_dir, the working directory, gives
+    "pinned/".
+    """
+    if live:
+        return log_dir
+    base = str(log_dir).replace("\\", "/")
+    if base and not base.endswith("/"):
+        base += "/"
+    return f"{base}{PINNED_DIRNAME}/"
+
+
 def log_path(log_dir, symbol):
     return os.path.join(log_dir, LOG_FILENAME.format(symbol=str(symbol).lower()))
 
@@ -379,6 +451,12 @@ def write(decision, config, log_dir=None):
     should still reach the operator if the disk is full. What must not happen
     is the panel claiming it was logged anyway — the caller passes this return
     value to the panel, which prints the line only when there is a path.
+
+    B6, 6 October 2026: `log_dir` (config.LOG_DIR when not given) is the log
+    directory, and the record goes to records_dir(log_dir, is_live_record(
+    decision)) -- the log directory itself only for a record that says it is
+    live, its pinned/ subdirectory for every other. Passing a directory does
+    not override that choice; no caller can put a pinned record in a live log.
     """
     try:
         symbol = str(decision.get("symbol", "unknown"))
@@ -387,8 +465,9 @@ def write(decision, config, log_dir=None):
         # stays — tests pass an unwritable path through it deliberately — but
         # the config read no longer carries a shadow default.
         log_dir = log_dir if log_dir is not None else config.LOG_DIR
-        os.makedirs(log_dir, exist_ok=True)
-        path = log_path(log_dir, symbol)
+        directory = records_dir(log_dir, is_live_record(decision))
+        os.makedirs(directory, exist_ok=True)
+        path = log_path(directory, symbol)
 
         record = {
             "logged_at": datetime.now(timezone.utc).isoformat(),
@@ -454,6 +533,9 @@ def read(log_dir, symbol):
     A line that cannot be parsed is skipped, as before, and now reported: a
     warning names the file and every skipped line number. Callers that need
     the numbers themselves use read_with_report().
+
+    B6: reads the one directory it is given. The records of pinned runs are
+    read with read(records_dir(log_dir, False), symbol).
     """
     out, skipped = read_with_report(log_dir, symbol)
     if skipped:

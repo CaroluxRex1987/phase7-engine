@@ -1,9 +1,9 @@
 # Next step — read this first
 
-*6 October 2026, evening. Rewritten by the commit that lands the third of round 8's
-fixes — the risk regime from volatility alone (point 3 of the triage; round 8's F2 and
-the review's B8); the version it replaced — as it stood at `1b25f36` — is in HISTORY
-verbatim.
+*6 October 2026, later the same evening. Rewritten by the commit that lands the first
+patch of round 8's label and record batch — B6: runs on pinned data keep their own
+decision log, archive and Exit Watch state (point 6 of the triage; the review's B6);
+the version it replaced — as it stood at `fcb7823` — is in HISTORY verbatim.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
 rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
@@ -54,10 +54,11 @@ and round 8's auditor has verified it; the risk regime comes from volatility alo
 trade under ADX 20 replaces the exhaustion flag; the trend score waits; test runs get a
 log of their own; the BTC-adjusted confidence line goes; the label and record fixes are
 made now; F4 stays on the list; and the freeze lifts. **Three fixes have landed: the
-stop**, at `c2b07fb`, **the trend gate**, at `1b25f36`, **and the regime**, at the
-commit that writes this line. **Next:** the label and record batch, one small patch at
-a time; then the fix verification by round 8's auditor on a scoped package, the
-14 September precedent (Work order). The release gate stays closed until that
+stop**, at `c2b07fb`, **the trend gate**, at `1b25f36`, **and the regime**, at
+`fcb7823`. **The label and record batch has begun:** B6, runs on pinned data keeping
+records of their own, at the commit that writes this line. **Next:** the rest of the
+batch, one small patch at a time; then the fix verification by round 8's auditor on a
+scoped package, the 14 September precedent (Work order). The release gate stays closed until that
 verification has reported on the stop. What the triage left open is Viktor's (Open
 items).
 
@@ -139,19 +140,27 @@ this file's version at `c2b07fb`, moved there by `1b25f36`.
 **The session of the night of 5 to 6 October** (`1b25f36`) landed fix 2, the trend
 gate, scoped in full before any diff and with its live run before the commit; its two
 test steps ran after the live run. Its account is in HISTORY, in this file's version
-at `1b25f36`, moved there by the commit that writes this line.
+at `1b25f36`, moved there by `fcb7823`.
 
-**This session (6 October, evening)**, under Claude Opus 5.5, opened on "Continue
-Phase 7". Claude read GitHub's tip (a clone) and `master` and `origin/master` off
-Viktor's disk: all `1b25f36`. Asked what to do first, Viktor chose fix 3, the regime.
-Claude scoped it in full before any diff — `classify_risk_regime` and
-`validate_risk_parameters`, their one engine caller, everything that reads the regime
-(the AGGRESSIVE gate in the decision model, the router, the panel),
-`lineage.risk_inputs` and its contract, the fingerprint list, every test that calls
-either function, the golden fixture, and the Constitution's Item 14 — and replayed the
-live log (49 records, SHA-256 `0098c990…`) through the risk check on the code before
-and after. The commit that writes this line is the fix: engine code, tests, the golden
-fixture, this file, HISTORY, `docs/audit_change_list.md` and README's counts. Its live
+**The session of 6 October, early evening** (`fcb7823`) landed fix 3, the regime,
+scoped in full before any diff, with the live log replayed through the risk check on
+the code before and after, and with its live run before the commit. Its account is in
+HISTORY, in this file's version at `fcb7823`, moved there by the commit that writes
+this line.
+
+**This session (6 October, later the same evening)**, configured for Claude Opus 5.5,
+opened on "Continue Phase 7". Claude read GitHub's tip (a clone) and
+`master` and `origin/master` off Viktor's disk: all `fcb7823`. Asked what to do first,
+Viktor chose B6, the first patch of the label and record batch. Claude scoped it in
+full before any diff — where a run writes its Exit Watch state, its archive and its
+decision log (`core/engine_core.py`, `core/decision_log.py`, `core/lineage.py`), their
+one production caller (the router), the panel's "Decision logged to" line, the
+contract, every test that runs the engine on pinned data and then reads what it wrote,
+the golden fixture, the backup utility and the audit-package builder — and found every
+caller of the changed functions from the parse tree. The live log was staged off
+Viktor's disk at the start (50 records, SHA-256 `b115afe9…`). The commit that writes
+this line is the fix: engine code, tests, the golden fixture, the audit-package
+builder, this file, HISTORY, `docs/audit_change_list.md` and README's counts. Its live
 run comes before the commit; the commit message has the record.
 
 ## Ruled — in force
@@ -169,13 +178,18 @@ run comes before the commit; the commit message has the record.
   archive and state; the test records in the live log are named. (7) The
   BTC-adjusted confidence line is removed. (8) The label and record fixes are made
   now. (9) F4 stays on the list. (10) The score check is declined. (11) The freeze
-  lifts. Filed at `eb86846`. **(1) landed at `c2b07fb`, (4) at `1b25f36`, and (3) at
-  the commit that writes this line**; the rest is to come, in the order below. Point 4
+  lifts. Filed at `eb86846`. **(1) landed at `c2b07fb`, (4) at `1b25f36`, (3) at
+  `fcb7823`, and (6) at the commit that writes this line**; the rest is to come, in the
+  order below. Point 4
   left to the patch how an ADX with no valid reading is treated: it blocks both sides
   too (Work order, item 2). Point 3 left to it how LOW VOLATILITY maps without the
   strong-trend test: LOW RISK, the reading the ruling named as Claude's; and the patch
   makes a volatility state the regime does not know UNKNOWN RISK, where it was NORMAL
-  RISK (Work order, item 3). Both are Claude's proposals, Viktor's to reverse.
+  RISK (Work order, item 3). Point 6 left to it where the records go and how a run's
+  source is read: `logs/pinned/`, the log chosen from each record's own provenance, a
+  record that does not say it is live kept out of the live log, and a broken pinned
+  request counted as not live (Work order, item 4). All are Claude's proposals,
+  Viktor's to reverse.
 - **New, 5 October — two of rev 9's requirement sentences corrected** (DECISIONS,
   "Correction, 5 October 2026 — two of rev 9's requirement sentences were wrong"), by
   point 9. Rev 9 itself is not edited.
@@ -377,9 +391,12 @@ run comes before the commit; the commit message has the record.
 
 ## Where things stand, right now
 
-- **Tip:** the commit that writes this line (a commit cannot name its own hash) — fix
-  3, the regime (point 3 of round 8's triage): engine code, tests, the golden fixture
-  and docs. Before it: `1b25f36` (the session of the night of 5 to 6 October: fix 2,
+- **Tip:** the commit that writes this line (a commit cannot name its own hash) — B6,
+  runs on pinned data keeping records of their own (point 6 of round 8's triage, the
+  first patch of the label and record batch): engine code, tests, the golden fixture,
+  the audit-package builder and docs. Before it: `fcb7823` (the session of 6 October,
+  early evening: fix 3, the regime: engine code, tests, the golden fixture and docs),
+  `1b25f36` (the session of the night of 5 to 6 October: fix 2,
   the trend gate: engine code, tests, the golden fixture and docs), `c2b07fb` (the
   session of 5 October, evening: fix 1, the
   stop: engine code, tests, the golden fixture and docs), `eb86846` (the session of
@@ -436,11 +453,17 @@ run comes before the commit; the commit message has the record.
   `round8-sent-2026-10-04` in `tests/test_send_audit_round.py` (`d27743f`), in the six
   test files and the golden fixture `c2b07fb` changes or adds, in
   `tests/test_signal_confirms.py`, the new `tests/test_no_trend_no_trade.py` and the
-  golden fixture again (`1b25f36`), and, since the commit that writes this line, in
+  golden fixture again (`1b25f36`), in
   `tests/test_no_circular_reasoning.py`, `tests/test_no_risk_free_conviction.py`,
   `tests/test_risk_fingerprint.py`, `tests/test_risk_regime_independence.py`,
   `tests/test_stop_ignores_conviction.py` and `tests/test_stop_is_atr_only.py`, the new
-  `tests/test_regime_from_volatility_alone.py` and the golden fixture again.
+  `tests/test_regime_from_volatility_alone.py` and the golden fixture again
+  (`fcb7823`), and, since the commit that writes this line, in
+  `tests/test_code_fingerprint.py`, `tests/test_decision_log_record_format.py`,
+  `tests/test_engine_state_atomic_write.py`, `tests/test_golden_path.py`,
+  `tests/test_lineage.py`, `tests/test_router_btc_seam.py` and
+  `tests/test_traceability.py`, the new `tests/test_pinned_runs_keep_their_own_records.py`
+  and the golden fixture again.
 - **Where the project lives, from 26 September:** `E:\phase7_engine` on Viktor's machine;
   the files kept outside the repository in `G:\Phase_7_Engine_Random_Files`. Copied with
   robocopy, verified — git's own checks on Windows for the tracked files, SHA-256 for the
@@ -449,53 +472,47 @@ run comes before the commit; the commit message has the record.
   to `E:\phase7_engine`". Run the engine and every command from `E:\phase7_engine` (in
   cmd, changing drive needs `cd /d`). A dated record that names the D: paths means the
   same folders before the move; dated records are not edited.
-- **The push of `1b25f36`** happened: at the start of this session it was GitHub's tip
+- **The push of `fcb7823`** happened: at the start of this session it was GitHub's tip
   (a clone), and `master` and `origin/master` on Viktor's disk (`.git/refs`, staged off
   it). No deviation was reported at the push (ruling on proposal (b)). The same holds
-  for the push of the commit that writes this line unless it deviates. `c2b07fb`'s owed
-  line was filed, and corrected, by `1b25f36`. Earlier pushes and deviations are
-  recorded in this file's previous versions, in HISTORY.
+  for the push of the commit that writes this line unless it deviates. Earlier pushes
+  and deviations are recorded in this file's previous versions, in HISTORY.
 - **Before this commit**, every file it changes was staged off Viktor's disk and matched
-  an autocrlf clone of `1b25f36` byte for byte; the file it adds was not there.
-- **code_hash:** `952dbb02cb52ee1d987e55fb20e6e7ff149ab45f7ba005d4875e6484298ac381`,
-  moved by the commit that writes this line (from `b7e7bc05…`, which held at `1b25f36`):
-  `models/risk_model.py`, `core/engine_core.py` and `core/decision_log.py`, the only
-  three per-file fingerprints that changed (checked against every file). The comment-only
-  changes in `indicators/trend_health.py`, `models/entry_model.py` and
-  `core/decision_contract.py` move none. Computed on the working tree and on the applied
-  tree under Python 3.12.3. Confirmed on Windows before the commit by Viktor's live run,
-  whose decision-log record Claude read — the commit message has it.
+  an autocrlf clone of `fcb7823` byte for byte; the file it adds was not there.
+- **code_hash:** `a13816304193d81091f1f458b1f77e47cd2fe0de404f55e26b1ab58577e19098`,
+  moved by the commit that writes this line (from `952dbb02…`, which held at `fcb7823`):
+  `core/engine_core.py` and `core/decision_log.py`, the only two per-file fingerprints
+  that changed (checked against every file). The comment-only change in
+  `core/decision_contract.py` moves none, and `docs/build/` and `tests/` are outside it
+  by directory. Computed on the working tree and on the applied tree under Python
+  3.12.3. Confirmed on Windows before the commit by Viktor's live run, whose
+  decision-log record Claude read — the commit message has it.
 - **code_hash is only comparable within one Python minor version.** It hashes `ast.dump`
   output, a CPython implementation detail (`core/code_fingerprint.py`, "WHAT IT DOES NOT
   SURVIVE"). **Every `code_hash` claim about this project is computed under Python 3.12**
   (Viktor runs 3.12.10).
-- **Golden snapshot:** re-baselined by the commit that writes this line, 7 leaves, as
-  predicted before the run: `lineage.risk_inputs.adx` removed (ADX is no longer a risk
-  input; it is still recorded at `lineage.indicators_at_decision_bar.ADX`),
-  `lineage.run_hash` and `provenance.run_hash` (`d2b7b300…` → `ea05e1f1…`),
-  `lineage.archive.path` and `provenance.archive_path` (the archive is named by
-  `run_hash`), and two constants removed from `provenance.module_constants`
-  (`models.risk_model.REGIME_CHOP_ADX`, 20.0, and `REGIME_STRONG_ADX`, 25.0). The
-  regime (NORMAL RISK: the fixture is MEDIUM VOLATILITY, ADX 31.96) and the action
-  (CONSERVATIVE LONG) are unchanged. Before that at `1b25f36`, 6 leaves.
-- **Test suite** — **753 passed / 0 failed, no warnings line** with `pandas_ta`;
-  **604 passed / 138 skipped** without it; `run_tests.py` **682 passed / 0 failed /
+- **Golden snapshot:** re-baselined by the commit that writes this line, 3 leaves, as
+  predicted before the run: `decision_log_path`, `lineage.archive.path` and
+  `provenance.archive_path`, each now under `logs/pinned/` — the golden runs are
+  pinned. `run_hash` (`ea05e1f1…`), the regime (NORMAL RISK), the action (CONSERVATIVE
+  LONG) and every other leaf are unchanged. Before that at `fcb7823`, 7 leaves.
+- **Test suite** — **763 passed / 0 failed, no warnings line** with `pandas_ta`;
+  **609 passed / 143 skipped** without it; `run_tests.py` **692 passed / 0 failed /
   32 errors**, all 32 fixture-collection `TypeError`s. The commit that writes this line
-  adds 11 tests (`tests/test_regime_from_volatility_alone.py`, one of them on the engine
-  path, skipped without `pandas_ta`), removes 5 (`tests/test_risk_regime_independence.py`'s
-  tests of ADX's part in the regime) and changes five more test files and the golden
-  fixture; from 747, 599 / 137 and 676. Linux sandbox, Python 3.12.3, pinned
-  requirements, the patch applied to an autocrlf clone of `1b25f36`. What Viktor's
+  adds 10 tests (`tests/test_pinned_runs_keep_their_own_records.py`, five of them on
+  the engine path, skipped without `pandas_ta`) and changes seven more test files and
+  the golden fixture; from 753, 604 / 138 and 682. Linux sandbox, Python 3.12.3, pinned
+  requirements, the patch applied to an autocrlf clone of `fcb7823`. What Viktor's
   Windows run showed, and whether both steps ran before the live run (pytest's cache,
   read off his disk), is in the commit message. One test,
   `test_the_commit_messages_up_to_the_tag_are_round_7s_to_the_byte`, runs `git log` up
   to the tag `round7-sent-2026-09-30`: it needs the tag, which a full clone has.
-- **Engineering Notes:** through Entry #183 (v1.36), which covers `68c6191`. **Twenty-three
+- **Engineering Notes:** through Entry #183 (v1.36), which covers `68c6191`. **Twenty-four
   commits behind** — `ec4e5fd`, the floor (a commit that regenerates the Notes cannot
   cover itself, Entry #144), `e7a94d1`, `d5ced0c`, `59b747a`, `f256937`, `12b483e`,
   `01f2892`, `8b6fd00`, `e186423`, `86f30f1`, `3e8191a`, `1523e0c`, `ff12e17`,
   `4a4c6ce`, `217ede6`, `d27743f`, `a0276dd`, `040a529`, `9e42d30`, `eb86846`,
-  `c2b07fb`, `1b25f36` and the commit that writes this line. Every later commit adds one
+  `c2b07fb`, `1b25f36`, `fcb7823` and the commit that writes this line. Every later commit adds one
   until the
   next regeneration. Batched, by
   the 15 September rule; no time pressure. v1.36 records the round-1 recovery, the
@@ -509,11 +526,13 @@ run comes before the commit; the commit message has the record.
   identical to the committed PDF. Neither changes in the commit that writes this line;
   the Attribution Statement's script last changed at `68c6191`, the Portfolio
   Document's at `6e1baba`.
-- **README.md:** its test counts are current (753, 604 / 138 and 682), changed by the
+- **README.md:** its test counts are current (763, 609 / 143 and 692), changed by the
   commit that writes this line, so the hook's section 5 will report 0 commits since it
   was touched. **Three of its status rows are stale** and not changed here (Open items):
   "Independent audit", "Backtesting" and, since 5 October, "Release gate", which still
-  reads Open.
+  reads Open. Its layout block still calls `logs/` the live decision log, which stays
+  true; since the commit that writes this line it also holds `logs/pinned/`, which the
+  block does not mention (Open items, with the three rows).
 - **The round-1 audit outputs are in the repository**, in
   `docs/audit_reports/round1_deepseek-v4-pro_kimi-k3_2026-08-27/`, byte-identical to the
   hashes Viktor took on 23 September. The account is in HISTORY, "26 September 2026 —
@@ -529,7 +548,7 @@ run and the panel read happen before `git commit`, and Claude checks the decisio
 record for the new `code_hash` before the commit step, not after the push.** Never
 predict live numbers; check the record. Followed at `2c7a7d1`, `4e2b1c8`, `486f1a5`,
 `3bfa6b7`, `add8540`, `57f0521`, `b0efe23`, `76c8cde`, `8b9ac1e`, `d76ddfd`, `7d0024e`, `c2b07fb`,
-`1b25f36` and the commit that writes this line: the command list stopped at the live run, Claude read the record,
+`1b25f36`, `fcb7823` and the commit that writes this line: the command list stopped at the live run, Claude read the record,
 and only then gave the commit steps. **Since finding 16, a
 live run in the first 60 seconds after a 4h close (00:00, 04:00, 08:00, 12:00, 16:00,
 20:00 UTC) fails by design** ("not yet final"); run again a minute later.
@@ -678,6 +697,20 @@ live run in the first 60 seconds after a 4h close (00:00, 04:00, 08:00, 12:00, 1
   chart into that tree's `logs/` — the suite redirects them, a script does not. A probe
   run in the pristine copy did, and was removed with `git clean -fdx` before anything
   was built from it. Probe in a throwaway copy.
+- **6 October, B6:** the golden updater rewrites the fixture as LF every time it runs.
+  It was run a second time, to read a warning, after CRLF had been restored, and the
+  line-ending check before the diff caught the second rewrite. Check line endings after
+  every run of the updater, not only the first. A negative control passed: with
+  `is_live_record` taking a falsy `pinned` for False, the test still passed, because
+  each of its not-live shapes also lacked a source and the source check refused them
+  first — the 27 September lesson again. The shapes now carry one defect each. When a
+  recorded path's spelling changes, read every consumer of the printed output, not only
+  of the record: the audit-package builder redacted its temp directory in its native
+  spelling only, and a pinned run's "Decision logged to" line would have carried it with
+  forward slashes, username included, on Windows. And a live run can be tested
+  offline: clear the pinned source and replace the singleton's `fetch_ohlc` with one
+  that serves the fixture (`tests/test_pinned_runs_keep_their_own_records.py`,
+  `_route`); everything from `get_tf()` on is the production path.
 
 ## Review findings, 21 September 2026
 
@@ -1119,7 +1152,7 @@ Each code commit is its own commit and updates this file for its own landing.
      flag itself still feeds the reversal reading, the trend-regime label and Exit
      Watch. The live run and its record came before the commit. It moved `code_hash`,
      `run_hash` and the golden snapshot, as predicted.
-  3. **The regime from volatility alone — done at the commit that writes this line.**
+  3. **The regime from volatility alone — done at `fcb7823`.**
      `classify_risk_regime` reads the volatility state and the stop distance, nothing
      else (point 3; round 8's F2, the review's B8): EXTREME VOLATILITY or a stop over 8%
      is EXTREME RISK, HIGH VOLATILITY is HIGH VOLATILITY RISK, MEDIUM VOLATILITY is
@@ -1135,18 +1168,35 @@ Each code commit is its own commit and updates this file for its own landing.
      and the golden snapshot, as predicted. Labels only: since fix 2 no run under ADX 20
      trades.
   4. **The label and record batch** (points 6, 7 and 8), one small patch at a time:
-     test runs in a log, archive and state of their own (B6); the BTC-adjusted
-     confidence line (N5); F3, F5, F6, F8, F9, B4's labels, B7, B9 and B10; the three
-     test shapes of round 8's Part 4.
+     test runs in a log, archive and state of their own (B6) — **done at the commit
+     that writes this line**; the BTC-adjusted confidence line (N5); F3, F5, F6, F8,
+     F9, B4's labels, B7, B9 and B10; the three test shapes of round 8's Part 4.
+     **B6:** the run's source is read once per run (`_is_live_run`: live only when no
+     pinned source is set), and a live run's state, archive and log stay exactly where
+     they were, in `config.LOG_DIR`; any other run's go to its `pinned/` subdirectory
+     (`decision_log.records_dir`). The decision log is chosen from the record itself:
+     only a record whose provenance says live in both places — `fetch.pinned` False and
+     `source` the endpoint — goes in the live log, so a record that does not say, a
+     hand-built one included, is kept out (failing safe), and a directory passed to
+     `write()` does not override it. A `PHASE7_PINNED_DATA` that names no directory is
+     not a live run; the run fails at its fetch as before and writes nothing. Each
+     source prunes its own archives. The patch's proposals, Viktor's to reverse. The
+     audit-package builder now redacts its temp directory in both spellings, which the
+     forward-slash pinned path needs on Windows. Not changed, and not named by the
+     ruling: the chart, `phase7_engine.log` and `logs/LiveSim/` (Open items). The ten
+     test records stay in the live log, as ruled. The live run and its record came
+     before the commit. It moved `code_hash` and the golden snapshot's three paths, as
+     predicted; `run_hash` did not move.
   5. **The fix verification** by round 8's auditor, on a scoped package (the
      14 September precedent) — Claude's, under the delegation of 4 October. The release
      gate reopens only on its report (point 2).
 
 ## Resolved this session
 
-- **Fix 3, the regime from volatility alone** (point 3 of round 8's triage) — landed at
-  the commit that writes this line.
-- **The once-per-session rewrite of this file.** The previous version, as at `1b25f36`,
+- **B6, runs on pinned data keep records of their own** (point 6 of round 8's triage,
+  the first patch of the label and record batch) — landed at the commit that writes
+  this line.
+- **The once-per-session rewrite of this file.** The previous version, as at `fcb7823`,
   is in HISTORY verbatim, headings demoted one level, proven by un-demotion with a
   negative control (this commit's message has the result).
 
@@ -1214,7 +1264,7 @@ Claude critiques it.
   8's runs, so it carries round 7's two entries, round 8's, and Xiaomi added to the
   roster with the facts checked on 4 October. **Still owed:** no session since round 8's
   runs has reissued it — not the night of 4 to 5 October, either session of 5 October,
-  the night of 5 to 6 October, nor the evening of 6 October.
+  the night of 5 to 6 October, nor either session of the evening of 6 October.
   **Round 8's run 1 entry**, from the
   provider's record: Xiaomi, `xiaomi/mimo-v2.6-pro` (permaslug
   `xiaomi/mimo-v2.6-pro-20260921`), 4 October 2026, 15:51:46 to 16:02:09 UTC, through
@@ -1299,12 +1349,15 @@ Claude critiques it.
   not done.
 - **Claude's — README.md's "Independent audit", "Release gate" and "Backtesting" rows
   are stale.** The first and third were seen on 29 September and are not changed since —
-  `59b747a`, `12b483e`, `3e8191a`, `1523e0c`, `d27743f`, `c2b07fb` and the commit that
-  writes this line touched only README's test counts. The first still says the next round is paused until work order G and the six
+  `59b747a`, `12b483e`, `3e8191a`, `1523e0c`, `d27743f`, `c2b07fb`, `1b25f36`,
+  `fcb7823` and the commit that writes this line touched only README's test counts
+  (`1b25f36` was missing from this list in the version at `fcb7823`, which kept the
+  sentence as `1b25f36` had written it). The first still says the next round is paused until work order G and the six
   findings are done, which happened at `7d0024e`; the third predates the ruling of
   29 September on what opens backtesting. The second reads Open; the gate is closed since
   5 October. All three are written in Viktor's voice, so the new wording goes to him
-  before it lands.
+  before it lands. With them, the layout block's `logs/` line (Where things stand):
+  true, but silent on `logs/pinned/` since B6.
 - **Claude's — the running change list for the audit:** `docs/audit_change_list.md`,
   from the baseline `e65a0f7` (the tree round 6's fix-verification was sent). **Every
   later commit that changes engine code, tests or tooling adds its line there in the
@@ -1313,9 +1366,11 @@ Claude critiques it.
   rulings of 29 September are not added: none changes what the engine must do, or any
   code. The triage of 5 October was added to its rulings section by `eb86846`, which
   also named `d27743f` where that commit's own line said "the commit that adds this
-  line". `c2b07fb` added fix 1's line under the same wording; the commit that writes
-  this line names it there and adds fix 2's line, under the same wording, for a later
-  commit to name.
+  line". `c2b07fb` added fix 1's line under the same wording, `1b25f36` named it there
+  and added fix 2's line, and `fcb7823` named that and added fix 3's line (this
+  sentence, as `fcb7823` left it, still described `1b25f36`'s step); the commit that
+  writes this line names `fcb7823` there and adds B6's line, under the same wording,
+  for a later commit to name.
 - **The pre-push hook is installed per clone, not per repository.** After any re-clone
   (including after a machine wipe), run `git config core.hooksPath githooks`;
   `session_handover_check.py` section 6 flags a clone without it.
@@ -1325,7 +1380,16 @@ Claude critiques it.
   (points 3, 5 and 7–11); nothing is built: unattended runs every 4h per pair (question
   14 below), the paper account in ten slices, the scoring. It is not an engine change.
   When, and on which pairs, is Viktor's. Point 6 of the triage — test runs in a log of
-  their own — lands before it.
+  their own — landed before it, at the commit that writes this line (B6).
+- **Viktor's, only if he wants it — what B6 left shared between live and pinned runs.**
+  The ruling named the decision log, the archive and the Exit Watch state, and those
+  are separated. Three things are not, and B6 did not change them: the chart
+  (`logs/charts/chart_<symbol>_<timeframe>.png`, overwritten by every run, a picture
+  rather than a record), `logs/phase7_engine.log` (the process log `main.py` opens, so
+  a pinned run started through `main.py` writes its lines there), and `logs/LiveSim/`
+  (`live_trading.py`'s simulated orders, written whatever the run's source). No code
+  reads any of them back (read from the code). Whether any should follow the run's
+  source is his call; nothing is owed.
 - **Viktor, outside the repository:** the BLESSUSDT screenshot of 28 September is not
   in the repository — it shows his browser, and the repository is public. DECISIONS
   describes its marks in text. Keeping the image, for example in

@@ -218,8 +218,10 @@ def _write_pinned_set(directory):
 # ============================================================
 
 # The golden runs need a log directory spelled RELATIVELY, because the
-# snapshot pins the paths the engine records -- `logs/archive/...` and
-# `logs/phase7_decision_log_testusdt.jsonl` -- and an absolute path would put
+# snapshot pins the paths the engine records -- `logs/pinned/archive/...` and
+# `logs/pinned/phase7_decision_log_testusdt.jsonl` since B6 (6 October 2026),
+# `logs/archive/...` and `logs/phase7_decision_log_testusdt.jsonl` before it
+# -- and an absolute path would put
 # a machine-specific string into a file that must be identical everywhere.
 # That spelling is the subject of its own test in test_lineage.py, and it is
 # not something to give up.
@@ -260,7 +262,14 @@ def _state_path(symbol=SYMBOL, timeframe=TIMEFRAME):
     # Resolved against GOLDEN_ROOT rather than REPO_ROOT so seeding and
     # clearing the C3 state reach the same file the runs above write, and no
     # file the engine owns.
-    return os.path.join(GOLDEN_ROOT, "logs",
+    #
+    # B6, 6 October 2026: the golden runs are pinned, so their state is in
+    # the log directory's pinned/ subdirectory -- found by the engine's own
+    # function rather than spelled here, so the file seeded and cleared is
+    # the file the engine reads. Spelled "logs" here before B6, which is now
+    # where a LIVE run keeps its state.
+    from core import decision_log
+    return os.path.join(GOLDEN_ROOT, decision_log.records_dir(GOLDEN_LOG_DIR, False),
                         f"phase7_state_{symbol}_{timeframe}.json")
 
 

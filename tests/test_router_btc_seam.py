@@ -204,7 +204,9 @@ def test_the_lineage_survives_into_the_written_record(tmp_path):
     written = decision_log.write(record, config, log_dir=str(tmp_path))
     assert written, "the log was not written, so this test proves nothing"
 
-    back = decision_log.read(str(tmp_path), "AEROUSDT")
+    # B6, 6 October 2026: the record does not say it was fetched live, so
+    # write() files it in the pinned log under the directory it was given.
+    back = decision_log.read(decision_log.records_dir(str(tmp_path), False), "AEROUSDT")
     assert len(back) == 1
     assert back[0]["decision"]["lineage"] == {"run_hash": "def456"}
 

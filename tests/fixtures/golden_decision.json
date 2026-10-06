@@ -24,7 +24,7 @@
     "trend_health": 97.0,
     "volatility": "MEDIUM VOLATILITY"
   },
-  "decision_log_path": "logs/phase7_decision_log_testusdt.jsonl",
+  "decision_log_path": "logs/pinned/phase7_decision_log_testusdt.jsonl",
   "degradation": {
     "degraded": false,
     "missing_inputs": [],
@@ -76,7 +76,7 @@
   },
   "lineage": {
     "archive": {
-      "path": "logs/archive/testusdt_4h_ea05e1f165096677.json.gz",
+      "path": "logs/pinned/archive/testusdt_4h_ea05e1f165096677.json.gz",
       "pruned_this_run": 0,
       "retention_days": 90
     },
@@ -203,7 +203,7 @@
   },
   "macro_bias": "BULLISH",
   "provenance": {
-    "archive_path": "logs/archive/testusdt_4h_ea05e1f165096677.json.gz",
+    "archive_path": "logs/pinned/archive/testusdt_4h_ea05e1f165096677.json.gz",
     "canonical_format": 1,
     "decision_candles": {
       "btc": {

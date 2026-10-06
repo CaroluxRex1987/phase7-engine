@@ -274,7 +274,13 @@ class ProvenanceBlock(TypedDict):
     engine_version: str
     last_candle: Any              # str, or None on an empty frame
     row_count: int
-    source: str                   # the pinned directory, or the live endpoint
+    # The literal "pinned", or the live endpoint. This line said "the pinned
+    # directory" from the commit that wrote it (e9d08d4, 30 August 2026),
+    # which already recorded the literal; finding 21 (21 September) corrected
+    # the same sentence in decision_log's docstring and not this one.
+    # Corrected 6 October 2026 with B6, which derives the value once per run
+    # and files the run's records by it.
+    source: str
 
     # AUDIT FINDING 6 (Item 5). The four fields above identify a run only as
     # far as a timestamp and a length can, which the Step 8 re-audit pointed
