@@ -41,6 +41,20 @@ still reaches bias_score indirectly through continuation_strength.
 
 Five of these fail against pre-fix code on behavioural assertions; two are
 controls that must pass on both sides.
+
+FIX 3, 6 OCTOBER 2026 -- FIVE OF THESE TESTS ARE GONE
+
+Round 8 found the ADX read coupled too (its F2): trend health spends up to
+40 of its 100 points on the same raw ADX, so the regime and bias_score still
+moved together. Viktor's triage ruled that the regime comes from volatility
+alone (docs/PHASE7_DECISIONS.md, "Ruling, 5 October 2026 -- round 8
+triaged ...", point 3). The five tests that pinned ADX's part -- the old
+trend_health boundaries read as ADX, the chop test, the strong-trend test,
+the constants being read, and an absent ADX -- tested a rule that no longer
+exists, and were removed rather than rewritten. What the regime does now is
+pinned in tests/test_regime_from_volatility_alone.py. The two trend_health
+tests and the two controls stay: the first without its ADX assertion, the
+controls without their ADX arguments.
 """
 
 import inspect
@@ -64,7 +78,9 @@ def test_trend_health_is_not_a_parameter_of_classify_risk_regime():
     assert "trend_health" not in params, (
         f"classify_risk_regime still takes trend_health: {params}"
     )
-    assert "adx" in params, f"classify_risk_regime does not take adx: {params}"
+    # FIX 3, 6 October 2026: an assertion that "adx" IS a parameter stood
+    # here. It is not, since fix 3; tests/test_regime_from_volatility_alone.py
+    # pins the whole signature.
 
 
 def test_validate_risk_parameters_rejects_trend_health_rather_than_ignoring_it():
@@ -77,6 +93,10 @@ def test_validate_risk_parameters_rejects_trend_health_rather_than_ignoring_it()
 
     Fails against pre-fix code, which accepts trend_health as a real
     parameter and returns a verdict.
+
+    FIX 3, 6 October 2026: validate_risk_parameters takes no **kwargs now,
+    so Python itself refuses trend_health -- and adx, and any keyword it
+    does not take. The test holds as it stands.
     """
     model = RiskModel()
     with pytest.raises(TypeError) as excinfo:
@@ -87,109 +107,15 @@ def test_validate_risk_parameters_rejects_trend_health_rather_than_ignoring_it()
     assert "trend_health" in str(excinfo.value)
 
 
-def test_the_old_trend_health_boundaries_no_longer_exist():
-    """
-    The behavioural half. The two numbers that used to be branch boundaries --
-    REGIME_LOW_TREND_HEALTH = 40 and REGIME_HIGH_TREND_HEALTH = 70 -- must no
-    longer be boundaries of anything, because nothing reads trend_health.
-
-    Both pairs straddle an old boundary and must now return the SAME regime as
-    each other. Against pre-fix code each pair returns two different regimes,
-    which is exactly the coupling Item 14 objects to.
-    """
-    model = RiskModel()
-
-    # Straddling the old 40: pre-fix, 39 -> HIGH VOLATILITY RISK and
-    # 41 -> NORMAL RISK. Both are ordinary trending ADX values now.
-    assert (model.classify_risk_regime("NORMAL", 1.0, 39.0)
-            == model.classify_risk_regime("NORMAL", 1.0, 41.0)
-            == "NORMAL RISK")
-
-    # Straddling the old 70 under low volatility: pre-fix, 69 -> NORMAL RISK
-    # and 71 -> LOW RISK. Both are above REGIME_STRONG_ADX now.
-    assert (model.classify_risk_regime("LOW VOLATILITY", 1.0, 69.0)
-            == model.classify_risk_regime("LOW VOLATILITY", 1.0, 71.0)
-            == "LOW RISK")
-
-
-# ======================================================================
-# 2. ADX decides it, at the documented thresholds
-# ======================================================================
-
-def test_chop_grade_adx_raises_the_regime():
-    """
-    ADX below REGIME_CHOP_ADX is elevated risk even when volatility_state
-    itself is calm.
-
-    Split by kind, because the two assertions behave differently pre-fix: the
-    FIRST passes on both sides by coincidence (19.0 read as trend_health is
-    also below the old REGIME_LOW_TREND_HEALTH of 40, so pre-fix code returns
-    the same string for an unrelated reason). The SECOND is the one that
-    fails: 21.0 is above the ADX chop threshold but still far below 40, so
-    pre-fix code calls it HIGH VOLATILITY RISK where this asserts NORMAL RISK.
-    """
-    model = RiskModel()
-    assert model.classify_risk_regime("NORMAL", 1.0, 19.0) == "HIGH VOLATILITY RISK"
-    assert model.classify_risk_regime("NORMAL", 1.0, 21.0) == "NORMAL RISK"
-
-
-def test_the_strong_trend_boundary_is_adx_not_trend_health():
-    """
-    LOW RISK requires low volatility AND ADX >= REGIME_STRONG_ADX (25).
-
-    This is the test that most directly fails pre-fix: 26.0 is comfortably
-    above the ADX strong-trend threshold but far BELOW the old
-    REGIME_HIGH_TREND_HEALTH of 70, so pre-fix code returns NORMAL RISK where
-    this asserts LOW RISK.
-    """
-    model = RiskModel()
-    assert model.classify_risk_regime("LOW VOLATILITY", 1.0, 26.0) == "LOW RISK"
-    assert model.classify_risk_regime("LOW VOLATILITY", 1.0, 24.0) == "NORMAL RISK"
-
-
-def test_the_adx_thresholds_are_read_from_the_fingerprinted_constants():
-    """
-    A declaration test proves the names exist; this proves the arithmetic
-    reads them, which is what keeps them meaningful in the run hash.
-
-    Deliberately NOT using the monkeypatch fixture. run_tests.py is a
-    fixture-free runner -- it calls every test_* function with no arguments,
-    so a test taking a fixture becomes an ERROR there, and that error count is
-    a watched invariant (29). Writing this one with try/finally instead of
-    monkeypatch is what keeps the count at 29 rather than moving it to 30 for
-    a test that had no need of a fixture in the first place.
-    """
-    model = RiskModel()
-    original = risk_model.REGIME_CHOP_ADX
-    try:
-        assert model.classify_risk_regime("NORMAL", 1.0, 22.0) == "NORMAL RISK"
-        risk_model.REGIME_CHOP_ADX = 30.0
-        assert model.classify_risk_regime("NORMAL", 1.0, 22.0) == "HIGH VOLATILITY RISK", (
-            "REGIME_CHOP_ADX is fingerprinted but classify_risk_regime does not read it"
-        )
-    finally:
-        risk_model.REGIME_CHOP_ADX = original
-
-
-# ======================================================================
-# 3. An unmeasured ADX is not a regime — neither direction
-# ======================================================================
-
-def test_an_absent_adx_is_not_turned_into_a_regime():
-    """
-    indicators.py drops a column it could not compute rather than inventing
-    one, so ADX can genuinely be absent. Absent must not be read as chop
-    (which would assert instability nobody measured) and must not be read as
-    a strong trend (which would hand out LOW RISK for the same reason).
-
-    Both assertions fail against pre-fix code for the same underlying reason:
-    it has no absent case at all -- None raises TypeError on the first
-    comparison against a float.
-    """
-    model = RiskModel()
-    assert model.classify_risk_regime("NORMAL", 1.0, None) == "NORMAL RISK"
-    assert model.classify_risk_regime("LOW VOLATILITY", 1.0, None) == "NORMAL RISK"
-    assert model.classify_risk_regime("NORMAL", 1.0, float("nan")) == "NORMAL RISK"
+# FIX 3, 6 October 2026: five tests stood here --
+# test_the_old_trend_health_boundaries_no_longer_exist, and, in sections 2
+# and 3, test_chop_grade_adx_raises_the_regime,
+# test_the_strong_trend_boundary_is_adx_not_trend_health,
+# test_the_adx_thresholds_are_read_from_the_fingerprinted_constants and
+# test_an_absent_adx_is_not_turned_into_a_regime. They pinned that ADX
+# decided the regime, at REGIME_CHOP_ADX and REGIME_STRONG_ADX, and that an
+# absent ADX was no regime. The regime reads no ADX now; see the module
+# docstring.
 
 
 # ======================================================================
@@ -203,9 +129,11 @@ def test_control_extreme_gates_are_untouched():
     before and after and would catch a fix that rewrote more than it claimed.
     """
     model = RiskModel()
-    assert model.classify_risk_regime("EXTREME VOLATILITY", 1.0, 50.0) == "EXTREME RISK"
-    assert model.classify_risk_regime("NORMAL", 9.0, 50.0) == "EXTREME RISK"
-    assert model.classify_risk_regime("HIGH VOLATILITY", 1.0, 50.0) == "HIGH VOLATILITY RISK"
+    # FIX 3, 6 October 2026: each call passed ADX 50.0 as a third argument
+    # until fix 3.
+    assert model.classify_risk_regime("EXTREME VOLATILITY", 1.0) == "EXTREME RISK"
+    assert model.classify_risk_regime("NORMAL", 9.0) == "EXTREME RISK"
+    assert model.classify_risk_regime("HIGH VOLATILITY", 1.0) == "HIGH VOLATILITY RISK"
 
 
 def test_control_extreme_risk_still_fails_risk_valid_outright():
@@ -214,9 +142,10 @@ def test_control_extreme_risk_still_fails_risk_valid_outright():
     refuse the trade, not merely label it. Passes on both sides.
     """
     model = RiskModel()
+    # FIX 3, 6 October 2026: adx=50.0 until fix 3.
     valid, reason, regime = model.validate_risk_parameters(
         current_price=100.0, atr_stop=95.0,
-        volatility_state="EXTREME VOLATILITY", adx=50.0,
+        volatility_state="EXTREME VOLATILITY",
     )
     assert regime == "EXTREME RISK"
     assert valid is False

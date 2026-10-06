@@ -1143,11 +1143,17 @@ class Phase7Engine:
             # trend_health is computed FROM rather than the other way round,
             # so the sentence above is finally true of the call beneath it.
             # Viktor's ruling; see models/risk_model.py's constants block.
+            #
+            # FIX 3, 6 October 2026 (round 8's F2): not independent enough.
+            # trend_health spends up to 40 of its 100 points on that same raw
+            # ADX, so a high ADX still raised conviction and lowered the
+            # assessed risk together. adx=trend.get("adx") was passed here.
+            # The regime comes from volatility alone now; the parameter is
+            # gone, and passing it raises TypeError.
             risk_valid, risk_reason, risk_regime = self.risk_model.validate_risk_parameters(
                 current_price=current_price,
                 atr_stop=atr_stop,
                 volatility_state=volatility_mode,
-                adx=trend.get("adx"),
             )
 
             # SEQUENCE ITEM 13 — position sizing removed.
@@ -1485,7 +1491,12 @@ class Phase7Engine:
                     # volatility_state and adx. bias_score's size, which
                     # narrowed the stop until the same fix, no longer reaches
                     # it.
-                    "adx": trend.get("adx"),
+                    # FIX 3, 6 October 2026: "adx" stood here because the
+                    # regime read it. It no longer does, so it leaves this
+                    # block for the reason given for trend_health above: the
+                    # regime comes from volatility alone and reads the stop and
+                    # volatility_state, both recorded here. ADX is still
+                    # recorded under indicators_at_decision_bar.ADX.
                     "volatility_state": volatility_mode,
                     "risk_regime": risk_regime,
                 },

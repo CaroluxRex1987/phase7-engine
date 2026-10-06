@@ -100,9 +100,33 @@ VOL_MULT_EXTREME = 1.60
 # continuation_strength while removing trend_health." That adx_component no
 # longer exists; the sentence is kept for the record rather than deleted, per
 # this project's practice of not quietly erasing a superseded rationale.
+#
+# FIX 3, 6 October 2026 (docs/PHASE7_DECISIONS.md, "Ruling, 5 October 2026
+# -- round 8 triaged ...", point 3; round 8's F2 and the review's B8). Two
+# more constants stood below REGIME_EXTREME_STOP_PCT: REGIME_CHOP_ADX = 20.0,
+# under which the regime was HIGH VOLATILITY RISK, and REGIME_STRONG_ADX =
+# 25.0, which LOW VOLATILITY needed to reach LOW RISK. Both are gone, and the
+# regime reads no ADX at all.
+#
+# The UPDATE of 19 September above says this module's read of ADX was
+# independent of bias_score. By the standard that same update applied -- no
+# shared raw input -- it was not: trend health spends up to 40 of its 100
+# points on the same raw ADX (adx_strength, indicators/trend_health.py), and
+# trend health is 0.30 of bias_score, so a high ADX still raised conviction
+# and lowered the assessed risk together. Round 8 found it as F2. The chop
+# test also named the wrong cause: a calm market with no trend printed
+# VOLATILITY : LOW VOLATILITY beside RISK REGIME : HIGH VOLATILITY RISK (the
+# review's B8).
+#
+# The regime now comes from volatility alone: the volatility state, and the
+# stop distance tested against REGIME_EXTREME_STOP_PCT below, which since
+# fix 1 is ATR x ATR_STOP_MULT x the volatility factor -- a measure of
+# volatility too. Chop is no longer the regime's to see. Since fix 2 the
+# confirmation gate refuses both sides under ADX 20 (models/entry_model.py,
+# MIN_TREND_ADX), which is why fix 3 landed after fix 2: in the other order a
+# calm market with no trend could have been called AGGRESSIVE between the
+# two commits.
 REGIME_EXTREME_STOP_PCT = 8.0
-REGIME_CHOP_ADX = 20.0
-REGIME_STRONG_ADX = 25.0
 
 # Hard validity limits on the stop distance.
 MAX_STOP_DISTANCE_PCT = 15.0   # wider than this is not a stop, it is a hope
@@ -471,52 +495,83 @@ class RiskModel:
     # RISK REGIME CLASSIFICATION & VALIDATION
     # ============================================================
 
-    def classify_risk_regime(self, volatility_state: str, stop_distance_pct: float, adx: Optional[float]) -> str:
+    def classify_risk_regime(self, volatility_state: str, stop_distance_pct: float) -> str:
         """
         Classifies current setup into a distinct risk regime profile.
 
-        ITEM 14, 11 September 2026: the third parameter was trend_health and
-        is now ADX. See the constants block at the top of this file for the
+        FIX 3, 6 October 2026: from volatility alone. The third parameter was
+        trend_health until 11 September and ADX from then until this fix, and
+        is gone. See the constants block at the top of this file for the
         ruling and the reasoning.
 
-        `adx` is Optional because indicators.py drops a column it could not
-        compute rather than inventing one, so ADX genuinely can be absent.
-        Absent means neither the chop test nor the strong-trend test can be
-        evaluated, and NEITHER is assumed: an unmeasured ADX does not push the
-        regime up to HIGH VOLATILITY RISK (that would assert chop nobody
-        measured) and does not let it down to LOW RISK (that would assert a
-        strong trend nobody measured). It falls through to NORMAL RISK, with
-        volatility_state and the stop distance still fully in force. That is
-        the same "missing means missing" rule the rest of this engine follows
-        after sequence item 9a.
+            EXTREME VOLATILITY, or a stop distance
+            over REGIME_EXTREME_STOP_PCT               EXTREME RISK
+            HIGH VOLATILITY                            HIGH VOLATILITY RISK
+            MEDIUM VOLATILITY                          NORMAL RISK
+            LOW VOLATILITY                             LOW RISK
+            any other state                            UNKNOWN RISK
+
+        The four named states are the ones models/bias_engine.py's
+        calculate_dynamic_regime() produces from ATR / price. LOW VOLATILITY
+        is LOW RISK without the strong-trend test that also stood here: the
+        ruling left that mapping to the patch, and named LOW RISK as Claude's
+        reading.
+
+        The last line is the patch's own proposal, Viktor's to reverse. Until
+        fix 3 every state not named here fell through to NORMAL RISK -- the
+        engine's own UNKNOWN, and "NORMAL", which validate_risk_parameters'
+        callers got by default. With volatility the only input, NORMAL RISK
+        there would be a regime read from no measurement, so the label says
+        so instead. UNKNOWN RISK keeps AGGRESSIVE out (decision_model.py
+        allows it only at NORMAL RISK or LOW RISK) and decides nothing else:
+        whether a trade is allowed at all stays risk_valid's question. On the
+        engine's own path it is unreachable today. calculate_dynamic_regime
+        says UNKNOWN only when the decision bar's ATR is absent or not
+        finite, or its close is not a finite positive number, and on each of
+        those the run raises before this is called -- engine_core when the
+        ATR column is absent, calculate_stop_targets otherwise.
+
+        Until fix 3 the paragraph here applied "missing means missing" to
+        ADX: an unmeasured ADX pushed the regime neither up nor down. The
+        same rule, applied to the one input left, is the last line of the
+        table.
         """
         if volatility_state == "EXTREME VOLATILITY" or stop_distance_pct > REGIME_EXTREME_STOP_PCT:
             return "EXTREME RISK"
-
-        adx_is_measured = adx is not None and np.isfinite(adx)
-
-        if volatility_state == "HIGH VOLATILITY" or (adx_is_measured and adx < REGIME_CHOP_ADX):
+        if volatility_state == "HIGH VOLATILITY":
             return "HIGH VOLATILITY RISK"
-        elif volatility_state == "LOW VOLATILITY" and adx_is_measured and adx >= REGIME_STRONG_ADX:
-            return "LOW RISK"
-        else:
+        if volatility_state == "MEDIUM VOLATILITY":
             return "NORMAL RISK"
+        if volatility_state == "LOW VOLATILITY":
+            return "LOW RISK"
+        return "UNKNOWN RISK"
 
     def validate_risk_parameters(
         self,
         current_price: float,
         atr_stop: float,
-        volatility_state: str = "NORMAL",
-        adx: Optional[float] = None,
-        **kwargs
+        volatility_state: str,
     ) -> Tuple[bool, str, str]:
         """
         Validates whether risk parameters are within safe operational thresholds.
 
+        FIX 3, 6 October 2026: three parameters, all required. `adx` is gone
+        with the regime's two ADX tests (see classify_risk_regime), and so is
+        **kwargs, which is what made the by-name refusal described below
+        necessary. A keyword this function does not take -- trend_health,
+        adx, or a misspelt volatility_state -- is now refused by Python before
+        the body runs, the way fix 1 refused trend_health in
+        calculate_stop_targets. That closes the class the A6 comment in
+        engine_core.py records, a bogus keyword absorbed and doing nothing,
+        rather than adding a second refusal by name. volatility_state lost
+        its default of "NORMAL", a state calculate_dynamic_regime never
+        produces: the regime's one input is never supplied by a default.
+
         ITEM 14, 11 September 2026: the trend_health parameter is gone and ADX
         takes its place -- see the constants block at the top of this file.
+        (ADX went in its turn at fix 3.)
 
-        Two deliberate details in that swap:
+        Two deliberate details in that swap, as they stood until fix 3:
 
         * The old default was `trend_health: float = 50.0`. A hardcoded 50.0 is
           the exact fabrication class the 7-8 September sweep removed everywhere
@@ -532,7 +587,9 @@ class RiskModel:
           reach LOW RISK. That is precisely the A6 defect (a bogus kwarg
           absorbed by **kwargs, doing nothing) that this same function already
           carries a comment about. A structural fix rather than a note telling
-          the next person to be careful.
+          the next person to be careful. (Since fix 3 there is no **kwargs and
+          no refusal in the body: Python refuses trend_health, with
+          "unexpected keyword argument 'trend_health'".)
 
         ITEM 14 RE-AUDIT (Finding 5): now returns the risk regime alongside
         the pass/fail, rather than computing it and discarding everything but
@@ -549,16 +606,6 @@ class RiskModel:
         already fail risk_valid, so decision_model.py never reaches the
         AGGRESSIVE-gating logic for them regardless of this string.
         """
-        if "trend_health" in kwargs:
-            raise TypeError(
-                "validate_risk_parameters() no longer accepts trend_health: the "
-                "risk regime is classified from ADX, independently of the "
-                "conviction pipeline (Item 14, ruled 11 September 2026). Pass "
-                "adx=<value or None>. Raised rather than ignored because "
-                "**kwargs would otherwise absorb it silently and default ADX "
-                "to None, which changes which regimes are reachable."
-            )
-
         try:
             if not (np.isfinite(current_price) and np.isfinite(atr_stop)):
                 return False, "Price or stop level is not a finite number.", "UNKNOWN"
@@ -575,7 +622,7 @@ class RiskModel:
             if stop_dist_pct < MIN_STOP_DISTANCE_PCT:
                 return False, "Stop distance too tight (risk of market noise liquidation).", "UNKNOWN"
 
-            risk_regime = self.classify_risk_regime(volatility_state, stop_dist_pct, adx)
+            risk_regime = self.classify_risk_regime(volatility_state, stop_dist_pct)
             if risk_regime == "EXTREME RISK":
                 return False, "Risk regime classified as EXTREME RISK.", risk_regime
 

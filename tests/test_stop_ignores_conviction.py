@@ -156,7 +156,8 @@ def test_the_stop_is_the_same_at_every_conviction():
 
 def test_the_risk_verdict_is_the_same_at_every_conviction():
     """
-    Item 14, on the risk check itself. Price 100, HIGH VOLATILITY, ADX 30, and
+    Item 14, on the risk check itself. Price 100, HIGH VOLATILITY (and ADX 30,
+    until fix 3 took ADX out of the risk check), and
     an ATR swept from 3.0 to 9.0, so the stop runs from about 4.9% to 14.6% of
     price and crosses the 8% EXTREME RISK line on the way. On every one of
     those markets every bias score, 0 to 100 on both sides, must get the same
@@ -169,7 +170,7 @@ def test_the_risk_verdict_is_the_same_at_every_conviction():
     from models.risk_model import RiskModel
 
     model = RiskModel()
-    price, vol, adx = 100.0, "HIGH VOLATILITY", 30.0
+    price, vol = 100.0, "HIGH VOLATILITY"
     scores = (0.0, 5.0, 21.0, 30.0, 50.0, 75.0, 100.0,
               -0.1, -5.0, -21.0, -30.0, -50.0, -75.0, -100.0)
     atrs = [3.0 + 0.25 * i for i in range(25)]          # 3.0 .. 9.0
@@ -178,7 +179,7 @@ def test_the_risk_verdict_is_the_same_at_every_conviction():
     for atr in atrs:
         verdicts = {model.validate_risk_parameters(
             current_price=price, atr_stop=_stop(price, atr, score, vol),
-            volatility_state=vol, adx=adx) for score in scores}
+            volatility_state=vol) for score in scores}
         assert len(verdicts) == 1, (atr, sorted(verdicts))
         seen |= verdicts
     # The sweep crosses the line: both verdicts occur.
@@ -190,7 +191,7 @@ def test_the_risk_verdict_is_the_same_at_every_conviction():
         old = {model.validate_risk_parameters(
             current_price=price,
             atr_stop=_pre_fix_stop(price, atr, score, 95.0, vol),
-            volatility_state=vol, adx=adx)[0] for score in scores}
+            volatility_state=vol)[0] for score in scores}
         if len(old) > 1:
             split.append(atr)
     assert split, (
@@ -267,9 +268,12 @@ def test_the_record_holds_every_input_the_stop_reads():
         assert math.isclose(got, price + side * distance * mult,
                             rel_tol=0, abs_tol=1e-12), (got, mult)
 
+    # FIX 3, 6 October 2026: adx=inputs["adx"] was passed here too. The
+    # regime comes from volatility alone and risk_inputs no longer records
+    # ADX, so the verdict and the regime are rebuilt from the stop and the
+    # volatility state alone.
     ok, reason, regime = rm.RiskModel().validate_risk_parameters(
-        current_price=price, atr_stop=want_stop, volatility_state=vol,
-        adx=inputs["adx"])
+        current_price=price, atr_stop=want_stop, volatility_state=vol)
     assert ok == decision["risk"]["risk_valid"], (ok, decision["risk"])
     assert reason == decision["risk"]["risk_reason"], (reason, decision["risk"])
     assert regime == decision["risk"]["risk_regime"] == inputs["risk_regime"], (

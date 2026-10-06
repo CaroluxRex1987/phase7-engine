@@ -575,10 +575,11 @@ def calculate_entry_quality(
 # health's reversal reading, the trend-regime label, Exit Watch and the
 # record (trend.exhaustion). Only this gate stops reading it.
 #
-# 20 is the level the risk regime reads as chop (models/risk_model.py,
-# REGIME_CHOP_ADX): chosen, not derived, and not backtested. It is its own
-# constant here, fingerprinted in core/decision_log.py, because the regime's
-# two ADX tests are to be removed (point 3 of the same triage).
+# 20 is the level the risk regime read as chop (models/risk_model.py's
+# REGIME_CHOP_ADX, until fix 3): chosen, not derived, and not backtested. It
+# is its own constant here, fingerprinted in core/decision_log.py, because the
+# regime's two ADX tests were to be removed (point 3 of the same triage);
+# fix 3 removed them on 6 October 2026.
 #
 # Checked against the live decision log (5 October, 48 records; records
 # 1-10 are test records). ADX was under 20 on one live run, record 47

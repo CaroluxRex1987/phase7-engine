@@ -177,11 +177,15 @@ def test_conviction_alone_cannot_select_aggressive_across_every_regime():
     inputs, across every regime classify_risk_regime can produce. Only the
     regimes below EXTREME/HIGH VOLATILITY RISK may return AGGRESSIVE.
     """
+    # FIX 3, 6 October 2026: classify_risk_regime can also produce UNKNOWN
+    # RISK, for a volatility state it does not know; it must keep AGGRESSIVE
+    # out like the two regimes above it.
     for regime, allowed in (
         ("LOW RISK", True),
         ("NORMAL RISK", True),
         ("HIGH VOLATILITY RISK", False),
         ("EXTREME RISK", False),
+        ("UNKNOWN RISK", False),
     ):
         action, reasons = _final_action("BULLISH", regime)
         is_aggressive = "AGGRESSIVE" in action
@@ -212,9 +216,14 @@ def test_validate_risk_parameters_returns_the_risk_regime():
     # ITEM 14, 11 September 2026: this call passed trend_health=60.0 until
     # the risk regime stopped reading trend_health. adx=30.0 is the same
     # market state expressed in the input the regime now actually reads.
+    #
+    # FIX 3, 6 October 2026: adx=30.0 is gone too -- the regime comes from
+    # volatility alone -- and "NORMAL" became MEDIUM VOLATILITY, the state
+    # the engine produces; "NORMAL" is UNKNOWN RISK now. The stop is 7%, as
+    # the call says: "(10%)" in the first line above was wrong.
     valid, reason, regime = model.validate_risk_parameters(
         current_price=100.0, atr_stop=93.0,  # 7% stop
-        volatility_state="NORMAL", adx=30.0,
+        volatility_state="MEDIUM VOLATILITY",
     )
     assert valid is True
     assert regime == "NORMAL RISK", f"expected NORMAL RISK, got {regime!r} ({reason})"
@@ -224,21 +233,23 @@ def test_validate_risk_parameters_regime_across_volatility_tiers():
     """The audit's own verification list: low, high, and extreme volatility."""
     model = RiskModel()
 
+    # FIX 3, 6 October 2026: each call passed adx=30.0 until fix 3. LOW
+    # VOLATILITY is LOW RISK on its own now; it needed ADX 25 or more.
     _, _, low_vol = model.validate_risk_parameters(
         current_price=100.0, atr_stop=99.0,  # 1% stop, comfortably inside bounds
-        volatility_state="LOW VOLATILITY", adx=30.0,
+        volatility_state="LOW VOLATILITY",
     )
     assert low_vol == "LOW RISK", low_vol
 
     _, _, high_vol = model.validate_risk_parameters(
         current_price=100.0, atr_stop=95.0,  # 5% stop
-        volatility_state="HIGH VOLATILITY", adx=30.0,
+        volatility_state="HIGH VOLATILITY",
     )
     assert high_vol == "HIGH VOLATILITY RISK", high_vol
 
     valid, reason, extreme_vol = model.validate_risk_parameters(
         current_price=100.0, atr_stop=95.0,  # 5% stop
-        volatility_state="EXTREME VOLATILITY", adx=30.0,
+        volatility_state="EXTREME VOLATILITY",
     )
     assert extreme_vol == "EXTREME RISK", extreme_vol
     assert valid is False, (
@@ -254,14 +265,16 @@ def test_validate_risk_parameters_regime_across_stop_widths():
 
     # A stop distance just past 8% is EXTREME RISK by classify_risk_regime's
     # own threshold, regardless of volatility_state.
+    # FIX 3, 6 October 2026: volatility_state="NORMAL", adx=30.0 until fix 3;
+    # ADX is no input now, and "NORMAL" is UNKNOWN RISK.
     _, _, wide = model.validate_risk_parameters(
         current_price=100.0, atr_stop=91.5,  # 8.5% stop
-        volatility_state="NORMAL", adx=30.0,
+        volatility_state="MEDIUM VOLATILITY",
     )
     assert wide == "EXTREME RISK", wide
 
     _, _, tight = model.validate_risk_parameters(
         current_price=100.0, atr_stop=99.5,  # 0.5% stop
-        volatility_state="NORMAL", adx=30.0,
+        volatility_state="MEDIUM VOLATILITY",
     )
     assert tight in ("NORMAL RISK", "LOW RISK"), tight

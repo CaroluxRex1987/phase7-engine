@@ -30,6 +30,11 @@ def compute_trend_health(df: Optional[pd.DataFrame]) -> Dict[str, Any]:
         # of that rather than a reading. classify_risk_regime() treats None as
         # "not measured" and declines to infer a regime from it in either
         # direction.
+        #
+        # FIX 3, 6 October 2026: the risk regime no longer reads ADX at all.
+        # Since fix 2 the caller that reads it is the confirmation gate
+        # (models/entry_model.py, MIN_TREND_ADX), which refuses both sides on
+        # None -- so None here still infers nothing, and now takes no trade.
         "adx": None,
         "degraded_inputs": ["trend health could not be computed at all"],
         "trend_exhaustion": False,
@@ -244,7 +249,11 @@ def compute_trend_health(df: Optional[pd.DataFrame]) -> Dict[str, Any]:
             # REGIME_STRONG_ADX comment: that gate already reads raw ADX
             # independently of bias_score, so it is unaffected here -- if
             # anything more clearly independent now that ADX has one path
-            # into bias_score rather than two. Same no-rescale ruling as 31
+            # into bias_score rather than two. (FIX 3, 6 October 2026: by
+            # this comment's own standard, no shared raw input, that gate
+            # was not independent -- it read the raw ADX trend health reads.
+            # Round 8 found it as F2. The regime reads no ADX now, and both
+            # constants are gone.) Same no-rescale ruling as 31
             # August: continuation_strength's ceiling is honestly 35 now
             # (was 60), not stretched back up.
 

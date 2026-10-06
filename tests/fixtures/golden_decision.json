@@ -76,7 +76,7 @@
   },
   "lineage": {
     "archive": {
-      "path": "logs/archive/testusdt_4h_d2b7b3007112fdbf.json.gz",
+      "path": "logs/archive/testusdt_4h_ea05e1f165096677.json.gz",
       "pruned_this_run": 0,
       "retention_days": 90
     },
@@ -193,18 +193,17 @@
       }
     },
     "risk_inputs": {
-      "adx": 31.95632018,
       "atr": 0.01055373,
       "bias_score": 77.09945429,
       "current_price": 0.80173175,
       "risk_regime": "NORMAL RISK",
       "volatility_state": "MEDIUM VOLATILITY"
     },
-    "run_hash": "d2b7b3007112fdbf2a518c2515f0f0c9dce938a041d9f1464656949b9c7a4d67"
+    "run_hash": "ea05e1f165096677d67b751de0efe0f9008fb6f9db1fabbafe2b6a4cbeb00801"
   },
   "macro_bias": "BULLISH",
   "provenance": {
-    "archive_path": "logs/archive/testusdt_4h_d2b7b3007112fdbf.json.gz",
+    "archive_path": "logs/archive/testusdt_4h_ea05e1f165096677.json.gz",
     "canonical_format": 1,
     "decision_candles": {
       "btc": {
@@ -294,9 +293,7 @@
         "ATR_STOP_MULT": 1.2,
         "MAX_STOP_DISTANCE_PCT": 15.0,
         "MIN_STOP_DISTANCE_PCT": 0.2,
-        "REGIME_CHOP_ADX": 20.0,
         "REGIME_EXTREME_STOP_PCT": 8.0,
-        "REGIME_STRONG_ADX": 25.0,
         "TARGET1_MULT": 1.0,
         "TARGET2_MULT": 2.0,
         "TARGET3_MULT": 3.0,
@@ -310,7 +307,7 @@
     },
     "prior_state": {},
     "row_count": 450,
-    "run_hash": "d2b7b3007112fdbf2a518c2515f0f0c9dce938a041d9f1464656949b9c7a4d67",
+    "run_hash": "ea05e1f165096677d67b751de0efe0f9008fb6f9db1fabbafe2b6a4cbeb00801",
     "source": "pinned"
   },
   "risk": {

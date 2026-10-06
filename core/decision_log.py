@@ -264,12 +264,17 @@ FINGERPRINTED_MODULES = {
         # models/risk_model.py, so both names leave the run-hash payload --
         # which moves run_hash, and with it the archive's file name.
         # ITEM 14, 11 September 2026: REGIME_LOW_TREND_HEALTH and
-        # REGIME_HIGH_TREND_HEALTH were renamed to these when the risk regime
-        # stopped reading trend_health. Renaming a fingerprinted constant
-        # without updating this list drops it out of the run-hash payload
-        # silently, which is the decay rule 11 warns about.
-        "REGIME_EXTREME_STOP_PCT", "REGIME_CHOP_ADX",
-        "REGIME_STRONG_ADX",
+        # REGIME_HIGH_TREND_HEALTH were renamed to REGIME_CHOP_ADX and
+        # REGIME_STRONG_ADX when the risk regime stopped reading trend_health.
+        # Renaming a fingerprinted constant without updating this list drops
+        # it out of the run-hash payload silently, which is the decay rule 11
+        # warns about.
+        # FIX 3, 6 October 2026: REGIME_CHOP_ADX and REGIME_STRONG_ADX stood
+        # after REGIME_EXTREME_STOP_PCT here. The regime no longer reads ADX,
+        # and both constants are gone from models/risk_model.py, so both names
+        # leave the run-hash payload -- which moves run_hash, and with it the
+        # archive's file name.
+        "REGIME_EXTREME_STOP_PCT",
         "MAX_STOP_DISTANCE_PCT", "MIN_STOP_DISTANCE_PCT",
     ],
     # ROUND 6 (Meta Muse Spark 1.3), F1, 13 September 2026. Three more of

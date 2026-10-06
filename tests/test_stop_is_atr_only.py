@@ -212,12 +212,15 @@ def test_the_eight_and_fifteen_percent_limits_are_unchanged():
     assert rm.MAX_STOP_DISTANCE_PCT == 15.0, rm.MAX_STOP_DISTANCE_PCT
 
     model = rm.RiskModel()
+    # FIX 3, 6 October 2026: volatility_state="NORMAL", adx=30.0 until fix 3.
+    # ADX is no longer an input, and "NORMAL" -- a state the engine never
+    # produces -- is UNKNOWN RISK now; MEDIUM VOLATILITY is its NORMAL RISK.
     ok, _, regime = model.validate_risk_parameters(
-        current_price=100.0, atr_stop=93.0, volatility_state="NORMAL", adx=30.0)
+        current_price=100.0, atr_stop=93.0, volatility_state="MEDIUM VOLATILITY")
     assert ok and regime == "NORMAL RISK", (ok, regime)
     ok, _, regime = model.validate_risk_parameters(
-        current_price=100.0, atr_stop=91.0, volatility_state="NORMAL", adx=30.0)
+        current_price=100.0, atr_stop=91.0, volatility_state="MEDIUM VOLATILITY")
     assert not ok and regime == "EXTREME RISK", (ok, regime)
     ok, reason, regime = model.validate_risk_parameters(
-        current_price=100.0, atr_stop=84.0, volatility_state="NORMAL", adx=30.0)
+        current_price=100.0, atr_stop=84.0, volatility_state="MEDIUM VOLATILITY")
     assert not ok and regime == "UNKNOWN" and "15%" in reason, (ok, reason, regime)

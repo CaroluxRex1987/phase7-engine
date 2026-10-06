@@ -228,9 +228,13 @@ def test_the_regime_boundaries_are_read(monkeypatch):
     # ITEM 14, 11 September 2026: the third argument was trend_health and is
     # now ADX. 30.0 is trending territory, above REGIME_STRONG_ADX -- chosen
     # so this test still exercises REGIME_EXTREME_STOP_PCT and nothing else.
-    assert model.classify_risk_regime("NORMAL", 9.0, 30.0) == "EXTREME RISK"
+    # FIX 3, 6 October 2026: the third argument is gone -- the regime comes
+    # from volatility alone -- and "NORMAL", a state the engine never
+    # produces, is UNKNOWN RISK now. MEDIUM VOLATILITY is NORMAL RISK once
+    # the boundary has moved past 9%.
+    assert model.classify_risk_regime("MEDIUM VOLATILITY", 9.0) == "EXTREME RISK"
     monkeypatch.setattr(risk_model, "REGIME_EXTREME_STOP_PCT", 20.0)
-    assert model.classify_risk_regime("NORMAL", 9.0, 30.0) != "EXTREME RISK", (
+    assert model.classify_risk_regime("MEDIUM VOLATILITY", 9.0) == "NORMAL RISK", (
         "REGIME_EXTREME_STOP_PCT is fingerprinted but classify_risk_regime "
         "does not read it"
     )
@@ -239,8 +243,11 @@ def test_the_regime_boundaries_are_read(monkeypatch):
 def test_the_stop_distance_limits_are_read(monkeypatch):
     model = RiskModel()
 
+    # FIX 3, 6 October 2026: volatility_state has no default any more, so
+    # both calls name the state the engine produces for a normal market.
+
     # A stop 20% away fails on the maximum.
-    valid, reason, _ = model.validate_risk_parameters(100.0, 80.0)
+    valid, reason, _ = model.validate_risk_parameters(100.0, 80.0, "MEDIUM VOLATILITY")
     assert valid is False
     assert "maximum" in reason.lower()
 
@@ -250,7 +257,8 @@ def test_the_stop_distance_limits_are_read(monkeypatch):
     # that the plan passed. Asserting valid is True here would be asserting
     # something the engine should not do.
     monkeypatch.setattr(risk_model, "MAX_STOP_DISTANCE_PCT", 25.0)
-    valid_after, reason_after, _ = model.validate_risk_parameters(100.0, 80.0)
+    valid_after, reason_after, _ = model.validate_risk_parameters(
+        100.0, 80.0, "MEDIUM VOLATILITY")
     assert "maximum" not in reason_after.lower(), (
         "MAX_STOP_DISTANCE_PCT is fingerprinted but validate_risk_parameters "
         "does not read it -- raising the ceiling to 25% left a 20% stop still "
@@ -269,7 +277,8 @@ def test_the_rejection_message_quotes_the_constant_it_enforces():
     defect this project has recorded at item 14, at Finding 3 and at 2be405f.
     """
     model = RiskModel()
-    _, reason, _ = model.validate_risk_parameters(100.0, 80.0)
+    # FIX 3, 6 October 2026: volatility_state has no default any more.
+    _, reason, _ = model.validate_risk_parameters(100.0, 80.0, "MEDIUM VOLATILITY")
     assert f"{risk_model.MAX_STOP_DISTANCE_PCT:.0f}%" in reason, (
         "the rejection message no longer quotes MAX_STOP_DISTANCE_PCT, so "
         "the text and the threshold can now disagree"

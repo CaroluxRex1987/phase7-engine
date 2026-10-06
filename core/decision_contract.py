@@ -171,6 +171,12 @@ class RiskBlock(TypedDict):
     # the previous wording claimed this gate is independent of trend health;
     # that is false about the code (trend_health thresholds still apply).
     # Whether the coupling itself is a Constitution issue is open decision 2.
+    # CORRECTED 6 October 2026, by fix 3: "(trend_health thresholds still
+    # apply)" was false from 11 September, when the regime moved from trend
+    # health to ADX -- and ADX coupled it to conviction as well (round 8's
+    # F2). Since fix 3 the regime comes from volatility alone (see
+    # models/risk_model.py's classify_risk_regime), and it is "UNKNOWN RISK"
+    # for a volatility state that function does not know.
     risk_regime: str
     # `risk_score` and `signal_strength` both held bias_score and were removed
     # at sequence item 13. bias.score is that number's one home.

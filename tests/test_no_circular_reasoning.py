@@ -288,7 +288,10 @@ def test_continuation_strength_ignores_adx():
     survived Item 11's audit and six subsequent rounds. See
     trend_health.py's "INDEPENDENCE REVIEW" comment for the full reasoning
     and models/risk_model.py's REGIME_CHOP_ADX comment for why that
-    module's own, separate read of raw ADX is unaffected.
+    module's own, separate read of raw ADX is unaffected. (Fix 3, 6 October
+    2026: it was not unaffected by this test's own standard -- the same raw
+    input -- and round 8 found it as F2. That module reads no ADX now; its
+    constants block records why.)
 
     Checked here the same way the health-derived-term test above checks its
     claim: hold RSI, slope and acceleration fixed (so momentum_component and
