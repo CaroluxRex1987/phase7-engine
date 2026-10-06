@@ -6,6 +6,12 @@ import math
 # total function rather than with a permissive default at each call site.
 # See models/risk_model.py's read_risk_verdict().
 from models.risk_model import read_risk_verdict
+# Fix 2, 5 October 2026: the confirmation sentence in _apply_signal_gate names
+# the gate's ADX threshold, read from the gate's own constant so the sentence
+# cannot drift from the rule it describes. The module is imported, not the
+# name: a module-level MIN_TREND_ADX here would be a second, unlisted copy of
+# a fingerprinted constant (tests/test_fingerprint_names_every_constant.py).
+from models import entry_model
 
 logger = logging.getLogger(__name__)
 
@@ -288,10 +294,13 @@ class DecisionModel:
             side = "long" if "LONG" in final_action else "short"
             confirmed, blockers = self._read_signal(entry, side)
             if confirmed:
+                # Fix 2, 5 October 2026: "the trend is not flagged exhausted"
+                # stood where ADX now does -- the flag left the gate.
                 reasons.append(
                     f"Structural confirmation holds for the {side}: structure "
-                    f"agrees with the direction, the trend is not flagged "
-                    f"exhausted, and no momentum divergence points against it."
+                    f"agrees with the direction, ADX is "
+                    f"{entry_model.MIN_TREND_ADX:g} or "
+                    f"more, and no momentum divergence points against it."
                 )
                 return final_action
             leaning = "bullish" if side == "long" else "bearish"

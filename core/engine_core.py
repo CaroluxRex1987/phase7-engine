@@ -915,11 +915,14 @@ class Phase7Engine:
             # side decision_model chooses (VIKTOR'S RULING) -- see the comment
             # above generate_entry_signals in models/entry_model.py for what
             # each input is and why the others are gone.
+            # FIX 2, 5 October 2026: the exhaustion flag no longer reaches the
+            # gate; trend health's raw ADX does (None when it could not be
+            # read, which the gate refuses). See MIN_TREND_ADX there.
             signals = generate_entry_signals(
                 structure_regime=structure_regime,
-                trend_exhaustion=trend["trend_exhaustion"],
                 momentum_divergence=trend["momentum_divergence"],
                 divergence_direction=trend["divergence_direction"],
+                adx=trend["adx"],
             )
             long_signal = signals["long_signal"]
             short_signal = signals["short_signal"]

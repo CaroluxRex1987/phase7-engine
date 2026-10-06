@@ -10,6 +10,11 @@ delegated the remaining adjustments. The rule is documented above
 generate_entry_signals in models/entry_model.py; the gate is
 DecisionModel._apply_signal_gate.
 
+Fix 2, 5 October 2026: the exhaustion flag left the gate and ADX under 20
+blocks both sides in its place (round 8's triage, point 4). The helpers below
+pass a trending ADX of 30 unless a test sets it; the fix's own cases are in
+tests/test_no_trend_no_trade.py.
+
 Every test here is fixture-free on purpose: run_tests.py calls each test_*
 function with no arguments, and a fixture would become an error there.
 
@@ -30,13 +35,13 @@ from models.entry_model import generate_entry_signals, signal_blockers
 UNCONFIRMED = "NO-TRADE (SIGNAL UNCONFIRMED)"
 
 
-def _signals(structure="BULLISH TREND", exhaustion=False,
+def _signals(structure="BULLISH TREND", adx=30.0,
              divergence=False, divergence_direction="NONE"):
     return generate_entry_signals(
         structure_regime=structure,
-        trend_exhaustion=exhaustion,
         momentum_divergence=divergence,
         divergence_direction=divergence_direction,
+        adx=adx,
     )
 
 
@@ -76,13 +81,14 @@ def test_the_signal_no_longer_takes_the_inputs_that_were_ruled_out():
     """
     Macro (counted twice), CONFIRMED (a second bias threshold), trend health
     (decided nothing) and the reversal NUMBER (replaced by its parts) are not
-    inputs any more. Re-adding one as a parameter fails here, before it can
-    quietly start vetoing trades again.
+    inputs any more -- nor, since fix 2, the exhaustion flag (ADX replaced
+    it). Re-adding one as a parameter fails here, before it can quietly start
+    vetoing trades again.
     """
     for fn in (signal_blockers, generate_entry_signals):
         params = set(inspect.signature(fn).parameters)
         for gone in ("macro_bias", "detailed_bias", "trend_health",
-                     "reversal_strength"):
+                     "reversal_strength", "trend_exhaustion"):
             assert gone not in params, (
                 f"{fn.__name__} takes {gone} again. Work order F removed it; "
                 f"see the comment above generate_entry_signals.")
@@ -98,7 +104,8 @@ def test_a_clean_bullish_setup_confirms_the_long_and_not_the_short():
 
 def test_each_side_signal_is_exactly_an_empty_blocker_list():
     for kwargs in ({}, {"structure": "BEARISH TREND"},
-                   {"structure": "NEUTRAL STRUCTURE"}, {"exhaustion": True},
+                   {"structure": "NEUTRAL STRUCTURE"}, {"adx": 15.0},
+                   {"adx": None},
                    {"divergence": True, "divergence_direction": "BEARISH"},
                    {"divergence": True, "divergence_direction": "BULLISH"}):
         out = _signals(**kwargs)
@@ -108,34 +115,36 @@ def test_each_side_signal_is_exactly_an_empty_blocker_list():
 
 def test_structure_against_the_side_blocks_it():
     assert "structure is BEARISH TREND, not BULLISH TREND" in signal_blockers(
-        "LONG", "BEARISH TREND", False, False, "NONE")
+        "LONG", "BEARISH TREND", False, "NONE", adx=30.0)
     assert "structure is NEUTRAL STRUCTURE, not BEARISH TREND" in signal_blockers(
-        "SHORT", "NEUTRAL STRUCTURE", False, False, "NONE")
+        "SHORT", "NEUTRAL STRUCTURE", False, "NONE", adx=30.0)
 
 
-def test_exhaustion_blocks_both_sides():
+def test_adx_under_20_blocks_both_sides():
+    """Fix 2: no trend, no trade. It replaced the exhaustion flag here."""
     for side, structure in (("LONG", "BULLISH TREND"), ("SHORT", "BEARISH TREND")):
-        assert signal_blockers(side, structure, True, False, "NONE") == [
-            "the trend is flagged exhausted"]
+        assert signal_blockers(side, structure, False, "NONE", adx=15.0) == [
+            "ADX is 15.0, under the 20 the engine requires to treat the "
+            "market as trending"]
 
 
 def test_a_divergence_against_the_trade_blocks_it():
-    assert signal_blockers("LONG", "BULLISH TREND", False, True, "BEARISH") == [
+    assert signal_blockers("LONG", "BULLISH TREND", True, "BEARISH", adx=30.0) == [
         "bearish momentum divergence points against the trade"]
-    assert signal_blockers("SHORT", "BEARISH TREND", False, True, "BULLISH") == [
+    assert signal_blockers("SHORT", "BEARISH TREND", True, "BULLISH", adx=30.0) == [
         "bullish momentum divergence points against the trade"]
 
 
 def test_a_divergence_pointing_with_the_trade_does_not_block_it():
     """Viktor's rule 2: only a counter-directional reversal is a threat."""
-    assert signal_blockers("LONG", "BULLISH TREND", False, True, "BULLISH") == []
-    assert signal_blockers("SHORT", "BEARISH TREND", False, True, "BEARISH") == []
+    assert signal_blockers("LONG", "BULLISH TREND", True, "BULLISH", adx=30.0) == []
+    assert signal_blockers("SHORT", "BEARISH TREND", True, "BEARISH", adx=30.0) == []
 
 
 def test_a_divergence_of_unrecorded_direction_is_not_a_confirmation():
     """It cannot be shown not to point against the trade."""
     for direction in ("NONE", "UNKNOWN", None):
-        blockers = signal_blockers("LONG", "BULLISH TREND", False, True, direction)
+        blockers = signal_blockers("LONG", "BULLISH TREND", True, direction, adx=30.0)
         assert len(blockers) == 1 and "cannot be shown" in blockers[0], direction
 
 
@@ -253,7 +262,7 @@ def test_a_missing_signal_record_fails_safe():
 
 def test_a_signal_contradicting_its_own_blockers_is_not_a_confirmation():
     bad = _signals()
-    bad["long_signal_blockers"] = ["the trend is flagged exhausted"]
+    bad["long_signal_blockers"] = ["structure is BEARISH TREND, not BULLISH TREND"]
     out = _evaluate(signals=bad)
     assert out["final_action"] == UNCONFIRMED
     assert any("contradicts its own blocker list" in r

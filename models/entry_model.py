@@ -1,3 +1,7 @@
+import math
+import numbers
+from decimal import Decimal, ROUND_FLOOR
+
 import numpy as np
 from typing import Dict, Any, List, Optional
 
@@ -514,6 +518,9 @@ def calculate_entry_quality(
 #   trend exhaustion            KEPT -- Viktor. Structure must match the side,
 #                               so every confirmed trade runs with the trend,
 #                               and exhaustion is always against it.
+#                               REPLACED 5 October 2026 (fix 2, below): ADX
+#                               under MIN_TREND_ADX blocks both sides in its
+#                               place, and the flag no longer reaches the gate.
 #   momentum divergence         BLOCKS ONLY WHEN IT POINTS AGAINST THE TRADE --
 #                               Viktor. decision_model's own direction-blind
 #                               divergence check on the upper tiers is removed
@@ -528,22 +535,107 @@ def calculate_entry_quality(
 # which can refuse a trade but never adds confidence to one. That is a design
 # choice. It has not been backtested; no evidence yet says it improves
 # decisions.
+# SINCE FIX 2 (5 October 2026) the three are structure regime, ADX and
+# divergence. ADX reaches bias_score as well: it is up to 40 of trend
+# health's 100 points (indicators/trend_health.py, adx_strength), and trend
+# health is 30% of bias_score. The gate still only vetoes.
 #
 # Checked against the live decision log before writing (21 September, 29
 # records): no past action would change. One SHORT was taken in that log
 # (code 38458f20...); its reversal reading of 4.0 was HVN proximity alone,
 # so it passes under this rule where the old signal refused it.
 
+# FIX 2, 5 October 2026 -- no trend, no trade. Point 4 of round 8's triage
+# (docs/PHASE7_DECISIONS.md, "Ruling, 5 October 2026 -- round 8 triaged
+# ..."; the review's B3), Viktor's ruling by agreeing to Claude's suggestion:
+# the exhaustion flag leaves this gate, and ADX under 20 blocks both sides,
+# with the reason printed. It implements point 9 of the ruling of
+# 28 September, "trends only, for now".
+#
+# Why the flag goes: it was (this bar's range > the last bar's AND ADX < 20)
+# OR (trend health < 35 AND ADX < 15) (indicators/trend_health.py, section
+# 4). Trend health is almost never under 35, so in practice it asked whether
+# the last candle was wider than the one before it, in a low-ADX market --
+# on the review's count of real 4h bars (not re-derived here) it fired on
+# about half of the bars with ADX under 20 and on none above. Both of its
+# clauses need ADX under 20, so every setup it blocked is still blocked.
+#
+# An ADX with no valid reading -- None (trend_health.py could not read it),
+# NaN, an infinity, a bool, anything that is not a number, or a number
+# outside ADX's own 0-100 range -- blocks both sides too, with its own
+# reason. The ruling left this to the patch, failing safe: a reading that
+# does not exist cannot show a trend, so it cannot confirm one. The run
+# still completes and is recorded. In this engine such a run is already
+# degraded (trend_health.py names the missing ADX), and the gate runs before
+# the degradation override, so when the ladder chose a side the label is
+# NO-TRADE (SIGNAL UNCONFIRMED) with the degradation notes appended to it --
+# the precedence work order F set -- where it was NO-TRADE (DEGRADED INPUT).
+#
+# The flag itself is unchanged and still read everywhere else it was: trend
+# health's reversal reading, the trend-regime label, Exit Watch and the
+# record (trend.exhaustion). Only this gate stops reading it.
+#
+# 20 is the level the risk regime reads as chop (models/risk_model.py,
+# REGIME_CHOP_ADX): chosen, not derived, and not backtested. It is its own
+# constant here, fingerprinted in core/decision_log.py, because the regime's
+# two ADX tests are to be removed (point 3 of the same triage).
+#
+# Checked against the live decision log (5 October, 48 records; records
+# 1-10 are test records). ADX was under 20 on one live run, record 47
+# (18.43, a WAIT: the ladder chose no side, so the gate decided nothing),
+# and the exhaustion flag fired on no record. Replayed through
+# DecisionModel.evaluate() with every other input held at its recorded
+# value, no record's action differs before and after this fix. The blockers
+# change on two records: 47 gains the ADX reason on both sides, and test
+# record 4, which has no ADX at all, gains the no-reading reason on both.
+# The confirmation sentence changes on the seven records whose replay
+# confirms a side (19, 20, 21, 42, 43, 44 and 48).
+MIN_TREND_ADX = 20.0
+
+
+def _measured_adx(adx: Any) -> Optional[float]:
+    """
+    The ADX as a float, or None when there is no valid reading.
+
+    A bool is a number to Python and not a reading; NaN and the infinities
+    are not readings either; and ADX is bounded to 0-100 by its definition,
+    so a value outside that range is a defect upstream, not a market. Every
+    one of these returns None, which the gate treats as no trend shown.
+    """
+    if isinstance(adx, bool) or not isinstance(adx, numbers.Real):
+        return None
+    value = float(adx)
+    if not math.isfinite(value) or value < 0.0 or value > 100.0:
+        return None
+    return value
+
+
+def _adx_text(adx: float) -> str:
+    """
+    A valid ADX under MIN_TREND_ADX, as its blocker prints it: one decimal,
+    rounded DOWN, so 19.96 reads "19.9" and never "20.0, under the 20".
+    Decimal(repr(...)) floors the float's shortest decimal form exactly,
+    which multiplying the float by ten and flooring cannot promise.
+    """
+    return str(Decimal(repr(float(adx))).quantize(Decimal("0.1"),
+                                                  rounding=ROUND_FLOOR))
+
+
 def signal_blockers(
     direction: str,
     structure_regime: str,
-    trend_exhaustion: bool,
     momentum_divergence: bool,
     divergence_direction: str,
+    *,
+    adx: Any,
 ) -> List[str]:
     """
     Every reason the setup does NOT confirm a trade in `direction` ("LONG" or
     "SHORT"). An empty list is a confirmation; the signal is exactly that.
+
+    `adx` is keyword-only and has no default (fix 2): a call in the shape
+    before fix 2 -- the exhaustion flag third, five positional arguments --
+    raises TypeError instead of binding the flag to another parameter.
     """
     if direction not in ("LONG", "SHORT"):
         raise ValueError(f"direction must be LONG or SHORT, got {direction!r}")
@@ -555,8 +647,15 @@ def signal_blockers(
     if structure_regime != wanted_structure:
         blockers.append(f"structure is {structure_regime}, not {wanted_structure}")
 
-    if trend_exhaustion:
-        blockers.append("the trend is flagged exhausted")
+    measured = _measured_adx(adx)
+    if measured is None:
+        blockers.append(
+            "ADX has no valid reading on this run, so the market cannot be "
+            "shown to be trending")
+    elif measured < MIN_TREND_ADX:
+        blockers.append(
+            f"ADX is {_adx_text(measured)}, under the {MIN_TREND_ADX:g} the "
+            f"engine requires to treat the market as trending")
 
     if momentum_divergence:
         if divergence_direction == opposing:
@@ -575,9 +674,10 @@ def signal_blockers(
 
 def generate_entry_signals(
     structure_regime: str,
-    trend_exhaustion: bool,
     momentum_divergence: bool,
     divergence_direction: str,
+    *,
+    adx: Any,
 ) -> Dict[str, Any]:
     """
     Both sides' confirmation signals and the reasons behind each.
@@ -588,11 +688,11 @@ def generate_entry_signals(
     confirmed, not only the side that was traded.
     """
     long_blockers = signal_blockers(
-        "LONG", structure_regime, trend_exhaustion,
-        momentum_divergence, divergence_direction)
+        "LONG", structure_regime, momentum_divergence, divergence_direction,
+        adx=adx)
     short_blockers = signal_blockers(
-        "SHORT", structure_regime, trend_exhaustion,
-        momentum_divergence, divergence_direction)
+        "SHORT", structure_regime, momentum_divergence, divergence_direction,
+        adx=adx)
     return {
         "long_signal": not long_blockers,
         "short_signal": not short_blockers,

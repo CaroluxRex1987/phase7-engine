@@ -249,6 +249,11 @@ FINGERPRINTED_MODULES = {
         "COMPONENT_MAX_POINTS", "SCORE_CEILING",
         "ZONE_POINTS_NOT_MEASURED", "ATR_POINTS_NOT_MEASURED",
         "CONFLUENCE_BOOST_MULT", "CONFLUENCE_PENALTY_MULT",
+        # FIX 2, 5 October 2026: the confirmation gate's ADX threshold -- under
+        # it, no side confirms. It decides which runs may trade, so it is in
+        # the run-hash payload by the same argument as MIN_ACTION_BIAS above;
+        # adding it moves run_hash, and with it the archive's file name.
+        "MIN_TREND_ADX",
     ],
     "models.risk_model": [
         "ATR_STOP_MULT", "TARGET1_MULT", "TARGET2_MULT", "TARGET3_MULT",
