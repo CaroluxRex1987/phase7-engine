@@ -18,7 +18,8 @@ Three things the panel could print that nothing had computed:
      decision_model.py.
 
   3. "0.00/100" for an entry, confidence, trade-quality or BTC-adjusted score
-     that was absent -- a score of zero that nobody computed.
+     that was absent -- a score of zero that nobody computed. (The
+     BTC-adjusted score left the panel with N5, 9 October 2026.)
 
 WHY THE SWEEP TEST AND NOT ONE TEST PER LINE
 
@@ -77,8 +78,7 @@ def _everything_unmeasured(symbol="TESTUSDT"):
                  "targets": (NAN, NAN, NAN)},
         "exit": {"action": "WAIT", "current_price": NAN},
         "btc_context": {"available": True, "n_observations": 0,
-                        "correlation": None, "beta": None,
-                        "btc_adjusted_confidence": NAN},
+                        "correlation": None, "beta": None},
     }
 
 
@@ -101,10 +101,11 @@ def test_absent_scores_print_as_absent_not_as_zero():
     assert _no_nan(panel)
 
 
-def test_the_btc_adjusted_score_prints_as_absent_not_as_zero():
-    panel = _render(_everything_unmeasured())
-    line = _line(panel, "BTC-ADJUSTED CONFIDENCE")
-    assert line.startswith("BTC-ADJUSTED CONFIDENCE: not computed (vs not computed"), line
+# N5, 9 October 2026: test_the_btc_adjusted_score_prints_as_absent_not_as_zero
+# stood here. The BTC-ADJUSTED CONFIDENCE line is gone (Viktor's ruling of
+# 5 October, point 7: Bitcoin is reference only), so there is no score left
+# to print as absent; tests/test_btc_is_reference_only.py checks that the
+# line does not come back.
 
 
 def test_a_computed_score_still_prints_with_its_scale():
@@ -204,6 +205,11 @@ def test_the_panel_and_the_reasoning_use_one_function():
     """
     Two copies of the suffix list is how the panel came to say AERO after the
     reasoning stopped. Read from the parse tree, not the source text (rule 16).
+
+    N5, 9 October 2026: the reasoning half is gone -- the BTC-adjusted
+    confidence's sentence was asset_name()'s other caller -- so this no
+    longer asserts that decision_model calls it. The one list stays where it
+    is, and the panel still calls the function rather than carrying a copy.
     """
     import ast
 
@@ -224,7 +230,6 @@ def test_the_panel_and_the_reasoning_use_one_function():
                         for e in n.elts)]
 
     assert calls_asset_name(panel_render)
-    assert calls_asset_name(decision_model)
     assert spells_the_suffixes(panel_render) == [], (
         "panel_render carries its own quote-currency list again")
     assert len(spells_the_suffixes(decision_model)) == 1

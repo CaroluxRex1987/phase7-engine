@@ -871,6 +871,9 @@ class Phase7Engine:
                         # -- the same relationship btc_adjusted_confidence
                         # already has with the main confidence_score (a
                         # separate, clearly-labelled number, never a gate).
+                        # (N5, 9 October 2026: btc_adjusted_confidence is
+                        # gone, by Viktor's ruling of 5 October; the BTC block
+                        # is reference only, and still never a gate.)
                         #
                         # Item 11's own motivation stands, though: a BTC
                         # indicator failure should not be silently dropped
@@ -919,7 +922,12 @@ class Phase7Engine:
                             "available": True,
                             "raw": btc_raw_bias,
                             "detailed": btc_detailed_bias,
-                            "score": float(btc_bias_score),
+                            # N5, 9 October 2026: "score" (BTC's bias score)
+                            # stood here. Its only reader was the BTC-adjusted
+                            # confidence, gone by Viktor's ruling of 5 October
+                            # (point 7); the router never copied it into the
+                            # decision object. btc_detailed_bias above still
+                            # comes from it.
                             "regime": btc_dynamic_regime,
                             "volatility": btc_volatility_mode,
                             "trend_health": float(btc_trend["trend_health"]),

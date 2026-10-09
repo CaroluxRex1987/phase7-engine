@@ -259,8 +259,9 @@ class SignalRouter:
         """
         Convert engine output into a unified trade decision object.
         Pure assembly: all decision logic (final_action, confidence,
-        trade_quality, ev, btc_adjusted, explanation) comes from
-        self.decision_model.evaluate().
+        trade_quality, ev, explanation) comes from
+        self.decision_model.evaluate(). (btc_adjusted was on that list until
+        N5, 9 October 2026.)
         """
         degradation = list(degradation) if isinstance(degradation, list) else []
         provenance = dict(provenance) if isinstance(provenance, dict) else {}
@@ -282,17 +283,19 @@ class SignalRouter:
             # CONSERVATIVE clause went (see decision_model.py). It is still
             # this function's parameter because the decision object records
             # it, below.
+            # N5, 9 October 2026: btc_context and symbol are no longer
+            # passed. Their only reader in the decision model was the
+            # BTC-adjusted confidence, removed by Viktor's ruling of
+            # 5 October (point 7: Bitcoin is reference only). btc_context
+            # still feeds this function's own BTC block, below.
             dm_result = self.decision_model.evaluate(
                 bias, trend, entry, risk,
-                btc_context=btc_context,
                 degradation=degradation,
-                symbol=symbol,
             )
             final_action = dm_result["final_action"]
             confidence = dm_result["confidence"]
             trade_quality = dm_result["trade_quality"]
             ev = dm_result["ev"]
-            btc_adjusted = dm_result["btc_adjusted"]
             explanation = dm_result["explanation"]
 
             # ROUND 6 (Meta Muse Spark 1.3), F3 -- Item 13 / Item 8, Minor.
@@ -486,11 +489,12 @@ class SignalRouter:
                     "trading_authorized": not bool(degradation),
                 },
 
-                # BTC MARKET CONTEXT (new feature, V1): merges engine_core.py's
-                # BTC-side analysis (bias/regime/correlation/beta) with
-                # DecisionModel's BTC-adjusted confidence -- informational
-                # only, never changes BIAS/DECISION/confidence above.
-                "btc_context": self._merge_btc_context(btc_context, btc_adjusted),
+                # BTC MARKET CONTEXT: engine_core.py's BTC-side analysis
+                # (bias/regime/correlation/beta) -- reference only, never
+                # changes BIAS/DECISION/confidence above. Until N5,
+                # 9 October 2026, it was merged with DecisionModel's
+                # BTC-adjusted confidence, which is gone.
+                "btc_context": self._merge_btc_context(btc_context),
 
                 "explanation": explanation,
 
@@ -628,19 +632,22 @@ class SignalRouter:
     def _merge_btc_context(
         self,
         btc_context: Optional[Dict[str, Any]],
-        btc_adjusted: Optional[Dict[str, Any]],
     ) -> Dict[str, Any]:
         """
-        Combines engine_core.py's BTC-side analysis (bias/regime/volatility/
-        correlation/beta) with DecisionModel's BTC-adjusted confidence into
-        one dict for panel_render.py -- kept as a single merge point so
-        panel_render.py doesn't need to know these came from two different
-        places.
+        engine_core.py's BTC-side analysis (bias/regime/volatility/
+        correlation/beta), as one dict for panel_render.py and the record.
+
+        N5, 9 October 2026. Until then this merged that analysis with
+        DecisionModel's BTC-adjusted confidence, and the block was available
+        only when both were. The adjustment is gone (Viktor's ruling of
+        5 October, point 7: Bitcoin is reference only), so there is one
+        source, and whether the block is available is engine_core's answer
+        alone. The name is kept: the audit reports, HISTORY and DECISIONS
+        cite it.
         """
         btc_context = btc_context if isinstance(btc_context, dict) else {}
-        btc_adjusted = btc_adjusted if isinstance(btc_adjusted, dict) else {}
 
-        if not btc_context.get("available") or not btc_adjusted.get("available"):
+        if not btc_context.get("available"):
             return {"available": False}
 
         return {
@@ -658,8 +665,8 @@ class SignalRouter:
             "beta": self._optional_number(btc_context.get("beta")),
             "broad_market_stress": bool(btc_context.get("broad_market_stress", False)),
             "n_observations": int(btc_context.get("n_observations", 0) or 0),
-            "btc_adjusted_confidence": self._finite_or_nan(btc_adjusted.get("btc_adjusted_confidence")),
-            "reasons": list(btc_adjusted.get("reasons", [])),
+            # N5, 9 October 2026: "btc_adjusted_confidence" and "reasons"
+            # stood here, both from the BTC-adjusted confidence.
             # RULING, 12 September 2026 (Viktor). Carried through for the
             # decision log's sake, same as every other btc_context field
             # here -- never read by panel_render.py, never fed into the

@@ -235,8 +235,10 @@ class BtcContextBlock(_BtcContextRequired, total=False):
     beta: float
     broad_market_stress: bool
     n_observations: int
-    btc_adjusted_confidence: float
-    reasons: List[str]
+    # N5, 9 October 2026: btc_adjusted_confidence (float) and reasons
+    # (List[str]) stood here, both from DecisionModel's BTC-adjusted
+    # confidence, removed by Viktor's ruling of 5 October (point 7: Bitcoin is
+    # reference only). The block now carries only what engine_core measured.
     # RULING, 12 September 2026 (Viktor). BTC's own indicator failures
     # (compute_trend_health's degraded_inputs) are recorded here for the
     # decision log, and deliberately go no further: never appended to the

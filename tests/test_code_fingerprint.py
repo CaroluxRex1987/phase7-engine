@@ -224,19 +224,11 @@ def test_module_snapshot_reaches_a_constant_held_on_a_class():
     )
 
 
-def test_module_snapshot_reaches_the_btc_adjustment_cap():
-    """The second of the seven, and the same shape as the first."""
-    from core.decision_log import MISSING, module_snapshot
-    from models.decision_model import DecisionModel
-
-    snap = module_snapshot().get("models.decision_model", {})
-    key = "DecisionModel.BTC_ADJUSTMENT_CAP"
-
-    assert key in snap and snap[key] is not MISSING, (
-        "the cap bounding how far BTC context can move confidence is not in "
-        "the record"
-    )
-    assert snap[key] == DecisionModel.BTC_ADJUSTMENT_CAP
+# N5, 9 October 2026: test_module_snapshot_reaches_the_btc_adjustment_cap
+# stood here -- the second of the seven, the same two-hop shape as the first.
+# The cap is gone with the BTC-adjusted confidence (Viktor's ruling of
+# 5 October, point 7), and so is its name in FINGERPRINTED_MODULES. The
+# two-hop path it exercised is still exercised by the ceiling's test above.
 
 
 def test_module_snapshot_reaches_the_aggressive_trend_health_min():

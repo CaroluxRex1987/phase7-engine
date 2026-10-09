@@ -29,10 +29,10 @@ class StructureEngine:
     # Moderate. Was a bare 0.0015 local inside _detect_regime, invisible to
     # decision_log.module_snapshot() -- a bare literal inside a method has no
     # name a getattr walk can reach. Promoted to a class attribute (the same
-    # shape decision_model.py already uses for DEGRADED_CONFIDENCE_CEILING and
-    # BTC_ADJUSTMENT_CAP, both fingerprinted via module_snapshot()'s two-hop
-    # ClassName.ATTR resolution), value unchanged, and registered in
-    # core/decision_log.py's FINGERPRINTED_MODULES.
+    # shape decision_model.py uses for DEGRADED_CONFIDENCE_CEILING -- and used
+    # for BTC_ADJUSTMENT_CAP until N5, 9 October 2026 -- fingerprinted via
+    # module_snapshot()'s two-hop ClassName.ATTR resolution), value unchanged,
+    # and registered in core/decision_log.py's FINGERPRINTED_MODULES.
     REGIME_HYSTERESIS_THRESHOLD = 0.0015
 
     def __init__(self, volume_profile_bins: int = 50) -> None:

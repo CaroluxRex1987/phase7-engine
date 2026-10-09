@@ -647,15 +647,18 @@ def render_panel(decision):
                 f"BTC SENSITIVITY (beta): {beta_text}\n"
             )
 
-        # BTC MARKET CONTEXT (new feature, V1) -- built as its own block
-        # here so the conditional (available vs. not) stays readable,
-        # rather than trying to branch inside the big f-string below.
-        # Informational only: never changes BIAS/DECISION/CONFIDENCE above.
+        # BTC MARKET CONTEXT -- built as its own block here so the
+        # conditional (available vs. not) stays readable, rather than trying
+        # to branch inside the big f-string below. Reference only: never
+        # changes BIAS/DECISION/CONFIDENCE above.
+        #
+        # N5, 9 October 2026 (Viktor's ruling of 5 October, point 7: Bitcoin
+        # is reference only). Three things stood after BROAD MARKET STRESS:
+        # the BTC-ADJUSTED CONFIDENCE line, a line stating that number's
+        # validation status under Item 7, and the adjustment's own sentence as
+        # a bullet. All three went with the adjustment; the section prints
+        # what engine_core measured, and nothing else.
         if btc_available:
-            btc_reasoning_lines = _wrap_bullets(
-                btc.get("reasons", []) if isinstance(btc.get("reasons"), list) else [],
-                "No additional notes.",
-            )
             btc_section = (
                 f"{divider}"
                 f"BTC Market Context (informational only -- does not change BIAS or DECISION above):\n"
@@ -663,18 +666,7 @@ def render_panel(decision):
                 f"BTC REGIME    : {colorize_val(btc.get('regime', 'NEUTRAL STRUCTURE'))} | "
                 f"Vol: {colorize_val(btc.get('volatility', 'NORMAL'))}\n"
                 f"{_correlation_lines(btc, colorize_val)}"
-                f"BROAD MARKET STRESS: {colorize_val('YES' if btc.get('broad_market_stress') else 'No')}\n"
-                f"BTC-ADJUSTED CONFIDENCE: "
-                f"{_score_text(safe_float(btc.get('btc_adjusted_confidence'), float('nan')))} "
-                f"(vs {_score_text(confidence_score)} unadjusted)\n"
-                # SEQUENCE ITEM 12, Item 7: this number is correctness-validated
-                # — it computes what it was designed to compute — and
-                # empirically unvalidated: nothing has tested whether adjusting
-                # confidence by BTC correlation predicts anything. Item 7
-                # requires that status be stated rather than implied away, and
-                # a number on a panel implies it away by default.
-                f"   (computationally validated, empirically unvalidated — no backtest supports this adjustment)\n"
-                f"{btc_reasoning_lines}\n"
+                f"BROAD MARKET STRESS: {colorize_val('YES' if btc.get('broad_market_stress') else 'No')}\n\n"
             )
         else:
             btc_section = (

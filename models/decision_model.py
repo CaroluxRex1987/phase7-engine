@@ -36,6 +36,11 @@ def asset_name(symbol: Any) -> str:
     One function now serves both, so the panel cannot drift from the reasoning
     text by carrying its own copy.
 
+    N5, 9 OCTOBER 2026: the BTC-adjusted confidence and its sentence are gone
+    (Viktor's ruling of 5 October, point 7: Bitcoin is reference only), so
+    the panel's BTC section is this function's only caller. It stays in this
+    module, where the one quote-currency list has lived since 21 September.
+
     The suffixes are tried longest first. The inline version tried "USD" before
     "BUSD", so "BUSD" could never match and ETHBUSD read as "ETHB". No pair the
     engine has been run on is affected: every recorded run is a USDT pair.
@@ -151,9 +156,7 @@ class DecisionModel:
         entry: Dict[str, Any],
         risk: Dict[str, Any],
         *,
-        btc_context: Optional[Dict[str, Any]] = None,
         degradation: Optional[List[str]] = None,
-        symbol: str = "this asset",
     ) -> Dict[str, Any]:
         # WORK ORDER G, 27 September 2026 (finding 17): `macro_bias` was the
         # fifth positional parameter here and is gone -- see
@@ -161,6 +164,12 @@ class DecisionModel:
         # keyword-only so that a caller still passing macro in fifth place
         # fails with a TypeError instead of having the string land silently
         # in btc_context.
+        # N5, 9 October 2026: `btc_context` and `symbol` are gone too. Their
+        # only reader was the BTC-adjusted confidence, removed by Viktor's
+        # ruling of 5 October (point 7: Bitcoin is reference only). The `*`
+        # stays, and matters more now: without it the fifth slot would be
+        # `degradation`, and a stray "BULLISH" there would be read as seven
+        # missing inputs -- list("BULLISH") -- and the run capped as degraded.
         # ITEM 11 RE-AUDIT (Finding 4): `structure` was a parameter here,
         # threaded into _compute_confidence to compute structure_alignment.
         # It is gone along with that term -- see _compute_confidence's
@@ -229,11 +238,11 @@ class DecisionModel:
 
         ev = self._compute_ev(confidence, final_action, reasons)
 
-        # BTC-adjusted confidence deliberately builds its OWN, separate
-        # reasons list (not appended to `reasons`/explanation above) -- it's
-        # shown in its own panel section, not folded into Decision
-        # Reasoning, so it never grows that section further.
-        btc_adjusted = self._compute_btc_adjusted(confidence, bias, btc_context, symbol)
+        # N5, 9 October 2026: the BTC-adjusted confidence was computed here,
+        # after everything above had decided, and nothing that decides read
+        # it -- only the record and the panel. Removed by Viktor's ruling of
+        # 5 October (point 7: Bitcoin is reference only); the panel's BTC
+        # section stays, printing what engine_core measured.
 
         if reasons:
             summary_index = action_reason_index if action_reason_index is not None else 0
@@ -251,7 +260,6 @@ class DecisionModel:
             "confidence": confidence,
             "trade_quality": trade_quality,
             "ev": ev,
-            "btc_adjusted": btc_adjusted,
             "explanation": explanation,
         }
 
@@ -457,8 +465,9 @@ class DecisionModel:
     # macro agrees" until work order G, 27 September 2026, removed the
     # macro condition.) Named and fingerprinted like every other decision-affecting
     # number in this file (AVG_REWARD_R, DEGRADED_CONFIDENCE_CEILING
-    # above; BTC_ADJUSTMENT_CAP, BTC_STRESS_PENALTY below) -- see
-    # core/decision_log.py's FINGERPRINTED_MODULES entry for this class.
+    # above; BTC_ADJUSTMENT_CAP and BTC_STRESS_PENALTY stood below until N5,
+    # 9 October 2026) -- see core/decision_log.py's FINGERPRINTED_MODULES
+    # entry for this class.
     #
     # RAW_BIAS_THRESHOLD (models/bias_engine.py) and MIN_ACTION_BIAS above
     # were mentioned in the same audit finding, alongside these three, but
@@ -960,160 +969,22 @@ class DecisionModel:
         }
 
     # ============================================================
-    # BTC-ADJUSTED CONFIDENCE (new feature, V1)
+    # BTC-ADJUSTED CONFIDENCE -- removed, N5, 9 October 2026
     # ============================================================
-
-    BTC_ADJUSTMENT_CAP = 20.0
-    BTC_STRESS_PENALTY = 15.0
-
-    def _compute_btc_adjusted(
-        self,
-        confidence: float,
-        bias: Dict[str, Any],
-        btc_context: Optional[Dict[str, Any]],
-        symbol: str = "this asset",
-    ) -> Dict[str, Any]:
-        """
-        A SEPARATE confidence reading that factors in BTC's own bias and how
-        closely AERO has been tracking BTC lately -- this NEVER changes
-        `confidence` above. Per the explicit requirement this was built to:
-        Bitcoin context is additive, shown as its own second number, never
-        a replacement for or distortion of the original AERO-only read.
-
-        The adjustment is bounded to +/-20 points, scaled by two things:
-        how relevant BTC even is right now (|correlation|) and how
-        convicted BTC's own bias is (|btc bias score|/100) -- a BTC bias
-        that's both weakly correlated with AERO AND barely committed to a
-        direction barely moves this number, by design. A broad
-        market-stress flag (BTC itself in an elevated volatility regime)
-        subtracts a further 15 points regardless of direction.
-        """
-        if not isinstance(btc_context, dict) or not btc_context.get("available"):
-            return {"available": False}
-
-        try:
-            aero_score = _safe_float(bias.get("score"), 0.0)
-            btc_score = _safe_float(btc_context.get("score"), 0.0)
-            # AUDIT FINDING (a), 5 September 2026. This was
-            # _safe_float(..., 0.0), so an unmeasured relationship arrived here
-            # as a correlation of exactly zero -- which is a measurement, and
-            # one that a real pair of independent assets produces. The
-            # arithmetic below happened to survive it (a zero correlation
-            # yields a zero adjustment), but the REASON STRING did not: it
-            # printed "AERO and BTC have a weak / no clear relationship
-            # (correlation +0.00 over the last 0 candles)" as a finding.
-            #
-            # correlation is None and n_obs is 0 when nothing was measured.
-            correlation_raw = btc_context.get("correlation")
-            correlation = _safe_float(correlation_raw, float("nan"))
-            n_obs = int(btc_context.get("n_observations", 0) or 0)
-            correlation_measured = (
-                correlation_raw is not None
-                and n_obs > 0
-                and math.isfinite(correlation)
-            )
-            correlation_label = str(btc_context.get("correlation_label", "NOT MEASURED"))
-            stress = bool(btc_context.get("broad_market_stress", False))
-            btc_detailed = str(btc_context.get("detailed", "NEUTRAL"))
-
-            # KIMI FINDING 2, 9 September 2026.
-            # Agreement used the bare sign of the score (>0 / <0) while the
-            # panel sentence used btc_detailed, which stays NEUTRAL until
-            # |score| exceeds RAW_BIAS_THRESHOLD (20). A score of +5 produced
-            # "BTC is also neutral, agreeing with AERO's own bias" — false.
-            # Direction for agreement uses the same band as the label.
-            from models.bias_engine import RAW_BIAS_THRESHOLD
-            def _side(score: float) -> int:
-                if score > RAW_BIAS_THRESHOLD:
-                    return 1
-                if score < -RAW_BIAS_THRESHOLD:
-                    return -1
-                return 0
-
-            aero_dir = _side(aero_score)
-            btc_dir = _side(btc_score)
-
-            if aero_dir != 0 and btc_dir != 0 and aero_dir == btc_dir:
-                agreement = 1
-            elif aero_dir != 0 and btc_dir != 0 and aero_dir != btc_dir:
-                agreement = -1
-            else:
-                agreement = 0
-
-            # AUDIT FINDING (a): an unmeasured correlation contributes
-            # nothing rather than contributing abs(nan). The stress penalty
-            # below does not depend on the pairing and still applies.
-            #
-            # KIMI FINDING 2 (same day): abs(correlation) discarded the sign
-            # of the relationship. Signed correlation participates: same-side
-            # agreement with a negative correlation reduces the adjustment
-            # rather than treating |r| as always supportive.
-            direction_adjustment = (
-                agreement * correlation * (abs(btc_score) / 100.0)
-                * self.BTC_ADJUSTMENT_CAP
-            ) if correlation_measured else 0.0
-            stress_penalty = self.BTC_STRESS_PENALTY if stress else 0.0
-            net_adjustment = direction_adjustment - stress_penalty
-
-            btc_adjusted_confidence = max(0.0, min(100.0, confidence + net_adjustment))
-
-            # SEQUENCE ITEM 12: the run's own symbol, not a hardcoded one.
-            # Trimmed of the quote currency so the sentence reads "AERO and
-            # BTC" rather than "AEROUSDT and BTC". Moved to asset_name() on
-            # 21 September so core/panel_render.py uses the same function.
-            asset = asset_name(symbol)
-
-            if agreement > 0:
-                agree_phrase = f"BTC is also {btc_detailed.lower()}, agreeing with {asset}'s own bias"
-            elif agreement < 0:
-                agree_phrase = f"BTC is {btc_detailed.lower()}, disagreeing with {asset}'s own bias"
-            else:
-                agree_phrase = "BTC isn't showing a clear directional bias either way right now"
-
-            # SEQUENCE ITEM 12. Two fixes in one string.
-            #
-            # "AERO" was hardcoded, so running on SOLUSDT produced reasoning
-            # about AERO — and running on BTCUSDT claimed to compare AERO
-            # against BTC while comparing BTC to itself.
-            #
-            # correlation_label already ENDS in the word "relationship"
-            # ("WEAK / NO CLEAR RELATIONSHIP"), and this appended another,
-            # printing "a weak / no clear relationship relationship" on every
-            # run for as long as the feature has existed.
-            label = correlation_label.lower()
-            if not label.endswith("relationship"):
-                label = f"{label} relationship"
-
-            if correlation_measured:
-                relationship_phrase = (
-                    f"{asset} and BTC have a {label} (correlation "
-                    f"{correlation:+.2f} over the last {n_obs} candles)"
-                )
-            else:
-                # AUDIT FINDING (a). The sentence this replaces asserted a
-                # relationship and a coefficient. Saying which is missing is
-                # the point -- "no adjustment was made" without the reason
-                # reads as a decision rather than an absence.
-                relationship_phrase = (
-                    f"the {asset}/BTC relationship could not be measured this "
-                    f"run (the two series share no paired timestamps), so no "
-                    f"correlation adjustment was applied"
-                )
-
-            reason = (
-                f"BTC-adjusted confidence: {btc_adjusted_confidence:.0f}/100 (vs {confidence:.0f}/100 unadjusted, "
-                f"never replacing it). {relationship_phrase}, and {agree_phrase}."
-            )
-            if stress:
-                reason += " BTC itself is in an elevated-volatility regime right now, a broad market-stress signal."
-
-            return {
-                "available": True,
-                "btc_adjusted_confidence": float(btc_adjusted_confidence),
-                "adjustment": float(net_adjustment),
-                "reasons": [reason],
-            }
-
-        except Exception as e:
-            logger.warning(f"BTC-adjusted confidence calculation failed: {e}")
-            return {"available": False}
+    #
+    # _compute_btc_adjusted stood here, with BTC_ADJUSTMENT_CAP (20.0) and
+    # BTC_STRESS_PENALTY (15.0): a second confidence figure, moved by up to
+    # 20 points either way -- BTC's bias strength times the pair's signed
+    # correlation, signed by whether BTC's side agreed -- and by 15 down
+    # under broad market stress, printed beside the real confidence with a
+    # sentence explaining it. It ran after the action, confidence, trade
+    # quality and EV were set, and nothing that decides read it: only the
+    # record and the panel. Nothing had tested whether it predicted anything
+    # (the 15 September PDF's point 3; the Part 7 document's N5).
+    #
+    # VIKTOR'S RULING, 5 October 2026 (point 7 of round 8's triage, by
+    # agreeing to Claude's suggestion): Bitcoin is reference only, "for
+    # bearing, not a mandatory thing". The panel's line goes and the BTC
+    # section stays. Whether the computation and its record field went with
+    # the line was left to the patch; they do, the reading the ruling named
+    # as Claude's.

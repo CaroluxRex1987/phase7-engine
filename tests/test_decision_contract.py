@@ -180,7 +180,9 @@ def test_the_btc_block_is_legal_in_both_of_its_shapes():
 
     from models.signal_router import SignalRouter
 
-    unavailable = SignalRouter()._merge_btc_context({}, {})
+    # N5, 9 October 2026: the merge's second argument, the BTC-adjusted
+    # confidence's dict, is gone.
+    unavailable = SignalRouter()._merge_btc_context({})
 
     assert unavailable == {"available": False}, (
         f"the unavailable BTC shape is {unavailable!r}, expected exactly "

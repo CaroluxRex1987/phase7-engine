@@ -249,7 +249,6 @@ def test_the_panel_does_not_print_a_correlation_it_does_not_have():
             "volatility": "NORMAL", "correlation": None,
             "correlation_label": "NOT MEASURED", "beta": None,
             "broad_market_stress": False, "n_observations": 0,
-            "btc_adjusted_confidence": 50.0, "reasons": [],
         },
     }
 
@@ -282,7 +281,6 @@ def test_the_panel_still_prints_a_correlation_it_does_have():
             "regime": "BULLISH TREND", "volatility": "NORMAL",
             "correlation": 0.57, "correlation_label": "MODERATE POSITIVE",
             "beta": 0.98, "broad_market_stress": False, "n_observations": 30,
-            "btc_adjusted_confidence": 78.33, "reasons": [],
         },
     }
 
@@ -296,76 +294,23 @@ def test_the_panel_still_prints_a_correlation_it_does_have():
 
 
 # ============================================================
-# The decision model
+# The decision model -- N5, 9 October 2026
 # ============================================================
-
-def _btc_ctx(**over):
-    base = {
-        "available": True, "score": 60.0, "detailed": "BULLISH CONFIRMED",
-        "correlation": 0.80, "correlation_label": "STRONG POSITIVE",
-        "beta": 1.0, "broad_market_stress": False, "n_observations": 30,
-    }
-    base.update(over)
-    return base
-
-
-def test_an_unmeasured_correlation_moves_the_confidence_by_nothing():
-    from models.decision_model import DecisionModel
-
-    model = DecisionModel()
-    bias = {"score": 60.0, "raw": "BULLISH"}
-
-    out = model._compute_btc_adjusted(
-        70.0, bias,
-        _btc_ctx(correlation=None, correlation_label="NOT MEASURED",
-                 beta=None, n_observations=0),
-        symbol="TESTUSDT")
-
-    assert out["available"] is True
-    assert math.isfinite(out["btc_adjusted_confidence"]), (
-        f"btc_adjusted_confidence is {out['btc_adjusted_confidence']!r} — a "
-        f"NaN correlation propagated into the number the panel prints"
-    )
-    assert out["adjustment"] == pytest.approx(0.0), (
-        f"adjusted by {out['adjustment']} on a relationship that was never "
-        f"measured"
-    )
-    assert out["btc_adjusted_confidence"] == pytest.approx(70.0)
-
-
-def test_a_measured_correlation_still_adjusts():
-    """Negative control: gating on 'measured' must not disable the feature."""
-    from models.decision_model import DecisionModel
-
-    model = DecisionModel()
-    out = model._compute_btc_adjusted(
-        70.0, {"score": 60.0, "raw": "BULLISH"}, _btc_ctx(), symbol="TESTUSDT")
-
-    assert out["adjustment"] > 0.0, (
-        "a strong positive correlation with an agreeing BTC produced no "
-        "adjustment — the gate is swallowing real readings"
-    )
-
-
-def test_the_reason_string_does_not_claim_a_relationship_it_lacks():
-    from models.decision_model import DecisionModel
-
-    model = DecisionModel()
-    out = model._compute_btc_adjusted(
-        70.0, {"score": 60.0, "raw": "BULLISH"},
-        _btc_ctx(correlation=None, correlation_label="NOT MEASURED",
-                 beta=None, n_observations=0),
-        symbol="TESTUSDT")
-
-    reason = " ".join(out["reasons"]).lower()
-
-    assert "could not be measured" in reason, (
-        f"the reason does not say the pairing failed: {reason!r}"
-    )
-    assert "+0.00" not in reason and "over the last 0 candles" not in reason, (
-        f"the reason still quotes a coefficient measured on nothing: {reason!r}"
-    )
-    assert "relationship relationship" not in reason
+#
+# Three tests stood here, with their helper _btc_ctx(), and went with what
+# they tested: DecisionModel._compute_btc_adjusted, the BTC-adjusted
+# confidence, removed by Viktor's ruling of 5 October (point 7: Bitcoin is
+# reference only).
+#
+#   test_an_unmeasured_correlation_moves_the_confidence_by_nothing
+#   test_a_measured_correlation_still_adjusts (its negative control)
+#   test_the_reason_string_does_not_claim_a_relationship_it_lacks
+#
+# Audit finding (a)'s half that lived in the decision model -- an unmeasured
+# correlation must not move a number or be described as a relationship -- has
+# no subject left: nothing outside the BTC block reads the correlation now.
+# The panel's half stays above. tests/test_btc_is_reference_only.py checks
+# that the adjustment does not come back.
 
 
 # ============================================================

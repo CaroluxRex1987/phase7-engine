@@ -10,16 +10,12 @@
     "available": true,
     "beta": -0.04925435,
     "broad_market_stress": false,
-    "btc_adjusted_confidence": 77.64597223,
     "correlation": -0.0426301,
     "correlation_label": "WEAK / NO CLEAR RELATIONSHIP",
     "degraded_inputs": [],
     "detailed": "BEARISH CONFIRMED",
     "n_observations": 30,
     "raw": "BEARISH",
-    "reasons": [
-      "BTC-adjusted confidence: 78/100 (vs 77/100 unadjusted, never replacing it). TEST and BTC have a weak / no clear relationship (correlation -0.04 over the last 30 candles), and BTC is bearish confirmed, disagreeing with TEST's own bias."
-    ],
     "regime": "BEARISH TREND",
     "trend_health": 97.0,
     "volatility": "MEDIUM VOLATILITY"
@@ -76,7 +72,7 @@
   },
   "lineage": {
     "archive": {
-      "path": "logs/pinned/archive/testusdt_4h_ea05e1f165096677.json.gz",
+      "path": "logs/pinned/archive/testusdt_4h_40dcdc72d284c7cb.json.gz",
       "pruned_this_run": 0,
       "retention_days": 90
     },
@@ -199,11 +195,11 @@
       "risk_regime": "NORMAL RISK",
       "volatility_state": "MEDIUM VOLATILITY"
     },
-    "run_hash": "ea05e1f165096677d67b751de0efe0f9008fb6f9db1fabbafe2b6a4cbeb00801"
+    "run_hash": "40dcdc72d284c7cbcec761a4cdb709e77b144ff6a57c3ba71499ed508685bec1"
   },
   "macro_bias": "BULLISH",
   "provenance": {
-    "archive_path": "logs/pinned/archive/testusdt_4h_ea05e1f165096677.json.gz",
+    "archive_path": "logs/pinned/archive/testusdt_4h_40dcdc72d284c7cb.json.gz",
     "canonical_format": 1,
     "decision_candles": {
       "btc": {
@@ -268,8 +264,6 @@
         "DecisionModel.AGGRESSIVE_ENTRY_SCORE_MIN": 70.0,
         "DecisionModel.AGGRESSIVE_TREND_HEALTH_MIN": 75.0,
         "DecisionModel.AVG_REWARD_R": 2.0,
-        "DecisionModel.BTC_ADJUSTMENT_CAP": 20.0,
-        "DecisionModel.BTC_STRESS_PENALTY": 15.0,
         "DecisionModel.CONSERVATIVE_TREND_HEALTH_MIN": 50.0,
         "DecisionModel.DEGRADED_CONFIDENCE_CEILING": 50.0,
         "DecisionModel.EV_BREAKEVEN_BAND_R": 0.3,
@@ -307,7 +301,7 @@
     },
     "prior_state": {},
     "row_count": 450,
-    "run_hash": "ea05e1f165096677d67b751de0efe0f9008fb6f9db1fabbafe2b6a4cbeb00801",
+    "run_hash": "40dcdc72d284c7cbcec761a4cdb709e77b144ff6a57c3ba71499ed508685bec1",
     "source": "pinned"
   },
   "risk": {

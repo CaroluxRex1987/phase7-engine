@@ -21,7 +21,7 @@ by one person, with heavy AI assistance.**
 | Constitution | Ratified 26 August 2026. Rules frozen at 21 / 7 / 10 / 6 = 44. Scope freeze lifted 27 August; no amendments adopted since. |
 | Independent audit | **The original four-run audit, plus five further rounds since** (2, 5, 5, 12 and 13 September) — three of them both independent and complete: round 2 produced no report, and round 3's reviewer was not independent (see below). Every Critical Tier 1 finding any of them raised has a landed, independently re-audited fix. The engine has changed since the last round's fix-verification (14 September) — on 21 September its entry signals were made to confirm each trade — and none of those changes has been independently re-audited yet; the next round is paused, by my decision on 21 September, until work order G and my rulings on six open findings are done (decided 22 September; anything found meanwhile waits for after the audit). Full record in [`docs/audit_reports/`](docs/audit_reports/). |
 | Engine code | **All Criticals resolved.** The original four, plus three more a later round found — see below. All sixteen remediation-sequence items complete. |
-| Tests | 763 pass with `pandas_ta` installed (609 pass, 143 skip without it). The fixture-free runner (`run_tests.py`) reports 692 passed, 0 failed, 32 errors — all from tests written with pytest fixtures that runner deliberately doesn't support, not defects; see its own docstring. |
+| Tests | 763 pass with `pandas_ta` installed (611 pass, 141 skip without it). The fixture-free runner (`run_tests.py`) reports 692 passed, 0 failed, 32 errors — all from tests written with pytest fixtures that runner deliberately doesn't support, not defects; see its own docstring. |
 | Release gate | **Open.** Declared 15 September 2026, tagged `portfolio-v1` in this repository — see below. |
 | Backtesting | Not yet rebuilt. The Constitution's own separate condition for starting it — Items 2, 3, 6 and 18 all Compliant — has not been formally re-checked since the release gate opened, though nothing currently on record contradicts it. It also waits on an independent re-audit of the changes made since 14 September (the Constitution's step 8), and on rulings of mine the engine needs first — among them which candle a decision is made on and where an entry fills. |
 | Live trading | Read-only market access only. The engine cannot place orders — enforced by five guards, each verified by injecting its violation. |
@@ -87,11 +87,12 @@ targets above it **regardless of trade direction**, inverted for a short and pri
 real plan; and an entry-blocking gate that had never once fired because it compared
 against labels nothing writes — while four modules acted on its result.
 
-The engine has **not** been shown to predict anything. One component
-(BTC-Adjusted Prediction) is correctness-validated — it computes what it was
-designed to compute — but empirically unvalidated. Under Tier 1, Item 7 of the
-constitution that status has to be stated plainly rather than implied away, so it is
-stated here.
+The engine has **not** been shown to predict anything: no part of it is empirically
+validated. Under Tier 1, Item 7 of the constitution that status has to be stated
+plainly rather than implied away, so it is stated here. (Until 9 October 2026 this
+paragraph named one component, the BTC-Adjusted Prediction, as correctness-validated
+but empirically unvalidated. It was removed then; the panel keeps its Bitcoin section
+for reference only.)
 
 Do not use this to trade. It is published as a working record and an engineering
 artifact, not as a tool that works.
@@ -252,7 +253,7 @@ It discards a passing test's output and prints a failing one's, which is not a c
 choice: two defects were found in output that a *passing* test had been burying, and one
 of them was a chart renderer failing silently for as long as anyone can tell.
 
-**All tests currently pass.** 763 with `pandas_ta` installed, 609 (plus 143 skipped)
+**All tests currently pass.** 763 with `pandas_ta` installed, 611 (plus 141 skipped)
 without it. `run_tests.py` reports 32 errors, not failures — from tests written with
 pytest fixtures (`monkeypatch`, `tmp_path`, and similar) that this fixture-free
 runner deliberately doesn't support, since supporting them would mean re-implementing

@@ -238,7 +238,12 @@ FINGERPRINTED_MODULES = {
     "models.decision_model": [
         "MIN_ACTION_BIAS",
         "DecisionModel.DEGRADED_CONFIDENCE_CEILING",
-        "DecisionModel.BTC_ADJUSTMENT_CAP",
+        # N5, 9 October 2026: "DecisionModel.BTC_ADJUSTMENT_CAP" stood here,
+        # and "DecisionModel.BTC_STRESS_PENALTY" below. The BTC-adjusted
+        # confidence they bounded is gone (Viktor's ruling of 5 October,
+        # point 7: Bitcoin is reference only), and both constants with it, so
+        # both names leave the run-hash payload -- which moves run_hash, and
+        # with it the archive's file name.
         "DecisionModel.AGGRESSIVE_TREND_HEALTH_MIN",
         "DecisionModel.AGGRESSIVE_ENTRY_SCORE_MIN",
         "DecisionModel.CONSERVATIVE_TREND_HEALTH_MIN",
@@ -252,8 +257,8 @@ FINGERPRINTED_MODULES = {
         # what the record could not say was which value a run used. Adding
         # them changes run_hash (this dict is part of its payload) and so the
         # archive's file name -- predicted, and the golden snapshot
-        # re-baselined in the same commit.
-        "DecisionModel.BTC_STRESS_PENALTY",
+        # re-baselined in the same commit. BTC_STRESS_PENALTY left with N5
+        # (above).
         "DecisionModel.AVG_REWARD_R",
         "DecisionModel.EV_BREAKEVEN_BAND_R",
     ],

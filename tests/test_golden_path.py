@@ -95,6 +95,10 @@ snapshot matches" can never be mistaken for "the output is correct", whether
 that assertion is failing (a live defect) or passing (a fixed one still worth
 watching).
 
+N5, 9 October 2026: the doubled-word guard is gone, with the BTC sentence it
+guarded (Viktor's ruling of 5 October, point 7: the BTC-adjusted confidence is
+removed). The "AERO" guard stays.
+
 A baseline captured while something is quietly broken pins the broken behaviour
 as the reference. That happened for real on 30 August: the chart renderer's NaN
 repair had been raising and being swallowed for as long as anyone can tell, and
@@ -627,11 +631,13 @@ def test_explanation_does_not_name_a_hardcoded_symbol():
     decision = _run()
     reasons = " ".join(decision.get("explanation", {}).get("reasons", []))
     btc = decision.get("btc_context", {}) or {}
-    btc_reasons = " ".join(
-        (btc.get("btc_adjusted", {}) or {}).get("reasons", [])
-        if isinstance(btc.get("btc_adjusted"), dict) else []
-    )
-    haystack = (reasons + " " + btc_reasons + " " + str(btc)).upper()
+    # N5, 9 October 2026: a read of btc["btc_adjusted"]["reasons"] stood here.
+    # At 9e507b1 the BTC block carried no "btc_adjusted" key -- the router
+    # merged the adjustment's sentence in as btc["reasons"] -- so str(btc)
+    # below was what searched it. The sentence and btc["reasons"] are gone
+    # with the BTC-adjusted confidence; the explanation and the whole BTC
+    # block are still searched.
+    haystack = (reasons + " " + str(btc)).upper()
 
     assert "AERO" not in haystack, (
         "the engine was run on TESTUSDT and its explanation names AERO.\n"
@@ -641,31 +647,9 @@ def test_explanation_does_not_name_a_hardcoded_symbol():
     )
 
 
-def test_correlation_phrase_is_not_doubled():
-    """
-    btc_context returns labels that already end in the word "relationship" —
-    e.g. "WEAK / NO CLEAR RELATIONSHIP" — and decision_model appends
-    " relationship" to them, producing:
-
-        "a weak / no clear relationship relationship"
-
-    Cosmetic, but it appears in output the trader reads, and it is one line to
-    fix.
-
-    STALE-LABEL RE-AUDIT, 1 September 2026: this docstring said "EXPECTED TO
-    FAIL until sequence item 12" from v3 onward. Item 12 fixed the doubled
-    word before the item 16 audit engagement began, and this test has been
-    passing since -- confirmed here, not assumed. Kept as a regression guard.
-    """
-    if not _engine_available():
-        pytest.skip("pandas_ta not installed")
-
-    decision = _run()
-    btc = decision.get("btc_context", {}) or {}
-    text = str(btc).lower()
-
-    assert "relationship relationship" not in text, (
-        "the BTC reasoning contains a doubled word: 'relationship relationship'.\n"
-        "models/decision_model.py:419 appends ' relationship' to a label that "
-        "already ends in it."
-    )
+# N5, 9 October 2026: test_correlation_phrase_is_not_doubled stood here. The
+# doubled "relationship relationship" was built by the BTC-adjusted
+# confidence's sentence, which is gone with it (Viktor's ruling of 5 October,
+# point 7); kept, the test would pass on a decision object that holds no such
+# sentence at all. tests/test_btc_is_reference_only.py checks that the
+# sentence does not come back.

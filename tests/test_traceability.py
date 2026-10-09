@@ -234,87 +234,19 @@ def test_the_panel_makes_no_unconditional_claims_about_files():
     )
 
 
-def test_the_explanation_names_the_symbol_under_analysis():
-    """
-    Item 10(a) rider. "AERO" was hardcoded into the BTC reasoning, so running
-    on any other pair produced text about AERO — and running on BTCUSDT claimed
-    to compare AERO against BTC while comparing BTC to itself.
-    """
-    if not _engine_available():
-        pytest.skip("pandas_ta not installed")
-
-    from models.decision_model import DecisionModel
-
-    btc_context = {
-        "available": True, "raw": "BEARISH", "detailed": "BEARISH CONFIRMED",
-        "correlation": -0.04, "correlation_label": "WEAK / NO CLEAR RELATIONSHIP",
-        "beta": -0.05, "broad_market_stress": False, "n_observations": 30,
-        "score": -60.0,
-    }
-    out = DecisionModel()._compute_btc_adjusted(
-        confidence=70.0,
-        bias={"score": 80.0, "raw": "BULLISH"},
-        btc_context=btc_context,
-        symbol="SOLUSDT",
-    )
-    text = " ".join(out.get("reasons", []))
-
-    assert "AERO" not in text.upper(), (
-        f"the engine was run on SOLUSDT and its BTC reasoning names AERO:\n  {text}"
-    )
-    assert "SOL" in text.upper(), (
-        f"the reasoning does not name the asset under analysis:\n  {text}"
-    )
-
-
-def test_the_correlation_phrase_is_not_doubled():
-    """
-    correlation_label already ends in "relationship". The sentence appended
-    another, printing "a weak / no clear relationship relationship" on every
-    run for as long as the BTC feature has existed.
-    """
-    if not _engine_available():
-        pytest.skip("pandas_ta not installed")
-
-    from models.decision_model import DecisionModel
-
-    out = DecisionModel()._compute_btc_adjusted(
-        confidence=70.0,
-        bias={"score": 80.0, "raw": "BULLISH"},
-        btc_context={
-            "available": True, "raw": "BEARISH", "detailed": "BEARISH CONFIRMED",
-            "correlation": -0.04, "correlation_label": "WEAK / NO CLEAR RELATIONSHIP",
-            "beta": -0.05, "broad_market_stress": False, "n_observations": 30,
-            "score": -60.0,
-        },
-        symbol="AEROUSDT",
-    )
-    text = " ".join(out.get("reasons", [])).lower()
-
-    assert "relationship relationship" not in text, (
-        f"the doubled word is back:\n  {text}"
-    )
-    assert "relationship" in text, (
-        "the phrase lost the word entirely — the fix should deduplicate, not delete"
-    )
-
-
-def test_the_btc_number_carries_its_validation_status():
-    """
-    Item 7: a component that is correctness-validated but empirically
-    unvalidated must say so rather than let a number imply otherwise.
-
-    Nothing has tested whether adjusting confidence by BTC correlation predicts
-    anything. The panel prints it to two decimal places, which implies a great
-    deal.
-    """
-    from conftest import REPO_ROOT
-
-    with open(os.path.join(REPO_ROOT, "core", "panel_render.py"), encoding="utf-8") as f:
-        source = f.read()
-
-    assert "empirically unvalidated" in source, (
-        "the BTC-adjusted confidence line carries no validation-status label. "
-        "Item 7 requires the status to be stated, and a bare number states the "
-        "opposite."
-    )
+# N5, 9 October 2026: three tests stood here, and went with what they tested
+# (Viktor's ruling of 5 October, point 7: Bitcoin is reference only; the
+# BTC-adjusted confidence is gone).
+#
+#   test_the_explanation_names_the_symbol_under_analysis -- the adjustment's
+#     sentence named the run's asset, not "AERO" (Item 10(a) rider). The
+#     sentence is gone. The panel's BTC section still names the asset, and
+#     tests/test_panel_prints_only_what_was_computed.py holds it to that.
+#   test_the_correlation_phrase_is_not_doubled -- the same sentence did not
+#     say "relationship relationship". Nothing builds that phrase now.
+#   test_the_btc_number_carries_its_validation_status -- core/panel_render.py
+#     carried Item 7's status line under the BTC-adjusted confidence. The
+#     number and its line are gone. Kept, the test would fail; kept with the
+#     wording left in a comment, it would pass while guarding nothing.
+#
+# tests/test_btc_is_reference_only.py checks that none of it comes back.

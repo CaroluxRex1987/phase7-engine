@@ -84,7 +84,9 @@ def _producer_shape(**over):
         "available": True,
         "raw": "BULLISH",
         "detailed": "BULLISH CONFIRMED",
-        "score": 60.0,
+        # N5, 9 October 2026: "score": 60.0 stood here. engine_core no longer
+        # hands BTC's bias score to the router; its only reader, the
+        # BTC-adjusted confidence, is gone.
         "regime": "TRENDING",
         "volatility": "NORMAL",
         "trend_health": 71.0,
@@ -103,11 +105,11 @@ def _producer_shape(**over):
 # The merge accepts what the producer emits
 # ============================================================
 
+# N5, 9 October 2026: each merge below took a second argument, the
+# BTC-adjusted confidence's own dict. It is gone, and the merge takes one.
+
 def test_the_merge_accepts_the_producers_not_measured_shape():
-    merged = _router()._merge_btc_context(
-        _producer_shape(),
-        {"available": True, "btc_adjusted_confidence": 52.0, "reasons": []},
-    )
+    merged = _router()._merge_btc_context(_producer_shape())
     assert merged["available"] is True
     assert merged["correlation"] is None
     assert merged["beta"] is None
@@ -120,10 +122,7 @@ def test_an_unmeasured_correlation_does_not_arrive_as_a_measurement():
     finding the engine does not have — the defect already removed from
     btc_context.py's (0.0, 0.0, 0), trend_health's 50.0 and RSI's 50.0.
     """
-    merged = _router()._merge_btc_context(
-        _producer_shape(),
-        {"available": True, "btc_adjusted_confidence": 52.0, "reasons": []},
-    )
+    merged = _router()._merge_btc_context(_producer_shape())
     assert merged["correlation"] != 0.0
     assert merged["beta"] != 0.0
     assert merged["n_observations"] == 0
@@ -137,7 +136,6 @@ def test_a_measured_relationship_passes_through_unchanged():
     merged = _router()._merge_btc_context(
         _producer_shape(correlation=-0.9012, beta=1.37, n_observations=30,
                         correlation_label="STRONG NEGATIVE"),
-        {"available": True, "btc_adjusted_confidence": 64.5, "reasons": ["x"]},
     )
     assert merged["correlation"] == pytest.approx(-0.9012)
     assert merged["beta"] == pytest.approx(1.37)
@@ -152,10 +150,7 @@ def test_a_value_that_is_not_a_finite_number_is_not_measured(bad):
     to None at its own boundary. If a future producer stops converting, the
     merge must still not crash and must still not invent a number.
     """
-    merged = _router()._merge_btc_context(
-        _producer_shape(correlation=bad),
-        {"available": True, "btc_adjusted_confidence": 52.0, "reasons": []},
-    )
+    merged = _router()._merge_btc_context(_producer_shape(correlation=bad))
     assert merged["correlation"] is None
 
 

@@ -22,7 +22,9 @@ AERO-only analysis." Viktor ruled: BTC context is informational, a bonus to
 consider, and must never gate AERO's own confidence or trading
 authorization -- the same relationship `btc_adjusted_confidence` already has
 with the main `confidence_score` (a separate, clearly-labelled number, never
-a gate).
+a gate). (N5, 9 October 2026: `btc_adjusted_confidence` is gone, by Viktor's
+ruling of 5 October; the BTC block is reference only, and still never a
+gate.)
 
 Item 11's own motivation was real, though: a BTC indicator failure should not
 be silently dropped with nothing but a log line. So the fix keeps it

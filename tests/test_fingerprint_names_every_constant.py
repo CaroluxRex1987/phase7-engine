@@ -29,6 +29,11 @@ What it deliberately does not count, each for a stated reason:
 
 Without pandas_ta the scan is skipped, not narrowed -- see the test.
 
+N5, 9 October 2026: BTC_ADJUSTMENT_CAP and BTC_STRESS_PENALTY left the code
+and the list with the BTC-adjusted confidence (Viktor's ruling of 5 October,
+point 7). The two of the three found on 21 September that remain are checked
+below; the scanner's own control now reads DEGRADED_CONFIDENCE_CEILING.
+
 Fixture-free, per run_tests.py.
 """
 
@@ -84,11 +89,10 @@ def test_every_numeric_constant_in_a_fingerprinted_module_is_listed():
     )
 
 
-def test_the_three_found_on_21_september_are_recorded_with_their_values():
+def test_the_two_found_on_21_september_that_remain_are_recorded_with_their_values():
     from core import decision_log
 
     snap = decision_log.module_snapshot()["models.decision_model"]
-    assert snap["DecisionModel.BTC_STRESS_PENALTY"] == 15.0
     assert snap["DecisionModel.AVG_REWARD_R"] == 2.0
     assert snap["DecisionModel.EV_BREAKEVEN_BAND_R"] == 0.3
 
@@ -102,7 +106,7 @@ def test_the_scan_sees_class_constants_and_skips_sentinels():
 
     found = _named_constants(decision_model)
     assert "MIN_ACTION_BIAS" in found
-    assert "DecisionModel.BTC_ADJUSTMENT_CAP" in found
+    assert "DecisionModel.DEGRADED_CONFIDENCE_CEILING" in found
     assert "DecisionModel.SIGNAL_UNCONFIRMED" not in found   # a label
     assert "NOT_MEASURED" not in _named_constants(btc_context)  # NaN sentinel
     assert "CORRELATION_WINDOW" in _named_constants(btc_context)

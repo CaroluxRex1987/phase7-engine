@@ -13,6 +13,11 @@ from typing import Tuple
 # BTC's own bias/trend/regime reuses the exact same, already-tested
 # bias_engine.py / trend_health.py / structure.py functions engine_core.py
 # already runs for AERO -- just called a second time on BTC's own data.
+#
+# N5, 9 October 2026: the BTC-Adjusted prediction itself -- DecisionModel's
+# BTC-adjusted confidence -- is gone (Viktor's ruling of 5 October, point 7:
+# Bitcoin is reference only). What this module measures is still printed in
+# the panel's BTC section, for reference.
 
 
 # AUDIT FINDING (a), 5 September 2026. NOT_MEASURED is what this module

@@ -3543,6 +3543,88 @@ Round 8 also called the archive sentence sound (Part 6, B3). The other six requi
 sentences were written and checked by Claude alone before the send; round 8 questioned
 none of them, and they are not re-checked here.
 
+## Position, 6 October 2026 — all the work and the list for after the audit first, then one full audit by Amazon; not ruled
+
+*New in this file on 9 October 2026, filed with N5's commit, the first commit after the
+session that took it. That session ran from 6 to 9 October and landed no commit (B6 had
+landed at `9e507b1` before it opened). Filed from the resume note it kept,
+`Docs\01_Handovers_and_Resume_Prompts\Phase7_Resume_2026-10-06.md` in
+`G:\Phase_7_Engine_Random_Files` (4,330 bytes, SHA-256 `bb17b855…`), and checked
+against the session's chat, which the filing session could read. Nothing here is ruled:
+the positions are Viktor's, the critique is Claude's, and the open questions are his.*
+
+**Viktor's position, 6 October, 23:42**, in his words:
+
+> Well, we are going to do all the work + the after audit list. Then we will use Amazon
+> Bedrock A.I or whatever its name was. I will sort the billing out so that we can use it.
+
+> So i think it was good we never used the Amazon A.I. we sorted it out anyway and we have
+> the best one left.
+
+**Claude's critique, given in the same session.**
+
+1. **Agrees with the order.** On the roster (30 September), Amazon (Nova 2 Pro, a
+   preview release) is the last lab still clean for a full round. Spending it once, on
+   the engine as it will be backtested, is the right use. Audited before the list for
+   after the audit, the list's trading-rule changes would need another independent
+   audit (Constitution, step 8), with no clean full-round lab left.
+2. **The test bugs.** The four known defects that score an auditor come from the list
+   for after the audit ("Ruling, 29 September 2026 — what the auditor sees, and no
+   planted bugs"; "Ruling, 29 September 2026 — the test bugs: four usable, and four is
+   enough"). If the whole list is fixed first, nothing is left to score Amazon with, and
+   the rule that an auditor finding fewer than half runs a second time goes blind. The
+   options: keep a few known defects unfixed as test bugs; reopen "plant nothing"; audit
+   without the check.
+3. **Amazon stays clean until the send.** No Amazon model sees anything from the project
+   before it, billing tests included. A probe carrying nothing from the package is fine,
+   as in round 8.
+4. **Not checked since 22 September** (the roster's model facts): whether Nova 2 Pro can
+   be reached in Bedrock on Viktor's account, and whether the full package fits its
+   served context and output cap. The Bedrock check of 1 October was left unfinished. It
+   goes on that round's preparation list.
+
+**Who decides what.** The plan is Viktor's, since it is his position, and so is
+point 2. Running the audit itself — the package, the checks, the send — is Claude's, as
+Claude reads the delegation of 4 October; that reading is Viktor's to change. Also
+Claude's reading, not confirmed with Viktor: "all the work" includes the fix
+verification by round 8's auditor, MiMo-V2.6-Pro, which is what reopens the release gate
+("Ruling, 5 October 2026 — round 8 triaged …", point 2).
+
+**Viktor's thought, 7 October, 12:50 and 12:53**, not ruled:
+
+> I am thinking that that after backtesting and paper trading for a year, the engine will
+> be tuned in sync with those numbers...
+
+> I mean, after all those trades the engine does over a year (papertrading) the engine
+> made a prediction, then we tune the engine to match what actually happened... No?
+
+**Claude's critique.** Tuning after the year fits the ruling of 28 September, which
+keeps tuning out of the year itself. But the trades used for tuning cannot also judge
+the tuned engine: fitted to them, they look good by construction. The tuned engine is a
+new version, and its score comes from data it has not seen — a fresh stretch of paper
+trading, or a backtest window kept out of the tuning. The rules already say so: Goal B's
+re-run clause for backtests, and the finish line's "100 closed trades from one engine
+version" for paper trading. Claude's suggestion: tune few settings, and name them before
+the year starts. Many settings fitted to few trades fit noise, and every tuning round
+costs a new evidence period.
+
+**Open — Viktor's.** Named here, not ruled. For 2, 3, 5 and 6 he writes his position
+first.
+
+1. Whether to start with N5 on Friday. Answered on 9 October by starting it
+   ("Continue Phase 7, start N5").
+2. How Amazon's audit is scored if the whole list is fixed first (point 2 above).
+3. Whether Amazon's audit is the one whose ratings count toward opening backtesting
+   ("Ruling, 4 October 2026 — round 8's result …", "What follows", point 3).
+4. Whether "all the work" includes round 8's fix verification. Claude's reading: yes.
+5. How a candle that touches both the stop and T1 is counted, ruled before any backtest
+   result exists.
+6. Which few settings may be tuned after the paper-trading year, named before it starts.
+7. The Bedrock billing; after it, the check of reach and fit, which is Claude's.
+
+**What filing this weakens.** Nothing in the engine. A position is not a ruling: nothing
+here binds a later session beyond asking these questions.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then
