@@ -333,11 +333,31 @@ def validate_ohlcv(df, timeframe=None, now=None):
                 f"four and the low the lowest.")
 
     # --- the time axis ---------------------------------------------------
+    #
+    # ROUND 8, F3, 10 October 2026: a frame without a readable time axis is
+    # rejected. It used to be accepted here -- "some callers hand over a
+    # positionally-indexed frame" -- and every temporal check below was skipped
+    # without a word: missing candles, duplicates, order, spacing, future-dated,
+    # forming and stale data, five of Item 3's named classes. A pinned file with
+    # its `timestamp` column removed then became a full panel and a decision
+    # record whose decision candle was a row number. No caller in the engine
+    # hands over such a frame: load_csv and fetch_ohlc both index by time. The
+    # caller with nothing to say about time is the one that must say so.
+    if not isinstance(df.index, pd.DatetimeIndex) and "timestamp" not in df.columns:
+        return ("no time axis: the frame has neither a DatetimeIndex nor a "
+                "'timestamp' column. Missing, duplicated, out-of-order, "
+                "future-dated, forming and stale candles cannot be detected "
+                "without one, and the decision candle could not be named.")
     ts = _timestamps(df)
     if ts is None:
-        # No time axis at all. Not an error by itself — some callers hand over
-        # a positionally-indexed frame — but nothing below can be checked.
-        return None
+        return ("unreadable time axis: the 'timestamp' column could not be read "
+                "as epoch milliseconds, so none of the time checks can run.")
+    n_nat = int(ts.isna().sum())
+    if n_nat:
+        i = int(ts.isna().to_numpy().argmax())
+        return (f"{n_nat} missing timestamp(s), first at index {i}. A candle "
+                f"with no time cannot be placed in the series or checked for "
+                f"order, spacing or currency.")
 
     n_dupes = int(ts.duplicated().sum())
     if n_dupes:
