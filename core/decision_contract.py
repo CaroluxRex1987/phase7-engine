@@ -136,6 +136,7 @@ class EntryBlock(TypedDict):
     long_signal_blockers: List[str]
     short_signal_blockers: List[str]
     score: float
+    # From the band's midpoint, as a percentage of the close (round 8, F5).
     distance_from_zone: float
     entry_status: str
     ema_pos_pts: float

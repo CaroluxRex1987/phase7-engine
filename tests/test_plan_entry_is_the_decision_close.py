@@ -159,7 +159,8 @@ def test_no_line_calls_the_band_an_entry_zone():
     assert "not the entry" in band[0], band[0]
     distance = _lines(panel, "BAND DISTANCE")
     assert len(distance) == 1, distance
-    assert "5.44% away from the band" in distance[0], distance[0]
+    # Round 8, F5 (10 October 2026): the distance is from the band's midpoint.
+    assert "5.44% from the band's midpoint" in distance[0], distance[0]
 
 
 # ============================================================

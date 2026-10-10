@@ -401,7 +401,10 @@ def test_the_panel_does_not_print_a_zone_it_does_not_have():
         f"the panel still prints $0.0000 - $0.0000 for an absent zone. Zero "
         f"is a price. Lines: {lines!r}"
     )
-    assert "0.00% away from the band" not in lines, (
+    # "0.00%", not the whole old phrase: round 8's F5 relabelled the line
+    # (10 October 2026), and a phrase the panel no longer prints would make
+    # this assertion pass whatever the panel printed.
+    assert "0.00%" not in lines, (
         f"the panel still prints 0.00% away — price sitting exactly on a "
         f"zone that was never found, which is the strongest claim this line "
         f"can make. Lines: {lines!r}"
@@ -420,5 +423,5 @@ def test_the_panel_still_prints_a_zone_it_does_have():
     lines = _entry_lines(panel)
 
     assert "$0.4918 - $0.4981" in lines, lines
-    assert "5.44% away from the band" in lines, lines
+    assert "5.44% from the band's midpoint" in lines, lines
     assert "not located" not in lines, lines

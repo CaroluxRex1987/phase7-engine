@@ -206,6 +206,10 @@ def calculate_entry_quality(
         zone_mid = (zone_lower + zone_upper) / 2.0
         zone_width = abs(zone_upper - zone_lower)
         dist_to_mid = abs(close - zone_mid)
+        # distance_from_zone's definition (round 8, F5, 10 October 2026): the
+        # distance from the band's MIDPOINT, as a percentage of the close --
+        # not from the band's nearer edge, and not zero inside the band. The
+        # panel labels it so ("from the band's midpoint").
         distance_from_zone = float((dist_to_mid / close) * 100.0)
 
         if zone_width <= 1e-8:

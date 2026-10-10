@@ -570,6 +570,16 @@ def render_panel(decision):
             entry_status's values are unchanged: entry_status is read by
             decision_model (`"ACTIVE" in entry_status`), and renaming it is a
             decision-path change the ruling did not ask for.
+
+            ROUND 8, F5, 10 October 2026 -- the label and record batch
+            (DECISIONS, "Ruling, 5 October 2026 -- round 8 triaged ...",
+            point 8). The distance line read "x% away from the band", while
+            distance_from_zone is the distance from the band's MIDPOINT as a
+            percentage of the close (entry_model). With the close inside the
+            band it printed a positive distance "away from the band" under
+            STATUS : ACTIVE ENTRY ZONE -- on the real run of 30 September,
+            1.40%. The line now names what was measured; the number, the key
+            and the entry score are unchanged.
             """
             band = f"(EMA {config.EMA_FAST} and EMA {config.EMA_SLOW})"
             lower = safe_float(entry.get("zone_lower"), float("nan"))
@@ -588,7 +598,9 @@ def render_panel(decision):
                 )
 
             if math.isfinite(distance):
-                distance_line = f"BAND DISTANCE : {distance:.2f}% away from the band\n"
+                distance_line = (
+                    f"BAND DISTANCE : {distance:.2f}% from the band's midpoint\n"
+                )
             else:
                 distance_line = "BAND DISTANCE : not measured\n"
 
