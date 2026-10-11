@@ -87,14 +87,44 @@ def clean_series(series: pd.Series, method: str = "forward_fill", fallback_value
 
     Args:
         series: Input series to clean
-        method: 'forward_fill', 'interpolate', 'drop', or 'fill_value'
+        method: 'forward_fill' or 'fill_value'. Any other name raises
+            ValueError (round 8's F6; see the comment above the methods).
         fallback_value: Value to use when method='fill_value' — the one
             explicit substitution left, and the caller has to ask for it by
-            name and supply the number itself.
+            name and supply the number itself. 'fill_value' without it
+            raises ValueError.
 
     Returns:
         Cleaned series. May contain NaN. That is the point.
     """
+    # ROUND 8's F6, 11 October 2026 (point 8 of the triage of 5 October, the
+    # label and record batch). Two methods stood here beside the two that
+    # remain, and no caller outside tests/ used either:
+    #
+    #   - 'interpolate' ran `series.interpolate(method='linear',
+    #     limit_direction='forward')`. A linear interpolation fills an
+    #     interior gap from the values on BOTH sides of it, so every filled
+    #     row read the next valid row -- a bar in its future (Item 2). It
+    #     also carried the last value across the trailing edge, the decision
+    #     bar the forward_fill branch below refuses to fill (finding 3).
+    #   - 'drop' ran `series.dropna()`: no future, but unused (Item 16), and
+    #     it returned a shorter series whose rows no longer lined up with the
+    #     frame's.
+    #
+    # Both are removed. A name this function does not know, and 'fill_value'
+    # without a number, used to fall through every branch and return the
+    # series with only inf turned to NaN -- no error, nothing filled. They
+    # now raise, so a caller who writes method="interpolate" is told so,
+    # rather than getting a series it did not ask for.
+    accepted = ("forward_fill", "fill_value")
+    if method not in accepted:
+        raise ValueError(
+            f"clean_series: unknown method {method!r}; accepted: "
+            f"{', '.join(accepted)}")
+    if method == "fill_value" and fallback_value is None:
+        raise ValueError(
+            "clean_series: method 'fill_value' needs a fallback_value")
+
     if series is None or series.empty:
         return series
 
@@ -131,8 +161,9 @@ def clean_series(series: pd.Series, method: str = "forward_fill", fallback_value
     # tests/test_no_outlier_replacement.py now pins its absence.
 
     # Apply cleaning method. SEQUENCE ITEM 15: `.bfill()` removed from the
-    # forward_fill branch and limit_direction changed from 'both' to 'forward'.
-    # Both filled from later rows; see the docstring.
+    # forward_fill branch and limit_direction changed from 'both' to 'forward'
+    # in the interpolate branch (removed since, F6 above). Both filled from
+    # later rows; see the docstring.
     #
     # FINDING 3 RE-AUDIT, 1 September 2026 -- THE TRAILING EDGE.
     #
@@ -157,12 +188,8 @@ def clean_series(series: pd.Series, method: str = "forward_fill", fallback_value
             trailing = series.index > last_valid
             if trailing.any():
                 series.loc[trailing] = np.nan
-    elif method == "interpolate":
-        series = series.interpolate(method='linear', limit_direction='forward')
-    elif method == "fill_value" and fallback_value is not None:
+    elif method == "fill_value":
         series = series.fillna(fallback_value)
-    elif method == "drop":
-        series = series.dropna()
 
     # SEQUENCE ITEM 15: the final sweep lived here.
     #
