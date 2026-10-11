@@ -413,6 +413,12 @@ class StructureEngine:
         """
         Improvement 2 & 7: Advanced Volume Sentiment Metrics with participation expansion
         and institutional accumulation/distribution detection.
+
+        The slope it reads is the change between two 5-candle volume-weighted
+        means of the close: closes[-5:] against closes[-10:-5]. It is not the
+        engine's VWMA -- indicators/indicators.py's 20-candle rolling ratio
+        that entry_model scores as "VWMA Distance" -- and the two can point
+        opposite ways in the same run.
         """
         if df is None or len(df) < 20:
             return "NEUTRAL VOLUME"
@@ -423,14 +429,18 @@ class StructureEngine:
         c_recent, c_prev = closes[-5:], closes[-10:-5]
         v_recent, v_prev = volumes[-5:], volumes[-10:-5]
 
+        # F8, round 8 (Item 10), 11 October 2026: these three names were
+        # vwma_recent, vwma_prev and vwma_slope -- the name of a different
+        # calculation (see the docstring). Renamed only; every value is the
+        # same.
         try:
-            vwma_recent = np.average(c_recent, weights=v_recent)
-            vwma_prev = np.average(c_prev, weights=v_prev)
+            vw_mean_recent = np.average(c_recent, weights=v_recent)
+            vw_mean_prev = np.average(c_prev, weights=v_prev)
         except ZeroDivisionError:
-            vwma_recent = c_recent.mean()
-            vwma_prev = c_prev.mean()
+            vw_mean_recent = c_recent.mean()
+            vw_mean_prev = c_prev.mean()
 
-        vwma_slope = vwma_recent - vwma_prev
+        vw_mean_slope = vw_mean_recent - vw_mean_prev
         price_slope = closes[-1] - closes[-5]
         vol_slope = volumes[-1] - volumes[-5]
 
@@ -438,16 +448,16 @@ class StructureEngine:
         recent_vol_mean = volumes[-5:].mean()
         volume_expansion = recent_vol_mean > (1.2 * vma_baseline)
 
-        if vwma_slope > 0 and volume_expansion and price_slope > 0:
+        if vw_mean_slope > 0 and volume_expansion and price_slope > 0:
             return "STRONG BULLISH ACCUMULATION"
 
-        if vwma_slope > 0 and vol_slope > 0 and price_slope > 0:
+        if vw_mean_slope > 0 and vol_slope > 0 and price_slope > 0:
             return "BULLISH VOLUME SUPPORT"
 
-        if vwma_slope < 0 and volume_expansion and price_slope < 0:
+        if vw_mean_slope < 0 and volume_expansion and price_slope < 0:
             return "STRONG BEARISH DISTRIBUTION"
 
-        if vwma_slope < 0 and vol_slope > 0 and price_slope < 0:
+        if vw_mean_slope < 0 and vol_slope > 0 and price_slope < 0:
             return "BEARISH VOLUME PRESSURE"
 
         if (price_slope > 0 and vol_slope < 0 and not volume_expansion) or \

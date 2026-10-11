@@ -1,9 +1,9 @@
 # Next step — read this first
 
-*11 October 2026. Rewritten by the commit that lands the fifth patch of round 8's
-label and record batch — F6: `clean_series` accepts only methods that read no later
-row (point 8 of the triage; round 8's F6); the version it replaced — as it stood at
-`9d00d99` — is in HISTORY verbatim.
+*11 October 2026, late evening. Rewritten by the commit that lands the sixth patch of
+round 8's label and record batch — F8: one name, one meaning — "VWMA" names only the
+engine's VWMA, and the momentum label is printed once (point 8 of the triage; round 8's
+F8); the version it replaced — as it stood at `27d3ed5` — is in HISTORY verbatim.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
 rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
@@ -58,8 +58,9 @@ stop**, at `c2b07fb`, **the trend gate**, at `1b25f36`, **and the regime**, at
 `fcb7823`. **The label and record batch has begun:** B6, runs on pinned data keeping
 records of their own, at `9e507b1`, N5, Bitcoin reference only, at `6469a67`, F3,
 a frame with no readable time axis rejected, at `ae37795`, F5, the band distance
-labelled from the band's midpoint, at `9d00d99`, and F6, `clean_series` without its
-look-ahead method, at the commit that writes this line.
+labelled from the band's midpoint, at `9d00d99`, F6, `clean_series` without its
+look-ahead method, at `27d3ed5`, and F8, one name for one meaning, at the commit that
+writes this line.
 **Next:** the rest of the batch, one small patch at a time; then the fix verification by round 8's auditor on a
 scoped package, the 14 September precedent (Work order). The release gate stays closed until that
 verification has reported on the stop. What the triage left open is Viktor's (Open
@@ -165,23 +166,31 @@ by `9d00d99`.
 
 **The session of 10 October, evening** (`9d00d99`) landed F5, the fourth patch of the
 batch: the BAND DISTANCE line names the band's midpoint. Its account is in HISTORY, in
-this file's version at `9d00d99`, moved there by the commit that writes this line.
+this file's version at `9d00d99`, moved there by `27d3ed5`.
 
-**This session (11 October)**, configured for Claude Opus 5.5, opened on "Continue
-Phase 7". Claude suggested a state check first, then the next patch of the batch;
-Viktor: "Do it", and, after the check, "Start F6". The check, read off Viktor's disk:
-`master` and `origin/master` both `9d00d99`, GitHub's tip (a clone) the same, so F5's
-push happened; no untracked file outside `.pytest_cache/` (which ignores itself); no
-loose patch or commit-message file. Scope, stated before any diff: `clean_series` in
-`indicators/indicators.py`, its eight calls in that file (all `method="forward_fill"`),
-no caller anywhere else outside `tests/` (a text search), and every test that calls it
-(`tests/test_no_lookahead.py`, `tests/test_decision_bar_integrity.py`,
-`tests/test_no_outlier_replacement.py`). `indicators/` is not fingerprinted, the engine's
-path takes the forward-fill branch only, and no record field changes, so neither
-`run_hash` nor the golden snapshot can move. The repair is Claude's, Viktor's to reverse
-(Work order, item 4, F6). The commit that writes this line is the change: `clean_series`,
-a new test file, this file, HISTORY, `docs/audit_change_list.md` and README. Its live
-run comes before the commit; the commit message has the record.
+**The session of 11 October, evening** (`27d3ed5`) landed F6, the fifth patch of the
+batch: `clean_series` accepts only methods that read no later row. Its account is in
+HISTORY, in this file's version at `27d3ed5`, moved there by the commit that writes this
+line.
+
+**This session (11 October, late evening)**, configured for Claude Opus 5.5, opened on
+"Continue Phase 7". Claude listed what is left of the batch and the three items that
+are Viktor's, and asked; Viktor: "Start with F8." Read off Viktor's disk: `master` and
+`origin/master` both `27d3ed5`, GitHub's tip (a clone) the same, so F6's push happened;
+no loose patch or commit-message file in the repository's root. Scope, stated before any
+diff: `_volume_sentiment_simple` in `structure/structure.py` (the three names, local to
+it), every name containing "vwma" in the engine's code (a text search: the VWMA column's
+producer in `indicators/indicators.py`, its scoring in `models/entry_model.py`, and
+`vwma_pts` carried through `models/signal_router.py`, `core/engine_core.py`,
+`core/decision_contract.py` and `core/panel_render.py`), the panel's TREND and MOMENTUM
+lines in `core/panel_render.py`, and every test that reads either line
+(`tests/test_trend_score_has_a_denominator.py`,
+`tests/test_panel_prints_only_what_was_computed.py`). No constant changes and no record
+field changes, so neither `run_hash` nor the golden snapshot can move; a rename of three
+locals changes no value. The repair is Claude's, Viktor's to reverse (Work order, item
+4, F8). The commit that writes this line is the change: two engine files, a new test
+file, this file, HISTORY, `docs/audit_change_list.md` and README. Its live run comes
+before the commit; the commit message has the record.
 
 ## Ruled — in force
 
@@ -200,7 +209,7 @@ run comes before the commit; the commit message has the record.
   now. (9) F4 stays on the list. (10) The score check is declined. (11) The freeze
   lifts. Filed at `eb86846`. **(1) landed at `c2b07fb`, (4) at `1b25f36`, (3) at
   `fcb7823`, (6) at `9e507b1`, and (7) at `6469a67`; of (8), F3 at `ae37795`, F5
-  at `9d00d99` and F6 at the commit that writes this line**; the rest
+  at `9d00d99`, F6 at `27d3ed5` and F8 at the commit that writes this line**; the rest
   is to come, in the order below. Point 4
   left to the patch how an ADX with no valid reading is treated: it blocks both sides
   too (Work order, item 2). Point 3 left to it how LOW VOLATILITY maps without the
@@ -415,10 +424,12 @@ run comes before the commit; the commit message has the record.
 
 ## Where things stand, right now
 
-- **Tip:** the commit that writes this line (a commit cannot name its own hash) — F6,
-  `clean_series` accepts only methods that read no later row (point 8 of round 8's
-  triage, the fifth patch of the label and record batch): engine code, a new test file
-  and docs. Before it: `9d00d99` (the session of 10 October, evening: F5, the band
+- **Tip:** the commit that writes this line (a commit cannot name its own hash) — F8,
+  one name for one meaning: "VWMA" names only the engine's VWMA, and the momentum label
+  is printed once (point 8 of round 8's triage, the sixth patch of the label and record
+  batch): engine code, a new test file and docs. Before it: `27d3ed5` (the session of
+  11 October, evening: F6, `clean_series` accepts only methods that read no later row:
+  engine code, a new test file and docs), `9d00d99` (the session of 10 October, evening: F5, the band
   distance labelled from the band's midpoint: engine code, tests and docs), `ae37795` (the session of 10 October,
   afternoon: F3, a frame with no readable time axis rejected: engine code, a new test
   file and docs), `6469a67` (the session of 9 October: N5, Bitcoin reference only: engine code,
@@ -502,8 +513,9 @@ run comes before the commit; the commit message has the record.
   the new `tests/test_untimed_frame_is_rejected.py` (`ae37795`), in
   `tests/test_entry_zone_is_measured.py`,
   `tests/test_plan_entry_is_the_decision_close.py` and the new
-  `tests/test_band_distance_is_from_the_midpoint.py` (`9d00d99`), and, since the commit
-  that writes this line, in the new `tests/test_clean_series_methods.py`.
+  `tests/test_band_distance_is_from_the_midpoint.py` (`9d00d99`), in the new
+  `tests/test_clean_series_methods.py` (`27d3ed5`), and, since the commit that writes
+  this line, in the new `tests/test_one_name_one_meaning.py`.
 - **Where the project lives, from 26 September:** `E:\phase7_engine` on Viktor's machine;
   the files kept outside the repository in `G:\Phase_7_Engine_Random_Files`. Copied with
   robocopy, verified — git's own checks on Windows for the tracked files, SHA-256 for the
@@ -512,17 +524,18 @@ run comes before the commit; the commit message has the record.
   to `E:\phase7_engine`". Run the engine and every command from `E:\phase7_engine` (in
   cmd, changing drive needs `cd /d`). A dated record that names the D: paths means the
   same folders before the move; dated records are not edited.
-- **The push of `9d00d99`** happened: at the start of this session it was GitHub's tip
+- **The push of `27d3ed5`** happened: at the start of this session it was GitHub's tip
   (a clone), and `master` and `origin/master` on Viktor's disk (`.git/refs`, staged off
   it). No deviation was reported at the push (ruling on proposal (b)). The same holds
   for the push of the commit that writes this line unless it deviates. Earlier pushes
   and deviations are recorded in this file's previous versions, in HISTORY.
 - **Before this commit**, every file it changes was staged off Viktor's disk and matched
-  an autocrlf clone of `9d00d99` byte for byte; the file it adds was not there.
-- **code_hash:** `80a781b7719725280da202d8caa455bae68130c21ef34534319e61444f7ec5b9`,
-  moved by the commit that writes this line (from `8a807866…`, which held at
-  `9d00d99`): `indicators/indicators.py`, the one file it changes that the fingerprint
-  reads; `tests/` and `docs/` are outside it by directory. Computed on the working tree and on
+  an autocrlf clone of `27d3ed5` byte for byte; the file it adds was not there.
+- **code_hash:** `cb87efd84314706270710d3dec2293197270ada3217eada43737aa879cf2fcdf`,
+  moved by the commit that writes this line (from `80a781b7…`, which held at
+  `27d3ed5`): `structure/structure.py` and `core/panel_render.py`, the two files it
+  changes that the fingerprint reads (computed per file: only those two moved);
+  `tests/` and `docs/` are outside it by directory. Computed on the working tree and on
   the applied tree under Python 3.12.3. Confirmed on Windows before the commit by
   Viktor's live run, whose decision-log record Claude read — the commit message has it.
 - **code_hash is only comparable within one Python minor version.** It hashes `ast.dump`
@@ -530,27 +543,27 @@ run comes before the commit; the commit message has the record.
   SURVIVE"). **Every `code_hash` claim about this project is computed under Python 3.12**
   (Viktor runs 3.12.10).
 - **Golden snapshot:** unchanged by the commit that writes this line, as predicted:
-  `indicators/` is not fingerprinted, so `run_hash` (`40dcdc72…`) holds, the engine's
-  path calls only the forward-fill branch, which is unchanged, and no field of the
-  decision object changes. Last re-baselined at `6469a67`, 8 leaves.
-- **Test suite** — **776 passed / 0 failed, no warnings line** with `pandas_ta`;
-  **623 passed / 142 skipped** without it; `run_tests.py` **705 passed / 0 failed /
+  no fingerprinted constant changes, so `run_hash` (`40dcdc72…`) holds; the rename
+  changes no value (its parse tree, the three names mapped back, equals the old one),
+  the panel is not part of the decision object, and no field of it changes. Last re-baselined at `6469a67`, 8 leaves.
+- **Test suite** — **781 passed / 0 failed, no warnings line** with `pandas_ta`;
+  **628 passed / 142 skipped** without it; `run_tests.py` **710 passed / 0 failed /
   32 errors**, all 32 fixture-collection `TypeError`s. The commit that writes this line
-  adds 4 tests (`tests/test_clean_series_methods.py`, none skipped without `pandas_ta`,
-  none with a fixture) and changes no other test file; from 772, 619 / 142 and 701.
+  adds 5 tests (`tests/test_one_name_one_meaning.py`, none skipped without `pandas_ta`,
+  none with a fixture) and changes no other test file; from 776, 623 / 142 and 705.
   Linux sandbox, Python 3.12.3, pinned requirements, the patch applied to an autocrlf
-  clone of `9d00d99`. What Viktor's Windows run showed, and whether both steps
+  clone of `27d3ed5`. What Viktor's Windows run showed, and whether both steps
   ran before the live run (pytest's cache, read off his disk), is in the commit
   message. One test,
   `test_the_commit_messages_up_to_the_tag_are_round_7s_to_the_byte`, runs `git log` up
   to the tag `round7-sent-2026-09-30`: it needs the tag, which a full clone has.
-- **Engineering Notes:** through Entry #183 (v1.36), which covers `68c6191`. **Twenty-eight
+- **Engineering Notes:** through Entry #183 (v1.36), which covers `68c6191`. **Twenty-nine
   commits behind** — `ec4e5fd`, the floor (a commit that regenerates the Notes cannot
   cover itself, Entry #144), `e7a94d1`, `d5ced0c`, `59b747a`, `f256937`, `12b483e`,
   `01f2892`, `8b6fd00`, `e186423`, `86f30f1`, `3e8191a`, `1523e0c`, `ff12e17`,
   `4a4c6ce`, `217ede6`, `d27743f`, `a0276dd`, `040a529`, `9e42d30`, `eb86846`,
-  `c2b07fb`, `1b25f36`, `fcb7823`, `9e507b1`, `6469a67`, `ae37795`, `9d00d99` and
-  the commit that writes this line. Every later commit adds one
+  `c2b07fb`, `1b25f36`, `fcb7823`, `9e507b1`, `6469a67`, `ae37795`, `9d00d99`,
+  `27d3ed5` and the commit that writes this line. Every later commit adds one
   until the
   next regeneration. Batched, by
   the 15 September rule; no time pressure. v1.36 records the round-1 recovery, the
@@ -564,7 +577,7 @@ run comes before the commit; the commit message has the record.
   identical to the committed PDF. Neither changes in the commit that writes this line;
   the Attribution Statement's script last changed at `68c6191`, the Portfolio
   Document's at `6e1baba`.
-- **README.md:** its test counts are current (776, 623 / 142 and 705), changed by the
+- **README.md:** its test counts are current (781, 628 / 142 and 710), changed by the
   commit that writes this line, so the hook's section 5 will report 0 commits since it
   was touched. Its paragraph on what is empirically validated was rewritten at
   `6469a67` (the BTC-Adjusted Prediction removed) — Viktor's to reword (Open items).
@@ -588,7 +601,7 @@ run and the panel read happen before `git commit`, and Claude checks the decisio
 record for the new `code_hash` before the commit step, not after the push.** Never
 predict live numbers; check the record. Followed at `2c7a7d1`, `4e2b1c8`, `486f1a5`,
 `3bfa6b7`, `add8540`, `57f0521`, `b0efe23`, `76c8cde`, `8b9ac1e`, `d76ddfd`, `7d0024e`, `c2b07fb`,
-`1b25f36`, `fcb7823`, `9e507b1`, `6469a67`, `ae37795`, `9d00d99` and the commit that writes this line: the command list stopped at the live run, Claude read the record,
+`1b25f36`, `fcb7823`, `9e507b1`, `6469a67`, `ae37795`, `9d00d99`, `27d3ed5` and the commit that writes this line: the command list stopped at the live run, Claude read the record,
 and only then gave the commit steps. **Since finding 16, a
 live run in the first 60 seconds after a 4h close (00:00, 04:00, 08:00, 12:00, 16:00,
 20:00 UTC) fails by design** ("not yet final"); run again a minute later.
@@ -751,6 +764,12 @@ live run in the first 60 seconds after a 4h close (00:00, 04:00, 08:00, 12:00, 1
   offline: clear the pinned source and replace the singleton's `fetch_ohlc` with one
   that serves the fixture (`tests/test_pinned_runs_keep_their_own_records.py`,
   `_route`); everything from `get_tf()` on is the production path.
+- **11 October, F8:** a rule about names is checked on the parse tree, not the text.
+  The new test reads every function in the engine's code (the walk `code_hash` takes)
+  and asks whether one that names something vwma touches the engine's VWMA — its
+  column, its window setting, its points cap or `vwma_pts`. Comments that mention the
+  old names are not code and are not counted; a third test runs the function as it stood
+  before F8 through the same check, so the check is shown able to fail.
 - **11 October, F6:** a function's list of accepted options is part of what it
   promises. `tests/test_no_lookahead.py` pinned the forward-fill branch and nothing
   pinned the list, so a look-ahead method sat one keyword argument away and a name the
@@ -1250,8 +1269,9 @@ Each code commit is its own commit and updates this file for its own landing.
      test runs in a log, archive and state of their own (B6) — **done at `9e507b1`**;
      the BTC-adjusted confidence line (N5) — **done at `6469a67`**; a frame with no
      readable time axis (F3) — **done at `ae37795`**; the band distance (F5) — **done
-     at `9d00d99`**; `clean_series`'s look-ahead method (F6) — **done at the commit that
-     writes this line**; F8, F9, B4's labels, B7, B9 and B10; the three test shapes of
+     at `9d00d99`**; `clean_series`'s look-ahead method (F6) — **done at `27d3ed5`**;
+     one name for one meaning (F8) — **done at the commit that writes this line**; F9,
+     B4's labels, B7, B9 and B10; the three test shapes of
      round 8's Part 4.
      **B6:** the run's source is read once per run (`_is_live_run`: live only when no
      pinned source is set), and a live run's state, archive and log stay exactly where
@@ -1346,15 +1366,32 @@ Each code commit is its own commit and updates this file for its own landing.
      Changes no decision: every call on the engine's path is `forward_fill`, unchanged.
      The live run and its record came before the commit. It moved `code_hash`;
      `run_hash` and the golden snapshot did not move, as predicted.
+     **F8:** "VWMA" means one calculation. `_volume_sentiment_simple`
+     (`structure/structure.py`) called its two 5-candle volume-weighted means of the
+     close, and their difference, `vwma_recent`, `vwma_prev` and `vwma_slope`; the
+     engine's VWMA is `indicators/indicators.py`'s 20-candle rolling ratio, scored by
+     `entry_model` as "VWMA Distance". Renamed `vw_mean_recent`, `vw_mean_prev` and
+     `vw_mean_slope`, and the docstring says what the slope is and that it is not the
+     VWMA. Every value is the same: the parse tree, the names mapped back, equals the old
+     one, and on every window of the four fixture CSVs (1,434) the old and new function
+     return the same label. No name containing "vwma" was printed or recorded, so no
+     record, label or note changes. The panel printed `momentum_mode` twice — after the
+     slash on the TREND line and as the whole MOMENTUM line (item 11 had taken the
+     line's number off and kept the line for its label, which TREND already printed).
+     The MOMENTUM line is removed; TREND keeps both readings. Which line goes is the
+     patch's proposal, Viktor's to reverse. Not changed: the word after TREND's slash
+     carries no name of its own on the panel. Changes no decision. The live run and its
+     record came before the commit. It moved `code_hash`; `run_hash` and the golden
+     snapshot did not move, as predicted.
   5. **The fix verification** by round 8's auditor, on a scoped package (the
      14 September precedent) — Claude's, under the delegation of 4 October. The release
      gate reopens only on its report (point 2).
 
 ## Resolved this session
 
-- **F6, `clean_series`'s look-ahead method** (point 8 of round 8's triage, the fifth
-  patch of the label and record batch) — landed at the commit that writes this line.
-- **The once-per-session rewrite of this file.** The previous version, as at `9d00d99`,
+- **F8, one name for one meaning** (point 8 of round 8's triage, the sixth patch of
+  the label and record batch) — landed at the commit that writes this line.
+- **The once-per-session rewrite of this file.** The previous version, as at `27d3ed5`,
   is in HISTORY verbatim, headings demoted one level, proven by un-demotion with a
   negative control (this commit's message has the result).
 
@@ -1522,7 +1559,7 @@ Claude critiques it.
   `fcb7823` and `9e507b1` touched only README's test counts (`1b25f36` was missing from
   this list in the version at `fcb7823`, which kept the sentence as `1b25f36` had
   written it), `6469a67` its counts and its paragraph on what is empirically
-  validated, `ae37795` its counts, `9d00d99` its counts, and the commit that writes this line its counts. The first still says the next round is paused until work order G and the six
+  validated, `ae37795` its counts, `9d00d99` its counts, `27d3ed5` its counts, and the commit that writes this line its counts. The first still says the next round is paused until work order G and the six
   findings are done, which happened at `7d0024e`; the third predates the ruling of
   29 September on what opens backtesting. The second reads Open; the gate is closed since
   5 October. All three are written in Viktor's voice, so the new wording goes to him
@@ -1543,8 +1580,9 @@ Claude critiques it.
   sentence, as `fcb7823` left it, still described `1b25f36`'s step); `9e507b1` named
   `fcb7823` there and added B6's line; `6469a67` named `9e507b1` there and added
   N5's line; `ae37795` named `6469a67` there and added F3's line; `9d00d99` named
-  `ae37795` there and added F5's line; the commit that writes this line names `9d00d99`
-  there and adds F6's line, under the same wording, for a later commit to name.
+  `ae37795` there and added F5's line; `27d3ed5` named `9d00d99` there and added F6's
+  line; the commit that writes this line names `27d3ed5` there and adds F8's line,
+  under the same wording, for a later commit to name.
 - **The pre-push hook is installed per clone, not per repository.** After any re-clone
   (including after a machine wipe), run `git config core.hooksPath githooks`;
   `session_handover_check.py` section 6 flags a clone without it.

@@ -855,11 +855,12 @@ def render_panel(decision):
             f"STRUCTURE  : {colorize_val(structure.get('regime', 'NEUTRAL'))} | Vol: {colorize_val(bias.get('volatility', 'NORMAL'))}\n"
             f"SEQUENCE   : {colorize_val(structure.get('sequence', 'NONE'))}\n"
             f"TREND      : {colorize_val(trend.get('trend_direction', 'NEUTRAL'))} / {colorize_val(trend.get('momentum_mode', 'HEALTHY'))} (Score: {_score_text(trend_health_score)})\n"
-            # SEQUENCE ITEM 11: the number after the label was
-            # trend_health_score — the same value the TREND line above already
-            # shows. The LABEL (STRONG / BUILDING / EXTENDED) is momentum_mode,
-            # a genuinely separate reading, so it stays.
-            f"MOMENTUM   : {colorize_val(trend.get('momentum_mode', 'HEALTHY'))}\n"
+            # SEQUENCE ITEM 11 took trend_health_score off a MOMENTUM line
+            # that sat here, because the TREND line above already shows it,
+            # and kept the line for its label, momentum_mode. But the TREND
+            # line prints momentum_mode too, after the slash, so the label
+            # was the same reading twice. F8, round 8 (Item 10), 11 October
+            # 2026: the MOMENTUM line is gone; the TREND line carries both.
             f"VOLUME     : {colorize_val(structure.get('volume_sentiment', 'WEAK OR CONTRARY VOLUME'))}\n"
             f"VALIDATION : {colorize_val(risk.get('validation_state', 'WEAK'))} (Score: {_score_text(validation_score)})\n"
             f"VOLATILITY : {colorize_val(bias.get('volatility', 'LOW'))}\n"
