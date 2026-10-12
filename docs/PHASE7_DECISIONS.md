@@ -3691,6 +3691,86 @@ no caller relied on, and which the ruling of 27 September would have refused as 
 state file the record cannot reproduce. A frame too short for the regime reads
 UNKNOWN STRUCTURE instead of NEUTRAL STRUCTURE, on a path the engine does not take.
 
+## Ruling, 12 October 2026 — the panel's fallback readings and two repeated readings join the label and record batch
+
+*New in this file on 12 October 2026. Ruled at 08:24 that morning, before any code;
+filed by the commit that writes this line, which is docs only, at Viktor's instruction
+that it go in the session's first commit.*
+
+**The question.** Building F9, Claude found that the panel still falls back to a
+reading when a label is missing, beside the TREND line F9 fixed, and put on the list
+for after the audit whether these join the label and record batch now — Viktor's
+("Found after 22 September", in PHASE7_NEXT.md as at `e5ac20a`). Claude's suggestion,
+recorded there: the batch, after the rest of it, if a check shows the fallbacks cannot
+fire. Separately, Viktor's live run for F9 showed two readings printed twice.
+
+**The eleven fallback readings**, as the list entry names them, counting each pair it
+names together as one (line numbers at `e5ac20a`): (1) BIAS and BTC BIAS → NEUTRAL;
+(2) REGIME and BTC REGIME → NEUTRAL STRUCTURE; (3) STRUCTURE → NEUTRAL; (4) both Vol
+fields → NORMAL; (5) SEQUENCE → NONE; (6) VOLUME → WEAK OR CONTRARY VOLUME;
+(7) VALIDATION → WEAK; (8) VOLATILITY → LOW; (9) RISK REGIME → NORMAL RISK; (10) MACRO
+TREND → NEUTRAL — all in `core/panel_render.py`; and (11) `core/engine_core.py:1079`,
+which passes `trend_direction` to the entry score with a NEUTRAL fallback. The entry
+does not number them; this count is Claude's reconciliation of it with "eleven", for
+Viktor to correct.
+
+**The two repeated readings, confirmed by Claude from the code** before filing (a clone
+of `e5ac20a`; `master` and `origin/master` on Viktor's disk both `e5ac20a`, and the three
+files this commit changes matched the clone byte for byte):
+
+1. **REGIME prints what STRUCTURE prints.** The REGIME line
+   (`core/panel_render.py:854`) prints `bias["regime"]`, which `core/engine_core.py:805`
+   sets from `calculate_dynamic_regime(df_struct)`; that function returns
+   `df["STRUCTURE"].iloc[-1]` (`models/bias_engine.py`), the column
+   `calculate_structure` fills with `result["regime"]` — `_detect_regime`'s answer —
+   at `structure/structure.py:573`. The STRUCTURE line (`:855`) prints
+   `structure["regime"]`, the same `result["regime"]`. So on every run where
+   `calculate_structure` returned its frame, the two lines print one value. They can
+   differ only on a fallback: the two lines fall back to different words (NEUTRAL
+   STRUCTURE and NEUTRAL), and a structure result without its frame makes
+   `calculate_dynamic_regime` read UNKNOWN STRUCTURE.
+2. **One volatility reading is printed twice.** The STRUCTURE line's Vol field
+   (`:855`) and the VOLATILITY line (`:871`) both print `bias.get('volatility')`, with
+   different fallbacks (NORMAL and LOW), so a missing key would print one reading as
+   two different values.
+
+**How it was ruled.** By Viktor, in his own words, in the message that opened the
+session: the eleven fallback readings and the two repeated readings "join the label and
+record batch". Claude's suggestion was on the table; the ruling does not repeat its two
+conditions — after the rest of the batch, and only if a check shows the fallbacks
+cannot fire — and they are not read into it.
+
+**What Viktor ruled.**
+
+1. The panel's eleven fallback readings join the label and record batch.
+2. The two repeated readings — REGIME beside STRUCTURE, and `bias.volatility` on both
+   the Vol field and the VOLATILITY line — join it.
+3. This ruling is filed in the session's first commit.
+
+**Not ruled, Viktor's before any code:** each item's shape — remove a fallback, or
+fall back to UNKNOWN as the TREND line now does; which line of a repeated pair goes, or
+whether one is relabelled — and where in the batch's order they come. As for F9,
+Claude puts the shape to him before writing a line of diff.
+
+**Found filing this ruling, not covered by it** (Claude, from the code at `e5ac20a`;
+whether any can fire on the engine's path was not checked):
+
+- STATUS falls back to ACTIVE ENTRY ZONE (`core/panel_render.py:883`) — the one panel
+  fallback that asserts a positive reading, that price is in the entry zone.
+- ACTION falls back to WAIT (`core/panel_render.py:343`); its comment already says the
+  router always supplies `action`.
+- `core/engine_core.py:908`, `:915` and `:916`, in the BTC call to
+  `calculate_dynamic_bias`, fall back to NONE, NEUTRAL STRUCTURE and NEUTRAL VOLUME —
+  the three defaults the 2 September note above `:697` removed from the asset's own
+  path, left on Bitcoin's. Bitcoin is reference only since N5 (`6469a67`); the result
+  reaches the BTC BIAS line, and Claude did not trace every other reader.
+
+Whether they join the batch is Viktor's (PHASE7_NEXT.md, Open items).
+
+**What it weakens**, stated per this project's amendment practice: nothing. It adds
+work to the batch and changes no code; each patch built under it states what that
+patch weakens.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then
