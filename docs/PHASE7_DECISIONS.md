@@ -3625,6 +3625,72 @@ first.
 **What filing this weakens.** Nothing in the engine. A position is not a ruling: nothing
 here binds a later session beyond asking these questions.
 
+## Ruling, 12 October 2026 — F9's shape and scope
+
+*New in this file on 12 October 2026. Ruled at 05:44 that morning, before any code;
+recorded, with the code, by the commit that lands F9.*
+
+**The question.** Round 8's F9 (Minor, Item 8) named four statements the code beside
+them does not support. The triage of 5 October put F9 in the label and record batch
+(point 8). Two things it left open were Viktor's: what F9(1) becomes, since a comment
+correction alone would leave a mechanism that does nothing, and whether two labels of
+the same kind that the auditor did not name join it.
+
+**What Claude found before the ruling, from the code** (a clone of `9051ffd`; Viktor's
+disk matched it). F9(1): `StructureEngine.__init__` sets `self._last_regime` "for regime
+persistence to reduce whipsaws"; `calculate_structure`, the only caller on the engine's
+path, builds a fresh engine for every call, so `_detect_regime` always starts from
+NEUTRAL STRUCTURE, and its two hysteresis branches run only for a reused instance —
+which nothing builds. The same shape as finding 18. F9(2): the failure labels are
+NEUTRAL, and `trend_direction`'s is too — a real reading `entry_model` compares
+against; Claude expected, before checking, that UNAVAILABLE would change no outcome
+there, and said so. `_detect_regime` answers a frame under 15 rows with the stored
+NEUTRAL STRUCTURE; `engine_core` refuses frames under 20 rows before structure runs.
+F9(4): beside the auditor's "25 versus 40", bias reads no ADX of its own, and since fix
+2 a missing ADX means no trade; the note said neither. Round 5 reported the "25" on
+12 September.
+
+**The options Claude set out for F9(1).** A: correct the comment only. B: make the
+persistence real — a new trading rule, outside a batch that changes no trade. C: a
+plain function with the same output on the engine's path. Under C the threshold stops
+being hysteresis and is a dead band; renaming `REGIME_HYSTERESIS_THRESHOLD` moves
+`run_hash` and the golden snapshot, and keeping it keeps a wrong name.
+
+**Claude's suggestion.** C, keeping the constant's name with a comment that says dead
+band; the rename to the list for after the audit, with CONFIRMED's. Both extra labels
+in scope: `trend_direction` → UNAVAILABLE (checked before the ruling: `entry_model`'s
+multiplier is 1.0 for every label but BULLISH and BEARISH), and a too-short frame →
+UNKNOWN STRUCTURE. One more of the same family: the panel's TREND line falls back to
+NEUTRAL / HEALTHY; in scope if the fallbacks cannot fire, and reported back if they
+can.
+
+**How it was ruled.** By agreeing to Claude's suggestion ("I agree."), not by writing
+his position first. Recorded that way, as for findings 5, 6 and 18.
+
+**What Viktor ruled.**
+
+1. F9(1) is C: `_detect_regime` is a plain function of the frame, the same output on
+   the engine's path; `_last_regime` goes.
+2. `REGIME_HYSTERESIS_THRESHOLD` keeps its name and value; its comment says it is a dead
+   band. The rename goes on the list for after the audit.
+3. `trend_direction`'s failure label joins F9(2), and a frame too short for the regime
+   reads UNKNOWN STRUCTURE.
+4. The panel's TREND-line fallbacks join F9 if they cannot fire.
+
+**What the patch found under the ruling.** The TREND-line fallbacks cannot fire: the
+router writes both keys on every decision it builds, and every other path into
+`render_panel` is an error object that returns before the line. They now fall back to
+UNKNOWN, the router's own word, rather than being removed: a missing key on a
+hand-built decision then still renders. The panel has more fallbacks of the same kind,
+not checked and not changed ("Found after 22 September", in PHASE7_NEXT.md); whether
+they join the batch is Viktor's.
+
+**What it weakens**, stated per this project's amendment practice: nothing a healthy
+run computes. A reused `StructureEngine` no longer holds a regime across calls, which
+no caller relied on, and which the ruling of 27 September would have refused as a
+state file the record cannot reproduce. A frame too short for the regime reads
+UNKNOWN STRUCTURE instead of NEUTRAL STRUCTURE, on a path the engine does not take.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then

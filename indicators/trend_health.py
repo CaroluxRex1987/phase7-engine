@@ -38,7 +38,16 @@ def compute_trend_health(df: Optional[pd.DataFrame]) -> Dict[str, Any]:
         "adx": None,
         "degraded_inputs": ["trend health could not be computed at all"],
         "trend_exhaustion": False,
-        "momentum_mode": "NEUTRAL",
+        # ROUND 8, F9(2), 12 October 2026: these three labels were "NEUTRAL".
+        # momentum_mode and trend_regime are never NEUTRAL on a run that
+        # measured anything -- the classifiers below have no such label -- so
+        # a failure printed "MOMENTUM : NEUTRAL", a reading no measurement can
+        # produce. trend_direction IS NEUTRAL when the EMA slopes are flat, so
+        # here it claimed a flat market nobody measured. UNAVAILABLE is the
+        # word this function already uses for a missing RSI. No decision
+        # changes: entry_model's trend multiplier is 1.0 for every label but
+        # BULLISH and BEARISH, the same as for NEUTRAL.
+        "momentum_mode": "UNAVAILABLE",
         "trend_slope": 0.0,
         "trend_acceleration": 0.0,
         "momentum_divergence": False,
@@ -46,13 +55,13 @@ def compute_trend_health(df: Optional[pd.DataFrame]) -> Dict[str, Any]:
         # entry_model's confirmation gate blocks only a divergence that points
         # against the trade, so the direction has to leave this module.
         "divergence_direction": "NONE",
-        "trend_regime": "NEUTRAL",
+        "trend_regime": "UNAVAILABLE",
         # B1 additions — see sections 2b and 7 below.
         "continuation_strength": 0.0,
         "reversal_direction": "NONE",
         "reversal_strength": 0.0,
         # New: explicit trend direction label — see section 1b below.
-        "trend_direction": "NEUTRAL",
+        "trend_direction": "UNAVAILABLE",
         # 4 SEPTEMBER 2026: the same direction as a NUMBER, for consumers that
         # need to sign a magnitude. See the return block below for why.
         "trend_direction_sign": 0,

@@ -560,9 +560,21 @@ def add_technical_indicators(df: pd.DataFrame, inplace: bool = False):
         # so a failed ADX did not merely invent a number — it invented the
         # single most ambiguous one, sitting exactly on the boundary that
         # trend_health and bias both test against.
+        #
+        # ROUND 8, F9(4), 12 October 2026: the consequence read "(25 of its
+        # 100 points) and bias cannot test trend strength". Both halves were
+        # stale. trend_health's adx_strength is min(ADX * 1.2, 40), so the
+        # component is worth up to 40; 25 was the ceiling of
+        # continuation_strength's ADX term, removed on 19 September. Bias has
+        # read no ADX of its own since then -- it reaches bias only through
+        # trend health. And the consequence that matters most was missing:
+        # since fix 2 (1b25f36) the confirmation gate refuses both sides when
+        # ADX has no valid reading. Round 5 reported the "25" on 12 September;
+        # it was not fixed then.
         failed("ADX", e,
-               "trend health loses its ADX component (25 of its 100 points) "
-               "and bias cannot test trend strength")
+               "trend health loses its ADX component (up to 40 of its 100 "
+               "points), and the confirmation gate refuses both sides, since "
+               "no trade is taken without an ADX reading")
 
     # SuperTrend with error handling
     # A9 FIX: This is now the single, canonical SuperTrend implementation for the

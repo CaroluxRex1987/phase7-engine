@@ -100,6 +100,20 @@ def volume_agreement(volume_sentiment, raw_bias):
     bias_up = raw_bias == "BULLISH"
     bias_down = raw_bias == "BEARISH"
 
+    # ROUND 8, F9(3), 12 October 2026: a failed read is not a neutral one.
+    # "UNKNOWN VOLUME" is what structure.py writes when the volume sentiment
+    # detector could not run (and for an empty frame). It fell through to the
+    # branch below and printed "Volume sentiment is neutral." under
+    # Validation Notes, beside a VOLUME line reading UNKNOWN VOLUME -- the
+    # conflation the macro note was fixed for on 3 September. The score is
+    # unchanged, 0.0; only the sentence is. No label the detector produces on
+    # a successful read contains UNKNOWN.
+    if "UNKNOWN" in v:
+        return 0.0, (
+            f"Volume sentiment could not be read ({volume_sentiment}), so "
+            f"volume neither supports nor opposes this bias."
+        )
+
     if "DIVERGENCE" in v or "WEAK" in v or "EXHAUSTION" in v:
         return -25.0, "Volume divergence or weakness detected."
 

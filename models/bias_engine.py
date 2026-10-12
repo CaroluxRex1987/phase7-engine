@@ -22,7 +22,8 @@ import numpy as np
 #                                  blend, unsigned magnitude
 #   structure regime (0.20)    <- structure.py's _detect_regime(): the gap
 #                                  between mean(close[-5:]) and
-#                                  mean(close[-15:]), with hysteresis.
+#                                  mean(close[-15:]), with a dead band
+#                                  (no hysteresis -- round 8, F9(1)).
 #                                  Raw input: close. NOT the swing-based
 #                                  label -- see the correction below.
 #   volume sentiment (0.15)    <- structure.py's _volume_sentiment_simple():
@@ -96,7 +97,7 @@ import numpy as np
 # TWO ERRORS IN THIS FILE'S OWN RECORD, corrected in the graph above.
 #   1. "structure.py's swing-based regime label" was simply wrong.
 #      structure_regime comes from _detect_regime(), a 5-bar vs 15-bar
-#      close-mean gap with hysteresis. swing_struct is computed but reaches
+#      close-mean gap with a dead band. swing_struct is computed but reaches
 #      nothing except the panel -- _detect_swing_structure's own docstring
 #      says so.
 #   2. Because of (1), docs/PHASE7_NEXT.md recorded structure_regime, at

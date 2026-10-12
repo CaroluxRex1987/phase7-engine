@@ -21,7 +21,7 @@ class StructureEngine:
     """
     Phase‑7 Structure + Volume Sentiment Engine
     Fully vectorized with NumPy/Pandas optimizations, input validation,
-    localized exception isolation, advanced adaptive lookbacks, hysteresis state machine,
+    localized exception isolation, advanced adaptive lookbacks, a stateless regime read,
     advanced volume sentiment metrics, and strict typing contracts.
     """
 
@@ -33,11 +33,26 @@ class StructureEngine:
     # for BTC_ADJUSTMENT_CAP until N5, 9 October 2026 -- fingerprinted via
     # module_snapshot()'s two-hop ClassName.ATTR resolution), value unchanged,
     # and registered in core/decision_log.py's FINGERPRINTED_MODULES.
+    #
+    # ROUND 8, F9(1), 12 October 2026: despite its name this is a DEAD BAND,
+    # not hysteresis. A gap inside +/-0.15% reads NEUTRAL STRUCTURE; outside
+    # it, the side the gap points to. Hysteresis would need the previous
+    # run's answer, and the engine has never had it -- see _detect_regime.
+    # The name is kept on purpose: renaming it would move run_hash and the
+    # golden snapshot for a word, and the rename goes on the list for after
+    # the audit (Viktor's ruling, 12 October 2026, by agreeing to Claude's
+    # suggestion).
     REGIME_HYSTERESIS_THRESHOLD = 0.0015
 
     def __init__(self, volume_profile_bins: int = 50) -> None:
-        # State tracking for regime persistence to reduce whipsaws
-        self._last_regime: str = "NEUTRAL STRUCTURE"
+        # ROUND 8, F9(1), 12 October 2026: `self._last_regime`, commented
+        # "State tracking for regime persistence to reduce whipsaws", is gone.
+        # It persisted nothing: calculate_structure() builds a fresh engine
+        # for every call, so _detect_regime always started from NEUTRAL
+        # STRUCTURE and its two hysteresis branches ran only if an instance
+        # was reused -- which nothing in the engine does, and which would
+        # have made the regime depend on the history of calls with no
+        # warning. The same shape as finding 18's BiasStateMachine (d76ddfd).
         self._volume_profile_bins: int = volume_profile_bins
 
     # ============================================================
@@ -90,8 +105,8 @@ class StructureEngine:
             regime = self._detect_regime(df)
         except Exception as exc:
             # Was self._last_regime -- the previous bar's answer presented as
-            # this bar's. Hysteresis is a deliberate part of _detect_regime;
-            # reusing its output when the detector CRASHED is a guess.
+            # this bar's. Reusing an earlier output when the detector CRASHED
+            # is a guess. (The attribute itself went at F9, 12 October 2026.)
             regime = "UNKNOWN STRUCTURE"
             degraded_inputs.append(f"structure regime detection failed: {exc}")
 
@@ -138,47 +153,42 @@ class StructureEngine:
 
     def _detect_regime(self, df: pd.DataFrame) -> str:
         """
-        Improvement 6: State Machine for Market Regimes with Hysteresis.
-        Prevents whipsaws during choppy consolidation phases by introducing state persistence.
+        The structure regime, from closes alone: the gap between the mean of
+        the last 5 closes and the mean of the last 15, with a dead band of
+        REGIME_HYSTERESIS_THRESHOLD either side of zero.
+
+        ROUND 8, F9(1), 12 October 2026: this was documented as "a state
+        machine for market regimes with hysteresis" that "prevents whipsaws
+        ... by introducing state persistence". It never persisted anything --
+        see __init__. It is now a plain function of the frame, and returns
+        exactly what the engine's path got before: every run started from
+        NEUTRAL STRUCTURE, whose branch is the three-way read below.
+
+        A frame too short to read returns UNKNOWN STRUCTURE. It returned the
+        stored "previous" regime -- always NEUTRAL STRUCTURE, a reading nobody
+        took. It is still an ordinary return, not a degradation: that is the
+        decision tests/test_swing_structure_is_not_invented.py records for
+        not-enough-data in this module. The engine refuses frames under 20
+        rows before structure runs (engine_core._validate_dataframe), so its
+        own runs do not reach this.
         """
         if df is None or len(df) < 15:
-            return self._last_regime
+            return "UNKNOWN STRUCTURE"
 
         closes = df['close'].values
         ma_short = closes[-5:].mean()
         ma_long = closes[-15:].mean()
 
         gap_pct = (ma_short - ma_long) / ma_long
-        # 0.15% buffer zone to avoid false triggers. Named at class scope --
+        # 0.15% dead band either side of zero. Named at class scope --
         # see REGIME_HYSTERESIS_THRESHOLD above (round 6, F1).
         threshold = self.REGIME_HYSTERESIS_THRESHOLD
 
-        current_state = self._last_regime
-
-        if current_state == "BULLISH TREND":
-            if gap_pct < -threshold:
-                new_state = "BEARISH TREND"
-            elif gap_pct < 0:
-                new_state = "NEUTRAL STRUCTURE"
-            else:
-                new_state = "BULLISH TREND"
-        elif current_state == "BEARISH TREND":
-            if gap_pct > threshold:
-                new_state = "BULLISH TREND"
-            elif gap_pct > 0:
-                new_state = "NEUTRAL STRUCTURE"
-            else:
-                new_state = "BEARISH TREND"
-        else:
-            if gap_pct > threshold:
-                new_state = "BULLISH TREND"
-            elif gap_pct < -threshold:
-                new_state = "BEARISH TREND"
-            else:
-                new_state = "NEUTRAL STRUCTURE"
-
-        self._last_regime = new_state
-        return new_state
+        if gap_pct > threshold:
+            return "BULLISH TREND"
+        if gap_pct < -threshold:
+            return "BEARISH TREND"
+        return "NEUTRAL STRUCTURE"
 
     # ============================================================
     # B2 BUILD: SWING-HIGH/LOW PIVOTS (shared by sequence detection

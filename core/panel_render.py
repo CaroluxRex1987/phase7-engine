@@ -854,7 +854,12 @@ def render_panel(decision):
             f"REGIME     : {colorize_val(bias.get('regime', 'NEUTRAL STRUCTURE'))}\n"
             f"STRUCTURE  : {colorize_val(structure.get('regime', 'NEUTRAL'))} | Vol: {colorize_val(bias.get('volatility', 'NORMAL'))}\n"
             f"SEQUENCE   : {colorize_val(structure.get('sequence', 'NONE'))}\n"
-            f"TREND      : {colorize_val(trend.get('trend_direction', 'NEUTRAL'))} / {colorize_val(trend.get('momentum_mode', 'HEALTHY'))} (Score: {_score_text(trend_health_score)})\n"
+            # ROUND 8, F9, 12 October 2026: the two fallbacks were 'NEUTRAL'
+            # and 'HEALTHY' -- a direction and a momentum nobody measured.
+            # They cannot fire on the engine's path (the router writes both
+            # keys on every decision it builds), so they are now the router's
+            # own fallback, UNKNOWN, rather than a reading.
+            f"TREND      : {colorize_val(trend.get('trend_direction', 'UNKNOWN'))} / {colorize_val(trend.get('momentum_mode', 'UNKNOWN'))} (Score: {_score_text(trend_health_score)})\n"
             # SEQUENCE ITEM 11 took trend_health_score off a MOMENTUM line
             # that sat here, because the TREND line above already shows it,
             # and kept the line for its label, momentum_mode. But the TREND
