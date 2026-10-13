@@ -270,12 +270,24 @@ def test_the_panel_says_not_located_for_a_frame_that_located_nothing():
 # 3. The router — the same fabrication, one assembly later
 # ======================================================================
 
+# 13 OCTOBER 2026, the fallback sweep (DECISIONS, "Ruling, 13 October 2026
+# -- the fallback sweep"): the router reads these five directly now, where
+# it used to default each to False when absent. They are supplied here with
+# exactly those values, so the record these tests read is the one they read
+# before. False beside an absent blocker list is still "not computed" to the
+# decision model's signal gate, as an absent signal was.
+ROUTER_READS_TREND = {"trend_exhaustion": False, "momentum_divergence": False}
+ROUTER_READS_ENTRY = {"long_signal": False, "short_signal": False,
+                      "score_clipped": False}
+
+
 def _decision(structure, current_price=1.0):
     from models import signal_router as sr
 
     return sr.SignalRouter(engine_core=object())._build_decision_object(
         symbol="AEROUSDT", timeframe="4h",
-        bias={}, trend={}, structure=structure, entry={},
+        bias={}, trend=dict(ROUTER_READS_TREND), structure=structure,
+        entry=dict(ROUTER_READS_ENTRY),
         risk={"risk_valid": True, "risk_reason": "OK"},
         exit_data={"current_price": current_price},
         degradation=[], provenance={}, lineage_record={}, exit_watch=[],

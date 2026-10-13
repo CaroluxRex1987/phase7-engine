@@ -3771,6 +3771,132 @@ Whether they join the batch is Viktor's (PHASE7_NEXT.md, Open items).
 work to the batch and changes no code; each patch built under it states what that
 patch weakens.
 
+## Ruling, 13 October 2026 — the fallback sweep: the 12 October additions' shape, scope and order
+
+*New in this file on 13 October 2026. Ruled at 01:13 that night, and on two questions
+the rule left open later the same night, before any code; recorded, with the code, by
+the commit that lands patch 1.*
+
+**The question.** The ruling of 12 October put the panel's eleven fallback readings and
+two repeated readings in the label and record batch, and left Viktor's before any code:
+each item's shape, which line of a repeated pair goes, and where they come in the order.
+Open beside it: whether the three fallbacks found filing that ruling join the batch.
+
+**What Claude found before the ruling, from the code** (`ef65f46`; `master` and
+`origin/master` on Viktor's disk both `ef65f46`, and the files read matched an autocrlf
+clone of it). None of the three newly found fallbacks can fire on the engine's path.
+The BTC call's defaults (`core/engine_core.py:908`, `:915`, `:916`): `calculate_structure`
+returns all three keys on every path, UNKNOWN when a part fails, and raises otherwise.
+ACTION → WAIT (`core/panel_render.py:343`): the router writes `action` from
+`dm_result["final_action"]`, read by subscript; the panel returns early on an error
+object; the router is its only caller (`main.py` and `live_trading.py` do not call it).
+STATUS → ACTIVE ENTRY ZONE (`:883`): `calculate_entry_quality` sets `entry_status` on all
+three of its returns, and `engine_core` reads it by subscript. Found reading them, on no
+list: STATUS has a twin in the router (`models/signal_router.py:385`), the copy that
+actually feeds the panel; the same block defaulted the entry score and its sub-scores to
+0.0, its multipliers to 1.0 and `score_ceiling` to 100.0; MACRO TREND has a twin in the
+router; and the panel's `timeframe` defaulted to "4h". A run of the suite that recorded
+every `.get` default taken (Linux sandbox, Python 3.13.16, a probed copy of the three
+files) found 15 test files handing the panel hand-built decisions that use these
+defaults, and no `engine_core` default taken anywhere.
+
+**Claude's suggestions.** The three join the batch, with the router's twin. Shape: a
+value that is only printed falls back to the router's own value for that key (UNKNOWN,
+UNKNOWN STRUCTURE, UNKNOWN VOLUME, UNKNOWN RISK), as F9 did for the TREND line; a value
+the engine computes with is read directly, so a missing key raises (work order E's
+precedent in `structure/structure.py`). The repeated readings: the REGIME line goes
+(STRUCTURE prints the value at its source; REGIME a copy read back from the column), and
+the Vol field goes from the STRUCTURE line (VOLATILITY is the line labelled for it).
+Order: two patches — the fallbacks first, which should change no live panel, then the
+repeated readings, which change every one — then B4's labels. And patch 1 widened to a
+sweep: every default in `core/panel_render.py` and the router's decision-building code,
+listed and classified in the commit, so the next patch does not find more.
+
+**Two questions the rule did not settle, put to Viktor after the inventory.** (a) The
+router's values whose type has no UNKNOWN — six booleans, three lists, and the sections
+of the engine's output — which the engine writes on every decision: read directly, kept
+and listed, or left for later. (b) `reversal_strength`'s default of 0 at
+`core/engine_core.py:912`, inside the BTC call the 12 October finding named, and its twin
+on the asset's own call at `:790`: include, read directly, or the list only.
+
+**How it was ruled.** By agreeing to Claude's suggestions ("I agree with your
+suggestions. Proceed."), not by writing his position first; and on (a) and (b) by
+choosing the option Claude recommended. Recorded that way, as for F9.
+
+**What Viktor ruled.**
+
+1. The three fallbacks found filing the ruling of 12 October join the batch, with
+   STATUS's twin in the router.
+2. Shape: a value that is only printed or recorded falls back to the router's own value
+   for an absent one; a value the engine computes with is read directly.
+3. A router value whose type has no UNKNOWN — a boolean, a list, a section of the
+   engine's output — is read directly; a missing one is a defect, and fails as one.
+4. `reversal_strength` at `core/engine_core.py:790` and `:912` is read directly, with the
+   BTC call's three and `trend_direction` at `:1079`.
+5. Patch 1 is the sweep: every default in `core/panel_render.py` and in the router's
+   decision-building code (`route_and_execute`'s assembly, `_build_decision_object`,
+   `_merge_btc_context`), listed and classified in the patch.
+6. The repeated readings: the REGIME line goes, and the Vol field goes from the
+   STRUCTURE line — patch 2.
+7. The order: patch 1, patch 2, then B4's labels, B7, B9, B10 and the three test shapes
+   of round 8's Part 4.
+
+**What the patch read into the rule — Claude's, Viktor's to reverse.**
+
+- A number the router only records falls back to NaN through `_finite_or_nan`: the
+  router's own value for an absent number since round 6's F3. The entry score, its five
+  sub-scores, its reconciliation and the three EV fields (`avg_reward_r` defaulted to
+  2.0, a second copy of `DecisionModel.AVG_REWARD_R`).
+- The correlation label falls back to NOT MEASURED (`btc_context.NOT_MEASURED_LABEL`,
+  the panel's own value for it), where it read WEAK / NO CLEAR RELATIONSHIP.
+- In the Bitcoin block, "read directly" stops at the block: a missing boolean or list
+  makes the block unavailable — what `engine_core` does with any BTC failure — rather
+  than turning the asset's whole analysis into an error, which is how an optional
+  Bitcoin field once did exactly that (KIMI round 4, finding 1). Bitcoin is reference
+  only (the triage, point 7).
+- The panel cannot raise without losing every line, so where its value is a list with no
+  UNKNOWN — the exit watch — an absent one prints "Exit watch was not computed for this
+  run." where it printed "No exit-watch flags are active right now."
+- The sweep found one fallback that is not a `.get` default: BROAD MARKET STRESS
+  printed "No" for an absent flag. It now prints UNKNOWN.
+
+**What it weakens**, stated per this project's amendment practice: nothing a healthy
+run computes. On the golden fixture the whole decision object and the 86-line panel are
+identical before and after, but for `code_hash`. A hand-built input that leaves out a
+key the router now reads directly is refused, as an error record carrying its provenance
+and lineage, where the router invented the value; 30 tests in six files built such
+inputs, and are given exactly the values the router used to invent.
+
+### Claude's errors on the way, recorded
+
+- **The first lean was wrong.** Before checking, Claude leaned towards removing the
+  fallbacks. Checking showed the panel's catch-all would then print one error in place
+  of the whole panel, that 15 test files rely on the defaults, and that F9 had set
+  UNKNOWN as the precedent the day before. The suggestion was corrected to UNKNOWN
+  before Viktor ruled.
+- **A line number given in chat was wrong.** Claude cited MACRO TREND's twin in the
+  router as `:181`; it is `:192` (`route_and_execute`, at `ef65f46`). Line 181 is the
+  `exit` section's default, which the ruling also covers.
+- **Question (a) said more than the code does.** It said a missing key "becomes the
+  router's error record, lineage kept". That holds for the values read inside
+  `_build_decision_object`: its handler returns the error record with provenance and
+  lineage, and `route_and_execute` writes it to the decision log. It does not hold for
+  the sections of the engine's output read in `route_and_execute` itself: a missing one
+  ends in that function's own handler, which has never written a record or carried
+  lineage. Unreachable either way. Whether that handler should is Viktor's (PHASE7_NEXT.md,
+  Open items).
+
+**Found by the sweep, not changed** (outside the ruling's scope, or not a fallback):
+`_build_decision_object`'s own parameter coercions — `degradation`, `provenance` and
+`lineage_record` read as `[]` or `{}` when not passed, and an `exit_watch` that is not a
+list recorded as `[]` — which serve direct callers, since on the engine's path every
+value now arrives by subscript; `core/engine_core.py`'s three other `degraded_inputs`
+defaults of `[]` (`:711`, `:770`, `:901` at `ef65f46`), "nothing degraded" when absent,
+not checked for reachability; and the supertrend direction of 0.0 when the
+`ST_Direction` column is missing (`:777`, `:905`), reachable on an indicator failure — a
+degraded value feeding the bias, not an unreachable fallback. On the list for after the
+audit (PHASE7_NEXT.md, "Found after 22 September").
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then

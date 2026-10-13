@@ -1,9 +1,9 @@
 # Next step — read this first
 
-*12 October 2026, morning. Rewritten by a docs-only commit that files Viktor's ruling
-of 08:24 that morning: the panel's eleven fallback readings and two repeated readings
-join round 8's label and record batch; the version it replaced — as it stood at
-`e5ac20a` — is in HISTORY verbatim.
+*13 October 2026, night. Rewritten by the commit that lands the fallback sweep — patch
+1 of the 12 October additions to round 8's label and record batch, under Viktor's
+ruling of 01:13 that night; the version it replaced — as it stood at `ef65f46` — is in
+HISTORY verbatim.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
 rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
@@ -59,12 +59,17 @@ stop**, at `c2b07fb`, **the trend gate**, at `1b25f36`, **and the regime**, at
 records of their own, at `9e507b1`, N5, Bitcoin reference only, at `6469a67`, F3,
 a frame with no readable time axis rejected, at `ae37795`, F5, the band distance
 labelled from the band's midpoint, at `9d00d99`, F6, `clean_series` without its
-look-ahead method, at `27d3ed5`, F8, one name for one meaning, at `9051ffd`, and F9,
-four claims the code did not support, at `e5ac20a`. **On 12 October the panel's
-fallback readings and two repeated readings joined the batch** (DECISIONS, "Ruling,
-12 October 2026 — the panel's fallback readings and two repeated readings join the
-label and record batch"); their shape and their place in the order are Viktor's, before
-any code. **Next:** the rest of the batch, one small patch at a time; then the fix verification by round 8's auditor on a
+look-ahead method, at `27d3ed5`, F8, one name for one meaning, at `9051ffd`, F9,
+four claims the code did not support, at `e5ac20a`, and the fallback sweep at the
+commit that writes this line. **On 12 October the panel's fallback readings and two
+repeated readings joined the batch; on 13 October their shape, scope and order were
+ruled** (DECISIONS, "Ruling, 13 October 2026 — the fallback sweep: the 12 October
+additions' shape, scope and order"): a value only printed or recorded falls back to
+the router's own word for an absent one, a value with no such word or one the engine
+computes with is read directly, and every default in the panel and the router's
+decision-building code is listed in a test. **Next:** patch 2, the two repeated
+readings; then B4's labels, B7, B9, B10 and Part 4's three test shapes, one small
+patch at a time; then the fix verification by round 8's auditor on a
 scoped package, the 14 September precedent (Work order). The release gate stays closed until that
 verification has reported on the stop. What the triage left open is Viktor's (Open
 items).
@@ -183,27 +188,50 @@ Its account is in HISTORY, in this file's version at `9051ffd`, moved there by
 **The session of 11 October, near midnight, to 12 October, early morning** (`e5ac20a`)
 landed F9, the seventh patch of the batch: four claims the code did not support, and
 the labels ruled in with them. Its account is in HISTORY, in this file's version at
-`e5ac20a`, moved there by the commit that writes this line.
+`e5ac20a`, moved there by `ef65f46`.
 
-**This session (12 October, morning)**, configured for Claude Opus 5.5, opened on
-Viktor's ruling of 08:24: the panel's eleven fallback readings and the two repeated
-readings found on F9's live run join the label and record batch, filed in the first
-commit. Read off Viktor's disk: `master` and `origin/master` both `e5ac20a`, so F9's
-push happened; the three files this commit changes matched an autocrlf clone of
-`e5ac20a` byte for byte. Before filing, Claude confirmed both repeated readings from the
-code and found three more fallbacks the ruling does not cover (DECISIONS, the ruling's
-last section; Open items). The commit that writes this line is docs only — this file,
-HISTORY and DECISIONS — and changes no code, so it has no live run.
+**The session of 12 October, morning** (`ef65f46`, docs only) filed Viktor's ruling of
+08:24: the panel's eleven fallback readings and the two repeated readings join the
+batch. Its account is in HISTORY, in this file's version at `ef65f46`, moved there by
+the commit that writes this line. Its two test steps were skipped at the time; Viktor
+ran both on Windows at 09:06 on 12 October, and both matched (pytest 792;
+`run_tests.py` 721 / 0 / 32) — recorded here at his instruction.
+
+**This session (12 October, evening, to 13 October, night)**, configured for Claude
+Opus 5.5, opened at `ef65f46` — `master` and `origin/master` on Viktor's disk, from
+`.git/refs` staged off it — and asked Viktor first, as the pace rule says, between B4's
+labels and the shape of the 12 October additions. Claude read the three fallbacks found
+filing that ruling and showed that none can fire on the engine's path; a run of the
+suite that recorded every `.get` default taken found 15 test files handing the panel
+hand-built decisions, and no `engine_core` default taken. Claude's first lean, to
+remove the fallbacks, was wrong, and was corrected to UNKNOWN once checked. Viktor
+agreed to Claude's suggestions at 01:13 on 13 October and settled two questions the
+rule left open by choosing the option Claude recommended (DECISIONS, "Ruling,
+13 October 2026 — the fallback sweep …", which records Claude's three errors on the
+way). The commit that writes this line lands patch 1, the sweep, with its live run
+before the commit.
 
 ## Ruled — in force
 
-- **New, 12 October — Viktor's: the panel's fallback readings and two repeated
+- **New, 13 October — Viktor's, by agreeing to Claude's suggestions: the fallback
+  sweep — the 12 October additions' shape, scope and order** (DECISIONS, "Ruling,
+  13 October 2026 — the fallback sweep: the 12 October additions' shape, scope and
+  order"). The three fallbacks found filing the 12 October ruling join, with STATUS's
+  twin in the router. A value only printed or recorded falls back to the router's own
+  value for an absent one; a value the engine computes with, and a router value whose
+  type has no UNKNOWN, is read directly. `reversal_strength` at `engine_core`'s two
+  bias calls is in. Patch 1 is the sweep of every default in the panel and the router's
+  decision-building code — **landed at the commit that writes this line**; patch 2
+  takes the REGIME line and the STRUCTURE line's Vol field out; then B4's labels. What
+  the patch read into the rule (numbers to NaN; the Bitcoin block unavailable rather
+  than an error; the exit watch "not computed") is Claude's, Viktor's to reverse.
+- **12 October — Viktor's: the panel's fallback readings and two repeated
   readings join the label and record batch** (DECISIONS, "Ruling, 12 October 2026 —
   the panel's fallback readings and two repeated readings join the label and record
   batch"). The eleven fallbacks listed under "Found after 22 September" at `e5ac20a`,
   REGIME printed beside STRUCTURE with the same value, and `bias.volatility` printed
-  on both the Vol field and the VOLATILITY line. Not ruled: each item's shape and its
-  place in the batch's order. Filed by the commit that writes this line; no code yet.
+  on both the Vol field and the VOLATILITY line. Filed at `ef65f46`; the shape and
+  order were ruled on 13 October (the entry above).
 - **12 October — Viktor's, by agreeing to Claude's suggestion: F9's shape and
   scope** (DECISIONS, "Ruling, 12 October 2026 — F9's shape and scope"). F9(1) is
   option C, as for finding 18: the structure regime is a plain function of the frame,
@@ -228,8 +256,8 @@ HISTORY and DECISIONS — and changes no code, so it has no live run.
   now. (9) F4 stays on the list. (10) The score check is declined. (11) The freeze
   lifts. Filed at `eb86846`. **(1) landed at `c2b07fb`, (4) at `1b25f36`, (3) at
   `fcb7823`, (6) at `9e507b1`, and (7) at `6469a67`; of (8), F3 at `ae37795`, F5
-  at `9d00d99`, F6 at `27d3ed5`, F8 at `9051ffd` and F9 at the commit that writes this
-  line**; the rest
+  at `9d00d99`, F6 at `27d3ed5`, F8 at `9051ffd`, F9 at `e5ac20a`, and the fallback
+  sweep the 12 October ruling added to it at the commit that writes this line**; the rest
   is to come, in the order below. Point 4
   left to the patch how an ADX with no valid reading is treated: it blocks both sides
   too (Work order, item 2). Point 3 left to it how LOW VOLATILITY maps without the
@@ -444,9 +472,10 @@ HISTORY and DECISIONS — and changes no code, so it has no live run.
 
 ## Where things stand, right now
 
-- **Tip:** the commit that writes this line (a commit cannot name its own hash) — docs
-  only: Viktor's ruling of 12 October on the panel's fallback and repeated readings,
-  filed. Before it: `e5ac20a` (the session of 11 October, near midnight, to 12 October,
+- **Tip:** the commit that writes this line (a commit cannot name its own hash) — the
+  fallback sweep, patch 1 of the 12 October additions: engine code, tests, a new test
+  file and docs. Before it: `ef65f46` (the session of 12 October, morning: Viktor's
+  ruling of 08:24 filed: docs only), `e5ac20a` (the session of 11 October, near midnight, to 12 October,
   early morning: F9, four claims the code beside them did not support: engine code, a
   new test file and docs), `9051ffd` (the session of 11 October, late evening: F8, one name for one
   meaning: engine code, a new test file and docs), `27d3ed5` (the session of
@@ -537,8 +566,13 @@ HISTORY and DECISIONS — and changes no code, so it has no live run.
   `tests/test_plan_entry_is_the_decision_close.py` and the new
   `tests/test_band_distance_is_from_the_midpoint.py` (`9d00d99`), in the new
   `tests/test_clean_series_methods.py` (`27d3ed5`), in the new
-  `tests/test_one_name_one_meaning.py` (`9051ffd`), and in the new
-  `tests/test_round8_f9_claims_match_the_code.py` (`e5ac20a`).
+  `tests/test_one_name_one_meaning.py` (`9051ffd`), in the new
+  `tests/test_round8_f9_claims_match_the_code.py` (`e5ac20a`), and in
+  `tests/test_direction_source.py`, `tests/test_macro_counts_once.py`,
+  `tests/test_risk_verdict_is_read_not_assumed.py`,
+  `tests/test_router_no_fabricated_zero_defaults.py`, `tests/test_signal_confirms.py`,
+  `tests/test_swing_structure_is_not_invented.py` and the new
+  `tests/test_an_absent_value_is_not_a_reading.py` (the commit that writes this line).
 - **Where the project lives, from 26 September:** `E:\phase7_engine` on Viktor's machine;
   the files kept outside the repository in `G:\Phase_7_Engine_Random_Files`. Copied with
   robocopy, verified — git's own checks on Windows for the tracked files, SHA-256 for the
@@ -547,50 +581,51 @@ HISTORY and DECISIONS — and changes no code, so it has no live run.
   to `E:\phase7_engine`". Run the engine and every command from `E:\phase7_engine` (in
   cmd, changing drive needs `cd /d`). A dated record that names the D: paths means the
   same folders before the move; dated records are not edited.
-- **The push of `e5ac20a`** happened: at the start of this session it was GitHub's tip
+- **The push of `ef65f46`** happened: at the start of this session it was GitHub's tip
   (a clone), and `master` and `origin/master` on Viktor's disk (`.git/refs`, staged off
   it). No deviation was reported at the push (ruling on proposal (b)). The same holds
   for the push of the commit that writes this line unless it deviates. Earlier pushes
   and deviations are recorded in this file's previous versions, in HISTORY.
 - **Before this commit**, every file it changes was staged off Viktor's disk and matched
-  an autocrlf clone of `e5ac20a` byte for byte; it adds no file.
-- **code_hash:** `3f8f218f00e89829ff87c2ae8c0bf52ea61d2e709c2ea2e618533ea4d0471be4`,
-  unchanged by the commit that writes this line, which touches only `docs/` (computed
-  on both trees, Python 3.12.3). It moved at `e5ac20a` (from `cb87efd8…`, which held at
-  `9051ffd`): `structure/structure.py`, `indicators/trend_health.py`,
-  `indicators/indicators.py`, `core/engine_core.py` and `core/panel_render.py`
-  (computed per file: those five moved). `models/bias_engine.py` changes in comments
-  only, which the fingerprint strips, and its fingerprint did not move; `tests/` and
-  `docs/` are outside it by directory. Computed on the working tree and on
-  the applied tree under Python 3.12.3. Confirmed on Windows before that commit by
-  Viktor's live run, whose decision-log record Claude read — `e5ac20a`'s message has it.
+  an autocrlf clone of `ef65f46` byte for byte; it adds one file,
+  `tests/test_an_absent_value_is_not_a_reading.py`.
+- **code_hash:** `76b17282a819769ba0db018d617666931f20e718c2395bf260d361d1fd952225`,
+  moved by the commit that writes this line from `3f8f218f…`, which held at `e5ac20a`
+  and `ef65f46`: `core/engine_core.py`, `core/panel_render.py` and
+  `models/signal_router.py` (computed per file: those three moved, and no other of the
+  33 files). `tests/` and `docs/` are outside it by directory. Computed on the working
+  tree and on the applied tree under Python 3.12.3; Viktor's live run before the commit
+  is what confirms it on Windows, and the commit message records the decision-log
+  record Claude read.
 - **code_hash is only comparable within one Python minor version.** It hashes `ast.dump`
   output, a CPython implementation detail (`core/code_fingerprint.py`, "WHAT IT DOES NOT
   SURVIVE"). **Every `code_hash` claim about this project is computed under Python 3.12**
   (Viktor runs 3.12.10).
-- **Golden snapshot:** unchanged by the commit that writes this line (docs only), and
-  by `e5ac20a`, as predicted there: no fingerprinted constant changes (`REGIME_HYSTERESIS_THRESHOLD` keeps its name and
-  value), so `run_hash` (`40dcdc72…`) holds; every label it changes is one a healthy
-  run does not produce, and the regime read is the same function on the engine's path
-  (20,436 frames compared, old against new: no difference). Last re-baselined at
-  `6469a67`, 8 leaves.
-- **Test suite** — **792 passed / 0 failed, no warnings line** with `pandas_ta`;
-  **635 passed / 146 skipped** without it; `run_tests.py` **721 passed / 0 failed /
-  32 errors**, all 32 fixture-collection `TypeError`s. The commit that writes this line
-  changes no test and no counts; re-run on it in the Linux sandbox, Python 3.12.3,
-  pinned requirements, the patch applied to an autocrlf clone of `e5ac20a`, because
-  ten test files read these documents. `e5ac20a` added the last 11 tests
-  (`tests/test_round8_f9_claims_match_the_code.py`); its message has what Viktor's
-  Windows run showed. One test,
+- **Golden snapshot:** unchanged by the commit that writes this line, as predicted:
+  no fingerprinted name or value changes, so `run_hash` (`40dcdc72…`) holds, and no
+  default it changes is taken on the fixture's path — the golden run's whole decision
+  object and its 86-line panel were compared old against new, and are identical but
+  for `code_hash`, which the snapshot excludes. Unchanged by `ef65f46` (docs only) and
+  by `e5ac20a`. Last re-baselined at `6469a67`, 8 leaves.
+- **Test suite** — **808 passed / 0 failed, no warnings line** with `pandas_ta`;
+  **651 passed / 146 skipped** without it; `run_tests.py` **737 passed / 0 failed /
+  32 errors**, all 32 fixture-collection `TypeError`s, the same 32 as before. The
+  commit that writes this line adds 16 tests
+  (`tests/test_an_absent_value_is_not_a_reading.py`, fixture-free, none needing
+  `pandas_ta`) and gives the hand-built router inputs of 30 tests in six files the
+  values the router used to invent. Counts from the Linux sandbox, Python 3.12.3,
+  pinned requirements, the patch applied to an autocrlf clone of `ef65f46`; Viktor's
+  Windows run is what confirms them. `ef65f46`'s test steps were skipped at the time,
+  then run on Windows at 09:06 on 12 October: both matched (792; 721 / 0 / 32). One test,
   `test_the_commit_messages_up_to_the_tag_are_round_7s_to_the_byte`, runs `git log` up
   to the tag `round7-sent-2026-09-30`: it needs the tag, which a full clone has.
 - **Engineering Notes:** through Entry #183 (v1.36), which covers `68c6191`.
-  **Thirty-one commits behind** — `ec4e5fd`, the floor (a commit that regenerates the Notes cannot
+  **Thirty-two commits behind** — `ec4e5fd`, the floor (a commit that regenerates the Notes cannot
   cover itself, Entry #144), `e7a94d1`, `d5ced0c`, `59b747a`, `f256937`, `12b483e`,
   `01f2892`, `8b6fd00`, `e186423`, `86f30f1`, `3e8191a`, `1523e0c`, `ff12e17`,
   `4a4c6ce`, `217ede6`, `d27743f`, `a0276dd`, `040a529`, `9e42d30`, `eb86846`,
   `c2b07fb`, `1b25f36`, `fcb7823`, `9e507b1`, `6469a67`, `ae37795`, `9d00d99`,
-  `27d3ed5`, `9051ffd`, `e5ac20a` and the commit that writes this line. Every later
+  `27d3ed5`, `9051ffd`, `e5ac20a`, `ef65f46` and the commit that writes this line. Every later
   commit adds one
   until the
   next regeneration. Batched, by
@@ -605,9 +640,9 @@ HISTORY and DECISIONS — and changes no code, so it has no live run.
   identical to the committed PDF. Neither changes in the commit that writes this line;
   the Attribution Statement's script last changed at `68c6191`, the Portfolio
   Document's at `6e1baba`.
-- **README.md:** its test counts are current (792, 635 / 146 and 721), last changed at
-  `e5ac20a`; the commit that writes this line does not touch it, so the hook's section 5
-  will report 1 commit since it was touched. Its paragraph on what is empirically validated was rewritten at
+- **README.md:** its test counts are current (808, 651 / 146 and 737), changed by the
+  commit that writes this line, so the hook's section 5 will report 0 commits since it
+  was touched. Its paragraph on what is empirically validated was rewritten at
   `6469a67` (the BTC-Adjusted Prediction removed) — Viktor's to reword (Open items).
   **Three of its status rows are stale** and not changed here (Open items):
   "Independent audit", "Backtesting" and, since 5 October, "Release gate", which still
@@ -629,7 +664,7 @@ run and the panel read happen before `git commit`, and Claude checks the decisio
 record for the new `code_hash` before the commit step, not after the push.** Never
 predict live numbers; check the record. Followed at `2c7a7d1`, `4e2b1c8`, `486f1a5`,
 `3bfa6b7`, `add8540`, `57f0521`, `b0efe23`, `76c8cde`, `8b9ac1e`, `d76ddfd`, `7d0024e`, `c2b07fb`,
-`1b25f36`, `fcb7823`, `9e507b1`, `6469a67`, `ae37795`, `9d00d99`, `27d3ed5`, `9051ffd` and `e5ac20a`: the command list stopped at the live run, Claude read the record,
+`1b25f36`, `fcb7823`, `9e507b1`, `6469a67`, `ae37795`, `9d00d99`, `27d3ed5`, `9051ffd`, `e5ac20a` and the commit that writes this line: the command list stopped at the live run, Claude read the record,
 and only then gave the commit steps. **Since finding 16, a
 live run in the first 60 seconds after a 4h close (00:00, 04:00, 08:00, 12:00, 16:00,
 20:00 UTC) fails by design** ("not yet final"); run again a minute later.
@@ -1256,26 +1291,23 @@ Viktor's to answer.
   structure.py`; F9, 12 October). Renaming it moves `run_hash` and the golden snapshot,
   so the name was kept and its comment corrected; the rename waits for after the audit,
   with CONFIRMED's (DECISIONS, "Ruling, 12 October 2026 — F9's shape and scope").
-- **The panel still falls back to readings for missing labels** (`core/panel_render.py`,
-  read at `9051ffd`; found building F9, 12 October). Beside the TREND line F9 fixed:
-  BIAS and BTC BIAS fall back to NEUTRAL, REGIME and BTC REGIME to NEUTRAL STRUCTURE,
-  STRUCTURE to NEUTRAL, both Vol fields to NORMAL, SEQUENCE to NONE, VOLUME to WEAK OR
-  CONTRARY VOLUME, VALIDATION to WEAK, VOLATILITY to LOW, RISK REGIME to NORMAL RISK,
-  and MACRO TREND to NEUTRAL; and `core/engine_core.py` passes `trend_direction` to the
-  entry score with a NEUTRAL fallback. Whether any can fire on the engine's path was
-  not checked for these, only for the TREND line, where the router writes every key.
-  **Ruled 12 October: joins the label and record batch** (DECISIONS, "Ruling,
-  12 October 2026 — the panel's fallback readings and two repeated readings join the
-  label and record batch"); kept here until its patch lands, as the batch's other
-  entries were.
-- **Three more fallbacks, found filing that ruling and not covered by it** (read at
-  `e5ac20a`; whether any can fire was not checked): STATUS falls back to ACTIVE ENTRY
-  ZONE (`core/panel_render.py:883`), the one panel fallback that asserts a positive
-  reading; ACTION to WAIT (`:343`), whose comment says the router always supplies
-  `action`; and the BTC call to `calculate_dynamic_bias` in `core/engine_core.py`
-  (`:908`, `:915`, `:916`) to NONE, NEUTRAL STRUCTURE and NEUTRAL VOLUME, the three
-  defaults the 2 September note removed from the asset's own path. Whether they join
-  the batch is Viktor's (Open items).
+- **Found by the fallback sweep, not changed by it** (13 October; line numbers at
+  `ef65f46`; DECISIONS, "Ruling, 13 October 2026 — the fallback sweep …", last
+  section). `_build_decision_object`'s own parameter coercions: `degradation`,
+  `provenance` and `lineage_record` read as `[]` or `{}` when not passed, and an
+  `exit_watch` that is not a list recorded as `[]` — they serve direct callers, since
+  on the engine's path every value now arrives by subscript. `core/engine_core.py`'s
+  three other `degraded_inputs` defaults of `[]` (`:711`, `:770`, `:901`), "nothing
+  degraded" when absent — not checked for reachability. The supertrend direction of
+  0.0 when the `ST_Direction` column is missing (`:777`, `:905`) — reachable on an
+  indicator failure, so a degraded value feeding the bias rather than an unreachable
+  fallback; whether its absence is recorded as a degradation was not checked. On
+  this list by the 22 September ruling, not separately ruled.
+- **The panel prints two readings twice** (found on F9's live run, 12 October):
+  REGIME prints the value STRUCTURE prints, and `bias.volatility` is on both the
+  STRUCTURE line's Vol field and the VOLATILITY line. **Ruled 13 October: the REGIME
+  line and the Vol field go, in patch 2** (DECISIONS, "Ruling, 13 October 2026 — the
+  fallback sweep …", point 6); kept here until its patch lands.
 - **Fable 5.1 works on this list after the audit** (DECISIONS, "Ruling, 29 September
   2026 — Fable 5.1 works on the list for after the audit, not before it"). Not a
   finding; recorded here so the list says who works on it after the audit.
@@ -1332,11 +1364,11 @@ Each code commit is its own commit and updates this file for its own landing.
      readable time axis (F3) — **done at `ae37795`**; the band distance (F5) — **done
      at `9d00d99`**; `clean_series`'s look-ahead method (F6) — **done at `27d3ed5`**;
      one name for one meaning (F8) — **done at `9051ffd`**; four claims the code did
-     not support (F9) — **done at `e5ac20a`**; B4's labels, B7,
-     B9 and B10; the three test shapes of
-     round 8's Part 4; and, ruled 12 October, the panel's eleven fallback readings and
-     its two repeated readings (their shape and place in this order are Viktor's,
-     before any code).
+     not support (F9) — **done at `e5ac20a`**; the 12 October additions, in the order
+     ruled on 13 October: patch 1, the fallback sweep — **done at the commit that
+     writes this line** — and patch 2, the two repeated readings (the REGIME line and
+     the STRUCTURE line's Vol field go); then B4's labels, B7, B9 and B10; and the
+     three test shapes of round 8's Part 4.
      **B6:** the run's source is read once per run (`_is_live_run`: live only when no
      pinned source is set), and a live run's state, archive and log stay exactly where
      they were, in `config.LOG_DIR`; any other run's go to its `pinned/` subdirectory
@@ -1476,16 +1508,44 @@ Each code commit is its own commit and updates this file for its own landing.
      new label and note is the patch's proposal, Viktor's to reverse. Changes no
      decision. The live run and its record came before the commit. It moved
      `code_hash`; `run_hash` and the golden snapshot did not move, as predicted.
+     **The fallback sweep** (patch 1 of the 12 October additions): every default in
+     `core/panel_render.py` and in the router's decision-building code is listed in
+     `tests/test_an_absent_value_is_not_a_reading.py` with the reason it is allowed, and
+     a default added or removed in either file fails it. Those that were readings are
+     changed under the ruling of 13 October. The panel: BIAS, REGIME, STRUCTURE, Vol,
+     SEQUENCE, VOLUME, VALIDATION, VOLATILITY, RISK REGIME, MACRO TREND, STATUS,
+     DECISION, the timeframe and the three BTC lines fall back to UNKNOWN, UNKNOWN
+     STRUCTURE, UNKNOWN VOLUME or UNKNOWN RISK, the router's own words; BROAD MARKET
+     STRESS prints UNKNOWN for an absent flag, where it printed "No"; an absent exit
+     watch says it was not computed, where it said no flags were active. The router:
+     every section of the engine's output is read by subscript, macro_bias apart (it
+     falls back to UNKNOWN); the two trend booleans, the two signals and
+     `score_clipped` are read directly; the entry score, its sub-scores and
+     reconciliation, and the three EV fields go through `_finite_or_nan`; STATUS's twin
+     falls back to UNKNOWN and the correlation label to NOT MEASURED; a Bitcoin block
+     missing a boolean or list is unavailable, not an error for the asset.
+     `engine_core`: `trend_direction` into the entry score, `reversal_strength` into
+     both bias calls, and the BTC call's sequence, regime and volume sentiment are read
+     directly. None of these could fire on the engine's path. The 30 tests in six files
+     whose hand-built inputs left a now-direct key out are given exactly the value the
+     router used to invent. What the patch read into the rule is Claude's, Viktor's to
+     reverse (the ruling's entry). Changes no decision: on the golden fixture the
+     decision object and the 86-line panel are identical before and after. The live run
+     and its record came before the commit. It moved `code_hash`; `run_hash` and the
+     golden snapshot did not move, as predicted.
   5. **The fix verification** by round 8's auditor, on a scoped package (the
      14 September precedent) — Claude's, under the delegation of 4 October. The release
      gate reopens only on its report (point 2).
 
 ## Resolved this session
 
-- **Viktor's call — the panel's other fallback readings:** ruled 12 October, at 08:24:
-  they join the label and record batch, with the two repeated readings found on F9's
-  live run. Filed by the commit that writes this line.
-- **The once-per-session rewrite of this file.** The previous version, as at `e5ac20a`,
+- **Viktor's call — the shape and order of the 12 October additions:** ruled
+  13 October at 01:13, by agreeing to Claude's suggestions, with two open questions
+  settled the same night (DECISIONS, "Ruling, 13 October 2026 — the fallback sweep
+  …"). Patch 1 lands with the commit that writes this line.
+- **Viktor's call — the three more fallbacks:** ruled the same night: they join, in
+  patch 1.
+- **The once-per-session rewrite of this file.** The previous version, as at `ef65f46`,
   is in HISTORY verbatim, headings demoted one level, proven by un-demotion with a
   negative control (this commit's message has the result).
 
@@ -1496,14 +1556,15 @@ Claude critiques it.
 
 - **Owed to the next commit:** nothing, unless this commit's push deviates from its
   prediction (ruling on proposal (b), 27 September).
-- **Viktor's call — the shape and order of the 12 October additions to the batch**
-  (DECISIONS, "Ruling, 12 October 2026 — the panel's fallback readings …", "Not
-  ruled"): for each fallback, removed or UNKNOWN; for each repeated pair, which line
-  goes or is relabelled; and where they come in the batch's order. Claude puts the
-  shape to him before any diff, as for F9.
-- **Viktor's call — three more fallbacks** ("Found after 22 September", found filing
-  that ruling): STATUS → ACTIVE ENTRY ZONE, ACTION → WAIT, and the BTC call's NONE,
-  NEUTRAL STRUCTURE and NEUTRAL VOLUME — the batch now, or the list for after the audit.
+- **Viktor's, only if he wants it — an engine output with a section missing leaves no
+  record.** The router now reads every section of the engine's output by subscript
+  (the fallback sweep), so a missing one fails in `route_and_execute`'s own handler,
+  which renders an error and has never written a decision-log record or carried the
+  run's lineage — unlike a failure inside `_build_decision_object`, whose error record
+  keeps both and is logged. Unreachable: the engine writes every section on every
+  result that is not an error. Claude's question of 13 October said the lineage was
+  kept in both cases; it is not (DECISIONS, the sweep's ruling, "Claude's errors").
+  Whether that handler should log, with lineage, is his; nothing is owed.
 - **Viktor's, not ruled — the positions of 6 and 7 October** (DECISIONS, "Position,
   6 October 2026 — all the work and the list for after the audit first, then one full
   audit by Amazon; not ruled"). Open: how Amazon's audit is scored if the whole list for
@@ -1661,7 +1722,7 @@ Claude critiques it.
   `fcb7823` and `9e507b1` touched only README's test counts (`1b25f36` was missing from
   this list in the version at `fcb7823`, which kept the sentence as `1b25f36` had
   written it), `6469a67` its counts and its paragraph on what is empirically
-  validated, `ae37795` its counts, `9d00d99` its counts, `27d3ed5` its counts, `9051ffd` its counts, and `e5ac20a` its counts. The first still says the next round is paused until work order G and the six
+  validated, `ae37795` its counts, `9d00d99` its counts, `27d3ed5` its counts, `9051ffd` its counts, `e5ac20a` its counts, and the commit that writes this line its counts. The first still says the next round is paused until work order G and the six
   findings are done, which happened at `7d0024e`; the third predates the ruling of
   29 September on what opens backtesting. The second reads Open; the gate is closed since
   5 October. All three are written in Viktor's voice, so the new wording goes to him
@@ -1683,9 +1744,10 @@ Claude critiques it.
   `fcb7823` there and added B6's line; `6469a67` named `9e507b1` there and added
   N5's line; `ae37795` named `6469a67` there and added F3's line; `9d00d99` named
   `ae37795` there and added F5's line; `27d3ed5` named `9d00d99` there and added F6's
-  line; `9051ffd` named `27d3ed5` there and added F8's line; the commit that writes
-  this line names `9051ffd` there and adds F9's line, under the same wording, for a
-  later commit to name.
+  line; `9051ffd` named `27d3ed5` there and added F8's line; `e5ac20a` named `9051ffd`
+  there and added F9's line; the commit that writes this line names `e5ac20a` there
+  and adds the fallback sweep's line, under the same wording, for a later commit to
+  name. (`ef65f46`, docs only, changed no line there.)
 - **The pre-push hook is installed per clone, not per repository.** After any re-clone
   (including after a machine wipe), run `git config core.hooksPath githooks`;
   `session_handover_check.py` section 6 flags a clone without it.

@@ -236,12 +236,16 @@ def test_an_opposing_macro_does_not_block_a_confirmed_trade():
     error record, which has no "exit".
     """
     from models.signal_router import SignalRouter
-    entry = {"score": 80.0, "entry_status": "ACTIVE ENTRY ZONE", **_signals()}
+    # 13 October 2026, the fallback sweep: score_clipped and
+    # trend_exhaustion are read directly by the router now; each is given
+    # the False it used to default to, so the record is unchanged.
+    entry = {"score": 80.0, "entry_status": "ACTIVE ENTRY ZONE",
+             "score_clipped": False, **_signals()}
     out = SignalRouter(engine_core=object())._build_decision_object(
         symbol="TESTUSDT", timeframe="4h",
         bias={"raw": "BULLISH", "score": 78.0},
         trend={"trend_health": 90.0, "trend_direction_sign": 1,
-               "momentum_divergence": False},
+               "trend_exhaustion": False, "momentum_divergence": False},
         structure={}, entry=entry,
         risk={"risk_valid": True, "risk_reason": "OK",
               "risk_regime": "NORMAL RISK", "validation_state": "NEUTRAL",

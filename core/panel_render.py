@@ -57,6 +57,20 @@ def _score_text(value, denominator=100.0):
         return f"{value:.2f}/{denominator:.0f}"
     return "not computed"
 
+
+def _stress_text(value):
+    """
+    BROAD MARKET STRESS, as YES or No when it was classified, UNKNOWN when
+    it was not.
+
+    13 OCTOBER 2026, the fallback sweep. The line read
+    'YES' if btc.get('broad_market_stress') else 'No', so an absent flag
+    printed "No" -- a market nobody classified, reported calm.
+    """
+    if isinstance(value, bool):
+        return "YES" if value else "No"
+    return "UNKNOWN"
+
 # Safe colorama import with fallback
 try:
     from colorama import init, Fore, Style
@@ -112,8 +126,13 @@ def render_panel(decision):
         # reasoning uses -- see asset_name() there.
         from models.decision_model import asset_name
         asset = asset_name(symbol)
-        timeframe = str(decision.get("timeframe", "4h"))
-        macro_bias = str(decision.get("macro_bias", "NEUTRAL"))
+        # 13 OCTOBER 2026, the fallback sweep (DECISIONS, "Ruling, 13 October
+        # 2026 -- the fallback sweep"): these were "4h" and "NEUTRAL", a
+        # timeframe and a macro reading nobody stated. The router writes both
+        # keys on every decision it builds, so neither could fire on the
+        # engine's path; absent, they now read UNKNOWN, as symbol already did.
+        timeframe = str(decision.get("timeframe", "UNKNOWN"))
+        macro_bias = str(decision.get("macro_bias", "UNKNOWN"))
 
         # Extract sections with safe defaults
         bias = decision.get("bias", {}) if isinstance(decision.get("bias"), dict) else {}
@@ -340,7 +359,11 @@ def render_panel(decision):
         # none: it implies the DECISION line has a second source when it has
         # one, and the one it named printed an exit verdict under a decision
         # heading.
-        action_val = str(exit_data.get('action', 'WAIT'))
+        # 13 OCTOBER 2026, the fallback sweep: the 'WAIT' that comment left
+        # behind was the same kind of fallback -- an action nobody decided.
+        # Absent, the DECISION line now reads UNKNOWN, the router's own word
+        # for it (its log line, route_and_execute).
+        action_val = str(exit_data.get('action', 'UNKNOWN'))
 
         # C1: Decision Reasoning trail. Built from decision["explanation"]["reasons"],
         # which comes from the exact same evaluation path signal_router.py used to
@@ -383,15 +406,22 @@ def render_panel(decision):
         # FINDING 5: the always-on note naming Target 1 is a target, so it is
         # not printed under a NEUTRAL bias. It is still in the decision
         # object and the log; only this rendering skips it.
-        exit_watch = decision.get("exit_watch", [])
-        exit_watch = exit_watch if isinstance(exit_watch, list) else []
+        # 13 OCTOBER 2026, the fallback sweep: an absent exit_watch was read
+        # as [], and printed "No exit-watch flags are active right now" -- a
+        # reading of a list nobody built. The router writes the key on every
+        # decision, so this could not fire on the engine's path; absent, it
+        # now says it was not computed.
+        exit_watch = decision.get("exit_watch")
+        exit_watch_computed = isinstance(exit_watch, list)
+        exit_watch = exit_watch if exit_watch_computed else []
         if plan_withheld:
             from models.exit_model import TARGET1_NOTE_PREFIX
             exit_watch = [flag for flag in exit_watch
                           if not str(flag).startswith(TARGET1_NOTE_PREFIX)]
         exit_watch_lines = _wrap_bullets(
             exit_watch,
-            "No exit-watch flags are active right now.",
+            "No exit-watch flags are active right now." if exit_watch_computed
+            else "Exit watch was not computed for this run.",
         )
 
         # BTC MARKET CONTEXT (new feature, V1): informational only, never
@@ -674,11 +704,17 @@ def render_panel(decision):
             btc_section = (
                 f"{divider}"
                 f"BTC Market Context (informational only -- does not change BIAS or DECISION above):\n"
-                f"BTC BIAS      : {colorize_val(btc.get('detailed', 'NEUTRAL'))}\n"
-                f"BTC REGIME    : {colorize_val(btc.get('regime', 'NEUTRAL STRUCTURE'))} | "
-                f"Vol: {colorize_val(btc.get('volatility', 'NORMAL'))}\n"
+                # 13 OCTOBER 2026, the fallback sweep: the three fallbacks
+                # here were NEUTRAL, NEUTRAL STRUCTURE and NORMAL, and an
+                # absent stress flag printed "No". The router writes every
+                # key of an available block, so none could fire on the
+                # engine's path; absent, each now reads UNKNOWN, as the
+                # router's own fallback for the same key does.
+                f"BTC BIAS      : {colorize_val(btc.get('detailed', 'UNKNOWN'))}\n"
+                f"BTC REGIME    : {colorize_val(btc.get('regime', 'UNKNOWN STRUCTURE'))} | "
+                f"Vol: {colorize_val(btc.get('volatility', 'UNKNOWN'))}\n"
                 f"{_correlation_lines(btc, colorize_val)}"
-                f"BROAD MARKET STRESS: {colorize_val('YES' if btc.get('broad_market_stress') else 'No')}\n\n"
+                f"BROAD MARKET STRESS: {colorize_val(_stress_text(btc.get('broad_market_stress')))}\n\n"
             )
         else:
             btc_section = (
@@ -850,10 +886,19 @@ def render_panel(decision):
         panel = (
             f"{header_banner}"
             f"{box_top}{title_line}{box_mid}"
-            f"BIAS       : {colorize_val(bias.get('detailed', bias.get('raw', 'NEUTRAL')))}\n"
-            f"REGIME     : {colorize_val(bias.get('regime', 'NEUTRAL STRUCTURE'))}\n"
-            f"STRUCTURE  : {colorize_val(structure.get('regime', 'NEUTRAL'))} | Vol: {colorize_val(bias.get('volatility', 'NORMAL'))}\n"
-            f"SEQUENCE   : {colorize_val(structure.get('sequence', 'NONE'))}\n"
+            # 13 OCTOBER 2026, the fallback sweep (DECISIONS, "Ruling, 13
+            # October 2026 -- the fallback sweep"): BIAS, REGIME, STRUCTURE,
+            # Vol, SEQUENCE, VOLUME, VALIDATION, VOLATILITY, RISK REGIME and
+            # STATUS below fell back to readings -- NEUTRAL, NEUTRAL
+            # STRUCTURE, NORMAL, NONE, WEAK OR CONTRARY VOLUME, WEAK, LOW,
+            # NORMAL RISK, ACTIVE ENTRY ZONE. The router writes every one of
+            # these keys on every decision it builds, so none could fire on
+            # the engine's path. Absent, each now reads the router's own
+            # fallback for the same key, as TREND's did from F9.
+            f"BIAS       : {colorize_val(bias.get('detailed', bias.get('raw', 'UNKNOWN')))}\n"
+            f"REGIME     : {colorize_val(bias.get('regime', 'UNKNOWN STRUCTURE'))}\n"
+            f"STRUCTURE  : {colorize_val(structure.get('regime', 'UNKNOWN STRUCTURE'))} | Vol: {colorize_val(bias.get('volatility', 'UNKNOWN'))}\n"
+            f"SEQUENCE   : {colorize_val(structure.get('sequence', 'UNKNOWN'))}\n"
             # ROUND 8, F9, 12 October 2026: the two fallbacks were 'NEUTRAL'
             # and 'HEALTHY' -- a direction and a momentum nobody measured.
             # They cannot fire on the engine's path (the router writes both
@@ -866,21 +911,21 @@ def render_panel(decision):
             # line prints momentum_mode too, after the slash, so the label
             # was the same reading twice. F8, round 8 (Item 10), 11 October
             # 2026: the MOMENTUM line is gone; the TREND line carries both.
-            f"VOLUME     : {colorize_val(structure.get('volume_sentiment', 'WEAK OR CONTRARY VOLUME'))}\n"
-            f"VALIDATION : {colorize_val(risk.get('validation_state', 'WEAK'))} (Score: {_score_text(validation_score)})\n"
-            f"VOLATILITY : {colorize_val(bias.get('volatility', 'LOW'))}\n"
+            f"VOLUME     : {colorize_val(structure.get('volume_sentiment', 'UNKNOWN VOLUME'))}\n"
+            f"VALIDATION : {colorize_val(risk.get('validation_state', 'UNKNOWN'))} (Score: {_score_text(validation_score)})\n"
+            f"VOLATILITY : {colorize_val(bias.get('volatility', 'UNKNOWN'))}\n"
             # ITEM 14 RE-AUDIT (Finding 5): the independent risk classification
             # that now caps the AGGRESSIVE action label -- see
             # decision_model.py's _determine_final_action. Shown so the
             # reasoning in Decision Reasoning below ("the risk regime is HIGH
             # VOLATILITY RISK") points at something visible on the panel.
-            f"RISK REGIME: {colorize_val(risk.get('risk_regime', 'NORMAL RISK'))}\n"
+            f"RISK REGIME: {colorize_val(risk.get('risk_regime', 'UNKNOWN RISK'))}\n"
             f"MACRO TREND: {colorize_val(macro_bias)}\n\n"
             f"{divider}"
             f"{current_price_line}"
             f"{live_price_line}"
             f"{_entry_zone_lines(entry, c_cyan, reset)}"
-            f"STATUS        : {colorize_val(entry.get('entry_status', 'ACTIVE ENTRY ZONE'))}\n"
+            f"STATUS        : {colorize_val(entry.get('entry_status', 'UNKNOWN'))}\n"
             f"{swing_struct_line}\n"
             f"{plan_lines}\n"
             f"{divider}"

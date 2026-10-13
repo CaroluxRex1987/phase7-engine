@@ -90,6 +90,17 @@ LONG_PLAN = {"atr_stop": 0.45, "targets": (0.49, 0.51, 0.53),
              "validation_state": "NEUTRAL", "validation_score": 45.0}
 
 
+# 13 OCTOBER 2026, the fallback sweep (DECISIONS, "Ruling, 13 October 2026
+# -- the fallback sweep"): the router reads these five directly now, where
+# it used to default each to False when absent. They are supplied here with
+# exactly those values, so the record these tests read is the one they read
+# before. False beside an absent blocker list is still "not computed" to the
+# decision model's signal gate, as an absent signal was.
+ROUTER_READS_TREND = {"trend_exhaustion": False, "momentum_divergence": False}
+ROUTER_READS_ENTRY = {"long_signal": False, "short_signal": False,
+                      "score_clipped": False}
+
+
 def _evaluate(bias, trend, entry, risk, macro_bias):
     """
     WORK ORDER G, 27 September 2026: through the router, not
@@ -103,7 +114,8 @@ def _evaluate(bias, trend, entry, risk, macro_bias):
     """
     out = SignalRouter(engine_core=object())._build_decision_object(
         symbol="AEROUSDT", timeframe="4h",
-        bias=bias, trend=trend, structure={}, entry=entry, risk=risk,
+        bias=bias, trend={**ROUTER_READS_TREND, **trend}, structure={},
+        entry={**ROUTER_READS_ENTRY, **entry}, risk=risk,
         exit_data={"current_price": 1.0},
         macro_bias=macro_bias, chart_path="",
     )

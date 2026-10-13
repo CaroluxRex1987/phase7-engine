@@ -11,6 +11,10 @@ from core.panel_render import render_panel
 from models.decision_model import DecisionModel
 # GLM F-7, extended -- 6 September 2026. See models/risk_model.py.
 from models.risk_model import read_risk_verdict
+# 13 October 2026, the fallback sweep: for NOT_MEASURED_LABEL, read as an
+# attribute rather than imported by name (see fix 2's note on module
+# constants, core/decision_log.py's FINGERPRINTED_MODULES).
+import models.btc_context as btc_context_module
 
 logger = logging.getLogger(__name__)
 
@@ -170,26 +174,39 @@ class SignalRouter:
 
             # Build unified decision dictionary with dynamic decision logic
             try:
+                # 13 OCTOBER 2026, the fallback sweep (DECISIONS, "Ruling,
+                # 13 October 2026 -- the fallback sweep"): every key below was
+                # read with a default -- {} for the sections, [] for
+                # degradation and exit_watch, NEUTRAL for macro_bias.
+                # engine_core writes all of them on every result that is not
+                # an error (the one decision_object it returns), so none could
+                # fire. Read directly now: a missing one is a broken engine
+                # contract, and it fails here as one -- through the handler
+                # below, which has never written a record or carried lineage.
+                # degradation mattered most: an absent list read as [] told
+                # the decision model the run was complete. macro_bias is
+                # printed and recorded only, so it keeps a fallback, the
+                # router's own word for an absent reading.
                 decision = self._build_decision_object(
                     symbol=symbol,
                     timeframe=timeframe,
-                    bias=raw_output.get("bias", {}),
-                    trend=raw_output.get("trend", {}),
-                    structure=raw_output.get("structure", {}),
-                    entry=raw_output.get("entry", {}),
-                    risk=raw_output.get("risk", {}),
-                    exit_data=raw_output.get("exit", {}),
-                    degradation=raw_output.get("degradation", []),
-                    provenance=raw_output.get("provenance", {}),
+                    bias=raw_output["bias"],
+                    trend=raw_output["trend"],
+                    structure=raw_output["structure"],
+                    entry=raw_output["entry"],
+                    risk=raw_output["risk"],
+                    exit_data=raw_output["exit"],
+                    degradation=raw_output["degradation"],
+                    provenance=raw_output["provenance"],
                     # AUDIT FINDING 7 (Item 6): the lineage chain, passed
                     # through with provenance. This assembly is a whitelist --
                     # a key engine_core produces and this call does not name is
                     # silently dropped -- so a record that never reaches the
                     # decision log is the default outcome of adding one.
-                    lineage_record=raw_output.get("lineage", {}),
-                    exit_watch=raw_output.get("exit_watch", []),
-                    btc_context=raw_output.get("btc_context", {}),
-                    macro_bias=raw_output.get("macro_bias", "NEUTRAL"),
+                    lineage_record=raw_output["lineage"],
+                    exit_watch=raw_output["exit_watch"],
+                    btc_context=raw_output["btc_context"],
+                    macro_bias=raw_output.get("macro_bias", "UNKNOWN"),
                     # SEQUENCE ITEM 14: the default was a hardcoded
                     # f"Logs/Charts/chart_{symbol}_{timeframe}.png" — a fourth
                     # copy of a path config declares, in a directory whose name
@@ -333,9 +350,16 @@ class SignalRouter:
                     # them, so a change to the canonical field would have gone
                     # unnoticed there.
                     "trend_health": self._finite_or_nan(trend.get("trend_health")),
-                    "exhaustion": bool(trend.get("trend_exhaustion", False)),
+                    # 13 OCTOBER 2026, the fallback sweep: this and
+                    # momentum_divergence below defaulted to False -- no
+                    # exhaustion, no divergence -- when absent. A bool has no
+                    # UNKNOWN, and compute_trend_health writes both on all four
+                    # of its returns, so they are read directly: a missing one
+                    # is a defect, and the handler at the end of this function
+                    # records it as one, with provenance and lineage.
+                    "exhaustion": bool(trend["trend_exhaustion"]),
                     "momentum_mode": str(trend.get("momentum_mode", "UNKNOWN")),
-                    "momentum_divergence": bool(trend.get("momentum_divergence", False)),
+                    "momentum_divergence": bool(trend["momentum_divergence"]),
                     "divergence_direction": str(trend.get("divergence_direction", "UNKNOWN")),
                     "trend_direction": str(trend.get("trend_direction", "UNKNOWN")),
                 },
@@ -374,20 +398,31 @@ class SignalRouter:
                     # them.
                     "zone_lower": self._finite_or_nan(entry.get("zone_lower")),
                     "zone_upper": self._finite_or_nan(entry.get("zone_upper")),
-                    "long_signal": bool(entry.get("long_signal", False)),
-                    "short_signal": bool(entry.get("short_signal", False)),
+                    # 13 OCTOBER 2026, the fallback sweep: the two signals and
+                    # score_clipped defaulted to False, and every number in
+                    # this block to 0.0, 1.0 or 100.0 -- a score, five
+                    # sub-scores and a reconciliation nobody computed, and a
+                    # STATUS of ACTIVE ENTRY ZONE. engine_core builds this
+                    # section from calculate_entry_quality by subscript, and
+                    # that function returns every key on all three of its
+                    # returns, so none could fire. The booleans are read
+                    # directly (a bool has no UNKNOWN); the numbers go through
+                    # _finite_or_nan, the router's own value for an absent
+                    # number; the status falls back to UNKNOWN.
+                    "long_signal": bool(entry["long_signal"]),
+                    "short_signal": bool(entry["short_signal"]),
                     # Work order F. An absent list is recorded as absent, not
                     # as an empty one: an empty list would read as "confirmed".
                     "long_signal_blockers": self._blocker_list(entry.get("long_signal_blockers")),
                     "short_signal_blockers": self._blocker_list(entry.get("short_signal_blockers")),
-                    "score": float(entry.get("score", 0.0)),
+                    "score": self._finite_or_nan(entry.get("score")),
                     "distance_from_zone": self._finite_or_nan(entry.get("distance_from_zone")),
-                    "entry_status": str(entry.get("entry_status", "ACTIVE ENTRY ZONE")),
-                    "ema_pos_pts": float(entry.get("ema_pos_pts", 0.0)),
-                    "atr_dist_pts": float(entry.get("atr_dist_pts", 0.0)),
-                    "vwma_pts": float(entry.get("vwma_pts", 0.0)),
-                    "rsi_pts": float(entry.get("rsi_pts", 0.0)),
-                    "struct_pts": float(entry.get("struct_pts", 0.0)),
+                    "entry_status": str(entry.get("entry_status", "UNKNOWN")),
+                    "ema_pos_pts": self._finite_or_nan(entry.get("ema_pos_pts")),
+                    "atr_dist_pts": self._finite_or_nan(entry.get("atr_dist_pts")),
+                    "vwma_pts": self._finite_or_nan(entry.get("vwma_pts")),
+                    "rsi_pts": self._finite_or_nan(entry.get("rsi_pts")),
+                    "struct_pts": self._finite_or_nan(entry.get("struct_pts")),
 
                     # 5 September 2026. This block rebuilds the entry section
                     # field by field, so anything the engine adds and this
@@ -402,15 +437,15 @@ class SignalRouter:
                     # which is 102, not 100), that is multiplied by
                     # combined_multiplier, and the result is clipped to
                     # score_ceiling.
-                    "base_score": float(entry.get("base_score", 0.0)),
-                    "component_max_points": float(entry.get("component_max_points", 0.0)),
-                    "macro_multiplier": float(entry.get("macro_multiplier", 1.0)),
-                    "trend_multiplier": float(entry.get("trend_multiplier", 1.0)),
-                    "structure_multiplier": float(entry.get("structure_multiplier", 1.0)),
-                    "combined_multiplier": float(entry.get("combined_multiplier", 1.0)),
-                    "scaled_score": float(entry.get("scaled_score", 0.0)),
-                    "score_ceiling": float(entry.get("score_ceiling", 100.0)),
-                    "score_clipped": bool(entry.get("score_clipped", False)),
+                    "base_score": self._finite_or_nan(entry.get("base_score")),
+                    "component_max_points": self._finite_or_nan(entry.get("component_max_points")),
+                    "macro_multiplier": self._finite_or_nan(entry.get("macro_multiplier")),
+                    "trend_multiplier": self._finite_or_nan(entry.get("trend_multiplier")),
+                    "structure_multiplier": self._finite_or_nan(entry.get("structure_multiplier")),
+                    "combined_multiplier": self._finite_or_nan(entry.get("combined_multiplier")),
+                    "scaled_score": self._finite_or_nan(entry.get("scaled_score")),
+                    "score_ceiling": self._finite_or_nan(entry.get("score_ceiling")),
+                    "score_clipped": bool(entry["score_clipped"]),
                 },
 
                 "risk": {
@@ -463,9 +498,14 @@ class SignalRouter:
                     # They were fed by engine_core.py from a placeholder
                     # 10,000 balance in config.py; both the computation and
                     # the constants are gone.
-                    "ev_r": float(ev.get("ev_r", 0.0)),
-                    "assumed_win_rate": float(ev.get("assumed_win_rate", 0.0)),
-                    "avg_reward_r": float(ev.get("avg_reward_r", 2.0)),
+                    # 13 OCTOBER 2026, the fallback sweep: these defaulted to
+                    # 0.0, 0.0 and 2.0 -- the last a second copy of
+                    # DecisionModel.AVG_REWARD_R. _compute_ev returns all three
+                    # on its one return, so none could fire; absent, each is
+                    # now NaN, the router's own value for an absent number.
+                    "ev_r": self._finite_or_nan(ev.get("ev_r")),
+                    "assumed_win_rate": self._finite_or_nan(ev.get("assumed_win_rate")),
+                    "avg_reward_r": self._finite_or_nan(ev.get("avg_reward_r")),
                 },
 
                 "exit": {
@@ -650,6 +690,27 @@ class SignalRouter:
         if not btc_context.get("available"):
             return {"available": False}
 
+        # 13 OCTOBER 2026, the fallback sweep: broad_market_stress and
+        # degraded_inputs defaulted to False and [] -- no stress, nothing
+        # degraded -- and correlation_label to WEAK / NO CLEAR RELATIONSHIP,
+        # a reading of a correlation nobody measured. engine_core writes
+        # every key of an available block in one literal, so none could fire.
+        # The two with no UNKNOWN are read directly; the label falls back to
+        # btc_context.NOT_MEASURED_LABEL, the panel's own value for it.
+        # A missing key is a defect in the BTC block, and a defect there
+        # makes the block unavailable -- what engine_core does with any BTC
+        # failure -- rather than turning a complete analysis of the asset
+        # into an error, which is how an optional Bitcoin field once did
+        # exactly that (KIMI ROUND 4, FINDING 1, below). Bitcoin is
+        # reference only (Viktor's ruling, 5 October 2026, point 7).
+        try:
+            broad_market_stress = bool(btc_context["broad_market_stress"])
+            degraded_inputs = list(btc_context["degraded_inputs"])
+        except (KeyError, TypeError) as e:
+            logger.warning(f"BTC context block is missing a field ({e}); "
+                           f"reported as unavailable")
+            return {"available": False}
+
         return {
             "available": True,
             "raw": str(btc_context.get("raw", "UNKNOWN")),
@@ -661,9 +722,10 @@ class SignalRouter:
             # were float(...get(key, 0.0)) and raised TypeError on the value
             # engine_core actually writes.
             "correlation": self._optional_number(btc_context.get("correlation")),
-            "correlation_label": str(btc_context.get("correlation_label", "WEAK / NO CLEAR RELATIONSHIP")),
+            "correlation_label": str(btc_context.get(
+                "correlation_label", btc_context_module.NOT_MEASURED_LABEL)),
             "beta": self._optional_number(btc_context.get("beta")),
-            "broad_market_stress": bool(btc_context.get("broad_market_stress", False)),
+            "broad_market_stress": broad_market_stress,
             "n_observations": int(btc_context.get("n_observations", 0) or 0),
             # N5, 9 October 2026: "btc_adjusted_confidence" and "reasons"
             # stood here, both from the BTC-adjusted confidence.
@@ -671,5 +733,5 @@ class SignalRouter:
             # decision log's sake, same as every other btc_context field
             # here -- never read by panel_render.py, never fed into the
             # top-level `degradation` block.
-            "degraded_inputs": list(btc_context.get("degraded_inputs", []) or []),
+            "degraded_inputs": degraded_inputs,
         }

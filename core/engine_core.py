@@ -787,7 +787,10 @@ class Phase7Engine:
                 trend_health=trend["trend_health"],
                 trend_exhaustion=trend["trend_exhaustion"],
                 reversal_direction=trend.get("reversal_direction"),
-                reversal_strength=trend.get("reversal_strength", 0),
+                # 13 OCTOBER 2026, the fallback sweep: was .get(..., 0), a
+                # reversal strength nobody measured. compute_trend_health
+                # writes it on all four of its returns; read directly.
+                reversal_strength=trend["reversal_strength"],
                 continuation_strength=trend.get("continuation_strength"),
                 # 4 SEPTEMBER 2026: the trend direction now travels explicitly
                 # rather than being inferred from continuation_strength's sign
@@ -905,15 +908,23 @@ class Phase7Engine:
                             if "ST_Direction" in df_btc_struct.columns else 0.0
                         )
                         btc_raw_bias, btc_bias_score = calculate_dynamic_bias(
-                            trend_sequence=btc_structure_obj.get("sequence", "NONE"),
+                            # 13 OCTOBER 2026, the fallback sweep: sequence,
+                            # reversal_strength, regime and volume_sentiment
+                            # were read here with NONE, 0, NEUTRAL STRUCTURE and
+                            # NEUTRAL VOLUME -- the defaults the 2 September note
+                            # removed from the asset's own call. calculate_structure
+                            # and compute_trend_health write all four on every
+                            # return, so read directly; a missing one raises inside
+                            # this block's handler, which reports BTC unavailable.
+                            trend_sequence=btc_structure_obj["sequence"],
                             trend_health=btc_trend["trend_health"],
                             trend_exhaustion=btc_trend["trend_exhaustion"],
                             reversal_direction=btc_trend.get("reversal_direction"),
-                            reversal_strength=btc_trend.get("reversal_strength", 0),
+                            reversal_strength=btc_trend["reversal_strength"],
                             continuation_strength=btc_trend.get("continuation_strength"),
                             trend_direction_sign=btc_trend["trend_direction_sign"],
-                            structure_regime=btc_structure_obj.get("regime", "NEUTRAL STRUCTURE"),
-                            volume_sentiment=btc_structure_obj.get("volume_sentiment", "NEUTRAL VOLUME"),
+                            structure_regime=btc_structure_obj["regime"],
+                            volume_sentiment=btc_structure_obj["volume_sentiment"],
                             supertrend_direction=btc_supertrend_direction,
                             # V1: BTC's own macro-timeframe confluence isn't fetched
                             # separately yet (a third API call for diminishing
@@ -1076,7 +1087,10 @@ class Phase7Engine:
                 entry_zone_upper,
                 macro_bias=macro_bias,
                 trade_direction=eq_trade_direction,
-                trend_direction=trend.get("trend_direction", "NEUTRAL"),
+                # 13 OCTOBER 2026, the fallback sweep: was .get(..., "NEUTRAL"),
+                # a direction nobody measured, into the entry score.
+                # compute_trend_health writes it on all four returns.
+                trend_direction=trend["trend_direction"],
                 structure_sequence=trend_sequence,
             )
 

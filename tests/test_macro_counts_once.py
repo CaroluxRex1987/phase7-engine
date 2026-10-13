@@ -65,6 +65,17 @@ def _confirmed(side):
             f"{other}_signal_blockers": ["structure does not agree"]}
 
 
+# 13 OCTOBER 2026, the fallback sweep (DECISIONS, "Ruling, 13 October 2026
+# -- the fallback sweep"): the router reads these five directly now, where
+# it used to default each to False when absent. They are supplied here with
+# exactly those values, so the record these tests read is the one they read
+# before. False beside an absent blocker list is still "not computed" to the
+# decision model's signal gate, as an absent signal was.
+ROUTER_READS_TREND = {"trend_exhaustion": False, "momentum_divergence": False}
+ROUTER_READS_ENTRY = {"long_signal": False, "short_signal": False,
+                      "score_clipped": False}
+
+
 def _route(side, macro, health=60.0, entry_score=40.0, score=60.0):
     """One run through the router. side is "long" or "short"."""
     long_side = side == "long"
@@ -72,12 +83,12 @@ def _route(side, macro, health=60.0, entry_score=40.0, score=60.0):
         symbol="TESTUSDT", timeframe="4h",
         bias={"raw": "BULLISH" if long_side else "BEARISH",
               "score": score if long_side else -score},
-        trend={"trend_health": health,
+        trend={**ROUTER_READS_TREND, "trend_health": health,
                "trend_direction_sign": 1 if long_side else -1,
                "momentum_divergence": False},
         structure={},
-        entry={"score": entry_score, "entry_status": "APPROACHING ZONE",
-               **_confirmed(side)},
+        entry={**ROUTER_READS_ENTRY, "score": entry_score,
+               "entry_status": "APPROACHING ZONE", **_confirmed(side)},
         risk={"risk_valid": True, "risk_reason": "OK",
               "risk_regime": "NORMAL RISK", "validation_state": "NEUTRAL",
               "targets": [1.1, 1.2, 1.3] if long_side else [0.9, 0.8, 0.7]},

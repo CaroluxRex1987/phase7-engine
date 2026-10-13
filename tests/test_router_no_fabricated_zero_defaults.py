@@ -74,12 +74,23 @@ def _structure():
             "hvn": 1.0, "lvn": 1.0, "volume_sentiment": "NEUTRAL VOLUME"}
 
 
+# 13 OCTOBER 2026, the fallback sweep (DECISIONS, "Ruling, 13 October 2026
+# -- the fallback sweep"): the router reads these five directly now, where
+# it used to default each to False when absent. They are supplied here with
+# exactly those values, so the record these tests read is the one they read
+# before. False beside an absent blocker list is still "not computed" to the
+# decision model's signal gate, as an absent signal was.
+ROUTER_READS_TREND = {"trend_exhaustion": False, "momentum_divergence": False}
+ROUTER_READS_ENTRY = {"long_signal": False, "short_signal": False,
+                      "score_clipped": False}
+
+
 def _build(entry=None, risk=None, exit_data=None):
     router = SignalRouter(engine_core=object())
     return router._build_decision_object(
         symbol="TESTUSDT", timeframe="4h",
         bias=_bias(), trend=_trend(), structure=_structure(),
-        entry=entry if entry is not None else {},
+        entry={**ROUTER_READS_ENTRY, **(entry if entry is not None else {})},
         risk=risk if risk is not None else {},
         exit_data=exit_data if exit_data is not None else {},
         macro_bias="NEUTRAL", chart_path="",

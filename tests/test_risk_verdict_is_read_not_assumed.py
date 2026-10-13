@@ -285,6 +285,17 @@ def test_an_engine_output_whose_risk_block_has_no_verdict_is_rejected(risk):
 # 4. End to end through the router
 # ============================================================
 
+# 13 OCTOBER 2026, the fallback sweep (DECISIONS, "Ruling, 13 October 2026
+# -- the fallback sweep"): the router reads these five directly now, where
+# it used to default each to False when absent. They are supplied here with
+# exactly those values, so the record these tests read is the one they read
+# before. False beside an absent blocker list is still "not computed" to the
+# decision model's signal gate, as an absent signal was.
+ROUTER_READS_TREND = {"trend_exhaustion": False, "momentum_divergence": False}
+ROUTER_READS_ENTRY = {"long_signal": False, "short_signal": False,
+                      "score_clipped": False}
+
+
 class _StubEngine:
     """Stands in for Phase7Engine.run(), returning exactly one output."""
 
@@ -328,9 +339,18 @@ def test_negative_control_a_stubbed_well_formed_run_still_reaches_a_decision(mon
     reason at all — including a mistake in this file's own stub.
     """
     output = _engine_output(_risk())
+    # 13 October 2026, the fallback sweep: the router reads every key of
+    # the engine's output directly now, so a well-formed stub carries all
+    # of them -- provenance, lineage and exit_watch were absent and read
+    # as {} and []. Each is given the value it used to default to.
     output.update({
+        "trend": dict(ROUTER_READS_TREND),
+        "entry": dict(ROUTER_READS_ENTRY),
         "exit": {"current_price": 1.0},
         "degradation": [],
+        "provenance": {},
+        "lineage": {},
+        "exit_watch": [],
         "macro_bias": "NEUTRAL",
         "btc_context": {"available": False},
     })
@@ -353,7 +373,8 @@ def test_the_recorded_verdict_is_the_one_that_was_read_not_an_invented_pass(monk
     monkeypatch.setattr(sr, "render_panel", lambda *a, **k: None)
     decision = sr.SignalRouter(engine_core=object())._build_decision_object(
         symbol="AEROUSDT", timeframe="4h",
-        bias={}, trend={}, structure={}, entry={}, risk={},
+        bias={}, trend=dict(ROUTER_READS_TREND), structure={},
+        entry=dict(ROUTER_READS_ENTRY), risk={},
         exit_data={"current_price": 1.0},
         degradation=[], provenance={}, lineage_record={}, exit_watch=[],
         btc_context={"available": False}, macro_bias="NEUTRAL",
