@@ -167,9 +167,8 @@ ALLOWED = {
         ("render_panel", "btc", "'regime'", "'UNKNOWN STRUCTURE'"): (1, UNKNOWN_LABEL),
         ("render_panel", "btc", "'volatility'", "'UNKNOWN'"): (1, UNKNOWN_LABEL),
         # the reading lines
-        ("render_panel", "bias", "'regime'", "'UNKNOWN STRUCTURE'"): (1, UNKNOWN_LABEL),
         ("render_panel", "structure", "'regime'", "'UNKNOWN STRUCTURE'"): (1, UNKNOWN_LABEL),
-        ("render_panel", "bias", "'volatility'", "'UNKNOWN'"): (2, UNKNOWN_LABEL),
+        ("render_panel", "bias", "'volatility'", "'UNKNOWN'"): (1, UNKNOWN_LABEL),
         ("render_panel", "structure", "'sequence'", "'UNKNOWN'"): (1, UNKNOWN_LABEL),
         ("render_panel", "trend", "'trend_direction'", "'UNKNOWN'"): (1, UNKNOWN_LABEL),
         ("render_panel", "trend", "'momentum_mode'", "'UNKNOWN'"): (1, UNKNOWN_LABEL),
@@ -294,8 +293,7 @@ def _absent_readings():
 
 EXPECTED_WHEN_ABSENT = {
     "BIAS       :": "BIAS       : UNKNOWN",
-    "REGIME     :": "REGIME     : UNKNOWN STRUCTURE",
-    "STRUCTURE  :": "STRUCTURE  : UNKNOWN STRUCTURE | Vol: UNKNOWN",
+    "STRUCTURE  :": "STRUCTURE  : UNKNOWN STRUCTURE",
     "SEQUENCE   :": "SEQUENCE   : UNKNOWN",
     "VOLUME     :": "VOLUME     : UNKNOWN VOLUME",
     "VALIDATION :": "VALIDATION : UNKNOWN (Score: not computed)",
@@ -339,8 +337,8 @@ def test_negative_control_present_readings_still_print():
     })
     panel = _render(decision)
     assert _line(panel, "BIAS       :") == "BIAS       : BULLISH CONFIRMED"
-    assert _line(panel, "REGIME     :") == "REGIME     : BULLISH TREND"
-    assert _line(panel, "STRUCTURE  :") == "STRUCTURE  : BULLISH TREND | Vol: HIGH VOLATILITY"
+    assert _line(panel, "STRUCTURE  :") == "STRUCTURE  : BULLISH TREND"
+    assert _line(panel, "VOLATILITY :") == "VOLATILITY : HIGH VOLATILITY"
     assert _line(panel, "VOLUME     :") == "VOLUME     : BULLISH VOLUME SUPPORT"
     assert _line(panel, "RISK REGIME:") == "RISK REGIME: HIGH VOLATILITY RISK"
     assert _line(panel, "MACRO TREND:") == "MACRO TREND: BULLISH"

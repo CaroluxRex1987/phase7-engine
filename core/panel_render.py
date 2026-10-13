@@ -896,8 +896,18 @@ def render_panel(decision):
             # the engine's path. Absent, each now reads the router's own
             # fallback for the same key, as TREND's did from F9.
             f"BIAS       : {colorize_val(bias.get('detailed', bias.get('raw', 'UNKNOWN')))}\n"
-            f"REGIME     : {colorize_val(bias.get('regime', 'UNKNOWN STRUCTURE'))}\n"
-            f"STRUCTURE  : {colorize_val(structure.get('regime', 'UNKNOWN STRUCTURE'))} | Vol: {colorize_val(bias.get('volatility', 'UNKNOWN'))}\n"
+            # ROUND 8, patch 2 of the 12 October additions, 13 October 2026
+            # (DECISIONS, "Ruling, 13 October 2026 -- the fallback sweep",
+            # point 6): two readings were printed twice. A REGIME line stood
+            # here, printing bias['regime'] -- calculate_dynamic_regime's read
+            # of the STRUCTURE column, which calculate_structure fills with the
+            # same result['regime'] this line prints as structure['regime'].
+            # It is gone: STRUCTURE prints the value at its source. This line
+            # also carried "| Vol:" with bias['volatility'], the reading the
+            # VOLATILITY line below prints; the field is gone, and VOLATILITY
+            # prints it alone. The decision object keeps bias.regime and
+            # bias.volatility; only the panel prints each reading once.
+            f"STRUCTURE  : {colorize_val(structure.get('regime', 'UNKNOWN STRUCTURE'))}\n"
             f"SEQUENCE   : {colorize_val(structure.get('sequence', 'UNKNOWN'))}\n"
             # ROUND 8, F9, 12 October 2026: the two fallbacks were 'NEUTRAL'
             # and 'HEALTHY' -- a direction and a momentum nobody measured.
