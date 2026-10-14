@@ -470,9 +470,18 @@ class StructureEngine:
         if vw_mean_slope < 0 and vol_slope > 0 and price_slope < 0:
             return "BEARISH VOLUME PRESSURE"
 
+        # B4's LABELS, 14 October 2026 (the 5 October self-review, B4; point 8
+        # of round 8's triage). This label was "VOLUME DIVERGENCE". With the
+        # four branches above ruled out, it fires whenever this candle's
+        # volume is below the volume four candles back, volume is not
+        # expanding, and the close has moved at all from four candles back --
+        # in either direction. Nothing here compares a trend in volume with a
+        # trend in price, which is what "divergence" claims. It was the most
+        # common label on the real candles the review counted (39%). Renamed
+        # only: the condition, and every score it feeds, are unchanged.
         if (price_slope > 0 and vol_slope < 0 and not volume_expansion) or \
            (price_slope < 0 and vol_slope < 0 and not volume_expansion):
-            return "VOLUME DIVERGENCE"
+            return "FADING VOLUME"
 
         if volume_expansion and abs(price_slope) < (0.001 * closes[-1]):
             return "VOLUME EXHAUSTION"

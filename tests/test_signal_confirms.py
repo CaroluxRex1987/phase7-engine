@@ -129,10 +129,13 @@ def test_adx_under_20_blocks_both_sides():
 
 
 def test_a_divergence_against_the_trade_blocks_it():
+    # B4's labels, 14 October 2026: the sentence says what is compared.
     assert signal_blockers("LONG", "BULLISH TREND", True, "BEARISH", adx=30.0) == [
-        "bearish momentum divergence points against the trade"]
+        "a bearish price/RSI disagreement over four candles points against "
+        "the trade"]
     assert signal_blockers("SHORT", "BEARISH TREND", True, "BULLISH", adx=30.0) == [
-        "bullish momentum divergence points against the trade"]
+        "a bullish price/RSI disagreement over four candles points against "
+        "the trade"]
 
 
 def test_a_divergence_pointing_with_the_trade_does_not_block_it():

@@ -365,19 +365,34 @@ def compute_trend_health(df: Optional[pd.DataFrame]) -> Dict[str, Any]:
         # B1: track which direction a detected divergence points, not just
         # a yes/no bool — needed by the reversal detection in section 7.
         divergence_direction = "NONE"
+        #
+        # B4's LABELS, 14 October 2026 (the 5 October self-review, B4; point 8
+        # of round 8's triage). What this measures: this candle's close and
+        # RSI against the close and RSI four candles back -- two points, not
+        # swing highs or lows. The four locals below were named
+        # price_higher_high, rsi_lower_high, price_lower_low and
+        # rsi_higher_low, and the comments said "price making new highs" and
+        # "new lows"; a close above the close four candles back can sit far
+        # below the highs in between. Renamed; every value is the same. The
+        # keys momentum_divergence and divergence_direction keep their names
+        # (a rename would change the decision contract and the golden
+        # snapshot for a word -- the same call as F9's
+        # REGIME_HYSTERESIS_THRESHOLD), and the sentences that print them
+        # say what is compared. Whether this should veto a side is a trading
+        # rule, Viktor's, not ruled; nothing here changes it.
         if len(df) >= 10 and "RSI" in df.columns:
-            price_higher_high = bool(df["close"].iat[-1] > df["close"].iat[-5])
-            rsi_lower_high = bool(df["RSI"].iat[-1] < df["RSI"].iat[-5])
+            close_above_4_back = bool(df["close"].iat[-1] > df["close"].iat[-5])
+            rsi_below_4_back = bool(df["RSI"].iat[-1] < df["RSI"].iat[-5])
 
-            price_lower_low = bool(df["close"].iat[-1] < df["close"].iat[-5])
-            rsi_higher_low = bool(df["RSI"].iat[-1] > df["RSI"].iat[-5])
+            close_below_4_back = bool(df["close"].iat[-1] < df["close"].iat[-5])
+            rsi_above_4_back = bool(df["RSI"].iat[-1] > df["RSI"].iat[-5])
 
-            if price_higher_high and rsi_lower_high:
-                # Price making new highs while momentum weakens -> bearish divergence
+            if close_above_4_back and rsi_below_4_back:
+                # Close up on four candles back, RSI down -> recorded BEARISH
                 momentum_divergence = True
                 divergence_direction = "BEARISH"
-            elif price_lower_low and rsi_higher_low:
-                # Price making new lows while momentum firms up -> bullish divergence
+            elif close_below_4_back and rsi_above_4_back:
+                # Close down on four candles back, RSI up -> recorded BULLISH
                 momentum_divergence = True
                 divergence_direction = "BULLISH"
 

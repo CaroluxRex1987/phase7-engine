@@ -304,11 +304,15 @@ class DecisionModel:
             if confirmed:
                 # Fix 2, 5 October 2026: "the trend is not flagged exhausted"
                 # stood where ADX now does -- the flag left the gate.
+                # B4's labels, 14 October 2026: "no momentum divergence"
+                # became what is compared (indicators/trend_health.py,
+                # section 5).
                 reasons.append(
                     f"Structural confirmation holds for the {side}: structure "
                     f"agrees with the direction, ADX is "
                     f"{entry_model.MIN_TREND_ADX:g} or "
-                    f"more, and no momentum divergence points against it."
+                    f"more, and no price/RSI disagreement over four candles "
+                    f"points against it."
                 )
                 return final_action
             leaning = "bullish" if side == "long" else "bearish"

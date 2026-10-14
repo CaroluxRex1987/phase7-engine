@@ -114,8 +114,28 @@ def volume_agreement(volume_sentiment, raw_bias):
             f"volume neither supports nor opposes this bias."
         )
 
-    if "DIVERGENCE" in v or "WEAK" in v or "EXHAUSTION" in v:
-        return -25.0, "Volume divergence or weakness detected."
+    # B4's LABELS, 14 October 2026 (the 5 October self-review, B4; point 8
+    # of round 8's triage). This was `"DIVERGENCE" in v or "WEAK" in v or
+    # "EXHAUSTION" in v`, answered with one note, "Volume divergence or
+    # weakness detected.", for both labels it matched. No label structure.py
+    # writes contains WEAK, so that third of the test could not match. And a
+    # match on part of a word means renaming the label in structure.py
+    # silently drops the 25 points here -- which is what renaming "VOLUME
+    # DIVERGENCE" to "FADING VOLUME" would have done. So the two warning
+    # labels are matched whole, each with a note saying what it measured.
+    # The scores are unchanged. tests/test_b4_labels_say_what_is_measured.py
+    # runs the detector through every label it can return and fails if a
+    # warning label reaches the neutral branch below.
+    if v == "FADING VOLUME":
+        return -25.0, (
+            "This candle's volume is below the volume four candles back, "
+            "and volume is not expanding."
+        )
+    if v == "VOLUME EXHAUSTION":
+        return -25.0, (
+            "Volume is expanding while the close has moved less than 0.1% "
+            "from four candles back."
+        )
 
     if not (vol_up or vol_down):
         return 0.0, "Volume sentiment is neutral."

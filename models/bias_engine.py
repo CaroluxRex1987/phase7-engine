@@ -27,7 +27,9 @@ import numpy as np
 #                                  Raw input: close. NOT the swing-based
 #                                  label -- see the correction below.
 #   volume sentiment (0.15)    <- structure.py's _volume_sentiment_simple():
-#                                  volume/price divergence.
+#                                  volume against the close over five to
+#                                  ten candles (its labels are the keys of
+#                                  _VOLUME_SENTIMENT_SCORES below).
 #                                  Raw inputs: close, volume.
 #   supertrend direction (0.15)<- indicators.py's SuperTrend column, sign only.
 #                                  Raw inputs: high, low, close (ATR-banded).
@@ -170,10 +172,14 @@ _VOLUME_SENTIMENT_SCORES = {
     "BULLISH VOLUME SUPPORT": 50.0,
     "STRONG BEARISH DISTRIBUTION": -100.0,
     "BEARISH VOLUME PRESSURE": -50.0,
-    # Divergence/exhaustion are warning states, not directional votes --
-    # scored neutral here; they already reduce confidence elsewhere
-    # (trend_exhaustion feeds reversal detection in trend_health.py).
-    "VOLUME DIVERGENCE": 0.0,
+    # Fading volume and volume exhaustion are warning states, not
+    # directional votes -- scored neutral here. Each costs validation_score
+    # 25 points instead (core/engine_core.py, volume_agreement). B4's labels,
+    # 14 October 2026: FADING VOLUME was "VOLUME DIVERGENCE", renamed with
+    # structure.py's label, same score; and this comment said they reduce
+    # confidence through trend_exhaustion, which is trend_health.py's flag
+    # and has nothing to do with volume.
+    "FADING VOLUME": 0.0,
     "VOLUME EXHAUSTION": 0.0,
     "NEUTRAL VOLUME": 0.0,
 }

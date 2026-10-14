@@ -114,15 +114,21 @@ def test_disagreement_is_penalised_both_ways():
         assert delta == -25.0, f"{label} against BEARISH: {delta}"
 
 
-def test_divergence_still_penalised_regardless_of_bias():
+def test_fading_volume_still_penalised_regardless_of_bias():
     """
-    Unchanged behaviour. Divergence is a warning state, not a directional
+    Unchanged behaviour. Fading volume is a warning state, not a directional
     vote, and it was already handled correctly.
+
+    B4's labels, 14 October 2026: this test was
+    test_divergence_still_penalised_regardless_of_bias, on the label
+    "VOLUME DIVERGENCE", which structure.py now writes as "FADING VOLUME";
+    its note says what the label measured instead of "divergence". The
+    score is the same. See tests/test_b4_labels_say_what_is_measured.py.
     """
     for bias in ("BULLISH", "BEARISH", "NEUTRAL"):
-        delta, note = volume_agreement("VOLUME DIVERGENCE", bias)
+        delta, note = volume_agreement("FADING VOLUME", bias)
         assert delta == -25.0
-        assert "divergence" in note.lower()
+        assert "four candles back" in note.lower()
 
 
 def test_neutral_volume_scores_nothing():
@@ -151,7 +157,7 @@ def test_no_label_is_ever_called_supportive_while_opposing():
     the bias point opposite ways.
     """
     labels = BULLISH_LABELS + BEARISH_LABELS + [
-        "VOLUME DIVERGENCE", "VOLUME EXHAUSTION", "NEUTRAL VOLUME", "",
+        "FADING VOLUME", "VOLUME EXHAUSTION", "NEUTRAL VOLUME", "",
     ]
     for label in labels:
         for bias in ("BULLISH", "BEARISH", "NEUTRAL"):

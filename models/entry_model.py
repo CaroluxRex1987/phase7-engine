@@ -662,17 +662,23 @@ def signal_blockers(
             f"ADX is {_adx_text(measured)}, under the {MIN_TREND_ADX:g} the "
             f"engine requires to treat the market as trending")
 
+    # B4's LABELS, 14 October 2026: these sentences said "momentum
+    # divergence", which reads as highs against highs. What
+    # indicators/trend_health.py compares is this candle's close and RSI
+    # with the close and RSI four candles back, so that is what they say.
+    # The rule is unchanged (whether it should veto is Viktor's, not ruled).
     if momentum_divergence:
         if divergence_direction == opposing:
             blockers.append(
-                f"{opposing.lower()} momentum divergence points against the trade")
+                f"a {opposing.lower()} price/RSI disagreement over four "
+                f"candles points against the trade")
         elif divergence_direction not in ("BULLISH", "BEARISH"):
             # A divergence whose direction was not recorded cannot be shown
             # NOT to point against the trade, so it is not a confirmation.
             blockers.append(
-                "momentum divergence is present but its direction is "
-                f"{divergence_direction!r}, so it cannot be shown not to point "
-                "against the trade")
+                "price and RSI disagree over four candles, but the direction "
+                f"was recorded as {divergence_direction!r}, so it cannot be "
+                "shown not to point against the trade")
 
     return blockers
 

@@ -3897,6 +3897,95 @@ not checked for reachability; and the supertrend direction of 0.0 when the
 degraded value feeding the bias, not an unreachable fallback. On the list for after the
 audit (PHASE7_NEXT.md, "Found after 22 September").
 
+## Ruling, 14 October 2026 — B4's labels: their shape
+
+*New in this file on 14 October 2026. Ruled at 06:23 that morning, before any code;
+recorded, with the code, by the commit that lands B4's labels.*
+
+**The question.** The self-review of 5 October (B4, Minor) named two labels that do not
+match their definitions. Point 8 of round 8's triage put "B4 (the labels only)" in the
+label and record batch; whether the divergence should veto a side stayed Viktor's, not
+ruled (DECISIONS, "Ruling, 5 October 2026 — round 8 triaged …", "Not ruled"). What the
+triage left open: how far the label fix reaches — the printed sentences only, the
+recorded volume label as well, or the decision keys too.
+
+**What Claude found before the ruling, from the code** (a clone of `69c92d6`; `master`
+and `origin/master` on Viktor's disk matched it):
+
+- **Momentum divergence.** `indicators/trend_health.py`, section 5, compares this
+  candle's close and RSI with the close and RSI four candles back; its comments said
+  "price making new highs" and "new lows". It is printed in three sentences — the Exit
+  Watch flag, the confirmation gate's blocker, and the confirmation reason (which is in
+  the golden snapshot) — and recorded as `momentum_divergence` and
+  `divergence_direction`.
+- **Volume divergence.** `structure/structure.py` labels a candle VOLUME DIVERGENCE when
+  its volume is below the volume four candles back, volume is not expanding, and the
+  close has moved at all from four candles back, in either direction. The label is
+  printed on the VOLUME line, recorded in the decision log and twice in the golden
+  snapshot, and costs `validation_score` 25 points with the note "Volume divergence or
+  weakness detected."
+- **A trap.** `core/engine_core.py`'s `volume_agreement` matched the label by part of a
+  word — `"DIVERGENCE" in v or "WEAK" in v or "EXHAUSTION" in v` — so renaming the label
+  in `structure.py` alone would have dropped the 25 points without a test failing. No
+  label `structure.py` writes contains WEAK.
+
+**The options Claude set out.** A: the printed sentences and comments only; the keys and
+the VOLUME DIVERGENCE value stay, so the panel still prints the mislabel B4 names. B: A,
+plus the volume value renamed, with the match and `bias_engine`'s score map updated so
+that no score moves; the log's vocabulary changes at this commit. C: B, plus the
+decision keys renamed — a contract change touching more than 15 test files; following
+F9's precedent with `REGIME_HYSTERESIS_THRESHOLD`, a rename that moves the golden
+snapshot for a word goes on the list for after the audit.
+
+**Claude's suggestion**, given when Viktor asked for suggestions: B, with the part-word
+match replaced by whole matches for FADING VOLUME and VOLUME EXHAUSTION, each with a
+note of its own. The wording proposed: the volume label FADING VOLUME (its "price moved"
+condition holds on almost every candle, so the name leaves it out; a name containing
+WEAK would colour the panel red); the sentences "price/RSI disagreement over four
+candles" in the blocker and the confirmation reason; the Exit Watch flag naming both
+comparisons and which way.
+
+**How it was ruled.** By agreeing to Claude's suggestion ("Proceed."), not by writing
+his position first. Recorded that way, as for F9.
+
+**What Viktor ruled.**
+
+1. B: the sentences say what is compared, and the volume label is renamed FADING VOLUME,
+   with every score unchanged.
+2. The part-word match goes: the two warning labels are matched whole, each with a note
+   saying what it measured.
+3. The keys `momentum_divergence` and `divergence_direction` keep their names; their
+   rename goes on the list for after the audit.
+4. The wording of every label, sentence and comment is the patch's proposal, Viktor's to
+   reverse.
+
+**What the patch found under the ruling.**
+
+- `models/bias_engine.py`'s comment on the two warning labels said they "already reduce
+  confidence elsewhere (trend_exhaustion feeds reversal detection in trend_health.py)".
+  `trend_exhaustion` is trend health's flag and has nothing to do with volume; what the
+  two labels cost is 25 points of `validation_score`. Corrected.
+- `trend_health.py`'s four locals were named for highs and lows (`price_higher_high`,
+  `rsi_lower_high`, `price_lower_low`, `rsi_higher_low`). Renamed for what they compare,
+  as F8 renamed `_volume_sentiment_simple`'s; every value is the same.
+- The live decision log, staged off Viktor's disk before the patch (59 records,
+  6 September to 13 October): 44 carry VOLUME DIVERGENCE and its note, 5 carry the old
+  Exit Watch flag, 3 the old blocker and 12 the old confirmation reason. Records are not
+  edited. From this commit FADING VOLUME is the same condition, and the same score, that
+  VOLUME DIVERGENCE was.
+
+**Found, not changed.** `models/bias_engine.py` scores a volume label it does not know
+with `.get(…, 0.0)`, so UNKNOWN VOLUME, which is not one of its keys, scores as neutral
+volume does. Whether a failed volume read should count towards the bias is a weighting
+question, so Viktor's; on the list for after the audit. `volume_agreement` still gives
+the neutral note to a string with no direction that it does not recognise; the new test
+checks every label the detector can return, so no label the engine writes reaches it.
+
+**What it weakens**, stated per this project's amendment practice: nothing a run
+computes. Every score and every action is unchanged, and on the golden fixture only the
+four fields that carry the words move. A reader counting VOLUME DIVERGENCE across the
+log has to count FADING VOLUME from this commit on.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then

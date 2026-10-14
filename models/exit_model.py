@@ -112,10 +112,31 @@ def build_exit_watch(
                 "Trend exhaustion is active — momentum looks stretched and may be due for a pause or pullback."
             )
 
+        # B4's LABELS, 14 October 2026: this flag said "Momentum divergence
+        # is active -- price and momentum are disagreeing". What
+        # indicators/trend_health.py compares is this candle's close and RSI
+        # with the close and RSI four candles back, so the flag says that,
+        # and which way. A direction outside the two it can record is named
+        # as not recorded rather than guessed.
         if bool(trend.get("momentum_divergence", False)):
+            direction = trend.get("divergence_direction")
+            if direction == "BEARISH":
+                comparison = (
+                    " (bearish): the close is above the close four candles "
+                    "back, while RSI is below its value then"
+                )
+            elif direction == "BULLISH":
+                comparison = (
+                    " (bullish): the close is below the close four candles "
+                    "back, while RSI is above its value then"
+                )
+            else:
+                comparison = (
+                    f"; which way was not recorded ({direction!r})"
+                )
             flags.append(
-                "Momentum divergence is active — price and momentum are disagreeing, an early warning sign worth "
-                "watching."
+                f"Price and RSI disagree over the last four candles"
+                f"{comparison}. An early warning worth watching."
             )
 
         # --- Reversal signal opposing the current bias (B1) ---

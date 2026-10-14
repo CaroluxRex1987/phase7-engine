@@ -224,9 +224,11 @@ def test_a_low_adx_refuses_a_trade_the_ladder_chose_and_says_why():
 def test_a_confirmed_trade_says_adx_is_20_or_more():
     out = _evaluate(_signals(30.0))
     assert out["final_action"] == "AGGRESSIVE LONG", out["explanation"]
+    # B4's labels, 14 October 2026: "no momentum divergence" became what
+    # is compared.
     assert ("Structural confirmation holds for the long: structure agrees with "
-            "the direction, ADX is 20 or more, and no momentum divergence "
-            "points against it.") in out["explanation"]["reasons"]
+            "the direction, ADX is 20 or more, and no price/RSI disagreement "
+            "over four candles points against it.") in out["explanation"]["reasons"]
     assert not any("exhausted" in r for r in out["explanation"]["reasons"])
 
 
