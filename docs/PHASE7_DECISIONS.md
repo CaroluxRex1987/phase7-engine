@@ -4068,6 +4068,110 @@ decides. Every verdict and every reason is unchanged, the golden snapshot and
 reader counting UNKNOWN regimes across the log has to know that from this commit the
 two limits record the regime, and that the 32 earlier records are not edited.
 
+## Ruling, 15 October 2026 — B9: Bitcoin's SuperTrend is read directly
+
+*New in this file on 15 October 2026. Ruled at 07:55 that morning, before any code;
+recorded, with the code, by the commit that lands B9.*
+
+**The question.** The self-review of 5 October (B9, Minor, latent): "Defaults left
+behind in two places" — the router wrote `entry_status` with the default ACTIVE ENTRY
+ZONE, and the BTC block passed NEUTRAL STRUCTURE, NEUTRAL VOLUME, NONE and a SuperTrend
+of 0.0 as defaults, which the review said the main path had removed on 2 September.
+Point 8 of round 8's triage put B9 in the label and record batch (DECISIONS, "Ruling,
+5 October 2026 — round 8 triaged …"); the order ruled on 13 October put it after B7.
+
+**What Claude found before the ruling, from the code** (a clone of `d77a8c4`; `master`
+and `origin/master` on Viktor's disk matched it):
+
+- **The fallback sweep had already made most of B9.** At `797bdc9` the router's STATUS
+  twin (`models/signal_router.py`, `entry_status`) falls back to UNKNOWN, and the BTC
+  call reads its sequence, regime and volume sentiment directly (`core/engine_core.py`,
+  the BTC block) — B9's router default and three of its four BTC defaults. The sweep's
+  ruling recorded them as new finds (the BTC call's defaults among the fallbacks found
+  filing the ruling of 12 October, STATUS's twin "on no list") and named B9 only in its
+  order, as still to come; every version of PHASE7_NEXT.md from `797bdc9` to `d77a8c4`
+  listed it so.
+- **The fourth, the SuperTrend direction of 0.0, was left**, and filed for after the
+  audit with the asset's own read of the same column (DECISIONS, "Ruling, 13 October
+  2026 — the fallback sweep …", last section) — "by the 22 September ruling", and
+  "whether its absence is recorded as a degradation was not checked" (PHASE7_NEXT.md,
+  "Found after 22 September"). Checked now: the column is missing exactly when
+  SuperTrend's calculation failed, because a failed indicator leaves no column
+  (`indicators/indicators.py`). For Bitcoin the failure reached only a log line ("BTC
+  context indicator failure"): the BTC section's `degraded_inputs` holds what BTC's
+  trend health reports, and trend health does not read the SuperTrend.
+  `models/bias_engine.py` scores a direction of 0.0 as a neutral SuperTrend (factor 4,
+  weight 0.15), so the panel's BTC BIAS line printed a reading one factor short with
+  nothing to say so. Bitcoin is reference only; no trade follows from it.
+- **The asset's own read is a different case.** There the failure is named in the run's
+  `degradation` list with its consequence ("bias loses its SuperTrend factor …"), and
+  a degraded run authorizes no trade: any LONG or SHORT becomes NO-TRADE (DEGRADED
+  INPUT), and confidence is capped at 50 (`models/decision_model.py`,
+  `_apply_degradation`). Reading it directly, the 13 October shape, would end such a run
+  in an error, against the ruling of 29 August (degrade, don't halt).
+
+**The calls put to Viktor.** (1) Bitcoin's 0.0: now, as the triage ruled by putting B9
+in the batch, or after the audit, where the sweep filed it. (2) The asset's 0.0: after
+the audit, where the closed-list rule puts a finding made on 13 October, or into B9.
+
+**Claude's suggestions**, given when Viktor asked for them. (1) Now, read directly: a
+failed BTC SuperTrend then makes the BTC section unavailable for the run, as any BTC
+failure does, and the panel says so; the cost is the rest of the BTC section on that
+run. The alternative set out: record the failure in the BTC section's
+`degraded_inputs` and keep the reading — more kept, but the panel would still print
+BTC BIAS unmarked, since it does not read that field (the ruling of 12 September).
+(2) After the audit: the asset's read already does what the ruling of 29 August asks
+— the failure recorded, conviction reduced (the factor scores zero, as trend health
+scores its own missing inputs), no trade authorized — and what is left changes no
+trade.
+
+**How it was ruled.** By agreeing to Claude's suggestions ("Agreed."), not by writing
+his position first. Recorded that way, as for B7.
+
+**What Viktor ruled.**
+
+1. Bitcoin's SuperTrend direction is read directly. A failed BTC SuperTrend makes the
+   BTC section unavailable for the run, through the block's own handler.
+2. The asset's own read keeps its 0.0 and stays on the list for after the audit, with
+   what was checked on 15 October (PHASE7_NEXT.md, "Found after 22 September").
+3. With (1), B9 is done: its router default and three BTC defaults at `797bdc9`, its
+   SuperTrend at the commit that lands this entry.
+
+**Found, not changed** (PHASE7_NEXT.md, "Found after 22 September"; on that list by the
+22 September ruling):
+
+- The comment above the BTC section's `degraded_inputs` (`core/engine_core.py`) says a
+  BTC indicator failure "is recorded below, inside btc_context itself". Only what BTC's
+  trend health reads is; a failed BTC indicator it does not read reaches only the log
+  line.
+- Two residues of the asset's 0.0, neither changing a trade: `lineage.bias_components`
+  records the factor's input as 0.0, where nothing was measured; and the 0.0 is saved
+  as the next run's prior state, so that run cannot flag a SuperTrend flip either, and
+  does not say so.
+
+### Claude's errors, recorded
+
+- **The fallback sweep made most of B9 without naming it.** It found the router's
+  STATUS twin and the BTC call's defaults as new, and its ruling's order (point 7) and
+  four versions of PHASE7_NEXT.md, `797bdc9` to `d77a8c4`, listed B9 as still to come.
+  Found on 15 October, reading B9 against the code before asking which item came first.
+- **The sweep moved part of a ruled item out of the batch.** It filed Bitcoin's
+  SuperTrend for after the audit by the 22 September ruling, which covers findings made
+  after it; the triage of 5 October had already put B9, which names that default, in
+  the batch. Moving it needed Viktor's ruling.
+- **The review's B9 said the main path was clean.** Its "The main path removed exactly
+  these defaults on 2 September" holds for the structure, sequence and volume reads,
+  not for the SuperTrend, whose 0.0 the asset's own read kept, as the sweep found. The
+  review is outside the repository and is not edited.
+
+**What it weakens**, stated per this project's amendment practice: on a run where
+Bitcoin's SuperTrend fails, the whole BTC section — regime, volatility, trend health,
+correlation, beta and broad market stress, none of which reads the SuperTrend — is
+lost for that run, where all of it but the bias was measured. Nothing the engine
+decides changes: Bitcoin is reference only, and the asset's own analysis is unchanged
+(tested). On a healthy run only `code_hash` moves; the golden snapshot and `run_hash`
+hold.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then

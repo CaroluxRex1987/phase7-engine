@@ -923,10 +923,23 @@ class Phase7Engine:
                         # needs to change).
                         btc_degraded_inputs = list(btc_trend.get("degraded_inputs", []) or [])
 
-                        btc_supertrend_direction = (
-                            float(df_btc_struct["ST_Direction"].iloc[-1])
-                            if "ST_Direction" in df_btc_struct.columns else 0.0
-                        )
+                        # B9, 15 OCTOBER 2026 (Viktor's ruling that day, by
+                        # agreeing to Claude's suggestion). This read 0.0 when
+                        # the column was missing -- and it is missing exactly
+                        # when BTC's SuperTrend failed, since a failed
+                        # indicator leaves no column (indicators.py). The
+                        # failure reached only the log line above, and
+                        # bias_engine scores 0.0 as a neutral SuperTrend, so
+                        # the panel's BTC BIAS printed a reading one factor
+                        # short as if it were complete. Read directly, the
+                        # 13 October shape: a missing column raises here, and
+                        # this block's handler reports BTC unavailable for the
+                        # run, as it does for any BTC failure. The asset's own
+                        # read in section 5 keeps its 0.0 by the same ruling:
+                        # there a failure is a recorded degradation and no
+                        # trade can follow from it (on the list for after the
+                        # audit, PHASE7_NEXT.md).
+                        btc_supertrend_direction = float(df_btc_struct["ST_Direction"].iloc[-1])
                         btc_raw_bias, btc_bias_score = calculate_dynamic_bias(
                             # 13 OCTOBER 2026, the fallback sweep: sequence,
                             # reversal_strength, regime and volume_sentiment
