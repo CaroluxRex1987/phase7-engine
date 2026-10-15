@@ -309,17 +309,96 @@ def test_the_supertrend_level_is_guarded_and_not_only_its_direction():
     """
     Before this fix only ST_Direction was checked, and only for all-NaN. The
     level is written to the frame and drawn on the chart.
+
+    PART 4'S TEST SHAPES, 15 October 2026 (round 8's Part 4, shape 1, which
+    names this test beside test_the_panel_never_prints_a_non_finite_number;
+    Viktor's ruling of 15 October, by agreeing to Claude's suggestions). This
+    asserted only that the text "SuperTrend's level" appeared in
+    add_technical_indicators' source, so with the guard's raise deleted it
+    stayed green. It now runs the guard. pandas_ta's SuperTrend is replaced
+    for one call, the way the producer tests above replace it, by one whose
+    level has no value at the decision bar while its direction keeps one --
+    the case the direction's guard cannot see.
+
+    The level itself is kept out of the frame twice: by its own guard, and by
+    the final sweep at the end of add_technical_indicators, which drops any
+    critical column with no value at the decision bar. With the level's guard
+    deleted, the sweep still drops the level and records a SuperTrend
+    failure, and ST_Direction stays in the frame -- bias reading the
+    direction of an indicator the run records as failed. So the assertion
+    that fails when the guard goes is the last one: SuperTrend fails whole,
+    and neither column is written. Claude's suggestion of 15 October named
+    only the level's absence, which the sweep holds as well; found building,
+    and ruled again the same afternoon.
+
+    Two controls. On the pinned frame with nothing replaced, SuperTrend's
+    level has a value at the decision bar and no SuperTrend failure is
+    recorded, so the failure below is the replaced call's doing, not a
+    SuperTrend that never computes on this frame. And the replaced call's
+    direction is checked to have a value at the decision bar, so the level is
+    the only thing wrong with it.
     """
     if not _engine_available():
         pytest.skip("pandas_ta not installed")
 
     import indicators.indicators as ind
-    import inspect
 
-    src = inspect.getsource(ind.add_technical_indicators)
-    assert "SuperTrend's level" in src, (
-        "the SuperTrend level no longer has its own guard; a level with no "
-        "value at the decision bar would be written to the frame again"
+    base = _pinned_frame()
+
+    control, control_failures = ind.add_technical_indicators(base.copy())
+    assert "SuperTrend" in control.columns, (
+        "the control failed: SuperTrend was not written on the pinned frame "
+        f"with nothing replaced. Failures: {[str(f) for f in control_failures]}"
+    )
+    assert np.isfinite(float(control["SuperTrend"].iloc[-1])), (
+        "the control failed: on the pinned frame, with nothing replaced, "
+        "SuperTrend's level has no value at the decision bar"
+    )
+    assert not [f for f in control_failures if f.indicator == "SuperTrend"], (
+        [str(f) for f in control_failures]
+    )
+
+    real = ind.ta.supertrend
+    returned = []
+
+    def level_missing_at_the_decision_bar(*a, **k):
+        # Column 0 is the level and column 1 the direction, as
+        # add_technical_indicators reads them.
+        out = real(*a, **k).copy()
+        out.iloc[-1, 0] = np.nan
+        returned.append(out)
+        return out
+
+    ind.ta.supertrend = level_missing_at_the_decision_bar
+    try:
+        out, failures = ind.add_technical_indicators(base.copy())
+    finally:
+        ind.ta.supertrend = real
+
+    assert len(returned) == 1, (
+        f"add_technical_indicators called the replaced SuperTrend "
+        f"{len(returned)} times, not once, so this test no longer reaches the "
+        f"guard it is about"
+    )
+    assert np.isfinite(float(returned[0].iloc[-1, 1])), (
+        "the replaced call's direction has no value at the decision bar either, "
+        "so the direction's own guard would fire and this test could not tell "
+        "the level's guard from it"
+    )
+
+    assert [f for f in failures if f.indicator == "SuperTrend"], (
+        "SuperTrend's level had no value at the decision bar and no failure "
+        "was recorded"
+    )
+    assert "SuperTrend" not in out.columns, (
+        "the SuperTrend level was written to the frame with no value at the "
+        "decision bar"
+    )
+    assert "ST_Direction" not in out.columns, (
+        "SuperTrend's level had no value at the decision bar and its direction "
+        "was still written, so bias would read the direction of an indicator "
+        "the run records as failed. The level's own guard fails SuperTrend "
+        "whole, before either column is written."
     )
 
 
@@ -493,14 +572,113 @@ def test_the_panel_never_prints_a_non_finite_number():
     The audit's Observation 5. panel_render's safe_float converted NaN and
     infinity without checking, so "STOP LOSS : $nan" was reachable. The engine's
     three other safe_float implementations all check finiteness.
-    """
-    import inspect
-    from core import panel_render
 
-    src = inspect.getsource(panel_render)
-    assert "math.isfinite" in src or "np.isfinite" in src, (
-        "panel_render's safe_float no longer checks finiteness; a NaN price "
-        "would print as the literal text 'nan' in a dollar field"
+    PART 4'S TEST SHAPES, 15 October 2026 (round 8's Part 4, shape 1, which
+    called this "the weakest in the suite"; Viktor's ruling of 15 October, by
+    agreeing to Claude's suggestions). This asserted only that the text
+    math.isfinite or np.isfinite appeared somewhere in panel_render.py. The
+    name is on 22 lines there, so deleting safe_float's own check left it
+    green. It now renders the panel and reads what it prints.
+
+    It renders the golden decision, a CONSERVATIVE LONG, so the stop, the
+    three targets and their R:R print -- the lines Observation 5 was about.
+    Each of the decision's float fields is set to +inf, then -inf, then NaN,
+    one field at a time, and every render must return a panel in which no
+    word reads nan, inf or infinity. Every float field rather than a list of
+    them, so a field a later re-baseline adds is covered without anyone
+    adding it here: the reason test_no_number_on_the_panel_prints_as_nan, in
+    tests/test_panel_prints_only_what_was_computed.py, is a sweep. That
+    sweep's decision has a NEUTRAL bias, under which the panel prints no stop
+    and no targets (finding 5), so it cannot see the plan's lines, and it
+    feeds in no infinity.
+
+    The golden decision is read from the stored fixture and the engine is not
+    run, so this needs no pandas_ta. Integers are left as they are:
+    n_observations is an int by contract (core/decision_contract.py) and the
+    router converts it to one (models/signal_router.py).
+
+    The precondition is asserted first: the golden decision's own panel
+    prints a stop and three targets, each with a price, and no word this test
+    looks for. A re-baseline that withheld the plan would otherwise leave this
+    test checking less without failing.
+    """
+    import contextlib
+    import copy
+    import io
+    import json
+    import re
+    from core.panel_render import render_panel
+
+    golden = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                          "fixtures", "golden_decision.json")
+    assert os.path.exists(golden), (
+        "tests/fixtures/golden_decision.json is missing; it is committed, so "
+        "restore it from git"
+    )
+    with open(golden, encoding="utf-8") as f:
+        decision = json.load(f)
+
+    non_finite_word = re.compile(r"\b(nan|inf|infinity)\b", re.IGNORECASE)
+
+    def render(d):
+        # render_panel prints the panel as well as returning it; 360 copies
+        # are kept out of the captured output.
+        with contextlib.redirect_stdout(io.StringIO()):
+            return render_panel(d)
+
+    as_stored = render(decision)
+    assert isinstance(as_stored, str), (
+        "render_panel returned no panel for the golden decision"
+    )
+    plan = [line for line in as_stored.splitlines()
+            if line.startswith(("STOP LOSS", "TARGET "))]
+    assert len(plan) == 4 and all("$" in line for line in plan), (
+        "the precondition failed: the golden decision's panel does not print "
+        "a stop and three targets, each with a price, so this test cannot see "
+        "the lines Observation 5 was about. Lines found:\n" + "\n".join(plan)
+    )
+    assert not non_finite_word.search(as_stored), (
+        "the precondition failed: the golden decision's own panel already "
+        "prints a word this test looks for:\n" + "\n".join(
+            line for line in as_stored.splitlines()
+            if non_finite_word.search(line))
+    )
+
+    def float_fields(obj, path=()):
+        if isinstance(obj, dict):
+            for key, value in obj.items():
+                yield from float_fields(value, path + (key,))
+        elif isinstance(obj, list):
+            for index, value in enumerate(obj):
+                yield from float_fields(value, path + (index,))
+        elif isinstance(obj, float):
+            yield path
+
+    paths = list(float_fields(decision))
+    assert paths, "the golden decision has no float fields to set"
+
+    printed = []
+    for value in (float("inf"), float("-inf"), float("nan")):
+        for path in paths:
+            altered = copy.deepcopy(decision)
+            holder = altered
+            for key in path[:-1]:
+                holder = holder[key]
+            holder[path[-1]] = value
+            field = ".".join(str(key) for key in path)
+
+            panel = render(altered)
+            if not isinstance(panel, str):
+                printed.append(f"{field} = {value}: render_panel returned no panel")
+                continue
+            printed.extend(f"{field} = {value}: {line.strip()}"
+                           for line in panel.splitlines()
+                           if non_finite_word.search(line))
+
+    assert not printed, (
+        f"{len(printed)} line(s) across {3 * len(paths)} renders printed a "
+        f"non-finite number, or no panel was returned:\n"
+        + "\n".join(printed[:20])
     )
 
 

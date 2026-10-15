@@ -19,10 +19,15 @@ machine with nothing but a Python interpreter", the earlier claim here: most
 test_*.py files `import pytest` at module scope for `pytest.mark.parametrize`,
 `pytest.skip`, `pytest.approx` and similar, so with pytest genuinely absent
 roughly half the test files fail to import at all, and the result is nothing
-like the 29-errors figure this project actually watches. What this script
+like the error count this project actually watches. What this script
 buys is independence from pytest as the *test driver* -- no collection, no
 fixtures, no plugins -- while pytest itself still needs to be on the path for
 `import pytest` to resolve inside the test files that use it.
+
+PART 4'S TEST SHAPES, 15 October 2026: the sentence above said "the 29-errors
+figure", three short of the count. The figure is no longer written here; its
+current value is in docs/PHASE7_NEXT.md, "Where things stand, right now",
+under "Test suite".
 
 Usage:
     python run_tests.py              # everything

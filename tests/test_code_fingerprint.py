@@ -37,8 +37,11 @@ would pass every "it moved" test in this file and be useless, so two tests
 assert that it does NOT move: on a comment, and on a docstring.
 
 NO PYTEST FIXTURES ANYWHERE IN THIS FILE. `run_tests.py` — the runner that
-works without pytest — reports a fixture-taking test as an error, and there are
-29 of those already. This adds none.
+works without pytest — reports a fixture-taking test as an error, and that
+count is watched; its current figure is in docs/PHASE7_NEXT.md, "Where things
+stand, right now", under "Test suite". This adds none. (Part 4's test shapes,
+15 October 2026: this said there were 29 of those already, three short of the
+count, and the figure is no longer written here.)
 """
 
 import ast

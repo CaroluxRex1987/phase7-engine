@@ -203,7 +203,10 @@ def test_require_source_exits_and_names_what_is_missing():
 
     Takes no fixtures deliberately: `run_tests.py` calls test functions with no
     arguments, and a test that needs one is counted as an error there. The
-    error count is 29 and is watched.
+    error count is watched; its current figure is in docs/PHASE7_NEXT.md,
+    "Where things stand, right now", under "Test suite". (Part 4's test
+    shapes, 15 October 2026: this said 29, three short of the count, and the
+    figure is no longer written here.)
     """
     output = _load_output_module()
     workspace = tempfile.mkdtemp(prefix="phase7_require_source_")

@@ -26,7 +26,10 @@ would then describe the action that was overruled -- the same class of defect
 in the other direction. evaluate() tracks which stage last SET the action.
 
 These tests are written without fixtures: run_tests.py calls every test_*
-function with no arguments, and its error count (32) is watched.
+function with no arguments, and its error count is watched; its current
+figure is in docs/PHASE7_NEXT.md, "Where things stand, right now", under
+"Test suite". (Part 4's test shapes, 15 October 2026: this said 32, right at
+the time, and the figure is no longer written here, so it cannot go stale.)
 """
 
 import os

@@ -382,12 +382,25 @@ def test_the_snapshot_covers_every_top_level_field():
     deletion in and this file would go quiet about it.
 
     So the expected shape is asserted independently of the stored file.
+
+    PART 4'S TEST SHAPES, 15 October 2026 (round 8's Part 4, shape 5; Viktor's
+    ruling of 15 October, by agreeing to Claude's suggestions). With no
+    baseline this printed "SKIP: no baseline yet" and returned: a pass, not a
+    skip. Deleting the golden fixture turned this test green while
+    test_decision_object_matches_snapshot, above, failed. A missing baseline
+    now fails here too: the fixture is a committed file, so its absence is a
+    broken checkout, not a missing tool. The pandas_ta skip went with it --
+    this test reads the stored file and never runs the engine -- so it now
+    runs without pandas_ta as well.
     """
-    if not _engine_available():
-        pytest.skip("pandas_ta not installed")
-    if not os.path.exists(SNAPSHOT):
-        print("SKIP: no baseline yet")
-        return
+    assert os.path.exists(SNAPSHOT), (
+        "no baseline snapshot exists, so its coverage cannot be checked.\n"
+        "tests/fixtures/golden_decision.json is committed: restore it from "
+        "git. If a new baseline is intended, create one with:\n"
+        "    set PHASE7_UPDATE_SNAPSHOT=1\n"
+        "    python run_tests.py golden\n"
+        "then commit tests/fixtures/golden_decision.json"
+    )
 
     with open(SNAPSHOT) as f:
         stored = json.load(f)

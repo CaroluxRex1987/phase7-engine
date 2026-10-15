@@ -1,8 +1,9 @@
 # Next step — read this first
 
-*15 October 2026, late morning. Rewritten by the commit that lands B10, the next item
-of round 8's label and record batch, under Viktor's rulings of 11:00 and 11:13 that
-morning; the version it replaced — as it stood at `64ad625` — is in HISTORY verbatim.
+*15 October 2026, afternoon. Rewritten by the commit that lands Part 4's three test
+shapes, the last item of round 8's label and record batch, under Viktor's rulings of
+14:28 and 15:51 that afternoon; the version it replaced — as it stood at `9ea1cf3` — is
+in HISTORY verbatim.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
 rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
@@ -54,14 +55,15 @@ trade under ADX 20 replaces the exhaustion flag; the trend score waits; test run
 log of their own; the BTC-adjusted confidence line goes; the label and record fixes are
 made now; F4 stays on the list; and the freeze lifts. **Three fixes have landed: the
 stop**, at `c2b07fb`, **the trend gate**, at `1b25f36`, **and the regime**, at
-`fcb7823`. **The label and record batch has begun:** B6, runs on pinned data keeping
+`fcb7823`. **The label and record batch is done:** B6, runs on pinned data keeping
 records of their own, at `9e507b1`, N5, Bitcoin reference only, at `6469a67`, F3,
 a frame with no readable time axis rejected, at `ae37795`, F5, the band distance
 labelled from the band's midpoint, at `9d00d99`, F6, `clean_series` without its
 look-ahead method, at `27d3ed5`, F8, one name for one meaning, at `9051ffd`, F9,
 four claims the code did not support, at `e5ac20a`, the fallback sweep at
 `797bdc9`, the two repeated readings at `69c92d6`, B4's labels at `22a9a35`, B7 at
-`d77a8c4`, B9 at `64ad625`, and B10 at the commit that writes this line. **On
+`d77a8c4`, B9 at `64ad625`, B10 at `9ea1cf3`, and Part 4's three test shapes at the
+commit that writes this line. **On
 12 October the panel's fallback readings and two
 repeated readings joined the batch; on 13 October their shape, scope and order were
 ruled** (DECISIONS, "Ruling, 13 October 2026 — the fallback sweep: the 12 October
@@ -88,11 +90,17 @@ agree with finding 4 and the action"): the simulated order records the band as
 `ema_band`, its entry stays `current_price`, the decision log's name for it, and the
 panel prints the note naming Target 1 only on a run whose action names a side — panel
 only, as for finding 5; the three test shapes follow as one patch.
-**Next:** Part 4's three test shapes, as one patch (Work order, item 4); then the fix
-verification by round 8's auditor on a
-scoped package, the 14 September precedent (Work order). The release gate stays closed until that
-verification has reported on the stop. What the triage left open is Viktor's (Open
-items).
+**On 15 October Part 4's three test shapes were ruled** (DECISIONS, "Ruling, 15 October
+2026 — Part 4's three test shapes"): the golden coverage test fails when its baseline
+is missing, and runs without `pandas_ta`; the non-finite test renders the golden
+decision with each of its floats set to +inf, -inf and NaN in turn; the SuperTrend
+level test, which Part 4 named beside it, runs the guard and asserts that SuperTrend
+fails whole; and the watched error count is written as a number only in this file.
+Tests and a docstring only: no decision, `code_hash` or golden field moves.
+**Next:** the fix verification by round 8's auditor on a scoped package, the
+14 September precedent (Work order, item 5) — Claude's, under the delegation of
+4 October. The release gate stays closed until that verification has reported on the
+stop. What the triage left open is Viktor's (Open items).
 
 **The review and the comparison are outside the repository**, in
 `G:\Phase_7_Engine_Random_Files\Docs\02_Reviews_and_Feedback`:
@@ -259,28 +267,45 @@ and landed B9 with the live run before the commit. Its file dated it "15 October
 03:55"; as its commit message records from Viktor's disk, the apply was at 10:01 and
 the pytest cache was rewritten at 10:03 and holds the five new tests' ids; the live
 record is from 10:18 on the new `code_hash`, and the commit from 10:29. Its account is
-in HISTORY, in this file's version at `64ad625`, moved there by the commit that writes
-this line.
+in HISTORY, in this file's version at `64ad625`, moved there by `9ea1cf3`.
 
-**This session (15 October, from 10:32)**, configured for Claude Opus 5.5, opened at
-`64ad625` — `master` and `origin/master` on Viktor's disk, from `.git/refs` staged off
-it, and GitHub's tip, cloned — with Viktor's instruction to continue the batch with B10
-or Part 4's three test shapes and to ask which first. Claude read both in the
-self-review (outside the repository) and in the code: both stand at `64ad625`, and the
-third shape's 29 stands in three places, one more than Viktor's check at `d77a8c4`
-named (Work order, item 4). Viktor asked for suggestions and agreed to them at 11:00:
-B10 first, the order already ruled; the test shapes after it, as one patch; and B10's
-two calls. Building, Claude found that the order already records the decision close as
-`current_price`, which its suggestion had missed, and put the field's name to Viktor as
-three options; he asked for a suggestion and agreed to it at 11:13 (DECISIONS, "Ruling,
-15 October 2026 — B10: two outputs agree with finding 4 and the action", which records
-Claude's two errors). Every file this commit changes was staged off his disk and
-matched an autocrlf clone of `64ad625` byte for byte. The commit that writes this line
-lands B10, with its live run before the commit.
+**The session that landed B10** (`9ea1cf3`) ruled its calls at 11:00 and 11:13 on
+15 October and landed B10 with the live run before the commit. As its commit message
+records from Viktor's disk, the apply was at 12:10 and the pytest cache was rewritten
+at 13:05 and holds the ten new tests' ids; the live record is from 13:14 on the new
+`code_hash`, and the commit from 13:30. Its account is in HISTORY, in this file's
+version at `9ea1cf3`, moved there by the commit that writes this line.
+
+**This session (15 October, from 13:33)**, configured for Claude Opus 5.5, opened at
+`9ea1cf3` — GitHub's tip, cloned; `master` and `origin/master` on Viktor's disk, from
+`.git/refs` staged off it, matched it before the build — with Viktor's instruction to
+land Part 4's three test shapes as one patch and to put their shape calls to him
+before any code. Claude read the three in the code and ran them: each stands at
+`9ea1cf3`, and Part 4 named a second source-text test beside the second shape. Viktor
+asked for suggestions and agreed to them at 14:28. The turn that agreement started was
+stopped by the usage limit at 14:54, before anything reached his disk; it resumed at
+15:22, and its sandbox work was discarded and the patch rebuilt from the clone.
+Building, Claude found that the SuperTrend level test it had described would not have
+caught the guard's removal, because the final sweep drops the level too; it put the
+shape to Viktor again, and he agreed to the revised suggestion at 15:51 (DECISIONS,
+"Ruling, 15 October 2026 — Part 4's three test shapes", which records Claude's three
+errors). Every file this commit changes was staged off his disk and matched an
+autocrlf clone of `9ea1cf3` byte for byte. The commit that writes this line lands the
+three test shapes; it moves no `code_hash`, so it has no live run.
 
 ## Ruled — in force
 
-- **New, 15 October — Viktor's, by agreeing to Claude's suggestions: B10, two outputs
+- **New, 15 October — Viktor's, by agreeing to Claude's suggestions: Part 4's three
+  test shapes** (DECISIONS, "Ruling, 15 October 2026 — Part 4's three test shapes").
+  With no baseline, the golden coverage test fails, as the snapshot comparison does,
+  and it runs without `pandas_ta`. The non-finite test renders the golden decision with
+  each float field set to +inf, -inf and NaN, one at a time, after checking that the
+  plan prints. The SuperTrend level test runs the guard with the level blanked at the
+  decision bar and asserts that SuperTrend fails whole: neither column is written. The
+  watched error count is written as a number only in this file; `run_tests.py`
+  counting fixture-taking tests apart goes on the list for after the audit. **Landed at
+  the commit that writes this line.**
+- **15 October — Viktor's, by agreeing to Claude's suggestions: B10, two outputs
   agree with finding 4 and the action** (DECISIONS, "Ruling, 15 October 2026 — B10: two
   outputs agree with finding 4 and the action"). The simulated order's `entry_zone` is
   `ema_band`, the panel's label for the band, with the same values; the order's entry
@@ -289,7 +314,7 @@ lands B10, with its live run before the commit.
   whose action names a side — not on a WAIT, any NO-TRADE or an absent action; panel
   only, as for finding 5: the decision object and the log keep the note, and under a
   leaning bias the plan still prints. B10 came first, as ordered on 13 October; the
-  three test shapes follow as one patch. **Landed at the commit that writes this line.**
+  three test shapes follow as one patch. **Landed at `9ea1cf3`.**
 - **15 October — Viktor's, by agreeing to Claude's suggestions: B9, Bitcoin's
   SuperTrend read directly** (DECISIONS, "Ruling, 15 October 2026 — B9: Bitcoin's
   SuperTrend is read directly"). Two calls. Bitcoin's SuperTrend direction is read by
@@ -366,9 +391,9 @@ lands B10, with its live run before the commit.
   `fcb7823`, (6) at `9e507b1`, and (7) at `6469a67`; of (8), F3 at `ae37795`, F5
   at `9d00d99`, F6 at `27d3ed5`, F8 at `9051ffd`, F9 at `e5ac20a`, the fallback
   sweep the 12 October ruling added to it at `797bdc9`, its two repeated readings
-  at `69c92d6`, B4's labels at `22a9a35`, B7 at `d77a8c4`, B9 at `64ad625`, and B10 at
-  the commit that writes this line**; the rest
-  is to come, in the order below. Point 4
+  at `69c92d6`, B4's labels at `22a9a35`, B7 at `d77a8c4`, B9 at `64ad625`, B10 at
+  `9ea1cf3`, and Part 4's three test shapes at the commit that writes this line**; what
+  is left is the fix verification (Work order, item 5). Point 4
   left to the patch how an ADX with no valid reading is treated: it blocks both sides
   too (Work order, item 2). Point 3 left to it how LOW VOLATILITY maps without the
   strong-trend test: LOW RISK, the reading the ruling named as Claude's; and the patch
@@ -582,8 +607,10 @@ lands B10, with its live run before the commit.
 
 ## Where things stand, right now
 
-- **Tip:** the commit that writes this line (a commit cannot name its own hash) — B10:
-  engine code, two tests, a new test file and docs. Before it: `64ad625` (the session
+- **Tip:** the commit that writes this line (a commit cannot name its own hash) — Part
+  4's three test shapes: tests, `run_tests.py`'s docstring and docs. Before it:
+  `9ea1cf3` (the session of 15 October, from 10:32: B10: engine code, two tests, a new
+  test file and docs), `64ad625` (the session
   of 15 October, from 03:55: B9: engine code, a new test file and docs), `d77a8c4` (the
   session of 14 October, night, to 15 October, night: B7: engine code, two tests, a new
   test file and docs), `22a9a35` (the session of 14 October: B4's labels: engine code, three
@@ -697,10 +724,15 @@ lands B10, with its live run before the commit.
   `tests/test_b4_labels_say_what_is_measured.py`. `d77a8c4` changed
   `tests/test_regime_from_volatility_alone.py` and `tests/test_stop_is_atr_only.py`,
   and added `tests/test_b7_distance_limits_record_the_regime.py`. `64ad625` added
-  `tests/test_b9_btc_supertrend_is_read_directly.py`. The commit that writes this line
-  changes `tests/test_neutral_bias_prints_no_plan.py` and
-  `tests/test_no_fabricated_defaults_remain.py`, and adds
-  `tests/test_b10_outputs_agree_with_finding_4_and_the_action.py`.
+  `tests/test_b9_btc_supertrend_is_read_directly.py`. `9ea1cf3` changed
+  `tests/test_neutral_bias_prints_no_plan.py` and
+  `tests/test_no_fabricated_defaults_remain.py`, and added
+  `tests/test_b10_outputs_agree_with_finding_4_and_the_action.py`. The commit that
+  writes this line changes `tests/test_golden_path.py`,
+  `tests/test_decision_bar_integrity.py`,
+  `tests/test_docs_build_writes_into_the_repository.py`,
+  `tests/test_code_fingerprint.py` and `tests/test_summary_names_the_action_reason.py`,
+  and `run_tests.py`'s docstring.
 - **Where the project lives, from 26 September:** `E:\phase7_engine` on Viktor's machine;
   the files kept outside the repository in `G:\Phase_7_Engine_Random_Files`. Copied with
   robocopy, verified — git's own checks on Windows for the tracked files, SHA-256 for the
@@ -709,45 +741,44 @@ lands B10, with its live run before the commit.
   to `E:\phase7_engine`". Run the engine and every command from `E:\phase7_engine` (in
   cmd, changing drive needs `cd /d`). A dated record that names the D: paths means the
   same folders before the move; dated records are not edited.
-- **The push of `64ad625`** happened: at the start of this session it was GitHub's tip
+- **The push of `9ea1cf3`** happened: at the start of this session it was GitHub's tip
   (a clone), and `master` and `origin/master` on Viktor's disk (`.git/refs`, staged off
   it). No deviation was reported at the push (ruling on proposal (b)). The same holds
   for the push of the commit that writes this line unless it deviates. Earlier pushes
   and deviations are recorded in this file's previous versions, in HISTORY.
 - **Before this commit**, every file it changes was staged off Viktor's disk and matched
-  an autocrlf clone of `64ad625` byte for byte; it adds one file,
-  `tests/test_b10_outputs_agree_with_finding_4_and_the_action.py`.
+  an autocrlf clone of `9ea1cf3` byte for byte; it adds no file.
 - **code_hash:** `bc1b9c2c517215d0b16eec4209462fa14664a89fbf7b24fcd565c255c45800d7`,
-  moved by the commit that writes this line from `e2f6b2ad…`, which held at `64ad625`:
-  `core/panel_render.py` and `live_trading.py` only (computed per file: they moved, and
-  no other of the 33 files). `tests/` and `docs/` are outside it by directory. Computed on the working
-  tree and on the applied tree under Python 3.12.3; Viktor's live run before the commit
-  is what confirms it on Windows, and the commit message records the decision-log
-  record Claude read.
+  moved by `9ea1cf3` from `e2f6b2ad…` (`core/panel_render.py` and `live_trading.py`),
+  and unchanged by the commit that writes this line, as predicted: of the 33 files it
+  changes only `run_tests.py`, in its module docstring, which the fingerprint strips
+  before hashing (computed per file: none of the 33 moved); `tests/` and `docs/` are
+  outside it by directory. Computed on the working tree and on the applied tree under
+  Python 3.12.3. `9ea1cf3`'s live run confirmed `bc1b9c2c…` on Windows; this commit has
+  no live run, since it moves no `code_hash` and touches no decision path.
 - **code_hash is only comparable within one Python minor version.** It hashes `ast.dump`
   output, a CPython implementation detail (`core/code_fingerprint.py`, "WHAT IT DOES NOT
   SURVIVE"). **Every `code_hash` claim about this project is computed under Python 3.12**
   (Viktor runs 3.12.10).
-- **Golden snapshot:** unchanged by the commit that writes this line, as predicted:
-  the change is to the panel and the simulated order, neither of which the decision
-  object holds — its `exit_watch` keeps the note — and no fingerprinted name or value
-  changes, so `run_hash` (`40dcdc72…`) holds; the golden test passes on the applied
-  tree without a re-baseline. Unchanged by `64ad625` and `d77a8c4` too. Last
+- **Golden snapshot:** unchanged by the commit that writes this line, as predicted: it
+  changes no engine code and no fingerprinted name or value, so `run_hash`
+  (`40dcdc72…`) holds; the golden test passes on the applied tree without a
+  re-baseline. Unchanged by `9ea1cf3`, `64ad625` and `d77a8c4` too. Last
   re-baselined at
   `22a9a35`, 4 leaves (the confirmation reason, `volume_sentiment` twice and
   `validation_note`'s volume half: VOLUME DIVERGENCE → FADING VOLUME); before that at
   `6469a67`, 8 leaves.
 - **Test suite** — **841 passed / 0 failed, no warnings line** with `pandas_ta`;
-  **675 passed / 155 skipped** without it; `run_tests.py` **770 passed / 0 failed /
-  32 errors**, all 32 fixture-collection `TypeError`s, the same 32 as before. The
-  commit that writes this line adds 10 tests
-  (`tests/test_b10_outputs_agree_with_finding_4_and_the_action.py`, fixture-free; the
-  three on the simulated order need `pandas_ta`, the seven on the panel do not) and
-  changes 3 (`test_no_fabricated_defaults_remain.py`'s two order tests read the band as
-  `ema_band`; `test_neutral_bias_prints_no_plan.py`'s negative control checks the note
-  on the side's own trade, its fixture's action being WAIT). Counts from the Linux
-  sandbox, Python 3.12.3, pinned requirements, the patch applied to an autocrlf clone
-  of `64ad625`; Viktor's Windows run is what confirms them. `64ad625`'s were 831;
+  **676 passed / 154 skipped** without it; `run_tests.py` **770 passed / 0 failed /
+  32 errors**, all 32 fixture-collection `TypeError`s, the same 32 as before. This is
+  the one place the watched error count is written as a number (DECISIONS, "Ruling,
+  15 October 2026 — Part 4's three test shapes", point 5). The commit that writes this
+  line adds no test and changes 3, each under its own name and fixture-free: the
+  golden coverage test, which now runs without `pandas_ta` (hence 675 / 155 to
+  676 / 154), the non-finite test, which needs no `pandas_ta`, and the SuperTrend level
+  test, which does. Counts from the Linux sandbox, Python 3.12.3, pinned requirements,
+  the patch applied to an autocrlf clone of `9ea1cf3`; Viktor's Windows run is what
+  confirms them. `9ea1cf3`'s were 841; 675 / 155; 770 / 0 / 32. `64ad625`'s were 831;
   668 / 152; 760 / 0 / 32. `d77a8c4`'s were 826; 668 / 147; 755 / 0 / 32.
   `22a9a35`'s were 821; 663 / 147; 750 / 0 / 32.
   `69c92d6`'s were 813; 656 / 146; 742 / 0 / 32. `797bdc9`'s
@@ -756,13 +787,13 @@ lands B10, with its live run before the commit.
   `test_the_commit_messages_up_to_the_tag_are_round_7s_to_the_byte`, runs `git log` up
   to the tag `round7-sent-2026-09-30`: it needs the tag, which a full clone has.
 - **Engineering Notes:** through Entry #183 (v1.36), which covers `68c6191`.
-  **Thirty-seven commits behind** — `ec4e5fd`, the floor (a commit that regenerates the Notes cannot
+  **Thirty-eight commits behind** — `ec4e5fd`, the floor (a commit that regenerates the Notes cannot
   cover itself, Entry #144), `e7a94d1`, `d5ced0c`, `59b747a`, `f256937`, `12b483e`,
   `01f2892`, `8b6fd00`, `e186423`, `86f30f1`, `3e8191a`, `1523e0c`, `ff12e17`,
   `4a4c6ce`, `217ede6`, `d27743f`, `a0276dd`, `040a529`, `9e42d30`, `eb86846`,
   `c2b07fb`, `1b25f36`, `fcb7823`, `9e507b1`, `6469a67`, `ae37795`, `9d00d99`,
   `27d3ed5`, `9051ffd`, `e5ac20a`, `ef65f46`, `797bdc9`, `69c92d6`, `22a9a35`,
-  `d77a8c4`, `64ad625` and the commit that writes this line. Every later
+  `d77a8c4`, `64ad625`, `9ea1cf3` and the commit that writes this line. Every later
   commit adds one
   until the
   next regeneration. Batched, by
@@ -777,7 +808,7 @@ lands B10, with its live run before the commit.
   identical to the committed PDF. Neither changes in the commit that writes this line;
   the Attribution Statement's script last changed at `68c6191`, the Portfolio
   Document's at `6e1baba`.
-- **README.md:** its test counts are current (841, 675 / 155 and 770), changed by the
+- **README.md:** its test counts are current (841, 676 / 154 and 770), changed by the
   commit that writes this line, so the hook's section 5 will report 0 commits since it
   was touched. Its paragraph on what is empirically validated was rewritten at
   `6469a67` (the BTC-Adjusted Prediction removed) — Viktor's to reword (Open items).
@@ -801,7 +832,7 @@ run and the panel read happen before `git commit`, and Claude checks the decisio
 record for the new `code_hash` before the commit step, not after the push.** Never
 predict live numbers; check the record. Followed at `2c7a7d1`, `4e2b1c8`, `486f1a5`,
 `3bfa6b7`, `add8540`, `57f0521`, `b0efe23`, `76c8cde`, `8b9ac1e`, `d76ddfd`, `7d0024e`, `c2b07fb`,
-`1b25f36`, `fcb7823`, `9e507b1`, `6469a67`, `ae37795`, `9d00d99`, `27d3ed5`, `9051ffd`, `e5ac20a`, `797bdc9`, `69c92d6`, `22a9a35`, `d77a8c4`, `64ad625` and the commit that writes this line: the command list stopped at the live run, Claude read the record,
+`1b25f36`, `fcb7823`, `9e507b1`, `6469a67`, `ae37795`, `9d00d99`, `27d3ed5`, `9051ffd`, `e5ac20a`, `797bdc9`, `69c92d6`, `22a9a35`, `d77a8c4`, `64ad625` and `9ea1cf3`: the command list stopped at the live run, Claude read the record,
 and only then gave the commit steps. **Since finding 16, a
 live run in the first 60 seconds after a 4h close (00:00, 04:00, 08:00, 12:00, 16:00,
 20:00 UTC) fails by design** ("not yet final"); run again a minute later.
@@ -1490,6 +1521,23 @@ Viktor's to answer.
   Viktor's machine (no `logs\LiveSim` there, 15 October). It matters once paper trading
   reads these files. Changes no trade. On this list by the 22 September ruling, not
   separately ruled.
+- **`run_tests.py` counts a test that takes a fixture as an error, as it counts a real
+  one** (round 8's Part 4, its structural point; ruled for this list on 15 October,
+  DECISIONS, "Ruling, 15 October 2026 — Part 4's three test shapes", point 5). A real
+  error that arrives in the same change as a fixture-taking test is removed leaves the
+  count where it was. Counting the two apart would change the runner's output and move
+  `code_hash`, since `run_tests.py` is one of its files. Changes no trade.
+- **The non-finite panel test cannot reach LIVE PRICE** (found landing Part 4's three
+  test shapes, 15 October). It sweeps the floats the golden decision holds, and the
+  golden run is on pinned data, whose live price is null: with that line's finiteness
+  guard removed for a present value, the test stays green (Linux sandbox). The line is
+  guarded in the code. Changes no trade. On this list by the 22 September ruling.
+- **Part 4's other named tests are not checked against its description** (round 8,
+  run 2, Part 4: the absence scans of its shape 1, and its shape 4,
+  `tests/test_panel_prints_only_what_was_computed.py::test_absent_scores_print_as_absent_not_as_zero`).
+  The three shapes the triage put in the batch, and the second shape's sibling, landed
+  on 15 October; the rest were on no list by name. Changes no trade. On this list by
+  the 22 September ruling.
 - **Fable 5.1 works on this list after the audit** (DECISIONS, "Ruling, 29 September
   2026 — Fable 5.1 works on the list for after the audit, not before it"). Not a
   finding; recorded here so the list says who works on it after the audit.
@@ -1551,20 +1599,10 @@ Each code commit is its own commit and updates this file for its own landing.
      patch 2, the two repeated readings (the REGIME line and the STRUCTURE line's Vol
      field go) — **done at `69c92d6`**; B4's labels — **done at `22a9a35`**; B7 —
      **done at `d77a8c4`**; B9 — **done at `64ad625`**, all but its Bitcoin SuperTrend
-     already at `797bdc9`; B10 — **done at the commit that writes this line**; then the
-     three test shapes of round 8's Part 4, as one patch (ruled 15 October, with B10):
-     the golden coverage test that prints SKIP and returns when its baseline is
-     missing, so it passes (`tests/test_golden_path.py:388–390`; its sibling at `:349`
-     fails then); the non-finite test that checks only that `math.isfinite` appears in
-     the panel's source (`tests/test_decision_bar_integrity.py:491–504`; the name is on
-     22 lines there, so deleting `safe_float`'s own check leaves it green — a NaN is
-     already tested by rendering, in `tests/test_panel_prints_only_what_was_computed.py`,
-     and no panel test feeds in an infinity); and the watched error count written as 29
-     where the suite runs at 32, which stands at `run_tests.py:22`,
-     `tests/test_docs_build_writes_into_the_repository.py:206` and
-     `tests/test_code_fingerprint.py:40–41` — the third found on 15 October; the line in
-     `tests/test_risk_regime_independence.py` round 8 named went with fix 3, as Viktor
-     checked at `d77a8c4`. Their shapes are Viktor's, asked before any code.
+     already at `797bdc9`; B10 — **done at `9ea1cf3`**; and the three test shapes of
+     round 8's Part 4, as one patch (ruled 15 October) — **done at the commit that
+     writes this line**, with the second shape's sibling, which Part 4 named in the same
+     sentence. **The batch is done.**
      **B6:** the run's source is read once per run (`_is_live_run`: live only when no
      pinned source is set), and a live run's state, archive and log stay exactly where
      they were, in `config.LOG_DIR`; any other run's go to its `pinned/` subdirectory
@@ -1744,7 +1782,7 @@ Each code commit is its own commit and updates this file for its own landing.
      `code_hash`; `run_hash` and the golden snapshot did not move, as predicted.
      **B10:** the self-review's B10 named two outputs. The simulated order recorded the
      band between the two EMAs as `entry_zone`, which finding 4 made a reference, not
-     the entry: at the commit that writes this line it is `ema_band`, the panel's label,
+     the entry: since `9ea1cf3` it is `ema_band`, the panel's label,
      with the same values, and the order's entry stays `current_price`, the decision
      close under the decision log's own name. Exit Watch's note naming Target 1 printed
      on a WAIT or a NO-TRADE under a leaning bias, naming the target of a plan the
@@ -1757,18 +1795,34 @@ Each code commit is its own commit and updates this file for its own landing.
      then saying no flag is active; the other 18 are identical. Changes no decision.
      The live run and its record came before the commit. It moved `code_hash`;
      `run_hash` and the golden snapshot did not move, as predicted.
+     **Part 4's three test shapes:** the golden coverage test printed SKIP and
+     returned when its baseline was missing, a pass; it now fails then, as the snapshot
+     comparison does, and runs without `pandas_ta`, since it reads only the stored
+     file. The non-finite test checked only that `math.isfinite` appeared in the
+     panel's source; it now renders the golden decision — a CONSERVATIVE LONG, so the
+     plan prints — with each of its 120 float fields set to +inf, -inf and NaN in turn,
+     360 renders, and fails if a line prints nan, inf or infinity or a render returns no
+     panel. Seven of the panel's guards, each removed alone, fail it; the test it
+     replaces passed under all seven. Its sibling checked that "SuperTrend's level"
+     appeared in the source; it now runs the guard with the level blanked at the
+     decision bar. The final sweep drops the level even without its guard, so what the
+     test asserts is that SuperTrend fails whole and its direction is not written. The
+     watched error count is no longer written as a number in `run_tests.py`'s docstring
+     or the three test files that gave one; each points to "Where things stand, right
+     now". Tests and a docstring only: `code_hash`, `run_hash` and the golden snapshot
+     did not move, as predicted, so there was no live run.
   5. **The fix verification** by round 8's auditor, on a scoped package (the
      14 September precedent) — Claude's, under the delegation of 4 October. The release
      gate reopens only on its report (point 2).
 
 ## Resolved this session
 
-- **B10** (the self-review's B10; point 8 of round 8's triage; ruled 15 October): with
-  the commit that writes this line, the simulated order records the band as `ema_band`
-  and the panel prints the note naming Target 1 only on a run whose action names a
-  side. The decision log's records are not edited: they never held the order, and they
-  keep the note as before.
-- **The once-per-session rewrite of this file.** The previous version, as at `64ad625`,
+- **Part 4's three test shapes** (round 8's Part 4; point 8 of round 8's triage; ruled
+  15 October): with the commit that writes this line, the golden coverage test fails on
+  a missing baseline and runs without `pandas_ta`, the non-finite test renders the
+  panel, the SuperTrend level test runs its guard, and the watched error count is
+  written only in this file. The label and record batch is done.
+- **The once-per-session rewrite of this file.** The previous version, as at `9ea1cf3`,
   is in HISTORY verbatim, headings demoted one level, proven by un-demotion with a
   negative control (this commit's message has the result).
 
@@ -1945,7 +1999,7 @@ Claude critiques it.
   `fcb7823` and `9e507b1` touched only README's test counts (`1b25f36` was missing from
   this list in the version at `fcb7823`, which kept the sentence as `1b25f36` had
   written it), `6469a67` its counts and its paragraph on what is empirically
-  validated, `ae37795` its counts, `9d00d99` its counts, `27d3ed5` its counts, `9051ffd` its counts, `e5ac20a` its counts, `797bdc9` its counts, `69c92d6` its counts, `22a9a35` its counts, `d77a8c4` its counts, `64ad625` its counts, and the commit that writes this line its counts. The first still says the next round is paused until work order G and the six
+  validated, `ae37795` its counts, `9d00d99` its counts, `27d3ed5` its counts, `9051ffd` its counts, `e5ac20a` its counts, `797bdc9` its counts, `69c92d6` its counts, `22a9a35` its counts, `d77a8c4` its counts, `64ad625` its counts, `9ea1cf3` its counts, and the commit that writes this line its counts. The first still says the next round is paused until work order G and the six
   findings are done, which happened at `7d0024e`; the third predates the ruling of
   29 September on what opens backtesting. The second reads Open; the gate is closed since
   5 October. All three are written in Viktor's voice, so the new wording goes to him
@@ -1972,7 +2026,8 @@ Claude critiques it.
   sweep's line; `69c92d6` named `797bdc9` there and added the repeated readings'
   line; `22a9a35` named `69c92d6` there and added B4's labels' line; `d77a8c4` named
   `22a9a35` there and added B7's line; `64ad625` named `d77a8c4` there and added B9's
-  line; the commit that writes this line names `64ad625` there and adds B10's line,
+  line; `9ea1cf3` named `64ad625` there and added B10's line; the commit that writes
+  this line names `9ea1cf3` there and adds its own line to the tests-and-tooling table,
   under the same wording,
   for a later commit to name. (`ef65f46`, docs only, changed no line there.)
 - **The pre-push hook is installed per clone, not per repository.** After any re-clone

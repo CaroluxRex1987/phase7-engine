@@ -4278,6 +4278,134 @@ band's key changed at this commit; none had been written on Viktor's machine bef
 Nothing the engine decides changes; the golden snapshot and `run_hash` hold, and
 `code_hash` moves (`core/panel_render.py` and `live_trading.py`).
 
+## Ruling, 15 October 2026 — Part 4's three test shapes
+
+*New in this file on 15 October 2026. Ruled at 14:28 and 15:51 that afternoon, before
+any code was delivered; recorded, with the code, by the commit that lands the three
+test shapes.*
+
+**The question.** Round 8's Part 4 (run 2, 4 October) named tests whose shape lets them
+pass whatever the code does. Point 8 of the triage of 5 October put three of them in
+the label and record batch: the golden test that returns instead of skipping when its
+baseline is missing, a test that checks only that a string is in a source file, and a
+watched error count written as 29 where the suite runs at 32. The order ruled on
+13 October put them last; the ruling on B10 made them one patch. Their shapes were put
+to Viktor before any code.
+
+**What Claude found before the ruling, from the code and by running it** (a clone of
+`9ea1cf3`, Linux sandbox, Python 3.12.3; `master` and `origin/master` on Viktor's disk
+matched it):
+
+- **The coverage test** (`tests/test_golden_path.py:388–390`) passes with the golden
+  fixture moved away, while the snapshot comparison (`:349`) fails. It also skipped
+  without `pandas_ta`, though it reads only the stored file.
+- **The non-finite test** (`tests/test_decision_bar_integrity.py:491–504`) stays green
+  with `safe_float`'s own check deleted, while the NaN sweep in
+  `tests/test_panel_prints_only_what_was_computed.py` fails (SWING STRUCT : $nan). The
+  sweep's decision has a NEUTRAL bias, so the stop and targets never print in it, and
+  no panel test fed in an infinity. At `9ea1cf3` the panel prints no nan or inf with any
+  of the golden decision's 120 float fields set to +inf, -inf or NaN.
+- **Part 4 named a second source-text test in the same sentence:**
+  `test_the_supertrend_level_is_guarded_and_not_only_its_direction` (`:308–323`) checks
+  only that "SuperTrend's level" appears in the function's source; with the guard's
+  raise deleted it stays green. It was on no project list by name.
+- **The 29** stands in `run_tests.py:22`,
+  `tests/test_docs_build_writes_into_the_repository.py:206` and
+  `tests/test_code_fingerprint.py:40–41`; `tests/test_summary_names_the_action_reason.py:29`
+  says 32, right at `9ea1cf3`. `run_tests.py`'s 32 errors there are all fixture
+  `TypeError`s.
+
+**The calls put to Viktor, and Claude's suggestions**, given when he asked for them at
+14:18:
+
+1. With no baseline, the coverage test skips, or fails as the snapshot comparison does.
+   Suggestion: fails — the baseline is a committed file, so its absence is a broken
+   checkout, and `run_tests.py` turns a skip into an error anyway.
+2. Its `pandas_ta` skip: dropped, since the test never runs the engine (675 / 155 to
+   676 / 154 without `pandas_ta`).
+3. The non-finite test: (A) the NaN sweep's decision with +inf and -inf, which never
+   prints the plan; or (B) the golden decision, a CONSERVATIVE LONG, each float set to
+   +inf, -inf and NaN one at a time, with a precondition that the plan prints.
+   Suggestion: (B), since the defect the test's docstring names is "STOP LOSS : $nan",
+   and with STOP LOSS's own guard deleted (A) stays green.
+4. The SuperTrend level test: included in this patch. The suggestion said the new test
+   would check that a level with no value at the decision bar, beside a usable
+   direction, never reaches the frame (Claude's errors, below).
+5. The 29: (a) written as 32; (b) the number removed from all four places, each
+   pointing to PHASE7_NEXT.md; (c) (b), and `run_tests.py` counting fixture-taking
+   tests apart from real errors. Suggestion: (b), with (c) on the list for after the
+   audit, since it changes the runner's output and moves `code_hash`.
+
+**Found building, and put to Viktor again.** The level is kept out of the frame twice:
+by its own guard, and by the final sweep at the end of `add_technical_indicators`,
+which drops any critical column with no value at the decision bar. With the level's
+guard deleted, the sweep still drops the level and records a SuperTrend failure, and
+`ST_Direction` stays in the frame — bias reading the direction of an indicator the run
+records as failed. A test of the claim in suggestion 4 alone would have stayed green
+with the guard deleted. The calls: (a) keep the test, asserting what only the level's
+own guard does — SuperTrend fails whole, neither column written; or (b) leave it out
+of this patch, for the list after the audit. Suggestion: (a), without a check on the
+failure's wording, which is message text, the shape Part 4 criticises.
+
+**How it was ruled.** By agreeing to Claude's suggestions ("Agreed." at 14:28, after
+asking "Suggestions?" at 14:18; "Proceed with your suggestion that you have." at 15:51,
+to the revised one), not by writing his position first. Recorded that way, as for B9
+and B10. The turn his first agreement started was stopped by the usage limit at 14:54,
+before anything reached his disk, and resumed at 15:22.
+
+**What Viktor ruled.**
+
+1. With no baseline, the golden coverage test fails, as the snapshot comparison does.
+2. It runs without `pandas_ta`.
+3. The non-finite test renders the golden decision with each of its float fields set
+   to +inf, -inf and NaN, one at a time; no line may print nan, inf or infinity, and
+   every render must return a panel. Its precondition: the golden decision's own panel
+   prints a stop and three targets, each with a price, and none of those words.
+4. The SuperTrend level test runs the guard: pandas_ta's SuperTrend is replaced for one
+   call by one whose level has no value at the decision bar while its direction has
+   one; a SuperTrend failure is recorded and neither column is written. Two controls:
+   with nothing replaced the pinned frame computes a level with a value at the decision
+   bar and records no SuperTrend failure, and the replaced call's direction has a
+   value there.
+5. The watched error count is written as a number only in PHASE7_NEXT.md ("Where things
+   stand, right now", "Test suite"); `run_tests.py`'s docstring and the three test
+   files that gave one point there. Counting fixture-taking tests apart from real
+   errors in `run_tests.py` goes on the list for after the audit.
+
+**Found, not changed** (PHASE7_NEXT.md, "Found after 22 September"; on that list by the
+22 September ruling, or by ruling 5):
+
+- The non-finite test sweeps the floats the golden decision holds. The golden run is on
+  pinned data, so its live price is null and LIVE PRICE is not reached: with that
+  line's finiteness guard removed for a present value, the test stays green (Linux
+  sandbox). The line is guarded in the code.
+- Part 4's other named tests — the absence scans of its shape 1, and its shape 4,
+  `test_absent_scores_print_as_absent_not_as_zero` — are not checked against its
+  description here.
+- `run_tests.py` counting fixture-taking tests apart from real errors (ruling 5).
+
+### Claude's errors, recorded
+
+- **The counts' home was misnamed.** Claude's first message said the counts are kept
+  in PHASE7_NEXT.md's head block; they are in "Where things stand, right now". Corrected
+  in the next message, before Viktor ruled.
+- **Suggestion 4 described a test that would not have caught what it was for.** It
+  named a claim — the level never reaches the frame — without checking whether anything
+  else held it; the final sweep does. Found building, after the first agreement and
+  before any code was delivered, and put to Viktor again.
+- **A call that was not his was put to him.** The first message said that whether
+  Part 4's other named tests go on the list for after the audit was Viktor's; the
+  ruling of 22 September already puts anything found there.
+
+**What it weakens**, stated per this project's amendment practice: a reader of
+`run_tests.py` or of the three test files no longer sees the watched count there, and
+must open PHASE7_NEXT.md for it — the point of ruling 5. The rest checks more, not
+less: a checkout without the golden fixture now fails two more tests (the coverage test
+and the non-finite test), and without `pandas_ta` one more test runs. The SuperTrend
+test makes the 1 September design — a level with no value at the decision bar fails
+SuperTrend whole — something a later change must change the test to undo. Nothing the
+engine decides changes; `code_hash`, `run_hash` and the golden snapshot hold.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then
