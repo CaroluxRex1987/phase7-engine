@@ -25,7 +25,9 @@ WHAT THESE TESTS HOLD
 4. A NEUTRAL bias whose score was not computed says so, not "nan".
 5. Negative controls: BULLISH and BEARISH print the plan exactly as before,
    and so does a raw bias the engine never emits (absent) -- the ruling is
-   about NEUTRAL only.
+   about NEUTRAL only. Since B10 (15 October 2026) the Exit Watch note naming
+   Target 1 prints only on a run whose action names a side, so under BULLISH
+   and BEARISH it is checked on the side's own trade.
 6. The panel withholds; it does not remove. Rendering leaves the decision
    object -- which carries the plan and is what gets logged -- unchanged.
 7. The claim the ruling rests on: the decision ladder never returns LONG or
@@ -181,7 +183,12 @@ def test_bullish_and_bearish_still_print_the_whole_plan():
         assert all("R:R 1 : " in t for t in targets), (raw, targets)
         close = _lines(panel, "DECISION CLOSE")[0]
         assert "the plan's entry" in close, (raw, close)
-        assert "Target 1 ($0.8500)" in _exit_watch_section(panel), raw
+        # B10, 15 October 2026: the note waits for a trade, and this fixture's
+        # action is WAIT, so the note is checked on the side's own trade; the
+        # plan lines above still print on the WAIT, as finding 5 left them.
+        traded = _decision(raw=raw, score=55.0)
+        traded["exit"]["action"] = "LONG" if raw == "BULLISH" else "SHORT"
+        assert "Target 1 ($0.8500)" in _exit_watch_section(render_panel(traded)), raw
 
 
 def test_a_raw_bias_the_engine_never_emits_prints_the_plan_as_before():

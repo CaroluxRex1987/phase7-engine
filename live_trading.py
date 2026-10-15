@@ -137,7 +137,16 @@ class LiveTradingSimulator:
             "symbol": result.get("symbol", "UNKNOWN"),
             "timeframe": result.get("timeframe", "UNKNOWN"),
             "decision": exit_data.get("action", "UNKNOWN"),
-            "entry_zone": {
+            # 15 OCTOBER 2026, B10 (DECISIONS, "Ruling, 15 October 2026 --
+            # B10: two outputs agree with finding 4 and the action"). This
+            # key was "entry_zone". Finding 4 (27 September) ruled that the
+            # plan's single entry is the close of the decision candle, and
+            # the band between the two EMAs a reference: the panel labels it
+            # EMA BAND, "a reference, not the entry". Under the old name a
+            # reader of these files filling paper trades would have taken the
+            # band for the entry. Renamed to the panel's label; the two values
+            # are the same.
+            "ema_band": {
                 "lower": entry.get("zone_lower"),
                 "upper": entry.get("zone_upper")
             },
@@ -165,6 +174,12 @@ class LiveTradingSimulator:
                 "long_signal": entry.get("long_signal", False),
                 "short_signal": entry.get("short_signal", False)
             },
+            # B10, the same ruling: this is the plan's entry -- the decision
+            # close, the close of the last closed candle, not the live price
+            # -- under the name the decision log gives it (exit.current_price;
+            # tests/test_plan_entry_is_the_decision_close.py). Kept as it is,
+            # not renamed and not copied under a second name, so the order
+            # and the log name the entry once, and the same way.
             "current_price": exit_data.get("current_price"),
             "note": "This is a simulated order. No real trading occurs."
         }

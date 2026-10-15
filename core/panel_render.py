@@ -411,10 +411,22 @@ def render_panel(decision):
         # reading of a list nobody built. The router writes the key on every
         # decision, so this could not fire on the engine's path; absent, it
         # now says it was not computed.
+        # 15 OCTOBER 2026, B10 (DECISIONS, "Ruling, 15 October 2026 -- B10:
+        # two outputs agree with finding 4 and the action"): nor on a run
+        # that suggests no trade. The note begins "If you're already in this
+        # trade" and names this run's Target 1; on a WAIT or a NO-TRADE the
+        # engine suggested no trade, so the target is that of a plan it did
+        # not suggest. A trade is an action that names a side, the test
+        # decision_model makes of its own action (_refuse_incoherent_plan,
+        # _apply_degradation): WAIT, every NO-TRADE and an absent action
+        # (UNKNOWN) withhold the note. Panel only, as for finding 5: under a
+        # leaning bias the plan's stop and targets still print, and the
+        # decision object and the log keep the note.
         exit_watch = decision.get("exit_watch")
         exit_watch_computed = isinstance(exit_watch, list)
         exit_watch = exit_watch if exit_watch_computed else []
-        if plan_withheld:
+        names_a_side = any(side in action_val for side in ("LONG", "SHORT"))
+        if plan_withheld or not names_a_side:
             from models.exit_model import TARGET1_NOTE_PREFIX
             exit_watch = [flag for flag in exit_watch
                           if not str(flag).startswith(TARGET1_NOTE_PREFIX)]

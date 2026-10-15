@@ -4172,6 +4172,112 @@ decides changes: Bitcoin is reference only, and the asset's own analysis is unch
 (tested). On a healthy run only `code_hash` moves; the golden snapshot and `run_hash`
 hold.
 
+## Ruling, 15 October 2026 — B10: two outputs agree with finding 4 and the action
+
+*New in this file on 15 October 2026. Ruled at 11:00 and 11:13 that morning, before any
+code was delivered; recorded, with the code, by the commit that lands B10.*
+
+**The question.** The self-review of 5 October (B10, Minor): "Two outputs that
+contradict finding 4 or the action" — the simulated order in `live_trading.py` records
+the EMA band as `entry_zone` and has no field called the entry, where finding 4 ruled
+that the entry is the decision close and the band is information; and on a WAIT run
+Exit Watch still advises "If you're already in this trade … moving your stop to
+breakeven once price reaches Target 1", using the target of a plan the engine did not
+suggest. Point 8 of round 8's triage put B10 in the label and record batch (DECISIONS,
+"Ruling, 5 October 2026 — round 8 triaged …"); the order ruled on 13 October put it
+after B9 and before the three test shapes of round 8's Part 4.
+
+**What Claude found before the ruling, from the code** (a clone of `64ad625`; `master`
+and `origin/master` on Viktor's disk matched it, and every file read off his disk
+matched the clone byte for byte):
+
+- **Both parts stand.** The order's `entry_zone` is the entry section's `zone_lower` and
+  `zone_upper`, the band between the two EMAs (`live_trading.py:140–143`). Exit Watch's
+  note is built on every run with a Target 1 (`models/exit_model.py`,
+  `build_exit_watch`), and the engine computes Target 1 whatever the action
+  (`core/engine_core.py:1230`); the panel withholds the note only under a NEUTRAL bias
+  (`core/panel_render.py`, finding 5), so a WAIT or a NO-TRADE under a leaning bias
+  prints it, and every record carries it.
+- **Neither depends on the other, or on the test shapes.** The golden run is a
+  CONSERVATIVE LONG whose snapshot carries the note, so withholding it on a run with no
+  trade leaves the snapshot as it is; and a NaN in the panel's numeric fields is already
+  tested by rendering (`tests/test_panel_prints_only_what_was_computed.py`), so B10's
+  edit to the panel does not wait for the second test shape. No panel test feeds in an
+  infinity, which is what that shape adds.
+- **No simulated order has been written on Viktor's disk:** there is no `logs\LiveSim`
+  folder in the repository there, so no order file exists in the old form. Nothing
+  reads the order files back (PHASE7_NEXT.md, Open items, "what B6 left shared").
+- **Found building, after the first agreement:** the order already records the decision
+  close, as `current_price` (`live_trading.py:168`) — the name the decision log gives
+  the plan's entry (`exit.current_price`; `tests/test_plan_entry_is_the_decision_close.py`).
+
+**The calls put to Viktor, and Claude's suggestions**, given when he asked for them:
+
+1. **The order of the work:** B10 first, as the ruling of 13 October already orders it,
+   since nothing found argues for changing that; then the three test shapes, as one
+   patch.
+2. **The order's band:** renamed `ema_band`, the panel's label for it (EMA BAND, "a
+   reference, not the entry"), with its values the same. Two test lines change.
+3. **The note:** withheld on the panel unless the action is a trade, by widening finding
+   5's filter, and kept in the record, as finding 5 kept it. Before the second
+   agreement Claude made "a trade" exact, as an action that names a side (LONG or SHORT)
+   — the test `models/decision_model.py` makes of its own action, which covers WAIT,
+   every NO-TRADE and an absent action (UNKNOWN) — and named the existing test it
+   changes (Claude's errors, below).
+4. **The order's entry**, put after the first agreement, when the suggestion's flaw was
+   found: keep `current_price`; rename it `decision_close`, the panel's label; or rename
+   it `entry_price`. Claude's suggestion: keep it, so that the order and the log name
+   the entry once and the same way, and nothing is recorded twice. The cost is the name
+   itself, older than finding 16, which reads like the live price: the code comment
+   says what it is, and the file does not.
+
+**How it was ruled.** By agreeing to Claude's suggestions ("Agreed.", 11:00, to 1–3;
+"Agreed.", 11:13, to 4, after asking what Claude suggested), not by writing his
+position first. Recorded that way, as for B9.
+
+**What Viktor ruled.**
+
+1. B10 first; then the three test shapes of round 8's Part 4, as one patch.
+2. The simulated order records the band as `ema_band`; its values are unchanged.
+3. The order's entry stays `current_price`, as the decision log names it; no field is
+   added.
+4. The panel prints the Exit Watch note naming Target 1 only on a run whose action names
+   a side. WAIT, every NO-TRADE and an absent action withhold it. Panel only: the
+   decision object and the log keep the note, and under a leaning bias the plan's stop
+   and targets still print, as finding 5 left them.
+
+**Found, not changed** (PHASE7_NEXT.md, "Found after 22 September"; on that list by the
+22 September ruling):
+
+- The simulator writes an order file on every run that does not end in an error, WAIT
+  and NO-TRADE included (`live_trading.py`, `run_once`), with that run's stop and
+  targets — on a run with no trade, a plan the engine did not suggest. Its `decision`
+  field says which, so a reader can tell; nothing reads the files today.
+
+### Claude's errors, recorded
+
+- **The suggestion for the order missed a line.** Claude suggested adding `entry_price`,
+  read from `exit.current_price`, without having read `live_trading.py:168`, where the
+  order already records that value as `current_price`; the suggestion would have
+  recorded one value under two names. Viktor agreed to it at 11:00. Found building,
+  before any code was delivered, and put to him as call 4.
+- **The suggestion named only part of what it changed.** It did not say that finding
+  5's negative control (`tests/test_neutral_bias_prints_no_plan.py`,
+  `test_bullish_and_bearish_still_print_the_whole_plan`) expects the note on a fixture
+  whose action is WAIT, so the change rewrites an existing test's check. Found scoping,
+  and told to Viktor with call 4, before he agreed again.
+
+**What it weakens**, stated per this project's amendment practice: on a WAIT or a
+NO-TRADE the panel no longer reminds the holder of an earlier trade to move the stop to
+breakeven at Target 1 — a reminder that named this run's Target 1, not that trade's.
+Rendered from the live log's 62 records on both codes, 44 panels lose that line and
+nothing else (35 live runs, 9 pinned), 33 of them then saying no flag is active; the 14
+runs that took a side, the 3 under NEUTRAL and the record with no provenance are
+identical. The note stays in the decision log. A reader of order files must know the
+band's key changed at this commit; none had been written on Viktor's machine before it.
+Nothing the engine decides changes; the golden snapshot and `run_hash` hold, and
+`code_hash` moves (`core/panel_render.py` and `live_trading.py`).
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then

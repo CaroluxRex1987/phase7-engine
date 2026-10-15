@@ -68,7 +68,9 @@ def _walk_values(obj):
 def test_an_order_built_from_an_empty_result_records_nothing_rather_than_zero():
     order = _build_order({"symbol": "TESTUSDT", "timeframe": "4h"})
 
-    assert order["entry_zone"] == {"lower": None, "upper": None}, order
+    # The band's key is ema_band since B10 (15 October 2026); it was
+    # entry_zone (tests/test_b10_outputs_agree_with_finding_4_and_the_action.py).
+    assert order["ema_band"] == {"lower": None, "upper": None}, order
     assert order["risk"]["atr_stop"] is None, order
     assert order["risk"]["targets"] is None, order
     assert order["current_price"] is None, order
@@ -89,7 +91,7 @@ def test_an_order_built_from_a_real_result_carries_its_values():
                  "risk_valid": False, "risk_reason": "Stop distance too wide."},
         "exit": {"action": "NO-TRADE (RISK TOO HIGH)", "current_price": 0.67},
     })
-    assert order["entry_zone"] == {"lower": 0.61, "upper": 0.64}
+    assert order["ema_band"] == {"lower": 0.61, "upper": 0.64}
     assert order["risk"]["atr_stop"] == 0.55
     assert tuple(order["risk"]["targets"]) == (0.79, 0.91, 1.03)
     assert order["risk"]["risk_valid"] is False
