@@ -605,6 +605,32 @@ class RiskModel:
         was never reached, so there is nothing to report — those branches
         already fail risk_valid, so decision_model.py never reaches the
         AGGRESSIVE-gating logic for them regardless of this string.
+
+        B7, 15 October 2026 (round 8's triage, point 8; the review's B7).
+        The paragraph above was wrong in two ways. It counted three branches
+        where four returned "UNKNOWN" -- it and the finite-number check both
+        arrived at c4dfcc7, 1 September -- and two of the four were not
+        branches where the regime could not be read. The 15% distance limit and the 0.2% floor both
+        returned before classify_risk_regime() ran, though by then the stop
+        distance is known and the volatility state is a parameter: the
+        regime was computable, and the record said UNKNOWN anyway. The 15%
+        limit refuses nothing on its own, either: any stop over 15% is over
+        REGIME_EXTREME_STOP_PCT (8%), so it is EXTREME RISK and refused below
+        in any case. It chooses only the message.
+
+        Viktor ruled, by agreeing to Claude's suggestion (DECISIONS, "Ruling,
+        15 October 2026 -- B7: the distance limits record the regime"): the
+        regime is classified first, and both limits then return it. Their
+        messages are unchanged and keep their precedence, so on every input
+        the verdict and the reason are what they were; only the recorded
+        regime moves, from "UNKNOWN" to the regime computed. The 15% limit
+        stays, as the ruling of 27 September kept it, and is a check that
+        cannot change a verdict while REGIME_EXTREME_STOP_PCT is below it --
+        kept on purpose, as a backstop if that is ever raised past 15%.
+
+        "UNKNOWN" is now returned only where no regime can be computed: a
+        price or stop that is not a finite number, one at or below zero, and
+        the except branch. Each fails risk_valid, as before.
         """
         try:
             if not (np.isfinite(current_price) and np.isfinite(atr_stop)):
@@ -614,15 +640,19 @@ class RiskModel:
 
             stop_dist_pct = (abs(current_price - atr_stop) / current_price) * 100.0
 
+            # B7, 15 October 2026: classified before the two distance limits,
+            # so a refusal on either records the regime it was refused in
+            # rather than UNKNOWN. See the docstring.
+            risk_regime = self.classify_risk_regime(volatility_state, stop_dist_pct)
+
             if stop_dist_pct > MAX_STOP_DISTANCE_PCT:
                 return False, (
                     f"Stop distance exceeds maximum allowable threshold "
                     f"({MAX_STOP_DISTANCE_PCT:.0f}%)."
-                ), "UNKNOWN"
+                ), risk_regime
             if stop_dist_pct < MIN_STOP_DISTANCE_PCT:
-                return False, "Stop distance too tight (risk of market noise liquidation).", "UNKNOWN"
+                return False, "Stop distance too tight (risk of market noise liquidation).", risk_regime
 
-            risk_regime = self.classify_risk_regime(volatility_state, stop_dist_pct)
             if risk_regime == "EXTREME RISK":
                 return False, "Risk regime classified as EXTREME RISK.", risk_regime
 

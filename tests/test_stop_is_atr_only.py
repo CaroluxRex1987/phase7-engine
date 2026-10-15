@@ -31,6 +31,9 @@ WHAT THESE TESTS HOLD
    recomputed from what the record holds -- on a fixture where the HVN lies
    further out, so the old rule would have moved it.
 5. The two limits the ruling keeps are still 8% and 15%, and still refuse.
+   (Since B7, 15 October 2026, a stop over 15% records the regime it was
+   refused in, EXTREME RISK, rather than UNKNOWN; the message is unchanged.
+   tests/test_b7_distance_limits_record_the_regime.py holds that.)
 
 All fixture-free, so run_tests.py runs them too.
 """
@@ -223,4 +226,6 @@ def test_the_eight_and_fifteen_percent_limits_are_unchanged():
     assert not ok and regime == "EXTREME RISK", (ok, regime)
     ok, reason, regime = model.validate_risk_parameters(
         current_price=100.0, atr_stop=84.0, volatility_state="MEDIUM VOLATILITY")
-    assert not ok and regime == "UNKNOWN" and "15%" in reason, (ok, reason, regime)
+    # B7, 15 October 2026: "UNKNOWN" until then -- the 15% limit returned
+    # before the regime was classified.
+    assert not ok and regime == "EXTREME RISK" and "15%" in reason, (ok, reason, regime)

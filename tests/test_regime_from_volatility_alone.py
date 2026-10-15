@@ -175,8 +175,10 @@ def test_the_regime_names_the_volatility_the_panel_prints():
     of price, on both sides: the volatility state comes from
     calculate_dynamic_regime, the stop from calculate_stop_targets with that
     state, and the regime from the risk check. Every regime is the one the
-    table gives for the state. The only other outcome is a stop under 0.2%,
-    refused before any regime is classified.
+    table gives for the state. A stop under 0.2% is refused, and since B7
+    (15 October 2026) it carries its regime too -- the one the table gives --
+    where until then it was refused before any regime was classified and
+    recorded UNKNOWN. The refusal is spotted by its reason, not by the regime.
 
     It also shows that since fix 1 the 8% test never fires below EXTREME
     VOLATILITY on the engine's own stop: at HIGH VOLATILITY the stop is at
@@ -198,9 +200,8 @@ def test_the_regime_names_the_volatility_the_panel_prints():
                 bias_score=score, volatility_state=vol)
             ok, reason, regime = model.validate_risk_parameters(
                 current_price=price, atr_stop=stop, volatility_state=vol)
-            if regime == "UNKNOWN":
-                assert "too tight" in reason, (ratio, vol, reason)
-                continue
+            if "too tight" in reason:
+                assert ok is False, (ratio, vol, ok, reason)
             assert regime == REGIME_OF[vol], (ratio, vol, regime, reason)
             seen.add(vol)
     assert seen == set(REGIME_OF), seen

@@ -3986,6 +3986,88 @@ computes. Every score and every action is unchanged, and on the golden fixture o
 four fields that carry the words move. A reader counting VOLUME DIVERGENCE across the
 log has to count FADING VOLUME from this commit on.
 
+## Ruling, 15 October 2026 — B7: the distance limits record the regime
+
+*New in this file on 15 October 2026. Ruled at 02:12 that night, before any code;
+recorded, with the code, by the commit that lands B7.*
+
+**The question.** The self-review of 5 October (B7, Minor): "The 15% stop limit only
+chooses the message." Point 8 of round 8's triage put B7 in the label and record batch
+(DECISIONS, "Ruling, 5 October 2026 — round 8 triaged …"). What the triage left open
+was the fix's shape — and one constraint stood in the way of the plainest one: the
+ruling of 27 September kept "the 8% and 15% limits unchanged" (finding 6), and
+`tests/test_stop_is_atr_only.py` holds that wording.
+
+**What Claude found before the ruling, from the code** (a clone of `22a9a35`; `master`
+and `origin/master` on Viktor's disk matched it):
+
+- `validate_risk_parameters` (`models/risk_model.py`) tested the 15% limit and the 0.2%
+  floor before it classified the regime, and both returned the regime as "UNKNOWN".
+  Any stop over 15% is over `REGIME_EXTREME_STOP_PCT` (8%), so it is EXTREME RISK and
+  refused in any case: the 15% limit refused nothing on its own. It chose the message,
+  and made the record say UNKNOWN for a regime that was EXTREME RISK.
+- The regime's three readers: `core/engine_core.py` writes it into the risk block and
+  `lineage.risk_inputs`, `core/panel_render.py` prints it on the RISK REGIME line, and
+  `models/decision_model.py` reads it only after `risk_valid` has passed, to gate
+  AGGRESSIVE. On a refused run it reaches the record and the panel and decides nothing.
+- **The 0.2% floor has the same shape**, which B7 does not name: it too returned before
+  the regime and recorded UNKNOWN for a regime that could be computed. Unlike the 15%
+  limit it is reachable on the engine's own stop — `tests/test_regime_from_volatility_alone.py`'s
+  sweep reaches it six times.
+- On the live log (staged off Viktor's disk, 60 records): 32 carry the 15% message, all
+  with UNKNOWN, 6 to 27 September — the review's 23 and its 9 pinned runs. None carries
+  the floor's.
+
+**The options Claude set out.** A: keep the 15% limit and change the order — classify
+the regime first, so a stop over 15% records EXTREME RISK; the constant stays, the
+wording of 27 September holds, and the limit is a backstop should the 8% ever be raised
+past it; what it weakens: nothing on the engine's path, at the cost of a check that
+cannot fire today, kept on purpose. B: remove the 15% limit, so a stop over 15% is
+refused as EXTREME RISK like one between 8% and 15%; that amends the ruling of
+27 September, leaves no backstop, and — `MAX_STOP_DISTANCE_PCT` being in
+`FINGERPRINTED_CONFIG` — moves `run_hash` and the golden snapshot.
+
+**Claude's suggestion**, given when Viktor asked for one: A, with the 15% message kept
+(the more specific reason, and a true one), the 0.2% floor treated the same way, and
+UNKNOWN left only where no regime can be computed — a price or stop that is not
+finite, one at or below zero, and the except branch.
+
+**How it was ruled.** By agreeing to Claude's suggestion ("Agree."), not by writing his
+position first. Recorded that way, as for B4's labels.
+
+**What Viktor ruled.**
+
+1. A: the regime is classified before the 15% limit and the 0.2% floor, and both return
+   it. Their messages are unchanged and keep their precedence, so on every input the
+   verdict and the reason are what they were.
+2. The 15% limit stays, as the ruling of 27 September kept it; its comment says it
+   cannot change a verdict while the 8% is below it, and why it is kept.
+3. UNKNOWN is returned only where no regime can be computed.
+
+**What the patch found under the ruling.**
+
+- The docstring's paragraph on "UNKNOWN in the three early-return branches" counted
+  three where four returned UNKNOWN; it and the finite-number check both arrived at
+  `c4dfcc7` (1 September). A first draft of the correction said the finite check was
+  added later; `git log -S` showed otherwise, and it was corrected before delivery.
+- `tests/test_regime_from_volatility_alone.py`'s B8 sweep found a too-tight refusal by
+  `regime == "UNKNOWN"`. After the fix that branch could never be taken and the test
+  would have passed for the wrong reason, so it now finds the refusal by its reason and
+  checks its regime too.
+
+**Found, not changed.** Two words for a regime that was not read: "UNKNOWN" from
+`validate_risk_parameters`' remaining early returns, and "UNKNOWN RISK" from
+`classify_risk_regime` and the router's, `decision_model`'s and the panel's defaults.
+Neither decides anything (each UNKNOWN branch fails `risk_valid`). One word for one
+meaning is F8's class; B7's ruling did not reach it. Viktor's whether it joins the batch
+or waits (PHASE7_NEXT.md, "Found after 22 September").
+
+**What it weakens**, stated per this project's amendment practice: nothing a run
+decides. Every verdict and every reason is unchanged, the golden snapshot and
+`run_hash` hold, and only the recorded regime on a refusal at either limit moves. A
+reader counting UNKNOWN regimes across the log has to know that from this commit the
+two limits record the regime, and that the 32 earlier records are not edited.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then
