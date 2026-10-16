@@ -4406,6 +4406,179 @@ test makes the 1 September design — a level with no value at the decision bar 
 SuperTrend whole — something a later change must change the test to undo. Nothing the
 engine decides changes; `code_hash`, `run_hash` and the golden snapshot hold.
 
+## Decision, 16 October 2026 — round 8's fix verification: what is checked, what is sent, and to whom
+
+*New in this file on 16 October 2026. Claude's, under the delegation of 4 October as
+Claude reads it (below), and filed before the send it governs so that Viktor can
+reverse any part of it. Scoped on the evening of 15 October in a session that paused
+for Viktor's usage limit and resumed at 04:27 on 16 October; filed by that session's
+first commit, docs only. The send tooling, its tests and the instruction land in a
+second patch, and the send follows it.*
+
+**Whose it is.** Since 5 October PHASE7_NEXT.md has called the fix verification
+Claude's under the delegation. That is Claude's reading, and point 4 of the position
+of 6 October — whether "all the work" includes it — is still open. Viktor's message of
+15 October named the work "Claude's under the 4 October delegation", as PHASE7_NEXT.md
+words it; Claude asked whether that answers point 4 and got no answer, so it is not
+recorded as answered. The message that started this work ("Do it.", 04:28) agreed to a
+plan that said this entry would file it as Claude's reading. What stays Viktor's does
+not change: running the commands and the send, and accepting or rejecting the result,
+which decides whether the release gate reopens.
+
+**What is checked.** Every code location below was read at `f00bef6`, in an
+autocrlf clone in the Linux sandbox, and the line numbers are that commit's. The
+commits come from git's log. Nothing below was re-run for this entry except the whole
+suite, which passed (841).
+
+1. **The Critical: the release gate's question.** Point 1 of the triage (fix 1,
+   `c2b07fb`): the stop no longer depends on conviction or trend health, and
+   `stop_mult = ATR_STOP_MULT * vol_multiplier` (`models/risk_model.py:400`). The
+   ruling came from Claude's review (its B2), not from round 8's report. Round 8 read
+   the same formula, and its F1 quotes `trend_factor * bias_factor` in it. What it
+   found there, the lineage leaving out trend health, it rated Major under Item 6, and
+   it returned no Critical. The auditor is asked whether the fix holds and whether any
+   change since its package adds a Critical. It is not asked to re-rate the ruling,
+   and it may say so if it disagrees with it.
+2. **Round 8's own findings that were fixed**, each checked against the auditor's own
+   words:
+   - F1, by fix 1 (the lineage comment and the contract's docstring corrected).
+   - F2, by fix 3 (`fcb7823`): `classify_risk_regime` reads only the volatility state
+     and the stop distance (`models/risk_model.py:498–547`).
+   - F3 (`ae37795`): an unreadable time axis is rejected (`data/validation.py:352`).
+   - F5 (`9d00d99`): the line reads "from the band's midpoint"
+     (`core/panel_render.py:644`).
+   - F6 (`27d3ed5`): `interpolate` is refused (`indicators/indicators.py:104–124`).
+   - F8 (`9051ffd`): one VWMA name, and the MOMENTUM line is gone
+     (`core/panel_render.py:929–935`).
+   - F9's four claims (`e5ac20a`).
+   - Part 4's three test shapes (`f00bef6`).
+3. **Every other change to code it read**, checked for new defects, not as fixes.
+   The triage's own weakness 8 says it: "each fix changes code round 8 read, so the
+   fix verification has to cover every one". The changes are fix 2 (`1b25f36`), B6
+   (`9e507b1`), N5 (`6469a67`), the fallback sweep (`797bdc9`), the repeated readings
+   (`69c92d6`), B4's labels (`22a9a35`), B7 (`d77a8c4`), B9 (`64ad625`) and B10
+   (`9ea1cf3`). The auditor never saw the review these came from, so the rulings that
+   define them go in the package.
+4. **Declared not fixed**, so the auditor does not report them as failed fixes. It may
+   still say if a change made one of them worse.
+   - F4, on the list for after the audit (point 9): `macro_multiplier` still stands
+     at `models/entry_model.py:387–389`.
+   - F7, not ruled and Viktor's: the spike window is still
+     `min(config.VWMA_LENGTH, len(vol))` (`indicators/indicators.py:808`).
+   - F10 (the Part 7 document's S4), not ruled: the gate still stands at
+     `models/decision_model.py:678`.
+   - Part 4's other named tests: the absence scans of its shape 1, and its shape 4.
+   - The Part 7 reply's §1(3): the default responses' 0.0 still stands at
+     `models/entry_model.py:120` and `indicators/trend_health.py:22`.
+   - The Part 7 reply's §1(5), not checked in the code here.
+   All six are on the list for after the audit.
+
+**To whom.** MiMo-V2.6-Pro, round 8's auditor. Point 2 of the triage names it, and
+the 14 September precedent did the same with round 6's auditor: the auditor that
+raised the findings checks their fixes. The send goes through OpenRouter as round 8's
+did, Xiaomi's endpoint pinned, fallbacks off, `data_collection` deny. OpenRouter's
+record of both round-8 runs names `xiaomi/mimo-v2.6-pro-20260921` ("Decision,
+4 October 2026 — round 8's first run …" and "… second run …"). On 15 October
+OpenRouter's model page still listed `xiaomi/mimo-v2.6-pro` and showed no dated
+version; that was read with a web fetch, not checked by a call. The send asks for the
+dated name if OpenRouter accepts it, and the record of the reply is compared with
+round 8's afterwards. A different name is recorded, not hidden, and makes the result a
+different checkpoint's. The second patch says how its script checks this.
+
+**What is sent.** One request, a single turn. The model keeps nothing between calls,
+so the package carries everything it needs:
+
+- round 8's run-2 reports verbatim, in its own words, as the 14 September precedent
+  attached round 6's: `turn1_report.md` (Parts 1–6) and `turn2_report.md` (its
+  Part 7 reply);
+- the rulings from the triage of 5 October to this entry, verbatim, as the statement
+  of what each change was meant to do;
+- the engine source of the commit the package is built from, in full: all 33 files,
+  not only the 17 the fixes touched;
+- the 16 test files added since the tag, in full, and the diff of the 35 it changed;
+- the engine's diff from the tag `round8-sent-2026-10-04` (`217ede6`) to the commit
+  sent;
+- the Constitution's audit copy, as round 8 read it;
+- the instruction.
+
+**Why it is close to full size.** The default since 15 September is the scoped
+package: the touched files, their direct callers, and the tests that assert their
+contract. Here the fixes touched 17 of the 33 engine files (572,457 of 670,328 bytes)
+and 51 of the 96 files under `tests/`, counted in git from `217ede6` to `f00bef6`. So
+the scoped set is most of the engine anyway. The 16 untouched files (97,871 bytes)
+go in whole, because F3's pinned loader, F7's volume profile and the constants live
+in them (`data/data_fetcher.py`, `indicators/volume_profile.py`, `core/config.py`).
+An auditor that cannot see a caller has to answer "not verifiable", and including
+them costs about 24,000 tokens. The test suite is not sent whole: its 45 unchanged
+files are the ones round 8 already read.
+
+The estimate is 330,000–350,000 MiMo tokens. It uses round 8's measured ratio:
+1,738,484 bytes counted as 430,820 prompt tokens, about 4.04 bytes per token. It is
+only an estimate; the second patch measures the package with MiMo's own tokenizer
+(the 4 October pin) before the send. MiMo's served context is 1,048,576 tokens, from
+round 8's check.
+
+**One run.** The precedent was one run, and this send is not scored on the four test
+bugs. The cap of 30 September, two runs in all ("Ruling, 30 September 2026 — what
+follows round 7's first reply", point 4), still applies. So at most one more run
+follows, and only if the first does not answer the gate question for point 1. A reply
+cut off at the output ceiling counts as a run, as point 5 of that ruling defines one.
+Whether to send the second run is decided after the first reply and filed before the
+second.
+
+**The tag.** As for rounds 7 and 8, the commit the package is built from is tagged on
+Viktor's machine before the send, as `round8-verify-sent-<date>`. The report is then
+about a commit anyone can check out. There is no freeze: the report covers that
+commit, and anything after it goes in `docs/audit_change_list.md`.
+
+**What reopens the gate.** The condition of 15 September: "every Critical fixed *and*
+re-audited, with a report that says so". A report that says point 1's fix holds, and
+that no change since the package adds a Critical, meets that wording, and Viktor's
+acceptance of it is what reopens the gate. If the report finds the fix incomplete, or
+finds a new Critical, the gate stays closed and the report goes to triage, which is
+Viktor's.
+
+**The order.** This entry is filed first. The second patch lands the send script,
+pinned to MiMo, with its tests and the instruction. It is a new script:
+`send_fix_verification.py`'s docstring pins it to round 6's auditor by design, and
+`send_audit_round.py` is repointed every round. Then come the tag and the send, which
+are Viktor's commands, and then the report is filed. After this entry's push, any
+step is a safe place to stop, because nothing exists only in a chat.
+
+### Claude's errors, recorded
+
+- **The scoping message of 15 October merged two findings.** It listed "F1 (the stop,
+  the Critical, Item 14)". F1 is round 8's traceability finding under Item 6, rated
+  Major; the Critical is the review's B2, ruled under Item 14. Found while reading
+  round 8's report for this entry, and kept apart in point 1 above.
+
+**What it weakens.**
+
+- The verifier is the auditor whose two runs named themselves Claude ("Ruling,
+  4 October 2026 — round 8's result …"). The 14 September precedent's verifier did
+  not.
+- The fixer chose the scope, writes the instruction and will read the reply, as in
+  round 8 itself.
+- The Critical it is asked about was ruled from Claude's review. Round 8 read the
+  same formula, rated what it found there Major, and found no Critical. Its "fixed"
+  therefore confirms the fix of a defect it did not raise as Critical, and its view of
+  the severity is not what reopens the gate.
+- One run follows a round whose two runs found 0 and 2 of the four test bugs. This
+  auditor varies a lot from run to run, and a single verdict is one sample of that.
+- The rulings in the package are the fixer's account of what each change does. The
+  instruction asks for the code to be checked against them, and for any claim the
+  code does not support to be named, the class of defect F9 found. The account still
+  frames the reading.
+- The repository is public (the lesson of 22 September). A model released on
+  21 September 2026 may hold earlier versions of the code in its weights, and nobody
+  can check that. The instruction says so, and asks the auditor to say if it finds
+  itself recognising code rather than reading it.
+- Whether the endpoint still serves the checkpoint of 4 October can be checked only as
+  far as OpenRouter's record of the model name goes.
+- The read is about five times the precedent's, which was 72,542 prompt tokens. A
+  model reading that much may look less closely at each fix. The instruction lists the
+  fixes one by one and asks for a verdict on each, so a skipped fix shows.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then

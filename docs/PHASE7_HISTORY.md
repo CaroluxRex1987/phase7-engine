@@ -61008,3 +61008,2111 @@ Claude critiques it.
   October answered one part of the hostile-review request — whether each of the four
   test bugs breaks a specific rule (its C3: three of the four break none as written) —
   and left the ten questions unanswered, so that Viktor's answers can come first.
+
+## 16 October 2026 — PHASE7_NEXT.md as it stood at `f00bef6`
+
+*Moved here verbatim on 16 October 2026, when PHASE7_NEXT.md was rewritten by the
+docs-only commit that files the decision on round 8's fix verification — the
+once-per-session rewrite. Every line below the rule is the file's content at
+`f00bef6`, unchanged, including its own wording: "this session" is the session that
+landed Part 4's three test shapes, which the file dates "15 October, from 13:33" (from
+Viktor's disk, its files were written at 16:18, its pytest cache at 16:20 and its
+commit at 16:40 on 15 October), and "the commit that writes this line" names
+`f00bef6`. Its headings are demoted one level (`#` → `##`, `##` → `###`) so they nest
+under this entry; no other character is changed.*
+
+---
+
+## Next step — read this first
+
+*15 October 2026, afternoon. Rewritten by the commit that lands Part 4's three test
+shapes, the last item of round 8's label and record batch, under Viktor's rulings of
+14:28 and 15:51 that afternoon; the version it replaced — as it stood at `9ea1cf3` — is
+in HISTORY verbatim.
+This file is the project's current-state entry point: it states only what is true right
+now and what to do next, and is rewritten each session, not appended to. Standing
+rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
+The dated record — including this file's previous version, moved there verbatim this
+session — lives in docs/PHASE7_HISTORY.md. A citation of this file written before the
+18 September 2026 split — in the Engineering Notes, audit reports, handovers or any
+other dated record — refers to content now in one of those two files; dated records are
+not edited to say so (DECISIONS, "Ruling, 20 September 2026 — dated records are not
+edited to follow a move").*
+
+*Each code commit updates this file's own lines for its own landing, in the same
+commit, so the file does not fall behind the tip.*
+
+### PACE FIRST — read this before the rest of this file
+
+Viktor judged, on his own, that 226 commits across 22 days had become hasty, and
+ruled to slow down considerably (15 September 2026). **Do not open a session by
+proposing work from "Open items" below, and do not treat it as a queue to clear.**
+Ask what he wants to do first.
+
+**One exception, since 4 October: the independent audit.** Viktor delegated it to
+Claude outright and asked for no more questions or decisions on it (DECISIONS,
+"Delegation, 4 October 2026 — the next independent audit is Claude's to run"). Work on
+the audit goes ahead without asking what he wants first; he runs the commands. Since
+round 8 was triaged (5 October), what is left of it is the fix verification by round
+8's auditor, after the fixes — Claude's reading of the delegation, his to change. **The
+fixes themselves are not under it:** they are his triage rulings, and each session
+asks before starting one, though their order is set (DECISIONS, "Ruling, 5 October
+2026 — round 8 triaged …", "The order of the work"). Everything else still follows
+the rule above.
+
+### Where the project is
+
+**Round 8 is over, and triaged.** Xiaomi's MiMo-V2.6-Pro audited the whole engine on
+4 October, from the package built at the tag `round7-sent-2026-09-30` (`e186423`); it was
+sent from `217ede6`, tagged `round8-sent-2026-10-04`. Run 1 found 0 of the 4 test bugs,
+run 2 found 2 of 4 — a pass — and Part 7 went to run 2. Viktor accepted the result in a
+narrow form: the findings go to triage, the ratings do not count toward opening
+backtesting, and backtesting stays closed (DECISIONS, "Ruling, 4 October 2026 — round 8's
+result …"). **He triaged it on the night of 4 to 5 October**, beside a review Claude
+wrote that night at his request, of the engine, the Constitution and round 8 — not
+independent, and counting toward no gate. `eb86846` filed the triage (DECISIONS,
+"Ruling, 5 October 2026 — round 8 triaged …" and "Correction, 5 October 2026 — two of
+rev 9's requirement sentences were wrong"). In short: the stop no
+longer depends on conviction or trend health, a break of Item 14 ruled Critical
+(confirmed by Viktor on 5 October); the release gate is closed until that fix has landed
+and round 8's auditor has verified it; the risk regime comes from volatility alone; no
+trade under ADX 20 replaces the exhaustion flag; the trend score waits; test runs get a
+log of their own; the BTC-adjusted confidence line goes; the label and record fixes are
+made now; F4 stays on the list; and the freeze lifts. **Three fixes have landed: the
+stop**, at `c2b07fb`, **the trend gate**, at `1b25f36`, **and the regime**, at
+`fcb7823`. **The label and record batch is done:** B6, runs on pinned data keeping
+records of their own, at `9e507b1`, N5, Bitcoin reference only, at `6469a67`, F3,
+a frame with no readable time axis rejected, at `ae37795`, F5, the band distance
+labelled from the band's midpoint, at `9d00d99`, F6, `clean_series` without its
+look-ahead method, at `27d3ed5`, F8, one name for one meaning, at `9051ffd`, F9,
+four claims the code did not support, at `e5ac20a`, the fallback sweep at
+`797bdc9`, the two repeated readings at `69c92d6`, B4's labels at `22a9a35`, B7 at
+`d77a8c4`, B9 at `64ad625`, B10 at `9ea1cf3`, and Part 4's three test shapes at the
+commit that writes this line. **On
+12 October the panel's fallback readings and two
+repeated readings joined the batch; on 13 October their shape, scope and order were
+ruled** (DECISIONS, "Ruling, 13 October 2026 — the fallback sweep: the 12 October
+additions' shape, scope and order"): a value only printed or recorded falls back to
+the router's own word for an absent one, a value with no such word or one the engine
+computes with is read directly, and every default in the panel and the router's
+decision-building code is listed in a test; the REGIME line and the STRUCTURE line's
+Vol field are gone, so each reading is printed once. **On 14 October B4's labels'
+shape was ruled** (DECISIONS, "Ruling, 14 October 2026 — B4's labels: their shape"):
+the sentences that print the momentum divergence say what is compared — this candle's
+close and RSI against the close and RSI four candles back — and the volume label
+VOLUME DIVERGENCE is FADING VOLUME, matched whole; every score is unchanged, and the
+keys keep their names. **On 15 October B7's shape was ruled** (DECISIONS, "Ruling,
+15 October 2026 — B7: the distance limits record the regime"): the risk regime is
+classified before the 15% limit and the 0.2% floor, and both record it where they
+recorded UNKNOWN; every verdict and reason is unchanged, and the 15% limit stays.
+**On 15 October B9 was ruled** (DECISIONS, "Ruling, 15 October 2026 — B9: Bitcoin's
+SuperTrend is read directly"): the fallback sweep had already made all of it but
+Bitcoin's SuperTrend, without naming B9; that is read directly, so a failed one makes
+the BTC section unavailable for the run, and the asset's own SuperTrend read waits for
+after the audit.
+**On 15 October B10 was ruled** (DECISIONS, "Ruling, 15 October 2026 — B10: two outputs
+agree with finding 4 and the action"): the simulated order records the band as
+`ema_band`, its entry stays `current_price`, the decision log's name for it, and the
+panel prints the note naming Target 1 only on a run whose action names a side — panel
+only, as for finding 5; the three test shapes follow as one patch.
+**On 15 October Part 4's three test shapes were ruled** (DECISIONS, "Ruling, 15 October
+2026 — Part 4's three test shapes"): the golden coverage test fails when its baseline
+is missing, and runs without `pandas_ta`; the non-finite test renders the golden
+decision with each of its floats set to +inf, -inf and NaN in turn; the SuperTrend
+level test, which Part 4 named beside it, runs the guard and asserts that SuperTrend
+fails whole; and the watched error count is written as a number only in this file.
+Tests and a docstring only: no decision, `code_hash` or golden field moves.
+**Next:** the fix verification by round 8's auditor on a scoped package, the
+14 September precedent (Work order, item 5) — Claude's, under the delegation of
+4 October. The release gate stays closed until that verification has reported on the
+stop. What the triage left open is Viktor's (Open items).
+
+**The review and the comparison are outside the repository**, in
+`G:\Phase_7_Engine_Random_Files\Docs\02_Reviews_and_Feedback`:
+`Phase7_Claude_Self_Review_2026-10-05` (the full review) and
+`Phase7_Self_Review_Short_2026-10-05` (the short version), and
+`Phase7_Freqtrade_Comparison_2026-10-05`, written later the same night — each as .md and
+.pdf. Nothing was ruled on the comparison (Open items).
+
+**Since 28–29 September the project has a finish line** — DECISIONS, "Ruling,
+28 September 2026 — what "finished" means, and how the engine is judged". In short: a
+trade's goal is T1 before the stop, with T1 netting at least 3% after fees; spot only,
+no leverage, and on spot SHORT means sell to USDT; "finished" is at least 100 closed
+trades from one engine version, at least 60% reaching T1 first, profit after fees, and
+a better result than random longs with the same stop and T1; trends only for now;
+paper trading in ten equal slices. Goal B's verdict is kept exactly as pre-registered,
+with two lines added to its methodology (spot only; how a trade ends) and the finish
+criteria reported beside it. The portfolio is now secondary; goal A stands as
+achieved. It changes no code. Two new trading rules go on the list for after the audit
+(below): the 3% floor and a range-trading mode.
+
+**Nothing Claude does under the delegation decides the engine's trading rules.**
+Findings 4–7, 16 and 18 were questions about what the engine should do, and were
+Viktor's. G changed which trades are taken and was Claude's under the delegation: it was
+scoped in full, the live log was replayed first, and the live run came before the
+commit. What it weakens is in DECISIONS, "Work order G, 27 September 2026 — macro no
+longer decides the CONSERVATIVE tier (finding 17)", for Viktor to reverse if he
+disagrees. The fixes of 5 October are Viktor's rulings; Claude builds them, and only
+their order is Claude's.
+
+**The independent audit was paused until the closed list was done** — DECISIONS,
+"Ruling, 21 September 2026 — the independent audit paused" and "Ruling, 22 September
+2026 — when the audit resumes". **With G landed at `7d0024e`, that condition is met.**
+**The Constitution's step 8 binds:** "Re-audit the items that changed — independent
+auditor again, not a self-check by whoever made the fix. 9) Only then … build the
+backtesting architecture." Round 8 read every engine change since the last independent
+round (round 6 fix-verification, 14 September) — the whole engine as at `e186423` — but
+its ratings do not count toward opening backtesting (DECISIONS, "Ruling, 4 October 2026
+— round 8's result …"), and the fixes of 5 October change the engine again, so **no
+backtesting yet.** What opens it is now ruled (DECISIONS, "Ruling, 29 September 2026 —
+what opens backtesting"): building needs Items 2, 3, 6 and 18 rated Compliant or fixed
+and confirmed, no Critical or Major finding open, every fix confirmed by the same
+auditor, and Viktor's declaration; running needs Goal B's harness built and tested and a
+known-good checkpoint. Claude's second point of 21 September — the rule exists only as
+text — is answered inside it: the entry-point guard is built with the first backtest
+code.
+
+**The twenty-second to thirty-first sessions (29–30 September)** prepared round 7, sent
+it and closed it. Their accounts are in HISTORY, in this file's earlier versions; the
+last, as it stood at `1523e0c`, was moved there by `ff12e17`.
+
+**The sessions of 4 October** (`ff12e17`, `4a4c6ce`, `217ede6`, `d27743f` to `040a529`,
+and `9e42d30`) filed the delegation, built round 8's tooling, wrote rev 9, sent round 8's
+two runs and Part 7, and filed Viktor's ruling on the result. Their accounts are in
+HISTORY, in this file's versions from `ff12e17` to `9e42d30`, the last moved there by
+`eb86846`; what was filed from Claude's memory notes rather than from a chat is marked
+there.
+
+**The session of the night of 4 to 5 October** landed no commit. Viktor asked for a full
+read-only review of the engine, the Constitution and round 8's audit, its findings to go
+to triage beside round 8's and the report to stay outside the repository. Claude read the
+tip `9e42d30` (a clone, checked against `master` and `origin/master` off Viktor's disk),
+ran the engine's code on his real AERO candles, rebuilt from the run archives, and wrote
+the review; Viktor triaged both the same night, every point by agreeing to Claude's
+suggestion. A comparison with Freqtrade followed, read from Viktor's copy on F:. The
+record is a resume note, `Docs\01_Handovers_and_Resume_Prompts\Phase7_Resume_2026-10-05.md`
+in `G:\Phase_7_Engine_Random_Files`, and the reports beside it (above).
+
+**The session of 5 October that filed the triage** (`eb86846`, docs only) had Viktor
+confirm point 1, re-derived the triage's figures from the live log, and named the ten
+test records in it. Its account is in HISTORY, in this file's version at `eb86846`,
+moved there by `c2b07fb`.
+
+**The session of 5 October, evening** (`c2b07fb`) landed fix 1, the stop, scoped in full
+before any diff and with its live run before the commit. Its account is in HISTORY, in
+this file's version at `c2b07fb`, moved there by `1b25f36`.
+
+**The session of the night of 5 to 6 October** (`1b25f36`) landed fix 2, the trend
+gate, scoped in full before any diff and with its live run before the commit; its two
+test steps ran after the live run. Its account is in HISTORY, in this file's version
+at `1b25f36`, moved there by `fcb7823`.
+
+**The session of 6 October, early evening** (`fcb7823`) landed fix 3, the regime,
+scoped in full before any diff, with the live log replayed through the risk check on
+the code before and after, and with its live run before the commit. Its account is in
+HISTORY, in this file's version at `fcb7823`, moved there by `9e507b1`.
+
+**The session of 9 October** (`6469a67`) landed N5, the second patch of the label and
+record batch, scoped in full before any diff, with the 38 run archives replayed before
+and after and its live run before the commit; it also filed the positions of 6 and
+7 October in DECISIONS. Its account is in HISTORY, in this file's version at `6469a67`,
+moved there by `ae37795`. The accounts of the sessions before it are in the versions
+before that.
+
+**The session of 10 October, afternoon** (`ae37795`) landed F3, the third patch of the
+batch: the validator refuses a frame with no readable time axis. It ran the auditor's
+reproduction before building and found its account of the outcome wrong (Work order,
+item 4, F3). Its account is in HISTORY, in this file's version at `ae37795`, moved there
+by `9d00d99`.
+
+**The session of 10 October, evening** (`9d00d99`) landed F5, the fourth patch of the
+batch: the BAND DISTANCE line names the band's midpoint. Its account is in HISTORY, in
+this file's version at `9d00d99`, moved there by `27d3ed5`.
+
+**The session of 11 October, evening** (`27d3ed5`) landed F6, the fifth patch of the
+batch: `clean_series` accepts only methods that read no later row. Its account is in
+HISTORY, in this file's version at `27d3ed5`, moved there by `9051ffd`.
+
+**The session of 11 October, late evening** (`9051ffd`) landed F8, the sixth patch of
+the batch: "VWMA" names only the engine's VWMA, and the momentum label is printed once.
+Its account is in HISTORY, in this file's version at `9051ffd`, moved there by
+`e5ac20a`.
+
+**The session of 11 October, near midnight, to 12 October, early morning** (`e5ac20a`)
+landed F9, the seventh patch of the batch: four claims the code did not support, and
+the labels ruled in with them. Its account is in HISTORY, in this file's version at
+`e5ac20a`, moved there by `ef65f46`.
+
+**The session of 12 October, morning** (`ef65f46`, docs only) filed Viktor's ruling of
+08:24: the panel's eleven fallback readings and the two repeated readings join the
+batch. Its account is in HISTORY, in this file's version at `ef65f46`, moved there by
+`797bdc9`. Its two test steps were skipped at the time; Viktor
+ran both on Windows at 09:06 on 12 October, and both matched (pytest 792;
+`run_tests.py` 721 / 0 / 32) — recorded here at his instruction.
+
+**The session of 12 October, evening, to 13 October, night** (`797bdc9`), configured
+for Claude Opus 5.5, opened at `ef65f46` — `master` and `origin/master` on Viktor's disk, from
+`.git/refs` staged off it — and asked Viktor first, as the pace rule says, between B4's
+labels and the shape of the 12 October additions. Claude read the three fallbacks found
+filing that ruling and showed that none can fire on the engine's path; a run of the
+suite that recorded every `.get` default taken found 15 test files handing the panel
+hand-built decisions, and no `engine_core` default taken. Claude's first lean, to
+remove the fallbacks, was wrong, and was corrected to UNKNOWN once checked. Viktor
+agreed to Claude's suggestions at 01:13 on 13 October and settled two questions the
+rule left open by choosing the option Claude recommended (DECISIONS, "Ruling,
+13 October 2026 — the fallback sweep …", which records Claude's three errors on the
+way). It landed patch 1, the sweep, at `797bdc9`, with its live run before the
+commit. Its account is in HISTORY, in this file's version at `797bdc9`, moved there by
+`69c92d6`.
+
+**The session of 13 October, night** (`69c92d6`) landed patch 2, the two repeated
+readings, with its live run before the commit. Its pytest step ran on Windows before
+the live run: the cache staged off Viktor's disk on 14 October was rewritten at 05:41
+on 13 October and holds the five new tests' ids; the live record is from 05:50, the
+commit from 06:05. Its account is in HISTORY, in this file's version at `69c92d6`,
+moved there by `22a9a35`.
+
+**The session that landed B4's labels** (`22a9a35`) ruled their shape at 06:23 on
+14 October and landed them with the live run before the commit. Its file dated it "13
+October, morning, to 14 October, morning"; from Viktor's disk, the apply was at 22:53
+on 14 October, the pytest cache was rewritten at 22:55 and holds the eight new tests'
+ids, the live record is from 23:00 on the new `code_hash`, and the commit from 23:09.
+Its account is in HISTORY, in this file's version at `22a9a35`, moved there by
+`d77a8c4`.
+
+**The session that landed B7** (`d77a8c4`) ruled its shape at 02:12 on 15 October and
+landed it with the live run before the commit. Its file dated it "14 October, night,
+to 15 October, night"; from Viktor's disk, the apply was at 02:59 on 15 October, the
+pytest cache was rewritten at 03:02 and holds the five new tests' ids, the live record
+is from 03:49 on the new `code_hash`, and the commit from 03:52. Its account is in
+HISTORY, in this file's version at `d77a8c4`, moved there by `64ad625`.
+
+**The session that landed B9** (`64ad625`) ruled its two calls at 07:55 on 15 October
+and landed B9 with the live run before the commit. Its file dated it "15 October, from
+03:55"; as its commit message records from Viktor's disk, the apply was at 10:01 and
+the pytest cache was rewritten at 10:03 and holds the five new tests' ids; the live
+record is from 10:18 on the new `code_hash`, and the commit from 10:29. Its account is
+in HISTORY, in this file's version at `64ad625`, moved there by `9ea1cf3`.
+
+**The session that landed B10** (`9ea1cf3`) ruled its calls at 11:00 and 11:13 on
+15 October and landed B10 with the live run before the commit. As its commit message
+records from Viktor's disk, the apply was at 12:10 and the pytest cache was rewritten
+at 13:05 and holds the ten new tests' ids; the live record is from 13:14 on the new
+`code_hash`, and the commit from 13:30. Its account is in HISTORY, in this file's
+version at `9ea1cf3`, moved there by the commit that writes this line.
+
+**This session (15 October, from 13:33)**, configured for Claude Opus 5.5, opened at
+`9ea1cf3` — GitHub's tip, cloned; `master` and `origin/master` on Viktor's disk, from
+`.git/refs` staged off it, matched it before the build — with Viktor's instruction to
+land Part 4's three test shapes as one patch and to put their shape calls to him
+before any code. Claude read the three in the code and ran them: each stands at
+`9ea1cf3`, and Part 4 named a second source-text test beside the second shape. Viktor
+asked for suggestions and agreed to them at 14:28. The turn that agreement started was
+stopped by the usage limit at 14:54, before anything reached his disk; it resumed at
+15:22, and its sandbox work was discarded and the patch rebuilt from the clone.
+Building, Claude found that the SuperTrend level test it had described would not have
+caught the guard's removal, because the final sweep drops the level too; it put the
+shape to Viktor again, and he agreed to the revised suggestion at 15:51 (DECISIONS,
+"Ruling, 15 October 2026 — Part 4's three test shapes", which records Claude's three
+errors). Every file this commit changes was staged off his disk and matched an
+autocrlf clone of `9ea1cf3` byte for byte. The commit that writes this line lands the
+three test shapes; it moves no `code_hash`, so it has no live run.
+
+### Ruled — in force
+
+- **New, 15 October — Viktor's, by agreeing to Claude's suggestions: Part 4's three
+  test shapes** (DECISIONS, "Ruling, 15 October 2026 — Part 4's three test shapes").
+  With no baseline, the golden coverage test fails, as the snapshot comparison does,
+  and it runs without `pandas_ta`. The non-finite test renders the golden decision with
+  each float field set to +inf, -inf and NaN, one at a time, after checking that the
+  plan prints. The SuperTrend level test runs the guard with the level blanked at the
+  decision bar and asserts that SuperTrend fails whole: neither column is written. The
+  watched error count is written as a number only in this file; `run_tests.py`
+  counting fixture-taking tests apart goes on the list for after the audit. **Landed at
+  the commit that writes this line.**
+- **15 October — Viktor's, by agreeing to Claude's suggestions: B10, two outputs
+  agree with finding 4 and the action** (DECISIONS, "Ruling, 15 October 2026 — B10: two
+  outputs agree with finding 4 and the action"). The simulated order's `entry_zone` is
+  `ema_band`, the panel's label for the band, with the same values; the order's entry
+  stays `current_price`, the decision log's name for the decision close, so no field is
+  added or copied. The panel prints the Exit Watch note naming Target 1 only on a run
+  whose action names a side — not on a WAIT, any NO-TRADE or an absent action; panel
+  only, as for finding 5: the decision object and the log keep the note, and under a
+  leaning bias the plan still prints. B10 came first, as ordered on 13 October; the
+  three test shapes follow as one patch. **Landed at `9ea1cf3`.**
+- **15 October — Viktor's, by agreeing to Claude's suggestions: B9, Bitcoin's
+  SuperTrend read directly** (DECISIONS, "Ruling, 15 October 2026 — B9: Bitcoin's
+  SuperTrend is read directly"). Two calls. Bitcoin's SuperTrend direction is read by
+  subscript, the 13 October shape, where a missing column read 0.0: a failed BTC
+  SuperTrend makes the BTC section unavailable for the run, where the panel printed a
+  BTC BIAS one factor short and the failure reached only the log. The asset's own read
+  keeps its 0.0 — there a failure is a recorded degradation and authorizes no trade —
+  and waits for after the audit (Found after 22 September). B9's router default and
+  three of its BTC defaults had landed with the fallback sweep at `797bdc9`, which did
+  not name B9. **Landed at `64ad625`.**
+- **15 October — Viktor's, by agreeing to Claude's suggestion: B7, the distance
+  limits record the regime** (DECISIONS, "Ruling, 15 October 2026 — B7: the distance
+  limits record the regime"). Option A of two: `validate_risk_parameters` classifies
+  the regime before the 15% limit and the 0.2% floor, and both return it where they
+  returned UNKNOWN; their messages and their precedence are unchanged, so every verdict
+  and every reason is what it was. The 15% limit stays, as the ruling of 27 September
+  kept it — a check that cannot change a verdict while the 8% is below it, kept as a
+  backstop. The 0.2% floor is in scope: Claude found it has the same shape. UNKNOWN is
+  returned only where no regime can be computed. **Landed at `d77a8c4`.**
+- **14 October — Viktor's, by agreeing to Claude's suggestion: B4's labels, their
+  shape** (DECISIONS, "Ruling, 14 October 2026 — B4's labels: their shape"). Option B
+  of three: the Exit Watch flag, the confirmation gate's blocker and the confirmation
+  reason say "price/RSI disagreement over four candles", which is what
+  `indicators/trend_health.py` compares; the volume label VOLUME DIVERGENCE is FADING
+  VOLUME; `core/engine_core.py` matches FADING VOLUME and VOLUME EXHAUSTION whole, each
+  with a note of its own, where it matched part of a word (and a WEAK no label
+  contains). Every score unchanged. The keys `momentum_divergence` and
+  `divergence_direction` keep their names; the rename is on the list for after the
+  audit. Whether the divergence should veto is still Viktor's, not ruled. The wording
+  is Claude's, Viktor's to reverse. **Landed at `22a9a35`.**
+- **13 October — Viktor's, by agreeing to Claude's suggestions: the fallback
+  sweep — the 12 October additions' shape, scope and order** (DECISIONS, "Ruling,
+  13 October 2026 — the fallback sweep: the 12 October additions' shape, scope and
+  order"). The three fallbacks found filing the 12 October ruling join, with STATUS's
+  twin in the router. A value only printed or recorded falls back to the router's own
+  value for an absent one; a value the engine computes with, and a router value whose
+  type has no UNKNOWN, is read directly. `reversal_strength` at `engine_core`'s two
+  bias calls is in. Patch 1 is the sweep of every default in the panel and the router's
+  decision-building code — **landed at `797bdc9`**; patch 2 takes the REGIME line and
+  the STRUCTURE line's Vol field out — **landed at `69c92d6`**;
+  then B4's labels — **landed at `22a9a35`**. What
+  the patch read into the rule (numbers to NaN; the Bitcoin block unavailable rather
+  than an error; the exit watch "not computed") is Claude's, Viktor's to reverse.
+- **12 October — Viktor's: the panel's fallback readings and two repeated
+  readings join the label and record batch** (DECISIONS, "Ruling, 12 October 2026 —
+  the panel's fallback readings and two repeated readings join the label and record
+  batch"). The eleven fallbacks listed under "Found after 22 September" at `e5ac20a`,
+  REGIME printed beside STRUCTURE with the same value, and `bias.volatility` printed
+  on both the Vol field and the VOLATILITY line. Filed at `ef65f46`; the shape and
+  order were ruled on 13 October (the entry above).
+- **12 October — Viktor's, by agreeing to Claude's suggestion: F9's shape and
+  scope** (DECISIONS, "Ruling, 12 October 2026 — F9's shape and scope"). F9(1) is
+  option C, as for finding 18: the structure regime is a plain function of the frame,
+  with the same output on the engine's path; `REGIME_HYSTERESIS_THRESHOLD` keeps its
+  name and its comment says it is a dead band — the rename waits for after the audit.
+  In scope with F9's four: `trend_direction`'s failure label, and `_detect_regime`'s
+  answer to a frame too short to read (UNKNOWN STRUCTURE). The panel's TREND-line
+  fallbacks were in scope if they could not fire; they cannot (Work order, item 4,
+  F9). Landed at `e5ac20a`.
+- **New, 5 October — Viktor's, by agreeing to Claude's suggestion: round 8's triage**
+  (DECISIONS, "Ruling, 5 October 2026 — round 8 triaged: three decision-path fixes and
+  the label and record fixes now, the release gate closed, the freeze lifted"). Ruled
+  on the night of 4 to 5 October; filed from the resume note. (1) The stop is ATR × 1.2
+  × the volatility factor: trend health and the bias score no longer scale it — a
+  break of Item 14, confirmed by Viktor on 5 October. (2) The release gate is closed
+  until (1) has landed and round 8's auditor has verified it. (3) The risk regime
+  comes from volatility alone. (4) ADX under 20 blocks both sides, replacing the
+  exhaustion flag in the confirmation gate. (5) The trend score's scale waits for
+  after the audit, decided before paper trading. (6) Test runs get their own log,
+  archive and state; the test records in the live log are named. (7) The
+  BTC-adjusted confidence line is removed. (8) The label and record fixes are made
+  now. (9) F4 stays on the list. (10) The score check is declined. (11) The freeze
+  lifts. Filed at `eb86846`. **(1) landed at `c2b07fb`, (4) at `1b25f36`, (3) at
+  `fcb7823`, (6) at `9e507b1`, and (7) at `6469a67`; of (8), F3 at `ae37795`, F5
+  at `9d00d99`, F6 at `27d3ed5`, F8 at `9051ffd`, F9 at `e5ac20a`, the fallback
+  sweep the 12 October ruling added to it at `797bdc9`, its two repeated readings
+  at `69c92d6`, B4's labels at `22a9a35`, B7 at `d77a8c4`, B9 at `64ad625`, B10 at
+  `9ea1cf3`, and Part 4's three test shapes at the commit that writes this line**; what
+  is left is the fix verification (Work order, item 5). Point 4
+  left to the patch how an ADX with no valid reading is treated: it blocks both sides
+  too (Work order, item 2). Point 3 left to it how LOW VOLATILITY maps without the
+  strong-trend test: LOW RISK, the reading the ruling named as Claude's; and the patch
+  makes a volatility state the regime does not know UNKNOWN RISK, where it was NORMAL
+  RISK (Work order, item 3). Point 6 left to it where the records go and how a run's
+  source is read: `logs/pinned/`, the log chosen from each record's own provenance, a
+  record that does not say it is live kept out of the live log, and a broken pinned
+  request counted as not live (Work order, item 4). Point 7 left to it whether the
+  computation and its record field go with the line: they do, with the two constants
+  that bounded it, `evaluate()`'s two parameters that only it read, and the BTC bias
+  score engine_core handed over only for it (Work order, item 4). All are Claude's
+  proposals, Viktor's to reverse.
+- **New, 5 October — two of rev 9's requirement sentences corrected** (DECISIONS,
+  "Correction, 5 October 2026 — two of rev 9's requirement sentences were wrong"), by
+  point 9. Rev 9 itself is not edited.
+- **New, 5 October — Claude's, under the delegation of the order of work: the fixes'
+  order** — the stop, the trend gate, then the regime (the triage's entry, "The order
+  of the work"). The resume note had the regime before the trend gate; swapped so
+  that no commit leaves AGGRESSIVE open in a low-ADX market.
+- **New, 4 October — Viktor's, by agreeing to Claude's suggestion: round 8's result**
+  (DECISIONS, "Ruling, 4 October 2026 — round 8's result: the findings go to triage,
+  the ratings do not count, backtesting stays closed"). Run 2's findings and Part 7
+  points go to triage; its ratings do not count toward opening backtesting; backtesting
+  stays closed. Ruled without reading the report; the two scores are unchecked by him.
+  It narrows the entry below, which said run 2's ratings count. **Filed at
+  `9e42d30`.**
+- **New, 4 October — Claude's, under the delegation: round 8's second run** (DECISIONS,
+  "Decision, 4 October 2026 — round 8's second run: 2 of 4, a pass; Part 7 to it").
+  Scored 2 of 4 (S2, S4), a pass, so its ratings count — narrowed by the ruling above:
+  not toward opening backtesting; Part 7 goes to it. **Filed at
+  `a0276dd`**, with the run's four files. Part 7 was sent and answered; the record is
+  DECISIONS, "Round 8, 4 October 2026 — Part 7 answered; the result goes to Viktor",
+  filed at `040a529`.
+- **New, 4 October — Claude's, under the delegation: round 8's first run** (DECISIONS,
+  "Decision, 4 October 2026 — round 8's first run: 0 of 4, no Part 7 to it, run 2
+  next"). Scored 0 of 4; no Part 7 to it, closed in the send script; run 2 unchanged.
+  Its self-naming as Claude is recorded for Viktor to weigh. **Landed at `d27743f`**,
+  with the run's four files.
+- **New, 4 October — Claude's, under the delegation: rev 9 and the Part 7 correction**
+  (DECISIONS, "Decision, 4 October 2026 — rev 9 and the Part 7 correction"). Rev 9 is
+  rev 8 readdressed to round 8, with round 7's outcome stated without its ratings and
+  Section 2's counts corrected to twenty-one rules; the Part 7 document is corrected
+  where it named round 7 as its own and where the ruling of 30 September made its
+  threshold sentence untrue. MiMo's Qwen2-class tokenizer and its team lead's time at
+  DeepSeek are left out of rev 9, so the auditor names itself. **Landed at
+  `217ede6`.**
+- **New, 4 October — Claude's, under the delegation: round 8's tooling** (DECISIONS,
+  "Decision, 4 October 2026 — round 8's tooling: round 7's files reused by hash, the
+  provider order run by hand, and check 4"). Round 7's built files are reused, each
+  checked against the hash both runs recorded, rather than rebuilt from the tag; the
+  provider order is run by hand with `--provider`, and Part 7 goes to whichever
+  provider answered; check 4 passed on a trial build. **Its code landed at
+  `4a4c6ce`.**
+- **New, 4 October — the next independent audit is delegated to Claude** (DECISIONS,
+  "Delegation, 4 October 2026 — the next independent audit is Claude's to run"). Viktor
+  keeps accepting or rejecting the result, running the commands, and everything the
+  delegation does not name: rulings on the engine, triage, Constitution amendments, the
+  declaration that opens backtesting. No code.
+- **New, 4 October — Claude's, under the delegation:** round 8 to Xiaomi MiMo-V2.6-Pro,
+  the full package in one session, if four checks pass, pinned to Xiaomi with GMICloud,
+  DeepInfra and Novita after it, two runs in all; the package from the tag with only rev
+  9 and the Part 7 document corrected; the freeze holds (lifted 5 October),
+  `tests/test_package_token_check.py` joining the exception; scoped packages to Upstage,
+  NVIDIA, Cohere and AI21 as the fallback (DECISIONS, the three entries "Decision, 4
+  October 2026 — …"). No code yet.
+- **New, 30 September — what follows round 7's first reply** (DECISIONS, same title).
+  Points 1–4 by agreeing to Claude's suggestion; point 5 is Viktor's choice of two
+  options (he chose the one Claude recommended). (1) Part 7 does not go to run 1.
+  (2) Run 2 asks for reasoning and changes nothing else, and the send is refused unless
+  a probe shows reasoning; `tests/test_send_audit_round.py` is the one exception to the
+  freeze. (3) Run 1 counts as a run. (4) Two runs in all: if run 2 also finds fewer
+  than two of the four, the next step is another auditor. (5) A run is any reply on
+  record, including one cut off at the ceiling; an HTTP error before any reply is not.
+  Viktor checked Claude's scoring of run 1, 0 of 4. **Its code landed at `3e8191a`.**
+  Run 2 found 0 of 4 the same day, Viktor checking: **round 7 has ended** (DECISIONS,
+  "Round 7 ended, 30 September 2026 — run 2 found 0 of 4").
+- **New, 29 September — the test bugs: four usable, and four is enough** (DECISIONS,
+  same title). The classification is Claude's (Claude scores, Viktor checks), checked
+  by Viktor; "four is enough" is his choice from three options Claude put to him, with
+  no recommendation. Usable: the risk gate's order, `trend_health` missing from
+  `lineage.risk_inputs`, the entry score under a NEUTRAL bias, and the
+  weak-validation WAIT. None or one found means a rerun; two or more, a pass. No code.
+- **New, 29 September — six questions before the send** (DECISIONS, same title).
+  Points 1, 2, 4 and 5 by agreeing to Claude's suggestion; 3 and 6 Viktor's own
+  answers. (1) The package's commit is tagged and engine code and tests are frozen
+  until the report is triaged. (2) The instruction carries the ruled behaviour as plain
+  requirements and the files changed since `e65a0f7`, without reasons, and asks where a
+  requirement itself looks wrong. (3) The second pass is Laguna again, as often as
+  needed, each run a fresh session scored on its own. (4) How the test bugs are scored:
+  defects only, usable only if nothing shipped gives them away, found only with the same
+  place and the same fault in Parts 1–6, locked by a commit before the send. (5) The
+  instruction does not say the ratings open backtesting. (6) No fallback decided in
+  advance for a package that does not fit. No code.
+- **New, 29 September — the independent audit: now, by Laguna S 2.1, the full package
+  in one session** (DECISIONS, same title). Both points by agreeing to Claude's
+  suggestion. Not split; NVIDIA is kept for a smaller, scoped round later. Claude's
+  earlier first choice, Nemotron 3 Super, was withdrawn: OpenRouter serves it at 262K.
+  The fit is confirmed by the pre-send token check. No code.
+- **New, 29 September — what the auditor sees, and no planted bugs** (DECISIONS, same
+  title). By agreeing to Claude's suggestion. Two messages: Parts 1–6 first; Part 7
+  only after they are saved — the `bias_score` findings, the list for after the audit,
+  any 15 September PDF point still live, and the commit messages since `e65a0f7`. The
+  rest of the 20 September list is not shown. Nothing is planted: the list for after
+  the audit is the test. No code yet; the send script changes before the send.
+- **New, 29 September — what opens backtesting** (DECISIONS, same title). Viktor's
+  position first, refined by Claude's critique. Built once Items 2, 3, 6 and 18 are
+  rated Compliant (or each gap fixed and confirmed by the same auditor), no Critical or
+  Major finding is open and every other finding is ruled, every fix is confirmed by the
+  same auditor, and Viktor declares it in DECISIONS. Run only once Goal B's harness —
+  with the entry-point guard, built with the first backtest code — is built and tested
+  and the engine passes a known-good checkpoint. Under half the usable test bugs found:
+  the auditor runs a second time first. The list for after the audit is not a
+  condition. No code.
+- **New, 29 September — Fable 5.1 works on the list for after the audit, not before
+  it** (DECISIONS, "Ruling, 29 September 2026 — Fable 5.1 works on the list for after
+  the audit, not before it"). Option A of three, by agreeing to Claude's suggestion.
+  No code.
+- **New, 28 September — what "finished" means, and how the engine is judged**
+  (DECISIONS, "Ruling, 28 September 2026 — what "finished" means, and how the engine is
+  judged"). Points 1–6 by Viktor's position first; 7–11, and A–E (reconciling it with
+  Goal B, 29 September), by agreeing to Claude's suggestion. No code. Two items go on
+  the list for after the audit.
+- **The order of work is delegated to Claude** (Viktor, 21 September: "Organize a to do
+  list and we start working, It is up to you."). It covers ordering and the items marked
+  Claude's below; it does not cover the items marked Viktor's.
+- **The audit is paused**, and **work order F is ruled** — both in DECISIONS, 21
+  September.
+- **When the audit resumes** (DECISIONS, 22 September): once work order G and findings
+  4, 5, 6, 7, 16 and 18 are done. A finding is done when Viktor has ruled it and any code
+  his ruling calls for has landed; a ruling to leave it as it is counts. The list is
+  closed. **Met at `7d0024e`.**
+- **New, 27 September — the plan is measured from the decision close (finding 4)**
+  (DECISIONS, "Ruling, 27 September 2026 — the plan is measured from the decision close
+  (finding 4)"). Option A: the decision close is the plan's single entry; the band is
+  labelled EMA BAND; a backtest fills at the next candle's open and records the gap
+  (added to Goal B's methodology); entering at the band goes on the list for after the
+  audit. **Its code landed at `b0efe23`.**
+- **New, 27 September — the stop comes from ATR alone (finding 6)** (DECISIONS,
+  "Ruling, 27 September 2026 — the stop comes from ATR alone (finding 6)"). The HVN no
+  longer pulls the stop and stays as information only; the 8% and 15% limits are
+  unchanged; nothing checks HVN proximity, which goes on the list for after the audit;
+  a swing-structure anchor was not chosen and not measured. Ruled by agreeing to
+  Claude's suggestion, not by writing his position first. **Its code landed at
+  `76c8cde`.** **Confirmed 27 September (the next session):** Claude's reading of
+  "information only" stands — only the stop stopped using the HVN; the entry score's,
+  the reversal reading's and the Exit Watch's uses stay, and revisiting them belongs
+  with the `bias_score` weighting review after the audit. Also by agreeing to Claude's
+  suggestion (DECISIONS, under the finding 6 ruling).
+- **New, 27 September — a NEUTRAL bias prints no plan (finding 5)** (DECISIONS,
+  "Ruling, 27 September 2026 — a NEUTRAL bias prints no plan (finding 5)"). Panel only:
+  no stop, targets or R:R, and one PLAN line naming the NEUTRAL bias and its score
+  inside ±20. The engine still computes and logs the plan; the risk check needs a stop.
+  Ruled by agreeing to Claude's suggestion, not by writing his position first. **Its
+  code landed at `8b9ac1e`.**
+- **New, 27 September — a push that goes as predicted leaves nothing owed** (DECISIONS,
+  "Ruling, 27 September 2026 — a push that goes as predicted leaves nothing owed").
+  Claude's proposal (b) of 26 September, adopted by agreeing to Claude's suggestion. A
+  push is recorded once, in the next commit's account; only a deviation becomes an owed
+  item. The floor-of-one chain of owed hook results ends.
+- **New, 27 September — the bias label is a function of the score (finding 18)**
+  (DECISIONS, "Ruling, 27 September 2026 — the bias label is a function of the score
+  (finding 18)"). The behaviour stays exactly as it was: `BiasStateMachine`, which never
+  read its previous state, becomes `bias_label(raw_bias, bias_score)` in
+  `models/bias_engine.py`, the same labels word for word; no new trading rule and no
+  CONFIRMED gate. "A side must hold for N closed candles" and renaming CONFIRMED go on
+  the list for after the audit. Ruled by agreeing to Claude's suggestion, not by writing
+  his position first. **Its code landed at `d76ddfd`.**
+- **New, 27 September — work order G: macro no longer decides the CONSERVATIVE tier
+  (finding 17)** (DECISIONS, "Work order G, 27 September 2026 — macro no longer decides
+  the CONSERVATIVE tier (finding 17)"). Claude's call under the delegation: the macro
+  condition is gone from both CONSERVATIVE branches, and `macro_bias` from
+  `DecisionModel.evaluate()` and the ladder; the router still records it. Inside it,
+  Viktor's ruling, by agreeing to Claude's suggestion: the CONSERVATIVE sentence names
+  what fell short instead of always blaming entry quality. **Its code landed at
+  `7d0024e`.**
+- **`bias_score`'s weighting waits for after the audit, and the auditor sees it**
+  (DECISIONS, 22 September; filed at `75682ee`) — in Part 7 (ruling of 29 September).
+- **New, 26 September — any model may build or review; doing so costs it audit
+  eligibility** (DECISIONS, "Ruling, 26 September 2026 — any model may build or review;
+  doing so costs it audit eligibility"). No model other than Claude is in use now.
+- **New, 26 September — the pre-send token check is audit preparation, not an engine
+  item** (DECISIONS, "Ruling, 26 September 2026 — the pre-send token check is audit
+  preparation, not an engine item"). It does not add to or reopen the closed list.
+- **New, 26 September — the stop-distance finding is evidence for findings 4 and 6**
+  (DECISIONS, "Ruling, 26 September 2026 — the stop-distance finding is evidence for
+  findings 4 and 6"). Not part of G; the closed list is unchanged. The 8% ceiling is part
+  of finding 6; the risk gate's position goes on the list for after the audit.
+- **New, 26 September (ninth session) — where the project lives, Viktor's choice.** The
+  repository is `E:\phase7_engine`; the files kept outside it are in
+  `G:\Phase_7_Engine_Random_Files`. `D:\USB Backup\Phase7_Engine documents` stays where it
+  is. The originals on D: are renamed `phase7_engine_MOVED_TO_E` and
+  `Phase_7_Engine_Random_Files_MOVED_TO_G`; deleting them is Viktor's. He chose Claude's
+  recommended option on all three (HISTORY, "26 September 2026 (ninth session) — the
+  repository moved to `E:\phase7_engine`").
+- **New, 26 September (tenth session) — the phase-3 order: 16, 7, 4, 6, 5, 18, then G
+  last.** Proposed by Claude under the 21 September delegation of the order of work;
+  Viktor agreed it on 26 September. One finding at a time, at his pace.
+- **New, 26 September (tenth session) — finding 16: decisions are made on closed
+  candles** (DECISIONS, "Ruling, 26 September 2026 — decisions are made on closed
+  candles (finding 16)"). All three series; the live price shown as information only;
+  staleness measured from the close time, requiring the latest closed candle; the log
+  records each series' decision candle. **Its code landed at `add8540`.** How point 3
+  reads (a run inside the grace fails), the 60-second grace
+  with its evidence, the pinned-data treatment and the panel's labels are recorded under
+  the ruling, "Recorded when its code landed" (eleventh session).
+- **New, 27 September — finding 7: indicator values are no longer replaced beyond
+  5 sigma** (DECISIONS, "Ruling, 27 September 2026 — indicator values are no longer
+  replaced beyond 5 sigma (finding 7)"). The replacement is removed from
+  `clean_series`; the inf-to-NaN step stays; checking the candles for bad data goes on
+  the list for after the audit. **Its code landed at `57f0521`.**
+
+### Where things stand, right now
+
+- **Tip:** the commit that writes this line (a commit cannot name its own hash) — Part
+  4's three test shapes: tests, `run_tests.py`'s docstring and docs. Before it:
+  `9ea1cf3` (the session of 15 October, from 10:32: B10: engine code, two tests, a new
+  test file and docs), `64ad625` (the session
+  of 15 October, from 03:55: B9: engine code, a new test file and docs), `d77a8c4` (the
+  session of 14 October, night, to 15 October, night: B7: engine code, two tests, a new
+  test file and docs), `22a9a35` (the session of 14 October: B4's labels: engine code, three
+  tests, the golden fixture, a new test file and docs), `69c92d6` (the session of
+  13 October, night: the two repeated readings,
+  patch 2 of the 12 October additions: the panel, a test, a new test file and docs),
+  `797bdc9` (the session of 12 October, evening, to
+  13 October, night: the fallback sweep, patch 1: engine code, tests, a new test file
+  and docs), `ef65f46` (the session of 12 October, morning: Viktor's
+  ruling of 08:24 filed: docs only), `e5ac20a` (the session of 11 October, near midnight, to 12 October,
+  early morning: F9, four claims the code beside them did not support: engine code, a
+  new test file and docs), `9051ffd` (the session of 11 October, late evening: F8, one name for one
+  meaning: engine code, a new test file and docs), `27d3ed5` (the session of
+  11 October, evening: F6, `clean_series` accepts only methods that read no later row:
+  engine code, a new test file and docs), `9d00d99` (the session of 10 October, evening: F5, the band
+  distance labelled from the band's midpoint: engine code, tests and docs), `ae37795` (the session of 10 October,
+  afternoon: F3, a frame with no readable time axis rejected: engine code, a new test
+  file and docs), `6469a67` (the session of 9 October: N5, Bitcoin reference only: engine code,
+  tests, the golden fixture and docs), `9e507b1` (the session of 6 October, later the same evening: B6, runs on pinned data
+  keeping records of their own: engine code, tests, the golden fixture, the
+  audit-package builder and docs), `fcb7823` (the session of 6 October,
+  early evening: fix 3, the regime: engine code, tests, the golden fixture and docs),
+  `1b25f36` (the session of the night of 5 to 6 October: fix 2,
+  the trend gate: engine code, tests, the golden fixture and docs), `c2b07fb` (the
+  session of 5 October, evening: fix 1, the
+  stop: engine code, tests, the golden fixture and docs), `eb86846` (the session of
+  5 October that filed round 8's triage: docs only), `9e42d30` (the sixth session of
+  4 October: Viktor's ruling on round 8's result: docs only), `040a529` (the fifth
+  session of 4 October's third commit: round 8's Part 7 reply and its record: docs
+  only), `a0276dd` (its second commit: round 8's second run: docs only), `d27743f` (its
+  first commit: round 8's first run and its record, the send script and one test),
+  `217ede6` (the session of 4 October that wrote rev 9:
+  docs only), `4a4c6ce` (the session of
+  4 October that landed round 8's tooling: tooling and tests), `ff12e17` (the
+  session of 4 October that filed the delegation: docs only), `1523e0c` (the thirty-first
+  session's second commit: round 7's second run, run 2 closed in the send script, and
+  the end of round 7), `3e8191a` (the thirty-first session's first commit: the send
+  script and its test for round 7's second run, and the ruling of 30 September on what
+  follows the first reply), `86f30f1` (the thirtieth session's second
+  commit: round 7's first reply and its record), `e186423` (the thirtieth session's
+  first commit: item 8 and two deviations; round 7's package was built from it),
+  `8b6fd00` (the twenty-eighth session's commit: the Part 7 document, item 13),
+  `01f2892` (the twenty-seventh session's commit:
+  rev 8 of the instruction, item 9), `12b483e` (the twenty-sixth session's commit: items 3, 4 and 5 —
+  the send in two requests), `f256937` (the twenty-fifth session's commit: items 7 and 6,
+  and four test bugs are enough), `59b747a` (the twenty-fourth session's commit: the
+  pre-send token check), `d5ced0c`
+  (the twenty-third session's second commit: six rulings before the send), `e7a94d1`
+  (the twenty-third session's first commit: the rulings of 29 September on the audit
+  and on what opens backtesting), `ec4e5fd` (the twenty-first
+  session's commit: the Engineering Notes regenerated at v1.36), `68c6191` (the
+  twentieth session's commit: the ruling on Fable 5.1 and the corrected list of Aider
+  models), `22cb39b` (the nineteenth session's commit: the ruling of 28 September),
+  `7d0024e` (the seventeenth
+  session's commit: work order G), `d76ddfd` (the sixteenth session's commit: finding
+  18's code), `8b9ac1e` (the fifteenth session's commit:
+  finding 5's code), `76c8cde` (the fourteenth session's commit: finding 6's code),
+  `b0efe23` (the thirteenth session's commit: finding 4's code), `57f0521` (the twelfth
+  session's commit: finding 7's code), `add8540` (the eleventh session's first commit:
+  finding 16's code), `bf2e802` (the tenth session's first commit: finding 16 ruled),
+  `7d103d7` (the ninth session's first commit: the move to E:), `eba6a2a` (the eighth
+  session's third commit), `1861208` (the stop-distance ruling), `2582994` (the eighth
+  session's first commit: two rulings), `75682ee` (the seventh session's owed filing and
+  the round-1 audit outputs), `bc48f59` (the Engineering Notes regenerated at v1.35),
+  `c5dc4cd`, `e804b64`, `5e55eb8`, `3bfa6b7` (`data/data_fetcher.py`: finding 27). F
+  itself is `3f263c2`. **Tags:** `portfolio-v1` at `99e022e`; `round7-sent-2026-09-30`
+  at `e186423`, the commit round 7's package was built from, made on Viktor's machine
+  before the send and pushed after `86f30f1`; `round8-sent-2026-10-04` at `217ede6`, the
+  commit round 8 was sent from, made on Viktor's machine before run 1 and pushed after
+  `d27743f`. **Release gate: closed since 5 October** (DECISIONS, "Ruling, 5 October
+  2026 — round 8 triaged …", point 2). Declared open on 15 September, it reopens when
+  round 8's auditor has verified the fix of the stop, which landed at `c2b07fb`.
+- **The freeze is lifted** (point 11 of the same ruling): round 8's report is triaged, so
+  commits may touch engine code and tests again. It held from 29 September (DECISIONS,
+  "Ruling, 29 September 2026 — six questions before the send", point 1) to 5 October,
+  with two exceptions for the tests of the sending tools. `tests/` on `master` differs from the tag
+  `round8-sent-2026-10-04` in `tests/test_send_audit_round.py` (`d27743f`), in the six
+  test files and the golden fixture `c2b07fb` changes or adds, in
+  `tests/test_signal_confirms.py`, the new `tests/test_no_trend_no_trade.py` and the
+  golden fixture again (`1b25f36`), in
+  `tests/test_no_circular_reasoning.py`, `tests/test_no_risk_free_conviction.py`,
+  `tests/test_risk_fingerprint.py`, `tests/test_risk_regime_independence.py`,
+  `tests/test_stop_ignores_conviction.py` and `tests/test_stop_is_atr_only.py`, the new
+  `tests/test_regime_from_volatility_alone.py` and the golden fixture again
+  (`fcb7823`), in
+  `tests/test_code_fingerprint.py`, `tests/test_decision_log_record_format.py`,
+  `tests/test_engine_state_atomic_write.py`, `tests/test_golden_path.py`,
+  `tests/test_lineage.py`, `tests/test_router_btc_seam.py` and
+  `tests/test_traceability.py`, the new `tests/test_pinned_runs_keep_their_own_records.py`
+  and the golden fixture again (`9e507b1`), in `tests/test_btc_correlation_alignment.py`,
+  `tests/test_btc_degradation_stays_informational.py`, `tests/test_code_fingerprint.py`,
+  `tests/test_decision_contract.py`, `tests/test_fingerprint_names_every_constant.py`,
+  `tests/test_golden_path.py`, `tests/test_panel_prints_only_what_was_computed.py`,
+  `tests/test_router_btc_seam.py` and `tests/test_traceability.py`, the new
+  `tests/test_btc_is_reference_only.py` and the golden fixture again (`6469a67`), in
+  the new `tests/test_untimed_frame_is_rejected.py` (`ae37795`), in
+  `tests/test_entry_zone_is_measured.py`,
+  `tests/test_plan_entry_is_the_decision_close.py` and the new
+  `tests/test_band_distance_is_from_the_midpoint.py` (`9d00d99`), in the new
+  `tests/test_clean_series_methods.py` (`27d3ed5`), in the new
+  `tests/test_one_name_one_meaning.py` (`9051ffd`), in the new
+  `tests/test_round8_f9_claims_match_the_code.py` (`e5ac20a`), and in
+  `tests/test_direction_source.py`, `tests/test_macro_counts_once.py`,
+  `tests/test_risk_verdict_is_read_not_assumed.py`,
+  `tests/test_router_no_fabricated_zero_defaults.py`, `tests/test_signal_confirms.py`,
+  `tests/test_swing_structure_is_not_invented.py` and the new
+  `tests/test_an_absent_value_is_not_a_reading.py` (`797bdc9`). The panel's lines are
+  read again in the new `tests/test_each_reading_is_printed_once.py` (`69c92d6`).
+  `22a9a35` changed `tests/test_no_trend_no_trade.py`, `tests/test_signal_confirms.py`,
+  `tests/test_volume_agreement.py` and the golden fixture, and added
+  `tests/test_b4_labels_say_what_is_measured.py`. `d77a8c4` changed
+  `tests/test_regime_from_volatility_alone.py` and `tests/test_stop_is_atr_only.py`,
+  and added `tests/test_b7_distance_limits_record_the_regime.py`. `64ad625` added
+  `tests/test_b9_btc_supertrend_is_read_directly.py`. `9ea1cf3` changed
+  `tests/test_neutral_bias_prints_no_plan.py` and
+  `tests/test_no_fabricated_defaults_remain.py`, and added
+  `tests/test_b10_outputs_agree_with_finding_4_and_the_action.py`. The commit that
+  writes this line changes `tests/test_golden_path.py`,
+  `tests/test_decision_bar_integrity.py`,
+  `tests/test_docs_build_writes_into_the_repository.py`,
+  `tests/test_code_fingerprint.py` and `tests/test_summary_names_the_action_reason.py`,
+  and `run_tests.py`'s docstring.
+- **Where the project lives, from 26 September:** `E:\phase7_engine` on Viktor's machine;
+  the files kept outside the repository in `G:\Phase_7_Engine_Random_Files`. Copied with
+  robocopy, verified — git's own checks on Windows for the tracked files, SHA-256 for the
+  91 ignored data files and the 25 Random Files — and only then the originals renamed.
+  The evidence is in HISTORY, "26 September 2026 (ninth session) — the repository moved
+  to `E:\phase7_engine`". Run the engine and every command from `E:\phase7_engine` (in
+  cmd, changing drive needs `cd /d`). A dated record that names the D: paths means the
+  same folders before the move; dated records are not edited.
+- **The push of `9ea1cf3`** happened: at the start of this session it was GitHub's tip
+  (a clone), and `master` and `origin/master` on Viktor's disk (`.git/refs`, staged off
+  it). No deviation was reported at the push (ruling on proposal (b)). The same holds
+  for the push of the commit that writes this line unless it deviates. Earlier pushes
+  and deviations are recorded in this file's previous versions, in HISTORY.
+- **Before this commit**, every file it changes was staged off Viktor's disk and matched
+  an autocrlf clone of `9ea1cf3` byte for byte; it adds no file.
+- **code_hash:** `bc1b9c2c517215d0b16eec4209462fa14664a89fbf7b24fcd565c255c45800d7`,
+  moved by `9ea1cf3` from `e2f6b2ad…` (`core/panel_render.py` and `live_trading.py`),
+  and unchanged by the commit that writes this line, as predicted: of the 33 files it
+  changes only `run_tests.py`, in its module docstring, which the fingerprint strips
+  before hashing (computed per file: none of the 33 moved); `tests/` and `docs/` are
+  outside it by directory. Computed on the working tree and on the applied tree under
+  Python 3.12.3. `9ea1cf3`'s live run confirmed `bc1b9c2c…` on Windows; this commit has
+  no live run, since it moves no `code_hash` and touches no decision path.
+- **code_hash is only comparable within one Python minor version.** It hashes `ast.dump`
+  output, a CPython implementation detail (`core/code_fingerprint.py`, "WHAT IT DOES NOT
+  SURVIVE"). **Every `code_hash` claim about this project is computed under Python 3.12**
+  (Viktor runs 3.12.10).
+- **Golden snapshot:** unchanged by the commit that writes this line, as predicted: it
+  changes no engine code and no fingerprinted name or value, so `run_hash`
+  (`40dcdc72…`) holds; the golden test passes on the applied tree without a
+  re-baseline. Unchanged by `9ea1cf3`, `64ad625` and `d77a8c4` too. Last
+  re-baselined at
+  `22a9a35`, 4 leaves (the confirmation reason, `volume_sentiment` twice and
+  `validation_note`'s volume half: VOLUME DIVERGENCE → FADING VOLUME); before that at
+  `6469a67`, 8 leaves.
+- **Test suite** — **841 passed / 0 failed, no warnings line** with `pandas_ta`;
+  **676 passed / 154 skipped** without it; `run_tests.py` **770 passed / 0 failed /
+  32 errors**, all 32 fixture-collection `TypeError`s, the same 32 as before. This is
+  the one place the watched error count is written as a number (DECISIONS, "Ruling,
+  15 October 2026 — Part 4's three test shapes", point 5). The commit that writes this
+  line adds no test and changes 3, each under its own name and fixture-free: the
+  golden coverage test, which now runs without `pandas_ta` (hence 675 / 155 to
+  676 / 154), the non-finite test, which needs no `pandas_ta`, and the SuperTrend level
+  test, which does. Counts from the Linux sandbox, Python 3.12.3, pinned requirements,
+  the patch applied to an autocrlf clone of `9ea1cf3`; Viktor's Windows run is what
+  confirms them. `9ea1cf3`'s were 841; 675 / 155; 770 / 0 / 32. `64ad625`'s were 831;
+  668 / 152; 760 / 0 / 32. `d77a8c4`'s were 826; 668 / 147; 755 / 0 / 32.
+  `22a9a35`'s were 821; 663 / 147; 750 / 0 / 32.
+  `69c92d6`'s were 813; 656 / 146; 742 / 0 / 32. `797bdc9`'s
+  were 808; 651 / 146; 737 / 0 / 32. `ef65f46`'s test steps were skipped at the time,
+  then run on Windows at 09:06 on 12 October: both matched (792; 721 / 0 / 32). One test,
+  `test_the_commit_messages_up_to_the_tag_are_round_7s_to_the_byte`, runs `git log` up
+  to the tag `round7-sent-2026-09-30`: it needs the tag, which a full clone has.
+- **Engineering Notes:** through Entry #183 (v1.36), which covers `68c6191`.
+  **Thirty-eight commits behind** — `ec4e5fd`, the floor (a commit that regenerates the Notes cannot
+  cover itself, Entry #144), `e7a94d1`, `d5ced0c`, `59b747a`, `f256937`, `12b483e`,
+  `01f2892`, `8b6fd00`, `e186423`, `86f30f1`, `3e8191a`, `1523e0c`, `ff12e17`,
+  `4a4c6ce`, `217ede6`, `d27743f`, `a0276dd`, `040a529`, `9e42d30`, `eb86846`,
+  `c2b07fb`, `1b25f36`, `fcb7823`, `9e507b1`, `6469a67`, `ae37795`, `9d00d99`,
+  `27d3ed5`, `9051ffd`, `e5ac20a`, `ef65f46`, `797bdc9`, `69c92d6`, `22a9a35`,
+  `d77a8c4`, `64ad625`, `9ea1cf3` and the commit that writes this line. Every later
+  commit adds one
+  until the
+  next regeneration. Batched, by
+  the 15 September rule; no time pressure. v1.36 records the round-1 recovery, the
+  rulings of 22 (filed 26), 26, 27, 28 and 29 September, the move to E:, the code for
+  findings 16, 7, 4, 6, 5 and 18, work order G and the Aider correction. Its PDF's
+  extracted text differs from v1.35's only by the seventeen entries, the new Document
+  History row and fourteen footer page numbers (127 pages to 143), compared word by
+  word.
+- **Portfolio Document and AI-Attribution Statement:** both current with their scripts —
+  each rebuilt from `68c6191` in the sandbox (reportlab 5.0.1), its extracted text
+  identical to the committed PDF. Neither changes in the commit that writes this line;
+  the Attribution Statement's script last changed at `68c6191`, the Portfolio
+  Document's at `6e1baba`.
+- **README.md:** its test counts are current (841, 676 / 154 and 770), changed by the
+  commit that writes this line, so the hook's section 5 will report 0 commits since it
+  was touched. Its paragraph on what is empirically validated was rewritten at
+  `6469a67` (the BTC-Adjusted Prediction removed) — Viktor's to reword (Open items).
+  **Three of its status rows are stale** and not changed here (Open items):
+  "Independent audit", "Backtesting" and, since 5 October, "Release gate", which still
+  reads Open. Its layout block still calls `logs/` the live decision log, which stays
+  true; since `9e507b1` it also holds `logs/pinned/`, which the block does not mention
+  (Open items, with the three rows).
+- **The round-1 audit outputs are in the repository**, in
+  `docs/audit_reports/round1_deepseek-v4-pro_kimi-k3_2026-08-27/`, byte-identical to the
+  hashes Viktor took on 23 September. The account is in HISTORY, "26 September 2026 —
+  correction: the round-1 audit outputs were recovered".
+
+### Carried lesson — the live run comes BEFORE the commit
+
+At F the live run asked for in the command sequence did not happen before the commit:
+at the push the log still held 29 records, the newest on the old `code_hash`. Claude
+caught it by reading the log, not from a paste. **On every change that moves
+`code_hash` — and always on one that touches the decision path (G was one) — the live
+run and the panel read happen before `git commit`, and Claude checks the decision-log
+record for the new `code_hash` before the commit step, not after the push.** Never
+predict live numbers; check the record. Followed at `2c7a7d1`, `4e2b1c8`, `486f1a5`,
+`3bfa6b7`, `add8540`, `57f0521`, `b0efe23`, `76c8cde`, `8b9ac1e`, `d76ddfd`, `7d0024e`, `c2b07fb`,
+`1b25f36`, `fcb7823`, `9e507b1`, `6469a67`, `ae37795`, `9d00d99`, `27d3ed5`, `9051ffd`, `e5ac20a`, `797bdc9`, `69c92d6`, `22a9a35`, `d77a8c4`, `64ad625` and `9ea1cf3`: the command list stopped at the live run, Claude read the record,
+and only then gave the commit steps. **Since finding 16, a
+live run in the first 60 seconds after a 4h close (00:00, 04:00, 08:00, 12:00, 16:00,
+20:00 UTC) fails by design** ("not yet final"); run again a minute later.
+
+### Sandbox practice
+
+- Set `git config core.autocrlf true` in the clone and re-check out; a `-c` flag on
+  `git clone` does not persist.
+- Run negative controls with `PYTHONDONTWRITEBYTECODE=1`.
+- The golden updater writes LF with no final-newline handling of its own; restore CRLF
+  and the original ending by hand before diffing.
+- A file re-written to the outputs folder under the same name once reached Viktor's
+  disk as the OLD version. Use a new file name for each version, and always read
+  deliveries back.
+- `git status --short` sorts by path; predict the order that way.
+- The sandbox's default `python3` has been 3.11; build both virtualenvs from
+  `/usr/bin/python3.12` explicitly. The sandbox cannot reach `api.mexc.com` (the proxy
+  refuses it), so anything about MEXC's live behaviour is either read from its
+  documentation or from Viktor's own runs — say which.
+- **Seventh session:** `docs/audit_reports/**` is `-text`, so its files are committed and
+  checked out byte for byte, LF or CRLF as they came; compare them by hash, never after a
+  line-ending conversion. The session's hashes of the round-1 files are in HISTORY
+  (26 September).
+- **Sixth session:** `reportlab` 5.0.1 (not pinned; `docs/build/README.md` has the
+  install line) rebuilt the committed Notes PDF from `5e55eb8` with identical extracted
+  text, so it is a sound baseline for the Notes. The PDF embeds a build timestamp, so
+  its bytes differ on every run.
+- **Eighth session:** a `git status --short` prediction built from the clone cannot see
+  untracked files on Viktor's disk (the push of `75682ee`; its account is in HISTORY).
+  Before predicting it, list his repository over the device bridge and compare it with
+  the clone's tracked and ignored files.
+- **Ninth session:** the repository is at `E:\phase7_engine` on Viktor's machine (moved
+  26 September), so the device bridge needs that folder granted, and every device path
+  in a delivery names E:. `D:\phase7_engine` no longer exists under that name.
+- **Tenth session:** the session had no shell on Viktor's machine, only file staging, so
+  his tip was read from `.git/refs` staged off his disk, not from `git log`.
+- **Eleventh session:** the same (file staging only). The scope stated before the diff
+  missed two consequences the suite then caught: `core/decision_contract.py` must
+  declare every provenance field (`test_decision_contract.py`), and a panel label that
+  starts with `DECISION` is found by `test_setup_direction_box.py`'s "starts with
+  DECISION" search before the DECISION line itself. Both are in the commit message. A
+  new panel label should be checked against every `startswith` search over the panel.
+- **27 September:** file staging only again. Before removing a rule, instrument it (a
+  line that logs when it fires, run on the golden test and the fixture frames, then
+  restore the file and `cmp` it) — that is how the golden prediction for finding 7 was
+  made from evidence rather than from reading.
+- **27 September, finding 6:** re-derive a ruling's evidence before filing it. The
+  figures handed over with the ruling said 29 of 39 pass and 7 are refused, which does
+  not add up to 39; recomputed from the staged log, 32 pass (29 of them newly). Also:
+  `core/code_fingerprint.py` strips docstrings and the AST has no comments, so a
+  docstring- or comment-only change moves no per-file fingerprint — checked per file,
+  not assumed. And when a parameter is removed, check every call that passed it for a
+  test that would now pass for the wrong reason: the `detailed_bias` test still passed
+  `structural_level=None`, which would have raised the TypeError on its own.
+- **27 September, finding 5:** a negative control can fail to fail because a second
+  guard also holds. Breaking the NEUTRAL check in `decision_model` alone left the grid
+  green: a NEUTRAL score is inside ±20, and `MIN_ACTION_BIAS` (30) sends any
+  lean under 30 to WAIT, so a NEUTRAL bias misread as BULLISH still never trades. The
+  control that fails breaks the path past both. And a `sed` meant to break one line
+  matched two (`if plan_withheld:`); controls are now edited by an exact, counted
+  replacement.
+- **27 September, finding 18:** a name is a claim, not evidence. "State machine",
+  `state` and `transition()` read as memory, and the record built a finding on it; the
+  method body never read `self.state`. Read what a unit does before reasoning from what
+  it is called. Also: Claude's notes between sessions can be behind the repository —
+  read `master` and `origin/master` off Viktor's disk before proposing any build
+  (the first finding of finding 18's session). And a new UPPER_CASE numeric constant in a
+  fingerprinted module is caught by `test_fingerprint_names_every_constant.py` and has
+  to enter `FINGERPRINTED_MODULES`, which moves `run_hash` and the golden snapshot —
+  weigh that before naming a number.
+- **27 September, work order G:** a replay of the decision log is evidence only once it
+  reproduces the logged actions. The first replay passed the degradation block in the
+  wrong shape and reproduced 40 of 43; that check caught it. And once a parameter lives
+  only at the router, a test that supplies it has to go through the router, whose error
+  record has no `exit`: index it (`out["exit"]["action"]`), never `.get` it, so a
+  negative assertion cannot pass on a failed build.
+
+- **29 September:** `git ls-remote <url> refs/heads/master` reads GitHub's tip without
+  a clone — enough to confirm a push.
+- **29 September (twenty-third session):** rulings made in a session that landed no
+  commit can be filed only from what that session wrote down — here, the roadmap
+  document's Phase 4 list. Claude's notes between sessions lagged that list on one
+  ruling (what the auditor sees, noted as open, was ruled). File from the written
+  record, and say which record.
+- **29 September (twenty-fourth session):** the sandbox cannot reach `huggingface.co`
+  or `openrouter.ai` either (the proxy refuses both), so the tokenizer files came off
+  Viktor's disk, staged from G:, and the live models API query stays with him. The
+  token check runs in a third virtualenv — Python 3.12 with `tokenizers==0.23.2`, which
+  pulls in `huggingface_hub` — kept apart from the two test virtualenvs, whose counts
+  assume the pinned requirements only. Laguna's chat template uses a `{% generation %}`
+  tag that plain `jinja2` cannot parse; to render it in the sandbox, register a small
+  extension that parses the tag as a pass-through.
+- **4 October (the session of `4a4c6ce`):** the sandbox's proxy still refuses `huggingface.co`, but
+  the web-fetch tool reached Hugging Face's API (`/api/models/<repo>/tree/<rev>`) and
+  OpenRouter's endpoints API. It summarises what it reads, so a hash read through it is
+  evidence only once recomputed from bytes staged off Viktor's disk — here every one
+  matched. A file kept in LFS (`tokenizer.json`) is listed with the git id of its
+  pointer, not of its bytes; its LFS id is its SHA-256. MiMo's chat template needs no
+  extension: plain `jinja2` renders it.
+- **4 October (the session of `4a4c6ce`):** round 7's built package — `docs/audit_package/round7/`,
+  ignored by git — exists only on Viktor's disk; stage it from E: when it is needed.
+  Its first-message files hash to what both of round 7's runs recorded, and its
+  commit-messages file is regenerated byte for byte from an autocrlf clone on Linux.
+- **4 October (the session of `217ede6`):** a counted disclosure is only as good as the
+  search behind it. Rev 8's looked for a rule's number beside a verdict word and missed
+  six rules the code cites by table position ("T2-1", "T3-5", "Tier 2, item 6") or under
+  a dispute with no verdict word. Search for every way the code names a rule — "Item N",
+  "Items N/M", "TN-M", "Tier N, item M", and the rule's own name — then read each hit.
+- **5 October:** listing Viktor's repository before predicting `git status` (the eighth
+  session's lesson) found three untracked PDFs in `Claude outputs\` that a prediction
+  from the clone could not see. A ruling's figures are re-derived before they are filed
+  (the 27 September lesson); the triage's all held. And a count of the decision log by
+  `provenance.source` misses a record that has no provenance: the ruling named nine
+  test records, and the log holds ten — record 4 has no provenance at all.
+- **5 October, fix 1:** `pytest.raises(Exception)` accepts any exception, a `TypeError`
+  from a stale keyword included. `test_calculate_stop_targets_rejects_a_non_finite_atr`
+  was already vacuous at `eb86846`: with its NaN guard deleted it still passed, because
+  the wrong-side refusal raises on the NaN stop that follows. It now names the guard's
+  own error, and fails with the guard deleted. Assert the type and the message. And a
+  replay of the live log with today's code reproduces 34 of the 37 logged actions; the
+  three it does not are records 19–21 (15–16 September), which F's gate and G changed,
+  as their own entries predicted — the G lesson's check, passed.
+- **The night of 5 to 6 October, fix 2:** importing a fingerprinted constant by name
+  into another fingerprinted module (`from models.entry_model import MIN_TREND_ADX` in
+  `decision_model`) makes a second, unlisted copy of it, and
+  `test_fingerprint_names_every_constant.py` failed on it in the first full run. Import
+  the module and read the attribute. And a replay that recomputes the gate from each
+  record's own fields, rather than reading its recorded signals, reproduces 46 of the
+  48 logged actions on `c2b07fb`'s code; the two it does not are records 19 and 20
+  (15 September, WAIT), which predate F's gate and replay as CONSERVATIVE SHORT on both
+  codes, where G's replay, reading their absent signals, refused them.
+- **The night of 5 to 6 October, the test steps:** "silence means the steps passed" is
+  Viktor's rule, and it holds for steps that ran. pytest leaves a trace that settles
+  whether a run happened: `.pytest_cache/v/cache/nodeids` on his disk is rewritten at
+  the end of every run and lists every test it has collected, so a time after the apply
+  and the new tests' names in it show the step ran; `run_tests.py` leaves none. Read it
+  off his disk before giving the commit steps. It showed that `c2b07fb`'s pytest count
+  never ran on Windows, and that this commit's two test steps had been skipped before its
+  live run.
+- **6 October, fix 3:** a search for the keyword `adx=` at the risk check's call sites
+  found fifteen calls and missed the positional ones. Two tests called
+  `validate_risk_parameters(100.0, 80.0)` and leaned on the `"NORMAL"` default the patch
+  removed; only the full run caught them. To find every caller of a function whose
+  parameters change, walk the parse tree for calls of that name, not a keyword. And the
+  engine run on pinned data outside the test suite writes its decision log, archive and
+  chart into that tree's `logs/` — the suite redirects them, a script does not. A probe
+  run in the pristine copy did, and was removed with `git clean -fdx` before anything
+  was built from it. Probe in a throwaway copy.
+- **6 October, B6:** the golden updater rewrites the fixture as LF every time it runs.
+  It was run a second time, to read a warning, after CRLF had been restored, and the
+  line-ending check before the diff caught the second rewrite. Check line endings after
+  every run of the updater, not only the first. A negative control passed: with
+  `is_live_record` taking a falsy `pinned` for False, the test still passed, because
+  each of its not-live shapes also lacked a source and the source check refused them
+  first — the 27 September lesson again. The shapes now carry one defect each. When a
+  recorded path's spelling changes, read every consumer of the printed output, not only
+  of the record: the audit-package builder redacted its temp directory in its native
+  spelling only, and a pinned run's "Decision logged to" line would have carried it with
+  forward slashes, username included, on Windows. And a live run can be tested
+  offline: clear the pinned source and replace the singleton's `fetch_ohlc` with one
+  that serves the fixture (`tests/test_pinned_runs_keep_their_own_records.py`,
+  `_route`); everything from `get_tf()` on is the production path.
+- **12 October, F9:** before changing what a function does on a path the engine never
+  takes, read the tests around it for a decision someone already recorded about that
+  path. The first build made a too-short frame raise, so the run would be marked
+  degraded; `tests/test_swing_structure_is_not_invented.py` records that not-enough-data
+  in `structure.py` is an ordinary return, on purpose. It would still have passed —
+  its frame is 20 rows, over the 15 the regime needs — so the suite could not have
+  caught it. And a stateful function whose state never survives is tested by reusing
+  one instance: a fresh one per call, as every existing test built it, can never reach
+  the branches that state guards.
+- **11 October, F8:** a rule about names is checked on the parse tree, not the text.
+  The new test reads every function in the engine's code (the walk `code_hash` takes)
+  and asks whether one that names something vwma touches the engine's VWMA — its
+  column, its window setting, its points cap or `vwma_pts`. Comments that mention the
+  old names are not code and are not counted; a third test runs the function as it stood
+  before F8 through the same check, so the check is shown able to fail.
+- **11 October, F6:** a function's list of accepted options is part of what it
+  promises. `tests/test_no_lookahead.py` pinned the forward-fill branch and nothing
+  pinned the list, so a look-ahead method sat one keyword argument away and a name the
+  function did not know returned the series unfilled, silently. The new test asks the
+  function for its accepted methods (from its own refusal, so the list cannot drift from
+  a copy in the test) and checks every one; a second test runs the removed
+  interpolation through the same check, so the check is shown able to fail.
+- **10 October, F5:** when a label changes, read every assertion that names the old
+  wording, the negative ones first. `"0.00% away from the band" not in lines` would
+  have passed whatever the panel printed once the line no longer says "away from the
+  band"; it now looks for "0.00%", and a control printing "0.00%" for an absent zone
+  makes it fail.
+- **10 October, F3:** run an auditor's reproduction before building on its account of
+  the outcome. Round 8's F3 described a panel and a record the code never made; the
+  defect it named was real, the consequence was not. A one-file probe on the tip and
+  on the package commit settled it in a minute, and the new engine-path test asserts
+  what the run now does rather than what the report said it did.
+- **9 October, N5:** when a patch removes what a test tests, the test goes with it,
+  named where it stood. Kept, it fails, or worse, passes on nothing: with Item 7's
+  status line gone from the panel, its source-text test would have passed had the
+  wording been left in a comment. A removal can take a test's subject away half-way:
+  the asset-name test asserted that the decision model calls `asset_name()`, which only
+  the removed sentence did. For a change that should alter no decision, the run
+  archives are the replay set: each archive's candles rebuilt into a pinned directory
+  and routed through the code before and after, every field compared (38 archives; the
+  only differences were the removed fields and what `run_hash` names). And
+  `models/decision_model.py` ended without a final newline, so an edit anchored at the
+  end of the method had to include that last, unterminated line: the edit's own check
+  that nothing followed the method stopped the first try at the removal before it wrote
+  anything.
+
+### Review findings, 21 September 2026
+
+Read at `635a94e` from Viktor's disk and from an autocrlf clone. **Every finding comes
+from reading the code; none was reproduced by running the engine** unless it says so.
+Line numbers are as read at the commit each entry names. Since finding 6's commit,
+`current_price` is at `core/engine_core.py:1063` and the stop-and-targets call at
+`:1111–1117` (this line said `:1060` and `:1101–1108`, set at finding 16; finding 4's
+comments had already moved them by three).
+The full text of each fixed finding, with its evidence, is in HISTORY: 1–13 in the
+entry for this file at `aafded0`, 19–24 in the entry at `4e2b1c8`, 25–28 in the entry
+at `5e55eb8`. The Engineering Notes, Entries #150–#164, give each one's landing.
+
+**Fixed** — one line each
+
+1. Two panel lines named AERO whatever the symbol — fixed at B (`a530006`).
+2. TREND and VALIDATION could print `Score: nan/100` — fixed at B.
+3. Absent entry, confidence and trade-quality scores printed `0.00` — fixed at B.
+8. `risk_model`'s direction check could never match — fixed at C (`e3f3d51`).
+9. An unreachable fallback that would put the stop on the wrong side — fixed at C.
+10. Nothing at runtime checked the stop's side — closed at C, at the only producer (D).
+11. `long_signal` / `short_signal` decided nothing — ruled and fixed at F (`3f263c2`):
+    they now CONFIRM the side the ladder chooses; unconfirmed is `NO-TRADE (SIGNAL
+    UNCONFIRMED)`.
+12. `live_trading.py`'s simulated order fabricated zeros and "OK" — fixed at E
+    (`afd8460`), with its `utcnow()` call.
+13. `structure/structure.py`'s `.get(…, default)` on always-present keys — fixed at E.
+19. The decision log wrote bare `NaN`, which is not JSON — fixed at `05a12c7`; the
+    archive's half at `4e2b1c8`.
+20. `decision_log.read()` dropped damaged lines silently — fixed at `05a12c7`.
+21. `decision_log`'s docstring named the wrong recorded source — fixed at `05a12c7`.
+22. The readable fingerprint missed three constants — fixed at `2c7a7d1`, with a scan
+    that fails on the next one.
+23. A rerun on changed code overwrites the archive — documented and pinned by a test at
+    `4e2b1c8`, not renamed.
+24. `verify_archive()` checked an archive only against itself — `verify_against_record()`
+    added at `4e2b1c8`. Not built: a command-line wrapper, and a re-fetch comparison.
+25. The staleness check accepted a last candle in the future — fixed at `486f1a5`
+    (`FUTURE_TOLERANCE_BARS = 1`). Reachability on MEXC: not measured.
+26. `validation`'s timeframe table lower-cased what it was given — fixed at `486f1a5`:
+    exact match; `60m` and `1W` listed; `1M` deliberately unlisted. An unlisted
+    upper-case spelling (`4H`) now skips the checks; nothing in the engine uses one.
+27. `data_fetcher.fetch_ohlc` discarded the exchange's own error text — fixed at
+    `3bfa6b7`, widened to a 4XX reply's body. What MEXC returns for a bad symbol was
+    not observed.
+28. An aware `now` was relabelled as UTC, not converted — found while fixing 25, fixed
+    at `486f1a5`.
+
+**Viktor's call, before the audit and before backtesting** — he writes his position
+first; Claude critiques. Each is done when ruled and any code the ruling calls for has
+landed (DECISIONS, 22 September).
+
+4. **The panel gives an entry ZONE but measures everything from the last close.** Stop,
+   T1–T3 and all three R:R values come from `current_price` (`engine_core.py:1005`); the
+   zone is EMA20–EMA50. LONG is authorised without price in the zone (entry score ≥ 70 is
+   reachable at NEAR ZONE), and CONSERVATIVE LONG has no zone condition at all. The
+   printed R:R holds only for an entry at the current price. There is no single entry
+   price on the panel. A backtest must fill somewhere, so this needs ruling first.
+   **Ruled 27 September, option A; done at `b0efe23`**
+   (DECISIONS, "Ruling, 27 September 2026 — the plan is measured from the decision close
+   (finding 4)"). The panel now names the decision close as the plan's entry and labels
+   the band EMA BAND; a backtest fills at the next candle's open. Entering at the band
+   is on the list for after the audit (below). **Code landed at `b0efe23`.** Done.
+5. **A NEUTRAL bias still prints a full plan.** The plan's direction comes from
+   `bias_score >= 0` (`models/risk_model.py`, since C), so a score between −20 and +20
+   prints a long- or short-shaped stop and targets under a NEUTRAL bias with no
+   direction box; exactly 0 prints a long.
+   **Ruled 27 September: panel only; done at `8b9ac1e`**
+   (DECISIONS, "Ruling, 27 September 2026 — a NEUTRAL bias prints no plan (finding
+   5)"). Under a NEUTRAL bias the panel prints no stop, targets or R:R, and one PLAN
+   line; the engine still computes and logs the plan. Tests in
+   `tests/test_neutral_bias_prints_no_plan.py`. Done.
+6. **The stop is pulled to the 75-day volume point of control, with no distance limit.**
+   `structural_level=hvn` (`engine_core.py:1050`); for a long the stop is
+   min(HVN, ATR stop). The HVN is the single highest-volume bin of the whole 450-candle
+   frame (`indicators/volume_profile.py`, 50 bins) — about 75 days on 4h. A trend that
+   has moved away from its point of control therefore gets its stop there, and past 8%
+   the risk check fails: NO-TRADE (RISK TOO HIGH). Between 8% and 15% the setup is
+   classified EXTREME RISK (`models/risk_model.py:439`, `:524–526`); past 15% the
+   distance limit refuses it first and RISK REGIME reads UNKNOWN (`:516–520`). This text
+   said "past 15%" until 26 September, when the code was read. (Line numbers as of
+   26 September. Since B7, at `d77a8c4`, RISK REGIME past 15%
+   reads EXTREME RISK; the refusal and its message are the same.) Seen on Viktor's
+   live runs of 21 September at 05:28, 05:51 and 06:18 and on the pinned golden fixture,
+   each checked against the record (details in HISTORY); the 19:24 run's action was again
+   RISK TOO HIGH on the HVN stop. How often this vetoes a setup across many runs was not
+   measured. **Dependency added at F:** the confirmation gate no longer blocks on HVN
+   proximity, on the reasoning that this stop already acts on that area. If this finding
+   is ruled to stop pulling the stop to the HVN, nothing checks HVN proximity.
+   **Ruled 26 September:** the 8% ceiling is part of this finding, and the count under
+   "Evidence for findings 4 and 6" below is its measurement.
+   **Ruled 27 September: the stop comes from ATR alone; done at `76c8cde`** (DECISIONS, "Ruling, 27 September 2026 — the stop comes from ATR
+   alone (finding 6)"). `calculate_stop_targets` no longer takes a structural level,
+   `engine_core` passes no HVN, and `lineage.risk_inputs` no longer lists one; the 8%
+   and 15% limits are unchanged. Tests in `tests/test_stop_is_atr_only.py`. The
+   dependency above is now in force: nothing gates on HVN proximity (list for after the
+   audit, below). **Code landed at `76c8cde`.** Done.
+7. **Indicator values beyond 5σ are silently replaced by the previous bar's.**
+   `indicators/indicators.py:105–110`, inside `clean_series`, which EMA, RSI, ADX,
+   SuperTrend and ATR all pass through. Nothing records the replacement — unlike volume
+   spikes (`:746`), which are kept and flagged. At the decision bar the replaced value
+   becomes a reported indicator *failure*. The mean and standard deviation span the
+   whole frame, so a backtest that computes indicators once over its history would leak
+   future bars into past decisions. Reachability on live data: not measured.
+   **Ruled 27 September: the replacement is removed, the inf step kept** — DECISIONS,
+   "Ruling, 27 September 2026 — indicator values are no longer replaced beyond 5 sigma
+   (finding 7)". **Code landed at `57f0521`**; tests in
+   `tests/test_no_outlier_replacement.py`. Done.
+16. **The decision is made on the candle still forming.** Found from the record, then
+    confirmed in the code: Viktor's live runs at 05:28 and 05:51 (21 September) carry
+    the same last candle, `2026-09-21 00:00` UTC, with a different input hash and price.
+    `data/data_fetcher.py` requests MEXC klines, reads and discards `close_time`, and
+    keeps every row, the live one included. So on a live run the close, the volume and
+    every indicator at the decision bar come from a partial candle, and the panel can
+    change within the same candle. A backtest on closed candles would test a different
+    engine from the one run live. Which candle counts is a rule, not a defect to patch.
+    The staleness check measures from the candle's open time, so a forming candle is
+    never stale — confirmed again by the deferred read, and untouched by 25.
+    **Ruled 26 September (tenth session): decisions are made on closed candles** —
+    DECISIONS, "Ruling, 26 September 2026 — decisions are made on closed candles
+    (finding 16)". Re-read on 26 September: `fetch_ohlc` names `close_time` and drops it
+    (`data/data_fetcher.py:346–358`); three series are fetched (`core/engine_core.py:422`,
+    `:472`, `:755`); `current_price` is the last row's close (`:1005`). **Code landed
+    at `add8540`**:
+    `fetch_ohlc` drops the forming candle before validation and records it; the
+    staleness check measures from the decision candle's close with a 60-second grace;
+    `provenance.decision_candles` records each series; the panel prints DECISION CLOSE
+    and a LIVE PRICE line. Done.
+18. **The bias state machine gates no trade since F.** Viktor dropped the CONFIRMED
+    requirement so the signal follows `raw_bias`, as `decision_model` does.
+    `detailed_bias` still feeds `exit_model`'s "bias state changed" flag and the
+    persisted state; nothing that decides reads it. Recorded, nothing removed. Whether
+    its persistence requirement should gate anything is Viktor's call.
+    **Corrected 27 September, from the code:** there was no persistence requirement.
+    `BiasStateMachine.transition()` never read its previous state, and an instance
+    lived one run; CONFIRMED only ever meant |`bias_score`| > 30, and the ladder already
+    needs ≥ 30 to act. On Viktor's log all 42 recorded AERO labels are what the current
+    score gives. **Ruled 27 September: the same labels from a function with no state;
+    done at `d76ddfd`** (DECISIONS, "Ruling, 27 September
+    2026 — the bias label is a function of the score (finding 18)"). `bias_label` in
+    `models/bias_engine.py`; tests in `tests/test_bias_label.py`. Done.
+
+**Claude's, done**
+
+17. **Macro still counts twice in the CONSERVATIVE branches.** `decision_model`'s
+    CONSERVATIVE LONG requires `macro_bias == "BULLISH"`, CONSERVATIVE SHORT
+    `"BEARISH"` — a hard requirement on evidence already weighted into `bias_score`,
+    the double count Viktor removed from the signal at F. Left out of F so that each
+    change to which trades are taken lands in its own commit. → G.
+    **Done at `7d0024e`** (DECISIONS, "Work order G,
+    27 September 2026 — macro no longer decides the CONSERVATIVE tier (finding 17)"):
+    the condition is gone, and `macro_bias` with it from the decision model; tests in
+    `tests/test_macro_counts_once.py`. The three other places macro is read are
+    unchanged and wait for after the audit.
+
+**Recorded, not changed:** a timeframe the table does not list still skips the spacing
+and staleness checks without saying so (`_interval_minutes` returns None). Making it
+loud would reject a monthly series outright; nothing in the engine passes one, so it
+stays as documented in the module.
+
+**Claude's claims, open to the independent auditor** — claims with their evidence
+named, not findings: the Constitution does not let the builder certify its own
+compliance.
+
+14. Every engine module is reachable from `main.py` except `core/decision_contract.py`
+    (test-side by design) and `utils/decision_log_backup.py` (a standalone tool with its
+    own `__main__`). No orphaned module.
+15. `_refuse_incoherent_plan` cannot fire today (see 8) — correctly so: it is a tripwire
+    against a future change, which is what its docstring says it is.
+
+### Evidence for findings 4 and 6 — the stop-distance count
+
+**Both findings are done** (4 at `b0efe23`, 6 at `76c8cde`), so
+this section is now a pointer. The count of 26 September (37 records: 33 NO-TRADE (RISK
+TOO HIGH), 29 of them on the distance limit; the ladder replay) is in HISTORY, in this
+file's version at `b0efe23`, "Evidence for findings 4 and 6". The ATR-only recount of
+27 September that finding 6 was ruled on, with its correction, is in DECISIONS, "Ruling,
+27 September 2026 — the stop comes from ATR alone (finding 6)". **Two things from it
+still stand:** G cannot change a refusal made by the risk gate (the verdict returns at
+`models/decision_model.py:551–553` at `7d0024e`, before the
+ladder); and passing the risk check is not
+a trade — the ladder and the confirmation gate still decide. **What to watch for now:**
+the decision log will show how often runs refused only on the HVN stop become trades
+under ATR alone. The two newest records (27 September, 12:31 and 13:08 UTC, on finding
+5's and finding 18's code) are LONG at HIGH VOLATILITY RISK — the first trades the log
+holds since the SHORT of 16 September. The one before them (04:04 UTC) was refused as
+EXTREME RISK, which is refused whatever the stop. Read from the log staged on
+27 September (43 records); two runs are not a rate. **5 October:** a third LONG
+followed at 14:22 UTC the same day, on G's code. Point 1 of the triage, landed at
+`c2b07fb`, changed the stop again — ATR × 1.2 × the volatility factor — and under it the
+three LONGs' stop would have been 6.35%, not 7.15%, and all three still LONG (the replay
+through the decision model, in `c2b07fb`'s message). Its live run, record 48, was LONG
+as well (ADX 27.6).
+
+### Found after 22 September — for after the next audit
+
+The 22 September ruling closed the list above. A finding made from now on is recorded
+here, with its evidence, and waits until after the independent audit; it does not move
+the audit. **Ruled 29 September:** the auditor sees this list only in Part 7, after it
+has saved Parts 1–6, and the list is the test of the auditor (DECISIONS, "what the
+auditor sees, and no planted bugs"). Before the send, each item is checked against the
+code comments, docstrings and test names that ship, by the rule in "six questions
+before the send", point 4 (Open items). **Classified 29 September** (DECISIONS,
+"Ruling, 29 September 2026 — the test bugs: four usable, and four is enough"): usable —
+the risk gate's order, `lineage.risk_inputs`, the entry score under a NEUTRAL bias and
+the weak-validation WAIT; every other entry is a new trading rule, not a defect, or
+given away by a shipped line that entry names. **The Part 7 document (30 September)
+classifies every entry**, including the two added on 30 September; neither is scored.
+**Triaged 5 October** (DECISIONS, "Ruling, 5 October 2026 — round 8 triaged …"): round
+8's findings and Claude's review of the same night were placed. The fixes the triage
+calls for are made now (Work order), not here; what stays here, or joins, is marked
+below. Whether the entries that change no trade join the label and record batch is
+Viktor's to answer.
+
+- **The risk gate runs before the bias checks.** The risk verdict returns at
+  `models/decision_model.py:551–553`, before the weak-validation and lean checks at
+  `:656–668` (at `7d0024e`; written as `:500–502` and `:605–617`
+  on 26 September, correct until `d76ddfd` moved them six lines, then G further), so a
+  run the ladder would have answered WAIT is reported as NO-TRADE (RISK
+  TOO HIGH). In the log counted on 26 September this was 2 of the 33 refused runs. It
+  changes what the panel says, not which trades are taken. Found by Claude reading the
+  code, 26 September; **ruled for after the audit** (Viktor, 26 September). The Part 7
+  document's S1, not found by round 8.
+- **Checking the candles for bad data.** On price, `data/validation.py` rejects NaN,
+  inf, non-positive values and impossible candles, nothing else, so an extreme but
+  internally consistent print reaches the indicators; since finding 7 nothing erases
+  it downstream either. **Ruled for after the audit** (Viktor, 27 September, point 3 of
+  the finding 7 ruling).
+- **Entering at the EMA band (option B of finding 4).** The plan becomes a limit order
+  at the band's edge, with stop, targets and R:R measured from there, and an expiry if
+  price does not reach it. It changes which trades are taken. Claude noted, unmeasured,
+  that an entry at the band on a pullback sits nearer the stop and might meet fewer
+  distance refusals — the gate behind most NO-TRADEs; the decision log can measure it.
+  **Ruled for after the audit** (Viktor, 27 September, point 4 of the finding 4 ruling).
+- **Nothing gates on HVN proximity.** Work order F removed HVN proximity from the
+  confirmation gate because the HVN stop acted on that area; finding 6 removed the HVN
+  stop. The HVN still weighs — the entry score's structure points and trend_health's
+  reversal reading — but vetoes nothing, so a long can be authorised directly under a
+  high-volume node. **Ruled for after the audit** (Viktor, 27 September, point 3 of the
+  finding 6 ruling).
+- **Under a NEUTRAL bias the entry score is measured for a side nothing chose.**
+  `core/engine_core.py` scores entry quality for `eq_trade_direction`, which under a
+  NEUTRAL bias is the sign of `bias_score` (the line `eq_trade_direction = "LONG" if
+  bias_score >= 0 else "SHORT"`) — the same rule finding 5 found in the plan. The panel
+  still prints ENTRY QUALITY and TRADE QUALITY for it; finding 5's ruling covers the
+  stop, targets and R:R only. It decides nothing: a NEUTRAL bias never reaches a side.
+  Found by Claude reading a rendered NEUTRAL panel while building finding 5,
+  27 September; on this list by the 22 September ruling, not separately ruled. The
+  Part 7 document's S3, not found by round 8.
+- **A side that must hold for N closed candles before a trade.** What finding 18's
+  text assumed the state machine did; it never did. A new trading rule, so not built
+  now. If built: compute it from the closed candles in the run's own input, which the
+  input hash pins, not from a state file. **Ruled for after the audit** (Viktor,
+  27 September, point 3 of the finding 18 ruling).
+- **The word CONFIRMED on the panel.** It reads as a lean that has held for a while; it
+  means |`bias_score`| > 30. Renaming it moves a panel label and the golden snapshot.
+  **Ruled for after the audit** (Viktor, 27 September, point 4 of the finding 18
+  ruling). Recorded with it, not ruled: at exactly 30.0 the ladder can take a side
+  (`MIN_ACTION_BIAS`, ≥ 30) while the label reads BULLISH or BEARISH (> 30 needed) —
+  noted beside `MIN_ACTION_BIAS` in `models/decision_model.py`.
+- **The weak-validation WAIT decides nothing.** The ladder returns WAIT when validation
+  is WEAK and trend health is under 40 (`models/decision_model.py:656–660` at
+  `7d0024e`), but trend health under 40 already fails both the
+  CONSERVATIVE line (50) and the upper tier (75), so the answer would be WAIT anyway;
+  the branch only chooses which sentence is printed. Macro reaches it through the
+  validation score, so it is one of the three places macro is still read, and it
+  changes no trade. Found by Claude reading the code while scoping G, 27 September; on
+  this list by the 22 September ruling, not separately ruled. The Part 7 document's
+  S4; round 8 found it (F10).
+- **A floor on T1: at least 3% after fees.** Point 2 of "Ruling, 28 September 2026 —
+  what "finished" means, and how the engine is judged": the engine should issue no LONG
+  whose T1 nets under 3% after fees. Today T1 equals the stop distance, anywhere from
+  0.2% to 8% (`models/risk_model.py`, read at `7d0024e`), so this is a filter on the
+  stop distance and a new trading rule. How many trades it would remove has not been
+  measured; only records since `76c8cde` carry ATR-only stops. **Ruled for after the
+  audit** (Viktor, 28 September). **5 October:** point 1 of the triage, landed at
+  `c2b07fb`, narrows T1 with the stop — on the live runs the median from 6.65% to 5.25%.
+- **A range-trading mode.** Buying at support and selling at resistance, on levels,
+  with stops at the levels — Viktor's own style, and a second strategy with its own log
+  and its own verdict (point 9 of the same ruling, which describes its first test case,
+  his BLESSUSDT chart). **Ruled for after the audit** (Viktor, 28 September, by
+  agreeing to Claude's suggestion).
+- **Confidence is read as a win rate (point 1 of the 15 September PDF).**
+  `models/decision_model.py:910` (at `ec4e5fd`), in `_compute_ev`, sets
+  `win_rate = confidence / 100` (clipped to 0–1), and the EV figure in R that the
+  explanation prints is computed from it. The confidence score is not a measured win
+  rate. Its docstring and a 20 September comment already say the figure is a
+  restatement of confidence and not a backtested number; it decides nothing. Scrapped
+  with the rest of the 20 September list, found still live on 29 September (read from
+  the code), and **moved back onto this list by the ruling of 29 September** on what
+  the auditor sees. Not usable as a test bug: its docstring names the problem (point 4
+  of "six questions before the send"). Point 4 of the PDF is the next entry; point 3,
+  the BTC adjustment, came off this list when N5 landed, at `6469a67`; point 5 is not live (DECISIONS, "the test bugs", item 7).
+- **Is ×0.90 enough against the macro trend? (point 4 of the 15 September PDF).**
+  `models/entry_model.py:384–385` multiplies the entry score by
+  `CONFLUENCE_PENALTY_MULT` (0.90) when macro opposes the trade. Since work order G it
+  is one of three things left that act against a trade opposing macro, with the
+  validation score's −20 and macro's 10% in `bias_score`, which G read, unconfirmed
+  with Viktor, as the 22 September ruling's "three penalties" item. Traced on
+  29 September and **moved onto this list by the same ruling**. Not a test bug: it
+  asks how large a weight should be, and `models/decision_model.py:692` names it
+  anyway. **5 October:** round 8's F4, third path, is the same question — macro moving
+  a setup between LONG and CONSERVATIVE LONG — and stays here (point 9 of the
+  triage).
+- **"ROUND 6" in seven test comments means round 5's requested-run 6.** Six comments
+  read `ROUND 6 MUTANT ESCAPE (GPT-6 Astra), 12 September 2026` (`run_tests.py:150`,
+  `tests/test_frame_ownership.py:219` and `:300`, `tests/test_smoke.py:130`,
+  `tests/test_timeframe_disagreement.py:353`, `tests/test_trend_direction_source.py:223`)
+  and one docstring says "round 6 (GPT-6 Astra)"
+  (`tests/test_run_tests_filter_matching.py:2`). GPT-6 Astra graded round 5; these came
+  from its requested-run 6, a day before round 6 (Muse Spark 1.3) was sent. The project's
+  own records used the same name ("the five round-6 mutant-escape findings"). Found by
+  Claude on 30 September while counting the parties rev 8 names; not changed, so that
+  the code the auditor reads is not edited for it. Not usable as a test bug: the shipped
+  line is itself the defect.
+- **A comparison between two vocabularies in `calculate_entry_quality`.**
+  `models/entry_model.py:384` (at `01f2892`) tests `macro_bias != trade_direction`.
+  `macro_bias` is BULLISH, BEARISH or NEUTRAL and `trade_direction` is LONG or SHORT, so
+  the test is always true. The two branches above it catch agreement, and
+  `core/engine_core.py` passes only BULLISH, BEARISH or NEUTRAL, so the result is right
+  for every value any caller passes; any other macro value would be penalised as
+  opposing. Found by Claude on 30 September while checking point 4 of the 15 September
+  PDF for the Part 7 document; on this list by the 22 September ruling, not separately
+  ruled. Not scored: it changes nothing observable. **5 October:** round 8's Part 7
+  reply would class it a defect (its §3) and corrects one clause: a macro value equal
+  to the trade direction ("LONG" for a long) leaves the multiplier at 1.0, not 0.90
+  (its §2(3)).
+- **The trend score barely varies (the review's B1).**
+  `indicators/trend_health.py:122–123` scores the slope as `tanh(|slope| × 100) × 45`,
+  which is already at 0.96 of its range at 0.02% per bar. Over 494 real 4h bars the
+  review counted trend health at 50 or more on 99.4% and at 75 or more on 82%, and every
+  live run printed 82.1 to 100. So the tiers' trend requirements gate almost nothing
+  beyond ADX. **Ruled 5 October** (point 5 of the triage): after the audit, decided
+  before paper trading starts; Claude may first count how often candidate scales would
+  fire.
+- **Spike detection watches 20 bars while the volume profile reads 450 (round 8's F7).**
+  `indicators/indicators.py:767–771`. Widening the window degrades more runs, so it
+  changes trades. Viktor's, not ruled (the triage of 5 October).
+- **The divergence veto (the review's B4).** Momentum divergence compares the close and
+  RSI now with the same four bars earlier, not highs with highs
+  (`indicators/trend_health.py`, section 5), and it vetoes the side it points against;
+  the review counted it on 11.9% of real bars. Its labels landed at `22a9a35`: the
+  sentences say "price/RSI disagreement over four candles"
+  (DECISIONS, "Ruling, 14 October 2026 — B4's labels: their shape"). Whether it should
+  veto is a trading rule — Viktor's, not ruled.
+- **The keys `momentum_divergence` and `divergence_direction` keep their names** (B4's
+  labels, 14 October). Renaming them changes the decision contract, the golden snapshot
+  and more than 15 test files for a word, so the sentences that print them were
+  corrected and the rename waits for after the audit, as `REGIME_HYSTERESIS_THRESHOLD`'s
+  does (DECISIONS, "Ruling, 14 October 2026 — B4's labels: their shape", point 3).
+- **`models/bias_engine.py` scores a volume label it does not know as neutral** (found
+  filing B4's labels, 14 October). `_VOLUME_SENTIMENT_SCORES.get(…, 0.0)`: UNKNOWN
+  VOLUME is not one of its keys, so a failed volume read counts towards the bias exactly
+  as NEUTRAL VOLUME does. Whether a failed read should count is a weighting question —
+  Viktor's. On this list by the 22 September ruling, not separately ruled.
+- **Two words for a regime that was not read** (found filing B7, 15 October).
+  `validate_risk_parameters` returns "UNKNOWN" where no regime can be computed (a price
+  or stop that is not finite or not positive, and its except branch);
+  `classify_risk_regime` returns "UNKNOWN RISK" for a volatility state it does not know,
+  and the router, `decision_model` and the panel default an absent regime to "UNKNOWN
+  RISK". Each branch that says "UNKNOWN" already fails `risk_valid`, so neither word
+  decides anything. One word for one meaning is F8's class; B7's ruling did not reach
+  it, so it is not changed. Viktor's whether it joins the batch or waits; not ruled.
+- **The BTC section's `degraded_inputs` holds only what BTC's trend health reports**
+  (found filing B9, 15 October). The comment above it in `core/engine_core.py`'s BTC
+  block says a BTC indicator failure "is recorded below, inside btc_context itself";
+  the code records `btc_trend`'s own `degraded_inputs`, so a failed BTC indicator that
+  trend health does not read reaches only the log line ("BTC context indicator
+  failure"). Since B9 a failed BTC SuperTrend makes the section unavailable, so it is
+  not one of them. Reference only; changes no trade. On this list by the 22 September
+  ruling, not separately ruled.
+- **Thresholds fixed for 4h (the review's B5).** The volatility bands (ATR/price over 1%,
+  2% and 4%), the stop limits (0.2%, 8% and 15%), the structure threshold (0.15%) and the
+  VWMA and HVN bands are percentages of price whatever the timeframe. On AERO 1d, ATR/price
+  was above 4% on every one of 90 daily bars (the review's count), so every bar would be
+  EXTREME VOLATILITY and every trade refused. Viktor's, before any timeframe but 4h is
+  used.
+- **The Constitution, read with hostile intent (the review's C1–C7).** It checks how the
+  engine reports, not whether it works (C1); Item 7 is satisfied by a label (C2); three of
+  the four test bugs break no rule as written (C3); the severity rubric against round 8's
+  severities (C4); the builder writes what the auditor checks against (C5); stale or
+  self-contradicting text (C6). C7 lists candidate amendments, not proposals. Viktor's; an
+  amendment to Tier 1 or Tier 2 needs a reviewer who is not Claude.
+- **Two points of round 8's Part 7 reply.** §1(3): `models/entry_model.py`'s and
+  `indicators/trend_health.py`'s default responses return finite zeros, which the panel
+  prints as `0.00/100` where "not computed" is available. §1(5): a failed run returns
+  before `decision_log.write` (`models/signal_router.py:162–169`), so a day the engine
+  could not run leaves no line in the log, and twelve months of paper trading will need
+  those days (the review's C6, item 4). Both confirmed from the code by the review.
+  Whether they join the batch is Viktor's to answer.
+- **A longer daily window for macro** (the Freqtrade comparison, 5 October). The engine
+  decides macro on 99 closed daily candles. On 99-candle windows the comparison found
+  EMA-50 off by a median of 0.2% against a long history, and the close-above-EMA-50 side —
+  which is `macro_bias` — flipped on 5 of 294 AERO windows and 7 of 294 BTC windows, with
+  4h candles standing in for daily ones. About 200 daily candles would settle it. It
+  changes macro readings, so it is Viktor's.
+- **Goal B's precondition 2 would let the day's candle leak in** — an observation on the
+  ratified text, made on 5 October from two documents, not from code: nothing of the
+  harness exists. The precondition truncates every series by candle open time strictly
+  before `t`. A daily candle opened at 00:00 is before a decision at 12:00 the same day,
+  so it is kept, and a pinned file treats every row as closed (DECISIONS, finding 16,
+  "Pinned data") — so the engine would read the whole day's candle, the leak the
+  precondition's own text warns against. Keeping a candle only once its open time plus one
+  bar is at or before `t` gives the same rows on 4h and keeps the forming daily candle
+  out; Freqtrade does it by shifting a higher-timeframe candle one interval forward (the
+  comparison's item 4). Changing a ratified specification is Viktor's.
+- **`calculate_dynamic_bias` takes `trend_exhaustion` and never reads it**
+  (`models/bias_engine.py:184` and `:264`, read at `c2b07fb`): the flag is coerced to a
+  bool and then unused, so the bias score does not see it, and a caller would think it
+  does. Found by Claude scoping fix 2 on the night of 5 to 6 October. It changes no
+  trade; on this list by the 22 September ruling, not separately ruled.
+- **Two counts in `models/risk_model.py`'s docstrings are wrong** (read at `1b25f36`,
+  from the parse tree): `read_risk_verdict` says `validate_risk_parameters` has six
+  return paths, and it has seven; `validate_risk_parameters` says "the three
+  early-return branches", and four return before the regime is classified. Both were
+  wrong before fix 3, which leaves them as they were. Found by Claude scoping fix 3 on
+  6 October. Labels only; on this list by the 22 September ruling, not separately
+  ruled — they fit the label and record batch if Viktor adds them to it.
+- **`calculate_stop_targets` still defaults `volatility_state` to `"NORMAL"`**, a state
+  `calculate_dynamic_regime` never produces, and gives every state it does not name the
+  factor 1.0 — so an unknown volatility gets the medium stop. Unreachable on the engine's
+  path: the engine's UNKNOWN means the decision bar's ATR or close is not a finite
+  positive number, and the same function raises on that first. Fix 3 removed the same
+  default from `validate_risk_parameters`, where it fed the regime; the stop was not
+  fix 3's to change. Found by Claude on 6 October. It changes no trade.
+- **STATUS reads ACTIVE ENTRY ZONE up to half a band-width outside the band**
+  (`models/entry_model.py`, `dist_to_mid <= zone_width`, read at `ae37795`). The
+  test is the close's distance from the band's midpoint against the band's full width,
+  so ACTIVE covers the band and half its width again above and below it. ACTIVE
+  scores the zone's full 30 points and is what `decision_model` reads as
+  `entry_active`, so it can change which tier a setup reaches. Found in Claude's review
+  of 5 October, in F5's row ("Also not in round 8"); not ruled in the triage, which
+  made F5 a label fix. Seen again building F5 on 10 October. On this list by the
+  22 September ruling, not separately ruled.
+- **Whether a gap at the decision bar is refused depends on whether a later bar
+  exists** (`clean_series`'s forward-fill branch, read at `9d00d99`; seen building F6,
+  11 October). An indicator with no value at the last row stays NaN and the run is
+  refused (finding 3's trailing edge); the same gap at an earlier row is filled from the
+  row before it. `[1, 2, NaN]` cleans to `[1, 2, NaN]`, `[1, 2, NaN, 4]` to
+  `[1, 2, 2, 4]` (run in the sandbox). No value is taken from a later row — F6's test
+  holds for it — but a backtest that computes indicators once over its whole history
+  would decide on a carried-forward value at a bar where the live engine, deciding at
+  that bar, would have reported a failure. Goal B's harness is where it matters; nothing
+  on the engine's path today. On this list by the 22 September ruling, not separately
+  ruled.
+- **`REGIME_HYSTERESIS_THRESHOLD` is a dead band, not hysteresis** (`structure/
+  structure.py`; F9, 12 October). Renaming it moves `run_hash` and the golden snapshot,
+  so the name was kept and its comment corrected; the rename waits for after the audit,
+  with CONFIRMED's (DECISIONS, "Ruling, 12 October 2026 — F9's shape and scope").
+- **Found by the fallback sweep, not changed by it** (13 October; line numbers at
+  `ef65f46`; DECISIONS, "Ruling, 13 October 2026 — the fallback sweep …", last
+  section). `_build_decision_object`'s own parameter coercions: `degradation`,
+  `provenance` and `lineage_record` read as `[]` or `{}` when not passed, and an
+  `exit_watch` that is not a list recorded as `[]` — they serve direct callers, since
+  on the engine's path every value now arrives by subscript. `core/engine_core.py`'s
+  three other `degraded_inputs` defaults of `[]` (`:711`, `:770`, `:901`), "nothing
+  degraded" when absent — not checked for reachability. The supertrend direction of
+  0.0 when the `ST_Direction` column is missing (`:777`, `:905`) — reachable on an
+  indicator failure, so a degraded value feeding the bias rather than an unreachable
+  fallback; whether its absence is recorded as a degradation was not checked. On
+  this list by the 22 September ruling, not separately ruled. **Since B9 (15 October):**
+  Bitcoin's (`:905`) was B9's, which the triage of 5 October had put in the batch, so
+  filing it here was Claude's error (DECISIONS, "Ruling, 15 October 2026 — B9:
+  Bitcoin's SuperTrend is read directly"); it is read directly since `64ad625`. The
+  asset's own (`:777`; `:797` at `d77a8c4`) stays here by that
+  ruling, now checked: a failed SuperTrend is named in the run's `degradation`, which
+  authorizes no trade and caps confidence at 50, and the 0.0 makes the factor score
+  zero, as trend health scores its own missing inputs. Two residues, neither changing a
+  trade: `lineage.bias_components` records the factor's input as 0.0 where nothing was
+  measured, and the 0.0 is saved as the next run's prior state, so that run cannot flag
+  a SuperTrend flip either, and does not say so (both run in the sandbox on the pinned
+  set).
+- **The simulator writes an order on every run, a WAIT or a NO-TRADE included** (found
+  filing B10, 15 October; `live_trading.py`, `run_once`, at `64ad625`). Every run that
+  does not end in an error builds and writes a `sim_trade_<time>.json`, whatever the
+  action, with that run's stop and targets — on a run with no trade, a plan the engine
+  did not suggest. Its `decision` field says which, so a reader can tell, and nothing
+  reads the files back (Open items, "what B6 left shared"); none has been written on
+  Viktor's machine (no `logs\LiveSim` there, 15 October). It matters once paper trading
+  reads these files. Changes no trade. On this list by the 22 September ruling, not
+  separately ruled.
+- **`run_tests.py` counts a test that takes a fixture as an error, as it counts a real
+  one** (round 8's Part 4, its structural point; ruled for this list on 15 October,
+  DECISIONS, "Ruling, 15 October 2026 — Part 4's three test shapes", point 5). A real
+  error that arrives in the same change as a fixture-taking test is removed leaves the
+  count where it was. Counting the two apart would change the runner's output and move
+  `code_hash`, since `run_tests.py` is one of its files. Changes no trade.
+- **The non-finite panel test cannot reach LIVE PRICE** (found landing Part 4's three
+  test shapes, 15 October). It sweeps the floats the golden decision holds, and the
+  golden run is on pinned data, whose live price is null: with that line's finiteness
+  guard removed for a present value, the test stays green (Linux sandbox). The line is
+  guarded in the code. Changes no trade. On this list by the 22 September ruling.
+- **Part 4's other named tests are not checked against its description** (round 8,
+  run 2, Part 4: the absence scans of its shape 1, and its shape 4,
+  `tests/test_panel_prints_only_what_was_computed.py::test_absent_scores_print_as_absent_not_as_zero`).
+  The three shapes the triage put in the batch, and the second shape's sibling, landed
+  on 15 October; the rest were on no list by name. Changes no trade. On this list by
+  the 22 September ruling.
+- **Fable 5.1 works on this list after the audit** (DECISIONS, "Ruling, 29 September
+  2026 — Fable 5.1 works on the list for after the audit, not before it"). Not a
+  finding; recorded here so the list says who works on it after the audit.
+
+### Work order — Claude's, under Viktor's delegation
+
+Each code commit is its own commit and updates this file for its own landing.
+
+- **A–F landed:** A `ebb4e5c`, B `a530006`, C `e3f3d51` (D folded in), E `afd8460`,
+  F `3f263c2`. Each one's Windows confirmation, negative controls and wrong predictions
+  are recorded in HISTORY's entry for this file at `aafded0`, and in the Notes.
+- **The six commits for findings 19–28 and the direction-box tests** — `9c4917c`,
+  `05a12c7`, `2c7a7d1`, `4e2b1c8`, `486f1a5`, `3bfa6b7`. Done.
+- **G — macro in the CONSERVATIVE branches (17). Done at `7d0024e`.** Scoped in full before any diff; the live log replayed through the router
+  before and after (2 of 43 runs change, both 15 September, both then refused by the
+  gate because the records predate F); the live run before the commit. The work order
+  list is finished.
+- **The fixes of 5 October**, in Claude's order (DECISIONS, "Ruling, 5 October 2026 —
+  round 8 triaged …", "The order of the work"). Each is its own commit, bringing this
+  file and `docs/audit_change_list.md` current in it:
+  1. **The stop — done at `c2b07fb`.** ATR × 1.2 × the volatility factor (point 1);
+     `trend_health` no longer a parameter; the comment beside `lineage.risk_inputs`
+     true, and its contract's docstring corrected (F1). The live run and its record
+     came before the commit. It moved `code_hash`, `run_hash` and the golden snapshot,
+     as predicted.
+  2. **No trend, no trade — done at `1b25f36`.** ADX under 20
+     blocks both sides in the confirmation gate, with the reason printed, replacing the
+     exhaustion flag (point 4); `MIN_TREND_ADX` (20.0) is fingerprinted. An ADX with no
+     valid reading — `None`, NaN, an infinity, not a number, or outside 0–100 — blocks
+     both sides too, failing safe: the patch's proposal, which the ruling left to it,
+     Viktor's to reverse. On a degraded run whose ladder chose a side, that makes the
+     label NO-TRADE (SIGNAL UNCONFIRMED), where it was NO-TRADE (DEGRADED INPUT). The
+     flag itself still feeds the reversal reading, the trend-regime label and Exit
+     Watch. The live run and its record came before the commit. It moved `code_hash`,
+     `run_hash` and the golden snapshot, as predicted.
+  3. **The regime from volatility alone — done at `fcb7823`.**
+     `classify_risk_regime` reads the volatility state and the stop distance, nothing
+     else (point 3; round 8's F2, the review's B8): EXTREME VOLATILITY or a stop over 8%
+     is EXTREME RISK, HIGH VOLATILITY is HIGH VOLATILITY RISK, MEDIUM VOLATILITY is
+     NORMAL RISK, and LOW VOLATILITY is LOW RISK — the mapping the ruling left to the
+     patch, as the ruling named Claude's reading. Any other state is UNKNOWN RISK, where
+     it fell through to NORMAL RISK: the patch's proposal, Viktor's to reverse. UNKNOWN
+     RISK keeps AGGRESSIVE out, decides nothing else, and is unreachable on the engine's
+     path today. `REGIME_CHOP_ADX` and `REGIME_STRONG_ADX` are gone;
+     `validate_risk_parameters` takes no `adx`, no `**kwargs` and no default state, so a
+     stale or misspelt keyword is refused by Python; `lineage.risk_inputs` no longer
+     records ADX. Every risk verdict in the live log replays the same on both codes. The
+     live run and its record came before the commit. It moved `code_hash`, `run_hash`
+     and the golden snapshot, as predicted. Labels only: since fix 2 no run under ADX 20
+     trades.
+  4. **The label and record batch** (points 6, 7 and 8), one small patch at a time:
+     test runs in a log, archive and state of their own (B6) — **done at `9e507b1`**;
+     the BTC-adjusted confidence line (N5) — **done at `6469a67`**; a frame with no
+     readable time axis (F3) — **done at `ae37795`**; the band distance (F5) — **done
+     at `9d00d99`**; `clean_series`'s look-ahead method (F6) — **done at `27d3ed5`**;
+     one name for one meaning (F8) — **done at `9051ffd`**; four claims the code did
+     not support (F9) — **done at `e5ac20a`**; the 12 October additions, in the order
+     ruled on 13 October: patch 1, the fallback sweep — **done at `797bdc9`** — and
+     patch 2, the two repeated readings (the REGIME line and the STRUCTURE line's Vol
+     field go) — **done at `69c92d6`**; B4's labels — **done at `22a9a35`**; B7 —
+     **done at `d77a8c4`**; B9 — **done at `64ad625`**, all but its Bitcoin SuperTrend
+     already at `797bdc9`; B10 — **done at `9ea1cf3`**; and the three test shapes of
+     round 8's Part 4, as one patch (ruled 15 October) — **done at the commit that
+     writes this line**, with the second shape's sibling, which Part 4 named in the same
+     sentence. **The batch is done.**
+     **B6:** the run's source is read once per run (`_is_live_run`: live only when no
+     pinned source is set), and a live run's state, archive and log stay exactly where
+     they were, in `config.LOG_DIR`; any other run's go to its `pinned/` subdirectory
+     (`decision_log.records_dir`). The decision log is chosen from the record itself:
+     only a record whose provenance says live in both places — `fetch.pinned` False and
+     `source` the endpoint — goes in the live log, so a record that does not say, a
+     hand-built one included, is kept out (failing safe), and a directory passed to
+     `write()` does not override it. A `PHASE7_PINNED_DATA` that names no directory is
+     not a live run; the run fails at its fetch as before and writes nothing. Each
+     source prunes its own archives. The patch's proposals, Viktor's to reverse. The
+     audit-package builder now redacts its temp directory in both spellings, which the
+     forward-slash pinned path needs on Windows. Not changed, and not named by the
+     ruling: the chart, `phase7_engine.log` and `logs/LiveSim/` (Open items). The ten
+     test records stay in the live log, as ruled. The live run and its record came
+     before the commit. It moved `code_hash` and the golden snapshot's three paths, as
+     predicted; `run_hash` did not move.
+     **N5:** the panel's BTC-ADJUSTED CONFIDENCE line goes, and with it, as the patch
+     proposes — the reading the ruling named as Claude's — everything that existed only
+     for it: `DecisionModel._compute_btc_adjusted` and its constants
+     `BTC_ADJUSTMENT_CAP` and `BTC_STRESS_PENALTY`; `evaluate()`'s `btc_context` and
+     `symbol` parameters, which only it read (a caller still passing either gets a
+     TypeError; the `*` before `degradation` stays); the BTC block's
+     `btc_adjusted_confidence` and `reasons`, in the router's merge and the contract;
+     the panel's validation-status line under the number and the adjustment's sentence;
+     and the BTC bias `score` engine_core put in the block for it alone. The BTC section
+     keeps BTC BIAS, BTC REGIME, CORRELATION, BTC SENSITIVITY and BROAD MARKET STRESS.
+     The block is now available whenever engine_core measured BTC; it also needed the
+     adjustment to have been computed, and an adjustment that raised made the whole
+     section unavailable (no such failure in the engine log's lines from 6 September to
+     6 October). The patch's proposals, Viktor's to reverse. It changes no decision:
+     the number was computed after every decision and nothing that decides read it, and
+     the 38 run archives on Viktor's disk, replayed through the code before and after,
+     differ only in the removed fields and what `run_hash` names. The live run and its
+     record came before the commit. It moved `code_hash`, `run_hash` and the golden
+     snapshot, as predicted.
+     **F3:** `validate_ohlcv` rejects a frame with neither a DatetimeIndex nor a
+     `timestamp` column ("no time axis"), where it returned None and skipped every check
+     on time: missing candles, duplicates, order, spacing, future-dated, forming and
+     stale data. As the patch proposes — Viktor's to reverse — two neighbours of the
+     same defect go with it: a `timestamp` column that cannot be read as epoch
+     milliseconds ("unreadable time axis"), also accepted until now, and a missing
+     timestamp (NaT), already rejected but named as "not in increasing order" at the
+     wrong index. `_load_pinned`'s own column check is left as it is: the validator
+     runs before it. **The auditor's reproduction was run, and its account of the
+     outcome was wrong.** It said an untimed copy of `AEROUSDT_4h.csv` gives a full
+     panel and a decision record whose decision candle is the row number 419. Run on
+     `6469a67` and on `e186423` (Linux, Python 3.12.3), the run passes validation and
+     the indicators, then crashes in `Phase7Engine._decision_candle` (`int +
+     Timedelta`): the pipeline's generic "Critical error", no record written. The gap
+     was real; the refusal was an accident one frame further on, with an error naming
+     neither the file nor the defect. Now the run stops at the fetch with the
+     validator's reason. Not changed: on the pinned path staleness is not checked at
+     all, by the ruling of 30 August (a file is historical, not stale), so F3's "data
+     five years stale analysed as current" describes that ruling, not this gap; and a
+     timeframe the bar-length table does not list still skips spacing and staleness
+     (finding 26, deliberate; the engine's 4h and 1d are listed). Changes no decision:
+     every frame on the engine's path has a time axis. The live run and its record
+     came before the commit. It moved `code_hash`; `run_hash` and the golden snapshot
+     did not move, as predicted.
+     **F5:** the BAND DISTANCE line reads "x% from the band's midpoint", where it read
+     "x% away from the band". `distance_from_zone` is the distance from the band's
+     midpoint as a percentage of the close; with the close inside the band the old line
+     printed a positive distance "away from the band" under STATUS : ACTIVE ENTRY ZONE
+     — 1.40% on the real run of 30 September (the review's reproduction; run again in
+     the sandbox on the same numbers). The repair is Claude's, as the review's Part D
+     lists it, and Viktor's to reverse: the label is changed, not the number. An edge
+     distance (zero inside the band) would change what the record's key means between
+     one record and the next, and nothing decides on the printed figure. The definition
+     is now written beside the number in `models/entry_model.py` and the field in
+     `core/decision_contract.py` (comments). Not changed, and not F5: STATUS reads
+     ACTIVE ENTRY ZONE whenever the close is within one band-width of the midpoint,
+     which reaches half a band-width outside the band on each side — a decision-path
+     question, on the list for after the audit (Found after 22 September). Changes no
+     decision. The live run and its record came before the commit. It moved
+     `code_hash`; `run_hash` and the golden snapshot did not move, as predicted.
+     **F6:** `clean_series` accepts two methods, `forward_fill` and `fill_value`; any
+     other name raises ValueError, and so does `fill_value` without a number. Removed:
+     `interpolate`, a linear interpolation that filled an interior gap from the next
+     valid row — a bar in its future (Item 2) — and carried the last value across the
+     trailing edge that the forward-fill branch refuses to fill (finding 3); and `drop`,
+     unused (Item 16), which returned a series shorter than the frame. No caller outside
+     `tests/` used either. Until now an unknown name, or `fill_value` without a number,
+     fell through every branch and returned the series with only inf turned to NaN. The
+     raises and the removal of `drop` are the patch's proposals, Viktor's to reverse;
+     `fill_value` stays, the substitution item 15 kept on purpose (its test in
+     `tests/test_no_lookahead.py`). **The auditor's claim that
+     `tests/test_no_lookahead.py` cannot see the branch was checked and is right:** it
+     calls only `forward_fill` and `fill_value`. Not changed: whether a gap at the last
+     row is refused depends on whether a later row exists — not a value from the future,
+     but a difference between a backtest and the live engine (Found after 22 September).
+     Changes no decision: every call on the engine's path is `forward_fill`, unchanged.
+     The live run and its record came before the commit. It moved `code_hash`;
+     `run_hash` and the golden snapshot did not move, as predicted.
+     **F8:** "VWMA" means one calculation. `_volume_sentiment_simple`
+     (`structure/structure.py`) called its two 5-candle volume-weighted means of the
+     close, and their difference, `vwma_recent`, `vwma_prev` and `vwma_slope`; the
+     engine's VWMA is `indicators/indicators.py`'s 20-candle rolling ratio, scored by
+     `entry_model` as "VWMA Distance". Renamed `vw_mean_recent`, `vw_mean_prev` and
+     `vw_mean_slope`, and the docstring says what the slope is and that it is not the
+     VWMA. Every value is the same: the parse tree, the names mapped back, equals the old
+     one, and on every window of the four fixture CSVs (1,434) the old and new function
+     return the same label. No name containing "vwma" was printed or recorded, so no
+     record, label or note changes. The panel printed `momentum_mode` twice — after the
+     slash on the TREND line and as the whole MOMENTUM line (item 11 had taken the
+     line's number off and kept the line for its label, which TREND already printed).
+     The MOMENTUM line is removed; TREND keeps both readings. Which line goes is the
+     patch's proposal, Viktor's to reverse. Not changed: the word after TREND's slash
+     carries no name of its own on the panel. Changes no decision. The live run and its
+     record came before the commit. It moved `code_hash`; `run_hash` and the golden
+     snapshot did not move, as predicted.
+     **F9:** four statements the code beside them did not support (Item 8), and the
+     labels of the same kind ruled in with them on 12 October. (1) `StructureEngine`
+     kept `_last_regime` "for regime persistence to reduce whipsaws" and persisted
+     nothing: `calculate_structure` builds a fresh engine per call, so the regime always
+     started from NEUTRAL STRUCTURE and the two hysteresis branches ran only for a reused
+     instance, which nothing builds. `_detect_regime` is now a plain function of the
+     frame — option C, as for finding 18 — and returns what the engine's path got
+     before: 20,436 frames, old against new, no difference.
+     `REGIME_HYSTERESIS_THRESHOLD` keeps its name, and its comment says it is a dead
+     band. A frame under 15 rows reads UNKNOWN STRUCTURE, where it read the stored
+     NEUTRAL STRUCTURE; still an ordinary return, not a degradation. (2)
+     `compute_trend_health`'s failure labels `momentum_mode`, `trend_regime` and
+     `trend_direction` were NEUTRAL; they are UNAVAILABLE. Reachable when both EMA slope
+     columns are missing, which an indicator failure causes. The entry score is
+     unchanged: the multiplier is 1.0 for every label but BULLISH and BEARISH, tested.
+     (3) `volume_agreement` reported UNKNOWN VOLUME — a failed read — as "Volume
+     sentiment is neutral."; it now says the reading could not be taken, with the same
+     score, 0.0. (4) The ADX failure note claimed "25 of its 100 points" and "bias cannot
+     test trend strength": the component is worth up to 40 (measured by the test, not
+     written into it), bias has read no ADX of its own since 19 September, and the note
+     left out that no trade is taken without an ADX reading (fix 2). Round 5 reported
+     the "25" on 12 September, and it was not fixed then. The panel's TREND line fell
+     back to NEUTRAL / HEALTHY for a missing label; it cannot fire on the engine's path
+     (the router writes both keys on every decision it builds), and it now falls back to
+     UNKNOWN, the router's own word. Two comments in `models/bias_engine.py` that
+     described the regime as "with hysteresis" now say dead band. The wording of every
+     new label and note is the patch's proposal, Viktor's to reverse. Changes no
+     decision. The live run and its record came before the commit. It moved
+     `code_hash`; `run_hash` and the golden snapshot did not move, as predicted.
+     **The fallback sweep** (patch 1 of the 12 October additions): every default in
+     `core/panel_render.py` and in the router's decision-building code is listed in
+     `tests/test_an_absent_value_is_not_a_reading.py` with the reason it is allowed, and
+     a default added or removed in either file fails it. Those that were readings are
+     changed under the ruling of 13 October. The panel: BIAS, REGIME, STRUCTURE, Vol,
+     SEQUENCE, VOLUME, VALIDATION, VOLATILITY, RISK REGIME, MACRO TREND, STATUS,
+     DECISION, the timeframe and the three BTC lines fall back to UNKNOWN, UNKNOWN
+     STRUCTURE, UNKNOWN VOLUME or UNKNOWN RISK, the router's own words; BROAD MARKET
+     STRESS prints UNKNOWN for an absent flag, where it printed "No"; an absent exit
+     watch says it was not computed, where it said no flags were active. The router:
+     every section of the engine's output is read by subscript, macro_bias apart (it
+     falls back to UNKNOWN); the two trend booleans, the two signals and
+     `score_clipped` are read directly; the entry score, its sub-scores and
+     reconciliation, and the three EV fields go through `_finite_or_nan`; STATUS's twin
+     falls back to UNKNOWN and the correlation label to NOT MEASURED; a Bitcoin block
+     missing a boolean or list is unavailable, not an error for the asset.
+     `engine_core`: `trend_direction` into the entry score, `reversal_strength` into
+     both bias calls, and the BTC call's sequence, regime and volume sentiment are read
+     directly. None of these could fire on the engine's path. The 30 tests in six files
+     whose hand-built inputs left a now-direct key out are given exactly the value the
+     router used to invent. What the patch read into the rule is Claude's, Viktor's to
+     reverse (the ruling's entry). Changes no decision: on the golden fixture the
+     decision object and the 86-line panel are identical before and after. The live run
+     and its record came before the commit. It moved `code_hash`; `run_hash` and the
+     golden snapshot did not move, as predicted.
+     **B9:** the self-review's B9 named a router default and four BTC defaults. The
+     fallback sweep made the router's (STATUS's twin falls back to UNKNOWN) and three of
+     the BTC call's (sequence, regime and volume sentiment, read directly) at `797bdc9`,
+     without naming B9 (DECISIONS, "Ruling, 15 October 2026 — B9: Bitcoin's SuperTrend
+     is read directly", Claude's errors). The fourth, Bitcoin's SuperTrend direction, is
+     read by subscript at `64ad625`: a failed BTC SuperTrend
+     leaves no column, and the KeyError ends in the BTC block's own handler, which
+     reports BTC unavailable for the run, as for any BTC failure — where 0.0 made BTC's
+     bias count a neutral SuperTrend and the panel printed BTC BIAS one factor short. The
+     asset's own read keeps its 0.0 (Found after 22 September). Changes no decision:
+     Bitcoin is reference only, and the new tests hold the asset's own sections equal to
+     a healthy run's. The live run and its record came before the commit. It moved
+     `code_hash`; `run_hash` and the golden snapshot did not move, as predicted.
+     **B10:** the self-review's B10 named two outputs. The simulated order recorded the
+     band between the two EMAs as `entry_zone`, which finding 4 made a reference, not
+     the entry: since `9ea1cf3` it is `ema_band`, the panel's label,
+     with the same values, and the order's entry stays `current_price`, the decision
+     close under the decision log's own name. Exit Watch's note naming Target 1 printed
+     on a WAIT or a NO-TRADE under a leaning bias, naming the target of a plan the
+     engine did not suggest: the panel now prints it only when the action names a side,
+     the test `models/decision_model.py` makes of its own action, so WAIT, every
+     NO-TRADE and an absent action withhold it. Panel only, as for finding 5: the
+     decision object and the log keep the note, and the plan's stop and targets still
+     print under a leaning bias. Rendered from the live log's 62 records on both codes,
+     44 panels lose the note line and nothing else (35 live runs, 9 pinned), 33 of them
+     then saying no flag is active; the other 18 are identical. Changes no decision.
+     The live run and its record came before the commit. It moved `code_hash`;
+     `run_hash` and the golden snapshot did not move, as predicted.
+     **Part 4's three test shapes:** the golden coverage test printed SKIP and
+     returned when its baseline was missing, a pass; it now fails then, as the snapshot
+     comparison does, and runs without `pandas_ta`, since it reads only the stored
+     file. The non-finite test checked only that `math.isfinite` appeared in the
+     panel's source; it now renders the golden decision — a CONSERVATIVE LONG, so the
+     plan prints — with each of its 120 float fields set to +inf, -inf and NaN in turn,
+     360 renders, and fails if a line prints nan, inf or infinity or a render returns no
+     panel. Seven of the panel's guards, each removed alone, fail it; the test it
+     replaces passed under all seven. Its sibling checked that "SuperTrend's level"
+     appeared in the source; it now runs the guard with the level blanked at the
+     decision bar. The final sweep drops the level even without its guard, so what the
+     test asserts is that SuperTrend fails whole and its direction is not written. The
+     watched error count is no longer written as a number in `run_tests.py`'s docstring
+     or the three test files that gave one; each points to "Where things stand, right
+     now". Tests and a docstring only: `code_hash`, `run_hash` and the golden snapshot
+     did not move, as predicted, so there was no live run.
+  5. **The fix verification** by round 8's auditor, on a scoped package (the
+     14 September precedent) — Claude's, under the delegation of 4 October. The release
+     gate reopens only on its report (point 2).
+
+### Resolved this session
+
+- **Part 4's three test shapes** (round 8's Part 4; point 8 of round 8's triage; ruled
+  15 October): with the commit that writes this line, the golden coverage test fails on
+  a missing baseline and runs without `pandas_ta`, the non-finite test renders the
+  panel, the SuperTrend level test runs its guard, and the watched error count is
+  written only in this file. The label and record batch is done.
+- **The once-per-session rewrite of this file.** The previous version, as at `9ea1cf3`,
+  is in HISTORY verbatim, headings demoted one level, proven by un-demotion with a
+  negative control (this commit's message has the result).
+
+### Open items
+
+Items marked **Viktor's call** are his to decide; he writes his position first and
+Claude critiques it.
+
+- **Owed to the next commit:** nothing, unless this commit's push deviates from its
+  prediction (ruling on proposal (b), 27 September).
+- **Viktor's, only if he wants it — an engine output with a section missing leaves no
+  record.** The router now reads every section of the engine's output by subscript
+  (the fallback sweep), so a missing one fails in `route_and_execute`'s own handler,
+  which renders an error and has never written a decision-log record or carried the
+  run's lineage — unlike a failure inside `_build_decision_object`, whose error record
+  keeps both and is logged. Unreachable: the engine writes every section on every
+  result that is not an error. Claude's question of 13 October said the lineage was
+  kept in both cases; it is not (DECISIONS, the sweep's ruling, "Claude's errors").
+  Whether that handler should log, with lineage, is his; nothing is owed.
+- **Viktor's, not ruled — the positions of 6 and 7 October** (DECISIONS, "Position,
+  6 October 2026 — all the work and the list for after the audit first, then one full
+  audit by Amazon; not ruled"). Open: how Amazon's audit is scored if the whole list for
+  after the audit is fixed first (the test bugs come from that list); whether Amazon's
+  audit is the one whose ratings count toward opening backtesting; whether "all the
+  work" includes round 8's fix verification (Claude's reading: yes); which few settings
+  may be tuned after the paper-trading year, named before it starts; and the Bedrock
+  billing, after which the check of reach and fit is Claude's. How a candle that touches
+  both the stop and T1 is counted is the Freqtrade item below. For all but the billing
+  he writes his position first.
+- **The independent audit — round 8 is done and triaged; the fix verification comes
+  after the fixes.** Claude's, under the delegation of 4 October; Viktor runs the
+  commands. Round 8's preparation list — items 1 to 8, all done — is in HISTORY, in this
+  file as it stood at `9e42d30`. The verification goes to the same auditor,
+  MiMo-V2.6-Pro, on a scoped package of the fix commits (Work order, item 5). **Not
+  ruled, Viktor's before backtesting is next:** what would make a rating count toward
+  opening it, given that round 8's do not (DECISIONS, "Ruling, 4 October 2026 — round 8's
+  result …", "What follows", point 3).
+- **Viktor's, not ruled — what the triage left open** (DECISIONS, "Ruling, 5 October
+  2026 — round 8 triaged …", "Not ruled"): F7; B4's divergence veto; B5; C1–C7; the ten
+  questions of 1 October; whether S1, S3, S4, N1–N4, O1–O3 and the Part 7 reply's §1(3)
+  and §1(5) join the label and record batch; the severity of F2 and of F4's third path.
+  Each is on the list for after the audit, above.
+- **Viktor's, from the Freqtrade comparison (5 October), nothing ruled.** The comparison
+  is outside the repository (`Docs\02_Reviews_and_Feedback\Phase7_Freqtrade_Comparison_2026-10-05`
+  in `G:\Phase_7_Engine_Random_Files`).
+  1. **How a candle that touches both the stop and T1 is counted** — to be ruled before
+     any backtest result exists, since pre-registration works only once. Goal B's
+     verdict calls T1 before the stop a win, and a 4h candle does not show which came
+     first. On the real AERO 4h candles 9 of 594 (1.5%) had a range of 10% or more, about
+     the gap between a 5% stop and a 5% T1 (the comparison's run). Its suggestion: count
+     such a candle as a stop, report how many trades it affected, and settle it on
+     smaller candles where they exist.
+  2. **A longer daily window for macro** — on the list for after the audit, above.
+  3. **Protections, and Freqtrade's dry-run as the paper-trading ledger** — later; the
+     comparison's view is not now.
+
+  **Not added to Goal B.** The comparison named four things for Goal B's harness:
+  Freqtrade's look-ahead check (Goal B's precondition 2 already asks for one), a
+  warm-up check with each backtest decision given exactly the live windows (449 × 4h and
+  99 × 1d), the higher-timeframe rule (above, "Goal B's precondition 2 would let the day's
+  candle leak in"), and report figures printed beside the verdict, never instead of it.
+  It called adding them Claude's. Goal B is a ratified specification, and its harness is
+  a condition of the ruling of 29 September on what lets backtests run, so adding to
+  either is Viktor's; they are listed here until he decides. **The licence is GPL-3**,
+  confirmed by Viktor's `findstr` on `F:\LICENSE`. Claude's general reading, not legal
+  advice: no Freqtrade code goes into this repository, which is public and MIT-licensed —
+  ideas only, written our own way.
+- **The ledger entry for round 7**, which the roster-and-ledger document asks for at the
+  send, from the provider's record: Poolside, `poolside/laguna-s-2.1` (OpenRouter's
+  permaslug `poolside/laguna-s-2.1-20260720`), 30 September 2026 at 09:58 UTC, through
+  the API with Viktor's key, one request, 455,360 prompt tokens; shown the first message
+  — rev 8, the Constitution's audit copy, the source and test bundles, the manifest, the
+  history without messages and the execution transcripts; role: independent auditor,
+  round 7, Parts 1–6 — run 1, which counts as a run and does not get Part 7 (ruling of
+  30 September). Recorded here; the document outside the repository is to be reissued
+  with it once the round's runs are done, so one reissue carries every run's entry —
+  Claude's choice, Viktor's to change. **Run 2's entry**, from the provider's record:
+  Poolside, `poolside/laguna-s-2.1` (permaslug `poolside/laguna-s-2.1-20260720`),
+  30 September 2026 at 11:43 UTC, through the API with Viktor's key; a probe request
+  (59 prompt tokens, nothing from the package) and one request, 455,360 prompt tokens,
+  with reasoning requested; shown the same first message; role: independent auditor,
+  round 7, run 2, Parts 1–6; 0 of 4, no Part 7. Round 7's runs are done, so the reissue
+  is now due. **Claude's, under the delegation of 4 October:** reissued once, after round
+  8's runs, so it carries round 7's two entries, round 8's, and Xiaomi added to the
+  roster with the facts checked on 4 October. **Still owed:** no session since round 8's
+  runs has reissued it — not the night of 4 to 5 October, either session of 5 October,
+  the night of 5 to 6 October, either session of the evening of 6 October, the session
+  of 6 to 9 October, nor the session of 9 October.
+  **Round 8's run 1 entry**, from the
+  provider's record: Xiaomi, `xiaomi/mimo-v2.6-pro` (permaslug
+  `xiaomi/mimo-v2.6-pro-20260921`), 4 October 2026, 15:51:46 to 16:02:09 UTC, through
+  the API with Viktor's key; a probe (24 prompt tokens, nothing from the package) and one
+  request, 430,820 prompt tokens, reasoning requested (40,434 reasoning tokens); shown
+  the first message — rev 9, the Constitution's audit copy, the source and test bundles,
+  the manifest, the history without messages and the execution transcripts; role:
+  independent auditor, round 8, run 1, Parts 1–6; 0 of 4, no Part 7. It named itself
+  Claude (DECISIONS, the same entry). **Round 8's run 2 entry**, from the provider's
+  record: Xiaomi, `xiaomi/mimo-v2.6-pro` (permaslug `xiaomi/mimo-v2.6-pro-20260921`),
+  4 October 2026, 16:45:32 to 17:04:29 UTC, through the API with Viktor's key; a probe
+  (nothing from the package) and one request, 430,820 prompt tokens (430,720 from the
+  provider's prompt cache), reasoning requested (68,464 reasoning tokens); shown the
+  same first message; role: independent auditor, round 8, run 2, Parts 1–6; 2 of 4.
+  **Its Part 7 request:** the same endpoint and model, 4 October 2026, 19:20:11 to
+  19:34:07 UTC; one request, 658,197 prompt tokens (430,720 from the cache); shown the
+  first message again, its own first reply with its reasoning, and the Part 7 material
+  (the Part 7 document and the commit messages after `e65a0f7` up to `e186423`); role:
+  independent auditor, round 8, run 2, Part 7.
+- **Viktor, outside the repository:** delete `D:\phase7_engine_MOVED_TO_E` and
+  `D:\Phase_7_Engine_Random_Files_MOVED_TO_G` once satisfied with the copies on E: and
+  G: (HISTORY, 26 September, ninth session). Not urgent.
+- **Round 7's preparation list (items 1–13)** is closed: every item done, or ended
+  with the round. Its full text, with item 10's checks at the send, is in HISTORY, in
+  this file as it stood at `1523e0c`; round 8's list (above) points to it.
+- **The model roster and the independence ledger are one document since
+  30 September:** `Docs\Phase7_Model_Roster_and_Ledger_2026-09-30.pdf` in
+  `G:\Phase_7_Engine_Random_Files` (5 pages, SHA-256
+  `edb506c258c1bd711dc7b36263500b62c6f7e96ffcb1a29f469ce798eb39a656`), made at Viktor's
+  request from five documents, each kept as it was: the roster of 30 September (item 8
+  above), the ledger and the roster of 29 September, and the two of 22 September. Where
+  they disagree the later record wins; its section 9 lists what it carried over and what
+  it left out. Clean for a full round — Poolside (chosen for this round) and Amazon
+  (Nova 2 Pro, a preview release); scoped rounds only — Upstage, NVIDIA, Cohere, AI21.
+  NVIDIA moved there because OpenRouter serves Nemotron 3 Super at 262K on both its
+  endpoints (checked 30 September), not the 1M the earlier rosters gave. Once this round
+  spends Poolside, Amazon is the only full-round lab left on the list. Mistral is spent
+  (HISTORY, 2 September; reaffirmed 29 September). Viktor stated on 29 September that he
+  has never used an NVIDIA or Poolside model anywhere. NVIDIA is kept for a scoped
+  round; whether its part in Mistral NeMo counts against it is moot for this round.
+  Model facts other than Laguna S 2.1's and Nemotron 3 Super's served context and output
+  cap were checked on 22 September and not since. **Xiaomi is not on it:** MiMo-V2.6
+  was released on 21–22 September, after the last check. Round 8's decision
+  (DECISIONS, 4 October) records Xiaomi's facts as read on 4 October; the reissue
+  (above) adds it.
+- **The independence ledger is outside the repository, reconciled 29 September**
+  against OpenRouter's activity export — 727 requests, 22 August to 14 September 2026,
+  kept as `Docs\04_Data\OpenRouter_Activity_Export_2026-09-29.csv` in
+  `G:\Phase_7_Engine_Random_Files` (SHA256 `d0edf17e0c42b35e3879a206e8a2c1d0`
+  `6c9c8cfdb8bb6945615ea25baef336b8`) — and reissued as
+  `Docs\Phase7_Spent_Models_Ledger_2026-09-29.pdf`; the 22 September version is kept as
+  it was. **Since 30 September it is section 3 of the roster-and-ledger document above**,
+  where the export was re-read: its hash matches, and every count agrees with the
+  29 September ledger. Newly noted there: one of the 727 rows records no model, provider
+  or tokens — the only request ID starting `gen-tool-`, which the document reads, without
+  OpenRouter's confirmation, as a Chatroom tool step rather than a model request.
+  Every lab in the export was already spent except Mistral (above). The export
+  covers OpenRouter only: Gemini, ChatGPT, Copilot, Grok and the second Claude instance
+  were used elsewhere and stand on the repository's record. **Grok's entry**, owed since
+  26 September, is in the reissued ledger from Grok's own account of what it read: the
+  Constitution and the Assistant Instruction in full; README and this file at about
+  `c5dc4cd`; production code in `main.py`, `live_trading.py`, `data/`, `core/`,
+  `models/`, `indicators/` and `structure/`; the full `tests/` tree and fixtures; one
+  live panel Viktor pasted. It is Grok's account, not a provider export, saved as
+  `Docs\02_Reviews_and_Feedback\Grok_Inventory_of_What_It_Read_2026-09-26.txt` in
+  `G:\Phase_7_Engine_Random_Files` (SHA256 `0d923a095bc112bda5ad11e6be39a98f0d5a48ad`
+  `139938ed119d18ebd96a71ed`).
+  Grok is ineligible to audit the engine (DECISIONS, 26 September). Its review
+  (`ASSISTING_MODEL_REVIEW_2026-09-23.md`, outside the repository) is received, not
+  triaged; by its own text it is not an audit, and anything accepted from it goes on the
+  list for after the audit. **5 October:** the review of the night of 4 to 5
+  October ran on Claude; Fable 5.1 was not used, so it has seen nothing of this
+  project.
+- **Viktor has stopped using Grok.** Its test run reported 458 passed, 126 skipped and
+  2 failed — together the recorded 460 without `pandas_ta` — and it put the two failures
+  down to repository checks without resolving them. Claude's reading, not reproduced:
+  one is likely `tests/test_session_handover_check_ignored_filter.py`, which needs a
+  `git` executable; the other was not in the five test files read. No model other than
+  Claude is in use.
+- **Viktor's call — repointing `docs/build/build_findings_bundle.py`** at the round-1
+  folder, so `Phase7_Audit_Findings_Complete.pdf` could be rebuilt. A tooling change;
+  not done.
+- **Claude's — README.md's "Independent audit", "Release gate" and "Backtesting" rows
+  are stale.** The first and third were seen on 29 September and are not changed since —
+  `59b747a`, `12b483e`, `3e8191a`, `1523e0c`, `d27743f`, `c2b07fb`, `1b25f36`,
+  `fcb7823` and `9e507b1` touched only README's test counts (`1b25f36` was missing from
+  this list in the version at `fcb7823`, which kept the sentence as `1b25f36` had
+  written it), `6469a67` its counts and its paragraph on what is empirically
+  validated, `ae37795` its counts, `9d00d99` its counts, `27d3ed5` its counts, `9051ffd` its counts, `e5ac20a` its counts, `797bdc9` its counts, `69c92d6` its counts, `22a9a35` its counts, `d77a8c4` its counts, `64ad625` its counts, `9ea1cf3` its counts, and the commit that writes this line its counts. The first still says the next round is paused until work order G and the six
+  findings are done, which happened at `7d0024e`; the third predates the ruling of
+  29 September on what opens backtesting. The second reads Open; the gate is closed since
+  5 October. All three are written in Viktor's voice, so the new wording goes to him
+  before it lands. With them, the layout block's `logs/` line (Where things stand):
+  true, but silent on `logs/pinned/` since B6. **And the paragraph `6469a67`
+  rewrote** — the BTC-Adjusted Prediction gone, no part of the engine
+  empirically validated — is his to reword or reverse.
+- **Claude's — the running change list for the audit:** `docs/audit_change_list.md`,
+  from the baseline `e65a0f7` (the tree round 6's fix-verification was sent). **Every
+  later commit that changes engine code, tests or tooling adds its line there in the
+  same commit.** `22cb39b` added the ruling of 28 September to its rulings section
+  and named `7d0024e` where G's commit wrote "the commit that adds this line". The
+  rulings of 29 September are not added: none changes what the engine must do, or any
+  code. The triage of 5 October was added to its rulings section by `eb86846`, which
+  also named `d27743f` where that commit's own line said "the commit that adds this
+  line". `c2b07fb` added fix 1's line under the same wording, `1b25f36` named it there
+  and added fix 2's line, and `fcb7823` named that and added fix 3's line (this
+  sentence, as `fcb7823` left it, still described `1b25f36`'s step); `9e507b1` named
+  `fcb7823` there and added B6's line; `6469a67` named `9e507b1` there and added
+  N5's line; `ae37795` named `6469a67` there and added F3's line; `9d00d99` named
+  `ae37795` there and added F5's line; `27d3ed5` named `9d00d99` there and added F6's
+  line; `9051ffd` named `27d3ed5` there and added F8's line; `e5ac20a` named `9051ffd`
+  there and added F9's line; `797bdc9` named `e5ac20a` there and added the fallback
+  sweep's line; `69c92d6` named `797bdc9` there and added the repeated readings'
+  line; `22a9a35` named `69c92d6` there and added B4's labels' line; `d77a8c4` named
+  `22a9a35` there and added B7's line; `64ad625` named `d77a8c4` there and added B9's
+  line; `9ea1cf3` named `64ad625` there and added B10's line; the commit that writes
+  this line names `9ea1cf3` there and adds its own line to the tests-and-tooling table,
+  under the same wording,
+  for a later commit to name. (`ef65f46`, docs only, changed no line there.)
+- **The pre-push hook is installed per clone, not per repository.** After any re-clone
+  (including after a machine wipe), run `git config core.hooksPath githooks`;
+  `session_handover_check.py` section 6 flags a clone without it.
+- **Unrelated, not urgent:** confirm which YH programme permits AI-assisted
+  examensarbete work.
+- **Viktor's call — the paper-trading setup.** Specified by the ruling of 28 September
+  (points 3, 5 and 7–11); nothing is built: unattended runs every 4h per pair (question
+  14 below), the paper account in ten slices, the scoring. It is not an engine change.
+  When, and on which pairs, is Viktor's. Point 6 of the triage — test runs in a log of
+  their own — landed before it, at `9e507b1` (B6).
+- **Viktor's, only if he wants it — what B6 left shared between live and pinned runs.**
+  The ruling named the decision log, the archive and the Exit Watch state, and those
+  are separated. Three things are not, and B6 did not change them: the chart
+  (`logs/charts/chart_<symbol>_<timeframe>.png`, overwritten by every run, a picture
+  rather than a record), `logs/phase7_engine.log` (the process log `main.py` opens, so
+  a pinned run started through `main.py` writes its lines there), and `logs/LiveSim/`
+  (`live_trading.py`'s simulated orders, written whatever the run's source). No code
+  reads any of them back (read from the code). Whether any should follow the run's
+  source is his call; nothing is owed.
+- **Viktor, outside the repository:** the BLESSUSDT screenshot of 28 September is not
+  in the repository — it shows his browser, and the repository is public. DECISIONS
+  describes its marks in text. Keeping the image, for example in
+  `G:\Phase_7_Engine_Random_Files`, is his choice.
+- **The questions of 28 September.** Claude's sixteen, asked before the ruling. Viktor
+  answered 1, 2, 15 and 16 (what the engine claims, what ends development, whether a
+  year of paper trading is enough, what weight the portfolio carries) — that is the
+  ruling. The rest are open; Claude can answer 3–13 from the code and the log, and 14
+  is shared.
+  3. Where did each number come from — the six bias weights, the 30/70/±20 thresholds,
+     the 8% and 15% limits? Which were derived, and which chosen?
+  4. How many independent pieces of evidence does a decision rest on? Found so far:
+     macro counted twice (fixed at G), RSI reaching `bias_score` twice, the four-factor
+     overlap.
+  5. How often does the engine say "trade" now, and is the rate plausible? The live log
+     holds only hand-started runs, so this needs runs over past candles — close to the
+     backtest pause, and Viktor's call.
+  6. Does the panel always show exactly what the engine decided?
+  7. Can every logged decision be rebuilt from its record, and for how long?
+  8. Would the tests catch a change that is wrong but consistent?
+  9. Who has checked the work since 14 September? So far Claude alone.
+  10. Are there still paths a healthy run never takes?
+  11. Do the documents describe the code, or each other?
+  12. Does the engine work live on a pair other than AEROUSDT?
+  13. How often does it run degraded on live data, and would anyone notice?
+  14. Can it run unattended for a year and keep a clean log?
+- **Viktor's, not chosen — ten questions to ask of the engine (1 October).** He asked
+  for them to be kept: What does it take in? What does it produce? What assumptions does
+  it make? What mathematical or technical principle is it based on? What can make it
+  fail? How do we know it is working correctly? What tests would expose a false result?
+  Which parts are deterministic and which stochastic? Which parts are empirically
+  validated and which theoretically justified? What would convince us that the entire
+  thing is wrong? What to do with them — Claude answers from the code, his answers
+  first, given to the auditor, or made standing questions — is not chosen. With them,
+  from the same ChatGPT conversation, hostile reviews of the Constitution (for example,
+  "construct a compliant implementation that is nevertheless obviously wrong"); he
+  agreed to take that up when the questions are, starting with whether each of round 7's
+  four test bugs breaks a specific Constitution rule. Neither is part of the delegated
+  audit, and neither goes to round 8's auditor unless he says so. The review of 5
+  October answered one part of the hostile-review request — whether each of the four
+  test bugs breaks a specific rule (its C3: three of the four break none as written) —
+  and left the ten questions unanswered, so that Viktor's answers can come first.
