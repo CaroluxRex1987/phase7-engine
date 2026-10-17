@@ -4778,6 +4778,157 @@ the release gate does not open backtesting.
   replaced a few named lines and did not search the file for the phrase. That search
   is the check that would have caught all three.
 
+## Ruling, 17 October 2026 — round 8's fix verification accepted on the stop's answer; the release gate reopens
+
+*New in this file on 17 October 2026. Viktor's, given at 09:37 by agreeing to Claude's
+suggestion, in a session that opened at 09:24 at `d3188f2`; filed by that session's
+commit, docs only. It answers "Fix verification, 17 October 2026 — round 8's auditor:
+the stop's fix holds, no new Critical; Viktor's to accept".*
+
+**How it was made.** Claude opened by naming one thing its check of the report, filed at
+`d3188f2`, had missed (below, "A.2's list"), and by keeping its decision of no second
+run, Viktor's to reverse. At 09:30 Viktor wrote: "I accept the report." Claude answered
+that a verdict alone left nothing to critique, and asked for a sentence each on the
+basis, the scope, and why one brief run was enough. At 09:33 he asked for Claude's
+suggestions instead: "I am not going to deep dive into these technical stuff that i know
+nothing about. You are the engineer." Claude suggested accepting on the stop's answer
+alone, and named the one part that is not technical and stays his: accepting on the word
+of the engineer whose fixes were checked. At 09:35 he took up the third point himself:
+"Should we do another run more focused? Chose another auditor?" Claude advised neither
+for this gate, and said how it would do it if he wanted it. At 09:37: "Alright, we go
+with your suggestions." His position did not come first, as the entry this answers
+asked; he chose to rule on Claude's suggestion.
+
+**The ruling.**
+
+1. **The report is accepted, on its answer to A.1 alone:** the fix *holds* — nothing
+   that computes, records, prints or checks the stop depends on the bias score's size,
+   on conviction or on trend health. That is what point 2 of the triage asked for: the
+   gate closed "until point 1's fix has landed and round 8's auditor, MiMo-V2.6-Pro, has
+   verified it" ("Ruling, 5 October 2026 — round 8 triaged …"). The report quotes the
+   code for it, and its quotations were found in the code it was sent (the entry this
+   answers). In this session Claude read `calculate_stop_targets` again at `d3188f2`,
+   whose code is `78ea37d`'s, from the function's syntax tree, so that its docstring and
+   comments are set aside: `bias_score` is checked to be finite
+   (`models/risk_model.py:376–378`) and otherwise only picks the side (line 386), and no
+   name for trend health or ADX appears in it. That is the fixer reading its own fix,
+   not an independent check.
+2. **A.2 is recorded, not relied on.** Its *no* says it checked every change in
+   `engine.diff`, but the changes it names are eight (below, "A.2's list"). The decision
+   of 16 October made A.2 part of what reopens the gate ("What reopens the gate"); this
+   ruling rests the gate on A.1, as point 2 of the triage worded it.
+3. **The release gate reopens.** It does not open backtesting: round 8's ratings still
+   do not count toward it ("Ruling, 4 October 2026 — round 8's result …"), and nothing
+   here changes "Ruling, 29 September 2026 — what opens backtesting". README.md's word
+   on acting on the engine — not fine until it has been shown to predict anything — does
+   not change either.
+4. **Sections B–F go to Viktor's triage, as the instruction told the auditor** ("Your
+   other answers go to triage either way", its section 6), **and are triaged here:
+   noted, no action.**
+   - B: *fixed* for F1, F2, F3, F5, F6, F8, F9's four claims and Part 4's three test
+     shapes. Recorded as confirmed by round 8's auditor, in one run. What that counts
+     toward waits for the question still open: what would make a rating count toward
+     opening backtesting ("Ruling, 4 October 2026 — round 8's result …", "What follows",
+     point 3).
+   - C: no new defect in the nine other changes, and every ruling claim it checked
+     supported. Noted.
+   - D: none of the six items declared not fixed made worse. Noted.
+   - E: three notes, none a defect, none asking for a change. Noted.
+   - F: noted.
+5. **No second run, and no other auditor now.** Claude's decision of 17 October stands.
+   Asked whether to send a more focused run or choose another auditor, Claude advised
+   against both for this gate: reopening it permits nothing new (point 3), and a focused
+   run costs about a day of sessions and, with a new auditor, one of the labs left on
+   the roster. Had Viktor wanted one, Claude's advice was another auditor rather than
+   MiMo — a second MiMo run is the same reader again, and MiMo never raised the
+   Critical: in round 8 it read the same formula and rated what it found there Major.
+   The auditor would come from the labs the roster keeps for scoped rounds (Upstage,
+   NVIDIA, Cohere, AI21), with their facts checked again first, and never Amazon, the
+   only lab left for a full round; it would be asked the stop's question alone, with the
+   seven fixes in B checked for a new Critical; and what a disagreement between the two
+   auditors means would be settled before the send. Choosing that would have changed
+   point 2 of the triage, which names MiMo.
+6. **For the next full audit:** its instruction names the stop's fix as a question of
+   its own, and the seven fixes in B are checked there for new defects. Its preparation
+   has not started, and the audit itself is the position of 6 October, not ruled
+   ("Position, 6 October 2026 — all the work and the list for after the audit first,
+   then one full audit by Amazon; not ruled"). `docs/audit_change_list.md` carries the
+   same note.
+
+**Why one run is enough here.** Claude's reasoning, which Viktor agreed to:
+
+- A.1 is a narrow question, and the report's evidence for it is in its quotations, which
+  anyone can check and which were checked. A short read can settle a narrow question
+  when it quotes the right lines.
+- Its *nothing found* everywhere else is weak evidence: 7,309 reasoning tokens on
+  341,082 read cannot show how hard it looked for what was not there. That is why the
+  rest is not the basis.
+- Being wrong would cost little before the next full audit reads the engine again: the
+  gate does not open backtesting, README.md already says acting on the engine is not
+  fine, and all seventeen commits are on `docs/audit_change_list.md`, which becomes the
+  next auditor's scope.
+
+**A.2's list.** A.2's answer says it checked every change in `engine.diff`, then names
+"the changes" as eight: fix 2, B6, N5, the fallback sweep, B4's labels, B7, B9 and B10 —
+section C's list without the repeated readings (`69c92d6`). `engine.diff`, from
+`e186423` to `78ea37d`, spans seventeen commits that change engine code (git's log). Not
+named: fix 1 (`c2b07fb`), A.1's own subject; the repeated readings, which C answered
+for; and the seven commits B checked only as fixes of the auditor's own findings — fix 3
+(`fcb7823`, the risk regime, on the decision path), F3 (`ae37795`), F5 (`9d00d99`), F6
+(`27d3ed5`), F8 (`9051ffd`), F9 (`e5ac20a`) and Part 4's three test shapes (`f00bef6`,
+through `run_tests.py`'s docstring). B asked whether each fixed its finding in the
+auditor's own words, not whether it broke anything else, so for those seven A.2 was the
+only question aimed at a new Critical, and its list leaves them out. The report does not
+say whether "every change" or the list was the scope of its check.
+
+**What it weakens.**
+
+- The fixer suggested accepting the check of its own fixes, and advised against another
+  independent check of them; Viktor ruled by agreeing. Nobody independent of Claude
+  weighed the report before the gate reopened.
+- The gate rests on one run, by an auditor whose two runs in round 8 found 0 and 2 of
+  the four test bugs.
+- Nobody independent checks the seven fixes in B for new defects until the next full
+  audit, which is not planned yet.
+- A.2, which the decision of 16 October made part of the reopening condition, is
+  recorded rather than relied on: the condition used is the triage's own, which is
+  narrower.
+- README.md's "Release gate" row reads Open, true again from this ruling; it says
+  nothing of the gate being closed from 5 to 17 October. It is in Viktor's voice, so its
+  wording waits for him (PHASE7_NEXT.md, Open items).
+
+### Claude's errors, recorded
+
+- **The check filed at `d3188f2` missed A.2's list.** It recorded A.2's *no* as
+  answering the gate question, and the decision of no second run rested on that. Found
+  at the start of this session, by reading A.2's answer against the instruction's list
+  of commits and git's log. The check that would have caught it: read each verdict's
+  stated basis against the scope of the question it answers.
+- **The decision of 16 October checked the fixes in B only as fixes.** Its point 3
+  checked "every other change" for new defects; the seven commits that fixed findings
+  were checked against the auditor's own words alone, so a new defect in them short of a
+  Critical was asked about only through E's open question. Its "What it weakens" does
+  not say so.
+- **The instruction told the auditor "Your other answers go to triage either way" (its
+  section 6), and no entry in this file recorded it.** The entry of 17 October says "A
+  rejection sends the report to his triage", which reads as if only a rejection does.
+  This ruling keeps what the auditor was told.
+- **Passages left stale**, found while rewriting PHASE7_NEXT.md for this session and
+  corrected by the commit that files this entry:
+  - PHASE7_NEXT.md's list of tags ("Where things stand, right now") left out
+    `round8-verify-sent-2026-10-17`, on GitHub at `78ea37d`; `d3188f2` named the tag
+    elsewhere in the file but not there.
+  - Its line on `code_hash` said "neither commit since" `9ea1cf3` has a live run, though
+    four had landed since it.
+  - Its Open item on README.md's stale rows lists the commits that touched only README's
+    test counts, and stopped at `f00bef6`: `78ea37d` touched them too and did not add
+    itself.
+  - `docs/audit_change_list.md`: `78ea37d` named `f00bef6` in its row of the table but
+    not in the rulings section, which still said Part 4's three test shapes landed "at
+    the commit that adds its line above"; and since `d3188f2` its last paragraph's
+    "round 8's fix verification is next" has been out of date. `d3188f2` searched
+    PHASE7_NEXT.md for unnamed self-references, not this file.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then

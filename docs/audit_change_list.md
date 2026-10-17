@@ -145,9 +145,10 @@ Each line gives what changed, which finding it closes, and which tests guard it.
   12 October added to it, at `797bdc9`, its two repeated readings at `69c92d6`, the
   review's B4, its labels, at `22a9a35`, the review's B7, the distance limits
   recording the regime, at `d77a8c4`, B9 at `64ad625`, B10 at `9ea1cf3`, and round 8's
-  Part 4, its three test shapes, at the commit that adds its line above, which ends the
-  batch (until this commit, this sentence named B7's landing as "the commit that adds
-  its line above" and said the rest had no code yet). Two
+  Part 4, its three test shapes, at `f00bef6`, which ends the batch (until `f00bef6`,
+  this sentence named B7's landing as "the commit that adds its line above" and said
+  the rest had no code yet; it named `f00bef6` the same way until 17 October, though
+  `78ea37d` had named it in its row). Two
   change which trades are taken: the stop is ATR × 1.2 × the volatility factor, trend
   health and the bias score no longer scaling it (point 1, a break of Item 14; the
   release gate stays closed until round 8's auditor verifies it); and ADX
@@ -187,5 +188,11 @@ Each gets a line above when it lands. **The fixes of 5 October** — round 8's t
 above: the stop, the trend gate, the regime, point 6, test runs in records of their
 own, point 7, Bitcoin reference only, and of point 8, F3, F5, F6, F8, F9, the
 fallback sweep, the two repeated readings, B4's labels, B7, B9, B10 and Part 4's three
-test shapes, have landed (above); the batch is done, and round 8's fix verification is
-next, in `docs/PHASE7_NEXT.md`, "Work order".
+test shapes, have landed (above); the batch is done. Round 8's fix verification
+followed: sent from `78ea37d` on 17 October, its report filed at `d3188f2`, and accepted
+by Viktor the same day on its answer about the stop (`docs/PHASE7_DECISIONS.md`,
+"Ruling, 17 October 2026 — round 8's fix verification accepted on the stop's answer; the
+release gate reopens"). It checked seven of the fixes above only as fixes of round 8's
+own findings — `fcb7823`, `ae37795`, `9d00d99`, `27d3ed5`, `9051ffd`, `e5ac20a` and
+`f00bef6` — so the next full audit checks those for new defects, and its instruction
+names the stop's fix as a question of its own (the same ruling, point 6).
