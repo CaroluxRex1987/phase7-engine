@@ -1,9 +1,10 @@
 # Next step — read this first
 
-*17 October 2026, from 14:10. Rewritten by the docs-only commit that brings README's
-three status rows current, in wording Viktor approved, and files the forward
-measurement's first checks; the version it replaced — as it stood at `0491b84` — is in
-HISTORY verbatim.
+*17 October 2026, from 14:10. Rewritten by `a235783`, which brought README's three
+status rows current, in wording Viktor approved, and filed the forward measurement's
+first checks; the version it replaced — as it stood at `0491b84` — is in HISTORY
+verbatim. Updated in the same session by the commit that files Viktor's rulings on two
+of the questions of 6 October.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
 rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
@@ -32,8 +33,9 @@ triaged on 5 October, its fixes landed, and its fix verification — the last pa
 Claude's under the delegation as Claude reads it — accepted by Viktor on 17 October
 (DECISIONS, "Ruling, 17 October 2026 — round 8's fix verification accepted on the stop's
 answer; the release gate reopens"). What is left under the delegation is running the next
-audit, once Viktor has ruled on its plan — Claude's reading, his to change (the position
-of 6 October, not ruled). The roster and ledger were reissued on 17 October (Open
+audit, on the plan as ruled on 17 October (DECISIONS, "Ruling, 17 October 2026 —
+Amazon's audit …") — Claude's reading, his to change. The roster and ledger were
+reissued on 17 October (Open
 items, "The model roster and the independence ledger"). The
 fixes were never under it: they were his triage rulings. Everything else still follows
 the rule above.
@@ -145,9 +147,14 @@ wrote a record for each of the ten pairs (Open items, the forward measurement).
 commit: new wording for README's three stale status rows, his to approve before it
 landed, and the forward measurement's first checks, read from the logs on his disk, with
 what its first records show of the trend score ("Found after 22 September", the
-review's B1). He approved the wording at about 14:30. After the commit he is asked
-whether he wants to write his position on two of the questions of 6 October (Open
-items).
+review's B1). He approved the wording at about 14:30, and `a235783` landed it. Asked
+then whether he wanted to write his position on two of the questions of 6 October, he
+answered one and asked for Claude's suggestion on the other, and at 16:58 agreed to
+Claude's suggestions on both (DECISIONS, "Ruling, 17 October 2026 — Amazon's audit:
+scored on four defects held back from the list, and its ratings are the ones that
+count"): Amazon's audit is scored on four known minor defects held back from the list
+for after the audit, and its ratings are the ones that count toward opening
+backtesting, on conditions fixed before the send.
 
 **The review and the comparison are outside the repository**, in
 `G:\Phase_7_Engine_Random_Files\Docs\02_Reviews_and_Feedback`:
@@ -373,7 +380,7 @@ session read it, and again at 13:54:08, 3 minutes 2 seconds after the second pat
 files were written at 13:51:06, and holds the nine new tests' ids; the live records
 are from 13:27:45 to 13:29:16; the commit is from 13:59:27, and `origin/master`'s ref
 from 13:59:43. Its account is in HISTORY, in this file's version at `0491b84`, moved
-there by the commit that writes this line.
+there by `a235783`.
 
 **This session (17 October, from 14:10)**, configured for Claude Opus 5.5, opened at
 `0491b84`, GitHub's tip, cloned; `master` and `origin/master` on Viktor's disk, from
@@ -385,11 +392,28 @@ found on the list (Open items). Claude read the forward measurement's first runs
 the trend scores from the logs on his disk and filed them (Open items, the forward
 measurement; "Found after 22 September", B1), with his query of the scheduled task,
 pasted at 14:28, and set how the measurement is counted before any reading (DECISIONS,
-"Decision, 17 October 2026 — how the forward measurement is counted"). The commit that
-writes this line changes `README.md` and docs only.
+"Decision, 17 October 2026 — how the forward measurement is counted"). The session
+paused at 14:44 at Viktor's word, with 3% of his session limit left and the patch and
+its message already on his disk, and resumed at 16:26 after the reset. `a235783` landed
+them, `README.md` and docs only: from Viktor's disk, the apply was at 16:27:35, the
+pytest cache was rewritten at 16:31:18, the commit is from 16:48:25 and
+`origin/master`'s ref from 16:48:39, and GitHub's tip matched the verified files byte
+for byte. The commit that writes this line files Viktor's rulings of 16:58 on two of
+the questions of 6 October: docs only.
 
 ## Ruled — in force
 
+- **New, 17 October — Viktor's: Amazon's audit is scored on four defects held back from
+  the list, and its ratings are the ones that count** (DECISIONS, "Ruling, 17 October
+  2026 — Amazon's audit …"). Question 3 of 6 October by his position first ("Yes"),
+  then Claude's critique, whose suggestions he agreed to; question 2 by agreeing to
+  Claude's suggestion. Four known minor defects, outside Items 2, 3, 6 and 18 and not
+  pointed at by the code's comments, are chosen before work on the list starts, left in
+  for the audit and fixed after it; their "found means" sentences are committed before
+  the send. Amazon's ratings count toward opening backtesting if the check passes, the
+  provider's record shows the pinned model, the run finishes normally and Viktor checks
+  the score; round 8's verified fixes do not count through condition 1's second path.
+  Not ruled: what follows if Amazon fails the check twice.
 - **New, 17 October — Claude's, under point 5 of the forward measurement's ruling: how
   it is counted** (DECISIONS, "Decision, 17 October 2026 — how the forward measurement
   is counted"). From the task's first run; the task's record is the one decision per
@@ -736,8 +760,10 @@ writes this line changes `README.md` and docs only.
 ## Where things stand, right now
 
 - **Tip:** the commit that writes this line (a commit cannot name its own hash) —
-  docs only: README's three status rows brought current and the forward measurement's
-  first checks filed. Before it: `0491b84` (the session of 17 October, from 10:34: the
+  docs only: Viktor's rulings on two of the questions of 6 October filed. Before it:
+  `a235783` (this session's first commit: README's three status rows brought current
+  and the forward measurement's first checks filed: docs only), `0491b84` (the session
+  of 17 October, from 10:34: the
   forward measurement: `main.py` takes the pairs and works from its own folder: engine
   code, a new test file and docs), `67f6ec1` (the session of 17 October, from 09:24:
   Viktor's ruling on round 8's fix verification report filed: docs only), `d3188f2` (the
@@ -877,8 +903,8 @@ writes this line changes `README.md` and docs only.
   and `run_tests.py`'s docstring. `36de35d` changed no test. `78ea37d` added
   `tests/test_send_round8_fix_verification.py` (25 tests, no fixtures) and changed no
   other test. `d3188f2` and `67f6ec1` changed no test. `0491b84` added
-  `tests/test_main_takes_pairs.py` (9 tests, no fixtures) and changed no other test. The
-  commit that writes this line changes no test.
+  `tests/test_main_takes_pairs.py` (9 tests, no fixtures) and changed no other test.
+  `a235783` and the commit that writes this line change no test.
 - **Where the project lives, from 26 September:** `E:\phase7_engine` on Viktor's machine;
   the files kept outside the repository in `G:\Phase_7_Engine_Random_Files`. Copied with
   robocopy, verified — git's own checks on Windows for the tracked files, SHA-256 for the
@@ -887,18 +913,20 @@ writes this line changes `README.md` and docs only.
   to `E:\phase7_engine`". Run the engine and every command from `E:\phase7_engine` (in
   cmd, changing drive needs `cd /d`). A dated record that names the D: paths means the
   same folders before the move; dated records are not edited.
-- **The push of `0491b84`** happened: GitHub's tip at the start of this session,
-  cloned, is `0491b84`, and `master` and `origin/master` on Viktor's disk matched it; he
-  opened this session at it and reported no deviation (ruling on proposal (b)). The same
-  holds for the push of the commit that writes this line unless it deviates. Earlier
-  pushes and deviations are recorded in this file's previous versions, in HISTORY.
+- **The push of `a235783`** happened, at 16:48:39: GitHub's tip, fetched, is `a235783`,
+  `master` and `origin/master` on Viktor's disk match it, and its five files are
+  byte-identical to those verified; he reported no deviation (ruling on proposal (b)).
+  So did `0491b84`'s, at which this session opened. The same holds for the push of the
+  commit that writes this line unless it deviates. Earlier pushes and deviations are
+  recorded in this file's previous versions, in HISTORY.
 - **Before this commit**, every file its patch changes was staged off Viktor's disk and
-  matched an autocrlf clone of `0491b84` byte for byte.
+  matched an autocrlf clone of `a235783` byte for byte.
 - **code_hash:** `816d4951bb0322763ec4abc4b9ed8161d5b902372823350e5272f2fb7176e380`,
   set by `0491b84` from `bc1b9c2c…` — `main.py` alone — and confirmed on Windows: its
   eleven hand-run records and the ten of the first scheduled run all carry it.
-  Unchanged by the commit that writes this line, which changes no `.py` file: computed
-  on the clone of `0491b84` and on the applied tree under Python 3.12.3. `bc1b9c2c…` was
+  Unchanged by `a235783` and the commit that writes this line, which change no `.py`
+  file: computed on clones of `0491b84` and `a235783` and on the applied trees, under
+  Python 3.12.3. `bc1b9c2c…` was
   set by `9ea1cf3`, confirmed on Windows by its live run, and held through `f00bef6`,
   `36de35d`, `78ea37d`, `d3188f2` and `67f6ec1`, which changed only files under `docs/`
   and `tests/`, `README.md` and `run_tests.py`'s docstring.
@@ -906,8 +934,8 @@ writes this line changes `README.md` and docs only.
   output, a CPython implementation detail (`core/code_fingerprint.py`, "WHAT IT DOES NOT
   SURVIVE"). **Every `code_hash` claim about this project is computed under Python 3.12**
   (Viktor runs 3.12.10).
-- **Golden snapshot:** unchanged by the commit that writes this line, which changes no
-  code and no test, and by `0491b84`, as predicted: it changed `main.py`, which the
+- **Golden snapshot:** unchanged by the commit that writes this line and by `a235783`,
+  which change no code and no test, and by `0491b84`, as predicted: it changed `main.py`, which the
   golden test does not run (it calls the router directly), and no fingerprinted name or
   value, so `run_hash` (`40dcdc72…`) holds. Unchanged by `67f6ec1`, `d3188f2`, `78ea37d`, `36de35d`, `f00bef6`, `9ea1cf3`,
   `64ad625` and `d77a8c4` too. Last
@@ -921,7 +949,10 @@ writes this line changes `README.md` and docs only.
   the one place the watched error count is written as a number (DECISIONS, "Ruling,
   15 October 2026 — Part 4's three test shapes", point 5). The commit that writes this
   line changes no test, so every count holds: from the Linux sandbox, Python 3.12.3,
-  pinned requirements, the patch applied to an autocrlf clone of `0491b84`. `0491b84`
+  pinned requirements, the patch applied to an autocrlf clone of `a235783`. `a235783`
+  changed no test either; its pytest step ran on Windows after the apply — the cache on
+  his disk was rewritten at 16:31:18, 3 minutes 43 seconds after the files were written
+  — and Viktor went on to the commit, which confirms 875 by proceeding. `0491b84`
   added 9 tests, none taking a fixture and every one needing `pandas_ta` (each runs the
   engine): the first and third counts rose by 9, the skips by 9, and the error count
   held. Its pytest step ran on Windows after each of its two patches: the cache on his
@@ -955,14 +986,14 @@ writes this line changes `README.md` and docs only.
   `test_the_commit_messages_up_to_the_tag_are_round_7s_to_the_byte`, runs `git log` up
   to the tag `round7-sent-2026-09-30`: it needs the tag, which a full clone has.
 - **Engineering Notes:** through Entry #183 (v1.36), which covers `68c6191`.
-  **Forty-four commits behind** — `ec4e5fd`, the floor (a commit that regenerates the Notes cannot
+  **Forty-five commits behind** — `ec4e5fd`, the floor (a commit that regenerates the Notes cannot
   cover itself, Entry #144), `e7a94d1`, `d5ced0c`, `59b747a`, `f256937`, `12b483e`,
   `01f2892`, `8b6fd00`, `e186423`, `86f30f1`, `3e8191a`, `1523e0c`, `ff12e17`,
   `4a4c6ce`, `217ede6`, `d27743f`, `a0276dd`, `040a529`, `9e42d30`, `eb86846`,
   `c2b07fb`, `1b25f36`, `fcb7823`, `9e507b1`, `6469a67`, `ae37795`, `9d00d99`,
   `27d3ed5`, `9051ffd`, `e5ac20a`, `ef65f46`, `797bdc9`, `69c92d6`, `22a9a35`,
   `d77a8c4`, `64ad625`, `9ea1cf3`, `f00bef6`, `36de35d`, `78ea37d`, `d3188f2`,
-  `67f6ec1`, `0491b84` and the commit that writes this line.
+  `67f6ec1`, `0491b84`, `a235783` and the commit that writes this line.
   Every later
   commit adds one
   until the
@@ -980,7 +1011,7 @@ writes this line changes `README.md` and docs only.
   Document's at `6e1baba`.
 - **README.md:** its test counts are current (875, 701 / 163 and 804), last changed by
   `0491b84`. **Its three status rows are current** — "Independent audit", "Release
-  gate" and "Backtesting" — since the commit that writes this line, in wording Viktor
+  gate" and "Backtesting" — since `a235783`, in wording Viktor
   approved, with the two sentences that said otherwise: the paragraph under the table
   now names the gate's closing from 5 to 17 October, and Repository layout no longer
   says nothing on record contradicts backtesting's condition — round 8's ratings of
@@ -2037,9 +2068,12 @@ Each code commit is its own commit and updates this file for its own landing.
 
 ## Resolved this session
 
+- **Two of the questions of 6 October ruled** — Viktor's, at 16:58: how Amazon's audit
+  is scored, and that its ratings are the ones that count (DECISIONS, "Ruling,
+  17 October 2026 — Amazon's audit …"; Open items, the independent audit).
 - **README.md's three stale status rows** — Claude's to draft, the wording Viktor's:
   approved as drafted at about 14:30, with the two sentences that would have
-  contradicted them, and landed by the commit that writes this line. The other stale
+  contradicted them, and landed at `a235783`. The other stale
   passages Claude found went on the list, at his choice (Open items).
 - **The scheduled task's first runs checked**, owed after `0491b84`'s push (Open items,
   the forward measurement): ten good records at 14:05; the run at 14:00 refused by
@@ -2053,7 +2087,7 @@ Each code commit is its own commit and updates this file for its own landing.
 - **The change list's paragraph named the wrong commit:** this file at `0491b84` said
   "the commit that writes this line" did what `67f6ec1` did there (Open items, the
   running change list); corrected, and `0491b84` named in its row and paragraph.
-- **The once-per-session rewrite of this file**, by the commit that writes this line.
+- **The once-per-session rewrite of this file**, by `a235783`.
   The previous version, as at `0491b84`, is in HISTORY verbatim, headings demoted one
   level, proven by un-demotion with a negative control (the commit message has the
   result).
@@ -2126,17 +2160,16 @@ Claude critiques it.
   result that is not an error. Claude's question of 13 October said the lineage was
   kept in both cases; it is not (DECISIONS, the sweep's ruling, "Claude's errors").
   Whether that handler should log, with lineage, is his; nothing is owed.
-- **Viktor's, not ruled — the positions of 6 and 7 October** (DECISIONS, "Position,
-  6 October 2026 — all the work and the list for after the audit first, then one full
-  audit by Amazon; not ruled"). Open: how Amazon's audit is scored if the whole list for
-  after the audit is fixed first (the test bugs come from that list); whether Amazon's
-  audit is the one whose ratings count toward opening backtesting; whether "all the
-  work" includes round 8's fix verification (Claude's reading: yes; moot since it was
-  accepted on 17 October); which few settings
-  may be tuned after the paper-trading year, named before it starts; and the Bedrock
-  billing, after which the check of reach and fit is Claude's. How a candle that touches
-  both the stop and T1 is counted is the Freqtrade item below. For all but the billing
-  he writes his position first.
+- **Viktor's, not ruled — what is left of the positions of 6 and 7 October** (DECISIONS,
+  "Position, 6 October 2026 — all the work and the list for after the audit first, then
+  one full audit by Amazon; not ruled"). Its questions 2 and 3 were ruled on 17 October
+  (DECISIONS, "Ruling, 17 October 2026 — Amazon's audit …"), and question 4 was moot
+  from then. Open: what happens if Amazon fails the check twice, when no lab is left
+  clean for a full round (that ruling, "Not ruled"); which few settings may be tuned
+  after the paper-trading year, named before it starts; and the Bedrock billing, after
+  which the check of reach and fit is Claude's. How a candle that touches both the stop
+  and T1 is counted is the Freqtrade item below. For all but the billing he writes his
+  position first.
 - **The independent audit — round 8 is done, triaged, and its fix verification accepted
   (17 October).** Claude's, under the delegation of 4 October; Viktor runs the commands.
   Round 8's preparation list — items 1 to 8, all done — is in HISTORY, in this file as
@@ -2144,10 +2177,12 @@ Claude critiques it.
   October, point 6): its instruction names the stop's fix as a question of its own, and
   the seven fixes the verification checked only as fixes — `fcb7823`, `ae37795`,
   `9d00d99`, `27d3ed5`, `9051ffd`, `e5ac20a` and `f00bef6` — are checked for new
-  defects. **Not ruled, Viktor's before backtesting is next:** what would make a rating
-  count toward opening it, given that round 8's do not (DECISIONS, "Ruling, 4 October
-  2026 — round 8's result …", "What follows", point 3); what round 8's confirmed fixes
-  count toward waits on it too.
+  defects. **Ruled 17 October** (DECISIONS, "Ruling, 17 October 2026 — Amazon's audit
+  …"): Amazon's audit is scored on four known defects held back from the list for after
+  the audit, and its ratings are the ones that count toward opening backtesting, on four
+  conditions fixed before the send; round 8's verified fixes do not count toward
+  condition 1 through its second path. **Next, Claude's:** propose the four, with their
+  "found means" sentences, before work on the list starts — Viktor's to accept or swap.
 - **Viktor's, not ruled — what the triage left open** (DECISIONS, "Ruling, 5 October
   2026 — round 8 triaged …", "Not ruled"): F7; B4's divergence veto; B5; C1–C7; the ten
   questions of 1 October; whether S1, S3, S4, N1–N4, O1–O3 and the Part 7 reply's §1(3)
@@ -2287,8 +2322,8 @@ Claude critiques it.
   (DECISIONS, the ruling of 17 October on round 8's fix verification, point 6).
   `0491b84` added its own line and a paragraph to the rulings section, each naming it
   "the commit that adds" its line; this file at `0491b84` still credited `67f6ec1`'s
-  three changes to "the commit that writes this line", as `67f6ec1` had written it. The
-  commit that writes this line names `0491b84` in both places. (`ef65f46` and
+  three changes to "the commit that writes this line", as `67f6ec1` had written it.
+  `a235783` named `0491b84` in both places. (`ef65f46` and
   `36de35d`, docs only, changed no line there.)
 - **The pre-push hook is installed per clone, not per repository.** After any re-clone
   (including after a machine wipe), run `git config core.hooksPath githooks`;

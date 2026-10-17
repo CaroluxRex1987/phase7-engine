@@ -5066,6 +5066,87 @@ it. The first reading is due on 31 October.
 - Rule 2 trusts the minute a run started to say what started it; no field records it
   (the ruling's "What it weakens").
 
+## Ruling, 17 October 2026 — Amazon's audit: scored on four defects held back from the list, and its ratings are the ones that count
+
+*New in this file on 17 October 2026. Viktor's, in the session that opened at 14:10 at
+`0491b84`; filed by its second commit, after `a235783`. It settles questions 2 and 3 of
+"Position, 6 October 2026 — all the work and the list for after the audit first, then
+one full audit by Amazon; not ruled": question 3 by his position first, then Claude's
+critique, whose suggestions he agreed to; question 2 by agreeing to Claude's
+suggestion, which he asked for instead of writing first.*
+
+**How it was made.** Asked, with `a235783`'s commands, whether he wanted to write his
+position on the two questions, Viktor answered at 16:49: "1. What are your
+suggestions? 2. Yes". Claude suggested how to score the audit and critiqued the "yes",
+naming three gaps and suggesting how to close two of them. At 16:58: "Agreed on these
+two suggestions."
+
+**What was ruled.**
+
+1. **Amazon's audit is scored on four known defects held back from the list for after
+   the audit** — the method of "Ruling, 29 September 2026 — the test bugs: four usable,
+   and four is enough". Nothing is planted ("… what the auditor sees, and no planted
+   bugs" stands). The four are chosen before work on the list starts, left in the
+   engine through the audit and fixed after it; Amazon verifies their fixes with the
+   rest (condition 3 of "Ruling, 29 September 2026 — what opens backtesting"). Each of
+   the four:
+   - is minor, not Critical or Major, so condition 2 can still be met;
+   - touches none of Items 2, 3, 6 and 18, so it cannot affect the ratings that open
+     backtesting;
+   - is not pointed at by the code's own comments, so finding it takes reading;
+   - has a "found means" sentence, committed before the send, as in rounds 7 and 8.
+
+   This changes the plan of 6 October from "all the work + the after audit list" to the
+   list less the four. Rejected, as Claude put them: planting, since the auditor would
+   read code that is not the engine, and it was ruled out on 29 September; and no check,
+   since round 7's second run rated 42 of 44 rules Compliant while finding none of its
+   four. Not chosen: scoring Amazon first, in a separate session, on the package round 8
+   read — comparable with rounds 7 and 8, but a second full package, and a measure of
+   care on other code.
+2. **Amazon's audit is the one whose ratings count toward opening backtesting**
+   (condition 1 of the same ruling of 29 September), on four conditions fixed before
+   the send:
+   - the check passes as committed — at least half of the four found, or a second run,
+     as the ruling of 29 September says;
+   - the provider's record, not the model's account of itself, shows the pinned model
+     answered;
+   - the run finished normally;
+   - Viktor checks the score himself.
+
+   Round 8's verified fixes do not count toward condition 1 through its second path
+   ("each gap is fixed and the fix confirmed by the same auditor"): Amazon rates every
+   item afresh. That settles point 3 of "Ruling, 4 October 2026 — round 8's result …",
+   "What follows".
+
+**Claude's reading, his to correct.** The suggestion he agreed to took the plan of
+6 October as its premise and changed it, so Claude reads the plan, as changed, as
+ruled: the remaining work and the list for after the audit, less the four, then one
+full audit by Amazon.
+
+**Who does what.** Claude proposes the four, with their "found means" sentences, before
+work on the list starts; Viktor accepts them or swaps any. Running the audit stays
+Claude's under the delegation of 4 October, as Claude reads it.
+
+**Not ruled — Viktor's.** What happens if Amazon fails the check twice: no lab would
+then be clean for a full round, since Upstage, NVIDIA, Cohere and AI21 are clean for
+scoped rounds only (the roster of 17 October). Claude named the gap and suggested
+nothing. Still open from the position of 6 October: which few settings may be tuned
+after the paper-trading year, named before it starts; the Bedrock billing, after which
+the check of reach and fit is Claude's; and how a candle that touches both the stop and
+T1 is counted (PHASE7_NEXT.md, the Freqtrade item). Its question 4 was moot from
+17 October.
+
+**What it weakens.**
+
+- Four known defects stay in the engine through Amazon's audit, and backtesting waits
+  for their fixes and for Amazon's verification of them.
+- The four are on the project's own lists, which are public: a model trained on the
+  repository after it was published could know them, and nobody can check that.
+- The four criteria keep the score to minor defects outside Items 2, 3, 6 and 18, so a
+  pass shows care in reading, not care on those four Items in particular.
+- The conditions in point 2 are Claude's suggestions; Viktor's own position was the one
+  word "Yes".
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then
