@@ -4579,6 +4579,89 @@ step is a safe place to stop, because nothing exists only in a chat.
   model reading that much may look less closely at each fix. The instruction lists the
   fixes one by one and asks for a verdict on each, so a skipped fix shows.
 
+## Decision, 17 October 2026 — the fix verification's tooling
+
+*New in this file on 17 October 2026. Claude's, under the delegation of 4 October as
+Claude reads it (the entry before this one, "Whose it is"). Filed by the commit that
+lands the send script, its tests and the instruction, before the send, so that Viktor
+can reverse any part of it. The session opened on 16 October at 05:44, paused at
+06:16 for Viktor's weekly usage limit, and resumed on 17 October at 06:17.*
+
+**What landed.** `docs/build/send_round8_fix_verification.py`, the send;
+`docs/audit_package/round8_fix_verification_instruction.md`, the instruction; and
+`tests/test_send_round8_fix_verification.py`, 25 tests with no fixtures. The commit
+sends nothing. The dry run, the tag and the send are Viktor's commands.
+
+**Where it goes past the entry before this one.** Each point is Claude's.
+
+1. **The diffs start at `e186423`, not at `217ede6`.** The entry before names "the
+   engine's diff from the tag `round8-sent-2026-10-04` (`217ede6`)". Round 8's package
+   was built from `e186423`, the tag `round7-sent-2026-09-30`, and sent from `217ede6`
+   ("Decision, 4 October 2026 — round 8's package …"). The engine's 33 files are the
+   same at both, and the script refuses otherwise, so the engine diff is the same either
+   way. The test files are not: `tests/test_package_token_check.py` and
+   `tests/test_send_audit_round.py` changed between the two, after the package was
+   built. From `e186423` the test diff covers 36 changed files where the entry before
+   counted 35. The 16 added files are the same. This was found while writing the
+   instruction, by checking what round 8 read.
+2. **The checkpoint is checked before the send, not only after it.** The entry before
+   compares the reply's record with round 8's afterwards, and says a different name
+   makes the result a different checkpoint's. The script reads the probe's own
+   generation record and refuses unless it names `xiaomi/mimo-v2.6-pro-20260921`.
+   `--different-checkpoint NAME` sends anyway, recorded as such. The probe asks for
+   the dated name first, and for the undated one only if the dated is refused. Why: a
+   run on another checkpoint uses one of the two runs the cap allows, and learning that
+   after paying for the run is the costlier order. If OpenRouter no longer serves that
+   checkpoint, whether to send to another is put to Viktor before any send.
+3. **The second run's filing is checked by git.** A second run needs `--second-run`,
+   run 1's three files committed and unchanged, the same message by its SHA-256, and a
+   commit to this file after the one that committed run 1's report.
+4. **One endpoint: Xiaomi's.** Round 8 had an order of four endpoints. The entry before
+   pins Xiaomi's endpoint, so a refusal stops the send.
+5. **The package is git's bytes at the tagged commit.** It is not read from the working
+   tree and not from a built folder, so the same commit gives the same bytes on Windows
+   and Linux. The payload's SHA-256 can therefore be computed in the sandbox and
+   compared with Viktor's dry run. Text goes as git stores it, with LF. The
+   Constitution goes as the CRLF bytes round 8 was sent: they are rebuilt from the blob
+   and checked against round 8's record.
+6. **The rulings excerpt is unbroken.** It runs from the triage of 5 October to the end
+   of the decision of 16 October, so it carries the position of 6 October, which is not
+   a ruling. The instruction says so. This entry is not in the excerpt.
+7. **The instruction's code locations are tested.** For each file and line it cites,
+   the line must be in range, and any text quoted beside it must be at that line. The
+   lines are read at the commit that last changed the instruction.
+
+**Measured.** In the Linux sandbox, on the tree this commit makes, with MiMo's own
+tokenizer: the 4 October pin, its three files staged off Viktor's disk and checked
+against their pinned SHA-256. The message is 56 files and 1,410,498 bytes:
+341,082 prompt tokens, or 472,154 with the 131,072-token reserve, of a 1,048,576-token
+context, leaving 576,422 to spare. The entry before estimated 330,000–350,000. At the
+prices read on 4 October, the send costs at most $0.26, not re-checked.
+
+**What it weakens.**
+
+- Starting the diffs at `e186423` departs from the filed wording. The engine bytes are
+  the same, and the test diff carries two more tooling files' changes.
+- Refusing on a different checkpoint can stop the send. That is the intent, but it
+  turns a finding into a decision point before the send.
+- Up to two probes go out before the send. Round 8's probe cost $0.000025.
+- The auditor reads LF text where Viktor's working tree is CRLF. The line numbers are
+  the same.
+- The tests use a stand-in tokenizer and stand-ins for the network. Only the real send
+  checks what OpenRouter and Xiaomi's endpoint return.
+
+### Claude's errors, recorded
+
+- The first draft of the instruction based both diffs on `217ede6`, following the entry
+  before. It was corrected before delivery, once the two commits' test files had been
+  compared.
+- The first draft of the script pinned git's `diff.orderFile` to an empty value. Git
+  refuses that ("failed to read orderfile"). Found on the first run, and removed.
+- Two first-draft tests were wrong as written. The citation check missed line numbers
+  wrapped onto the next line, and took a commit hash from the bullet before as a quote.
+  The import check read comments. Both were found by running them, and fixed before the
+  negative controls.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then

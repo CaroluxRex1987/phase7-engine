@@ -108,6 +108,13 @@ files, each checked against the hash round 7's runs recorded, with rev 9 of the
 instruction and the corrected Part 7 document; `build_audit_package.py` now refuses to
 rebuild round 7's folders, which round 8 is built from.
 
+From 17 October 2026 round 8's fix verification has a send of its own,
+`send_round8_fix_verification.py` (PHASE7_DECISIONS.md, "Decision, 17 October 2026 — the
+fix verification's tooling"): one request to MiMo-V2.6-Pro on Xiaomi's endpoint, built
+from git at the commit tagged `round8-verify-sent-<date>`, measured with the same token
+check, and refused unless a probe is served by round 8's checkpoint. It builds no folder:
+the package is read from git when it is sent. A dry run without the tag builds from HEAD.
+
 ## House style
 
 All scripts share the same visual system, and changes to one should be mirrored rather

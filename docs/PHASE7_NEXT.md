@@ -1,9 +1,9 @@
 # Next step — read this first
 
-*16 October 2026, early morning. Rewritten by the docs-only commit that files round
-8's fix verification — what is checked, what is sent, and to whom — Claude's under the
-delegation of 4 October; the version it replaced — as it stood at `f00bef6` — is in
-HISTORY verbatim.
+*17 October 2026, early morning. Rewritten by the commit that lands round 8's fix
+verification's tooling — the send script, its tests and the instruction — Claude's
+under the delegation of 4 October; the version it replaced — as it stood at `36de35d`
+— is in HISTORY verbatim.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
 rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
@@ -99,15 +99,21 @@ fails whole; and the watched error count is written as a number only in this fil
 Tests and a docstring only: no decision, `code_hash` or golden field moves.
 **On 16 October the fix verification was decided** (DECISIONS, "Decision, 16 October
 2026 — round 8's fix verification: what is checked, what is sent, and to whom"),
-Claude's under the delegation of 4 October, filed by the commit that writes this line.
+Claude's under the delegation of 4 October, filed at `36de35d`.
 The Critical's fix and round 8's fixed findings are checked against its own words;
 every other change to code it read is checked for new defects; what was not fixed is
 declared. MiMo-V2.6-Pro is pinned as in round 8, for one run, on a package close to
 full size because the fixes touched most of the engine, and the commit sent from is
 tagged first.
-**Next:** the verification's second patch — the send script pinned to MiMo, its tests
-and the instruction (Work order, item 5) — then the tag and the send, Viktor's
-commands. The release gate stays closed until that verification has reported on the
+**On 17 October its tooling landed** (DECISIONS, "Decision, 17 October 2026 — the fix
+verification's tooling"), Claude's under the same delegation, by the commit that writes
+this line: `docs/build/send_round8_fix_verification.py`, its instruction and its tests.
+The package is built from git at the tagged commit, measured with MiMo's own tokenizer
+at 341,082 tokens, and refused unless the probe is served by round 8's checkpoint. The
+diffs start at `e186423`, the code round 8 read, not at `217ede6` as the decision of
+16 October words it; the entry says why.
+**Next:** the dry run, the tag and the send (Work order, item 5) — Viktor's commands —
+then the report, read and filed. The release gate stays closed until that verification has reported on the
 stop and Viktor has accepted the report. What the triage left open is Viktor's (Open
 items).
 
@@ -413,7 +419,8 @@ files the decision. It is docs only, so it has no live run.
   sweep the 12 October ruling added to it at `797bdc9`, its two repeated readings
   at `69c92d6`, B4's labels at `22a9a35`, B7 at `d77a8c4`, B9 at `64ad625`, B10 at
   `9ea1cf3`, and Part 4's three test shapes at `f00bef6`**; what is left is the fix
-  verification (Work order, item 5), decided at the commit that writes this line. Point 4
+  verification (Work order, item 5), decided at `36de35d`, its tooling landed by the
+  commit that writes this line, its tag and send next. Point 4
   left to the patch how an ADX with no valid reading is treated: it blocks both sides
   too (Work order, item 2). Point 3 left to it how LOW VOLATILITY maps without the
   strong-trend test: LOW RISK, the reading the ruling named as Claude's; and the patch
@@ -628,7 +635,10 @@ files the decision. It is docs only, so it has no live run.
 ## Where things stand, right now
 
 - **Tip:** the commit that writes this line (a commit cannot name its own hash) —
-  round 8's fix verification decided: docs only. Before it: `f00bef6` (the session of
+  round 8's fix verification's tooling: a new script under `docs/build/`, a new
+  instruction under `docs/audit_package/`, a new test file and docs. Before it:
+  `36de35d` (the session of 16 October, 04:27: round 8's fix verification decided:
+  docs only), `f00bef6` (the session of
   15 October, from 13:33: Part 4's three test shapes: tests, `run_tests.py`'s docstring
   and docs), `9ea1cf3` (the session of 15 October, from 10:32: B10: engine code, two tests, a new
   test file and docs), `64ad625` (the session
@@ -753,7 +763,9 @@ files the decision. It is docs only, so it has no live run.
   `tests/test_decision_bar_integrity.py`,
   `tests/test_docs_build_writes_into_the_repository.py`,
   `tests/test_code_fingerprint.py` and `tests/test_summary_names_the_action_reason.py`,
-  and `run_tests.py`'s docstring. The commit that writes this line changes no test.
+  and `run_tests.py`'s docstring. `36de35d` changed no test. The commit that writes
+  this line adds `tests/test_send_round8_fix_verification.py` (25 tests, no fixtures)
+  and changes no other test.
 - **Where the project lives, from 26 September:** `E:\phase7_engine` on Viktor's machine;
   the files kept outside the repository in `G:\Phase_7_Engine_Random_Files`. Copied with
   robocopy, verified — git's own checks on Windows for the tracked files, SHA-256 for the
@@ -762,18 +774,18 @@ files the decision. It is docs only, so it has no live run.
   to `E:\phase7_engine`". Run the engine and every command from `E:\phase7_engine` (in
   cmd, changing drive needs `cd /d`). A dated record that names the D: paths means the
   same folders before the move; dated records are not edited.
-- **The push of `f00bef6`** happened: at the start of this session it was GitHub's tip
-  (a clone, 15 October), and on 16 October `master` and `origin/master` on Viktor's
-  disk (`.git/refs`, staged off it). No deviation was reported at the push (ruling on proposal (b)). The same holds
+- **The push of `36de35d`** happened: at the start of this session it was GitHub's tip
+  (a clone, 16 and 17 October), and on 17 October `master` and `origin/master` on
+  Viktor's disk (`.git/refs`, staged off it). No deviation was reported at the push (ruling on proposal (b)). The same holds
   for the push of the commit that writes this line unless it deviates. Earlier pushes
   and deviations are recorded in this file's previous versions, in HISTORY.
 - **Before this commit**, every file it changes was staged off Viktor's disk and matched
-  an autocrlf clone of `f00bef6` byte for byte; it adds no file.
+  an autocrlf clone of `36de35d` byte for byte; it adds three files.
 - **code_hash:** `bc1b9c2c517215d0b16eec4209462fa14664a89fbf7b24fcd565c255c45800d7`,
   moved by `9ea1cf3` from `e2f6b2ad…` (`core/panel_render.py` and `live_trading.py`),
-  and unchanged by `f00bef6` and by the commit that writes this line, as predicted:
-  this commit changes only files under `docs/`, which the fingerprint excludes by
-  directory. Computed on the working tree and on the applied tree under Python 3.12.3.
+  and unchanged by `f00bef6`, `36de35d` and the commit that writes this line, as
+  predicted: this commit changes only files under `docs/` and `tests/`, which the
+  fingerprint excludes by directory, and `README.md`, which is not a `.py` file. Computed on the working tree and on the applied tree under Python 3.12.3.
   `9ea1cf3`'s live run confirmed `bc1b9c2c…` on Windows; neither commit since has a
   live run, since neither moves `code_hash` or touches a decision path.
 - **code_hash is only comparable within one Python minor version.** It hashes `ast.dump`
@@ -783,19 +795,23 @@ files the decision. It is docs only, so it has no live run.
 - **Golden snapshot:** unchanged by the commit that writes this line, as predicted: it
   changes no engine code and no fingerprinted name or value, so `run_hash`
   (`40dcdc72…`) holds; the golden test passes on the applied tree without a
-  re-baseline. Unchanged by `f00bef6`, `9ea1cf3`, `64ad625` and `d77a8c4` too. Last
+  re-baseline. Unchanged by `36de35d`, `f00bef6`, `9ea1cf3`, `64ad625` and `d77a8c4`
+  too. Last
   re-baselined at
   `22a9a35`, 4 leaves (the confirmation reason, `volume_sentiment` twice and
   `validation_note`'s volume half: VOLUME DIVERGENCE → FADING VOLUME); before that at
   `6469a67`, 8 leaves.
-- **Test suite** — **841 passed / 0 failed, no warnings line** with `pandas_ta`;
-  **676 passed / 154 skipped** without it; `run_tests.py` **770 passed / 0 failed /
+- **Test suite** — **866 passed / 0 failed, no warnings line** with `pandas_ta`;
+  **701 passed / 154 skipped** without it; `run_tests.py` **795 passed / 0 failed /
   32 errors**, all 32 fixture-collection `TypeError`s, the same 32 as before. This is
   the one place the watched error count is written as a number (DECISIONS, "Ruling,
   15 October 2026 — Part 4's three test shapes", point 5). The commit that writes this
-  line adds and changes no test, so no count moves. Counts from the Linux sandbox,
-  Python 3.12.3, pinned requirements, the patch applied to an autocrlf clone of
-  `f00bef6`; Viktor's Windows run is what confirms them. `f00bef6`'s were the same. It
+  line adds 25 tests, none taking a fixture and none needing `pandas_ta`, so each count
+  rises by 25 and the error count holds. Counts from the Linux sandbox, Python 3.12.3,
+  pinned requirements, the patch applied to an autocrlf clone of `36de35d`; Viktor's
+  Windows run is what confirms them. `36de35d`'s were 841; 676 / 154; 770 / 0 / 32, the
+  same as `f00bef6`'s. `f00bef6`'s pytest step ran on Windows; whether `36de35d`'s did
+  is not checked (docs only). `f00bef6`
   added no test and changed 3: the golden coverage test, which has run without
   `pandas_ta` since then (hence 675 / 155 to 676 / 154), the non-finite test and the
   SuperTrend level test. Its pytest step ran on Windows after the apply: the cache on
@@ -810,13 +826,14 @@ files the decision. It is docs only, so it has no live run.
   `test_the_commit_messages_up_to_the_tag_are_round_7s_to_the_byte`, runs `git log` up
   to the tag `round7-sent-2026-09-30`: it needs the tag, which a full clone has.
 - **Engineering Notes:** through Entry #183 (v1.36), which covers `68c6191`.
-  **Thirty-nine commits behind** — `ec4e5fd`, the floor (a commit that regenerates the Notes cannot
+  **Forty commits behind** — `ec4e5fd`, the floor (a commit that regenerates the Notes cannot
   cover itself, Entry #144), `e7a94d1`, `d5ced0c`, `59b747a`, `f256937`, `12b483e`,
   `01f2892`, `8b6fd00`, `e186423`, `86f30f1`, `3e8191a`, `1523e0c`, `ff12e17`,
   `4a4c6ce`, `217ede6`, `d27743f`, `a0276dd`, `040a529`, `9e42d30`, `eb86846`,
   `c2b07fb`, `1b25f36`, `fcb7823`, `9e507b1`, `6469a67`, `ae37795`, `9d00d99`,
   `27d3ed5`, `9051ffd`, `e5ac20a`, `ef65f46`, `797bdc9`, `69c92d6`, `22a9a35`,
-  `d77a8c4`, `64ad625`, `9ea1cf3`, `f00bef6` and the commit that writes this line.
+  `d77a8c4`, `64ad625`, `9ea1cf3`, `f00bef6`, `36de35d` and the commit that writes this
+  line.
   Every later
   commit adds one
   until the
@@ -832,9 +849,8 @@ files the decision. It is docs only, so it has no live run.
   identical to the committed PDF. Neither changes in the commit that writes this line;
   the Attribution Statement's script last changed at `68c6191`, the Portfolio
   Document's at `6e1baba`.
-- **README.md:** its test counts are current (841, 676 / 154 and 770), last changed by
-  `f00bef6`. The commit that writes this line does not touch it, so the hook's section
-  5 will report 1 commit since it was touched. Its paragraph on what is empirically validated was rewritten at
+- **README.md:** its test counts are current (866, 701 / 154 and 795), changed by the
+  commit that writes this line, and before it by `f00bef6`; nothing else in it changes. Its paragraph on what is empirically validated was rewritten at
   `6469a67` (the BTC-Adjusted Prediction removed) — Viktor's to reword (Open items).
   **Three of its status rows are stale** and not changed here (Open items):
   "Independent audit", "Backtesting" and, since 5 October, "Release gate", which still
@@ -1842,13 +1858,23 @@ Each code commit is its own commit and updates this file for its own landing.
      send script pinned to MiMo, its tests and the instruction, with the package
      measured by MiMo's own tokenizer. Then the tag and the send, Viktor's commands.
      The release gate reopens only on its report (point 2), once Viktor accepts it.
+     **Its tooling landed by the commit that writes this line** (DECISIONS, "Decision,
+     17 October 2026 — the fix verification's tooling"): the send script, pinned to
+     MiMo on Xiaomi's endpoint, its instruction and 25 tests. Measured with MiMo's
+     tokenizer: 341,082 prompt tokens, 576,422 to spare. Next, Viktor's commands: the
+     dry run, which prints the payload's SHA-256 for comparison with the sandbox's; the
+     tag `round8-verify-sent-<date>` on that commit, pushed; the send. Then the report
+     is read and filed, and whether a second run is sent is decided and filed first.
 
 ## Resolved this session
 
-- **Round 8's fix verification, decided** (Work order, item 5): what is checked, what
-  is sent and to whom, filed in DECISIONS by the commit that writes this line before
-  any tooling, so that the usage budget could not leave the work half done.
-- **The once-per-session rewrite of this file.** The previous version, as at `f00bef6`,
+- **Round 8's fix verification's tooling** (Work order, item 5): the send script, its
+  instruction and its tests, and the decision that records where they go past the
+  decision of 16 October, by the commit that writes this line. The session opened on
+  16 October at 05:44 with a budget estimate; Viktor paused it for his weekly usage
+  limit (13% left) on Claude's advice, and resumed it on 17 October at 06:17 after the
+  reset. Nothing was ruled.
+- **The once-per-session rewrite of this file.** The previous version, as at `36de35d`,
   is in HISTORY verbatim, headings demoted one level, proven by un-demotion with a
   negative control (this commit's message has the result).
 
@@ -1879,7 +1905,7 @@ Claude critiques it.
   both the stop and T1 is counted is the Freqtrade item below. For all but the billing
   he writes his position first.
 - **The independent audit — round 8 is done and triaged; its fix verification is
-  decided, and its second patch is next.** Claude's, under the delegation of 4 October;
+  decided and its tooling has landed; the tag and the send are next.** Claude's, under the delegation of 4 October;
   Viktor runs the commands. Round 8's preparation list — items 1 to 8, all done — is in
   HISTORY, in this file as it stood at `9e42d30`. The verification goes to the same
   auditor, MiMo-V2.6-Pro, on the package the decision of 16 October names (Work order,
