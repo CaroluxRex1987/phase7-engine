@@ -5031,6 +5031,41 @@ gate.
   started from — for a scheduled task, a folder that is not the repository. The check,
   made before any work, found both; it was said as unchecked, and it was still wrong.
 
+## Decision, 17 October 2026 — how the forward measurement is counted
+
+*New in this file on 17 October 2026, filed by the docs-only commit of the session that
+opened at 14:10 at `0491b84`. Claude's, under point 5 of the ruling above ("Claude
+counts"), set before any reading and put to Viktor in chat the same afternoon, before
+the first scheduled run's records were filed; his to change.*
+
+**Why now.** A count whose rules are chosen after its data is read can be fitted to
+it. The first reading is due on 31 October.
+
+**The rules.**
+
+1. **The count starts at the task's first run** — the candle that opened at 08:00 UTC
+   on 17 October, read at 14:05. Records of earlier candles, the hand runs before
+   `0491b84` among them, stay in the logs and are not counted.
+2. **One decision per pair per candle per version**, as the ruling says, and it is the
+   task's: its runs start five minutes after a close (sixty-five after the clocks go
+   back on 25 October). Any other record of the same candle on the same `code_hash` —
+   a run by hand, or by anything else — stays in the log and is not counted.
+3. **Failures are split by kind and reported apart.** A "not yet final" refusal is
+   counted as a refusal, not a failure, and its candle is not missed if a later run
+   read it. Any other failure is counted as failed. A candle no run read is counted as
+   missed: the machine asleep, logged off or on battery power, or every run on it
+   failed.
+4. **Failures are counted from `main.py`'s line for each pair** ("Engine returned
+   error for" the pair), never from ERROR lines, which come two to a failed pair
+   (PHASE7_NEXT.md, Open items, the forward measurement).
+
+**What it weakens.**
+
+- Rule 1 leaves out the engine's first live run on nine of the ten pairs. They are in
+  `0491b84`'s message and in the logs, and can be read apart.
+- Rule 2 trusts the minute a run started to say what started it; no field records it
+  (the ruling's "What it weakens").
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then

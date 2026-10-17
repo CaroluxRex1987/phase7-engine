@@ -19,11 +19,11 @@ by one person, with heavy AI assistance.**
 | | |
 |---|---|
 | Constitution | Ratified 26 August 2026. Rules frozen at 21 / 7 / 10 / 6 = 44. Scope freeze lifted 27 August; no amendments adopted since. |
-| Independent audit | **The original four-run audit, plus five further rounds since** (2, 5, 5, 12 and 13 September) — three of them both independent and complete: round 2 produced no report, and round 3's reviewer was not independent (see below). Every Critical Tier 1 finding any of them raised has a landed, independently re-audited fix. The engine has changed since the last round's fix-verification (14 September) — on 21 September its entry signals were made to confirm each trade — and none of those changes has been independently re-audited yet; the next round is paused, by my decision on 21 September, until work order G and my rulings on six open findings are done (decided 22 September; anything found meanwhile waits for after the audit). Full record in [`docs/audit_reports/`](docs/audit_reports/). |
+| Independent audit | **The original four-run audit, plus seven further rounds since** (2, 5, 5, 12 and 13 September, 30 September and 4 October). Of the first five, three were both independent and complete: round 2 produced no report, and round 3's reviewer was not independent (see below). Round 7 (Poolside's Laguna S 2.1) found none of the four known defects an auditor is scored on, in either of its two runs, so none of its ratings count. Round 8 (Xiaomi's MiMo-V2.6-Pro) found two of the four in its second run; I sent its findings to triage and decided its ratings do not count toward opening backtesting. The triage ruled one Critical, found by a review I had Claude write beside round 8, not by round 8 itself: the stop's distance depended on how convinced the engine was of its direction, a break of Item 14. The fix landed, round 8's auditor verified it, and I accepted that on 17 October. Every finding ruled Critical has a landed fix verified by an independent auditor. The engine has changed since round 8 read it; each change is listed for the next full round, which is not yet scheduled. Full record in [`docs/audit_reports/`](docs/audit_reports/). |
 | Engine code | **All Criticals resolved.** The original four, plus three more a later round found — see below. All sixteen remediation-sequence items complete. |
 | Tests | 875 pass with `pandas_ta` installed (701 pass, 163 skip without it). The fixture-free runner (`run_tests.py`) reports 804 passed, 0 failed, 32 errors — all from tests written with pytest fixtures that runner deliberately doesn't support, not defects; see its own docstring. |
-| Release gate | **Open.** Declared 15 September 2026, tagged `portfolio-v1` in this repository — see below. |
-| Backtesting | Not yet rebuilt. The Constitution's own separate condition for starting it — Items 2, 3, 6 and 18 all Compliant — has not been formally re-checked since the release gate opened, though nothing currently on record contradicts it. It also waits on an independent re-audit of the changes made since 14 September (the Constitution's step 8), and on rulings of mine the engine needs first — among them which candle a decision is made on and where an entry fills. |
+| Release gate | **Open.** Declared 15 September 2026 and tagged `portfolio-v1` in this repository. Closed from 5 to 17 October while the Critical from round 8's triage was fixed and verified; open again since I accepted the verification on 17 October — see below. |
+| Backtesting | Not yet rebuilt, and closed. What opens it was ruled on 29 September: it may be built only once an independent auditor has rated Items 2, 3, 6 and 18 Compliant (or confirmed the fix of each gap), no Critical or Major finding is open, every other finding is ruled, every fix is confirmed by that auditor, and I declare it; a backtest may be run only once its harness is built and tested and the engine passes a known-good checkpoint. Not met yet: round 8 rated Items 2, 3 and 6 Partially compliant and 18 Compliant, and by my decision of 4 October none of its ratings count toward it. |
 | Live trading | Read-only market access only. The engine cannot place orders — enforced by five guards, each verified by injecting its violation. |
 
 **A release gate is in force, as it always has been:** no output of this engine may be
@@ -31,8 +31,9 @@ relied on for a real trading decision while any Critical Tier 1 finding stands
 unresolved. As of 15 September 2026 that condition is met — every Critical raised
 across the original audit and the five rounds since has a landed,
 independently re-audited fix — and the project
-was declared portfolio-ready and tagged `portfolio-v1` at that commit. **The gate is
-open.**
+was declared portfolio-ready and tagged `portfolio-v1` at that commit. It closed again
+on 5 October, when round 8's triage ruled a Critical, and reopened on 17 October, once
+round 8's auditor had verified the fix. **The gate is open.**
 
 That is a statement about process, not about whether this is a good trading tool. It
 still hasn't been shown to predict anything (see below), and running it to look at is
@@ -301,9 +302,8 @@ modules, and sit outside that count. There is no `backtesting/` in the tree yet:
 an earlier version was removed during development, and it was deliberately left
 unbuilt until the Constitution's own condition for starting it — Items 2, 3, 6 and 18
 all Compliant — is met, so that rebuilding it could not repeat the exact failure that
-broke this engine's second build. That condition has not been formally re-checked
-since the release gate opened on 15 September 2026, though nothing currently on record
-contradicts it — see the Status table above.
+broke this engine's second build. That condition is not met yet — see the Status
+table above.
 
 `docs/build/` holds the scripts that generate every PDF in `docs/`. They are committed
 so the documents are reproducible from source rather than existing only as rendered
