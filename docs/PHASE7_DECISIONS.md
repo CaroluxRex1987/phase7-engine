@@ -4929,6 +4929,108 @@ say whether "every change" or the list was the scope of its check.
     "round 8's fix verification is next" has been out of date. `d3188f2` searched
     PHASE7_NEXT.md for unnamed self-references, not this file.
 
+## Ruling, 17 October 2026 — the forward measurement: ten pairs every four hours, and main.py takes them
+
+*New in this file on 17 October 2026. Viktor's, by agreeing to Claude's suggestion, in a
+session that opened at 10:34 at `67f6ec1`; filed by the commit that lands its code
+change. It answers question 5 of 28 September as far as running forward can, and starts
+on questions 12, 13 and 14 (PHASE7_NEXT.md, Open items, "The questions of 28
+September").*
+
+**How it was made.** Asked at the start of the session what he wanted to do, Viktor
+asked for suggestions at 10:50. Claude's first was to find out how often the engine
+trades, by running it forward on several pairs, logging only, and said it "may need no
+code at all, just a scheduled task on your PC; I'd check that first." At 10:56: "We go
+with your suggestions." The check found that it does need code (below, "Claude's
+errors"), and Claude put the change, the pairs and one question for the ledger to him.
+At 11:42 he asked for Claude's suggestions on them, and at 11:46: "Go." The pairs are
+Claude's suggestion, which he accepted; he did not name them himself. Asked the ledger's
+question — whether any Amazon model has been sent anything — he answered at 13:30: "No
+Amazon model have been sent anything from the project." The roster-and-ledger reissue
+records it.
+
+**Why.** "Finished" needs at least 100 closed trades from one engine version ("Ruling,
+28 September 2026 — what "finished" means …", point 7). Nothing on record says how often
+the engine trades. The live decision log holds 63 records, 6 September to 15 October,
+across 42 code versions, every one from a run started by hand — mostly when a patch
+landed (read from the log on Viktor's disk on 17 October). They are not a sample of
+candles. Counting over past candles is backtesting, which "Ruling, 29 September 2026 —
+what opens backtesting" keeps closed. So the engine is run forward, on the candles as
+they close.
+
+**The ruling.**
+
+1. **The engine runs every four hours on ten pairs, logging only:** AEROUSDT, ETHUSDT,
+   SOLUSDT, XRPUSDT, BNBUSDT, DOGEUSDT, ADAUSDT, LINKUSDT, AVAXUSDT and SUIUSDT. Chosen
+   for clean data — large, liquid, long histories, priced well above $0.01 as of Claude's
+   training data — not for any view on price. No BTCUSDT: every other pair reads
+   Bitcoin as its reference, and on BTCUSDT that section is off, so it would run a
+   different engine from the other nine. Viktor may swap any pair.
+2. **Windows Task Scheduler starts it on Viktor's machine**, as one task that runs
+   `pythonw.exe E:\phase7_engine\main.py` with the ten pairs, five minutes after a 4h
+   candle closes and every four hours from there. `pythonw.exe` opens no window. The task
+   runs while he is logged in and the machine is awake; a candle that closes while it
+   sleeps is not read, and the count says how many were. Claude first proposed one task
+   per pair, a minute apart; once `main.py` took several pairs, one task running them in
+   turn needs one command to create and one to remove, and the test that a pair's record
+   is the same alone as after other pairs (point 3) is what makes that safe. Claude's
+   change, Viktor's to reverse. After the clocks go back on 25 October the run falls 65
+   minutes after each close instead of five: still once per candle.
+3. **`main.py` takes the pairs and works from its own folder** — the patch this entry is
+   filed with. `python main.py ETHUSDT SOLUSDT` runs each pair in turn, each with a
+   router of its own and `config.SYMBOL` set to the pair for its run, so the record of a
+   pair names it in its config as well as its decision; with no pair named it runs
+   `config.SYMBOL`, as before. Run as a script, it changes to its own folder before
+   anything opens a file, so a run started anywhere writes into the repository's `logs/`
+   with every recorded path unchanged. A pair that is not upper-case letters and digits
+   ending in USDT, or a pair named twice, refuses the whole command, exit code 2, before
+   any pair runs; a pair that fails does not stop the ones after it, exit code 1. A
+   failed pair writes no decision record, as any failed run never has (PHASE7_NEXT.md,
+   "Found after 22 September", round 8's Part 7 reply, §1(5)); its error is in
+   `logs/phase7_engine.log`, now with the pair named. The shape is Claude's under this
+   ruling, Viktor's to reverse.
+4. **Each pair is run once by hand before the task is created**, and Viktor reads its
+   panel. For nine of the ten it is the engine's first live run (question 12). The
+   commit's message records what the ten records showed.
+5. **Claude counts at two and at four weeks**, from the decision logs and the process
+   log staged off Viktor's disk: for each pair and each `code_hash`, the closed 4h
+   candles read, and among them the LONG actions (AGGRESSIVE LONG, LONG and CONSERVATIVE
+   LONG), the SHORT actions, WAIT and NO-TRADE; degraded runs (question 13); failed runs;
+   and how many LONGs fell on the same candle across pairs (point 11 of 28 September). A
+   reading changes nothing in the engine.
+6. **It does not start the paper-trading year.** No paper account, no slices, no scoring
+   of trades: those wait for Viktor's call (PHASE7_NEXT.md, Open items, "the
+   paper-trading setup"). The count is of what the engine says, not of trades it would
+   have closed.
+
+**What it does not do.** It changes no decision: the golden snapshot does not move.
+`code_hash` moves, because `main.py` is fingerprinted, so the measurement starts on a
+version of its own. It does not open backtesting, and it does not touch the release
+gate.
+
+**What it weakens.**
+
+- The pairs are Claude's suggestion; nobody independent of Claude chose them. They all
+  move with Bitcoin, so ten pairs are not ten independent samples.
+- Candles the machine sleeps through are not missed at random if it sleeps at the same
+  hours each day.
+- A change to engine code during the measurement starts a new version, and the count for
+  each version starts from zero.
+- Runs started by hand and by the task share each pair's decision log, and no field says
+  which started a run. The count tells them apart by the minute they ran, and keeps one
+  decision per candle per version.
+- A record of a pair other than `config.SYMBOL`'s now carries that pair in its config,
+  so its `run_hash` differs from what a direct call on the same pair records (still
+  AEROUSDT there; PHASE7_NEXT.md, "Found after 22 September"). It distinguishes more,
+  not less.
+
+### Claude's errors, recorded
+
+- **"It may need no code at all"** (10:50), said before the check that was offered with
+  it. `main.py` ran only `config.SYMBOL` and wrote its logs into whichever folder it was
+  started from — for a scheduled task, a folder that is not the repository. The check,
+  made before any work, found both; it was said as unchecked, and it was still wrong.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then
