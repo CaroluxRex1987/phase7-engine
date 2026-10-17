@@ -4662,6 +4662,122 @@ prices read on 4 October, the send costs at most $0.26, not re-checked.
   The import check read comments. Both were found by running them, and fixed before the
   negative controls.
 
+## Fix verification, 17 October 2026 — round 8's auditor: the stop's fix holds, no new Critical; Viktor's to accept
+
+*New in this file on 17 October 2026. Filed by Claude under the delegation of 4 October,
+by the commit after the one that sent it. It records the reply and Claude's check of
+it. **Accepting or rejecting the report is Viktor's**, and his acceptance is what
+reopens the release gate ("Decision, 16 October 2026 — round 8's fix verification …",
+"What reopens the gate"). Nothing here accepts it.*
+
+**What was sent.** Run 1, at 08:55 on 17 October (06:55 UTC), from `78ea37d`, tagged
+`round8-verify-sent-2026-10-17` and pushed before the send. Viktor's dry run on Windows
+printed the payload SHA-256 the sandbox predicted
+(`aa9b9241eccb619ad195c1799869ef25e24cca10b7339bf17009b91fd063ba1e`), and the same
+341,082 tokens. The probe asked for `xiaomi/mimo-v2.6-pro-20260921` and was accepted
+and served by it. So was the send.
+
+**What came back**, from the run's own record (`run_metadata.json` and `generation.json`
+in `docs/audit_reports/round8-verify_mimo-v2.6-pro_2026-10-17/`):
+
+- served by Xiaomi, model `xiaomi/mimo-v2.6-pro-20260921`, `finish_reason` stop;
+- 341,082 prompt tokens by the provider's count, the token check's count exactly;
+- 11,634 completion tokens, 7,309 of them reasoning;
+- 240 seconds, and $0.158.
+
+The four files' SHA-256:
+
+- `report.md` `6d7dc016…`;
+- `reasoning.txt` `efd9a672…`;
+- `run_metadata.json` `8ccc0334…`;
+- `generation.json` `8d088d5f…`.
+
+**What the report says.**
+
+- **A, the gate question.** The fix *holds*: `stop_mult = ATR_STOP_MULT *
+  vol_multiplier`, `vol_multiplier` from the volatility state alone, and `bias_score`
+  used only for the side. It says it searched every computation, record, print and
+  check of the stop. No change since its package adds a Critical.
+- **B.** F1, F2, F3, F5, F6 and F8 are *fixed*; F9 is fixed in all four claims; Part 4's
+  three test shapes are all fixed.
+- **C.** It found no new defect in any of the nine other changes. Every ruling claim it
+  checked it calls *supported*.
+- **D.** None of the six items declared not fixed is worse.
+- **E.** Three notes, none a defect. The B4 ruling's 25 points come off
+  `validation_score`, not `bias_score`. `_measured_adx` accepts the bounds 0 and 100.
+  The ADX gate blocks more bars than the old flag, as the ruling said.
+- **F.** It does not know its checkpoint. It recognised no code from training. It
+  lists the files it read in full, and says it ran nothing.
+
+**Claude's check of the report** (a clone of `78ea37d`, the commit sent, in the Linux
+sandbox; reading the code, not running it):
+
+- **Its quotations and code claims.** Twenty-three were checked against the code it was
+  sent, and the code each describes is there. Three quotations are found only across a
+  wrapped line: `core/decision_contract.py`'s docstring, the ADX consequence text in
+  `indicators/indicators.py`, and `structure/structure.py`'s VWMA docstring.
+- **One quotation is not word for word.** It gives the lineage comment in
+  `core/engine_core.py` as "…the sign of bias_score, all four recorded here." The
+  comment says "all recorded here, and the regime reads …". "All four recorded here"
+  is the decision contract's docstring's wording, so two passages were merged into
+  one.
+- **Its line numbers are approximate.** `plan_direction` is at line 386, which it gives
+  as "~430". F3's condition is at line 346; it put that under line 352, the line the
+  instruction cited, where the next branch begins.
+- **Every test file it names exists.** Ten were checked.
+- **E's arithmetic holds:** `0.0` for both labels in `bias_engine`, and `−25` for both
+  in `volume_agreement`.
+- **Not checkable:** whether it read in full what it says it did.
+
+**How much weight the report bears.** This is Claude's reading, for Viktor to weigh;
+it is not a verdict on acceptance.
+
+- The reply is short for its read. It has 7,309 reasoning tokens on 341,082 read. Round
+  8's run 2 had 68,464 on 430,820, about eight times as much per token read. The
+  decision of 16 October named this risk ("A model reading that much may look less
+  closely at each fix").
+- It found nothing wrong anywhere: no new defect, and no unsupported claim among the
+  ones it checked. That may be true. It is also what a reading that confirms the
+  rulings, rather than tests them, would produce.
+- Its quotations are real, so it did read the code. What cannot be told from the
+  report is how hard it looked for what was not there.
+- **One passage it called accurate is layered.** The lineage comment in
+  `core/engine_core.py` has a FIX 1 paragraph saying "the regime reads the stop,
+  volatility_state and adx". The FIX 3 paragraph right after it says adx left.
+  Claude reads that as a dated history, not a false claim, but records it here.
+
+**No second run** (Claude's, under the decision of 16 October: a second run is sent
+"only if the first does not answer the gate question for point 1"). The first run
+answered it: A.1 *holds*, with the code cited, and A.2 *no*. The cap stays at two;
+one is used.
+
+**What follows.** **Viktor's:** accept or reject the report, his position first. The
+gate reopens on his acceptance and not before. A rejection sends the report to his
+triage, under the same decision. Either way, round 8's ratings still do not count
+toward opening backtesting ("Ruling, 4 October 2026 — round 8's result …"). Reopening
+the release gate does not open backtesting.
+
+**What it weakens.**
+
+- The fixer checked its own verifier's report and chose which claims to test.
+- The report is filed before Viktor has read it.
+
+### Claude's errors, recorded
+
+- **`78ea37d` left three passages of PHASE7_NEXT.md stale.** Each still said "the
+  commit that writes this line" about what `36de35d` had done:
+  - the previous session's account ("This session (15 October, 18:47, to
+    16 October)", and the line before it, "moved there by the commit that writes this
+    line");
+  - Work order item 5's "Decided at the commit that writes this line";
+  - the change-list note "(`ef65f46` and the commit that writes this line, docs only,
+    changed no line there.)", though `78ea37d` did change a line there.
+
+  Found while preparing this filing, by searching the file for "the commit that writes
+  this line". The commit that files this entry corrects all three. The session rewrite
+  replaced a few named lines and did not search the file for the phrase. That search
+  is the check that would have caught all three.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then

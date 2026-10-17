@@ -1,0 +1,379 @@
+{
+  "model_requested": "xiaomi/mimo-v2.6-pro-20260921",
+  "checkpoint_accepted": "xiaomi/mimo-v2.6-pro-20260921",
+  "round8_checkpoint": "xiaomi/mimo-v2.6-pro-20260921",
+  "different_checkpoint": false,
+  "provider_pinned": "xiaomi",
+  "max_output_tokens": 131072,
+  "commit": "78ea37dcd9ebf5ed9b5266b1977706a246eb5810",
+  "tag": "round8-verify-sent-2026-10-17",
+  "files": [
+    {
+      "name": "docs/audit_package/round8_fix_verification_instruction.md",
+      "bytes": 9938,
+      "sha256": "fdea7d4d74ee4eb16b613e520ce8764d251f328f016a264c1dc30e8a4b28541c"
+    },
+    {
+      "name": "docs/audit_reports/round8_mimo-v2.6-pro_run2_2026-10-04/turn1_report.md",
+      "bytes": 47026,
+      "sha256": "00022d076afd1e3da2d99a07ee4344c06a9ab9235606ed5789ba3b5b2a90b860"
+    },
+    {
+      "name": "docs/audit_reports/round8_mimo-v2.6-pro_run2_2026-10-04/turn2_report.md",
+      "bytes": 22486,
+      "sha256": "75f0a1224bdb54f4055476bd61284e890925888494e1d0172ca931d02137e3ec"
+    },
+    {
+      "name": "docs/PHASE7_DECISIONS.md (excerpt: \"Ruling, 5 October 2026 \u2014 round 8 triaged\" to the end of \"Decision, 16 October 2026 \u2014 round 8's fix verification\")",
+      "bytes": 88769,
+      "sha256": "7622ee2fbbf02195eb072548b4503814d87518c448f25c67a6faec9c6f482612"
+    },
+    {
+      "name": "docs/audit_package/Phase7_Constitution_v1.0_RATIFIED_AUDITCOPY.txt",
+      "bytes": 107216,
+      "sha256": "08f663a3b591c50e9ac0c62a3512c2a96c00ffb5234a5ed40814c52015aea700"
+    },
+    {
+      "name": "engine.diff",
+      "bytes": 149577,
+      "sha256": "7af78522b94be091544b27afd799901d065fe811f65f37a9fc9fa03f39ce93a0"
+    },
+    {
+      "name": "__init__.py",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "core/__init__.py",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "core/code_fingerprint.py",
+      "bytes": 12492,
+      "sha256": "50fa368001ba4b1763b362c1fb92c042d68bc10a639b3a9557f4d64695726f43"
+    },
+    {
+      "name": "core/config.py",
+      "bytes": 5640,
+      "sha256": "379d996999fe5a74335af877717778d105ebca066b504c21b02d05a18aeea7b0"
+    },
+    {
+      "name": "core/decision_contract.py",
+      "bytes": 19836,
+      "sha256": "9f615559637b6ee1781aa744395a45bce1c636099b1f63d736f7177706386c80"
+    },
+    {
+      "name": "core/decision_log.py",
+      "bytes": 27497,
+      "sha256": "e6f6f9d96214c3f222a39f3ff6529dab1221acd0245ac397f1227e17cfea76de"
+    },
+    {
+      "name": "core/engine_core.py",
+      "bytes": 95770,
+      "sha256": "eb9772f38e0a0cc7d209a7a4683dce08fc386ded151e48ff0b8dab4e31c21baf"
+    },
+    {
+      "name": "core/lineage.py",
+      "bytes": 20526,
+      "sha256": "a8b1bf85f8f4caf1912518930ae919bd83728ad3ccf1009813da141d714ed46f"
+    },
+    {
+      "name": "core/panel_render.py",
+      "bytes": 51474,
+      "sha256": "4faf60e67e611fd1c3f6fb37e588c6a608891cc95140eae0abdb3ee1954c93cf"
+    },
+    {
+      "name": "data/__init__.py",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "data/data_fetcher.py",
+      "bytes": 25351,
+      "sha256": "77dde956d76ac99dce53542a84eff610d1b64f9f8f57a921e7dae3c6828b6701"
+    },
+    {
+      "name": "data/validation.py",
+      "bytes": 21938,
+      "sha256": "62fcb24675a8c2a46ea1fc54c550d5aa8cae094a7fc5e632ef948d1452e17765"
+    },
+    {
+      "name": "indicators/__init__.py",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "indicators/indicators.py",
+      "bytes": 48571,
+      "sha256": "59b50deff402fe8bc80fb7d074494ab45250587d00a01d50d624a273a5d65f3c"
+    },
+    {
+      "name": "indicators/trend_health.py",
+      "bytes": 29639,
+      "sha256": "7f26124ec73e49c4194920ea2f76282988ab3aad3e87562fd426596c975b1384"
+    },
+    {
+      "name": "indicators/volume_profile.py",
+      "bytes": 10291,
+      "sha256": "450a637dda5cee14f755b10a56a5824546b923315c483132b46da53237e18893"
+    },
+    {
+      "name": "live_trading.py",
+      "bytes": 11793,
+      "sha256": "5b655090600babd72ffb7ffdfd86f1f76fc459f8a2c20d200ca308953a281307"
+    },
+    {
+      "name": "main.py",
+      "bytes": 3092,
+      "sha256": "6365fac5c98588a82bb66f2eea114741a0c55499cd2accef06ed914a61184df8"
+    },
+    {
+      "name": "models/__init__.py",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "models/bias_engine.py",
+      "bytes": 31036,
+      "sha256": "35f12186912b7ed68473b97784dbb933bbcbdead1f6a841fb075dfc42fd20417"
+    },
+    {
+      "name": "models/btc_context.py",
+      "bytes": 8953,
+      "sha256": "b3a1d0a0a71153c3a81c4af0203b3fa1d531c5a4dd3df6ed52195662db49a590"
+    },
+    {
+      "name": "models/decision_model.py",
+      "bytes": 52405,
+      "sha256": "c28a2fa2357f56aa231d83bbb53af5b5125a601af03ac56967e40a3fcd0a3ffc"
+    },
+    {
+      "name": "models/entry_model.py",
+      "bytes": 36485,
+      "sha256": "7fc3eee709e3b29f7eed697e47818a3b05d1ea2211387b2d3a67d1fbbe340e15"
+    },
+    {
+      "name": "models/exit_model.py",
+      "bytes": 10298,
+      "sha256": "efd9b86e7bd061a4b7970c921513811eb33a1996cb957bb84de8028f852d55a0"
+    },
+    {
+      "name": "models/risk_model.py",
+      "bytes": 37217,
+      "sha256": "1484138c44982fc1e9824f48b86977aaaf26411603f4f2e384b8df7c7ee92b28"
+    },
+    {
+      "name": "models/signal_router.py",
+      "bytes": 40448,
+      "sha256": "0416a0eb8d4b3a5672a86636a1e7a75aaa0787bb4144e89ea9550b6366c3e3d4"
+    },
+    {
+      "name": "run_tests.py",
+      "bytes": 9845,
+      "sha256": "466f98d823f6fdac264ac4abecb0e4d1d71d1a8bb30b56bb7c568f39c855e634"
+    },
+    {
+      "name": "structure/__init__.py",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "structure/structure.py",
+      "bytes": 28433,
+      "sha256": "c554c08024421cf4cf737cb27f60dccbc3de8cde4afb2192b30df67472f87781"
+    },
+    {
+      "name": "test_live.py",
+      "bytes": 285,
+      "sha256": "b628810f1c89f6a0193ee9fef4bc8894bb37e67ec42e2a89d7f1940d7365f812"
+    },
+    {
+      "name": "utils/__init__.py",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "utils/decision_log_backup.py",
+      "bytes": 5699,
+      "sha256": "6cc2dbcec6de9029adad58a024ca0e161b94ceecf11dc315790fd300b381462b"
+    },
+    {
+      "name": "utils/plotting.py",
+      "bytes": 12241,
+      "sha256": "d4e0f8dd6c049930ad7d6424589e2d7ace69efd4bb0901aaa4bba03b34323a63"
+    },
+    {
+      "name": "tests_changed.diff",
+      "bytes": 152668,
+      "sha256": "fa49a304d6ecf90eb1630d0e1bfff9e334f9c522af4782113a1382f678d935b0"
+    },
+    {
+      "name": "tests/test_an_absent_value_is_not_a_reading.py",
+      "bytes": 25212,
+      "sha256": "124daa93015ab925bc44269b8983a1032bf88bd0bc7cbd3a340c1fc3e6d32577"
+    },
+    {
+      "name": "tests/test_b10_outputs_agree_with_finding_4_and_the_action.py",
+      "bytes": 11970,
+      "sha256": "20a6832e5db31d4d09e103bd477332de5a9a85090d9622408ebb91aaee33426a"
+    },
+    {
+      "name": "tests/test_b4_labels_say_what_is_measured.py",
+      "bytes": 10438,
+      "sha256": "f80685dccc7409eb5ae76a7d77163f9b4d2dd184cc7a2595295d3491f4d9213c"
+    },
+    {
+      "name": "tests/test_b7_distance_limits_record_the_regime.py",
+      "bytes": 6336,
+      "sha256": "52d315a9e1bcfadb7046d5fe38300da21318a04de07f71a50043c7cb18ff9366"
+    },
+    {
+      "name": "tests/test_b9_btc_supertrend_is_read_directly.py",
+      "bytes": 8699,
+      "sha256": "5b56548bbac2b61e128c1501c22868ac0b965575f1849af23b3581a1ca243f90"
+    },
+    {
+      "name": "tests/test_band_distance_is_from_the_midpoint.py",
+      "bytes": 3355,
+      "sha256": "f8baba7aadd64039855a2ade6f79d47977eef98a1dcd7beb1a28cf734a09c333"
+    },
+    {
+      "name": "tests/test_btc_is_reference_only.py",
+      "bytes": 11719,
+      "sha256": "b0cd28d23f87524cdd64b8eecb7bac4810f490ca94d38678db28c4e8435f2b72"
+    },
+    {
+      "name": "tests/test_clean_series_methods.py",
+      "bytes": 5258,
+      "sha256": "f46a83b4fad1d6f02a1db8a0886edfcb75c99ef1e30988545a318fe59655954f"
+    },
+    {
+      "name": "tests/test_each_reading_is_printed_once.py",
+      "bytes": 4257,
+      "sha256": "a3e51fe891a8df8c9f6324d226a9024558eebf7ffccc680f65d147ff5d388e80"
+    },
+    {
+      "name": "tests/test_no_trend_no_trade.py",
+      "bytes": 14119,
+      "sha256": "a55034ee904623fecbd3385024f248dd529530dc7267f2a12bbd5cd6b9051139"
+    },
+    {
+      "name": "tests/test_one_name_one_meaning.py",
+      "bytes": 5663,
+      "sha256": "407cefa770712faf479399f57d1f4ff14593d457f926d869f49f06f9b19586e8"
+    },
+    {
+      "name": "tests/test_pinned_runs_keep_their_own_records.py",
+      "bytes": 18969,
+      "sha256": "960e79669c3b181ad4c65df9550ff9f0363eff60caa43321ca307d0ac4ccf05a"
+    },
+    {
+      "name": "tests/test_regime_from_volatility_alone.py",
+      "bytes": 12481,
+      "sha256": "054b5c4935c2db7d212833a042d92877c0bc93be4e26241cd15c929b625a6ab3"
+    },
+    {
+      "name": "tests/test_round8_f9_claims_match_the_code.py",
+      "bytes": 11712,
+      "sha256": "5a925a3afd947679256910bdf02e1d91ae844dee2bac5d82af80dc4857a0051c"
+    },
+    {
+      "name": "tests/test_stop_ignores_conviction.py",
+      "bytes": 12081,
+      "sha256": "4d41a558bcb8525d13d52bf92f5dad9f21fca1187ee606cb065deaf1f3908489"
+    },
+    {
+      "name": "tests/test_untimed_frame_is_rejected.py",
+      "bytes": 6851,
+      "sha256": "d8717fad1afdd063b5af17dbfc4d9ab50a5987458eab5e4756dfce6befd06ca2"
+    }
+  ],
+  "payload_sha256": "aa9b9241eccb619ad195c1799869ef25e24cca10b7339bf17009b91fd063ba1e",
+  "payload_bytes": 1410498,
+  "data_collection": "deny",
+  "reasoning_requested": {
+    "enabled": true
+  },
+  "reasoning_probes": [
+    {
+      "model_requested": "xiaomi/mimo-v2.6-pro-20260921",
+      "http_status": 200,
+      "generation_id": "gen-1792220093-iLzyAXf2VRxAXaE9pIm3",
+      "finish_reason": "stop",
+      "usage": {
+        "prompt_tokens": 24,
+        "completion_tokens": 17,
+        "total_tokens": 41,
+        "cost": 2.523e-05,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 0,
+          "audio_tokens": 0,
+          "video_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 2.523e-05,
+          "upstream_inference_prompt_cost": 1.044e-05,
+          "upstream_inference_completions_cost": 1.479e-05
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 12,
+          "image_tokens": 0,
+          "audio_tokens": 0
+        }
+      },
+      "answer": "408",
+      "reasoning_tokens": 12,
+      "model_reported": "xiaomi/mimo-v2.6-pro-20260921",
+      "provider_reported": "Xiaomi"
+    }
+  ],
+  "token_check": {
+    "model": "MiMo-V2.6-Pro",
+    "hf_revision": "adea8e2c5373181e5a973fa1ecb343cb31af214b",
+    "context": 1048576,
+    "reserve": 131072,
+    "prompt_tokens": 341082,
+    "margin": 576422
+  },
+  "run": 1,
+  "started_utc": "2026-10-17T06:55:09.832734+00:00",
+  "finished_utc": "2026-10-17T06:59:10.207244+00:00",
+  "elapsed_seconds": 240.4,
+  "generation_id": "gen-1792220110-52XwTRzAZwDWij5zfmLT",
+  "finish_reason": "stop",
+  "usage": {
+    "prompt_tokens": 341082,
+    "completion_tokens": 11634,
+    "total_tokens": 352716,
+    "cost": 0.15849225,
+    "is_byok": false,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.15849225,
+      "upstream_inference_prompt_cost": 0.14837067,
+      "upstream_inference_completions_cost": 0.01012158
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 7309,
+      "image_tokens": 0,
+      "audio_tokens": 0
+    }
+  },
+  "report_chars": 16507,
+  "reasoning_chars": 32817,
+  "report_sha256": "6d7dc01652a70ac56fee49e11adff66c0360ae810343f47203dc2d2982016b2c",
+  "reasoning_sha256": "efd9a672e3fb8e641b3baa68cfd595fcfb8e817c3e514af5a6b0b0f60ca9f132",
+  "provider_reported": "Xiaomi",
+  "model_reported": "xiaomi/mimo-v2.6-pro-20260921",
+  "native_tokens_prompt": 341082,
+  "native_tokens_completion": 11634,
+  "total_cost_usd": 0.15849225
+}

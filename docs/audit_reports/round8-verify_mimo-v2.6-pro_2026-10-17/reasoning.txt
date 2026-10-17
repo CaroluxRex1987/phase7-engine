@@ -1,0 +1,214 @@
+This is a massive request. I need to verify fixes for the round-8 audit findings, check for new defects in other changes, and report on declared-not-fixed items. Let me work through this systematically.
+
+Let me organize what I need to do:
+
+**A. The stop** - Check if the stop fix holds (no bias/conviction/trend health dependency)
+**B. Findings F1-F9 + Part 4 test shapes** - Check each fix
+**C. Other changes** - Check for new defects in fix 2, B6, N5, fallback sweep, B4 labels, B7, B9, B10
+**D. Declared not fixed** - Check if any got worse
+
+
+**E. Anything else**
+**F. About this reading**
+
+Now I'm diving into the code. For section A, I'm tracing through `models/risk_model.py` around line 400 to verify the stop calculation. Looking at `calculate_stop_targets`, I can see the volatility multiplier is applied based on the volatility state, and then `stop_mult` is computed as `ATR_STOP_MULT * vol_multiplier`. I need to confirm there's no bias or trend health input anywhere in this path.
+
+Checking the rest of the calculation: the stop is derived from `current_price - (atr_val * stop_mult)` for LONG positions, and targets are computed as multiples of that stop distance. The function takes `current_price`, `atr_val`, `bias_score`, and `volatility_state` as keyword-only arguments. While `bias_score` is still used to determine direction, its magnitude doesn't factor into the stop calculation anymore—only the sign matters. Let me trace through to see if there are any other places where bias affects the stop.
+
+Looking at the validation logic, `validate_risk_parameters` takes `current_price`, `atr_stop`, and `volatility_state` without any trend or bias inputs. The `classify_risk_regime` function only reads the volatility state and stop distance. In `engine_core.py`, the call passes only the current price, ATR value, bias score for side selection, and volatility state—no trend health is involved. Now I need to check where the stop gets recorded in the lineage to verify there's no hidden trend health influence there. the call site confirms the stop calculation uses `ATR_STOP_MULT * vol_multiplier` where volatility comes from `calculate_dynamic_regime` based on ATR/price ratio. I'm checking whether the panel rendering or any printing depends on trend health for the stop display, and tracing through `engine_core.py` where the stop is computed from current price, ATR, and volatility state to verify there's no hidden coupling I'm missing. Checking the rest of the function signature and the calculation logic — bias_score only determines direction (LONG or SHORT), not the stop distance itself. Let me verify the current code one more time to make sure there are no other dependencies I'm missing.
+
+Now I'm looking at how the stop gets printed and recorded in the panel, particularly around the STOP LOSS line and the lineage documentation.
+
+Checking the lineage block now — it documents that the stop is computed from price, ATR, volatility state, and the sign of bias score, which matches what the code actually does. The `risk_inputs` block records current_price, atr, bias_score, volatility_state, and risk_regime, all of which are genuinely inputs to the calculation.
+
+Let me verify there's no hidden dependency on trend health in the volatility multiplier — tracing through the code, `vol_multiplier` is set based solely on `volatility_state`, and `stop_mult` is just the ATR multiplier times that volatility factor. The only inputs to the stop are current_price, atr_val, bias_score (for the side only), and volatility_state. The fix holds.
+
+Now I'm checking whether any changes since my package introduce a Critical. Looking through the diffs... fix 2 removes the exhaustion flag and introduces a new ADX threshold gate, B6 separates records by source, N5 removes the BTC-adjusted confidence, and there are several other changes to labels and defaults. Nothing here reaches live decisions in a way that violates a Tier 1 invariant — the ADX gate is stricter, B6 just improves record-keeping, and N5 removes a feature that wasn't being used anyway. The label fixes are purely cosmetic.
+
+I can't identify a new Critical from these changes.
+
+Now I'm checking the individual findings. For F1, the lineage comment and docstring corrections are in place at `core/engine_core.py` and `core/decision_contract.py`, documenting exactly which inputs feed the stop and targets. Since fix 1 removed trend health from the stop calculation, the comment accurately describes the current state.
+
+For F2, `classify_risk_regime` now reads only the volatility state and stop distance, with no dependency on conviction or trend health.
+
+For F3, the validation function rejects frames with no time axis at the specified location. But I need to verify whether the pinned loader still allows files without a timestamp column—checking `_load_pinned` to see if it requires the timestamp field or just checks for OHLCV columns.
+
+Actually, I see now: the validation happens inside `load_csv` which calls `validate_ohlcv`, so if the timestamp is missing, validation rejects it and the pinned loader returns an error. The fix works. The test confirms this behavior.
+
+For F5, the panel line now reads "from the band's midpoint" as expected.
+
+For F6, `clean_series` rejects `interpolate` by raising a ValueError for unknown methods and only accepting "forward_fill" or "fill_value".
+
+For F8, checking how VWMA is named and handled...
+
+Checking the MOMENTUM line - it's been removed, with the TREND line now carrying both pieces of information.
+
+For F9, I'm verifying the four claims: StructureEngine has no `_last_regime` state and `_detect_regime` is stateless, trend_health defaults use "UNAVAILABLE" for momentum_mode and trend_regime, volume_agreement now returns0.0 with a note about unmeasured volume instead of claiming neutrality, and the ADX failure text correctly states "up to 40 of its 100 points" rather than the old "25 of its 100 points". All four checks pass.
+
+Now I'm looking at Part 4's three test shapes...
+
+The golden coverage test now asserts the snapshot file exists instead of silently returning when missing, the SuperTrend level test actually runs the guard by replacing the superertrend calculation, and the watched error count has been removed from the test files and moved to PHASE7_NEXT.md. All three check out.
+
+Moving to section C, I'm checking fix 2 where no trade happens under ADX 20. The MIN_TREND_ADX constant is set to 20.0, and signal_blockers now checks whether the measured ADX is below that threshold, blocking both sides if so. The trend_exhaustion parameter has been removed from the signal functions.
+
+Now looking at B6, where runs on pinned data keep their own records. The decision log routing uses `is_live_record` to check provenance and directs records to a pinned subdirectory if they're not live, with the same logic applied to state files and archives. There's a question about whether `is_live_record` handles edge cases correctly—it requires both `fetch.pinned` to be False and `source` to not be "pinned", which seems safe but needs closer examination.
+
+For N5, Bitcoin is now reference-only. The BTC-adjusted confidence has been removed from the decision model along with its parameters and related constants, with the panel showing only what the engine measured. Then there's the fallback sweep that replaced default readings with UNKNOWN labels and refactored how values are read...
+
+Now I'm checking the two repeated readings to make sure they're handled correctly. The REGIME line is gone and STRUCTURE prints the value at its source, while the Vol field moved from STRUCTURE to the VOLATILITY line. For B4's labels, the volume divergence was renamed to FADING VOLUME with the appropriate scores, the momentum divergence language now describes what's actually being compared over four candles, and the part-word match was replaced with exact matching for the two warning labels.
+
+Looking at B7, the distance limits are now recorded with the regime classified first before applying those limits. B9 handles the BTC SuperTrend by reading the ST_Direction column directly, and the asset's own 0.0 remains on the list. B10 renames the order key to ema_band while keeping current_price, and the panel withholds the note unless the action specifically names a side.
+
+Now I'm scanning for new defects across these changes. The ADX gate introduces MIN_TREND_ADX at 20.0, which blocks trades on unmeasured ADX values—this is stricter than before, so it could reduce available trades but doesn't create a new defect. B6's record routing is solid and properly tested. N5's removal of BTC-adjusted confidence eliminates a feature but doesn't introduce problems.
+
+The fallback sweep is well-tested and hard to find issues in. For B4's labels, I'm checking the volume label rename carefully—the score map is updated with FADING VOLUME mapped to 0.0, and volume_agreement now matches the exact label instead of using substring matching, so the -25.0 penalty is preserved.
+
+B7's distance limits are cleaner now with regime classification moved before the limits. B9's direct SuperTrend read for BTC follows the 13 October shape. B10's order key rename and panel note filtering look sound. Now I'm looking at the ADX gate more carefully—specifically how _measured_adx handles the input. Now I'm checking the other gate cases—structure regime doesn't match, ADX reads as None or below20, or there's a momentum divergence pointing against the trade or unrecorded. All these blockers are conditions that would prevent a trade. But I need to reconsider the direction: before fix 2, an unrecorded divergence direction didn't block, but now it does—that's actually stricter, not looser. Let me trace through what's really changing here.
+
+Looking at the pre-fix code, a divergence with an unrecorded direction would get flagged as a blocker too, so that behavior is the same. What actually changed is that exhaustion is gone and replaced by the ADX check, which is stricter since it blocks on unmeasured ADX values. So fix 2 looks solid.
+
+Now examining B6's records routing—the `is_live_record` function requires `fetch.pinned` to be exactly `False` and `source` to be a non-"pinned" string, which means records with missing or malformed provenance go to the pinned directory instead of live, failing safe. That's the right behavior. And `records_dir` just determines the directory path, so no issue there.
+
+Looking at N5's removal of BTC-adjusted confidence...
+
+Checking the signature change on `DecisionModel.evaluate`—it now takes only `bias`, `trend`, `entry`, `risk`, and `degradation`, with `btc_context` and `symbol` removed. The router call matches this, so no breakage. The stale caller test confirms old keyword arguments fail loudly as expected.
+
+For the fallback sweep, the panel reads are all replaced with UNKNOWN labels. The router reads by subscript directly, so missing keys raise errors as designed. The one place macro_bias still uses `.get` is intentional since it's printed and recorded only.
+
+B4's labels look good—the FADING VOLUME rename is consistent across all the score maps and matching logic.
+
+B7's fix classifies the regime first before applying the limits, which is correct. B9's direct read of the BTC SuperTrend column raises if the column is missing, and the handler marks BTC as unavailable. B10's note filtering checks if the action names a side before displaying the Target 1 note.
+
+Now I'm looking at the Part 4 test shapes—the golden coverage test that was supposed to return but now skips.
+
+The SuperTrend level test properly verifies the guard works by checking that neither SuperTrend nor ST_Direction columns are written when the guard triggers. The watched error count is no longer hardcoded in the test files.
+
+I'm not finding any new defects in the code itself. The changes all seem sound and well-tested. But I should double-check the claim in the fix 2 ruling about how ADX under 20 blocks both sides...
+
+Looking at the signal_blockers logic, ADX below 20 does block both directions with a reason printed. But there's a nuance in the ruling: it says ADX under 20 blocks both sides, and the patch is supposed to decide how to handle runs where ADX couldn't be measured, failing safe. The code treats unmeasured ADX as blocking too, which is stricter than what the ruling literally required. The question is whether this stricter interpretation is actually what was intended or if it's a deviation from the specification.
+
+Now I'm checking the B6 ruling about pinned data keeping records of their own. The code uses `is_live_record` to determine the source and routes records accordingly. I'm verifying that `provenance.source` and `provenance.fetch.pinned` are set consistently by the engine—they come from the same `live` variable, so they should always match.
+
+There's a potential edge case though: `is_live_record` requires `fetch.pinned` to be exactly `False` and `source` to be a non-"pinned" string. If someone hand-builds a record with `fetch.pinned =0` (which is falsy but not `False`), it would route to pinned, which is actually the safe behavior. The implementation seems sound.
+
+Now I'm looking at N5's Bitcoin reference section...
+
+the BTC block is available whenever `engine_core` measured BTC, and `_merge_btc_context` returns `{"available": False}` when the BTC block is missing or unavailable. I'm noticing that `n_observations` still defaults to0 in the merge function, which matches `compute_correlation_beta`'s not-measured count, so that's consistent.
+
+But I'm catching a potential issue: `btc_context.get('n_observations', 0)` uses `or 0` to handle `None`, which converts `None` to 0. The problem is that `int(btc_context.get('n_observations', 0) or 0)` would also convert `False` to 0, though that shouldn't happen in practice. More importantly, this reads `n_observations` by subscript while other fields use `.get`, so I need to verify whether `n_observations` is always present when `available` is True.
+
+Actually, `engine_core` always writes `n_observations` when the block is available, so that's safe. The fallback sweep is solid.
+
+Now I'm checking Part D to see if any of the declared-not-fixed items got worse. The `macro_multiplier` still exists at the specified lines and hasn't changed. The spike window is unchanged. The gate at line 678 is still there. The absence scans and shape 4 tests weren't touched. The default responses for `0.0` are still in place at the entry model and trend health module.
+
+For section E, I'm verifying the B4 ruling claim about renaming the volume label—FADING VOLUME is correctly used as the new name. I'm also cross-checking the volume-agreement score to make sure it's consistent.
+
+Checking the B7 ruling's claims about the 15% limit and 0.2% floor both returning UNKNOWN... The floor's message matches too. I'm checking the B9 ruling to verify the BTC SuperTrend is read directly, and it is—the code accesses the ST_Direction column directly. Now looking at B10's ruling about the order key being renamed to "ema_band"...
+
+The key is correct, and `current_price` stays as the entry. The panel only prints the Target 1 note when the action names a side, and the exit watch logic checks for "LONG" or "SHORT" in the action string to filter appropriately. That all checks out.
+
+Now I need to look more closely at the B7 ruling claim that the 15% limit "chooses only the message"—I want to verify this against the actual code behavior.
+
+Tracing through the validation logic...
+
+The regime gets classified first using the volatility state and stop distance percentage, then the 15% limit check comes after. Since any stop over 15% would trigger EXTREME RISK in the classification anyway, the 15% check is just providing a more specific error message rather than changing the outcome. The code supports this claim. Now I need to verify whether the 0.2% floor check also follows this pattern.
+
+Looking at the validation function, both the 15% and 0.2% checks return early with their own messages and the already-computed regime, so they do act as message-choosers. The test confirms this behavior is working as intended. Now I'm checking the B4 ruling about how the part-word match is being replaced...
+
+The code matches "FADING VOLUME" and "VOLUME EXHAUSTION" exactly, and the golden decision shows the validation note contains the expected text about volume being below the four-candle average. The test also verifies that no label with "WEAK" in it reaches the neutral branch. This all checks out.
+
+For the fallback sweep ruling, the shape rule is clear: values that are only printed or recorded fall back to the router's own value for absent ones. I'm checking this against the panel's UNKNOWN labels and the router's behavior for printed-only values like `macro_bias`, which falls back to UNKNOWN. The shape rule holds.
+
+Now I need to verify the fix 2 ruling's claim about ADX under 20 blocking both sides with the reason printed. The signal_blockers function appends the ADX message when it's below MIN_TREND_ADX, and that reason gets printed through the confirmation gate in decision_model. The code supports this.
+
+Moving to part D—checking whether the macro multiplier change made anything worse. The multiplier is still applied in entry_model as it was before, so nothing's changed there. The spike window calculation in indicators.py is also unchanged.
+
+Now looking at the gate at line 678 of decision_model.py, which checks if validation is weak and trend health is below 40 before deciding to wait. That's still in place. I'm also verifying that the absence scans and shape 4 tests are untouched, and confirming the default responses in entry_model.py and trend_health.py still return 0.0.
+
+None of these were altered by the fixes, so nothing's gotten worse.
+
+Moving into section E now to see if there's anything else worth noting. The B4 ruling mentions that `bias_engine.py` scores an unknown volume label as 0.0 through a `.get()` call, which means UNKNOWN VOLUME scores the same as neutral volume. This is a known issue that was found but not changed.
+
+I'm also checking the `_merge_btc_context` logic to verify how `broad_market_stress` and `degraded_inputs` are being read directly from the context...
+
+Checking the `is_live_record` function to see if there are any edge cases...
+
+The function requires both `fetch.pinned` to be exactly `False` and `source` to be a non-"pinned" string, so a record with only one of these set correctly routes to the pinned directory rather than the live log. That's the safe behavior.
+
+Now looking at the panel rendering for the exit watch note—the code checks if the action contains "LONG" or "SHORT" to determine if a side is named, then filters out the target note if the plan is withheld or no side is named. There's a potential edge case I'm checking for...
+
+Actually, I see the issue: if the action is something like "LONG-TERM", it would pass the `names_a_side` check and print the note even though it's not a real trade. But looking at the test expectations, the decision model only produces WAIT, NO-TRADE variants, and the six side names, so this case shouldn't occur in practice.
+
+Now I'm verifying whether any of the findings introduced a Critical severity issue. The stop fix holds, the other changes are improvements or neutral, and nothing in the diff suggests a Critical. Let me double-check the ADX gate change in fix 2 more carefully...
+
+Before, the exhaustion flag blocked both sides but rarely fired since trend_health was almost never under 35, and both of its clauses required ADX under 20 anyway. Now, the ADX gate blocks both sides when ADX is under 20 or unmeasured. This is actually stricter because unmeasured ADX now blocks trades, whereas before the flag would only block if ADX was measured and low. But it's also less strict in another way: the exhaustion flag had two clauses, one checking for range expansion with low ADX and another checking for low trend_health with even lower ADX. The new gate is simpler and just checks the ADX threshold directly.
+
+The key difference is that the old flag would only block if the previous candle was wider than the one before it AND ADX was under 20. The new gate blocks on ANY setup with ADX under 20, regardless of candle width. So the new gate is stricter for setups that don't show range expansion. But the ruling itself says ADX under 20 blocks both sides, so this is exactly what was intended. No defect here.
+
+Now I'm wondering if there's anything else worth checking in section E.
+
+Let me verify the claim about B4's label rename — specifically whether "FADING VOLUME" (formerly "VOLUME DIVERGENCE") is indeed the most common label at 39% of bars. I can't verify that statistical claim without the actual data, but the code changes are correct. I should also double-check whether `_measured_adx` correctly handles numpy types. When I pass a numpy float64 through it, `isinstance(np.float64(30.0), numbers.Real)` returns True, so it passes the check and converts to a Python float. That works correctly.
+
+Now I need to organize my findings and write the report.
+
+Looking at the B6 ruling again — it states that runs on pinned data should keep their own decision log, archive, and Exit Watch state, chosen by the code based on the run's source. The implementation handles this correctly: `is_live_record` checks the source and routes accordingly, `records_dir` computes the directory, and `engine_core` uses it for the state file, archive, and decision log. The logic is sound.
+
+For the fallback sweep ruling about shape, I'm checking the assertion in `test_an_absent_value_is_not_a_reading.py` that `raw_output['macro_bias']` is read as UNKNOWN. But in `signal_router.py`, it's actually read with `.get("macro_bias", "UNKNOWN")` — a `.get` call, not a direct subscript. I need to verify whether the test is checking the right thing here.
+
+Looking at the test more carefully, it's specifically checking that `bias`, `trend`, `structure`, `entry`, `risk`, `exit`, `degradation`, `provenance`, `lineage`, `exit_watch`, and `btc_context` are all read by subscript. The `macro_bias` key isn't in that list, so the test doesn't check it — and the code uses `.get` for it anyway, which is correct since `macro_bias` is printed and recorded only. Now I'm looking at the B4 ruling about the part-word match being replaced with whole matches. Looking at the claim that `_detect_regime` returns UNKNOWN STRUCTURE for short frames instead of the stored previous regime — the code confirms this, with the comment explaining that returning a stored regime would be guessing. Now I'm ready to compile my findings into a report and check the B7 ruling claim about the 15% limit being kept as a backstop.
+
+The 15% limit does stay in place with its own message and records the regime, though the test with the 8% raised shows it now returns NORMAL RISK instead of UNKNOWN — that's the fix working as intended. Moving through the B9 ruling about reading BTC SuperTrend directly, that checks out too. For B10's ruling about renaming the order key to "ema_band" and conditionally printing the note, both are implemented correctly.
+
+I'm noticing one edge case though: if an action somehow contains both "LONG" and "SHORT" like "LONG-SHORT", the filter would keep the note since it matches "LONG". But that's not a valid action the model produces, so it's not a real concern. The code is solid overall.
+
+Let me scan through the rulings once more for any claims that don't align with what's actually in the code. The fix 2 ruling states ADX under 20 blocks both sides with the reason printed — that's accurate. The fallback sweep ruling says the shape is "a value that is only printed or recorded falls back to the router's own value" — also checks out. B4's labels ruling about the part-word match being replaced with whole matches and each having a note — that's correct too.
+
+Now I'm checking the B7 ruling claim that "the 15% limit refuses nothing on its own, either: any stop over 15% is over REGIME_EXTREME_STOP_PCT (8%), so it is EXTREME RISK and refused below in any case." The code confirms this: any stop over 15% is classified as EXTREME RISK and refused. The claim holds.
+
+Moving to the B9 ruling about BTC's SuperTrend being read directly with a missing column raising here — that's verified. And the B10 ruling about the order recording the band as "ema_band" with unchanged values — also confirmed.
+
+I'm not finding any rulings that make claims the code doesn't support. One thing I want to verify though: the fallback sweep ruling states "engine_core writes all of them on every result that is not an error (the one decision_object it returns), so none could fire." Let me check if that's actually true by examining the decision_object literal in engine_core.
+
+Looking at the decision_object construction, I can see all the required keys are present: symbol, timeframe, macro_bias, bias, trend, structure, entry, risk, exit, degradation, provenance, exit_watch, lineage, btc_context, and chart_path. The claim checks out — every key is written on every result. Now I'm ready to write the report. Let me also double-check the fix 2 ruling's claim about "ADX under 20 blocks both sides, and the reason is printed."
+
+The signal_blockers function confirms this: it checks if the measured ADX is below MIN_TREND_ADX (20.0) and appends the blocker message accordingly. The claim is verified.
+
+Looking at the B4 ruling about volume_agreement matching labels by whole words now instead of parts of words — the code shows explicit checks for "FADING VOLUME" and "VOLUME EXHAUSTION" with specific messages. The claim holds.
+
+I'm satisfied with all the verifications. Time to write the report. One more thing to verify on Part D: the §1(5) claim about failed runs leaving no line in the decision log. The router's error paths return early without calling decision_log.write, which matches the description that this wasn't checked by the project. Now I'll compile the report.
+
+Actually, wait — I should double-check the "declared not fixed" items to make sure none got worse. Looking at F4 (macro_multiplier), F7 (spike window), F10 (the gate), the absence scans, shape 4, and §1(3) (the0.0 defaults) — none of these were touched by the fixes, so they're all unchanged.
+
+Now I'm examining the Part 4 test shapes more closely. The golden coverage test has been updated to assert the file exists rather than silently returning, and the SuperTrend level test now actually executes the guard by patching ta.supertrend. The watched error count is now tracked in PHASE7_NEXT.md instead of being hardcoded.
+
+For F9, I'm verifying each of the four claims: StructureEngine no longer has state tracking and _detect_regime is stateless, trend_health defaults to "UNAVAILABLE" for the relevant fields, volume_agreement properly returns 0.0 with an "UNKNOWN" note, and the ADX failure text correctly states "up to 40 of its 100 points". All four check out.
+
+Now I'm ready to write the report, but first I want to verify one more thing about fix 2 — specifically whether the ADX gate change made anything worse. The old exhaustion flag would block trades when trend_health was below 35 and ADX below 15, but trend_health was almost never that low, so the flag rarely fired. The new gate is stricter since it blocks whenever ADX is under 20 regardless of trend_health, which means fewer trades are allowed. However, the ruling explicitly intended this to block under ADX 20, so this is the intended behavior, not a defect.
+
+I've verified all the key points now and can write the report.
+
+Now I'm examining the fallback sweep ruling's claim about what values are read by subscript versus with defaults. The test `test_the_router_reads_the_engine_output_by_subscript` checks that all sections are read by subscript, but I need to verify whether `macro_bias` is included in that check. Looking at the test parameters, `macro_bias` isn't listed, so it's only checked with `.get(..., "UNKNOWN")`, which matches the ruling that macro_bias is printed and recorded only, so it keeps a fallback. The chart_path also uses `.get` since it's printed only. This all checks out.
+
+Now I'm ready to write the report, but I want to verify one more thing about fix 2 — specifically the claim that an ADX with no valid reading blocks both sides with its own reason. Looking at the signal_blockers logic, when the measured ADX is None, it appends a blocker saying the market can't be shown to be trending, and when ADX is below 20, it appends a blocker with the specific ADX value and threshold. Both cases block both sides with their own reasons, so that claim holds up.
+
+Let me also verify the claim about what changed in signal_blockers from fix 2 — the trend_exhaustion parameter was removed and replaced with ADX checks...
+
+Actually, I see now: the signature changed from five positional parameters to four positional plus one keyword-only ADX parameter, with trend_exhaustion dropped entirely. The comments explain that trend exhaustion is always against the trend and was replaced by the ADX gate. The code matches what the ruling describes.
+
+Now I'm checking whether any ruling makes claims about the code that aren't supported. Going through each one: the fix 2 ruling about ADX blocking trades and printing reasons checks out, the B6 ruling about runs keeping their own records is accurate, the N5 ruling about Bitcoin reference is correct, and the fallback sweep ruling about values falling back to router defaults is properly implemented. The B4 ruling about whole-word matching is confirmed, B7's claim about the 15% limit being a backstop holds up, B9's direct SuperTrend read is accurate, and B10's rename to ema_band with the conditional note is working as described.
+
+I'm not finding any unsupported claims. Now I want to verify that the fallback sweep ruling's "read directly" rule is correctly applied — checking if engine_core's values that the bias and entry computations use are indeed read by subscript rather than with defaults. Looking at the trend_direction parameter in the calculate_entry_quality call, it's now read directly as trend["trend_direction"] instead of being wrapped in a .get() call with a default, which matches the rule. I'm verifying the remaining subscript reads—`trend["reversal_strength"]`, `trend["trend_direction_sign"]`, and the BTC structure fields are all properly accessed without defaults. Now I need to check what other values in engine_core might still be using `.get()` calls that should be read directly instead.
+
+Looking at `reversal_direction` and `continuation_strength`, both use `.get()` with no explicit default (returning None), which is fine since they're optional measurements. But `supertrend_direction` is problematic—it defaults to 0.0 when the ST_Direction column is missing, which is a fabricated value. The ruling acknowledges this is a known issue filed for after the audit since it's reachable when an indicator fails, so it's not a new defect I'm introducing.
+
+Now I'm ready to write the report. I should double-check the B4 ruling claim about `volume_agreement` still giving the neutral note to unrecognized strings though. Looking at the code flow, if a volume sentiment string doesn't match FADING VOLUME or VOLUME EXHAUSTION, it falls through to check the vol_up/vol_down logic. If neither is true, it returns the neutral note—so the ruling is accurate. The new test also checks every label the detector can return, which means no engine-produced label reaches that neutral branch.
+
+Checking the panel logic... I'm verifying the B9 ruling claim that a missing column triggers an exception in the block's handler, which then reports BTC as unavailable. Looking at the code, when `ST_Direction` is missing from the DataFrame columns, accessing it with subscript raises a KeyError, and the except clause catches it and sets `btc_context = {"available": False}` — exactly as the ruling describes. The claim holds up, so I'm ready to finalize the report now.
+
+But I want to double-check the F5 fix before I write. The panel line changed from saying "x% away from the band" to "x% from the band's midpoint" to match what's actually being measured — the distance from the midpoint, not the nearest edge. The entry model computes `distance_from_zone` using the midpoint calculation, so the new label is accurate. The test confirms this is working correctly.
+
+Now I'm checking the B10 ruling about the note being withheld on the panel unless the action names a side...
+
+Checking the logic...
+
+The filter correctly matches both "LONG" and "SHORT" in action strings like "AGGRESSIVE LONG" or "CONSERVATIVE SHORT", and excludes WAIT and NO-TRADE actions as expected. All the pieces check out, so I'm ready to write the report now.
