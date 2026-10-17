@@ -5147,6 +5147,49 @@ T1 is counted (PHASE7_NEXT.md, the Freqtrade item). Its question 4 was moot from
 - The conditions in point 2 are Claude's suggestions; Viktor's own position was the one
   word "Yes".
 
+## Ruling, 17 October 2026 — if Amazon fails the check twice: a scoped round on Items 2, 3, 6 and 18, then a wait for a clean lab
+
+*New in this file on 17 October 2026. Viktor's, by agreeing to Claude's suggestion, in
+the session that opened at 14:10 at `0491b84`; filed by its third commit, after
+`8d5d64a`. It settles what the ruling above left open ("Not ruled — Viktor's"); that
+entry is not edited.*
+
+**How it was made.** After `8d5d64a`'s push Claude named what was still open, and
+Viktor asked at 17:31: "Suggestions?" Claude suggested a fallback in two steps; at
+17:44: "I agree with your suggestions."
+
+**What was ruled.** If Amazon finds fewer than half of the four held-back defects in
+both of its runs, so that none of its ratings count:
+
+1. **A scoped round on Items 2, 3, 6 and 18**, by one of the labs clean for scoped
+   rounds only — Upstage, NVIDIA, Cohere or AI21 (the roster of 17 October). Those four
+   Items are all that condition 1 of "Ruling, 29 September 2026 — what opens
+   backtesting" asks to be rated. It is scored on the same four held-back defects, and
+   its ratings count on the same four conditions as Amazon's (the ruling above, point
+   2). Amazon's findings still go to triage, as round 8's did.
+2. **If that round fails too, backtesting stays closed** until a lab that has never
+   seen the project is available. Independence is not relaxed to get there sooner.
+
+Not chosen, as Claude put it: Poolside or Xiaomi again. A fresh session would clear
+their earlier reading, but Poolside found none of its four in either run of round 7,
+and Xiaomi passed round 8 at the bare minimum.
+
+**What it changes.** The four held-back defects gain a fifth criterion: they sit in
+the files a scoped package on Items 2, 3, 6 and 18 would carry, while still breaking
+none of those Items.
+
+**Not checked**, and Claude's with the check of reach and fit: whether any of the four
+scoped labs can be reached, and whether even a scoped package fits its served context
+and output cap.
+
+**What it weakens.**
+
+- A scoped round reads part of the engine. If it is the round that counts, nothing
+  independent has read the rest since round 8, and condition 2 ("no Critical or Major
+  finding is open") rests on the findings on record, Amazon's among them.
+- The fifth criterion narrows the choice of the four; fewer defects may qualify.
+- A wait for a new lab has no end date.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then

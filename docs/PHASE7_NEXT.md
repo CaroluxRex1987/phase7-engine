@@ -3,8 +3,9 @@
 *17 October 2026, from 14:10. Rewritten by `a235783`, which brought README's three
 status rows current, in wording Viktor approved, and filed the forward measurement's
 first checks; the version it replaced — as it stood at `0491b84` — is in HISTORY
-verbatim. Updated in the same session by the commit that files Viktor's rulings on two
-of the questions of 6 October.
+verbatim. Updated in the same session by `8d5d64a`, which filed Viktor's rulings on two
+of the questions of 6 October, and by the commit that files his ruling on what follows
+if Amazon fails the check twice.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
 rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
@@ -33,8 +34,9 @@ triaged on 5 October, its fixes landed, and its fix verification — the last pa
 Claude's under the delegation as Claude reads it — accepted by Viktor on 17 October
 (DECISIONS, "Ruling, 17 October 2026 — round 8's fix verification accepted on the stop's
 answer; the release gate reopens"). What is left under the delegation is running the next
-audit, on the plan as ruled on 17 October (DECISIONS, "Ruling, 17 October 2026 —
-Amazon's audit …") — Claude's reading, his to change. The roster and ledger were
+audit, on the plan as ruled on 17 October, with its fallback (DECISIONS, "Ruling,
+17 October 2026 — Amazon's audit …" and "… — if Amazon fails the check twice …") —
+Claude's reading, his to change. The roster and ledger were
 reissued on 17 October (Open
 items, "The model roster and the independence ledger"). The
 fixes were never under it: they were his triage rulings. Everything else still follows
@@ -154,7 +156,12 @@ Claude's suggestions on both (DECISIONS, "Ruling, 17 October 2026 — Amazon's a
 scored on four defects held back from the list, and its ratings are the ones that
 count"): Amazon's audit is scored on four known minor defects held back from the list
 for after the audit, and its ratings are the ones that count toward opening
-backtesting, on conditions fixed before the send.
+backtesting, on conditions fixed before the send. At 17:44 he agreed to Claude's
+suggestion for what follows if Amazon fails the check twice (DECISIONS, "Ruling,
+17 October 2026 — if Amazon fails the check twice …"): a scoped round on Items 2, 3, 6
+and 18 by a lab clean for scoped rounds, scored on the same four, and if that fails
+too, backtesting stays closed until a lab that has never seen the project is
+available.
 
 **The review and the comparison are outside the repository**, in
 `G:\Phase_7_Engine_Random_Files\Docs\02_Reviews_and_Feedback`:
@@ -398,11 +405,23 @@ its message already on his disk, and resumed at 16:26 after the reset. `a235783`
 them, `README.md` and docs only: from Viktor's disk, the apply was at 16:27:35, the
 pytest cache was rewritten at 16:31:18, the commit is from 16:48:25 and
 `origin/master`'s ref from 16:48:39, and GitHub's tip matched the verified files byte
-for byte. The commit that writes this line files Viktor's rulings of 16:58 on two of
-the questions of 6 October: docs only.
+for byte. `8d5d64a` filed Viktor's rulings of 16:58 on two of the questions of
+6 October, docs only: from his disk, the apply was at 17:08:32, the pytest cache was
+rewritten at 17:12:10, the commit is from 17:29:56 and `origin/master`'s ref from
+17:30:08, and GitHub's tip matched the verified files byte for byte. The commit that
+writes this line files his ruling of 17:44 on what follows if Amazon fails the check
+twice: docs only.
 
 ## Ruled — in force
 
+- **New, 17 October — Viktor's, by agreeing to Claude's suggestion: if Amazon fails the
+  check twice** (DECISIONS, "Ruling, 17 October 2026 — if Amazon fails the check twice:
+  a scoped round on Items 2, 3, 6 and 18, then a wait for a clean lab"). A scoped round
+  on Items 2, 3, 6 and 18 by a lab clean for scoped rounds — Upstage, NVIDIA, Cohere or
+  AI21 — scored on the same four held-back defects, its ratings counting on the same
+  four conditions; if it fails too, backtesting stays closed until a lab that has never
+  seen the project is available. The four now also sit in the files that scoped
+  package would carry.
 - **New, 17 October — Viktor's: Amazon's audit is scored on four defects held back from
   the list, and its ratings are the ones that count** (DECISIONS, "Ruling, 17 October
   2026 — Amazon's audit …"). Question 3 of 6 October by his position first ("Yes"),
@@ -413,7 +432,7 @@ the questions of 6 October: docs only.
   the send. Amazon's ratings count toward opening backtesting if the check passes, the
   provider's record shows the pinned model, the run finishes normally and Viktor checks
   the score; round 8's verified fixes do not count through condition 1's second path.
-  Not ruled: what follows if Amazon fails the check twice.
+  What follows if it fails the check twice: the entry above.
 - **New, 17 October — Claude's, under point 5 of the forward measurement's ruling: how
   it is counted** (DECISIONS, "Decision, 17 October 2026 — how the forward measurement
   is counted"). From the task's first run; the task's record is the one decision per
@@ -760,8 +779,10 @@ the questions of 6 October: docs only.
 ## Where things stand, right now
 
 - **Tip:** the commit that writes this line (a commit cannot name its own hash) —
-  docs only: Viktor's rulings on two of the questions of 6 October filed. Before it:
-  `a235783` (this session's first commit: README's three status rows brought current
+  docs only: Viktor's ruling on what follows if Amazon fails the check twice filed.
+  Before it: `8d5d64a` (this session's second commit: Viktor's rulings on two of the
+  questions of 6 October filed: docs only), `a235783` (this session's first commit:
+  README's three status rows brought current
   and the forward measurement's first checks filed: docs only), `0491b84` (the session
   of 17 October, from 10:34: the
   forward measurement: `main.py` takes the pairs and works from its own folder: engine
@@ -904,7 +925,7 @@ the questions of 6 October: docs only.
   `tests/test_send_round8_fix_verification.py` (25 tests, no fixtures) and changed no
   other test. `d3188f2` and `67f6ec1` changed no test. `0491b84` added
   `tests/test_main_takes_pairs.py` (9 tests, no fixtures) and changed no other test.
-  `a235783` and the commit that writes this line change no test.
+  `a235783`, `8d5d64a` and the commit that writes this line change no test.
 - **Where the project lives, from 26 September:** `E:\phase7_engine` on Viktor's machine;
   the files kept outside the repository in `G:\Phase_7_Engine_Random_Files`. Copied with
   robocopy, verified — git's own checks on Windows for the tracked files, SHA-256 for the
@@ -913,20 +934,21 @@ the questions of 6 October: docs only.
   to `E:\phase7_engine`". Run the engine and every command from `E:\phase7_engine` (in
   cmd, changing drive needs `cd /d`). A dated record that names the D: paths means the
   same folders before the move; dated records are not edited.
-- **The push of `a235783`** happened, at 16:48:39: GitHub's tip, fetched, is `a235783`,
-  `master` and `origin/master` on Viktor's disk match it, and its five files are
-  byte-identical to those verified; he reported no deviation (ruling on proposal (b)).
-  So did `0491b84`'s, at which this session opened. The same holds for the push of the
+- **The push of `8d5d64a`** happened, at 17:30:08: GitHub's tip, fetched, is `8d5d64a`,
+  `master` and `origin/master` on Viktor's disk match it, and its two files are
+  byte-identical to those verified; he reported it pushed and no deviation (ruling on
+  proposal (b)). So did `a235783`'s, at 16:48:39, and `0491b84`'s, at which this
+  session opened. The same holds for the push of the
   commit that writes this line unless it deviates. Earlier pushes and deviations are
   recorded in this file's previous versions, in HISTORY.
 - **Before this commit**, every file its patch changes was staged off Viktor's disk and
-  matched an autocrlf clone of `a235783` byte for byte.
+  matched an autocrlf clone of `8d5d64a` byte for byte.
 - **code_hash:** `816d4951bb0322763ec4abc4b9ed8161d5b902372823350e5272f2fb7176e380`,
   set by `0491b84` from `bc1b9c2c…` — `main.py` alone — and confirmed on Windows: its
   eleven hand-run records and the ten of the first scheduled run all carry it.
-  Unchanged by `a235783` and the commit that writes this line, which change no `.py`
-  file: computed on clones of `0491b84` and `a235783` and on the applied trees, under
-  Python 3.12.3. `bc1b9c2c…` was
+  Unchanged by `a235783`, `8d5d64a` and the commit that writes this line, which change
+  no `.py` file: computed on clones of `0491b84`, `a235783` and `8d5d64a` and on the
+  applied trees, under Python 3.12.3. `bc1b9c2c…` was
   set by `9ea1cf3`, confirmed on Windows by its live run, and held through `f00bef6`,
   `36de35d`, `78ea37d`, `d3188f2` and `67f6ec1`, which changed only files under `docs/`
   and `tests/`, `README.md` and `run_tests.py`'s docstring.
@@ -934,8 +956,8 @@ the questions of 6 October: docs only.
   output, a CPython implementation detail (`core/code_fingerprint.py`, "WHAT IT DOES NOT
   SURVIVE"). **Every `code_hash` claim about this project is computed under Python 3.12**
   (Viktor runs 3.12.10).
-- **Golden snapshot:** unchanged by the commit that writes this line and by `a235783`,
-  which change no code and no test, and by `0491b84`, as predicted: it changed `main.py`, which the
+- **Golden snapshot:** unchanged by the commit that writes this line, by `8d5d64a` and
+  by `a235783`, which change no code and no test, and by `0491b84`, as predicted: it changed `main.py`, which the
   golden test does not run (it calls the router directly), and no fingerprinted name or
   value, so `run_hash` (`40dcdc72…`) holds. Unchanged by `67f6ec1`, `d3188f2`, `78ea37d`, `36de35d`, `f00bef6`, `9ea1cf3`,
   `64ad625` and `d77a8c4` too. Last
@@ -949,10 +971,12 @@ the questions of 6 October: docs only.
   the one place the watched error count is written as a number (DECISIONS, "Ruling,
   15 October 2026 — Part 4's three test shapes", point 5). The commit that writes this
   line changes no test, so every count holds: from the Linux sandbox, Python 3.12.3,
-  pinned requirements, the patch applied to an autocrlf clone of `a235783`. `a235783`
-  changed no test either; its pytest step ran on Windows after the apply — the cache on
-  his disk was rewritten at 16:31:18, 3 minutes 43 seconds after the files were written
-  — and Viktor went on to the commit, which confirms 875 by proceeding. `0491b84`
+  pinned requirements, the patch applied to an autocrlf clone of `8d5d64a`. `8d5d64a`
+  and `a235783` changed no test either, and the pytest step of each ran on Windows after
+  its apply — the cache on his disk was rewritten at 17:12:10, 3 minutes 38 seconds
+  after `8d5d64a`'s files were written, and at 16:31:18, 3 minutes 43 seconds after
+  `a235783`'s — and Viktor went on to each commit, which confirms 875 by proceeding.
+  `0491b84`
   added 9 tests, none taking a fixture and every one needing `pandas_ta` (each runs the
   engine): the first and third counts rose by 9, the skips by 9, and the error count
   held. Its pytest step ran on Windows after each of its two patches: the cache on his
@@ -986,14 +1010,14 @@ the questions of 6 October: docs only.
   `test_the_commit_messages_up_to_the_tag_are_round_7s_to_the_byte`, runs `git log` up
   to the tag `round7-sent-2026-09-30`: it needs the tag, which a full clone has.
 - **Engineering Notes:** through Entry #183 (v1.36), which covers `68c6191`.
-  **Forty-five commits behind** — `ec4e5fd`, the floor (a commit that regenerates the Notes cannot
+  **Forty-six commits behind** — `ec4e5fd`, the floor (a commit that regenerates the Notes cannot
   cover itself, Entry #144), `e7a94d1`, `d5ced0c`, `59b747a`, `f256937`, `12b483e`,
   `01f2892`, `8b6fd00`, `e186423`, `86f30f1`, `3e8191a`, `1523e0c`, `ff12e17`,
   `4a4c6ce`, `217ede6`, `d27743f`, `a0276dd`, `040a529`, `9e42d30`, `eb86846`,
   `c2b07fb`, `1b25f36`, `fcb7823`, `9e507b1`, `6469a67`, `ae37795`, `9d00d99`,
   `27d3ed5`, `9051ffd`, `e5ac20a`, `ef65f46`, `797bdc9`, `69c92d6`, `22a9a35`,
   `d77a8c4`, `64ad625`, `9ea1cf3`, `f00bef6`, `36de35d`, `78ea37d`, `d3188f2`,
-  `67f6ec1`, `0491b84`, `a235783` and the commit that writes this line.
+  `67f6ec1`, `0491b84`, `a235783`, `8d5d64a` and the commit that writes this line.
   Every later
   commit adds one
   until the
@@ -2068,6 +2092,9 @@ Each code commit is its own commit and updates this file for its own landing.
 
 ## Resolved this session
 
+- **What follows if Amazon fails the check twice** — Viktor's, at 17:44, by agreeing to
+  Claude's suggestion (DECISIONS, "Ruling, 17 October 2026 — if Amazon fails the check
+  twice …").
 - **Two of the questions of 6 October ruled** — Viktor's, at 16:58: how Amazon's audit
   is scored, and that its ratings are the ones that count (DECISIONS, "Ruling,
   17 October 2026 — Amazon's audit …"; Open items, the independent audit).
@@ -2164,9 +2191,10 @@ Claude critiques it.
   "Position, 6 October 2026 — all the work and the list for after the audit first, then
   one full audit by Amazon; not ruled"). Its questions 2 and 3 were ruled on 17 October
   (DECISIONS, "Ruling, 17 October 2026 — Amazon's audit …"), and question 4 was moot
-  from then. Open: what happens if Amazon fails the check twice, when no lab is left
-  clean for a full round (that ruling, "Not ruled"); which few settings may be tuned
-  after the paper-trading year, named before it starts; and the Bedrock billing, after
+  from then; what follows if Amazon fails the check twice was ruled the same day
+  (DECISIONS, "Ruling, 17 October 2026 — if Amazon fails the check twice …"). Open:
+  which few settings may be tuned after the paper-trading year, named before it
+  starts; and the Bedrock billing, after
   which the check of reach and fit is Claude's. How a candle that touches both the stop
   and T1 is counted is the Freqtrade item below. For all but the billing he writes his
   position first.
@@ -2181,8 +2209,12 @@ Claude critiques it.
   …"): Amazon's audit is scored on four known defects held back from the list for after
   the audit, and its ratings are the ones that count toward opening backtesting, on four
   conditions fixed before the send; round 8's verified fixes do not count toward
-  condition 1 through its second path. **Next, Claude's:** propose the four, with their
-  "found means" sentences, before work on the list starts — Viktor's to accept or swap.
+  condition 1 through its second path. If Amazon fails the check twice: a scoped round
+  on Items 2, 3, 6 and 18 by a lab clean for scoped rounds, scored on the same four,
+  then a wait for a clean lab (DECISIONS, "Ruling, 17 October 2026 — if Amazon fails
+  the check twice …"). **Next, Claude's:** propose the four, with their "found means"
+  sentences, before work on the list starts, in the files that scoped package would
+  carry — Viktor's to accept or swap.
 - **Viktor's, not ruled — what the triage left open** (DECISIONS, "Ruling, 5 October
   2026 — round 8 triaged …", "Not ruled"): F7; B4's divergence veto; B5; C1–C7; the ten
   questions of 1 October; whether S1, S3, S4, N1–N4, O1–O3 and the Part 7 reply's §1(3)
