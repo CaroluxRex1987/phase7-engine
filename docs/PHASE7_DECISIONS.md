@@ -5287,6 +5287,167 @@ with that recorded.
   Nova 2 Pro as released; not checked: whether the model served at the send is that
   release.
 
+## Ruling, 19 October 2026 — the list for after the audit, sorted: kind, who decides, size and order
+
+*New in this file on 19 October 2026. Viktor's, by agreeing to Claude's suggestion, in
+the session that opened at 10:19 at `d2dddf7`; filed by its first commit. It sorts the
+open entries of the list for after the audit (PHASE7_NEXT.md, "Found after 22 September
+— for after the next audit"), which the plan of 6 October, as changed on 17 October,
+puts before Amazon's audit, less the four held-back defects.*
+
+**How it was made.** In the session of 19 October from 09:08 Claude suggested sorting
+the list into one table — kind, who decides, rough size, suggested order — docs only,
+with nothing filed until Viktor approved it; that session left the suggestion in chat.
+At 10:19 he asked for the sort first. Claude read the list's forty-five entries at
+`d2dddf7` — H1, H2, H3 and H5 held back, and entry 38 a note rather than a finding —
+with the rulings they cite, read from the parse tree which functions hold the entries
+that sit beside a held-back defect, and put the table and six notes to him in chat. At
+11:03: "I agree with your suggestion."
+
+**Claude's reading, his to correct.** "Your suggestion" is read as the table as drafted
+and the two things the notes suggested in so many words: no commit that moves
+`code_hash` before the forward measurement's reading of 14 November, and entry 1 worked
+after the audit, with the four. Where the notes suggested nothing, nothing is ruled:
+whether `bias_score`'s weighting joins the work before Amazon's audit, and whether
+Fable 5.1 or Claude builds the list (entry 38). Nor is the severity of F4's third path,
+which the table puts first without deciding it.
+
+**What was ruled.**
+
+1. **The sort below**, for the forty open entries: what kind each is, who decides it,
+   its rough size, and its place in the order of work. Entries marked Claude —
+   comments, docstrings, tests, dead code and names — are Claude's, Viktor's to
+   reverse; every other entry is Viktor's, as a ruling of his or, where marked
+   *(shape)*, as the shape of a fix Claude proposes and he rules, as for the label and
+   record batch. Each piece is still his to start (PHASE7_NEXT.md, PACE FIRST).
+2. **No commit that moves `code_hash` lands before the 14 November reading**, so that
+   the forward measurement's two readings, due 31 October and 14 November, are of one
+   version: the count of each version starts from zero ("Ruling, 17 October 2026 — the
+   forward measurement …", "What it weakens"). Waves 0 and 1 move none; waves 2 to 5
+   wait.
+3. **Entry 1, the risk gate before the bias checks (the Part 7 document's S1), is worked
+   after the audit, with the four held-back defects**, and Amazon verifies it with
+   their fixes. Its code and H1's are both in `DecisionModel._determine_final_action`,
+   and on one shape of its fix H1's branch would start choosing between WAIT and
+   NO-TRADE, so that it no longer decides nothing — not worked through beyond reading
+   the order of the function.
+
+**What it settles.** The triage's open question whether S1, S3, N1–N4, O1–O3 and the
+Part 7 reply's §1(3) and §1(5) join the label and record batch ("Ruling, 5 October
+2026 — round 8 triaged …", "Not ruled — still Viktor's"): under the plan they are all
+in the work before the audit, S1 apart (point 3).
+
+**The table, as put to Viktor.** Numbers are the entries' places in the list at
+`d2dddf7`; H1 (8), H2 (27), H3 (34) and H5 (43) are held back and not in it. Sizes are
+Claude's estimates from each entry and the files it names, not scoped reads. "Near"
+names a held-back defect an entry's code sits beside: for 1, 7, 19, 33 and 42 read from
+the parse tree at `d2dddf7`, for 3, 4 and 15 from the ruling of 18 October and the
+entries' own text. The legend is as sent, its second person put in the third.
+
+**Size:** XS = comments, docstrings or tests only, so `code_hash` stays put. S = code
+that changes no decision; `code_hash` moves. M = decision path: full scope, live run
+before the commit. L = several patches, or a new part of the engine. R = a ruling only,
+docs.
+
+**Who decides:** Viktor = his, position first. Viktor (shape) = Claude proposes the shape
+and he rules, as with the batch. Claude = Claude's, his to reverse.
+
+**Order:** 0 = rulings that steer the rest. 1 = moves no `code_hash`, can start now. 2 =
+code that changes no decision. 3 = the renames, so the golden snapshot moves once. 4 =
+trading rules. 5 = last.
+
+| # | Entry | Kind | Who decides | Size | Order |
+|---|---|---|---|---|---|
+| 1 | Risk gate runs before the bias checks (S1) | which no-trade label wins | Viktor | M | after the audit, with the four · near H1 |
+| 2 | Candles not checked for bad data (N1) | data check | Viktor | M | 4 |
+| 3 | Entering at the EMA band (finding 4, option B) | trading rule | Viktor | L | 4, measure first · near H3 |
+| 4 | Nothing gates on HVN proximity (N2) | trading rule | Viktor | M | 4 · near H5 |
+| 5 | NEUTRAL bias: entry score for a side nothing chose (S3) | label | Viktor (shape) | S | 2 |
+| 6 | A side must hold for N closed candles | trading rule | Viktor | M–L | 4 |
+| 7 | The word CONFIRMED; the 30.0 boundary (N3) | rename + rule boundary | Viktor | M | 3 · the boundary's ladder side is near H1 |
+| 9 | T1 at least 3% after fees | trading rule | Viktor | M | 4, measure first |
+| 10 | Range-trading mode | new strategy | Viktor | L | 5 |
+| 11 | Confidence read as a win rate (N4) | label/record | Viktor (shape) | S | 2 |
+| 12 | ×0.90 against macro (O1, F4's third path) | weighting | Viktor | M | 0 for its severity, 4 for the weight |
+| 13 | "ROUND 6" in test comments (O2) | comments | Claude | XS | 1 |
+| 14 | Two vocabularies in `calculate_entry_quality` (O3) | dead comparison | Viktor (shape) | S | 2, or with 12 |
+| 15 | Trend score barely varies (B1) | trading rule | Viktor | M | 4, measure first · near H1 |
+| 16 | Spike window 20 bars vs 450 (F7) | trading rule | Viktor | M | 4 |
+| 17 | Divergence veto (B4) | trading rule | Viktor | M | 4 |
+| 18 | The divergence keys' names | rename | Viktor (names) | M | 3 |
+| 19 | Unknown volume label scored as neutral | weighting | Viktor | M | 4 · near H2 |
+| 20 | UNKNOWN vs UNKNOWN RISK | label | Viktor (shape) | S | 2 |
+| 21 | BTC `degraded_inputs` doesn't match its comment | comment | Claude | XS | 1 |
+| 22 | Thresholds fixed for 4h (B5) | timeframe scope | Viktor | R | 0: ruling "4h only for now" closes it |
+| 23 | The Constitution, hostile read (C1–C7) | Constitution | Viktor, plus a reviewer who isn't Claude | L | own track, before the send |
+| 24 | §1(3) prints 0.00/100; §1(5) no log line on a failed run | record | Viktor (shape) | S | 2 |
+| 25 | Longer daily window for macro | trading rule | Viktor | M | 4 |
+| 26 | Goal B precondition 2 lets the day's candle leak in | spec | Viktor | R | 1 |
+| 28 | Two wrong counts in docstrings | docstrings | Claude | XS | 1 |
+| 29 | `"NORMAL"` default in `calculate_stop_targets` | unreachable default | Viktor (shape) | S | 2 |
+| 30 | ACTIVE ENTRY ZONE reaches half a band-width outside | trading rule | Viktor | M | 4 |
+| 31 | Gap at the decision bar: refused or filled | spec (harness) | Viktor | R | 1, with 26 |
+| 32 | `REGIME_HYSTERESIS_THRESHOLD`'s name | rename | Viktor (name) | S | 3 |
+| 33 | Fallback leftovers the sweep didn't change | record | Viktor (shape) | S | 2 · the SuperTrend 0.0 part is near H2 |
+| 35 | `run_tests.py` counts fixture tests as errors | tooling | Viktor (shape) | S | 2 |
+| 36 | Non-finite test can't reach LIVE PRICE | test gap | Claude | XS | 1 |
+| 37 | Part 4's other named tests not checked | test gap | Claude | XS | 1 |
+| 38 | Fable 5.1 works on this list | who builds | Viktor | — | 0 |
+| 39 | Prices printed to four decimals | panel | Viktor (shape) | S | 2 |
+| 40 | "AERO" in names and one log line | names | Claude | S | 2 |
+| 41 | Degraded run: Proposed Entry capped with no sentence saying so | label | Viktor (wording) | S | 2 |
+| 42 | `config.SYMBOL` records AEROUSDT outside `main.py` | record | Viktor (shape) | S | 2 · near H3 if fixed in `run_once` |
+| 44 | `_compute_trade_quality` has two unread parameters | dead code | Claude | S | 2, narrow fix only (same kind as H2) |
+| 45 | Unused `math` import | dead code | Claude | S | 2 |
+
+Entry 46, added to the list by the commit that files this entry (the last note below):
+dead code, Claude, S, 2, with 45.
+
+**The notes, as put to Viktor, in short.**
+
+- *The forward measurement:* point 2 above.
+- *Near a held-back defect.* Entries 1 and 7's ladder side are in
+  `_determine_final_action` with H1; 19 is in `calculate_dynamic_bias` with H2
+  (`models/bias_engine.py:335`), and the SuperTrend 0.0 part of 33 is recorded there;
+  42 goes through `LiveTradingSimulator.run_once` with H3, and 3 changes the order
+  `run_once` builds. Two could disqualify one outright: 15, if it moves the
+  CONSERVATIVE line below 40 — the ruling of 18 October then chooses a replacement for
+  H1 — and 4, since an HVN veto would let H5's one-bin shift change a trade, so whether
+  H5 is still minor would need judging again (not assessed). For the rest, the re-check
+  of the four at the tag before the send ("Ruling, 18 October 2026 — the four held-back
+  defects …", "Who does what") stays the guard.
+- *Entry 12 first.* F4's third path has no severity yet. Upheld as a Tier 1 violation it
+  is Critical, and nothing opens backtesting while a Critical is open ("Ruling,
+  29 September 2026 — what opens backtesting"), so it is better settled before the
+  build than found by Amazon.
+- *Outside the list, also waiting for after the audit:* `bias_score`'s weighting
+  ("Ruling, 22 September 2026 — bias_score's weighting waits for after the audit, and
+  the auditor sees it"), with the HVN uses that the confirmation of 27 September put
+  with it. It sits in `calculate_dynamic_bias`, H2's function. Open, Viktor's.
+- *Entry 38.* Fable 5.1 was ruled to work on the list when the list came after the audit
+  ("Ruling, 29 September 2026 — Fable 5.1 works on the list for after the audit, not
+  before it"); under the plan as changed it comes before. Open, Viktor's.
+- *Three corrections, read from the code at `d2dddf7`, made to the list by the commit
+  that files this entry.* Entry 13 leaves out an eighth instance, a docstring:
+  `tests/test_trend_direction_source.py:159`, "ROUND 6 FOLLOW-ON, 12 September 2026".
+  Entry 18's keys are named in thirteen test files and the golden fixture, not in "more
+  than 15" (a text search; put to Viktor as "14 test files", the fixture counted among
+  them). And the unused loop variable that the search of 18 October found in
+  `utils/plotting.py` was never put on the list; it joins it as entry 46, by the ruling
+  of 22 September, which sends every new finding there, and its place, with 45, is
+  Claude's under the delegation of the order of work.
+
+**What it weakens.**
+
+- Point 2 holds every code fix back about four weeks, the small ones with the rest, so
+  the work before Amazon's audit ends at least that much later.
+- Point 3 leaves S1 in the engine Amazon reads; its fix is checked in a fix
+  verification, not in a full read.
+- The sizes are estimates; each fix's scope is still set when it is built.
+- "Near" is read from which function an entry shares with a held-back defect. A fix
+  elsewhere can still reach one; the re-check at the tag is what would catch it.
+- Two questions the order depends on stay open: the weighting, and who builds.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then

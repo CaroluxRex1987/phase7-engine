@@ -1,9 +1,9 @@
 # Next step — read this first
 
-*19 October 2026, from 09:08. Rewritten by the commit that corrects the forward
-measurement's line on the 14:00 close of 18 October — nothing ran at that close, so
-the question it was to answer needs a later one; the version it replaced — as it stood
-at `8311167` — is in HISTORY verbatim.
+*19 October 2026, from 10:19. Rewritten by the commit that files Viktor's ruling of
+11:03 on the sort of the list for after the audit — kind, who decides, size and order
+— and records `d2dddf7`'s landing; the version it replaced — as it stood at `d2dddf7`
+— is in HISTORY verbatim.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
 rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
@@ -181,6 +181,16 @@ forward measurement's line on the 14:00 close of 18 October to be corrected, in 
 session's first commit: his PC was not running at that close — nothing ran between
 10:06 on 18 October and 02:05 on 19 October — so the question it was to answer needs
 a later one (Open items, the forward measurement).
+**On 19 October, from 10:19**, after pushing `d2dddf7` at 09:59, Viktor asked for the
+sort of the list for after the audit first. Claude read the list's forty-five entries at
+`d2dddf7` and put a table to him — kind, who decides, rough size and suggested order —
+with six notes, and at 11:03 he agreed to Claude's suggestion (DECISIONS, "Ruling,
+19 October 2026 — the list for after the audit, sorted: kind, who decides, size and
+order"). Waves 0 and 1 — the rulings that steer the rest, and the work that moves no
+`code_hash` — come first; no commit that moves `code_hash` lands before the forward
+measurement's reading of 14 November; entry 1, S1, is worked after the audit, with the
+four. Open, his: whether `bias_score`'s weighting joins the work before the audit, and
+whether Fable 5.1 or Claude builds the list (Open items).
 
 **The review and the comparison are outside the repository**, in
 `G:\Phase_7_Engine_Random_Files\Docs\02_Reviews_and_Feedback`:
@@ -451,16 +461,43 @@ from his disk, staged in the session of 19 October, the apply was at 08:02:55 on
 and `origin/master`'s ref from 08:49:11, and GitHub's tip, cloned, matched his disk's
 two files byte for byte.
 
-**This session (19 October, from 09:08)**, configured for Claude Opus 5.5, opened at
+**The session of 19 October, from 09:08**, configured for Claude Opus 5.5, opened at
 `8311167`, GitHub's tip, cloned; `master` and `origin/master` on Viktor's disk, from
-`.git/refs` staged off it, matched it, and so did both files this commit changes, byte
+`.git/refs` staged off it, matched it, and so did both files its commit changes, byte
 for byte. Viktor asked for the forward measurement's line on the 14:00 close of
 18 October to be corrected, in the session's first commit. Claude read the process
-log, staged off his disk at 09:18 (Open items, the forward measurement). The commit
-that writes this line makes the correction: docs only.
+log, staged off his disk at 09:18 (Open items, the forward measurement). `d2dddf7`
+made the correction, docs only: from his disk, staged in the session from 10:19, the
+apply was at 09:51:49, the pytest cache was rewritten at 09:54:44, the commit is from
+09:59:41 and `origin/master`'s ref from 09:59:56, and GitHub's tip, cloned, matched his
+disk's two files byte for byte. Four points of that session stayed in chat, and Viktor
+listed them at the start of the next: Claude's suggestion to sort the list for after
+the audit, docs only, nothing filed until he approved it (ruled at 11:03, above); after
+he sorts the Bedrock billing, Claude checks whether Nova 2 Pro can be reached and
+whether the full package fits (Open items, the independent audit); his PC is now on day
+and night, and the process log is read after 14:05 on 19 October for the 14:00
+question (Open items, the forward measurement); and `d2dddf7`'s landing, not yet in
+this file, was to be read off his disk. Its account is in HISTORY, in this file's
+version at `d2dddf7`, moved there by the commit that writes this line.
+
+**This session (19 October, from 10:19)**, configured for Claude Opus 5.5, opened at
+`d2dddf7`, GitHub's tip, cloned; `master` and `origin/master` on Viktor's disk, from
+`.git/refs` staged off it, matched it, and so did all three files this commit changes,
+byte for byte. Viktor asked for the sort of the list for after the audit first, and
+agreed to it at 11:03 (above). The commit that writes this line files the ruling and
+`d2dddf7`'s landing: docs only.
 
 ## Ruled — in force
 
+- **New, 19 October — Viktor's, by agreeing to Claude's suggestion: the list for after
+  the audit, sorted** (DECISIONS, "Ruling, 19 October 2026 — the list for after the
+  audit, sorted: kind, who decides, size and order"). Each of the forty open entries
+  has a kind, who decides it, a rough size and a place in the order: wave 0, the
+  rulings that steer the rest; 1, what moves no `code_hash`; 2, code that changes no
+  decision; 3, the renames; 4, the trading rules; 5, the range mode. No commit that
+  moves `code_hash` lands before the forward measurement's reading of 14 November.
+  Entry 1, S1, is worked after the audit with the four. Claude's reading of his words,
+  his to correct, is in the entry.
 - **New, 18 October — Viktor's: the four held-back defects are H1, H2, H3 and H5**
   (DECISIONS, "Ruling, 18 October 2026 — the four held-back defects: H1, H2, H3 and
   H5"). H1 and H2 accepted as Claude proposed them; H3 kept, by agreeing to Claude's
@@ -832,8 +869,10 @@ that writes this line makes the correction: docs only.
 ## Where things stand, right now
 
 - **Tip:** the commit that writes this line (a commit cannot name its own hash) —
-  docs only: the forward measurement's line on the 14:00 close of 18 October
-  corrected. Before it: `8311167` (the session of 17 October, from 18:43, going on
+  docs only: Viktor's ruling on the sort of the list for after the audit filed, and
+  `d2dddf7`'s landing recorded. Before it: `d2dddf7` (the session of 19 October, from
+  09:08: the forward measurement's line on the 14:00 close of 18 October corrected:
+  docs only), `8311167` (the session of 17 October, from 18:43, going on
   into 18 October, its second commit: Viktor's ruling on the four held-back defects
   filed: docs only), `fbd7877` (its first commit: the scheduled task's second run
   filed; nothing ran at 18:00: docs only), `a48d9e5` (the session of 17 October, from
@@ -984,8 +1023,8 @@ that writes this line makes the correction: docs only.
   `tests/test_send_round8_fix_verification.py` (25 tests, no fixtures) and changed no
   other test. `d3188f2` and `67f6ec1` changed no test. `0491b84` added
   `tests/test_main_takes_pairs.py` (9 tests, no fixtures) and changed no other test.
-  `a235783`, `8d5d64a`, `a48d9e5`, `fbd7877`, `8311167` and the commit that writes
-  this line change no test.
+  `a235783`, `8d5d64a`, `a48d9e5`, `fbd7877`, `8311167`, `d2dddf7` and the commit
+  that writes this line change no test.
 - **Where the project lives, from 26 September:** `E:\phase7_engine` on Viktor's machine;
   the files kept outside the repository in `G:\Phase_7_Engine_Random_Files`. Copied with
   robocopy, verified — git's own checks on Windows for the tracked files, SHA-256 for the
@@ -994,23 +1033,24 @@ that writes this line makes the correction: docs only.
   to `E:\phase7_engine`". Run the engine and every command from `E:\phase7_engine` (in
   cmd, changing drive needs `cd /d`). A dated record that names the D: paths means the
   same folders before the move; dated records are not edited.
-- **The push of `8311167`** happened, at 08:49:11 on 19 October: GitHub's tip,
-  cloned, is `8311167`, `master` and `origin/master` on Viktor's disk match it, and its
+- **The push of `d2dddf7`** happened, at 09:59:56 on 19 October: GitHub's tip,
+  cloned, is `d2dddf7`, `master` and `origin/master` on Viktor's disk match it, and its
   two files on his disk are byte-identical to GitHub's; he reported it pushed and no
-  deviation (ruling on proposal (b)). So did `fbd7877`'s, at 05:36:43 on 18 October,
-  `a48d9e5`'s, at 18:29:01 on 17 October, `8d5d64a`'s, `a235783`'s and `0491b84`'s.
+  deviation (ruling on proposal (b)). So did `8311167`'s, at 08:49:11 on 19 October,
+  `fbd7877`'s, at 05:36:43 on 18 October, `a48d9e5`'s, at 18:29:01 on 17 October,
+  `8d5d64a`'s, `a235783`'s and `0491b84`'s.
   The same holds for the push of the
   commit that writes this line unless it deviates. Earlier pushes and deviations are
   recorded in this file's previous versions, in HISTORY.
 - **Before this commit**, every file its patch changes was staged off Viktor's disk and
-  matched an autocrlf clone of `8311167` byte for byte.
+  matched an autocrlf clone of `d2dddf7` byte for byte.
 - **code_hash:** `816d4951bb0322763ec4abc4b9ed8161d5b902372823350e5272f2fb7176e380`,
   set by `0491b84` from `bc1b9c2c…` — `main.py` alone — and confirmed on Windows: its
   eleven hand-run records and the ten of each of the first two scheduled runs carry it.
-  Unchanged by `a235783`, `8d5d64a`, `a48d9e5`, `fbd7877`, `8311167` and the commit
-  that writes this line, which change no `.py` file: computed on clones of `0491b84`,
-  `a235783`, `8d5d64a`, `a48d9e5`, `fbd7877` and `8311167` and on the applied trees,
-  under Python 3.12.3. `bc1b9c2c…` was
+  Unchanged by `a235783`, `8d5d64a`, `a48d9e5`, `fbd7877`, `8311167`, `d2dddf7` and
+  the commit that writes this line, which change no `.py` file: computed on clones of
+  `0491b84`, `a235783`, `8d5d64a`, `a48d9e5`, `fbd7877`, `8311167` and `d2dddf7` and on
+  the applied trees, under Python 3.12.3. `bc1b9c2c…` was
   set by `9ea1cf3`, confirmed on Windows by its live run, and held through `f00bef6`,
   `36de35d`, `78ea37d`, `d3188f2` and `67f6ec1`, which changed only files under `docs/`
   and `tests/`, `README.md` and `run_tests.py`'s docstring.
@@ -1018,9 +1058,9 @@ that writes this line makes the correction: docs only.
   output, a CPython implementation detail (`core/code_fingerprint.py`, "WHAT IT DOES NOT
   SURVIVE"). **Every `code_hash` claim about this project is computed under Python 3.12**
   (Viktor runs 3.12.10).
-- **Golden snapshot:** unchanged by the commit that writes this line, by `8311167`, by
-  `fbd7877`, by `a48d9e5`, by `8d5d64a` and by `a235783`, which change no code and no
-  test, and by `0491b84`, as predicted: it changed `main.py`, which the
+- **Golden snapshot:** unchanged by the commit that writes this line, by `d2dddf7`, by
+  `8311167`, by `fbd7877`, by `a48d9e5`, by `8d5d64a` and by `a235783`, which change no
+  code and no test, and by `0491b84`, as predicted: it changed `main.py`, which the
   golden test does not run (it calls the router directly), and no fingerprinted name or
   value, so `run_hash` (`40dcdc72…`) holds. Unchanged by `67f6ec1`, `d3188f2`, `78ea37d`, `36de35d`, `f00bef6`, `9ea1cf3`,
   `64ad625` and `d77a8c4` too. Last
@@ -1034,10 +1074,11 @@ that writes this line makes the correction: docs only.
   the one place the watched error count is written as a number (DECISIONS, "Ruling,
   15 October 2026 — Part 4's three test shapes", point 5). The commit that writes this
   line changes no test, so every count holds: from the Linux sandbox, Python 3.12.3,
-  pinned requirements, the patch applied to an autocrlf clone of `8311167`. `8311167`,
-  `fbd7877`, `a48d9e5`, `8d5d64a` and `a235783` changed no test either, and the pytest
-  step of each ran on Windows after its apply — the cache on his disk was rewritten at
-  08:05:56 on 19 October, 3 minutes 1 second after `8311167`'s files were written, at
+  pinned requirements, the patch applied to an autocrlf clone of `d2dddf7`. `d2dddf7`,
+  `8311167`, `fbd7877`, `a48d9e5`, `8d5d64a` and `a235783` changed no test either, and
+  the pytest step of each ran on Windows after its apply — the cache on his disk was
+  rewritten at 09:54:44 on 19 October, 2 minutes 55 seconds after `d2dddf7`'s files
+  were written, at 08:05:56, 3 minutes 1 second after `8311167`'s, at
   05:22:59 on 18 October, 4 minutes 8 seconds after `fbd7877`'s, at 18:15:11 on
   17 October, 3 minutes 5 seconds after `a48d9e5`'s, at 17:12:10, 3 minutes
   38 seconds after `8d5d64a`'s, and at 16:31:18, 3 minutes 43 seconds after
@@ -1076,15 +1117,15 @@ that writes this line makes the correction: docs only.
   `test_the_commit_messages_up_to_the_tag_are_round_7s_to_the_byte`, runs `git log` up
   to the tag `round7-sent-2026-09-30`: it needs the tag, which a full clone has.
 - **Engineering Notes:** through Entry #183 (v1.36), which covers `68c6191`.
-  **Forty-nine commits behind** — `ec4e5fd`, the floor (a commit that regenerates the Notes cannot
+  **Fifty commits behind** — `ec4e5fd`, the floor (a commit that regenerates the Notes cannot
   cover itself, Entry #144), `e7a94d1`, `d5ced0c`, `59b747a`, `f256937`, `12b483e`,
   `01f2892`, `8b6fd00`, `e186423`, `86f30f1`, `3e8191a`, `1523e0c`, `ff12e17`,
   `4a4c6ce`, `217ede6`, `d27743f`, `a0276dd`, `040a529`, `9e42d30`, `eb86846`,
   `c2b07fb`, `1b25f36`, `fcb7823`, `9e507b1`, `6469a67`, `ae37795`, `9d00d99`,
   `27d3ed5`, `9051ffd`, `e5ac20a`, `ef65f46`, `797bdc9`, `69c92d6`, `22a9a35`,
   `d77a8c4`, `64ad625`, `9ea1cf3`, `f00bef6`, `36de35d`, `78ea37d`, `d3188f2`,
-  `67f6ec1`, `0491b84`, `a235783`, `8d5d64a`, `a48d9e5`, `fbd7877`, `8311167` and the
-  commit that writes this line.
+  `67f6ec1`, `0491b84`, `a235783`, `8d5d64a`, `a48d9e5`, `fbd7877`, `8311167`,
+  `d2dddf7` and the commit that writes this line.
   Every later
   commit adds one
   until the
@@ -1548,6 +1589,12 @@ calls for are made now (Work order), not here; what stays here, or joins, is mar
 below. Whether the entries that change no trade join the label and record batch is
 Viktor's to answer.
 
+**Sorted 19 October** (DECISIONS, "Ruling, 19 October 2026 — the list for after the
+audit, sorted …"): every open entry has a kind, who decides it, a rough size and a
+place in the order there, numbered by its place below, 1 to 46. That answers the
+question above for the entries that change no trade: under the plan they are all in
+the work before the audit, entry 1 apart.
+
 - **The risk gate runs before the bias checks.** The risk verdict returns at
   `models/decision_model.py:551–553`, before the weak-validation and lean checks at
   `:656–668` (at `7d0024e`; written as `:500–502` and `:605–617`
@@ -1558,7 +1605,9 @@ Viktor's to answer.
   code, 26 September; **ruled for after the audit** (Viktor, 26 September). The Part 7
   document's S1, not found by round 8. **18 October:** proposed on 17 October as one of
   the four held-back defects, and replaced (DECISIONS, "Ruling, 18 October 2026 — the
-  four held-back defects …"); it stays on this list.
+  four held-back defects …"); it stays on this list. **19 October:** worked after the
+  audit, with the four (DECISIONS, "Ruling, 19 October 2026 — the list for after the
+  audit, sorted …", point 3).
 - **Checking the candles for bad data.** On price, `data/validation.py` rejects NaN,
   inf, non-positive values and impossible candles, nothing else, so an extreme but
   internally consistent print reaches the indicators; since finding 7 nothing erases
@@ -1652,7 +1701,9 @@ Viktor's to answer.
   own records used the same name ("the five round-6 mutant-escape findings"). Found by
   Claude on 30 September while counting the parties rev 8 names; not changed, so that
   the code the auditor reads is not edited for it. Not usable as a test bug: the shipped
-  line is itself the defect.
+  line is itself the defect. **19 October:** an eighth, a docstring this entry leaves
+  out: `tests/test_trend_direction_source.py:159`, "ROUND 6 FOLLOW-ON, 12 September
+  2026" (read at `d2dddf7`, where `run_tests.py`'s comment is at line 155).
 - **A comparison between two vocabularies in `calculate_entry_quality`.**
   `models/entry_model.py:384` (at `01f2892`) tests `macro_bias != trade_direction`.
   `macro_bias` is BULLISH, BEARISH or NEUTRAL and `trade_direction` is LONG or SHORT, so
@@ -1699,6 +1750,8 @@ Viktor's to answer.
   and more than 15 test files for a word, so the sentences that print them were
   corrected and the rename waits for after the audit, as `REGIME_HYSTERESIS_THRESHOLD`'s
   does (DECISIONS, "Ruling, 14 October 2026 — B4's labels: their shape", point 3).
+  **19 October:** at `d2dddf7` the two keys are named in thirteen test files and the
+  golden fixture (a text search), not in more than 15.
 - **`models/bias_engine.py` scores a volume label it does not know as neutral** (found
   filing B4's labels, 14 October). `_VOLUME_SENTIMENT_SCORES.get(…, 0.0)`: UNKNOWN
   VOLUME is not one of its keys, so a failed volume read counts towards the bias exactly
@@ -1895,6 +1948,13 @@ Viktor's to answer.
   read. Changes no number. On this list by the 22 September ruling.
 - **`data/validation.py` imports `math` and never uses it** (line 121, found by the
   same search). Cleanup only. On this list by the 22 September ruling.
+- **`plot_engine_chart` binds a loop variable it never reads** (`utils/plotting.py`,
+  line 231, read at `d2dddf7`; found 18 October by the same search):
+  `for i, (target, label, color) in enumerate(…)` never reads `i`. Cleanup only;
+  `code_hash` moves, since the file is fingerprinted. The ruling of 18 October named it
+  among the search's results and did not put it on the list; added on 19 October by the
+  22 September ruling, with 45 (DECISIONS, "Ruling, 19 October 2026 — the list for
+  after the audit, sorted …").
 
 ## Work order — Claude's, under Viktor's delegation
 
@@ -2184,15 +2244,20 @@ Each code commit is its own commit and updates this file for its own landing.
 
 ## Resolved this session
 
-- **The forward measurement's line on the 14:00 close of 18 October** — out of date,
-  Viktor's correction: his PC was not running at that close — nothing ran between
-  10:06 on 18 October and 02:05 on 19 October — so the question needs a later one
-  (Open items, the forward measurement).
-- **A carried line naming the wrong commit:** the roster and ledger's SHA-256 are in
-  `0491b84`'s message, not in "the commit that writes this line"'s, as this file had
-  said since `a235783` (Open items, the model roster and the independence ledger).
+- **The sort of the list for after the audit** — ruled at 11:03, by agreeing to
+  Claude's suggestion (DECISIONS, "Ruling, 19 October 2026 — the list for after the
+  audit, sorted …").
+- **`d2dddf7`'s landing**, read off Viktor's disk, and **the four points the session
+  from 09:08 left in chat**, filed ("Where the project is", the session of 19 October,
+  from 09:08).
+- **Three corrections to the list**, from the code at `d2dddf7`: entries 13 and 18, and
+  entry 46 added ("Found after 22 September").
+- **A carried sentence that was not true of two of its items:** "Each is on the list
+  for after the audit" closed the item on what the triage left open, though the ten
+  questions of 1 October are an item of their own and F2's severity is not on that
+  list (Open items).
 - **The once-per-session rewrite of this file**, by the commit that writes this line.
-  The previous version, as at `8311167`, is in HISTORY verbatim, headings demoted one
+  The previous version, as at `d2dddf7`, is in HISTORY verbatim, headings demoted one
   level, proven by un-demotion with a negative control (the commit message has the
   result).
 
@@ -2247,7 +2312,9 @@ Claude critiques it.
     10:05 run's last line, at 10:06:01.102 on 18 October, to the 02:05 run's first, at
     02:05:06.530 on 19 October, with nothing between (staged off his disk at 09:18 on
     19 October; neither run's records are read here). So the question needs a later
-    14:00 close, one at which the PC is running.
+    14:00 close, one at which the PC is running. Viktor's PC runs day and night from
+    19 October (his word, in the session from 09:08), so the next is the 14:00 close
+    of that day; Claude reads the process log after 14:05.
     The first scheduled run, 14:05:00 to 14:05:30, read the candle that run refused and
     wrote ten records, one per pair, each its pair's own (`config.SYMBOL` and the
     decision's symbol): live from MEXC, not pinned, 449 rows, the decision candle opened
@@ -2318,14 +2385,24 @@ Claude critiques it.
   every run (H3) and the flat candle credited to the wrong volume bin (H5), each with
   its "found means" sentence in that entry. Work on the list leaves them as they are;
   Claude re-checks each at the tag before the send. **Next, under the plan:** the list
-  for after the audit, less the four — Viktor's to start; the Bedrock billing, his;
-  then the check of reach and fit, Claude's.
+  for after the audit, less the four, in the order ruled on 19 October (DECISIONS,
+  "Ruling, 19 October 2026 — the list for after the audit, sorted …"), each piece
+  Viktor's to start; the Bedrock billing, his; then the check of reach and fit,
+  Claude's.
 - **Viktor's, not ruled — what the triage left open** (DECISIONS, "Ruling, 5 October
   2026 — round 8 triaged …", "Not ruled"): F7; B4's divergence veto; B5; C1–C7; the ten
-  questions of 1 October; whether S1, S3, N1–N4, O1–O3 and the Part 7 reply's §1(3) and
-  §1(5) join the label and record batch (S4 is held back as H1 since 18 October, so it
-  does not); the severity of F2 and of F4's third path.
-  Each is on the list for after the audit, above.
+  questions of 1 October; the severity of F2 and of F4's third path. F7, the veto, B5,
+  C1–C7 and F4's third path are on the list for after the audit, above, and the sort of
+  19 October puts B5 and F4's severity in wave 0; the ten questions are an item of
+  their own, below. Whether S1, S3, N1–N4, O1–O3 and the Part 7 reply's §1(3) and §1(5)
+  join the label and record batch is settled by that sort: all are in the work before
+  the audit, S1 after it with the four (S4 is held back as H1 since 18 October).
+- **Viktor's, not ruled — two questions the sort of 19 October left open** (DECISIONS,
+  "Ruling, 19 October 2026 — the list for after the audit, sorted …", "Claude's
+  reading"): whether `bias_score`'s weighting (DECISIONS, "Ruling, 22 September 2026 —
+  bias_score's weighting waits for after the audit, and the auditor sees it"), with the
+  HVN uses the confirmation of 27 September put with it, joins the work before
+  Amazon's audit; and whether Fable 5.1 or Claude builds the list (its entry 38).
 - **Viktor's, from the Freqtrade comparison (5 October), nothing ruled.** The comparison
   is outside the repository (`Docs\02_Reviews_and_Feedback\Phase7_Freqtrade_Comparison_2026-10-05`
   in `G:\Phase_7_Engine_Random_Files`).
