@@ -1,10 +1,9 @@
 # Next step — read this first
 
-*17 October 2026, from 18:43, going on into 18 October. Rewritten by `fbd7877`, which
-filed the scheduled task's second run — nothing ran at 18:00, so the run that refused
-all ten pairs at 14:00 did not come back at the next close; the version it replaced —
-as it stood at `a48d9e5` — is in HISTORY verbatim. Updated in the same session by the
-commit that files Viktor's ruling of 18 October on the four held-back defects.
+*19 October 2026, from 09:08. Rewritten by the commit that corrects the forward
+measurement's line on the 14:00 close of 18 October — nothing ran at that close, so
+the question it was to answer needs a later one; the version it replaced — as it stood
+at `8311167` — is in HISTORY verbatim.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
 rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
@@ -177,6 +176,11 @@ credited to the wrong volume bin, and at 09:28 he accepted it in H4's place
 (DECISIONS, "Ruling, 18 October 2026 — the four held-back defects: H1, H2, H3 and
 H5"). Under the plan of 6 October as changed on 17 October, the list for after the
 audit, less the four, comes next — when he chooses to start it.
+**On 19 October, from 09:08**, after pushing `8311167` at 08:49, Viktor asked for the
+forward measurement's line on the 14:00 close of 18 October to be corrected, in the
+session's first commit: his PC was not running at that close — nothing ran between
+10:06 on 18 October and 02:05 on 19 October — so the question it was to answer needs
+a later one (Open items, the forward measurement).
 
 **The review and the comparison are outside the repository**, in
 `G:\Phase_7_Engine_Random_Files\Docs\02_Reviews_and_Feedback`:
@@ -429,7 +433,8 @@ his disk, staged in the session from 18:43, the apply was at 18:12:06, the pytes
 cache was rewritten at 18:15:11, the commit is from 18:28:49 and `origin/master`'s ref
 from 18:29:01, and GitHub's tip, cloned, matched his disk's two files byte for byte.
 
-**This session (17 October, from 18:43)**, configured for Claude Opus 5.5, opened at
+**The session of 17 October, from 18:43, going on into 18 October**, configured for
+Claude Opus 5.5, opened at
 `a48d9e5`, GitHub's tip, cloned; `master` and `origin/master` on Viktor's disk, from
 `.git/refs` staged off it, matched it, and so did both files its first commit
 changes, byte for byte. Viktor asked for the scheduled task's second run to be filed, read from
@@ -440,8 +445,19 @@ from his disk, the apply was at 05:18:51 on 18 October, the pytest cache was rew
 at 05:22:59, the commit is from 05:36:29 and `origin/master`'s ref from 05:36:43, and
 GitHub's tip, fetched, matched the verified files byte for byte. The session went on
 on 18 October: Viktor ruled on the four at 07:58 and 09:28, after Claude's search of
-the files a scoped package would carry, and the commit that writes this line files
-the ruling: docs only.
+the files a scoped package would carry, and `8311167` filed the ruling, docs only:
+from his disk, staged in the session of 19 October, the apply was at 08:02:55 on
+19 October, the pytest cache was rewritten at 08:05:56, the commit is from 08:48:57
+and `origin/master`'s ref from 08:49:11, and GitHub's tip, cloned, matched his disk's
+two files byte for byte.
+
+**This session (19 October, from 09:08)**, configured for Claude Opus 5.5, opened at
+`8311167`, GitHub's tip, cloned; `master` and `origin/master` on Viktor's disk, from
+`.git/refs` staged off it, matched it, and so did both files this commit changes, byte
+for byte. Viktor asked for the forward measurement's line on the 14:00 close of
+18 October to be corrected, in the session's first commit. Claude read the process
+log, staged off his disk at 09:18 (Open items, the forward measurement). The commit
+that writes this line makes the correction: docs only.
 
 ## Ruled — in force
 
@@ -816,10 +832,12 @@ the ruling: docs only.
 ## Where things stand, right now
 
 - **Tip:** the commit that writes this line (a commit cannot name its own hash) —
-  docs only: Viktor's ruling on the four held-back defects filed. Before it: `fbd7877`
-  (this session's first commit: the scheduled task's second run filed; nothing ran at
-  18:00: docs only), `a48d9e5` (the session of 17 October, from 14:10, its third
-  commit: Viktor's ruling
+  docs only: the forward measurement's line on the 14:00 close of 18 October
+  corrected. Before it: `8311167` (the session of 17 October, from 18:43, going on
+  into 18 October, its second commit: Viktor's ruling on the four held-back defects
+  filed: docs only), `fbd7877` (its first commit: the scheduled task's second run
+  filed; nothing ran at 18:00: docs only), `a48d9e5` (the session of 17 October, from
+  14:10, its third commit: Viktor's ruling
   on what follows if Amazon fails the check twice filed: docs only), `8d5d64a` (its
   second commit: Viktor's rulings on two of the
   questions of 6 October filed: docs only), `a235783` (its first commit:
@@ -966,8 +984,8 @@ the ruling: docs only.
   `tests/test_send_round8_fix_verification.py` (25 tests, no fixtures) and changed no
   other test. `d3188f2` and `67f6ec1` changed no test. `0491b84` added
   `tests/test_main_takes_pairs.py` (9 tests, no fixtures) and changed no other test.
-  `a235783`, `8d5d64a`, `a48d9e5`, `fbd7877` and the commit that writes this line
-  change no test.
+  `a235783`, `8d5d64a`, `a48d9e5`, `fbd7877`, `8311167` and the commit that writes
+  this line change no test.
 - **Where the project lives, from 26 September:** `E:\phase7_engine` on Viktor's machine;
   the files kept outside the repository in `G:\Phase_7_Engine_Random_Files`. Copied with
   robocopy, verified — git's own checks on Windows for the tracked files, SHA-256 for the
@@ -976,22 +994,23 @@ the ruling: docs only.
   to `E:\phase7_engine`". Run the engine and every command from `E:\phase7_engine` (in
   cmd, changing drive needs `cd /d`). A dated record that names the D: paths means the
   same folders before the move; dated records are not edited.
-- **The push of `fbd7877`** happened, at 05:36:43 on 18 October: GitHub's tip,
-  fetched, is `fbd7877`, `master` and `origin/master` on Viktor's disk match it, its
-  two files are byte-identical to those verified, and its message is the file
-  delivered; he reported it pushed and no deviation (ruling on proposal (b)). So did
+- **The push of `8311167`** happened, at 08:49:11 on 19 October: GitHub's tip,
+  cloned, is `8311167`, `master` and `origin/master` on Viktor's disk match it, and its
+  two files on his disk are byte-identical to GitHub's; he reported it pushed and no
+  deviation (ruling on proposal (b)). So did `fbd7877`'s, at 05:36:43 on 18 October,
   `a48d9e5`'s, at 18:29:01 on 17 October, `8d5d64a`'s, `a235783`'s and `0491b84`'s.
   The same holds for the push of the
   commit that writes this line unless it deviates. Earlier pushes and deviations are
   recorded in this file's previous versions, in HISTORY.
 - **Before this commit**, every file its patch changes was staged off Viktor's disk and
-  matched an autocrlf clone of `fbd7877` byte for byte.
+  matched an autocrlf clone of `8311167` byte for byte.
 - **code_hash:** `816d4951bb0322763ec4abc4b9ed8161d5b902372823350e5272f2fb7176e380`,
   set by `0491b84` from `bc1b9c2c…` — `main.py` alone — and confirmed on Windows: its
   eleven hand-run records and the ten of each of the first two scheduled runs carry it.
-  Unchanged by `a235783`, `8d5d64a`, `a48d9e5`, `fbd7877` and the commit that writes
-  this line, which change no `.py` file: computed on clones of `0491b84`, `a235783`,
-  `8d5d64a`, `a48d9e5` and `fbd7877` and on the applied trees, under Python 3.12.3. `bc1b9c2c…` was
+  Unchanged by `a235783`, `8d5d64a`, `a48d9e5`, `fbd7877`, `8311167` and the commit
+  that writes this line, which change no `.py` file: computed on clones of `0491b84`,
+  `a235783`, `8d5d64a`, `a48d9e5`, `fbd7877` and `8311167` and on the applied trees,
+  under Python 3.12.3. `bc1b9c2c…` was
   set by `9ea1cf3`, confirmed on Windows by its live run, and held through `f00bef6`,
   `36de35d`, `78ea37d`, `d3188f2` and `67f6ec1`, which changed only files under `docs/`
   and `tests/`, `README.md` and `run_tests.py`'s docstring.
@@ -999,8 +1018,9 @@ the ruling: docs only.
   output, a CPython implementation detail (`core/code_fingerprint.py`, "WHAT IT DOES NOT
   SURVIVE"). **Every `code_hash` claim about this project is computed under Python 3.12**
   (Viktor runs 3.12.10).
-- **Golden snapshot:** unchanged by the commit that writes this line, by `fbd7877`, by
-  `a48d9e5`, by `8d5d64a` and by `a235783`, which change no code and no test, and by `0491b84`, as predicted: it changed `main.py`, which the
+- **Golden snapshot:** unchanged by the commit that writes this line, by `8311167`, by
+  `fbd7877`, by `a48d9e5`, by `8d5d64a` and by `a235783`, which change no code and no
+  test, and by `0491b84`, as predicted: it changed `main.py`, which the
   golden test does not run (it calls the router directly), and no fingerprinted name or
   value, so `run_hash` (`40dcdc72…`) holds. Unchanged by `67f6ec1`, `d3188f2`, `78ea37d`, `36de35d`, `f00bef6`, `9ea1cf3`,
   `64ad625` and `d77a8c4` too. Last
@@ -1014,11 +1034,12 @@ the ruling: docs only.
   the one place the watched error count is written as a number (DECISIONS, "Ruling,
   15 October 2026 — Part 4's three test shapes", point 5). The commit that writes this
   line changes no test, so every count holds: from the Linux sandbox, Python 3.12.3,
-  pinned requirements, the patch applied to an autocrlf clone of `fbd7877`. `fbd7877`,
-  `a48d9e5`, `8d5d64a` and `a235783` changed no test either, and the pytest step of
-  each ran on Windows after its apply — the cache on his disk was rewritten at 05:22:59
-  on 18 October, 4 minutes 8 seconds after `fbd7877`'s files were written, at 18:15:11
-  on 17 October, 3 minutes 5 seconds after `a48d9e5`'s, at 17:12:10, 3 minutes
+  pinned requirements, the patch applied to an autocrlf clone of `8311167`. `8311167`,
+  `fbd7877`, `a48d9e5`, `8d5d64a` and `a235783` changed no test either, and the pytest
+  step of each ran on Windows after its apply — the cache on his disk was rewritten at
+  08:05:56 on 19 October, 3 minutes 1 second after `8311167`'s files were written, at
+  05:22:59 on 18 October, 4 minutes 8 seconds after `fbd7877`'s, at 18:15:11 on
+  17 October, 3 minutes 5 seconds after `a48d9e5`'s, at 17:12:10, 3 minutes
   38 seconds after `8d5d64a`'s, and at 16:31:18, 3 minutes 43 seconds after
   `a235783`'s — and Viktor went on to each commit, which confirms 875 by proceeding.
   `0491b84`
@@ -1055,15 +1076,15 @@ the ruling: docs only.
   `test_the_commit_messages_up_to_the_tag_are_round_7s_to_the_byte`, runs `git log` up
   to the tag `round7-sent-2026-09-30`: it needs the tag, which a full clone has.
 - **Engineering Notes:** through Entry #183 (v1.36), which covers `68c6191`.
-  **Forty-eight commits behind** — `ec4e5fd`, the floor (a commit that regenerates the Notes cannot
+  **Forty-nine commits behind** — `ec4e5fd`, the floor (a commit that regenerates the Notes cannot
   cover itself, Entry #144), `e7a94d1`, `d5ced0c`, `59b747a`, `f256937`, `12b483e`,
   `01f2892`, `8b6fd00`, `e186423`, `86f30f1`, `3e8191a`, `1523e0c`, `ff12e17`,
   `4a4c6ce`, `217ede6`, `d27743f`, `a0276dd`, `040a529`, `9e42d30`, `eb86846`,
   `c2b07fb`, `1b25f36`, `fcb7823`, `9e507b1`, `6469a67`, `ae37795`, `9d00d99`,
   `27d3ed5`, `9051ffd`, `e5ac20a`, `ef65f46`, `797bdc9`, `69c92d6`, `22a9a35`,
   `d77a8c4`, `64ad625`, `9ea1cf3`, `f00bef6`, `36de35d`, `78ea37d`, `d3188f2`,
-  `67f6ec1`, `0491b84`, `a235783`, `8d5d64a`, `a48d9e5`, `fbd7877` and the commit that
-  writes this line.
+  `67f6ec1`, `0491b84`, `a235783`, `8d5d64a`, `a48d9e5`, `fbd7877`, `8311167` and the
+  commit that writes this line.
   Every later
   commit adds one
   until the
@@ -2163,16 +2184,15 @@ Each code commit is its own commit and updates this file for its own landing.
 
 ## Resolved this session
 
-- **Whether something fires at every 4h close** — no: nothing ran at 18:00, so the run
-  that refused all ten pairs at 14:00 did not come back at the next close; Viktor
-  reads it as a one-off (Open items, the forward measurement).
-- **The scheduled task's second run checked** — ten records at 18:05, one per pair,
-  one degraded run, no failed run (Open items, the forward measurement).
-- **The four held-back defects** — Viktor's, at 07:58 and 09:28 on 18 October: H1, H2,
-  H3 and H5 (DECISIONS, "Ruling, 18 October 2026 — the four held-back defects …";
-  Open items, the independent audit).
-- **The once-per-session rewrite of this file**, by `fbd7877`.
-  The previous version, as at `a48d9e5`, is in HISTORY verbatim, headings demoted one
+- **The forward measurement's line on the 14:00 close of 18 October** — out of date,
+  Viktor's correction: his PC was not running at that close — nothing ran between
+  10:06 on 18 October and 02:05 on 19 October — so the question needs a later one
+  (Open items, the forward measurement).
+- **A carried line naming the wrong commit:** the roster and ledger's SHA-256 are in
+  `0491b84`'s message, not in "the commit that writes this line"'s, as this file had
+  said since `a235783` (Open items, the model roster and the independence ledger).
+- **The once-per-session rewrite of this file**, by the commit that writes this line.
+  The previous version, as at `8311167`, is in HISTORY verbatim, headings demoted one
   level, proven by un-demotion with a negative control (the commit message has the
   result).
 
@@ -2222,7 +2242,12 @@ Claude critiques it.
     14:05:30.215, to the 18:05 run's first, at 18:05:01.300, with nothing between
     (staged off his disk at 18:46). Viktor reads the run at 14:00 as a one-off
     (17 October, 18:43). That rules out a trigger at every close; one that fires only
-    at 14:00 would show at the 14:00 close of 18 October.
+    at 14:00 would have shown at the 14:00 close of 18 October, but nothing ran then:
+    Viktor's PC was not running (19 October, 09:08), and the process log goes from the
+    10:05 run's last line, at 10:06:01.102 on 18 October, to the 02:05 run's first, at
+    02:05:06.530 on 19 October, with nothing between (staged off his disk at 09:18 on
+    19 October; neither run's records are read here). So the question needs a later
+    14:00 close, one at which the PC is running.
     The first scheduled run, 14:05:00 to 14:05:30, read the candle that run refused and
     wrote ten records, one per pair, each its pair's own (`config.SYMBOL` and the
     decision's symbol): live from MEXC, not pinned, 449 rows, the decision candle opened
@@ -2342,8 +2367,8 @@ Claude critiques it.
   this file as it stood at `1523e0c`; round 8's list (above) points to it.
 - **The model roster and the independence ledger are one document**, reissued on
   17 October as `Docs\Phase7_Model_Roster_and_Ledger_2026-10-17.pdf` (6 pages) and
-  `.md` in `G:\Phase_7_Engine_Random_Files`; their SHA-256 are in the message of the
-  commit that writes this line. It carries the 30 September document forward — kept as
+  `.md` in `G:\Phase_7_Engine_Random_Files`; their SHA-256 are in `0491b84`'s
+  message. It carries the 30 September document forward — kept as
   it was, `Docs\Phase7_Model_Roster_and_Ledger_2026-09-30.pdf` (5 pages, SHA-256
   `edb506c258c1bd711dc7b36263500b62c6f7e96ffcb1a29f469ce798eb39a656`), itself made from
   five earlier records — and where they disagree the later wins; its section 9 lists
