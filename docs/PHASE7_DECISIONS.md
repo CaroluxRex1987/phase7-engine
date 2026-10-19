@@ -5190,6 +5190,103 @@ and output cap.
 - The fifth criterion narrows the choice of the four; fewer defects may qualify.
 - A wait for a new lab has no end date.
 
+## Ruling, 18 October 2026 — the four held-back defects: H1, H2, H3 and H5
+
+*New in this file on 18 October 2026. Viktor's, in the session that opened at 18:43 on
+17 October at `a48d9e5` and went on into 18 October; filed by its second commit, after
+`fbd7877`. It names the four that "Ruling, 17 October 2026 — Amazon's audit …" left to
+Claude's proposal and his acceptance ("Who does what"): two accepted as Claude proposed
+them, one kept by agreeing to Claude's suggestion, and one accepted as the replacement
+a search found, the search being Claude's suggestion that he agreed to.*
+
+**How it was made.** On 17 October, in the message that delivered `fbd7877`'s patch,
+Claude proposed four, H1 to H4, and said that only H1 and H2 were strong. On
+18 October Viktor asked at 07:56: "Suggestions?" Claude suggested accepting H1 and H2,
+replacing H4 through a search of the files a scoped package would carry, and keeping H3
+unless the search found something clearly better. At 07:58: "We go with your
+suggestions." Claude searched, found H5 and proposed it in H4's place; at 09:28: "I
+accept."
+
+**What was ruled.** Amazon's audit is scored on these four. Each is minor, touches none
+of Items 2, 3, 6 and 18, is pointed at by no comment, docstring or test that ships, and
+sits in a file a scoped package on those four Items would carry — Claude's reading of
+that package, whose cut is not yet decided. Line numbers are at `fbd7877`.
+
+1. **H1 — the weak-validation WAIT decides nothing** (the list's entry of that name; the
+   Part 7 document's S4). `models/decision_model.py`,
+   `DecisionModel._determine_final_action`, the branch at line 678: trend health under 40
+   already fails both tiers (75 and 50, lines 484–486), so the action is WAIT either way
+   and the branch only chooses the sentence. Round 8 found it and rated it Minor (F10).
+   Carried as the decision, the first link of Item 6's chain.
+   *Found means:* Parts 1–6 name this branch of `_determine_final_action` and say that it
+   cannot change the action: it is dead, redundant, or only selects the message.
+2. **H2 — `calculate_dynamic_bias` takes `trend_exhaustion` and never reads it** (the
+   list's entry of that name). `models/bias_engine.py`: the parse tree shows one use,
+   the function coercing its own argument (line 271), though `engine_core` passes the
+   flag in (lines 808 and 954). It changes no score, and the components record is the
+   arithmetic that ran. Carried: the function fills `lineage.bias_components`.
+   *Found means:* Parts 1–6 name `calculate_dynamic_bias` and say that it takes
+   `trend_exhaustion` but never reads it, so the flag the engine passes in has no effect
+   on the bias score.
+3. **H3 — the simulator writes an order on every run** (the list's entry of that name).
+   `live_trading.py`, `LiveTradingSimulator.run_once` (lines 62–102): read from the parse
+   tree, it checks for an error result and never the action, then builds and writes a
+   `sim_trade_<time>.json` with that run's stop and targets. Nothing reads these files,
+   and none is on Viktor's disk (no `logs\LiveSim`, 17 October). Carried: Item 18's own
+   test reads the module (`tests/test_execution_surface.py`).
+   *Found means:* Parts 1–6 name `LiveTradingSimulator.run_once` (or the order it builds
+   and writes) and say that it writes a simulated order whatever the action, so a WAIT or
+   NO-TRADE run leaves an order file with a stop and targets the engine did not propose.
+4. **H5 — a flat candle can be credited to the wrong volume bin** (on the list from this
+   ruling). `indicators/volume_profile.py`, `compute_volume_profile`, the branch for a
+   candle whose range is at most one millionth of its price (lines 157–176): it gives the
+   candle to the bin whose nearest edge is closest. Neighbouring bins share an edge, so
+   for a candle in the lower half of a bin the two distances tie, and the strict `<`
+   gives it to the bin below. Run in the Linux sandbox at `fbd7877`, with ten bins of
+   width 1: a flat candle at 4.2 landed in (3, 4] and HVN read 3.5; at 4.7 it landed in
+   (4, 5]. The repository's real candle files hold no flat candle. Carried: the volume
+   profile reads the whole 450-candle window (Item 2), and HVN is recorded in the
+   lineage, under `indicators_at_decision_bar` (Item 6).
+   *Found means:* Parts 1–6 name the flat-candle branch of `compute_volume_profile` and
+   say that it can credit a flat candle's volume to a bin that does not contain its price
+   (it picks by nearest edge, and neighbouring bins share an edge).
+
+**Not chosen.** H4, the list's "The risk gate runs before the bias checks" (the Part 7
+document's S1): four runs across rounds 7 and 8 missed it, a shipped test
+(`tests/test_neutral_bias_prints_no_plan.py`) asserts its behaviour, and
+`_apply_signal_gate`'s docstring states "a risk refusal stays the label" as Viktor's
+ruling, so an auditor would read it as intended. It stays on the list. The search's
+other results, from the parse tree: parameters no function reads — H2's, and
+`_compute_trade_quality`'s `trend` and `final_action`, H2's kind, with a comment beside
+it that describes removing `trend`'s only use; comparisons against strings nothing
+produces — none; dead stores — one unused loop variable in `utils/plotting.py`; unused
+imports — `math` in `data/validation.py`; dead module constants — none, the contract's
+three being read by tests. The unread parameters and the unused import go on the list.
+
+**Who does what.** Work on the list leaves the four as they are. Before the send, Claude
+re-checks each at the tag: present as described, and named by no shipped line, the
+instruction included. They are fixed after the audit, and Amazon verifies the fixes with
+the rest. H1 holds only while CONSERVATIVE needs at least 40: if the ruling on B1 moves
+that line below 40, the branch decides something, and a replacement is chosen then,
+with that recorded.
+
+**What it weakens.**
+
+- H5 was found by a search made to find a test defect, after the criteria were set, not
+  in ordinary work as the other three were; a search can pick a defect for how well it
+  tests rather than for how much it matters.
+- H5 can move a computed number — HVN by one bin, when a flat candle carries a bin's
+  volume — where the other three move none. It stays in through the audit and the
+  forward measurement, whose evidence is about the version that has it.
+- H3 may read as intended: B10's test docstring describes the panel's version of the
+  fault and says the log keeps the note, and its negative control builds a WAIT order.
+- H1 and H2 are the same kind, code that does nothing; one habit finds both, so a pass
+  on those two alone shows that habit, not care in reading generally.
+- The fifth criterion rests on Claude's reading of the package until its cut is decided.
+- All four were first written down after 22 September, when the roster recorded
+  Nova 2 Pro as released; not checked: whether the model served at the send is that
+  release.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then

@@ -1,9 +1,10 @@
 # Next step — read this first
 
-*17 October 2026, from 18:43. Rewritten by the commit that files the scheduled task's
-second run — nothing ran at 18:00, so the run that refused all ten pairs at 14:00 did
-not come back at the next close; the version it replaced — as it stood at `a48d9e5` —
-is in HISTORY verbatim.
+*17 October 2026, from 18:43, going on into 18 October. Rewritten by `fbd7877`, which
+filed the scheduled task's second run — nothing ran at 18:00, so the run that refused
+all ten pairs at 14:00 did not come back at the next close; the version it replaced —
+as it stood at `a48d9e5` — is in HISTORY verbatim. Updated in the same session by the
+commit that files Viktor's ruling of 18 October on the four held-back defects.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
 rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
@@ -33,8 +34,10 @@ Claude's under the delegation as Claude reads it — accepted by Viktor on 17 Oc
 (DECISIONS, "Ruling, 17 October 2026 — round 8's fix verification accepted on the stop's
 answer; the release gate reopens"). What is left under the delegation is running the next
 audit, on the plan as ruled on 17 October, with its fallback (DECISIONS, "Ruling,
-17 October 2026 — Amazon's audit …" and "… — if Amazon fails the check twice …") —
-Claude's reading, his to change. The roster and ledger were
+17 October 2026 — Amazon's audit …" and "… — if Amazon fails the check twice …"),
+scored on the four held-back defects ruled on 18 October (DECISIONS, "Ruling,
+18 October 2026 — the four held-back defects …") — Claude's reading, his to change.
+The roster and ledger were
 reissued on 17 October (Open
 items, "The model roster and the independence ledger"). The
 fixes were never under it: they were his triage rulings. Everything else still follows
@@ -164,9 +167,16 @@ available.
 filed, read from `logs/phase7_engine.log` on his disk: nothing ran at 18:00, so he
 reads the run at 14:00 as a one-off (Open items, the forward measurement). He asked
 next for the four held-back defects, under the rulings of 17 October; Claude proposed
-them, with their "found means" sentences, in the message that delivered this
-commit's patch — Viktor's to accept or swap, and filed with his answer (Open items,
-the independent audit).
+them, with their "found means" sentences, in the message that delivered `fbd7877`'s
+patch — Viktor's to accept or swap (Open items, the independent audit).
+**On 18 October**, after pushing `fbd7877` at 05:36, Viktor asked at 07:56 for
+Claude's suggestions on the four and at 07:58 agreed to them: H1 and H2 accepted, H4
+replaced through a search of the files a scoped package would carry, H3 kept unless
+the search found something clearly better. The search found H5, a flat candle
+credited to the wrong volume bin, and at 09:28 he accepted it in H4's place
+(DECISIONS, "Ruling, 18 October 2026 — the four held-back defects: H1, H2, H3 and
+H5"). Under the plan of 6 October as changed on 17 October, the list for after the
+audit, less the four, comes next — when he chooses to start it.
 
 **The review and the comparison are outside the repository**, in
 `G:\Phase_7_Engine_Random_Files\Docs\02_Reviews_and_Feedback`:
@@ -421,15 +431,26 @@ from 18:29:01, and GitHub's tip, cloned, matched his disk's two files byte for b
 
 **This session (17 October, from 18:43)**, configured for Claude Opus 5.5, opened at
 `a48d9e5`, GitHub's tip, cloned; `master` and `origin/master` on Viktor's disk, from
-`.git/refs` staged off it, matched it, and so did both files this commit changes, byte
-for byte. Viktor asked for the scheduled task's second run to be filed, read from
+`.git/refs` staged off it, matched it, and so did both files its first commit
+changes, byte for byte. Viktor asked for the scheduled task's second run to be filed, read from
 `logs/phase7_engine.log` on his disk, and then for the four held-back defects. Claude
 read the process log and the ten decision logs, staged off his disk at 18:46 and
-19:12 (Open items, the forward measurement). The commit that writes this line files
-the first: docs only.
+19:12 (Open items, the forward measurement). `fbd7877` filed the first, docs only:
+from his disk, the apply was at 05:18:51 on 18 October, the pytest cache was rewritten
+at 05:22:59, the commit is from 05:36:29 and `origin/master`'s ref from 05:36:43, and
+GitHub's tip, fetched, matched the verified files byte for byte. The session went on
+on 18 October: Viktor ruled on the four at 07:58 and 09:28, after Claude's search of
+the files a scoped package would carry, and the commit that writes this line files
+the ruling: docs only.
 
 ## Ruled — in force
 
+- **New, 18 October — Viktor's: the four held-back defects are H1, H2, H3 and H5**
+  (DECISIONS, "Ruling, 18 October 2026 — the four held-back defects: H1, H2, H3 and
+  H5"). H1 and H2 accepted as Claude proposed them; H3 kept, by agreeing to Claude's
+  suggestion; H5, found by a search he agreed to, in H4's place. Each has its "found
+  means" sentence there. Work on the list leaves them as they are, Claude re-checks
+  them at the tag before the send, and they are fixed after the audit.
 - **New, 17 October — Viktor's, by agreeing to Claude's suggestion: if Amazon fails the
   check twice** (DECISIONS, "Ruling, 17 October 2026 — if Amazon fails the check twice:
   a scoped round on Items 2, 3, 6 and 18, then a wait for a clean lab"). A scoped round
@@ -795,8 +816,10 @@ the first: docs only.
 ## Where things stand, right now
 
 - **Tip:** the commit that writes this line (a commit cannot name its own hash) —
-  docs only: the scheduled task's second run filed; nothing ran at 18:00. Before it:
-  `a48d9e5` (the session of 17 October, from 14:10, its third commit: Viktor's ruling
+  docs only: Viktor's ruling on the four held-back defects filed. Before it: `fbd7877`
+  (this session's first commit: the scheduled task's second run filed; nothing ran at
+  18:00: docs only), `a48d9e5` (the session of 17 October, from 14:10, its third
+  commit: Viktor's ruling
   on what follows if Amazon fails the check twice filed: docs only), `8d5d64a` (its
   second commit: Viktor's rulings on two of the
   questions of 6 October filed: docs only), `a235783` (its first commit:
@@ -943,7 +966,8 @@ the first: docs only.
   `tests/test_send_round8_fix_verification.py` (25 tests, no fixtures) and changed no
   other test. `d3188f2` and `67f6ec1` changed no test. `0491b84` added
   `tests/test_main_takes_pairs.py` (9 tests, no fixtures) and changed no other test.
-  `a235783`, `8d5d64a`, `a48d9e5` and the commit that writes this line change no test.
+  `a235783`, `8d5d64a`, `a48d9e5`, `fbd7877` and the commit that writes this line
+  change no test.
 - **Where the project lives, from 26 September:** `E:\phase7_engine` on Viktor's machine;
   the files kept outside the repository in `G:\Phase_7_Engine_Random_Files`. Copied with
   robocopy, verified — git's own checks on Windows for the tracked files, SHA-256 for the
@@ -952,21 +976,22 @@ the first: docs only.
   to `E:\phase7_engine`". Run the engine and every command from `E:\phase7_engine` (in
   cmd, changing drive needs `cd /d`). A dated record that names the D: paths means the
   same folders before the move; dated records are not edited.
-- **The push of `a48d9e5`** happened, at 18:29:01: GitHub's tip, cloned, is `a48d9e5`,
-  `master` and `origin/master` on Viktor's disk match it, and its two files on his disk
-  are byte-identical to GitHub's; he reported it pushed and no deviation (ruling on
-  proposal (b)). So did `8d5d64a`'s, at 17:30:08, `a235783`'s, at 16:48:39, and
-  `0491b84`'s. The same holds for the push of the
+- **The push of `fbd7877`** happened, at 05:36:43 on 18 October: GitHub's tip,
+  fetched, is `fbd7877`, `master` and `origin/master` on Viktor's disk match it, its
+  two files are byte-identical to those verified, and its message is the file
+  delivered; he reported it pushed and no deviation (ruling on proposal (b)). So did
+  `a48d9e5`'s, at 18:29:01 on 17 October, `8d5d64a`'s, `a235783`'s and `0491b84`'s.
+  The same holds for the push of the
   commit that writes this line unless it deviates. Earlier pushes and deviations are
   recorded in this file's previous versions, in HISTORY.
 - **Before this commit**, every file its patch changes was staged off Viktor's disk and
-  matched an autocrlf clone of `a48d9e5` byte for byte.
+  matched an autocrlf clone of `fbd7877` byte for byte.
 - **code_hash:** `816d4951bb0322763ec4abc4b9ed8161d5b902372823350e5272f2fb7176e380`,
   set by `0491b84` from `bc1b9c2c…` — `main.py` alone — and confirmed on Windows: its
   eleven hand-run records and the ten of each of the first two scheduled runs carry it.
-  Unchanged by `a235783`, `8d5d64a`, `a48d9e5` and the commit that writes this line,
-  which change no `.py` file: computed on clones of `0491b84`, `a235783`, `8d5d64a` and
-  `a48d9e5` and on the applied trees, under Python 3.12.3. `bc1b9c2c…` was
+  Unchanged by `a235783`, `8d5d64a`, `a48d9e5`, `fbd7877` and the commit that writes
+  this line, which change no `.py` file: computed on clones of `0491b84`, `a235783`,
+  `8d5d64a`, `a48d9e5` and `fbd7877` and on the applied trees, under Python 3.12.3. `bc1b9c2c…` was
   set by `9ea1cf3`, confirmed on Windows by its live run, and held through `f00bef6`,
   `36de35d`, `78ea37d`, `d3188f2` and `67f6ec1`, which changed only files under `docs/`
   and `tests/`, `README.md` and `run_tests.py`'s docstring.
@@ -974,8 +999,8 @@ the first: docs only.
   output, a CPython implementation detail (`core/code_fingerprint.py`, "WHAT IT DOES NOT
   SURVIVE"). **Every `code_hash` claim about this project is computed under Python 3.12**
   (Viktor runs 3.12.10).
-- **Golden snapshot:** unchanged by the commit that writes this line, by `a48d9e5`, by
-  `8d5d64a` and by `a235783`, which change no code and no test, and by `0491b84`, as predicted: it changed `main.py`, which the
+- **Golden snapshot:** unchanged by the commit that writes this line, by `fbd7877`, by
+  `a48d9e5`, by `8d5d64a` and by `a235783`, which change no code and no test, and by `0491b84`, as predicted: it changed `main.py`, which the
   golden test does not run (it calls the router directly), and no fingerprinted name or
   value, so `run_hash` (`40dcdc72…`) holds. Unchanged by `67f6ec1`, `d3188f2`, `78ea37d`, `36de35d`, `f00bef6`, `9ea1cf3`,
   `64ad625` and `d77a8c4` too. Last
@@ -989,12 +1014,13 @@ the first: docs only.
   the one place the watched error count is written as a number (DECISIONS, "Ruling,
   15 October 2026 — Part 4's three test shapes", point 5). The commit that writes this
   line changes no test, so every count holds: from the Linux sandbox, Python 3.12.3,
-  pinned requirements, the patch applied to an autocrlf clone of `a48d9e5`. `a48d9e5`,
-  `8d5d64a` and `a235783` changed no test either, and the pytest step of each ran on
-  Windows after its apply — the cache on his disk was rewritten at 18:15:11, 3 minutes
-  5 seconds after `a48d9e5`'s files were written, at 17:12:10, 3 minutes 38 seconds
-  after `8d5d64a`'s, and at 16:31:18, 3 minutes 43 seconds after `a235783`'s — and
-  Viktor went on to each commit, which confirms 875 by proceeding.
+  pinned requirements, the patch applied to an autocrlf clone of `fbd7877`. `fbd7877`,
+  `a48d9e5`, `8d5d64a` and `a235783` changed no test either, and the pytest step of
+  each ran on Windows after its apply — the cache on his disk was rewritten at 05:22:59
+  on 18 October, 4 minutes 8 seconds after `fbd7877`'s files were written, at 18:15:11
+  on 17 October, 3 minutes 5 seconds after `a48d9e5`'s, at 17:12:10, 3 minutes
+  38 seconds after `8d5d64a`'s, and at 16:31:18, 3 minutes 43 seconds after
+  `a235783`'s — and Viktor went on to each commit, which confirms 875 by proceeding.
   `0491b84`
   added 9 tests, none taking a fixture and every one needing `pandas_ta` (each runs the
   engine): the first and third counts rose by 9, the skips by 9, and the error count
@@ -1029,15 +1055,15 @@ the first: docs only.
   `test_the_commit_messages_up_to_the_tag_are_round_7s_to_the_byte`, runs `git log` up
   to the tag `round7-sent-2026-09-30`: it needs the tag, which a full clone has.
 - **Engineering Notes:** through Entry #183 (v1.36), which covers `68c6191`.
-  **Forty-seven commits behind** — `ec4e5fd`, the floor (a commit that regenerates the Notes cannot
+  **Forty-eight commits behind** — `ec4e5fd`, the floor (a commit that regenerates the Notes cannot
   cover itself, Entry #144), `e7a94d1`, `d5ced0c`, `59b747a`, `f256937`, `12b483e`,
   `01f2892`, `8b6fd00`, `e186423`, `86f30f1`, `3e8191a`, `1523e0c`, `ff12e17`,
   `4a4c6ce`, `217ede6`, `d27743f`, `a0276dd`, `040a529`, `9e42d30`, `eb86846`,
   `c2b07fb`, `1b25f36`, `fcb7823`, `9e507b1`, `6469a67`, `ae37795`, `9d00d99`,
   `27d3ed5`, `9051ffd`, `e5ac20a`, `ef65f46`, `797bdc9`, `69c92d6`, `22a9a35`,
   `d77a8c4`, `64ad625`, `9ea1cf3`, `f00bef6`, `36de35d`, `78ea37d`, `d3188f2`,
-  `67f6ec1`, `0491b84`, `a235783`, `8d5d64a`, `a48d9e5` and the commit that writes this
-  line.
+  `67f6ec1`, `0491b84`, `a235783`, `8d5d64a`, `a48d9e5`, `fbd7877` and the commit that
+  writes this line.
   Every later
   commit adds one
   until the
@@ -1509,7 +1535,9 @@ Viktor's to answer.
   TOO HIGH). In the log counted on 26 September this was 2 of the 33 refused runs. It
   changes what the panel says, not which trades are taken. Found by Claude reading the
   code, 26 September; **ruled for after the audit** (Viktor, 26 September). The Part 7
-  document's S1, not found by round 8.
+  document's S1, not found by round 8. **18 October:** proposed on 17 October as one of
+  the four held-back defects, and replaced (DECISIONS, "Ruling, 18 October 2026 — the
+  four held-back defects …"); it stays on this list.
 - **Checking the candles for bad data.** On price, `data/validation.py` rejects NaN,
   inf, non-positive values and impossible candles, nothing else, so an extreme but
   internally consistent print reaches the indicators; since finding 7 nothing erases
@@ -1555,7 +1583,9 @@ Viktor's to answer.
   validation score, so it is one of the three places macro is still read, and it
   changes no trade. Found by Claude reading the code while scoping G, 27 September; on
   this list by the 22 September ruling, not separately ruled. The Part 7 document's
-  S4; round 8 found it (F10).
+  S4; round 8 found it (F10). **Held back for Amazon's audit as H1** (DECISIONS,
+  "Ruling, 18 October 2026 — the four held-back defects …"): left as it is until after
+  the audit.
 - **A floor on T1: at least 3% after fees.** Point 2 of "Ruling, 28 September 2026 —
   what "finished" means, and how the engine is judged": the engine should issue no LONG
   whose T1 nets under 3% after fees. Today T1 equals the stop distance, anywhere from
@@ -1708,7 +1738,8 @@ Viktor's to answer.
   (`models/bias_engine.py:184` and `:264`, read at `c2b07fb`): the flag is coerced to a
   bool and then unused, so the bias score does not see it, and a caller would think it
   does. Found by Claude scoping fix 2 on the night of 5 to 6 October. It changes no
-  trade; on this list by the 22 September ruling, not separately ruled.
+  trade; on this list by the 22 September ruling, not separately ruled. **Held back for
+  Amazon's audit as H2** (the same ruling): left as it is until after the audit.
 - **Two counts in `models/risk_model.py`'s docstrings are wrong** (read at `1b25f36`,
   from the parse tree): `read_risk_verdict` says `validate_risk_parameters` has six
   return paths, and it has seven; `validate_risk_parameters` says "the three
@@ -1778,7 +1809,8 @@ Viktor's to answer.
   reads the files back (Open items, "what B6 left shared"); none has been written on
   Viktor's machine (no `logs\LiveSim` there, 15 October). It matters once paper trading
   reads these files. Changes no trade. On this list by the 22 September ruling, not
-  separately ruled.
+  separately ruled. **Held back for Amazon's audit as H3** (the same ruling): left as it
+  is until after the audit.
 - **`run_tests.py` counts a test that takes a fixture as an error, as it counts a real
   one** (round 8's Part 4, its structural point; ruled for this list on 15 October,
   DECISIONS, "Ruling, 15 October 2026 — Part 4's three test shapes", point 5). A real
@@ -1823,6 +1855,25 @@ Viktor's to answer.
   `0491b84`. `live_trading.py`'s `run_once(symbol)` and the tests pass a
   symbol without setting it, so their records say AEROUSDT. It distinguishes `run_hash`
   more, not less; it misleads a reader. Changes no trade.
+- **A flat candle can be credited to the wrong volume bin** (found 18 October, read at
+  `fbd7877`, by a search of the files a scoped package on Items 2, 3, 6 and 18 would
+  carry, made to find a held-back defect). `indicators/volume_profile.py`,
+  `compute_volume_profile`, the branch for a candle whose range is at most one
+  millionth of its price, gives the candle to the bin whose nearest edge is closest.
+  Neighbouring bins share an edge, so for a candle in the lower half of a bin the two
+  distances tie, and the strict `<` gives it to the bin below. In the Linux sandbox,
+  with ten bins of width 1: a flat candle at 4.2 landed in (3, 4] and HVN read 3.5; at
+  4.7 it landed in (4, 5]. The repository's real candle files — AERO 4h and 1d, BTC 4h
+  and the clean fixture — hold no flat candle. HVN can move by one bin when a flat
+  candle carries a bin's volume. **Held back for Amazon's audit as H5** (DECISIONS,
+  "Ruling, 18 October 2026 — the four held-back defects …"): left as it is until
+  after the audit.
+- **`_compute_trade_quality` takes `trend` and `final_action` and reads neither**
+  (`models/decision_model.py:872`, found by the same search). Its only use of `trend`
+  went at sequence item 11, as the comment inside it says; `final_action` is never
+  read. Changes no number. On this list by the 22 September ruling.
+- **`data/validation.py` imports `math` and never uses it** (line 121, found by the
+  same search). Cleanup only. On this list by the 22 September ruling.
 
 ## Work order — Claude's, under Viktor's delegation
 
@@ -2117,7 +2168,10 @@ Each code commit is its own commit and updates this file for its own landing.
   reads it as a one-off (Open items, the forward measurement).
 - **The scheduled task's second run checked** — ten records at 18:05, one per pair,
   one degraded run, no failed run (Open items, the forward measurement).
-- **The once-per-session rewrite of this file**, by the commit that writes this line.
+- **The four held-back defects** — Viktor's, at 07:58 and 09:28 on 18 October: H1, H2,
+  H3 and H5 (DECISIONS, "Ruling, 18 October 2026 — the four held-back defects …";
+  Open items, the independent audit).
+- **The once-per-session rewrite of this file**, by `fbd7877`.
   The previous version, as at `a48d9e5`, is in HISTORY verbatim, headings demoted one
   level, proven by un-demotion with a negative control (the commit message has the
   result).
@@ -2233,15 +2287,19 @@ Claude critiques it.
   condition 1 through its second path. If Amazon fails the check twice: a scoped round
   on Items 2, 3, 6 and 18 by a lab clean for scoped rounds, scored on the same four,
   then a wait for a clean lab (DECISIONS, "Ruling, 17 October 2026 — if Amazon fails
-  the check twice …"). **Proposed, Claude's:** the four, with their "found means"
-  sentences, in the files that scoped package would carry, in the message that
-  delivered the commit that writes this line — Viktor's to accept or swap. They are
-  filed with his answer, before work on the list starts; nothing about them is filed
-  here.
+  the check twice …"). **Ruled 18 October** (DECISIONS, "Ruling, 18 October 2026 —
+  the four held-back defects: H1, H2, H3 and H5"): the weak-validation WAIT (H1),
+  `calculate_dynamic_bias`'s unread `trend_exhaustion` (H2), the simulator's order on
+  every run (H3) and the flat candle credited to the wrong volume bin (H5), each with
+  its "found means" sentence in that entry. Work on the list leaves them as they are;
+  Claude re-checks each at the tag before the send. **Next, under the plan:** the list
+  for after the audit, less the four — Viktor's to start; the Bedrock billing, his;
+  then the check of reach and fit, Claude's.
 - **Viktor's, not ruled — what the triage left open** (DECISIONS, "Ruling, 5 October
   2026 — round 8 triaged …", "Not ruled"): F7; B4's divergence veto; B5; C1–C7; the ten
-  questions of 1 October; whether S1, S3, S4, N1–N4, O1–O3 and the Part 7 reply's §1(3)
-  and §1(5) join the label and record batch; the severity of F2 and of F4's third path.
+  questions of 1 October; whether S1, S3, N1–N4, O1–O3 and the Part 7 reply's §1(3) and
+  §1(5) join the label and record batch (S4 is held back as H1 since 18 October, so it
+  does not); the severity of F2 and of F4's third path.
   Each is on the list for after the audit, above.
 - **Viktor's, from the Freqtrade comparison (5 October), nothing ruled.** The comparison
   is outside the repository (`Docs\02_Reviews_and_Feedback\Phase7_Freqtrade_Comparison_2026-10-05`
