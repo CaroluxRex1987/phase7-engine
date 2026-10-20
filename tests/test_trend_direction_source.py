@@ -156,12 +156,12 @@ def test_trend_health_reports_a_sign_that_matches_its_own_label():
     must never disagree -- 9,800 measured bars found zero disagreements, and
     this keeps it that way.
 
-    ROUND 6 FOLLOW-ON, 12 September 2026. Adding the `expect` assertion below
-    surfaced a second, pre-existing defect in THIS TEST's own fixture, found
-    while verifying the assertion actually catches the named mutant rather
-    than a fixture artifact: a raw OHLCV frame handed straight to
-    compute_trend_health is missing EMA20_Slope, EMA50_Slope, ADX and RSI --
-    columns compute_trend_health reads by name and which only
+    REQUESTED-RUN 6 FOLLOW-ON, 12 September 2026. Adding the `expect`
+    assertion below surfaced a second, pre-existing defect in THIS TEST's
+    own fixture, found while verifying the assertion actually catches the
+    named mutant rather than a fixture artifact: a raw OHLCV frame handed
+    straight to compute_trend_health is missing EMA20_Slope, EMA50_Slope,
+    ADX and RSI -- columns compute_trend_health reads by name and which only
     add_technical_indicators() computes. Every input showed
     "(column absent)" in degraded_inputs, so the ORIGINAL (weaker) version of
     this test was passing on a frame that could never produce anything but
@@ -220,7 +220,8 @@ def test_trend_health_reports_a_sign_that_matches_its_own_label():
         else:
             assert sign == 0, f"label {label} but sign {sign}"
 
-        # ROUND 6 MUTANT ESCAPE (GPT-6 Astra), 12 September 2026. Everything
+        # REQUESTED-RUN 6 MUTANT ESCAPE (GPT-6 Astra, round 5), 12 September
+        # 2026. Everything
         # above only checks that the sign and the label agree WITH EACH
         # OTHER -- an always-neutral compute_trend_health (label "NEUTRAL",
         # sign 0 unconditionally, ignoring the input entirely) satisfies

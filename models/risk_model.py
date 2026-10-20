@@ -179,7 +179,7 @@ def read_risk_verdict(risk) -> Optional[bool]:
     about it; this function will not decide for them by inventing one.
 
     Deliberately strict about the type. validate_risk_parameters() below
-    is the only producer and every one of its six return paths hands back
+    is the only producer and every one of its seven return paths hands back
     a Python bool literal, so nothing legitimate is rejected here. Should
     some future path emit a numpy bool or a truthy string instead, this
     returns None and the callers refuse the trade: an unrecognised verdict

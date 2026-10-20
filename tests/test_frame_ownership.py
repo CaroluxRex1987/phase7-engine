@@ -216,8 +216,9 @@ def test_plot_engine_chart_does_not_touch_the_callers_frame():
         "computed from. A renderer must not edit what it renders."
     )
 
-    # ROUND 6 MUTANT ESCAPE (GPT-6 Astra), 12 September 2026. A no-op
-    # plot_engine_chart -- returns save_path, draws nothing, logs nothing --
+    # REQUESTED-RUN 6 MUTANT ESCAPE (GPT-6 Astra, round 5), 12 September 2026.
+    # A no-op plot_engine_chart -- returns save_path, draws nothing, logs
+    # nothing --
     # never touches df at all, so the assertion above is trivially satisfied
     # by a function that does no work. An unmodified frame is not evidence a
     # chart was drawn; the file on disk is. A candlestick chart with EMAs,
@@ -297,7 +298,8 @@ def test_plotting_does_not_swallow_a_broken_repair_path():
         "candles looks like a chart."
     )
 
-    # ROUND 6 MUTANT ESCAPE (GPT-6 Astra), 12 September 2026. The same no-op
+    # REQUESTED-RUN 6 MUTANT ESCAPE (GPT-6 Astra, round 5), 12 September 2026.
+    # The same no-op
     # mutant this file's sibling test now checks for (draws nothing, logs
     # nothing) also satisfies "no ERROR records" trivially -- an empty log is
     # not evidence of a healthy render, only of no attempt at all. Same

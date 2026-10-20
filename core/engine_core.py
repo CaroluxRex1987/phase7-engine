@@ -914,13 +914,25 @@ class Phase7Engine:
                         #
                         # Item 11's own motivation stands, though: a BTC
                         # indicator failure should not be silently dropped
-                        # with nothing but a log line. So it is recorded
-                        # below, inside btc_context itself (reaches the
-                        # decision log for anyone auditing a run later) --
-                        # never appended to the shared `degradation` list, and
-                        # never rendered on the live panel (panel_render.py
-                        # does not read this field; confirmed nothing there
-                        # needs to change).
+                        # with nothing but a log line. So what BTC's trend
+                        # health reports is recorded below, inside
+                        # btc_context itself (reaches the decision log for
+                        # anyone auditing a run later) -- never appended to
+                        # the shared `degradation` list, and never rendered
+                        # on the live panel (panel_render.py does not read
+                        # this field; confirmed nothing there needs to
+                        # change).
+                        #
+                        # 20 October 2026 (entry 21 of the list for after the
+                        # audit): this said a BTC indicator failure is
+                        # recorded below. Only trend health's own
+                        # degraded_inputs is. A failed BTC indicator that
+                        # trend health does not read reaches only the log
+                        # line above ("BTC context indicator failure"), and
+                        # btc_structure_obj's degraded_inputs is not recorded
+                        # either. Since B9 a failed BTC SuperTrend makes the
+                        # section unavailable, so it is not one of them.
+                        # Comment only; what is recorded is unchanged.
                         btc_degraded_inputs = list(btc_trend.get("degraded_inputs", []) or [])
 
                         # B9, 15 OCTOBER 2026 (Viktor's ruling that day, by

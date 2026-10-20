@@ -152,7 +152,8 @@ def main(argv):
     if filters:
         files = [f for f in files if any(k in os.path.basename(f) for k in filters)]
 
-        # ROUND 6 MUTANT ESCAPE (GPT-6 Astra), 12 September 2026, Section 7.3.
+        # REQUESTED-RUN 6 MUTANT ESCAPE (GPT-6 Astra, round 5), 12 September 2026,
+        # Section 7.3.
         # A filter matching zero files fell straight through the loop below
         # with passed=0, failed=[], errors=[] -- `1 if (failed or errors)
         # else 0` at the bottom then returns 0. A typo'd filter, in a CI step

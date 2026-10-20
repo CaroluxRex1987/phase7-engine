@@ -1,5 +1,6 @@
 """
-run_tests.py's own filter argument, made checkable — round 6 (GPT-6 Astra).
+run_tests.py's own filter argument, made checkable — round 5's
+requested-run 6 (GPT-6 Astra).
 
 WHAT WAS WRONG (Section 7.3 of the round-5 report, confirmed by requested-run
 6, 12 September 2026)

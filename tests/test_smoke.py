@@ -127,7 +127,8 @@ def test_the_smoke_run_is_reproducible():
         first = stable(SignalRouter().route(symbol=SYMBOL, timeframe=TIMEFRAME))
         second = stable(SignalRouter().route(symbol=SYMBOL, timeframe=TIMEFRAME))
 
-        # ROUND 6 MUTANT ESCAPE (GPT-6 Astra), 12 September 2026. `first ==
+        # REQUESTED-RUN 6 MUTANT ESCAPE (GPT-6 Astra, round 5), 12 September
+        # 2026. `first ==
         # second` is satisfied just as well by two calls that both return the
         # same canned {"error": ...} dict as by two calls that both did the
         # real analysis -- a SignalRouter.route that always returns one fixed

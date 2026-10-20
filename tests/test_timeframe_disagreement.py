@@ -350,7 +350,8 @@ def test_the_engine_still_reaches_a_side_when_the_timeframes_agree():
         "the two timeframes are supposed to AGREE in this control."
     )
 
-    # ROUND 6 MUTANT ESCAPE (GPT-6 Astra), 12 September 2026. Both asserts
+    # REQUESTED-RUN 6 MUTANT ESCAPE (GPT-6 Astra, round 5), 12 September 2026.
+    # Both asserts
     # above check bias.raw and macro_bias, which are computed upstream of
     # DecisionModel._determine_final_action -- an always-WAIT
     # _determine_final_action left them both untouched and this test passed
