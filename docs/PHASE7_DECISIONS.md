@@ -5448,6 +5448,160 @@ dead code, Claude, S, 2, with 45.
   elsewhere can still reach one; the re-check at the tag is what would catch it.
 - Two questions the order depends on stay open: the weighting, and who builds.
 
+## Ruling, 20 October 2026 — F4's third path is Critical: macro moving the tier breaks Item 11, and the release gate closes
+
+*New in this file on 20 October 2026. Viktor's, at 06:47, by agreeing to Claude's
+suggestion — not by writing his position first — in the session that opened at 18:16 on
+19 October at `aa9e7ac` and went on into 20 October; filed by its commit. It settles the
+severity of entry 12 of the list for after the audit, which the sort of 19 October put
+first in wave 0 without deciding it ("Ruling, 19 October 2026 — the list for after the
+audit, sorted …").*
+
+**The question.** Round 8's F4 rated its three paths Major under Tier 1 Item 11 (No
+Circular Reasoning). The triage kept F4 on the list as a weighting question and left
+the severity of its third path unruled ("Ruling, 5 October 2026 — round 8 triaged …",
+point 9 and "Not ruled"). The third path, read at `aa9e7ac`: `calculate_entry_quality`
+multiplies the entry score by 1.05 when macro agrees with the trade and by 0.90 when it
+opposes it (`models/entry_model.py:387–393`), and an entry score of 70 or more, with
+trend health high enough, is what gives AGGRESSIVE LONG or LONG rather than
+CONSERVATIVE LONG (`models/decision_model.py:716–718`; the SHORT side mirrors it). So
+macro alone can move a setup across 70. Claude's arithmetic: a base of 66 with all
+three multipliers at 1.05 comes to 76.4, LONG; with macro opposing instead, 65.5,
+CONSERVATIVE LONG. Round 8 printed 76.9 and 65.6; its arithmetic is slightly off, and
+its point holds. Macro also reaches `bias_score` (0.10) and the validation score
+(−20); the code's comment at `models/decision_model.py:712–715` names all three as the
+weighting questions ruled for after the audit.
+
+**How it was made.** Claude first put the facts to Viktor in chat, without a view: the
+code above; round 8's rating and the clause it cites; that round 8 checked the third
+path against rev 9's sentence "Macro does not decide the CONSERVATIVE tier", which was
+ruled wrong on 5 October as a description of the code ("Correction, 5 October 2026 —
+two of rev 9's requirement sentences were wrong"); the Constitution's rubric — Critical
+violates a Tier 1 invariant in a way that could reach a live decision, Major violates
+one but is contained or not yet reachable, Moderate is a Tier 2 or 3 gap that breaks
+no invariant (read from the ratified PDF's text, the finding schema); and what each
+answer sets going. Viktor asked for a suggestion; at 06:47: "I agree."
+
+**What was ruled.** F4's third path breaks Tier 1 Item 11 and is **Critical**.
+
+**Claude's reasons, as given.**
+
+1. Item 11's sentence fits — *"A signal must not be allowed to reinforce itself through
+   multiple derived layers and then be presented as independent confirmation."* 0.75 of
+   `bias_score`'s weight is four readings of one measurement, the recent direction of
+   the close (round 8's first path, from `models/bias_engine.py`'s own independence
+   review), and macro is one of them, so in a trend macro and the bias direction agree
+   almost by construction. The multiplier counts that agreement again as confluence, it
+   can decide the tier, and the panel prints the entry's quality beside the bias as a
+   separate fact.
+2. Major does not fit the rubric. Round 8 called it a Tier 1 breach that acts on every
+   trending run, and a Tier 1 breach that reaches live decisions is Critical. Accept the
+   breach and the rating follows.
+3. It costs almost no time. Backtesting cannot open before Amazon's audit anyway, and
+   the fix was due in wave 4, before the send. Left as a weighting question and rated
+   Critical by Amazon, it would cost a fix and another verification, with backtesting
+   closed throughout.
+
+The case against, given with them: the effect is ±10% and the code's own comment
+discloses it, and Item 11 can be read as being about evidence presented as independent,
+while nothing claims macro is. Claude built the code, so the suggestion is its
+author's; Claude said so.
+
+**What follows.**
+
+- **The release gate closes.** Its condition is every Critical fixed and re-audited,
+  with a report that says so (README; the precedent is "Ruling, 5 October 2026 — round
+  8 triaged …", point 2). It reopens when this fix has landed and been re-audited.
+  README's "Engine code" and "Release gate" rows and the paragraph under its table say
+  so, in wording Viktor approved, in the commit that files this entry.
+- **Goal A stands as achieved, and `portfolio-v1` is not moved**, as on 5 October.
+- **The fix moves `code_hash`,** so under point 2 of the ruling of 19 October it lands
+  after the forward measurement's reading of 14 November, and before the send. It is on
+  the decision path, so a live run comes before its commit. Entry 12's weight, wave 4 in
+  the sort, is now this fix.
+- **Backtesting stays closed**, as it was.
+
+**Not ruled — Viktor's.** The fix's shape: remove the multiplier, or reweight it; either
+bears on the `bias_score` weighting question, also open. And who re-audits it: round 8's
+auditor, as with the stop (the 14 September precedent), or Amazon within its audit.
+
+**What it weakens.**
+
+- A weighting call is partly made by a severity ruling: whatever shape the fix takes
+  must end macro's self-reinforcement, which narrows the later `bias_score` weighting
+  question.
+- The gate is closed over an effect of ±10% that the code disclosed.
+- The ruling rests on a reading of Item 11 suggested by the code's author, not on an
+  independent rating; round 8, the independent reading, said Major.
+
+## Ruling, 20 October 2026 — Claude builds the list for after the audit; Fable 5.1 waits until after the audit
+
+*New in this file on 20 October 2026. Viktor's, at 07:04, by agreeing to Claude's
+suggestion — not by writing his position first — in the same session as the entry
+above; filed by its commit. It settles entry 38 of the list, which the sort of
+19 October left open ("Claude's reading").*
+
+**The question.** The ruling of 29 September sent Fable 5.1 to the list for after the
+audit because the list came after the audit ("Ruling, 29 September 2026 — Fable 5.1
+works on the list for after the audit, not before it"). Under the plan as changed on
+17 October the list comes before Amazon's audit, so who builds it was open again.
+
+**What was ruled.** Claude builds the list. Fable 5.1 waits until after Amazon's audit,
+as the ruling of 29 September had it; the question is asked again at entry 10, the
+range-trading mode, the largest new piece of the list, in wave 5.
+
+**Claude's reasons, as given.**
+
+- No difference to the audit: Fable and Claude are both Anthropic models, and Anthropic
+  is spent as an auditor, so Amazon's independence is the same whichever builds.
+- The setup works here — the patch delivery, the predictions, the landing records and
+  Viktor's command format. Fable would start without that habit, carried over only by
+  the documents.
+- The 29 September reasons still hold: Fable would mostly repeat Claude's blind spots, a
+  weak second opinion; and the list is mostly small items — everything that can land
+  before 14 November is comments, docstrings and tests.
+
+Claude suggested itself, and said so. How Viktor's Fable credit can be used was not
+checked.
+
+**What it weakens.** A possibly stronger builder is given up for the whole list,
+including the decision-path fixes of waves 2 to 4 and the Critical's fix above. "After
+the audit" in the ruling of 29 September now means after Amazon's audit.
+
+## Ruling, 20 October 2026 — B5: 4h only for now, and a guard refuses any other timeframe
+
+*New in this file on 20 October 2026. Viktor's, at 07:04, by agreeing to Claude's
+suggestion — not by writing his position first — in the same session as the two
+entries above; filed by its commit. It settles entry 22 of the list (the review's B5),
+which the sort of 19 October put in wave 0.*
+
+**The question.** The volatility bands (ATR/price over 1%, 2% and 4%), the stop limits
+(0.2%, 8% and 15%), the structure threshold (0.15%) and the VWMA and HVN bands are
+percentages of price whatever the timeframe. On AERO 1d, ATR/price was above 4% on
+every one of 90 daily bars (the review's count), so every bar would be EXTREME
+VOLATILITY and every trade refused. The triage left it Viktor's, before any timeframe
+but 4h is used ("Ruling, 5 October 2026 — round 8 triaged …", "Not ruled").
+
+**What was ruled.**
+
+1. **4h only for now.** No timeframe but 4h is used until it has its own thresholds,
+   ruled with evidence.
+2. **A guard makes the engine refuse any timeframe but 4h**, so that the safe choice is
+   the only one available rather than a rule to remember. It is code and moves
+   `code_hash`, so it lands in wave 2, after the reading of 14 November. Its shape is
+   set when it is built.
+
+**Read for it, at `aa9e7ac`** (Claude, from source, so the platform does not enter it):
+`config.TIMEFRAME` is `"4h"` (`core/config.py:20`); `main.py:155–156` refuses only a
+missing or empty one; `data/validation.py`'s `bar_length` accepts any timeframe its
+table lists. A search of the `.py` files outside `tests/` for where the timeframe is
+read found no refusal of another. B5 is about the timeframe the engine decides on, not
+the macro series' (`MACRO_TIMEFRAME`, `"1d"`).
+
+**What it weakens.** Running the engine on another timeframe, even to look, needs a
+ruling first. The entry's own work — thresholds for each timeframe — waits without a
+date.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then
