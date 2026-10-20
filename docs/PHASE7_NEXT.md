@@ -1,9 +1,9 @@
 # Next step — read this first
 
-*20 October 2026, from 09:18. Rewritten by the commit that lands entries 13, 21 and 28
-of the list for after the audit — the first of wave 1, comments and docstrings only,
-`code_hash` unchanged — and records `391c338`'s landing; the version it replaced — as
-it stood at `391c338` — is in HISTORY verbatim.
+*20 October 2026, from 11:13. Rewritten by the commit that lands entry 48 of the list
+for after the audit — the second of wave 1, one test only, `code_hash` unchanged — and
+records `8360923`'s landing; the version it replaced — as it stood at `8360923` — is in
+HISTORY verbatim.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
 rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
@@ -215,12 +215,22 @@ split it by who decides. His, position first: whether `bias_score`'s weighting j
 the work before the audit — until he rules, the ruling of 22 September stands, and it
 waits until after — and entries 26 and 31, Goal B's two rulings in wave 1. Claude's:
 wave 1's five entries of its own, 13, 21 and 28 first as one commit, then 36 and 37, a
-patch each. At 10:01 he said go. **Wave 1 has started:** the commit that writes this
-line lands entries 13, 21 and 28 ("Found after 22 September", below), comments and
-docstrings only, so `code_hash` and the golden snapshot hold. It found two entries
-more: 47, BTC structure's degradations are neither recorded nor logged; and 48, a
-tooling test that pins a line of `models/risk_model.py`, found when this patch's first
-build broke it (the same section).
+patch each. At 10:01 he said go. **Wave 1 has started:** `8360923` landed entries 13,
+21 and 28 ("Found after 22 September", below), comments and docstrings only, so
+`code_hash` and the golden snapshot held. It found two entries more: 47, BTC
+structure's degradations are neither recorded nor logged; and 48, a tooling test that
+pins a line of `models/risk_model.py`, found when that patch's first build broke it
+(the same section). Claude suggested, in chat and not ruled, entry 48 next, then 36
+and 37, a patch each, tests only.
+**On 20 October, from 11:13**, after pushing `8360923` at 11:03, Viktor asked for its
+landing to be checked against his disk, listed that suggestion, and asked Claude to
+decide what is next. Wave 1's test gaps are Claude's under the sort of 19 October, so
+Claude decided: entry 48 first. It is the one that fails the suite whenever a change
+adds or removes a line above line 400 of `models/risk_model.py`, and the smallest;
+entries 36 and 37 touch neither that file nor that test, so the order between them and
+48 is Claude's choice, not forced. The commit that writes this line lands entry 48
+("Found after 22 September", below), one test only, so `code_hash` and the golden
+snapshot hold. Entries 36 and 37 follow, a patch each.
 
 **The review and the comparison are outside the repository**, in
 `G:\Phase_7_Engine_Random_Files\Docs\02_Reviews_and_Feedback`:
@@ -538,16 +548,32 @@ commit is from 09:13:11 and `origin/master`'s ref from 09:13:25, and GitHub's ti
 cloned, matched his disk's four files byte for byte. Viktor had read the same times off
 his disk at 09:17 and left them in chat; he listed them at the start of the next
 session. Its account is in HISTORY, in this file's version at `391c338`, moved there by
-the commit that writes this line.
+`8360923`.
 
-**This session (20 October, from 09:18)**, configured for Claude Opus 5.5, opened at
+**The session of 20 October, from 09:18**, configured for Claude Opus 5.5, opened at
 `391c338`, GitHub's tip, cloned; `master` and `origin/master` on Viktor's disk, from
 `.git/refs` staged off it, matched it, and so did every file `391c338` changes and
-every file this commit changes, byte for byte. Viktor asked for `391c338`'s landing
+every file `8360923` changes, byte for byte. Viktor asked for `391c338`'s landing
 first, then for Claude to decide what is next, and at 10:01 for it to start (above).
-The commit that writes this line lands entries 13, 21 and 28 and records `391c338`'s
-landing: comments and docstrings in `core/engine_core.py`, `models/risk_model.py`,
-`run_tests.py` and five test files, and docs.
+`8360923` landed entries 13, 21 and 28 and recorded `391c338`'s landing: comments and
+docstrings in `core/engine_core.py`, `models/risk_model.py`, `run_tests.py` and five
+test files, and docs: from his disk, staged in the session from 11:13, the apply was at
+10:44:24, the pytest cache was rewritten at 10:47:55, the commit is from 11:03:26 and
+`origin/master`'s ref from 11:03:39, and GitHub's tip, cloned, is `8360923`. Claude had
+read the same times off his disk after the push, in chat only; Viktor listed them, with
+Claude's suggestion for what came next, at the start of the next session. Its account is in
+HISTORY, in this file's version at `8360923`, moved there by the commit that writes
+this line.
+
+**This session (20 October, from 11:13)**, configured for Claude Opus 5.5, opened at
+`8360923`, GitHub's tip, cloned; `master` and `origin/master` on Viktor's disk, from
+`.git/refs` staged off it, read `8360923`. Each of the eleven files `8360923` changes is,
+on his disk, byte for byte an autocrlf checkout of GitHub's tip — the commit's blob with
+every LF as CRLF, which is how git checks a text file out on Windows here (`* text=auto`);
+compared with the raw blobs, every one differs by its CRs alone. Viktor asked for
+`8360923`'s landing first, then for Claude to decide what is next (above). The commit
+that writes this line lands entry 48 and records `8360923`'s landing: one test in
+`tests/test_send_round8_fix_verification.py`, and docs.
 
 ## Ruled — in force
 
@@ -948,8 +974,10 @@ landing: comments and docstrings in `core/engine_core.py`, `models/risk_model.py
 ## Where things stand, right now
 
 - **Tip:** the commit that writes this line (a commit cannot name its own hash) —
-  entries 13, 21 and 28 of the list for after the audit, comments and docstrings only,
-  and `391c338`'s landing recorded. Before it: `391c338` (the session of 19 October,
+  entry 48 of the list for after the audit, one test only, and `8360923`'s landing
+  recorded. Before it: `8360923` (the session of 20 October, from 09:18: entries 13, 21
+  and 28 of the list for after the audit, comments and docstrings only, and `391c338`'s
+  landing recorded), `391c338` (the session of 19 October,
   from 18:16, going on into 20 October: Viktor's three rulings of 20 October filed, and
   the 14:00 reading of 19 October and `aa9e7ac`'s landing recorded: docs and
   `README.md`), `aa9e7ac` (the
@@ -1109,8 +1137,13 @@ landing: comments and docstrings in `core/engine_core.py`, `models/risk_model.py
   `tests/test_send_round8_fix_verification.py` (25 tests, no fixtures) and changed no
   other test. `d3188f2` and `67f6ec1` changed no test. `0491b84` added
   `tests/test_main_takes_pairs.py` (9 tests, no fixtures) and changed no other test.
-  `a235783`, `8d5d64a`, `a48d9e5`, `fbd7877`, `8311167`, `d2dddf7`, `aa9e7ac` and the
-  commit that writes this line change no test.
+  `a235783`, `8d5d64a`, `a48d9e5`, `fbd7877`, `8311167`, `d2dddf7`, `aa9e7ac` and
+  `391c338` change no test. `8360923` changed comments and docstrings in
+  `tests/test_frame_ownership.py`, `tests/test_run_tests_filter_matching.py`,
+  `tests/test_smoke.py`, `tests/test_timeframe_disagreement.py` and
+  `tests/test_trend_direction_source.py`, and no test's code. The commit that writes
+  this line changes one test, `test_the_location_check_can_fail` in
+  `tests/test_send_round8_fix_verification.py`, and adds, removes and renames none.
 - **Where the project lives, from 26 September:** `E:\phase7_engine` on Viktor's machine;
   the files kept outside the repository in `G:\Phase_7_Engine_Random_Files`. Copied with
   robocopy, verified — git's own checks on Windows for the tracked files, SHA-256 for the
@@ -1119,10 +1152,12 @@ landing: comments and docstrings in `core/engine_core.py`, `models/risk_model.py
   to `E:\phase7_engine`". Run the engine and every command from `E:\phase7_engine` (in
   cmd, changing drive needs `cd /d`). A dated record that names the D: paths means the
   same folders before the move; dated records are not edited.
-- **The push of `391c338`** happened, at 09:13:25 on 20 October: GitHub's tip,
-  cloned, is `391c338`, `master` and `origin/master` on Viktor's disk match it, and its
-  four files on his disk are byte-identical to GitHub's; he reported it pushed and no
-  deviation (ruling on proposal (b)). So did `aa9e7ac`'s, at 11:55:23 on 19 October,
+- **The push of `8360923`** happened, at 11:03:39 on 20 October: GitHub's tip,
+  cloned, is `8360923`, `master` and `origin/master` on Viktor's disk read it (their
+  `.git/refs` files, and `origin/master`'s reflog line "update by push" at 11:03:39), and
+  its eleven files on his disk are byte-identical to an autocrlf checkout of GitHub's
+  tip; he reported it pushed and no deviation (ruling on proposal (b)). So did
+  `391c338`'s, at 09:13:25 on 20 October, `aa9e7ac`'s, at 11:55:23 on 19 October,
   `d2dddf7`'s, at 09:59:56 on 19 October,
   `8311167`'s, at 08:49:11 on 19 October,
   `fbd7877`'s, at 05:36:43 on 18 October, `a48d9e5`'s, at 18:29:01 on 17 October,
@@ -1131,17 +1166,18 @@ landing: comments and docstrings in `core/engine_core.py`, `models/risk_model.py
   commit that writes this line unless it deviates. Earlier pushes and deviations are
   recorded in this file's previous versions, in HISTORY.
 - **Before this commit**, every file its patch changes was staged off Viktor's disk and
-  matched an autocrlf clone of `391c338` byte for byte.
+  matched an autocrlf clone of `8360923` byte for byte.
 - **code_hash:** `816d4951bb0322763ec4abc4b9ed8161d5b902372823350e5272f2fb7176e380`,
   set by `0491b84` from `bc1b9c2c…` — `main.py` alone — and confirmed on Windows: its
   eleven hand-run records and the ten of each of the first two scheduled runs carry it.
   Unchanged by `a235783`, `8d5d64a`, `a48d9e5`, `fbd7877`, `8311167`, `d2dddf7`,
-  `aa9e7ac` and `391c338`, which change no `.py` file, and by the commit that writes
-  this line, which changes comments and docstrings only — in `core/engine_core.py`,
-  `models/risk_model.py` and `run_tests.py`, which the fingerprint reads with both
-  stripped, and in `tests/`, which it does not read: computed on clones of `0491b84`,
-  `a235783`, `8d5d64a`, `a48d9e5`, `fbd7877`, `8311167`, `d2dddf7`, `aa9e7ac` and
-  `391c338` and on the applied trees, under Python 3.12.3. `bc1b9c2c…` was
+  `aa9e7ac` and `391c338`, which change no `.py` file, by `8360923`, which changed
+  comments and docstrings only — in `core/engine_core.py`, `models/risk_model.py` and
+  `run_tests.py`, which the fingerprint reads with both stripped, and in `tests/`, which
+  it does not read — and by the commit that writes this line, which changes a file under
+  `tests/` and files under `docs/`, which it does not read: computed on clones of
+  `0491b84`, `a235783`, `8d5d64a`, `a48d9e5`, `fbd7877`, `8311167`, `d2dddf7`,
+  `aa9e7ac`, `391c338` and `8360923` and on the applied trees, under Python 3.12.3. `bc1b9c2c…` was
   set by `9ea1cf3`, confirmed on Windows by its live run, and held through `f00bef6`,
   `36de35d`, `78ea37d`, `d3188f2` and `67f6ec1`, which changed only files under `docs/`
   and `tests/`, `README.md` and `run_tests.py`'s docstring.
@@ -1149,8 +1185,9 @@ landing: comments and docstrings in `core/engine_core.py`, `models/risk_model.py
   output, a CPython implementation detail (`core/code_fingerprint.py`, "WHAT IT DOES NOT
   SURVIVE"). **Every `code_hash` claim about this project is computed under Python 3.12**
   (Viktor runs 3.12.10).
-- **Golden snapshot:** unchanged by the commit that writes this line, which changes
-  comments and docstrings only, by `391c338`, by `aa9e7ac`, by `d2dddf7`, by
+- **Golden snapshot:** unchanged by the commit that writes this line, which changes one
+  tooling test and docs, by `8360923`, which changed comments and docstrings only, by
+  `391c338`, by `aa9e7ac`, by `d2dddf7`, by
   `8311167`, by `fbd7877`, by `a48d9e5`, by `8d5d64a` and by `a235783`, which change no
   code and no test, and by `0491b84`, as predicted: it changed `main.py`, which the
   golden test does not run (it calls the router directly), and no fingerprinted name or
@@ -1165,12 +1202,14 @@ landing: comments and docstrings in `core/engine_core.py`, `models/risk_model.py
   32 errors**, all 32 fixture-collection `TypeError`s, the same 32 as before. This is
   the one place the watched error count is written as a number (DECISIONS, "Ruling,
   15 October 2026 — Part 4's three test shapes", point 5). The commit that writes this
-  line changes comments and docstrings in five test files and `run_tests.py`, and adds,
-  removes and renames no test, so every count holds: from the Linux sandbox, Python
-  3.12.3, pinned requirements, the patch applied to an autocrlf clone of `391c338`.
+  line changes the body of one test, which takes no fixture, and adds, removes and
+  renames no test, so every count holds: from the Linux sandbox, Python 3.12.3, pinned
+  requirements, the patch applied to an autocrlf clone of `8360923`. `8360923` changed
+  comments and docstrings in five test files and `run_tests.py` and no test's code;
   `391c338`, `aa9e7ac`, `d2dddf7`, `8311167`, `fbd7877`, `a48d9e5`, `8d5d64a` and
-  `a235783` changed no test, and the pytest step of each ran on Windows after its apply
-  — the cache on his disk was rewritten at 09:00:34 on 20 October, 2 minutes 53 seconds
+  `a235783` changed no test; and the pytest step of each ran on Windows after its apply
+  — the cache on his disk was rewritten at 10:47:55 on 20 October, 3 minutes 31 seconds
+  after `8360923`'s files were written, at 09:00:34, 2 minutes 53 seconds
   after `391c338`'s files were written, at 11:45:34 on 19 October, 2 minutes
   51 seconds after `aa9e7ac`'s
   files were written, at 09:54:44, 2 minutes 55 seconds after `d2dddf7`'s, at 08:05:56,
@@ -1213,7 +1252,7 @@ landing: comments and docstrings in `core/engine_core.py`, `models/risk_model.py
   `test_the_commit_messages_up_to_the_tag_are_round_7s_to_the_byte`, runs `git log` up
   to the tag `round7-sent-2026-09-30`: it needs the tag, which a full clone has.
 - **Engineering Notes:** through Entry #183 (v1.36), which covers `68c6191`.
-  **Fifty-two commits behind** — `ec4e5fd`, the floor (a commit that regenerates the Notes cannot
+  **Fifty-three commits behind** — `ec4e5fd`, the floor (a commit that regenerates the Notes cannot
   cover itself, Entry #144), `e7a94d1`, `d5ced0c`, `59b747a`, `f256937`, `12b483e`,
   `01f2892`, `8b6fd00`, `e186423`, `86f30f1`, `3e8191a`, `1523e0c`, `ff12e17`,
   `4a4c6ce`, `217ede6`, `d27743f`, `a0276dd`, `040a529`, `9e42d30`, `eb86846`,
@@ -1221,7 +1260,7 @@ landing: comments and docstrings in `core/engine_core.py`, `models/risk_model.py
   `27d3ed5`, `9051ffd`, `e5ac20a`, `ef65f46`, `797bdc9`, `69c92d6`, `22a9a35`,
   `d77a8c4`, `64ad625`, `9ea1cf3`, `f00bef6`, `36de35d`, `78ea37d`, `d3188f2`,
   `67f6ec1`, `0491b84`, `a235783`, `8d5d64a`, `a48d9e5`, `fbd7877`, `8311167`,
-  `d2dddf7`, `aa9e7ac`, `391c338` and the commit that writes this line.
+  `d2dddf7`, `aa9e7ac`, `391c338`, `8360923` and the commit that writes this line.
   Every later
   commit adds one
   until the
@@ -1806,7 +1845,7 @@ the work before the audit, entry 1 apart.
   line is itself the defect. **19 October:** an eighth, a docstring this entry leaves
   out: `tests/test_trend_direction_source.py:159`, "ROUND 6 FOLLOW-ON, 12 September
   2026" (read at `d2dddf7`, where `run_tests.py`'s comment is at line 155).
-  **20 October: changed**, all eight, by the commit that writes this line, comments and
+  **20 October: changed**, all eight, by `8360923`, comments and
   docstrings only: the six comments read "REQUESTED-RUN 6 MUTANT ESCAPE (GPT-6 Astra,
   round 5)", the docstring at `:159` "REQUESTED-RUN 6 FOLLOW-ON", and the one at
   `tests/test_run_tests_filter_matching.py:2` "round 5's requested-run 6 (GPT-6
@@ -1933,7 +1972,7 @@ the work before the audit, entry 1 apart.
   wrong before fix 3, which leaves them as they were. Found by Claude scoping fix 3 on
   6 October. Labels only; on this list by the 22 September ruling, not separately
   ruled — they fit the label and record batch if Viktor adds them to it. **20 October:**
-  the first changed by the commit that writes this line, six to seven, in place, with
+  the first changed by `8360923`, six to seven, in place, with
   no note in the docstring (a note's four lines broke entry 48's test, below): counted
   from the parse tree at `26a05dc`, where the sentence was written, at
   `fcb7823` and at `391c338`, the function has always had seven returns, each a bool
@@ -2094,7 +2133,13 @@ the work before the audit, entry 1 apart.
   sandbox). Its neighbour, the citation check, reads the file from the commit that last
   changed the instruction, and holds. Changes no engine code. Entry 48; not in the sort.
   Claude's suggestion, his to change: test gap, Claude, XS, wave 1 — and before any
-  wave 2 change to `models/risk_model.py`.
+  wave 2 change to `models/risk_model.py`. **20 October: changed**, by the commit that
+  writes this line: the test reads the file through `_instruction_tree()`, the reader its
+  neighbour uses, so the two read the same tree — the commit that last changed the
+  instruction once it is committed and unchanged, the working tree before. A line added
+  above line 400 in the working tree fails the old test and not the new one; with the
+  instruction also changed in the working tree, both tests read the working tree and
+  both fail (Linux sandbox).
 
 ## Work order — Claude's, under Viktor's delegation
 
@@ -2384,16 +2429,14 @@ Each code commit is its own commit and updates this file for its own landing.
 
 ## Resolved this session
 
-- **`391c338`'s landing**, read off Viktor's disk, with the times he had read off it
-  himself at 09:17 ("Where the project is", the session of 19 October, from 18:16).
-- **Entries 13, 21 and 28 of the list for after the audit** — the first of wave 1,
-  Claude's under the sort of 19 October: comments and docstrings only, `code_hash` and
-  the golden snapshot unchanged ("Found after 22 September").
-- **A sentence `391c338` left stale** — the session of 19 October from 09:08's account
-  said it was moved to HISTORY by "the commit that writes this line"; it was
-  `aa9e7ac`.
+- **`8360923`'s landing**, read off Viktor's disk again, with the times Claude had read
+  off it after the push, in chat ("Where the project is", the session of 20 October,
+  from 09:18).
+- **Entry 48 of the list for after the audit** — the second of wave 1, Claude's under
+  the sort of 19 October: one test, `code_hash` and the golden snapshot unchanged
+  ("Found after 22 September").
 - **The once-per-session rewrite of this file**, by the commit that writes this line.
-  The previous version, as at `391c338`, is in HISTORY verbatim, headings demoted one
+  The previous version, as at `8360923`, is in HISTORY verbatim, headings demoted one
   level, proven by un-demotion with a negative control (the commit message has the
   result).
 
@@ -2404,8 +2447,9 @@ Claude critiques it.
 
 - **Owed to the next commit:** nothing, unless this commit's push deviates from its
   prediction (ruling on proposal (b), 27 September).
-- **Wave 1 — Claude's next, when Viktor says.** Entries 36, 37 and 48, the test gaps,
-  a patch each; tests only, so `code_hash` holds. **Viktor's, position first:** entries
+- **Wave 1 — Claude's next, when Viktor says.** Entries 36 and 37, the test gaps, a
+  patch each, 36 first; tests only, so `code_hash` holds. Entry 48 landed with the
+  commit that writes this line. **Viktor's, position first:** entries
   26 and 31, Goal B's two rulings, docs only; and entry 47's place in the sort, if he
   changes Claude's suggestion.
 - **The forward measurement — Claude's to count, under the ruling of 17 October.** Ten

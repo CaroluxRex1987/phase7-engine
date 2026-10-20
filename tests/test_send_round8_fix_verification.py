@@ -266,10 +266,14 @@ def test_every_code_location_the_instruction_cites_holds_what_it_quotes():
 
 
 def test_the_location_check_can_fail():
+    # Read from the same tree as the check above, not the working tree: the
+    # line is pinned where the instruction was last changed, so a later edit
+    # above it in models/risk_model.py does not break this control (entry 48,
+    # 20 October 2026).
     text = "is `stop_mult = ATR_STOP_MULT * vol_multiplier` (`models/risk_model.py`, line 401)"
     [(quote, path, first, _)] = _citations(text)
     assert quote == "stop_mult = ATR_STOP_MULT * vol_multiplier"
-    lines = (REPO / path).read_bytes().decode("utf-8").replace("\r\n", "\n").split("\n")
+    lines = _instruction_tree()(path).replace("\r\n", "\n").split("\n")
     assert quote not in lines[first - 1]
     assert quote in lines[first - 2]
 
