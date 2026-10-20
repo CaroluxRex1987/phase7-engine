@@ -618,6 +618,23 @@ def test_the_panel_never_prints_a_non_finite_number():
     with open(golden, encoding="utf-8") as f:
         decision = json.load(f)
 
+    # ENTRY 36 of the list for after the audit, 20 October 2026. The golden
+    # run is on pinned data, so its live price is null, and the sweep below
+    # sets float fields only: it never reached the LIVE PRICE line. With that
+    # line's finiteness check removed for a present value, this test stayed
+    # green (found landing Part 4's three test shapes, 15 October). A finite
+    # live price goes in before anything renders, so the precondition sees
+    # the line print a price, and the sweep sets it to +inf, -inf and NaN as
+    # it does every other float. Any finite price would do. The panel reads
+    # the struct candle's live price only (core/panel_render.py); the BTC and
+    # macro candles' print nowhere.
+    struct_candle = decision["provenance"]["decision_candles"]["struct"]
+    assert struct_candle["live_price"] is None, (
+        "the golden decision now carries a live price; this seed is no longer "
+        "needed, and overwriting it would hide what the fixture holds"
+    )
+    struct_candle["live_price"] = 1.0
+
     non_finite_word = re.compile(r"\b(nan|inf|infinity)\b", re.IGNORECASE)
 
     def render(d):
@@ -636,6 +653,12 @@ def test_the_panel_never_prints_a_non_finite_number():
         "the precondition failed: the golden decision's panel does not print "
         "a stop and three targets, each with a price, so this test cannot see "
         "the lines Observation 5 was about. Lines found:\n" + "\n".join(plan)
+    )
+    live = [line for line in as_stored.splitlines() if line.startswith("LIVE PRICE")]
+    assert len(live) == 1 and "$" in live[0], (
+        "the precondition failed: with a finite live price put in, the panel "
+        "does not print one LIVE PRICE line with a price, so the sweep cannot "
+        "reach it. Lines found:\n" + "\n".join(live)
     )
     assert not non_finite_word.search(as_stored), (
         "the precondition failed: the golden decision's own panel already "
