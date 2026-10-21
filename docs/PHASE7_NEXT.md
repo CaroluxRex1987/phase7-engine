@@ -1,11 +1,9 @@
 # Next step — read this first
 
-*20 October 2026, from 11:13. Rewritten by the commit that lands entry 48 of the list
-for after the audit — the second of wave 1, one test only, `code_hash` unchanged — and
-records `8360923`'s landing; the version it replaced — as it stood at `8360923` — is in
-HISTORY verbatim. That commit is `ed005a0`; the session's second, the commit that writes
-this line, lands entry 36 — one test only, `code_hash` unchanged — and records
-`ed005a0`'s landing.
+*20 October 2026, from 17:49. Rewritten by the commit that lands entry 37 of the list
+for after the audit — the last of wave 1's three test gaps, tests only, `code_hash`
+unchanged — and records `e88e0dd`'s landing; the version it replaced — as it stood at
+`e88e0dd` — is in HISTORY verbatim.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
 rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
@@ -233,8 +231,16 @@ entries 36 and 37 touch neither that file nor that test, so the order between th
 48 is Claude's choice, not forced. `ed005a0` landed entry 48 ("Found after
 22 September", below), one test only, so `code_hash` and the golden snapshot held.
 Entries 36 and 37 follow, a patch each. At 13:19, after `ed005a0`'s push had been read
-off his disk, Viktor said go for entry 36. The commit that writes this line lands it
-(the same section), one test only, so `code_hash` and the golden snapshot hold.
+off his disk, Viktor said go for entry 36. `e88e0dd` landed it (the same section), one
+test only, so `code_hash` and the golden snapshot held.
+**On 20 October, from 17:49**, after pushing `e88e0dd` at 14:23, Viktor asked for its
+landing to be checked against his disk, then for entry 37, which Claude had decided on
+in the session from 11:13, under the sort of 19 October: Part 4's other named tests
+checked against round 8's Part 4, tests only. The commit that writes this line lands it
+(the same section). Part 4 is right on each test it names as defective; six test files
+change, ten controls are added, and `code_hash` and the golden snapshot hold. It found
+two entries more: 49, `conftest.ENGINE_MODULES` is not every module in the engine; and
+50, `README.md` writes the watched error count (the same section).
 
 **The review and the comparison are outside the repository**, in
 `G:\Phase_7_Engine_Random_Files\Docs\02_Reviews_and_Feedback`:
@@ -566,10 +572,9 @@ test files, and docs: from his disk, staged in the session from 11:13, the apply
 `origin/master`'s ref from 11:03:39, and GitHub's tip, cloned, is `8360923`. Claude had
 read the same times off his disk after the push, in chat only; Viktor listed them, with
 Claude's suggestion for what came next, at the start of the next session. Its account is in
-HISTORY, in this file's version at `8360923`, moved there by the commit that writes
-this line.
+HISTORY, in this file's version at `8360923`, moved there by `ed005a0`.
 
-**This session (20 October, from 11:13)**, configured for Claude Opus 5.5, opened at
+**The session of 20 October, from 11:13**, configured for Claude Opus 5.5, opened at
 `8360923`, GitHub's tip, cloned; `master` and `origin/master` on Viktor's disk, from
 `.git/refs` staged off it, read `8360923`. Each of the eleven files `8360923` changes is,
 on his disk, byte for byte an autocrlf checkout of GitHub's tip — the commit's blob with
@@ -577,13 +582,30 @@ every LF as CRLF, which is how git checks a text file out on Windows here (`* te
 compared with the raw blobs, every one differs by its CRs alone. Viktor asked for
 `8360923`'s landing first, then for Claude to decide what is next (above). `ed005a0`
 landed entry 48 and recorded `8360923`'s landing: one test in
-`tests/test_send_round8_fix_verification.py`, and docs. From his disk, staged in this
+`tests/test_send_round8_fix_verification.py`, and docs. From his disk, staged in that
 session after the push: the apply was at 11:37:58, the pytest cache was rewritten at
 11:42:14, the commit is from 11:53:21 and `origin/master`'s ref from 11:53:40; `master`
 and `origin/master` read `ed005a0`, GitHub's tip, fetched, is `ed005a0`, and its four
-files on his disk and on GitHub are byte for byte the tree that was verified. The
-commit that writes this line lands entry 36 and records `ed005a0`'s landing: one test
-in `tests/test_decision_bar_integrity.py`, and docs.
+files on his disk and on GitHub are byte for byte the tree that was verified.
+`e88e0dd` landed entry 36 and recorded `ed005a0`'s landing: one test in
+`tests/test_decision_bar_integrity.py`, and docs: from his disk, staged in that session
+after the push, the apply was at 13:59:36, the pytest cache was rewritten at 14:04:12,
+the commit is from 14:23:07 and `origin/master`'s ref from 14:23:19, and GitHub's tip,
+fetched, is `e88e0dd`. Claude had read those times off his disk after the push, in chat
+only, and had decided entry 37 next, in chat; Viktor listed both at the start of the
+next session. Its account is in HISTORY, in this file's version at `e88e0dd`, moved
+there by the commit that writes this line.
+
+**This session (20 October, from 17:49)**, configured for Claude Opus 5.5, opened at
+`e88e0dd`, GitHub's tip, cloned; `master` and `origin/master` on Viktor's disk, from
+`.git/refs` staged off it, read `e88e0dd`. Each of the three files `e88e0dd` changes is,
+on his disk, byte for byte an autocrlf checkout of GitHub's tip; compared with the raw
+blobs, each differs by its CRs alone. The times above were read off his disk again:
+the three files' mtimes, `.pytest_cache/v/cache/nodeids`, the commit date and `HEAD`'s
+reflog, and `origin/master`'s reflog line "update by push". Viktor asked for
+`e88e0dd`'s landing first, then for entry 37 (above). The commit that writes this line
+lands entry 37 and records `e88e0dd`'s landing: six test files, `README.md`'s test
+counts, and docs.
 
 ## Ruled — in force
 
@@ -984,9 +1006,11 @@ in `tests/test_decision_bar_integrity.py`, and docs.
 ## Where things stand, right now
 
 - **Tip:** the commit that writes this line (a commit cannot name its own hash) —
-  entry 36 of the list for after the audit, one test only, and `ed005a0`'s landing
-  recorded. Before it: `ed005a0` (this session, its first commit: entry 48, one test
-  only, and `8360923`'s landing recorded), `8360923` (the session of 20 October, from
+  entry 37 of the list for after the audit, tests only, and `e88e0dd`'s landing
+  recorded. Before it: `e88e0dd` (the session of 20 October, from 11:13, its second
+  commit: entry 36, one test only, and `ed005a0`'s landing recorded), `ed005a0` (its
+  first commit: entry 48, one test only, and `8360923`'s landing recorded), `8360923`
+  (the session of 20 October, from
   09:18: entries 13, 21
   and 28 of the list for after the audit, comments and docstrings only, and `391c338`'s
   landing recorded), `391c338` (the session of 19 October,
@@ -1155,10 +1179,15 @@ in `tests/test_decision_bar_integrity.py`, and docs.
   `tests/test_smoke.py`, `tests/test_timeframe_disagreement.py` and
   `tests/test_trend_direction_source.py`, and no test's code. `ed005a0` changed one
   test, `test_the_location_check_can_fail` in
-  `tests/test_send_round8_fix_verification.py`, and added, removed and renamed none. The
-  commit that writes this line changes one test,
-  `test_the_panel_never_prints_a_non_finite_number` in
-  `tests/test_decision_bar_integrity.py`, and adds, removes and renames none.
+  `tests/test_send_round8_fix_verification.py`, and added, removed and renamed none.
+  `e88e0dd` changed one test, `test_the_panel_never_prints_a_non_finite_number` in
+  `tests/test_decision_bar_integrity.py`, and added, removed and renamed none. The
+  commit that writes this line changes `tests/test_execution_surface.py`,
+  `tests/test_no_circular_reasoning.py`, `tests/test_no_fabricated_defaults_remain.py`,
+  `tests/test_panel_prints_only_what_was_computed.py`,
+  `tests/test_risk_verdict_is_read_not_assumed.py` and
+  `tests/test_swing_structure_is_not_invented.py`: it adds ten tests, makes the three
+  parametrized cases of one test a single test, and renames none.
 - **Where the project lives, from 26 September:** `E:\phase7_engine` on Viktor's machine;
   the files kept outside the repository in `G:\Phase_7_Engine_Random_Files`. Copied with
   robocopy, verified — git's own checks on Windows for the tracked files, SHA-256 for the
@@ -1167,11 +1196,13 @@ in `tests/test_decision_bar_integrity.py`, and docs.
   to `E:\phase7_engine`". Run the engine and every command from `E:\phase7_engine` (in
   cmd, changing drive needs `cd /d`). A dated record that names the D: paths means the
   same folders before the move; dated records are not edited.
-- **The push of `ed005a0`** happened, at 11:53:40 on 20 October: GitHub's tip,
-  fetched, is `ed005a0`, `master` and `origin/master` on Viktor's disk read it (their
-  `.git/refs` files, and `origin/master`'s reflog line "update by push"), and its four
+- **The push of `e88e0dd`** happened, at 14:23:19 on 20 October: GitHub's tip,
+  fetched, is `e88e0dd`, `master` and `origin/master` on Viktor's disk read it (their
+  `.git/refs` files, and `origin/master`'s reflog line "update by push"), and its three
   files on his disk are byte-identical to an autocrlf checkout of GitHub's tip; he
-  reported it pushed and no deviation (ruling on proposal (b)). So did `8360923`'s, at
+  reported it pushed and no deviation (ruling on proposal (b)). So did `ed005a0`'s, at
+  11:53:40 on 20 October, its four files on his disk byte-identical to an autocrlf
+  checkout of GitHub's tip, `8360923`'s, at
   11:03:39 on 20 October, its eleven files on his disk byte-identical to an autocrlf
   checkout of GitHub's tip, `391c338`'s, at 09:13:25 on 20 October, `aa9e7ac`'s, at 11:55:23 on 19 October,
   `d2dddf7`'s, at 09:59:56 on 19 October,
@@ -1182,7 +1213,7 @@ in `tests/test_decision_bar_integrity.py`, and docs.
   commit that writes this line unless it deviates. Earlier pushes and deviations are
   recorded in this file's previous versions, in HISTORY.
 - **Before this commit**, every file its patch changes was staged off Viktor's disk and
-  matched an autocrlf clone of `ed005a0` byte for byte.
+  matched an autocrlf clone of `e88e0dd` byte for byte.
 - **code_hash:** `816d4951bb0322763ec4abc4b9ed8161d5b902372823350e5272f2fb7176e380`,
   set by `0491b84` from `bc1b9c2c…` — `main.py` alone — and confirmed on Windows: its
   eleven hand-run records and the ten of each of the first two scheduled runs carry it.
@@ -1190,11 +1221,12 @@ in `tests/test_decision_bar_integrity.py`, and docs.
   `aa9e7ac` and `391c338`, which change no `.py` file, by `8360923`, which changed
   comments and docstrings only — in `core/engine_core.py`, `models/risk_model.py` and
   `run_tests.py`, which the fingerprint reads with both stripped, and in `tests/`, which
-  it does not read — and by `ed005a0` and the commit that writes this line, each of
-  which changes a file under `tests/` and files under `docs/`, which it does not read:
-  computed on clones of `0491b84`, `a235783`, `8d5d64a`, `a48d9e5`, `fbd7877`,
-  `8311167`, `d2dddf7`, `aa9e7ac`, `391c338`, `8360923` and `ed005a0` and on the applied
-  trees, under Python 3.12.3. `bc1b9c2c…` was
+  it does not read — and by `ed005a0`, `e88e0dd` and the commit that writes this line,
+  each of which changes files under `tests/` and `docs/`, which it does not read, the
+  last also `README.md`, which is not a `.py` file: computed on clones of `0491b84`,
+  `a235783`, `8d5d64a`, `a48d9e5`, `fbd7877`, `8311167`, `d2dddf7`, `aa9e7ac`,
+  `391c338`, `8360923`, `ed005a0` and `e88e0dd` and on the applied trees, under Python
+  3.12.3. `bc1b9c2c…` was
   set by `9ea1cf3`, confirmed on Windows by its live run, and held through `f00bef6`,
   `36de35d`, `78ea37d`, `d3188f2` and `67f6ec1`, which changed only files under `docs/`
   and `tests/`, `README.md` and `run_tests.py`'s docstring.
@@ -1202,8 +1234,10 @@ in `tests/test_decision_bar_integrity.py`, and docs.
   output, a CPython implementation detail (`core/code_fingerprint.py`, "WHAT IT DOES NOT
   SURVIVE"). **Every `code_hash` claim about this project is computed under Python 3.12**
   (Viktor runs 3.12.10).
-- **Golden snapshot:** unchanged by the commit that writes this line, which changes one
-  test and docs and reads the fixture without writing it, by `ed005a0`, which changed one
+- **Golden snapshot:** unchanged by the commit that writes this line, which changes six
+  test files, `README.md`'s counts and docs, and reads no fixture, by `e88e0dd`, which
+  changed one test and docs and read the fixture without writing it, by `ed005a0`, which
+  changed one
   tooling test and docs, by `8360923`, which changed comments and docstrings only, by
   `391c338`, by `aa9e7ac`, by `d2dddf7`, by
   `8311167`, by `fbd7877`, by `a48d9e5`, by `8d5d64a` and by `a235783`, which change no
@@ -1215,19 +1249,25 @@ in `tests/test_decision_bar_integrity.py`, and docs.
   `22a9a35`, 4 leaves (the confirmation reason, `volume_sentiment` twice and
   `validation_note`'s volume half: VOLUME DIVERGENCE → FADING VOLUME); before that at
   `6469a67`, 8 leaves.
-- **Test suite** — **875 passed / 0 failed, no warnings line** with `pandas_ta`;
-  **701 passed / 163 skipped** without it; `run_tests.py` **804 passed / 0 failed /
-  32 errors**, all 32 fixture-collection `TypeError`s, the same 32 as before. This is
-  the one place the watched error count is written as a number (DECISIONS, "Ruling,
-  15 October 2026 — Part 4's three test shapes", point 5). The commit that writes this
-  line changes the body of one test, which takes no fixture, and adds, removes and
-  renames no test, so every count holds: from the Linux sandbox, Python 3.12.3, pinned
-  requirements, the patch applied to an autocrlf clone of `ed005a0`. `ed005a0` changed
-  the body of one test, which takes no fixture; `8360923` changed comments and
+- **Test suite** — **883 passed / 0 failed, no warnings line** with `pandas_ta`;
+  **709 passed / 163 skipped** without it; `run_tests.py` **815 passed / 0 failed /
+  31 errors**, all 31 fixture-collection `TypeError`s: the 32 of `e88e0dd` less
+  `test_no_module_defaults_a_missing_risk_verdict_to_a_pass`. This is meant to be the
+  one place the watched error count is written as a number (DECISIONS, "Ruling,
+  15 October 2026 — Part 4's three test shapes", point 5); `README.md` writes it too
+  (entry 50). The commit that writes this line adds ten tests, none taking a fixture and
+  none needing `pandas_ta`, and makes that test, parametrized over three files, one
+  test that takes no argument: pytest rises by 8 in both configurations (3 ids become
+  1), `run_tests.py` passes 11 more — the ten, and the test it had counted as a fixture
+  error and never run — and its error count falls by that one: from the Linux sandbox,
+  Python 3.12.3, pinned requirements, the patch applied to an autocrlf clone of
+  `e88e0dd`. `e88e0dd` and `ed005a0` each changed the body of one test, which takes no
+  fixture; `8360923` changed comments and
   docstrings in five test files and `run_tests.py` and no test's code; `391c338`,
   `aa9e7ac`, `d2dddf7`, `8311167`, `fbd7877`, `a48d9e5`, `8d5d64a` and `a235783`
   changed no test; and the pytest step of each ran on Windows after its apply — the
-  cache on his disk was rewritten at 11:42:14 on 20 October, 4 minutes 16 seconds after
+  cache on his disk was rewritten at 14:04:12 on 20 October, 4 minutes 36 seconds after
+  `e88e0dd`'s files were written, at 11:42:14, 4 minutes 16 seconds after
   `ed005a0`'s files were written, at 10:47:55, 3 minutes
   31 seconds after `8360923`'s files were written, at 09:00:34, 2 minutes 53 seconds
   after `391c338`'s files were written, at 11:45:34 on 19 October, 2 minutes
@@ -1272,7 +1312,7 @@ in `tests/test_decision_bar_integrity.py`, and docs.
   `test_the_commit_messages_up_to_the_tag_are_round_7s_to_the_byte`, runs `git log` up
   to the tag `round7-sent-2026-09-30`: it needs the tag, which a full clone has.
 - **Engineering Notes:** through Entry #183 (v1.36), which covers `68c6191`.
-  **Fifty-four commits behind** — `ec4e5fd`, the floor (a commit that regenerates the Notes cannot
+  **Fifty-five commits behind** — `ec4e5fd`, the floor (a commit that regenerates the Notes cannot
   cover itself, Entry #144), `e7a94d1`, `d5ced0c`, `59b747a`, `f256937`, `12b483e`,
   `01f2892`, `8b6fd00`, `e186423`, `86f30f1`, `3e8191a`, `1523e0c`, `ff12e17`,
   `4a4c6ce`, `217ede6`, `d27743f`, `a0276dd`, `040a529`, `9e42d30`, `eb86846`,
@@ -1280,8 +1320,8 @@ in `tests/test_decision_bar_integrity.py`, and docs.
   `27d3ed5`, `9051ffd`, `e5ac20a`, `ef65f46`, `797bdc9`, `69c92d6`, `22a9a35`,
   `d77a8c4`, `64ad625`, `9ea1cf3`, `f00bef6`, `36de35d`, `78ea37d`, `d3188f2`,
   `67f6ec1`, `0491b84`, `a235783`, `8d5d64a`, `a48d9e5`, `fbd7877`, `8311167`,
-  `d2dddf7`, `aa9e7ac`, `391c338`, `8360923`, `ed005a0` and the commit that writes this
-  line.
+  `d2dddf7`, `aa9e7ac`, `391c338`, `8360923`, `ed005a0`, `e88e0dd` and the commit that
+  writes this line.
   Every later
   commit adds one
   until the
@@ -1297,8 +1337,10 @@ in `tests/test_decision_bar_integrity.py`, and docs.
   identical to the committed PDF. Neither changes in the commit that writes this line;
   the Attribution Statement's script last changed at `68c6191`, the Portfolio
   Document's at `6e1baba`.
-- **README.md:** its test counts are current (875, 701 / 163 and 804), last changed by
-  `0491b84`. **Its three status rows are current** — "Independent audit", "Release
+- **README.md:** its test counts are current (883, 709 / 163 and 815, and the error
+  count, 31), last changed by the commit that writes this line, which changes only
+  those numbers there; that README writes the error count at all is entry 50. **Its
+  three status rows are current** — "Independent audit", "Release
   gate" and "Backtesting" — since `a235783`, in wording Viktor
   approved, with the two sentences that said otherwise: the paragraph under the table
   now names the gate's closing from 5 to 17 October, and Repository layout no longer
@@ -1965,6 +2007,18 @@ the work before the audit, entry 1 apart.
   could not run leaves no line in the log, and twelve months of paper trading will need
   those days (the review's C6, item 4). Both confirmed from the code by the review.
   Whether they join the batch is Viktor's to answer.
+  **20 October, checking entry 37:** round 8's Part 4 says the same of §1(3) through
+  `test_absent_scores_print_as_absent_not_as_zero`, and it holds. Each default response
+  forced through the router on the pinned set (Linux sandbox): trend health's printed
+  TREND "(Score: 0.00/100)"; entry_model's printed "0.00/100" on ENTRY QUALITY and
+  Proposed Entry, and the run was recorded as not degraded, trading authorized, the
+  action CONSERVATIVE LONG: that response names no degraded input. On the engine's path
+  trend health reaches its own when both slope columns are
+  missing, or on any exception; entry_model reaches its only on an empty frame or a
+  close that is not a positive number, which the validation refuses first (read from
+  the code, not run). The test Part 4 asked for — the engine's own default responses,
+  rendered through the router — would fail today, so it comes with this entry's fix,
+  which also brings that test's docstring of 20 October current.
 - **A longer daily window for macro** (the Freqtrade comparison, 5 October). The engine
   decides macro on 99 closed daily candles. On 99-candle windows the comparison found
   EMA-50 off by a median of 0.2% against a long history, and the close-above-EMA-50 side —
@@ -2075,7 +2129,7 @@ the work before the audit, entry 1 apart.
   golden run is on pinned data, whose live price is null: with that line's finiteness
   guard removed for a present value, the test stays green (Linux sandbox). The line is
   guarded in the code. Changes no trade. On this list by the 22 September ruling.
-  **20 October: changed**, by the commit that writes this line: the test puts a finite
+  **20 October: changed**, by `e88e0dd`: the test puts a finite
   live price into the struct candle before anything renders — after asserting the
   fixture's is null — and its precondition asserts the panel prints one LIVE PRICE line
   with a price, so the sweep sets that price to +inf, -inf and NaN like every other
@@ -2090,6 +2144,37 @@ the work before the audit, entry 1 apart.
   The three shapes the triage put in the batch, and the second shape's sibling, landed
   on 15 October; the rest were on no list by name. Changes no trade. On this list by
   the 22 September ruling.
+  **20 October: checked and changed**, by the commit that writes this line. Part 4
+  names, beside the four of 15 October: in shape 1, `test_no_order_execution_calls` "and
+  its three siblings" — the file has four, all checked — and the scans in
+  `tests/test_risk_verdict_is_read_not_assumed.py`,
+  `tests/test_swing_structure_is_not_invented.py` and
+  `tests/test_no_fabricated_defaults_remain.py`; in shape 3 the same, and
+  `test_no_dead_columns.py::test_deleted_columns_stay_deleted` as honestly labelled and
+  paired; in shape 4, `test_absent_scores_print_as_absent_not_as_zero` and a milder one
+  this entry left out,
+  `test_no_circular_reasoning.py::test_the_reasoning_no_longer_claims_trend_health_as_a_confidence_input`;
+  in shape 5, `test_decision_contract.py`'s two early returns, as not that shape. Part 4
+  is right on each defect, and on the two it calls sound beside them (read from the
+  tests). Each scan's matcher is now a function the scan calls and a control feeds. Ten
+  tests added: nine fail with the matcher or file list they check made to find nothing,
+  the tenth, the manifests' control, with a manifest removed. Writing them found what
+  the scans could not see, now read: `import json, ccxt`, and an import by name; in the
+  manifests, the names pip installs binance and alpaca_trade_api under, and `~=`, `<`,
+  `!=`, `>`, `<=`, extras and a marker; `.get("risk_valid",True)` without the space, a
+  default of 1, and every engine module but the three sites — that guard also took the
+  file as an argument, so `run_tests.py` never ran it; the current price returned
+  through a local; and the analysis's defaults under any name but `result`, in a file
+  whose scan had found no `.get` to read since 21 September. The "95" had had nothing to
+  catch since `c4dfcc7` (1 September) removed the call's trend input; the test now holds
+  that every figure the explanation states is the confidence or its scale. The
+  absent-score test's setup cannot come from the router, as Part 4 says, and what the
+  engine does send prints 0.00/100: entry 24's to fix, with its test (the entry above);
+  this test gains a docstring saying so. Twenty negative controls on the engine, the
+  manifests and the suite's own file walk: fourteen leave the old tests green and fail
+  the new; six fail both (Linux sandbox). Not checked: the tests Part 4 names as sound
+  in shapes 1 and 6 (three controls, four preconditions), and the three its judgement
+  names for F1 and F5, both fixed and verified on 17 October.
 - **Fable 5.1 works on this list after the audit** (DECISIONS, "Ruling, 29 September
   2026 — Fable 5.1 works on the list for after the audit, not before it"). Not a
   finding; recorded here so the list says who works on it after the audit.
@@ -2171,6 +2256,25 @@ the work before the audit, entry 1 apart.
   above line 400 in the working tree fails the old test and not the new one; with the
   instruction also changed in the working tree, both tests read the working tree and
   both fail (Linux sandbox).
+- **`conftest.ENGINE_MODULES` is not every module in the engine** (found 20 October,
+  writing entry 37's controls; read at `e88e0dd`). Its comment says "Every module in the
+  engine"; its 21 leave out `core.code_fingerprint`, `core.lineage` and
+  `utils.decision_log_backup`, added on 6, 2 and 12 September. `test_every_module_imports`
+  imports only the list, so an error at module level in those three is caught only where
+  something else imports them: `core/engine_core.py` the first two, and each has a test
+  file that imports it (a text search). The execution scans read all three, as they
+  walk the tree; their new coverage control, anchored on the list, does not require
+  them. Changes no engine code. Entry 49; not in the sort. Claude's suggestion, his to
+  change: test gap, Claude, XS, wave 1.
+- **`README.md` writes the watched error count** (found 20 October, landing entry 37).
+  Its Tests row and its "All tests currently pass" paragraph give `run_tests.py`'s
+  errors as a number, where the ruling of 15 October has them written only in this file
+  (point 5, which named `run_tests.py`'s docstring and three test files, not README);
+  and the paragraph says the count stays flat "except when a new fixture-using test is
+  added on purpose", which a test made fixture-free, as entry 37's was, also moves.
+  Entry 37's commit set both numbers to 31 with the other counts. Docs only. Entry 50;
+  not in the sort. Claude's suggestion, his to change: docs, Viktor (shape) — point 5
+  was his — XS, wave 1.
 
 ## Work order — Claude's, under Viktor's delegation
 
@@ -2460,20 +2564,16 @@ Each code commit is its own commit and updates this file for its own landing.
 
 ## Resolved this session
 
-- **`8360923`'s landing**, read off Viktor's disk again, with the times Claude had read
+- **`e88e0dd`'s landing**, read off Viktor's disk again, with the times Claude had read
   off it after the push, in chat ("Where the project is", the session of 20 October,
-  from 09:18).
-- **Entry 48 of the list for after the audit** — the second of wave 1, Claude's under
-  the sort of 19 October: one test, `code_hash` and the golden snapshot unchanged
-  ("Found after 22 September").
-- **`ed005a0`'s landing**, read off Viktor's disk after its push ("Where the project
-  is", this session).
-- **Entry 36** — the third of wave 1: one test, `code_hash` and the golden snapshot
+  from 11:13).
+- **Entry 37 of the list for after the audit** — the last of wave 1's three test gaps,
+  Claude's under the sort of 19 October: six test files, ten tests added, and one guard
+  that `run_tests.py` never ran now runs under it; `code_hash` and the golden snapshot
   unchanged ("Found after 22 September").
-- **A sentence `ed005a0` left stale** — entry 21's said it was changed by "the commit
-  that writes this line"; it was `8360923`.
-- **The once-per-session rewrite of this file**, by `ed005a0`.
-  The previous version, as at `8360923`, is in HISTORY verbatim, headings demoted one
+- **Two entries found**, 49 and 50 (the same section).
+- **The once-per-session rewrite of this file**, by the commit that writes this line.
+  The previous version, as at `e88e0dd`, is in HISTORY verbatim, headings demoted one
   level, proven by un-demotion with a negative control (the commit message has the
   result).
 
@@ -2484,11 +2584,12 @@ Claude critiques it.
 
 - **Owed to the next commit:** nothing, unless this commit's push deviates from its
   prediction (ruling on proposal (b), 27 September).
-- **Wave 1 — Claude's next, when Viktor says.** Entry 37, the last of the test gaps;
-  tests only, so `code_hash` holds. Entry 48 landed at `ed005a0`, entry 36 with the
-  commit that writes this line. **Viktor's, position first:** entries
-  26 and 31, Goal B's two rulings, docs only; and entry 47's place in the sort, if he
-  changes Claude's suggestion.
+- **Wave 1 — what is left.** Its three test gaps have landed: entry 48 at `ed005a0`,
+  36 at `e88e0dd`, and 37 with the commit that writes this line. Found landing 37, and
+  suggested for it: entry 49, a test gap, Claude's, next when Viktor says; and entry 50,
+  docs, Viktor's (shape). **Viktor's, position first:** entries 26 and 31, Goal B's two
+  rulings, docs only; entry 50's shape; and entry 47's place in the sort, if he changes
+  Claude's suggestion.
 - **The forward measurement — Claude's to count, under the ruling of 17 October.** Ten
   pairs — AEROUSDT, ETHUSDT, SOLUSDT, XRPUSDT, BNBUSDT, DOGEUSDT, ADAUSDT, LINKUSDT,
   AVAXUSDT, SUIUSDT — every four hours, by one Windows scheduled task on Viktor's

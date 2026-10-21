@@ -135,22 +135,57 @@ def test_no_engine_module_calls_utcnow():
 
 # --- 13: the structure frame ----------------------------------------------
 
+def defaults_in(tree):
+    """`<x>.get(<key>, <default>)` calls in a parse tree, whatever <x> is."""
+    return [f"line {node.lineno}: {ast.unparse(node)}" for node in ast.walk(tree)
+            if isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Attribute)
+            and node.func.attr == "get"
+            and len(node.args) >= 2]
+
+
 def test_calculate_structure_copies_the_analysis_without_defaults():
     """
-    Read from the parse tree: no `result.get(<key>, <default>)` in
+    Read from the parse tree: no `<x>.get(<key>, <default>)` in
     structure.py. A behavioural test cannot see this -- analyze() always
     returns the keys, which is why the defaults were latent.
+
+    20 OCTOBER 2026 (round 8, run 2, Part 4, shape 1; the list for after the
+    audit, entry 37). This read only calls on a name spelled `result`, so the
+    same three defaults on the analysis under any other name passed. And
+    structure.py has had no `.get` call at all since 21 September, so the
+    scan has found nothing to read either way. It reads every `.get` now, it
+    asserts that calculate_structure is in the file it reads, and the control
+    below shows that it can fail.
     """
-    defaults = []
-    for node in ast.walk(_tree(os.path.join("structure", "structure.py"))):
-        if (isinstance(node, ast.Call)
-                and isinstance(node.func, ast.Attribute)
-                and node.func.attr == "get"
-                and isinstance(node.func.value, ast.Name)
-                and node.func.value.id == "result"
-                and len(node.args) >= 2):
-            defaults.append(f"line {node.lineno}: {ast.unparse(node)}")
+    tree = _tree(os.path.join("structure", "structure.py"))
+    functions = {node.name for node in ast.walk(tree)
+                 if isinstance(node, ast.FunctionDef)}
+    assert "calculate_structure" in functions, (
+        "calculate_structure is not in structure/structure.py, the file this reads")
+    defaults = defaults_in(tree)
     assert defaults == [], defaults
+
+
+def test_the_default_scan_can_report_a_violation():
+    """
+    Negative control. The scan above passes on a clean tree, and would pass as
+    well if it matched nothing. Fed the three lines of 21 September as they
+    were, it reports all three; fed the same default on another name, it
+    reports it; fed the direct reads that replaced them, it reports nothing.
+    """
+    pre_fix = (
+        'df_clean.loc[:, "STRUCTURE"] = result.get("regime", "NEUTRAL STRUCTURE")\n'
+        'df_clean.loc[:, "HVN"] = result.get("hvn", 0.0)\n'
+        'df_clean.loc[:, "LVN"] = result.get("lvn", 0.0)\n'
+    )
+    assert len(defaults_in(ast.parse(pre_fix))) == 3
+    # Not seen before 20 October 2026.
+    assert len(defaults_in(ast.parse('df_clean.loc[:, "HVN"] = analysis.get("hvn", 0.0)\n'))) == 1
+    assert len(defaults_in(ast.parse('hvn = engine.analyze(df).get("hvn", 0.0)\n'))) == 1
+    # Not a default.
+    assert defaults_in(ast.parse('df_clean.loc[:, "HVN"] = result["hvn"]\n')) == []
+    assert defaults_in(ast.parse('hvn = result.get("hvn")\n')) == []
 
 
 def test_the_structure_columns_carry_the_analysis_values():

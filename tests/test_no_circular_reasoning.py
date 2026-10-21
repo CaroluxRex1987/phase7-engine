@@ -54,6 +54,7 @@ independent confidence components."
 
 import ast
 import os
+import re
 
 from conftest import REPO_ROOT
 
@@ -389,6 +390,18 @@ def test_the_reasoning_no_longer_claims_trend_health_as_a_confidence_input():
     Item 8 regression the moment the number changes. The sentence used to
     read "...bias strength is Y/100, trend health is Z/100, ...", naming as
     an input the exact term sequence item 11 removed.
+
+    20 OCTOBER 2026 (round 8, run 2, Part 4, shape 4: it asserted `"95" not
+    in text`, "a magic substring rather than a claim about meaning"; the list
+    for after the audit, entry 37). The 95 was the trend health this call
+    passed until 1 September (c4dfcc7), when _compute_confidence lost its
+    `trend` parameter; from then nothing here could print it, so that half
+    could not fail, and on an empty explanation neither half could.
+    Said as a claim: every figure the explanation states is the confidence
+    it explains, or that figure's scale. The confidence is bias_score's
+    magnitude, the formula's one input, so with a score of 60 both are 60;
+    a trend health, a weight or any other value beside it fails. And the
+    explanation is read only once it is shown to be there.
     """
     from models.decision_model import DecisionModel
 
@@ -400,7 +413,16 @@ def test_the_reasoning_no_longer_claims_trend_health_as_a_confidence_input():
     )
 
     text = " ".join(reasons)
-    assert "95" not in text and "trend health is" not in text.lower(), (
+    assert "Confidence is 60/100" in text, (
+        f"no confidence explanation to read:\n  {text!r}")
+    others = [figure for figure in re.findall(r"\d+(?:\.\d+)?", text)
+              if float(figure) not in (60.0, 100.0)]
+    assert not others, (
+        f"the confidence explanation states a figure that is not the "
+        f"confidence it explains -- {others} -- so it names another value as "
+        f"an input:\n  {text}"
+    )
+    assert "trend health is" not in text.lower(), (
         f"the confidence explanation still names trend health as a direct "
         f"input:\n  {text}"
     )

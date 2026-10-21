@@ -338,20 +338,110 @@ def _tree(*parts):
     return ast.parse(open(path, encoding="utf-8").read())
 
 
+def _names_read(node):
+    """Every name an expression reads, an attribute's own name included."""
+    return ({n.id for n in ast.walk(node) if isinstance(n, ast.Name)}
+            | {n.attr for n in ast.walk(node) if isinstance(n, ast.Attribute)})
+
+
+def _names_bound(target):
+    """The local names an assignment target binds: a name, the names in a
+    tuple or a list, the container a subscript writes into. An attribute's
+    owner is not bound -- `self.level = price` binds no local."""
+    if isinstance(target, ast.Name):
+        return {target.id}
+    if isinstance(target, (ast.Tuple, ast.List)):
+        return set().union(*(_names_bound(e) for e in target.elts))
+    if isinstance(target, (ast.Starred, ast.Subscript)):
+        return _names_bound(target.value)
+    return set()
+
+
+def returns_built_from(fn, name):
+    """
+    The return expressions in `fn` built from `name`: naming it, or naming a
+    local assigned from it at any remove -- `level = current_price` and then
+    `return float(level)`. Comparing against it is not building from it:
+    _detect_swing_structure reads the price to choose the nearer of two
+    located levels, and returns the level.
+    """
+    bindings = []
+    for node in ast.walk(fn):
+        if isinstance(node, ast.Assign):
+            bindings.append((node.targets, node.value))
+        elif isinstance(node, (ast.AugAssign, ast.AnnAssign, ast.NamedExpr)):
+            if node.value is not None:
+                bindings.append(([node.target], node.value))
+        elif isinstance(node, (ast.For, ast.comprehension)):
+            bindings.append(([node.target], node.iter))
+
+    built = {name}
+    grew = True
+    while grew:
+        grew = False
+        for targets, value in bindings:
+            if _names_read(value) & built:
+                for target in targets:
+                    new = _names_bound(target) - built
+                    if new:
+                        built |= new
+                        grew = True
+
+    return [ast.unparse(n.value) for n in ast.walk(fn)
+            if isinstance(n, ast.Return) and n.value is not None
+            and _names_read(n.value) & built]
+
+
 def test_the_producer_returns_no_expression_built_from_the_current_price():
+    """
+    20 OCTOBER 2026 (round 8, run 2, Part 4, shape 1; the list for after the
+    audit, entry 37). This matched "current_price" in the text of each return
+    expression, so `level = current_price` followed by `return float(level)`
+    -- the defect spelled differently, which the comment above this section
+    says the parse tree is read to catch -- passed. Returns built from the
+    price through a local are read now, the scan must find a return to read,
+    and the control below shows that it can fail.
+    """
     tree = _tree("structure", "structure.py")
 
     fn = [n for n in ast.walk(tree)
           if isinstance(n, ast.FunctionDef) and n.name == "_detect_swing_structure"]
     assert len(fn) == 1, f"expected one _detect_swing_structure, found {len(fn)}"
 
-    offenders = [ast.unparse(n.value) for n in ast.walk(fn[0])
-                 if isinstance(n, ast.Return) and n.value is not None
-                 and "current_price" in ast.unparse(n.value)]
+    returns = [n for n in ast.walk(fn[0])
+               if isinstance(n, ast.Return) and n.value is not None]
+    assert returns, "_detect_swing_structure has no return for the scan to read"
+
+    offenders = returns_built_from(fn[0], "current_price")
 
     assert not offenders, (
         f"_detect_swing_structure returns the current price again: {offenders!r}"
     )
+
+
+def test_negative_control_the_return_scan_can_report_a_violation():
+    """
+    The scan above passes on a clean tree, and would pass as well if it
+    matched nothing. Fed the return of 6 September and the same return through
+    a local, it reports both; fed _detect_swing_structure's own use of the
+    price, and a NaN, it reports nothing.
+    """
+    def scan(*body):
+        source = "def f(df, current_price):\n" + "".join(f"    {line}\n" for line in body)
+        return returns_built_from(ast.parse(source).body[0], "current_price")
+
+    assert scan("return float(current_price)") == ["float(current_price)"]
+    assert scan("return float(self.current_price)") == ["float(self.current_price)"]
+    # Not seen before 20 October 2026.
+    assert scan("level = current_price", "return float(level)") == ["float(level)"]
+    assert scan("level = float(current_price)", "out = level", "return out") == ["out"]
+    assert scan("level, n = current_price, 0", "return level") == ["level"]
+    # Not built from the price.
+    assert scan("high, low = 2.0, 1.0",
+                "if abs(high - current_price) <= abs(low - current_price):",
+                "    return float(high)",
+                "return float(low)") == []
+    assert scan('return float("nan")') == []
 
 
 def test_the_router_assembles_the_field_with_no_price_shaped_default():

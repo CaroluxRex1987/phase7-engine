@@ -91,6 +91,24 @@ def test_no_number_on_the_panel_prints_as_nan():
 
 
 def test_absent_scores_print_as_absent_not_as_zero():
+    """
+    The panel's own default for a score its decision does not carry.
+
+    20 OCTOBER 2026 (round 8, run 2, Part 4, shape 4; the list for after the
+    audit, entry 37). Part 4 is right that the router never builds this: it
+    writes all five keys on every decision, and NaN for a trend health, entry
+    or validation score it could not read, which
+    test_no_number_on_the_panel_prints_as_nan renders. And the
+    engine's two default responses -- trend_health's, which a run without
+    both slope columns reaches, and entry_model's -- return a finite 0.0,
+    which the panel prints as 0.00/100, since it cannot tell that zero from a
+    computed one (test_a_real_zero_is_still_printed_as_zero). Forced through
+    the router on the pinned set, in the Linux sandbox, TREND read "(Score:
+    0.00/100)", and ENTRY QUALITY and Proposed Entry "0.00/100". That zero is
+    to be fixed where it is made, by the list's entry 24 (round 8's Part 7
+    reply, section 1(3)), and its test comes with that fix: written now, it
+    would fail. What this test holds is the panel's half.
+    """
     panel = _render({"symbol": "TESTUSDT", "timeframe": "4h"})
 
     for prefix in ("TREND", "VALIDATION", "CONFIDENCE (decision)",

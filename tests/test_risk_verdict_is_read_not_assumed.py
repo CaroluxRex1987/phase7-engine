@@ -36,12 +36,13 @@ tests that must pass BOTH before and after the fix carry as much weight as the
 ones that must fail before it.
 """
 
+import ast
 import io
 import os
 
 import pytest
 
-from conftest import REPO_ROOT
+from conftest import REPO_ROOT, all_python_files
 
 from models.decision_model import DecisionModel
 from models.risk_model import read_risk_verdict
@@ -432,33 +433,56 @@ def test_negative_control_the_simulated_order_still_carries_a_real_verdict(tmp_p
 # 6. The default cannot come back
 # ============================================================
 
-# Forward slashes deliberately, not os.path.join: these strings become the
-# parametrized test ids, and a join would print them with backslashes on
-# Viktor's Windows machine and forward slashes in a Linux verification run --
-# two different-looking suite outputs for one identical test. Python's file
-# APIs take forward slashes on Windows, so os.path.join(REPO_ROOT, relpath)
-# below still opens the file either way.
-ENGINE_SOURCES = [
+# The three call sites of 6 September, in forward slashes, as the suite names
+# every file it reads; os.path.join(REPO_ROOT, relpath) opens them on Windows
+# too. Until 20 October 2026 these were the only files the guard below read.
+THE_THREE_SITES = [
     "models/decision_model.py",
     "models/signal_router.py",
     "live_trading.py",
 ]
 
 
-def _code(relpath):
-    """Source with comment lines stripped — the notes ABOUT the removed
-    default necessarily quote it, and a guard that reads its own explanation
-    as a violation is useless."""
+def _engine_sources():
+    """Every engine module: each .py file but the tests and the documentation
+    tooling, in forward slashes."""
+    return [rel.replace("\\", "/")
+            for rel in all_python_files(include_doc_tooling=False)]
+
+
+def _source(relpath):
     with io.open(os.path.join(REPO_ROOT, relpath), encoding="utf-8",
                  newline="") as f:
-        src = f.read()
-    return "\n".join(line.split("#", 1)[0] for line in src.splitlines())
+        return f.read()
 
 
-@pytest.mark.parametrize("relpath", ENGINE_SOURCES)
-def test_no_module_defaults_a_missing_risk_verdict_to_a_pass(relpath):
+def risk_verdict_defaults_in(source):
     """
-    A source-text guard, deliberately, and for the same reason
+    [(line, call)] for each `<x>.get("risk_valid", <default>)` whose default
+    could read as a pass: anything but a literal that is false, such as None
+    or False. Read from the parse tree, so the notes ABOUT the removed default,
+    which necessarily quote it, are not calls, and spacing and quotes do not
+    change one.
+    """
+    found = []
+    for node in ast.walk(ast.parse(source)):
+        if not (isinstance(node, ast.Call)
+                and isinstance(node.func, ast.Attribute)
+                and node.func.attr == "get"
+                and len(node.args) >= 2):
+            continue
+        key, default = node.args[0], node.args[1]
+        if not (isinstance(key, ast.Constant) and key.value == "risk_valid"):
+            continue
+        if isinstance(default, ast.Constant) and not default.value:
+            continue                      # absent stays absent, or fails
+        found.append((node.lineno, ast.unparse(node)))
+    return found
+
+
+def test_no_module_defaults_a_missing_risk_verdict_to_a_pass():
+    """
+    A source-level guard, deliberately, and for the same reason
     tests/test_no_fabricated_fallbacks.py uses them: with the validator in
     place the behavioural route to two of these three call sites is closed, so
     a behavioural test alone would stop noticing if the default came back.
@@ -466,10 +490,54 @@ def test_no_module_defaults_a_missing_risk_verdict_to_a_pass(relpath):
     Three call sites had the identical line. Rule 3 of this project's earned
     rules — a defect found once is usually a class — says the thing to guard
     is the shape, not the three instances of it.
+
+    20 OCTOBER 2026 (round 8, run 2, Part 4, shape 1; the list for after the
+    audit, entry 37). Until today it guarded the three instances: it read
+    only THE_THREE_SITES, as text, for `risk_valid", True` and
+    `risk_valid', True`, so `.get("risk_valid",True)` without the space
+    passed, as did a default of 1, and a copy in any other module was never
+    read. And it took the file as an argument, so run_tests.py, which calls
+    every test with none, counted it as an error and never ran it. It reads
+    every engine module's parse tree now, takes no argument, and the control
+    below shows that it can fail.
     """
-    code = _code(relpath)
-    assert 'risk_valid", True' not in code and "risk_valid', True" not in code, (
-        f"{relpath} defaults a missing risk verdict to True again. An absent "
-        f"assessment is not a passed one — read it through "
-        f"models.risk_model.read_risk_verdict()."
+    offenders = [f"{rel}:{line}  {call}"
+                 for rel in _engine_sources()
+                 for line, call in risk_verdict_defaults_in(_source(rel))]
+    assert not offenders, (
+        "a module defaults a missing risk verdict to a pass again. An absent "
+        "assessment is not a passed one — read it through "
+        "models.risk_model.read_risk_verdict():\n  " + "\n  ".join(offenders)
     )
+
+
+def test_negative_control_the_default_scan_can_report_a_violation():
+    """
+    The scan above passes on a clean tree, and would pass as well if it read
+    no file or matched nothing. It reads the three sites, it reports the line
+    they had and spellings of it the text match did not see, and it reports
+    nothing that is not a default to a pass.
+    """
+    read = set(_engine_sources())
+    assert set(THE_THREE_SITES) <= read, sorted(set(THE_THREE_SITES) - read)
+
+    # The line the three sites had, as GLM filed it, and the same in a function.
+    assert risk_verdict_defaults_in('valid = bool(risk.get("risk_valid", True))\n') == [
+        (1, "risk.get('risk_valid', True)")]
+    assert risk_verdict_defaults_in(
+        'def verdict(risk):\n    return risk.get("risk_valid", True)\n') == [
+        (2, "risk.get('risk_valid', True)")]
+    # Not seen before 20 October 2026.
+    for source in ('risk.get("risk_valid",True)\n',
+                   "risk.get( 'risk_valid' ,True )\n",
+                   'risk.get("risk_valid", 1)\n',
+                   'risk.get("risk_valid", assessed)\n'):
+        assert len(risk_verdict_defaults_in(source)) == 1, source
+    # Not a default to a pass.
+    for source in ('risk.get("risk_valid")\n',
+                   'risk.get("risk_valid", None)\n',
+                   'risk.get("risk_valid", False)\n',
+                   '# risk.get("risk_valid", True)\n',
+                   'NOTE = \'risk.get("risk_valid", True)\'\n',
+                   'risk.get("risk_reason", True)\n'):
+        assert risk_verdict_defaults_in(source) == [], source
