@@ -115,6 +115,25 @@ from git at the commit tagged `round8-verify-sent-<date>`, measured with the sam
 check, and refused unless a probe is served by round 8's checkpoint. It builds no folder:
 the package is read from git when it is sent. A dry run without the tag builds from HEAD.
 
+## Indicator overlap and decision impact
+
+`indicator_overlap.py` builds no document either. Added on 24 October 2026, at Viktor's
+request, it measures two things with the engine's own functions, on the archived runs in
+`logs/archive/`: how much the indicators agree (base rates, agreement corrected for
+chance, correlations), and how many of the engine's actions change when one disputed
+factor is removed, the full decision path run per bar. It never reads a price after the
+bar it judges, so it says nothing about whether a change would be better; that is
+backtesting. With `--logs logs` it also checks that its baseline reproduces the actions
+the engine logged.
+
+```
+python docs/build/indicator_overlap.py logs/archive --logs logs
+```
+
+Its numbers are behind the document on the engine's indicators, kept outside the
+repository (PHASE7_NEXT.md, "Where the project is"). Its docstring says what it does not
+model, and `tests/test_indicator_overlap_tool.py` checks it.
+
 ## House style
 
 All scripts share the same visual system, and changes to one should be mirrored rather

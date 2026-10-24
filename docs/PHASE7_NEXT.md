@@ -3,10 +3,12 @@
 *20 October 2026, from 17:49. Rewritten by the commit that lands entry 37 of the list
 for after the audit — the last of wave 1's three test gaps, tests only, `code_hash`
 unchanged — and records `e88e0dd`'s landing; the version it replaced — as it stood at
-`e88e0dd` — is in HISTORY verbatim. That commit is `d508b29`; the session's second, the
-commit that writes this line, on 24 October, is docs only: `d508b29`'s landing, the
-forward measurement's runs of 20 and 21 October, and the document on the engine's
-indicators written outside the repository.
+`e88e0dd` — is in HISTORY verbatim. That commit is `d508b29`; the session's second,
+`9f2f3d7`, on 24 October, was docs only: `d508b29`'s landing, the forward measurement's
+runs of 20 and 21 October, and the document on the engine's indicators written outside
+the repository. The third, the commit that writes this line, the same day, adds the
+overlap and decision-impact tool behind that document, with its tests: docs tooling and
+a test file, `code_hash` unchanged.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
 rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
@@ -239,12 +241,12 @@ test only, so `code_hash` and the golden snapshot held.
 **On 20 October, from 17:49**, after pushing `e88e0dd` at 14:23, Viktor asked for its
 landing to be checked against his disk, then for entry 37, which Claude had decided on
 in the session from 11:13, under the sort of 19 October: Part 4's other named tests
-checked against round 8's Part 4, tests only. The commit that writes this line lands it
-(the same section). Part 4 is right on each test it names as defective; six test files
+checked against round 8's Part 4, tests only. `d508b29` landed it (the same
+section). Part 4 is right on each test it names as defective; six test files
 change, ten controls are added, and `code_hash` and the golden snapshot hold. It found
 two entries more: 49, `conftest.ENGINE_MODULES` is not every module in the engine; and
-50, `README.md` writes the watched error count (the same section). That commit is
-`d508b29`, pushed at 08:36 on 21 October.
+50, `README.md` writes the watched error count (the same section). `d508b29` was
+pushed at 08:36 on 21 October.
 **On 23 and 24 October, in the same session**, Viktor asked for a document of about 15
 pages, for himself, on the most important questions about the engine: why it has the
 indicators it has, which of them measure the same thing, where bias or circular
@@ -254,9 +256,12 @@ repository (below). Viktor had ChatGPT and Gemini review version 1; Claude check
 their points against the code and the data, ran the decision-impact test one of them
 asked for, and wrote version 2 with the corrections and the results. It is not
 independent: Claude built most of the engine. Nothing was ruled; the decisions it
-raises are Viktor's (Open items, "The engine's indicators"). The commit that writes
-this line files it, with `d508b29`'s landing and the forward measurement's runs of 20
-and 21 October, docs only.
+raises are Viktor's (Open items, "The engine's indicators"). `9f2f3d7` filed it, with
+`d508b29`'s landing and the forward measurement's runs of 20 and 21 October, docs only,
+pushed at 18:54 on 24 October. At 18:50 Viktor asked Claude to start on the tooling, the
+second of the three things Claude had offered: the commit that writes this line lands
+`docs/build/indicator_overlap.py` and `tests/test_indicator_overlap_tool.py` (Open
+items, "The engine's indicators").
 
 **The review and the comparison are outside the repository**, in
 `G:\Phase_7_Engine_Random_Files\Docs\02_Reviews_and_Feedback`:
@@ -628,9 +633,15 @@ his disk, staged in this session after the push: the apply was at 08:29:24 on
 21 October, the pytest cache was rewritten at 08:32:13 and holds the new tests' ids, the
 commit is from 08:36:45 and `origin/master`'s ref from 08:36:58; `master` and
 `origin/master` read `d508b29`, GitHub's tip, fetched, is `d508b29`, and its ten files on
-GitHub are byte for byte the tree that was verified. The commit that writes this line
-records that, the forward measurement's runs of 20 and 21 October (Open items) and the
-document of 24 October (above): docs only.
+GitHub are byte for byte the tree that was verified. `9f2f3d7` recorded that, the
+forward measurement's runs of 20 and 21 October (Open items) and the document of
+24 October (above): docs only. From his disk, staged in this session after its push: the
+apply was at 18:47:23 on 24 October, the pytest cache was rewritten at 18:50:42, the
+commit is from 18:54:34 and `origin/master`'s ref from 18:54:48; `master` and
+`origin/master` read `9f2f3d7`, the commit message on his disk is the one delivered, and
+`docs/PHASE7_NEXT.md` on his disk is the file built. GitHub could not be reached from
+Claude's sandbox that day, so its tip was not fetched. The commit that writes this line
+lands the overlap and decision-impact tool, with its tests and docs.
 
 ## Ruled — in force
 
@@ -1030,10 +1041,12 @@ document of 24 October (above): docs only.
 
 ## Where things stand, right now
 
-- **Tip:** the commit that writes this line (a commit cannot name its own hash) —
-  `d508b29`'s landing, the forward measurement's runs of 20 and 21 October and the
-  document of 24 October recorded: docs only. Before it: `d508b29` (this session, its
-  first commit: entry 37 of the list for after the audit, tests only, and `e88e0dd`'s
+- **Tip:** the commit that writes this line (a commit cannot name its own hash) — the
+  overlap and decision-impact tool, `docs/build/indicator_overlap.py`, with its tests
+  and docs. Before it: `9f2f3d7` (this session, its second commit: `d508b29`'s landing,
+  the forward measurement's runs of 20 and 21 October and the document of 24 October
+  recorded: docs only), `d508b29` (its first commit: entry 37 of the list for after the
+  audit, tests only, and `e88e0dd`'s
   landing recorded), `e88e0dd` (the session of 20 October, from 11:13, its second
   commit: entry 36, one test only, and `ed005a0`'s landing recorded), `ed005a0` (its
   first commit: entry 48, one test only, and `8360923`'s landing recorded), `8360923`
@@ -1214,8 +1227,9 @@ document of 24 October (above): docs only.
   `tests/test_panel_prints_only_what_was_computed.py`,
   `tests/test_risk_verdict_is_read_not_assumed.py` and
   `tests/test_swing_structure_is_not_invented.py`: it adds ten tests, makes the three
-  parametrized cases of one test a single test, and renamed none. The commit that
-  writes this line changes no test.
+  parametrized cases of one test a single test, and renamed none. `9f2f3d7` changed no
+  test. The commit that writes this line adds `tests/test_indicator_overlap_tool.py`
+  (13 tests, none taking a fixture, two needing `pandas_ta`) and changes no other test.
 - **Where the project lives, from 26 September:** `E:\phase7_engine` on Viktor's machine;
   the files kept outside the repository in `G:\Phase_7_Engine_Random_Files`. Copied with
   robocopy, verified — git's own checks on Windows for the tracked files, SHA-256 for the
@@ -1224,11 +1238,13 @@ document of 24 October (above): docs only.
   to `E:\phase7_engine`". Run the engine and every command from `E:\phase7_engine` (in
   cmd, changing drive needs `cd /d`). A dated record that names the D: paths means the
   same folders before the move; dated records are not edited.
-- **The push of `d508b29`** happened, at 08:36:58 on 21 October: GitHub's tip,
-  fetched, is `d508b29`, `master` and `origin/master` on Viktor's disk read it (their
-  `.git/refs` files, and `origin/master`'s reflog line "update by push"), and its ten
-  files on GitHub are byte-identical to the tree verified before delivery; he reported
-  it pushed and no deviation (ruling on proposal (b)). So did `e88e0dd`'s, at 14:23:19
+- **The push of `9f2f3d7`** happened, at 18:54:48 on 24 October: `master` and
+  `origin/master` on Viktor's disk read it (their `.git/refs` files, and
+  `origin/master`'s reflog line "update by push"); GitHub could not be reached from
+  Claude's sandbox that day, so its tip was not fetched. He reported it pushed and no
+  deviation (ruling on proposal (b)). So did `d508b29`'s, at 08:36:58 on 21 October,
+  GitHub's tip fetched and its ten files byte-identical to the tree verified before
+  delivery, `e88e0dd`'s, at 14:23:19
   on 20 October, its three files on his disk byte-identical to an autocrlf checkout of
   GitHub's tip, `ed005a0`'s, at
   11:53:40 on 20 October, its four files on his disk byte-identical to an autocrlf
@@ -1243,8 +1259,9 @@ document of 24 October (above): docs only.
   commit that writes this line unless it deviates. Earlier pushes and deviations are
   recorded in this file's previous versions, in HISTORY.
 - **Before this commit**, every file its patch changes was staged off Viktor's disk and
-  matched the tree of `d508b29` byte for byte: an autocrlf clone of `e88e0dd` with
-  `d508b29`'s patch applied, the tree verified before that delivery.
+  matched the tree of `9f2f3d7` byte for byte: an autocrlf clone of `e88e0dd` with
+  `d508b29`'s patch and `9f2f3d7`'s applied, the trees verified before those
+  deliveries. The two new files are not on his disk.
 - **code_hash:** `816d4951bb0322763ec4abc4b9ed8161d5b902372823350e5272f2fb7176e380`,
   set by `0491b84` from `bc1b9c2c…` — `main.py` alone — and confirmed on Windows: its
   eleven hand-run records and the ten of each of the first two scheduled runs carry it.
@@ -1254,12 +1271,13 @@ document of 24 October (above): docs only.
   `run_tests.py`, which the fingerprint reads with both stripped, and in `tests/`, which
   it does not read — by `ed005a0`, `e88e0dd` and `d508b29`, each of which changed
   files under `tests/` and `docs/`, which it does not read, the last also `README.md`,
-  which is not a `.py` file, and by the commit that writes this line, which changes one
-  file under `docs/`: computed on clones of `0491b84`,
+  which is not a `.py` file, by `9f2f3d7`, which changed one file under `docs/`, and by
+  the commit that writes this line, which adds files under `docs/` and `tests/` and
+  changes `README.md`: computed on clones of `0491b84`,
   `a235783`, `8d5d64a`, `a48d9e5`, `fbd7877`, `8311167`, `d2dddf7`, `aa9e7ac`,
   `391c338`, `8360923`, `ed005a0` and `e88e0dd` and on the applied trees, under Python
-  3.12.3; the tree of `d508b29` and the applied tree of the commit that writes this line
-  give the same. `bc1b9c2c…` was
+  3.12.3; the trees of `d508b29` and `9f2f3d7` and the applied tree of the commit that
+  writes this line give the same. `bc1b9c2c…` was
   set by `9ea1cf3`, confirmed on Windows by its live run, and held through `f00bef6`,
   `36de35d`, `78ea37d`, `d3188f2` and `67f6ec1`, which changed only files under `docs/`
   and `tests/`, `README.md` and `run_tests.py`'s docstring.
@@ -1267,8 +1285,10 @@ document of 24 October (above): docs only.
   output, a CPython implementation detail (`core/code_fingerprint.py`, "WHAT IT DOES NOT
   SURVIVE"). **Every `code_hash` claim about this project is computed under Python 3.12**
   (Viktor runs 3.12.10).
-- **Golden snapshot:** unchanged by the commit that writes this line, which changes one
-  file under `docs/`, by `d508b29`, which changed six test files, `README.md`'s counts
+- **Golden snapshot:** unchanged by the commit that writes this line, whose new test
+  reads the fixture and the golden test's pinned set without writing either, by
+  `9f2f3d7`, which changed one file under `docs/`, by `d508b29`, which changed six test
+  files, `README.md`'s counts
   and docs, and read no fixture, by `e88e0dd`, which
   changed one test and docs and read the fixture without writing it, by `ed005a0`, which
   changed one
@@ -1283,14 +1303,21 @@ document of 24 October (above): docs only.
   `22a9a35`, 4 leaves (the confirmation reason, `volume_sentiment` twice and
   `validation_note`'s volume half: VOLUME DIVERGENCE → FADING VOLUME); before that at
   `6469a67`, 8 leaves.
-- **Test suite** — **883 passed / 0 failed, no warnings line** with `pandas_ta`;
-  **709 passed / 163 skipped** without it; `run_tests.py` **815 passed / 0 failed /
+- **Test suite** — **896 passed / 0 failed, no warnings line** with `pandas_ta`;
+  **720 passed / 165 skipped** without it; `run_tests.py` **828 passed / 0 failed /
   31 errors**, all 31 fixture-collection `TypeError`s: the 32 of `e88e0dd` less
   `test_no_module_defaults_a_missing_risk_verdict_to_a_pass`. This is meant to be the
   one place the watched error count is written as a number (DECISIONS, "Ruling,
   15 October 2026 — Part 4's three test shapes", point 5); `README.md` writes it too
-  (entry 50). The commit that writes this line changes no test, so every count holds.
-  `d508b29` added ten tests, none taking a fixture and none needing `pandas_ta`, and
+  (entry 50). The commit that writes this line adds 13 tests, none taking a fixture,
+  two needing `pandas_ta`: pytest rises by 13 with it, by 11 passed and 2 skipped
+  without it, and `run_tests.py` passes 13 more with its error count unchanged: from
+  the Linux sandbox, Python 3.12.3, pinned requirements, the patch applied to the tree
+  of `9f2f3d7`. `9f2f3d7` changed no test; its pytest step ran on Windows after the
+  apply (the cache on his disk was rewritten at 18:50:42 on 24 October, 3 minutes
+  19 seconds after its file was written, at 18:47:23), and Viktor went on to the
+  commit, which confirms 883 by proceeding. `d508b29` added ten tests, none taking a
+  fixture and none needing `pandas_ta`, and
   made that test, parametrized over three files, one test that takes no argument:
   pytest rose by 8 in both configurations (3 ids become 1), `run_tests.py` passes 11
   more — the ten, and the test it had counted as a fixture error and never run — and
@@ -1350,7 +1377,8 @@ document of 24 October (above): docs only.
   `test_the_commit_messages_up_to_the_tag_are_round_7s_to_the_byte`, runs `git log` up
   to the tag `round7-sent-2026-09-30`: it needs the tag, which a full clone has.
 - **Engineering Notes:** through Entry #183 (v1.36), which covers `68c6191`.
-  **Fifty-six commits behind** — `ec4e5fd`, the floor (a commit that regenerates the Notes cannot
+  **Fifty-seven commits behind** — `ec4e5fd`, the floor (a commit that regenerates the
+  Notes cannot
   cover itself, Entry #144), `e7a94d1`, `d5ced0c`, `59b747a`, `f256937`, `12b483e`,
   `01f2892`, `8b6fd00`, `e186423`, `86f30f1`, `3e8191a`, `1523e0c`, `ff12e17`,
   `4a4c6ce`, `217ede6`, `d27743f`, `a0276dd`, `040a529`, `9e42d30`, `eb86846`,
@@ -1358,8 +1386,8 @@ document of 24 October (above): docs only.
   `27d3ed5`, `9051ffd`, `e5ac20a`, `ef65f46`, `797bdc9`, `69c92d6`, `22a9a35`,
   `d77a8c4`, `64ad625`, `9ea1cf3`, `f00bef6`, `36de35d`, `78ea37d`, `d3188f2`,
   `67f6ec1`, `0491b84`, `a235783`, `8d5d64a`, `a48d9e5`, `fbd7877`, `8311167`,
-  `d2dddf7`, `aa9e7ac`, `391c338`, `8360923`, `ed005a0`, `e88e0dd`, `d508b29` and the
-  commit that writes this line.
+  `d2dddf7`, `aa9e7ac`, `391c338`, `8360923`, `ed005a0`, `e88e0dd`, `d508b29`,
+  `9f2f3d7` and the commit that writes this line.
   Every later
   commit adds one
   until the
@@ -1375,9 +1403,10 @@ document of 24 October (above): docs only.
   identical to the committed PDF. Neither changes in the commit that writes this line;
   the Attribution Statement's script last changed at `68c6191`, the Portfolio
   Document's at `6e1baba`.
-- **README.md:** its test counts are current (883, 709 / 163 and 815, and the error
-  count, 31), last changed by `d508b29`, which changed only those numbers there; that
-  README writes the error count at all is entry 50. **Its three status rows are
+- **README.md:** its test counts are current (896, 720 / 165 and 828, and the error
+  count, 31), last changed by the commit that writes this line, which changes only
+  those numbers there; that README writes the error count at all is entry 50. **Its
+  three status rows are
   current** — "Independent audit", "Release
   gate" and "Backtesting" — since `a235783`, in wording Viktor
   approved, with the two sentences that said otherwise: the paragraph under the table
@@ -2602,6 +2631,11 @@ Each code commit is its own commit and updates this file for its own landing.
 
 ## Resolved this session
 
+- **`9f2f3d7`'s landing**, read off Viktor's disk after its push ("Where the project
+  is", this session).
+- **The overlap and decision-impact tool** — `docs/build/indicator_overlap.py` and its
+  13 tests, the second of the three things Claude offered on 24 October (Open items,
+  "The engine's indicators").
 - **`d508b29`'s landing**, read off Viktor's disk after its push ("Where the project
   is", this session).
 - **The forward measurement's runs of 20 and 21 October**, and the closes missed on
@@ -2641,13 +2675,24 @@ Claude critiques it.
   macro is used; trend health rebuilt or replaced by ADX; entry quality simplified or
   not; what "confidence" means and whether the EV line stays; and when any of it lands
   relative to Amazon's audit. All are trading rules, and nothing that moves `code_hash`
-  lands before the reading of 14 November. **Claude's, when Viktor says:** the overlap
-  measurement and the decision-impact test as repeatable tooling in the repository,
-  with tests; the scripts exist only in Claude's sandbox so far, and their method is in
-  the document's appendix. What the test found, in short: removing any of the four
+  lands before the reading of 14 November. **The tooling landed** with the commit that
+  writes this line: `docs/build/indicator_overlap.py`, run as `python
+  docs/build/indicator_overlap.py logs/archive --logs logs`, and
+  `tests/test_indicator_overlap_tool.py`, which checks its statistics, that its baseline
+  reproduces the golden decision, that it reads no candle after the bar it judges, and
+  that it restores the bias weights it changes. Building it found one error in the
+  scripts behind version 2: macro read the daily candles closed by the bar's open, not
+  its close, so it left out the daily candle that closes with a 20:00 bar. With the
+  engine's rule every figure moves a little and no conclusion changes: 2,980 bars where
+  version 2 has 2,970, trade actions 1,333 to 860 with the four disputed factors removed
+  and today's cutoffs (−35.5%) where it has 1,324 to 841 (−37%), and the baseline
+  matching the logged action on 197 of 197 records where it has 196 of 196 (Linux
+  sandbox, 24 October). Version 2 is not corrected; the tool's docstring records it.
+  What the test found, in short: removing any of the four
   disputed bias factors never flipped the side on any bar; removing all four with
-  today's cutoffs cut the trade actions by 37%; its baseline matched the engine's own
-  logged action on all 196 non-degraded live records it could be compared with.
+  today's cutoffs cut the trade actions by 35.5% (the tool's figure); its baseline
+  matched the engine's own logged action on all 197 non-degraded live records it could
+  be compared with.
 - **The forward measurement — Claude's to count, under the ruling of 17 October.** Ten
   pairs — AEROUSDT, ETHUSDT, SOLUSDT, XRPUSDT, BNBUSDT, DOGEUSDT, ADAUSDT, LINKUSDT,
   AVAXUSDT, SUIUSDT — every four hours, by one Windows scheduled task on Viktor's
