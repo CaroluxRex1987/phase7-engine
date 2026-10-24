@@ -6,9 +6,12 @@ unchanged — and records `e88e0dd`'s landing; the version it replaced — as it
 `e88e0dd` — is in HISTORY verbatim. That commit is `d508b29`; the session's second,
 `9f2f3d7`, on 24 October, was docs only: `d508b29`'s landing, the forward measurement's
 runs of 20 and 21 October, and the document on the engine's indicators written outside
-the repository. The third, the commit that writes this line, the same day, adds the
-overlap and decision-impact tool behind that document, with its tests: docs tooling and
-a test file, `code_hash` unchanged.
+the repository. The third, `d410bfa`, the same day, added the overlap and
+decision-impact tool behind that document, with its tests: docs tooling and a test
+file, `code_hash` unchanged. The fourth, the commit that writes this line, the same
+evening, is docs only: `d410bfa`'s landing, its test steps run after its commit, and
+GitHub's tips for `9f2f3d7` and `d410bfa`, fetched once the repository was public
+again.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
 rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
@@ -259,9 +262,9 @@ independent: Claude built most of the engine. Nothing was ruled; the decisions i
 raises are Viktor's (Open items, "The engine's indicators"). `9f2f3d7` filed it, with
 `d508b29`'s landing and the forward measurement's runs of 20 and 21 October, docs only,
 pushed at 18:54 on 24 October. At 18:50 Viktor asked Claude to start on the tooling, the
-second of the three things Claude had offered: the commit that writes this line lands
+second of the three things Claude had offered: `d410bfa` landed
 `docs/build/indicator_overlap.py` and `tests/test_indicator_overlap_tool.py` (Open
-items, "The engine's indicators").
+items, "The engine's indicators"), pushed at 19:40 on 24 October.
 
 **The review and the comparison are outside the repository**, in
 `G:\Phase_7_Engine_Random_Files\Docs\02_Reviews_and_Feedback`:
@@ -640,8 +643,20 @@ apply was at 18:47:23 on 24 October, the pytest cache was rewritten at 18:50:42,
 commit is from 18:54:34 and `origin/master`'s ref from 18:54:48; `master` and
 `origin/master` read `9f2f3d7`, the commit message on his disk is the one delivered, and
 `docs/PHASE7_NEXT.md` on his disk is the file built. GitHub could not be reached from
-Claude's sandbox that day, so its tip was not fetched. The commit that writes this line
-lands the overlap and decision-impact tool, with its tests and docs.
+Claude's sandbox at first, because the repository had been made private; Viktor made it
+public again that evening, and GitHub's `9f2f3d7`, fetched then, is byte for byte the
+tree verified before that delivery (`d410bfa` left this paragraph saying its tip was
+not fetched; corrected by the commit that writes this line). `d410bfa` landed the
+overlap and decision-impact tool, with its tests and docs. From his disk, staged after
+its push: the apply was at 19:39:43 on 24 October, the commit is from 19:40:11 and
+`origin/master`'s ref from 19:40:22, its reflog line "update by push"; `master` and
+`origin/master` read `d410bfa`, and GitHub's tip, fetched, is `d410bfa`, byte for byte
+the tree verified before delivery, with the commit message delivered. Its two test steps
+had not run before the commit: it came 28 seconds after the apply, and the pytest
+cache on his disk was last written at 18:50:42, by `9f2f3d7`'s run. Claude asked for
+them after the push, under their original numbers, to stop only if a count differed:
+the cache was rewritten at 19:43:56 and holds the 13 new tests' ids, and Viktor
+reported "Done. All good." The commit that writes this line records that: docs only.
 
 ## Ruled — in force
 
@@ -1041,9 +1056,11 @@ lands the overlap and decision-impact tool, with its tests and docs.
 
 ## Where things stand, right now
 
-- **Tip:** the commit that writes this line (a commit cannot name its own hash) — the
-  overlap and decision-impact tool, `docs/build/indicator_overlap.py`, with its tests
-  and docs. Before it: `9f2f3d7` (this session, its second commit: `d508b29`'s landing,
+- **Tip:** the commit that writes this line (a commit cannot name its own hash) —
+  `d410bfa`'s landing and its test steps run after its commit recorded, and GitHub's
+  tip for `9f2f3d7`: docs only. Before it: `d410bfa` (this session, its third commit:
+  the overlap and decision-impact tool, `docs/build/indicator_overlap.py`, with its
+  tests and docs), `9f2f3d7` (its second commit: `d508b29`'s landing,
   the forward measurement's runs of 20 and 21 October and the document of 24 October
   recorded: docs only), `d508b29` (its first commit: entry 37 of the list for after the
   audit, tests only, and `e88e0dd`'s
@@ -1228,8 +1245,9 @@ lands the overlap and decision-impact tool, with its tests and docs.
   `tests/test_risk_verdict_is_read_not_assumed.py` and
   `tests/test_swing_structure_is_not_invented.py`: it adds ten tests, makes the three
   parametrized cases of one test a single test, and renamed none. `9f2f3d7` changed no
-  test. The commit that writes this line adds `tests/test_indicator_overlap_tool.py`
-  (13 tests, none taking a fixture, two needing `pandas_ta`) and changes no other test.
+  test. `d410bfa` added `tests/test_indicator_overlap_tool.py` (13 tests, none taking
+  a fixture, two needing `pandas_ta`) and changed no other test. The commit that writes
+  this line changes no test.
 - **Where the project lives, from 26 September:** `E:\phase7_engine` on Viktor's machine;
   the files kept outside the repository in `G:\Phase_7_Engine_Random_Files`. Copied with
   robocopy, verified — git's own checks on Windows for the tracked files, SHA-256 for the
@@ -1238,11 +1256,14 @@ lands the overlap and decision-impact tool, with its tests and docs.
   to `E:\phase7_engine`". Run the engine and every command from `E:\phase7_engine` (in
   cmd, changing drive needs `cd /d`). A dated record that names the D: paths means the
   same folders before the move; dated records are not edited.
-- **The push of `9f2f3d7`** happened, at 18:54:48 on 24 October: `master` and
-  `origin/master` on Viktor's disk read it (their `.git/refs` files, and
-  `origin/master`'s reflog line "update by push"); GitHub could not be reached from
-  Claude's sandbox that day, so its tip was not fetched. He reported it pushed and no
-  deviation (ruling on proposal (b)). So did `d508b29`'s, at 08:36:58 on 21 October,
+- **The push of `d410bfa`** happened, at 19:40:22 on 24 October: GitHub's tip,
+  fetched, is `d410bfa`, `master` and `origin/master` on Viktor's disk read it (their
+  `.git/refs` files, and `origin/master`'s reflog line "update by push"), and its tree
+  on GitHub is byte for byte the one verified before delivery; he reported it pushed and
+  no deviation (ruling on proposal (b)). So did `9f2f3d7`'s, at 18:54:48 on 24 October,
+  GitHub's tip fetched later that evening, once the repository was public again, and its
+  tree byte-identical to the one verified before delivery, `d508b29`'s, at 08:36:58 on
+  21 October,
   GitHub's tip fetched and its ten files byte-identical to the tree verified before
   delivery, `e88e0dd`'s, at 14:23:19
   on 20 October, its three files on his disk byte-identical to an autocrlf checkout of
@@ -1258,10 +1279,8 @@ lands the overlap and decision-impact tool, with its tests and docs.
   The same holds for the push of the
   commit that writes this line unless it deviates. Earlier pushes and deviations are
   recorded in this file's previous versions, in HISTORY.
-- **Before this commit**, every file its patch changes was staged off Viktor's disk and
-  matched the tree of `9f2f3d7` byte for byte: an autocrlf clone of `e88e0dd` with
-  `d508b29`'s patch and `9f2f3d7`'s applied, the trees verified before those
-  deliveries. The two new files are not on his disk.
+- **Before this commit**, the one file its patch changes was staged off Viktor's disk
+  and matched an autocrlf checkout of GitHub's tip, `d410bfa`, byte for byte.
 - **code_hash:** `816d4951bb0322763ec4abc4b9ed8161d5b902372823350e5272f2fb7176e380`,
   set by `0491b84` from `bc1b9c2c…` — `main.py` alone — and confirmed on Windows: its
   eleven hand-run records and the ten of each of the first two scheduled runs carry it.
@@ -1271,13 +1290,14 @@ lands the overlap and decision-impact tool, with its tests and docs.
   `run_tests.py`, which the fingerprint reads with both stripped, and in `tests/`, which
   it does not read — by `ed005a0`, `e88e0dd` and `d508b29`, each of which changed
   files under `tests/` and `docs/`, which it does not read, the last also `README.md`,
-  which is not a `.py` file, by `9f2f3d7`, which changed one file under `docs/`, and by
-  the commit that writes this line, which adds files under `docs/` and `tests/` and
-  changes `README.md`: computed on clones of `0491b84`,
+  which is not a `.py` file, by `9f2f3d7`, which changed one file under `docs/`, by
+  `d410bfa`, which added files under `docs/` and `tests/` and changed `README.md`, and
+  by the commit that writes this line, which changes one file under `docs/`: computed on
+  clones of `0491b84`,
   `a235783`, `8d5d64a`, `a48d9e5`, `fbd7877`, `8311167`, `d2dddf7`, `aa9e7ac`,
   `391c338`, `8360923`, `ed005a0` and `e88e0dd` and on the applied trees, under Python
-  3.12.3; the trees of `d508b29` and `9f2f3d7` and the applied tree of the commit that
-  writes this line give the same. `bc1b9c2c…` was
+  3.12.3; the trees of `d508b29`, `9f2f3d7` and `d410bfa` and the applied tree of the
+  commit that writes this line give the same. `bc1b9c2c…` was
   set by `9ea1cf3`, confirmed on Windows by its live run, and held through `f00bef6`,
   `36de35d`, `78ea37d`, `d3188f2` and `67f6ec1`, which changed only files under `docs/`
   and `tests/`, `README.md` and `run_tests.py`'s docstring.
@@ -1285,9 +1305,10 @@ lands the overlap and decision-impact tool, with its tests and docs.
   output, a CPython implementation detail (`core/code_fingerprint.py`, "WHAT IT DOES NOT
   SURVIVE"). **Every `code_hash` claim about this project is computed under Python 3.12**
   (Viktor runs 3.12.10).
-- **Golden snapshot:** unchanged by the commit that writes this line, whose new test
-  reads the fixture and the golden test's pinned set without writing either, by
-  `9f2f3d7`, which changed one file under `docs/`, by `d508b29`, which changed six test
+- **Golden snapshot:** unchanged by the commit that writes this line, which changes one
+  file under `docs/`, by `d410bfa`, whose new test reads the fixture and the golden
+  test's pinned set without writing either, by `9f2f3d7`, which changed one file under
+  `docs/`, by `d508b29`, which changed six test
   files, `README.md`'s counts
   and docs, and read no fixture, by `e88e0dd`, which
   changed one test and docs and read the fixture without writing it, by `ed005a0`, which
@@ -1309,11 +1330,16 @@ lands the overlap and decision-impact tool, with its tests and docs.
   `test_no_module_defaults_a_missing_risk_verdict_to_a_pass`. This is meant to be the
   one place the watched error count is written as a number (DECISIONS, "Ruling,
   15 October 2026 — Part 4's three test shapes", point 5); `README.md` writes it too
-  (entry 50). The commit that writes this line adds 13 tests, none taking a fixture,
-  two needing `pandas_ta`: pytest rises by 13 with it, by 11 passed and 2 skipped
-  without it, and `run_tests.py` passes 13 more with its error count unchanged: from
-  the Linux sandbox, Python 3.12.3, pinned requirements, the patch applied to the tree
-  of `9f2f3d7`. `9f2f3d7` changed no test; its pytest step ran on Windows after the
+  (entry 50). The commit that writes this line changes no test, so every count holds.
+  `d410bfa` added 13 tests, none taking a fixture, two needing `pandas_ta`: pytest rose
+  by 13 with it, by 11 passed and 2 skipped without it, and `run_tests.py` passes 13
+  more with its error count unchanged: from the Linux sandbox, Python 3.12.3, pinned
+  requirements, the patch applied to the tree of `9f2f3d7`. Its two test steps ran on
+  Windows only after its commit and push, at Claude's request: the pytest cache on his
+  disk was rewritten at 19:43:56 on 24 October and holds the 13 new tests' ids, and
+  Viktor reported "Done. All good." to a request to stop only if a count differed, which
+  confirms 896 and 828 / 0 / 31. `9f2f3d7` changed no test; its pytest step ran on
+  Windows after the
   apply (the cache on his disk was rewritten at 18:50:42 on 24 October, 3 minutes
   19 seconds after its file was written, at 18:47:23), and Viktor went on to the
   commit, which confirms 883 by proceeding. `d508b29` added ten tests, none taking a
@@ -1377,7 +1403,7 @@ lands the overlap and decision-impact tool, with its tests and docs.
   `test_the_commit_messages_up_to_the_tag_are_round_7s_to_the_byte`, runs `git log` up
   to the tag `round7-sent-2026-09-30`: it needs the tag, which a full clone has.
 - **Engineering Notes:** through Entry #183 (v1.36), which covers `68c6191`.
-  **Fifty-seven commits behind** — `ec4e5fd`, the floor (a commit that regenerates the
+  **Fifty-eight commits behind** — `ec4e5fd`, the floor (a commit that regenerates the
   Notes cannot
   cover itself, Entry #144), `e7a94d1`, `d5ced0c`, `59b747a`, `f256937`, `12b483e`,
   `01f2892`, `8b6fd00`, `e186423`, `86f30f1`, `3e8191a`, `1523e0c`, `ff12e17`,
@@ -1387,7 +1413,7 @@ lands the overlap and decision-impact tool, with its tests and docs.
   `d77a8c4`, `64ad625`, `9ea1cf3`, `f00bef6`, `36de35d`, `78ea37d`, `d3188f2`,
   `67f6ec1`, `0491b84`, `a235783`, `8d5d64a`, `a48d9e5`, `fbd7877`, `8311167`,
   `d2dddf7`, `aa9e7ac`, `391c338`, `8360923`, `ed005a0`, `e88e0dd`, `d508b29`,
-  `9f2f3d7` and the commit that writes this line.
+  `9f2f3d7`, `d410bfa` and the commit that writes this line.
   Every later
   commit adds one
   until the
@@ -1404,8 +1430,8 @@ lands the overlap and decision-impact tool, with its tests and docs.
   the Attribution Statement's script last changed at `68c6191`, the Portfolio
   Document's at `6e1baba`.
 - **README.md:** its test counts are current (896, 720 / 165 and 828, and the error
-  count, 31), last changed by the commit that writes this line, which changes only
-  those numbers there; that README writes the error count at all is entry 50. **Its
+  count, 31), last changed by `d410bfa`, which changed only those numbers there; that
+  README writes the error count at all is entry 50. **Its
   three status rows are
   current** — "Independent audit", "Release
   gate" and "Backtesting" — since `a235783`, in wording Viktor
@@ -2631,6 +2657,10 @@ Each code commit is its own commit and updates this file for its own landing.
 
 ## Resolved this session
 
+- **`d410bfa`'s landing**, read off Viktor's disk and GitHub after its push, and its two
+  test steps, run after its commit ("Where the project is", this session).
+- **GitHub's tip for `9f2f3d7`**, fetched once the repository was public again; the
+  sentence saying it was not fetched corrected (the same section).
 - **`9f2f3d7`'s landing**, read off Viktor's disk after its push ("Where the project
   is", this session).
 - **The overlap and decision-impact tool** — `docs/build/indicator_overlap.py` and its
@@ -2675,8 +2705,8 @@ Claude critiques it.
   macro is used; trend health rebuilt or replaced by ADX; entry quality simplified or
   not; what "confidence" means and whether the EV line stays; and when any of it lands
   relative to Amazon's audit. All are trading rules, and nothing that moves `code_hash`
-  lands before the reading of 14 November. **The tooling landed** with the commit that
-  writes this line: `docs/build/indicator_overlap.py`, run as `python
+  lands before the reading of 14 November. **The tooling landed** with `d410bfa`:
+  `docs/build/indicator_overlap.py`, run as `python
   docs/build/indicator_overlap.py logs/archive --logs logs`, and
   `tests/test_indicator_overlap_tool.py`, which checks its statistics, that its baseline
   reproduces the golden decision, that it reads no candle after the bar it judges, and
