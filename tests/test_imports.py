@@ -23,8 +23,10 @@ Constitution: Tier 3, items 3 (automated tests) and 4 (regression tests),
 both currently Non-compliant.
 """
 
+import ast
 import importlib
 import os
+import posixpath
 import py_compile
 import shutil
 import sys
@@ -32,7 +34,7 @@ import tempfile
 
 import pytest
 
-from conftest import ENGINE_MODULES, REPO_ROOT, all_python_files
+from conftest import ENGINE_MODULES, NOT_ENGINE_MODULES, REPO_ROOT, all_python_files
 
 
 def _engine_available():
@@ -92,6 +94,11 @@ def test_every_module_imports():
     environment fact rather than a suite failure, and every other module
     (and any OTHER exception from these two, including a real bug in either)
     is still checked and still fails the test.
+
+    24 October 2026: ENGINE_MODULES has grown since, by the three modules it
+    had never listed (the list for after the audit, entry 49; the test below
+    holds it to the tree). Those two are still the only modules this test
+    excuses without pandas_ta (Linux sandbox, that day).
     """
     def _affected():
         return [m for m in list(sys.modules)
@@ -186,8 +193,8 @@ def test_every_module_imports():
     assert not failures, "modules failed to import:\n  " + "\n  ".join(failures)
 
     # Visible the same way a real pytest.skip is: printed to the report, not
-    # swallowed. This test still PASSES -- the 19 pandas_ta-independent
-    # modules (and any module that genuinely does import cleanly) were
+    # swallowed. This test still PASSES -- every pandas_ta-independent
+    # module (and any module that genuinely does import cleanly) was
     # actually checked, which is what distinguishes this from the other
     # three tests in this fix, where nothing engine-related can be checked
     # at all without pandas_ta.
@@ -196,6 +203,84 @@ def test_every_module_imports():
             "pandas_ta not installed; import not verified for: "
             + ", ".join(skipped_no_pandas_ta)
         )
+
+
+def test_engine_modules_is_every_module_in_the_tree():
+    """
+    conftest.ENGINE_MODULES, held to the tree (24 October 2026; the list for
+    after the audit, entry 49, found on 20 October writing entry 37's
+    controls).
+
+    The list's comment says "Every module in the engine". It held 21 and the
+    engine had 24: core.lineage, core.code_fingerprint and
+    utils.decision_log_backup, added on 2, 6 and 12 September, were never
+    listed, so the import check above never imported them. An error at module
+    level in any of the three was caught only where something else imports
+    it: core/engine_core.py the first two, and each has a test file of its
+    own that imports it.
+
+    Adding three names fixes this instance and keeps the mechanism that made
+    it (rule 11: a list of names is a claim about the code, and it decays).
+    So this test reads the tree and checks the claim. The tree is code_hash's
+    own -- core.code_fingerprint.iter_source_files(), every .py file the run's
+    code identity is computed from -- so "the engine" means here what it
+    means in every decision record. Each file in it must be exactly one of:
+
+      - a module ENGINE_MODULES names;
+      - a package marker with no statement in it but a docstring, which the
+        list leaves out on purpose: nothing in it can fail to import;
+      - a script conftest.NOT_ENGINE_MODULES names, with its reason.
+
+    And every name in the two lists must be a file in it, once, so neither
+    list can go stale the other way either.
+
+    A new module fails this test until someone says which it is. That is the
+    point: the decision cannot be skipped (rule 28). The test does not make
+    it for them -- see conftest.
+    """
+    from core.code_fingerprint import iter_source_files
+
+    listed = set(ENGINE_MODULES)
+    problems = []
+    for name in sorted(n for n in listed if ENGINE_MODULES.count(n) > 1):
+        problems.append(
+            f"{name}: named {ENGINE_MODULES.count(name)} times in ENGINE_MODULES")
+    for name in sorted(listed & set(NOT_ENGINE_MODULES)):
+        problems.append(f"{name}: in both ENGINE_MODULES and NOT_ENGINE_MODULES")
+
+    found = set()
+    for rel in iter_source_files(REPO_ROOT):
+        if posixpath.basename(rel) == "__init__.py":
+            name = posixpath.dirname(rel).replace("/", ".")
+            found.add(name)
+            if name in listed or name in NOT_ENGINE_MODULES:
+                continue
+            with open(os.path.join(REPO_ROOT, rel), encoding="utf-8") as f:
+                body = ast.parse(f.read()).body
+            if (body and isinstance(body[0], ast.Expr)
+                    and isinstance(body[0].value, ast.Constant)
+                    and isinstance(body[0].value.value, str)):
+                body = body[1:]
+            if body:
+                problems.append(
+                    f"{rel}: a package marker with code in it, and its package "
+                    f"is in neither list")
+            continue
+        name = rel[:-len(".py")].replace("/", ".")
+        found.add(name)
+        if name not in listed and name not in NOT_ENGINE_MODULES:
+            problems.append(
+                f"{rel}: read for code_hash, and in neither ENGINE_MODULES "
+                f"nor NOT_ENGINE_MODULES")
+
+    for name in sorted((listed | set(NOT_ENGINE_MODULES)) - found):
+        problems.append(f"{name}: listed, and no such file is read for code_hash")
+
+    assert listed, "conftest.ENGINE_MODULES is empty"
+    assert found, "core.code_fingerprint.iter_source_files() returned no file"
+    assert not problems, (
+        "conftest's lists of modules do not match the tree:\n  "
+        + "\n  ".join(problems))
 
 
 def test_the_engine_and_the_fetcher_module_share_one_singleton():

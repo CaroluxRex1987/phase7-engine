@@ -140,11 +140,27 @@ _config.CHART_DIR = os.path.join(_SUITE_LOG_DIR, "charts") + os.sep
 
 # Every module in the engine, as a dotted import path. Empty __init__.py
 # package markers are excluded deliberately: they contain nothing to break.
+#
+# HELD TO THE TREE, 24 October 2026 (the list for after the audit, entry 49,
+# found on 20 October). This comment said "every module" while the list was
+# three short: core.lineage, core.code_fingerprint and
+# utils.decision_log_backup were added to the engine on 2, 6 and 12 September
+# and never here, so test_every_module_imports never imported them. Rule 11:
+# a list of names is a claim about the code, and it decays. So the claim is
+# checked now: tests/test_imports.py::test_engine_modules_is_every_module_in_the_tree
+# reads every .py file core/code_fingerprint.py reads for code_hash, and fails
+# on one that is in neither this list nor NOT_ENGINE_MODULES below. It does
+# not fill the list in: a module listed by a walk would be imported by
+# test_every_module_imports, and test_live.py shows what importing a script
+# can do. Someone decides which list a new file goes in, and until then the
+# suite fails.
 ENGINE_MODULES = [
+    "core.code_fingerprint",
     "core.config",
     "core.decision_contract",
     "core.decision_log",
     "core.engine_core",
+    "core.lineage",
     "core.panel_render",
     "data.data_fetcher",
     "data.validation",
@@ -159,10 +175,22 @@ ENGINE_MODULES = [
     "models.risk_model",
     "models.signal_router",
     "structure.structure",
+    "utils.decision_log_backup",
     "utils.plotting",
     "live_trading",
     "main",
 ]
+
+# The .py files code_hash reads that are not the engine, each with its reason.
+# The check named above fails on a file in neither list, and on a name in
+# either that is no longer a file, so this one cannot go stale unseen either.
+NOT_ENGINE_MODULES = {
+    "run_tests": "the suite's fallback runner: test tooling kept at the "
+                 "repository root, not engine code",
+    "test_live": "a hand-run script whose module body runs the engine once "
+                 "through live_trading's simulator, which writes a simulated "
+                 "order when the run succeeds: importing it is running it",
+}
 
 # Every .py file in the repository, as a path relative to the root. The
 # compile check walks these; it does not import them, so it is safe to
