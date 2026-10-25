@@ -1,9 +1,9 @@
 # Next step — read this first
 
-*24 October 2026, from 20:16. Rewritten by the commit that lands entry 49 of the list
-for after the audit — a test gap of wave 1, Claude's, tests only, `code_hash`
-unchanged — and records `34d8e3b`'s landing; the version it replaced — as it stood at
-`34d8e3b` — is in HISTORY verbatim.
+*25 October 2026, from 15:20. Rewritten by the commit that files Viktor's eight rulings
+of that day on the engine's indicators and Claude's two decisions under his delegation
+— docs and `README.md`, `code_hash` unchanged — and records `ad34c02`'s landing; the
+version it replaced — as it stood at `ad34c02` — is in HISTORY verbatim.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
 rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
@@ -263,10 +263,23 @@ items, "The engine's indicators"), pushed at 19:40 on 24 October. `34d8e3b` reco
 to be checked against his disk and recorded in the next commit, then which items in
 Open items are his and which Claude's, and then for Claude's suggestion: entry 49,
 `conftest.ENGINE_MODULES` held to the tree, Claude's under the sort of 19 October and
-then the last of wave 1's entries that were Claude's. He agreed at 20:24. The commit
-that writes this line lands it ("Found after 22 September", below): tests only, so
-`code_hash` and the golden snapshot hold. It found one entry more: 51, the suite's
-file walk and `code_hash`'s exclude different directories (the same section).
+then the last of wave 1's entries that were Claude's. He agreed at 20:24. `ad34c02`
+landed it ("Found after 22 September", below): tests only, so `code_hash` and the
+golden snapshot held. It found one entry more: 51, the suite's file walk and
+`code_hash`'s exclude different directories (the same section).
+**On 25 October, from 15:20**, Viktor asked for `ad34c02`'s landing to be checked
+against his disk and GitHub's tip to be fetched if the repository was reachable, both
+recorded in the next commit (below). Asked what next, Claude suggested entry 51, or of
+his items the questions on the engine's indicators first. He asked for suggestions on
+those questions; asked whether to keep his rule of his position first, he kept it, and
+Claude set out each question's options and what each would commit the engine to,
+without a pick. At 16:30 he asked for Claude's suggestions, and at 16:34 accepted all
+eight (DECISIONS, "Ruling, 25 October 2026 — the engine's indicators …"; Ruled — in
+force). Filing them, Claude found that four of them reach three of the four held-back
+defects, and that the entry score's trend multiplier has the shape of F4's third path;
+asked how to file each, Viktor left both to Claude (DECISIONS, the two entries
+"Decision, 25 October 2026 — …"). The commit that writes this line files the three
+entries and records `ad34c02`'s landing: docs and `README.md`, no code and no test.
 
 **The review and the comparison are outside the repository**, in
 `G:\Phase_7_Engine_Random_Files\Docs\02_Reviews_and_Feedback`:
@@ -665,10 +678,10 @@ from 20:14:19 and `origin/master`'s ref from 20:14:34, its reflog line "update b
 `master` and `origin/master` read `34d8e3b`, and GitHub's tip, fetched, is `34d8e3b`,
 byte for byte the tree verified before delivery. Claude had read those times off his
 disk after the push, in chat only; Viktor listed them at the start of the next session.
-Its account is in HISTORY, in this file's version at `34d8e3b`, moved there by the
-commit that writes this line.
+Its account is in HISTORY, in this file's version at `34d8e3b`, moved there by
+`ad34c02`.
 
-**This session (24 October, from 20:16)**, configured for Claude Opus 5.5, opened at
+**The session of 24 October, from 20:16**, configured for Claude Opus 5.5, opened at
 `34d8e3b`, GitHub's tip, cloned; `master` and `origin/master` on Viktor's disk, from
 `.git/refs` staged off it, read `34d8e3b`. Its one file, `docs/PHASE7_NEXT.md`, is on
 his disk byte for byte an autocrlf checkout of GitHub's tip, and its mtime is still the
@@ -683,11 +696,61 @@ Linux sandbox, not on Windows). `run_tests.py` leaves no trace, so its count for
 reads, so its tree is the one his apply produced; the tree verified before that delivery
 was in the sandbox of the session before and is not compared again here. Viktor asked
 for `34d8e3b`'s landing first, then which Open items are his and which Claude's, then
-for Claude's suggestion (above). The commit that writes this line lands entry 49 and
-records `34d8e3b`'s landing: two test files, `README.md`'s test counts, and docs.
+for Claude's suggestion (above). `ad34c02` landed entry 49 and recorded `34d8e3b`'s
+landing: two test files, `README.md`'s test counts, and docs. From his disk, staged in
+the next session: the apply was at 21:34:19 on 24 October, the pytest cache was
+rewritten at 21:39:04 and holds the new test's id, the commit is from 21:50:48 and
+`origin/master`'s ref from 21:51:00, its reflog line "update by push"; `master` and
+`origin/master` read `ad34c02`. GitHub's tip was not fetched in that session: the
+sandbox was asked for credentials, the repository being private. Claude had read those
+times off his disk after the push, in chat only; Viktor listed them at the start of the
+next session. Its account is in HISTORY, in this file's version at `ad34c02`, moved
+there by the commit that writes this line.
+
+**This session (25 October, from 15:20)**, configured for Claude Opus 5.5, opened at
+`ad34c02`. GitHub could not be read from Claude's sandbox at first: Viktor said at
+15:21 that the repository was private, and attaching it to the session failed, GitHub
+not being linked to Claude. He made it public again by 16:17; GitHub's tip, read with
+`git ls-remote` and no credentials at 16:17:25 and again at his request at 16:20:54, is
+`ad34c02`, and the sandbox cloned it. `master` and `origin/master` on his disk, from
+`.git/refs` staged off it, read `ad34c02`; `.git/FETCH_HEAD` does not exist, so no
+fetch has run in that clone and its `origin/master` is his git's record of the push.
+Each of the six files `ad34c02` changes is on his disk byte for byte an autocrlf
+checkout of GitHub's tip, CRLF throughout, and their mtimes are still the apply's,
+21:34:19.192 to .200. The times above were read off his disk: those mtimes,
+`.pytest_cache/v/cache/nodeids`, the commit object's date and `HEAD`'s reflog, and
+`origin/master`'s reflog line "update by push". The cache holds
+`tests/test_imports.py::test_engine_modules_is_every_module_in_the_tree`, which
+`34d8e3b`'s `tests/test_imports.py` does not contain (read from GitHub's clone), so that
+run collected the applied tree; its `lastfailed` is still `{}`, last written at
+13:37:30 on 26 September, so the run recorded no failure. `run_tests.py` leaves no
+trace, so its count for `ad34c02` rests on Viktor's silence. The commit that writes this
+line files the rulings and decisions above and records `ad34c02`'s landing.
 
 ## Ruled — in force
 
+- **New, 25 October — Viktor's, by agreeing to Claude's suggestions: the engine's
+  indicators** (DECISIONS, "Ruling, 25 October 2026 — the engine's indicators: one
+  direction source, gates for weights, and one redesign before Amazon's audit"). The
+  trend-pullback hypothesis; one direction source, the EMA slope, with ADX, the
+  structure regime and divergence as gates; macro a gate on LONG only; trend health
+  removed; entry quality as distance from the EMA band in ATRs and HVN nearness;
+  confidence and the EV line dropped for now; one redesign, after the reading of
+  14 November and before Amazon's audit, with `bias_score`'s weighting and F4's fix in
+  it — the multiplier removed, Amazon re-auditing it. Reverses the ruling of
+  22 September on the weighting. The redesign is entry 53.
+- **New, 25 October — Claude's, under Viktor's delegation of the same day: the
+  held-back defects the redesign reaches** (DECISIONS, "Decision, 25 October 2026 — the
+  held-back defects the redesign reaches are replaced or judged again, not protected").
+  The redesign is designed on its merits; H1 is replaced, H2 kept only if the design
+  keeps its parameter for its own reasons, H5 judged again once entry quality's weights
+  are set, H3 kept. Replacements are chosen when the design is fixed, before its code is
+  built; Claude proposes them and Viktor accepts or rejects.
+- **New, 25 October — Claude's, under Viktor's delegation of the same day: the trend
+  multiplier is Critical** (DECISIONS, "Decision, 25 October 2026 — the trend multiplier
+  is Critical, by F4's precedent"). Entry 52: the same shape as F4's third path. Removed
+  by the redesign and re-audited by Amazon. Two Criticals are open; the release gate
+  reopens when both fixes have landed and been re-audited.
 - **New, 20 October — Viktor's, by agreeing to Claude's suggestion: F4's third path is
   Critical** (DECISIONS, "Ruling, 20 October 2026 — F4's third path is Critical: macro
   moving the tier breaks Item 11, and the release gate closes"). Macro's ×1.05 / ×0.90
@@ -695,7 +758,8 @@ records `34d8e3b`'s landing: two test files, `README.md`'s test counts, and docs
   Tier 1 Item 11 and reaches live decisions. The release gate is closed until its fix
   has landed and been re-audited; goal A stands and `portfolio-v1` stays. The fix lands
   after the reading of 14 November and before the send, with a live run before its
-  commit. Its shape and who re-audits it are his (Open items).
+  commit. Its shape and who re-audits it were ruled on 25 October: the multiplier
+  removed, in the redesign (entry 53), and Amazon re-audits it within its audit.
 - **New, 20 October — Viktor's, by agreeing to Claude's suggestion: Claude builds the
   list for after the audit** (DECISIONS, "Ruling, 20 October 2026 — Claude builds the
   list for after the audit; Fable 5.1 waits until after the audit"). Entry 38. Fable
@@ -719,7 +783,8 @@ records `34d8e3b`'s landing: two test files, `README.md`'s test counts, and docs
   H5"). H1 and H2 accepted as Claude proposed them; H3 kept, by agreeing to Claude's
   suggestion; H5, found by a search he agreed to, in H4's place. Each has its "found
   means" sentence there. Work on the list leaves them as they are, Claude re-checks
-  them at the tag before the send, and they are fixed after the audit.
+  them at the tag before the send, and they are fixed after the audit. Where the
+  redesign of 25 October reaches them, the decision of that day applies (above).
 - **New, 17 October — Viktor's, by agreeing to Claude's suggestion: if Amazon fails the
   check twice** (DECISIONS, "Ruling, 17 October 2026 — if Amazon fails the check twice:
   a scoped round on Items 2, 3, 6 and 18, then a wait for a clean lab"). A scoped round
@@ -1046,8 +1111,9 @@ records `34d8e3b`'s landing: two test files, `README.md`'s test counts, and docs
   Viktor's ruling, by agreeing to Claude's suggestion: the CONSERVATIVE sentence names
   what fell short instead of always blaming entry quality. **Its code landed at
   `7d0024e`.**
-- **`bias_score`'s weighting waits for after the audit, and the auditor sees it**
-  (DECISIONS, 22 September; filed at `75682ee`) — in Part 7 (ruling of 29 September).
+- **Reversed on 25 October — `bias_score`'s weighting waits for after the audit, and
+  the auditor sees it** (DECISIONS, 22 September; filed at `75682ee`) — in Part 7
+  (ruling of 29 September). It joins the redesign before Amazon's audit (above).
 - **New, 26 September — any model may build or review; doing so costs it audit
   eligibility** (DECISIONS, "Ruling, 26 September 2026 — any model may build or review;
   doing so costs it audit eligibility"). No model other than Claude is in use now.
@@ -1085,8 +1151,11 @@ records `34d8e3b`'s landing: two test files, `README.md`'s test counts, and docs
 ## Where things stand, right now
 
 - **Tip:** the commit that writes this line (a commit cannot name its own hash) —
-  entry 49 of the list for after the audit, tests only, and `34d8e3b`'s landing
-  recorded. Before it: `34d8e3b` (the session of 20 October, from 17:49, going on to
+  Viktor's eight rulings of 25 October and Claude's two decisions under his delegation
+  filed, and `ad34c02`'s landing recorded: docs and `README.md`. Before it: `ad34c02`
+  (the session of 24 October, from 20:16: entry 49 of the list for after the audit,
+  tests only, and `34d8e3b`'s landing recorded), `34d8e3b` (the session of 20 October,
+  from 17:49, going on to
   24 October, its fourth commit: `d410bfa`'s landing and its test steps run after its
   commit recorded, and GitHub's tip for `9f2f3d7`: docs only), `d410bfa` (its third
   commit: the overlap and decision-impact tool, `docs/build/indicator_overlap.py`, with
@@ -1201,8 +1270,10 @@ records `34d8e3b`'s landing: two test files, `README.md`'s test counts, and docs
   `d27743f`; `round8-verify-sent-2026-10-17` at `78ea37d`, the commit round 8's fix
   verification was sent from, made on Viktor's machine and pushed before the send.
   **Release gate: closed since 20 October** (DECISIONS, "Ruling, 20 October 2026 —
-  F4's third path is Critical …"), until that Critical's fix has landed and been
-  re-audited. Declared open on 15 September; closed from 5 October ("Ruling, 5 October
+  F4's third path is Critical …"), until that Critical's fix and the trend
+  multiplier's, rated Critical on 25 October (DECISIONS, "Decision, 25 October 2026 —
+  the trend multiplier is Critical …"), have landed and been re-audited. Declared open
+  on 15 September; closed from 5 October ("Ruling, 5 October
   2026 — round 8 triaged …", point 2) until Viktor accepted the report of round 8's
   auditor, which verified the fix of the stop that landed at `c2b07fb`, on 17 October
   ("Ruling, 17 October 2026 — round 8's fix verification accepted on the stop's answer;
@@ -1277,11 +1348,12 @@ records `34d8e3b`'s landing: two test files, `README.md`'s test counts, and docs
   parametrized cases of one test a single test, and renamed none. `9f2f3d7` changed no
   test. `d410bfa` added `tests/test_indicator_overlap_tool.py` (13 tests, none taking
   a fixture, two needing `pandas_ta`) and changed no other test. `34d8e3b` changed no
-  test. The commit that writes this line adds one test to `tests/test_imports.py`,
+  test. `ad34c02` added one test to `tests/test_imports.py`,
   `test_engine_modules_is_every_module_in_the_tree` (no fixture, no `pandas_ta`), and
-  changes what `test_every_module_imports` imports, through `tests/conftest.py`'s
+  changed what `test_every_module_imports` imports, through `tests/conftest.py`'s
   `ENGINE_MODULES`, with a dated paragraph in its docstring and a count taken out of
-  one of its comments; it removes and renames none.
+  one of its comments; it removed and renamed none. The commit that writes this line
+  changes no test.
 - **Where the project lives, from 26 September:** `E:\phase7_engine` on Viktor's machine;
   the files kept outside the repository in `G:\Phase_7_Engine_Random_Files`. Copied with
   robocopy, verified — git's own checks on Windows for the tracked files, SHA-256 for the
@@ -1290,12 +1362,15 @@ records `34d8e3b`'s landing: two test files, `README.md`'s test counts, and docs
   to `E:\phase7_engine`". Run the engine and every command from `E:\phase7_engine` (in
   cmd, changing drive needs `cd /d`). A dated record that names the D: paths means the
   same folders before the move; dated records are not edited.
-- **The push of `34d8e3b`** happened, at 20:14:34 on 24 October: GitHub's tip,
-  fetched, is `34d8e3b`, `master` and `origin/master` on Viktor's disk read it (their
-  `.git/refs` files, and `origin/master`'s reflog line "update by push"), and its tree
-  on GitHub is byte for byte the one verified before delivery, its one file on his disk
-  byte for byte an autocrlf checkout of it; he reported it pushed and no deviation
-  (ruling on proposal (b)). So did `d410bfa`'s, at 19:40:22 on 24 October, GitHub's tip
+- **The push of `ad34c02`** happened, at 21:51:00 on 24 October: GitHub's tip, read
+  on 25 October, is `ad34c02`, `master` and `origin/master` on Viktor's disk read it
+  (their `.git/refs` files, and `origin/master`'s reflog line "update by push"), and its
+  six files on his disk are byte for byte an autocrlf checkout of it. GitHub's `ad34c02`
+  is the commit his `master` reads, so its tree is the one his apply produced; the tree
+  verified before delivery, in the sandbox of the session before, is not compared
+  again. No deviation was reported (ruling on proposal (b)). So did `34d8e3b`'s, at
+  20:14:34 on 24 October, GitHub's tip fetched and its tree byte for byte the one
+  verified before delivery, `d410bfa`'s, at 19:40:22 on 24 October, GitHub's tip
   fetched and its tree byte for byte the one verified before delivery, `9f2f3d7`'s, at
   18:54:48 on 24 October,
   GitHub's tip fetched later that evening, once the repository was public again, and its
@@ -1317,7 +1392,7 @@ records `34d8e3b`'s landing: two test files, `README.md`'s test counts, and docs
   commit that writes this line unless it deviates. Earlier pushes and deviations are
   recorded in this file's previous versions, in HISTORY.
 - **Before this commit**, every file its patch changes was staged off Viktor's disk and
-  matched an autocrlf checkout of GitHub's tip, `34d8e3b`, byte for byte.
+  matched an autocrlf checkout of GitHub's tip, `ad34c02`, byte for byte.
 - **code_hash:** `816d4951bb0322763ec4abc4b9ed8161d5b902372823350e5272f2fb7176e380`,
   set by `0491b84` from `bc1b9c2c…` — `main.py` alone — and confirmed on Windows: its
   eleven hand-run records and the ten of each of the first two scheduled runs carry it.
@@ -1329,13 +1404,14 @@ records `34d8e3b`'s landing: two test files, `README.md`'s test counts, and docs
   files under `tests/` and `docs/`, which it does not read, the last also `README.md`,
   which is not a `.py` file, by `9f2f3d7`, which changed one file under `docs/`, by
   `d410bfa`, which added files under `docs/` and `tests/` and changed `README.md`, by
-  `34d8e3b`, which changed one file under `docs/`, and by the commit that writes this
-  line, which changes files under `docs/` and `tests/`, which it does not read, and
-  `README.md`, which is not a `.py` file: computed on clones of `0491b84`,
+  `34d8e3b`, which changed one file under `docs/`, by `ad34c02`, which changed files
+  under `docs/` and `tests/`, which it does not read, and `README.md`, which is not a
+  `.py` file, and by the commit that writes this line, which changes files under
+  `docs/` and `README.md`: computed on clones of `0491b84`,
   `a235783`, `8d5d64a`, `a48d9e5`, `fbd7877`, `8311167`, `d2dddf7`, `aa9e7ac`,
   `391c338`, `8360923`, `ed005a0` and `e88e0dd` and on the applied trees, under Python
-  3.12.3; the trees of `d508b29`, `9f2f3d7`, `d410bfa` and `34d8e3b` and the applied
-  tree of the commit that writes this line give the same. `bc1b9c2c…` was
+  3.12.3; the trees of `d508b29`, `9f2f3d7`, `d410bfa`, `34d8e3b` and `ad34c02` and the
+  applied tree of the commit that writes this line give the same. `bc1b9c2c…` was
   set by `9ea1cf3`, confirmed on Windows by its live run, and held through `f00bef6`,
   `36de35d`, `78ea37d`, `d3188f2` and `67f6ec1`, which changed only files under `docs/`
   and `tests/`, `README.md` and `run_tests.py`'s docstring.
@@ -1343,8 +1419,9 @@ records `34d8e3b`'s landing: two test files, `README.md`'s test counts, and docs
   output, a CPython implementation detail (`core/code_fingerprint.py`, "WHAT IT DOES NOT
   SURVIVE"). **Every `code_hash` claim about this project is computed under Python 3.12**
   (Viktor runs 3.12.10).
-- **Golden snapshot:** unchanged by the commit that writes this line, which changes two
-  test files, `README.md`'s counts and docs, and reads no fixture, by `34d8e3b`, which
+- **Golden snapshot:** unchanged by the commit that writes this line, which changes
+  docs and `README.md` and no code or test, by `ad34c02`, which changed two test files,
+  `README.md`'s counts and docs, and read no fixture, by `34d8e3b`, which
   changed one file under `docs/`, by `d410bfa`, whose new test reads the fixture and the golden
   test's pinned set without writing either, by `9f2f3d7`, which changed one file under
   `docs/`, by `d508b29`, which changed six test
@@ -1369,10 +1446,17 @@ records `34d8e3b`'s landing: two test files, `README.md`'s test counts, and docs
   `test_no_module_defaults_a_missing_risk_verdict_to_a_pass`. This is meant to be the
   one place the watched error count is written as a number (DECISIONS, "Ruling,
   15 October 2026 — Part 4's three test shapes", point 5); `README.md` writes it too
-  (entry 50). The commit that writes this line adds one test, taking no fixture and not
-  needing `pandas_ta`: pytest rises by 1 in both configurations, and `run_tests.py`
+  (entry 50). The commit that writes this line changes no test, and the three counts
+  hold: from the Linux sandbox, Python 3.12.3, pinned requirements, the patch applied to
+  an autocrlf clone of `ad34c02`. `ad34c02` added one test, taking no fixture and not
+  needing `pandas_ta`: pytest rose by 1 in both configurations, and `run_tests.py`
   passes 1 more with its error count unchanged: from the Linux sandbox, Python 3.12.3,
-  pinned requirements, the patch applied to an autocrlf clone of `34d8e3b`. `34d8e3b`
+  pinned requirements, the patch applied to an autocrlf clone of `34d8e3b`. Its pytest
+  step ran on Windows after the apply (the cache on his disk was rewritten at 21:39:04
+  on 24 October, 4 minutes 45 seconds after its files were written, at 21:34:19, and
+  holds the new test's id, and its `lastfailed` was left as it was, `{}`, so that run
+  recorded no failure), and Viktor went on to the commit, which confirms 897 by
+  proceeding. `34d8e3b`
   changed no test; its pytest step ran on Windows after the apply (the cache on his
   disk was rewritten at 20:09:00 on 24 October, 2 minutes 51 seconds after its file was
   written, at 20:06:09, and its `lastfailed` was left as it was, `{}`, so that run
@@ -1450,7 +1534,7 @@ records `34d8e3b`'s landing: two test files, `README.md`'s test counts, and docs
   `test_the_commit_messages_up_to_the_tag_are_round_7s_to_the_byte`, runs `git log` up
   to the tag `round7-sent-2026-09-30`: it needs the tag, which a full clone has.
 - **Engineering Notes:** through Entry #183 (v1.36), which covers `68c6191`.
-  **Fifty-nine commits behind** — `ec4e5fd`, the floor (a commit that regenerates the
+  **Sixty commits behind** — `ec4e5fd`, the floor (a commit that regenerates the
   Notes cannot
   cover itself, Entry #144), `e7a94d1`, `d5ced0c`, `59b747a`, `f256937`, `12b483e`,
   `01f2892`, `8b6fd00`, `e186423`, `86f30f1`, `3e8191a`, `1523e0c`, `ff12e17`,
@@ -1460,7 +1544,7 @@ records `34d8e3b`'s landing: two test files, `README.md`'s test counts, and docs
   `d77a8c4`, `64ad625`, `9ea1cf3`, `f00bef6`, `36de35d`, `78ea37d`, `d3188f2`,
   `67f6ec1`, `0491b84`, `a235783`, `8d5d64a`, `a48d9e5`, `fbd7877`, `8311167`,
   `d2dddf7`, `aa9e7ac`, `391c338`, `8360923`, `ed005a0`, `e88e0dd`, `d508b29`,
-  `9f2f3d7`, `d410bfa`, `34d8e3b` and the commit that writes this line.
+  `9f2f3d7`, `d410bfa`, `34d8e3b`, `ad34c02` and the commit that writes this line.
   Every later
   commit adds one
   until the
@@ -1477,7 +1561,7 @@ records `34d8e3b`'s landing: two test files, `README.md`'s test counts, and docs
   the Attribution Statement's script last changed at `68c6191`, the Portfolio
   Document's at `6e1baba`.
 - **README.md:** its test counts are current (897, 721 / 165 and 829, and the error
-  count, 31), last changed by the commit that writes this line, which changes only
+  count, 31), last changed by `ad34c02`, which changed only
   those numbers there; that README writes the error count at all is entry 50. **Its
   three status rows are
   current** — "Independent audit", "Release
@@ -1488,7 +1572,13 @@ records `34d8e3b`'s landing: two test files, `README.md`'s test counts, and docs
   Items 2, 3 and 6 do. **`391c338`** changed the "Engine code"
   and "Release gate" rows and the paragraph under the table, in wording Viktor approved,
   for the Critical ruled on 20 October; the "Engine code" row now counts the eighth
-  Critical too. Still stale, on the list at his choice (Open items): "The audit, and
+  Critical too. **The commit that writes this line** changes those two rows, the
+  paragraph under the table and one sentence of the "Independent audit" row, for the
+  Critical rated on 25 October, in wording Claude wrote under Viktor's delegation and
+  put to him before his commit. That sentence, "Every finding ruled Critical has a
+  landed fix verified by an independent auditor", written on 17 October, had been false
+  since 20 October: `391c338` changed the two rows beside it and left it. Still stale,
+  on the list at his choice (Open items): "The audit, and
   what it found" and "How this was built", which stop at
   13–14 September, and the layout block's `logs/` line, silent on `logs/pinned/` since
   `9e507b1`. Its paragraph on what is empirically validated was rewritten at `6469a67`
@@ -2021,6 +2111,9 @@ the work before the audit, entry 1 apart.
   the auditor sees. Not usable as a test bug: its docstring names the problem (point 4
   of "six questions before the send"). Point 4 of the PDF is the next entry; point 3,
   the BTC adjustment, came off this list when N5 landed, at `6469a67`; point 5 is not live (DECISIONS, "the test bugs", item 7).
+  **25 October:** dropped with the EV line until backtesting measures how often T1 is
+  reached before the stop (DECISIONS, "Ruling, 25 October 2026 — the engine's
+  indicators …", ruling 6), in the redesign, entry 53.
 - **Is ×0.90 enough against the macro trend? (point 4 of the 15 September PDF).**
   `models/entry_model.py:384–385` multiplies the entry score by
   `CONFLUENCE_PENALTY_MULT` (0.90) when macro opposes the trade. Since work order G it
@@ -2034,7 +2127,9 @@ the work before the audit, entry 1 apart.
   triage). **20 October:** ruled Critical, a break of Tier 1 Item 11 (DECISIONS,
   "Ruling, 20 October 2026 — F4's third path is Critical …"); the release gate is
   closed until its fix has landed and been re-audited. The fix lands after the reading
-  of 14 November and before the send; its shape is Viktor's.
+  of 14 November and before the send. **25 October:** its shape ruled — removed, not
+  reweighted, in the redesign (entry 53), and re-audited by Amazon within its audit
+  (DECISIONS, "Ruling, 25 October 2026 — the engine's indicators …", ruling 8).
 - **"ROUND 6" in seven test comments means round 5's requested-run 6.** Six comments
   read `ROUND 6 MUTANT ESCAPE (GPT-6 Astra), 12 September 2026` (`run_tests.py:150`,
   `tests/test_frame_ownership.py:219` and `:300`, `tests/test_smoke.py:130`,
@@ -2083,7 +2178,9 @@ the work before the audit, entry 1 apart.
   score was recomputed from its record's own EMA slopes, ADX and RSI with the formula at
   lines 136–160 of `0491b84` (122–123 above are the review's, at `9e42d30`), and every
   one matched. All ten pairs were falling with Bitcoin that day: one market state, not
-  21 samples.
+  21 samples. **25 October:** trend health is removed, and its tiers with it (DECISIONS,
+  "Ruling, 25 October 2026 — the engine's indicators …", ruling 4), in the redesign,
+  entry 53; its scale is no longer the question.
 - **Spike detection watches 20 bars while the volume profile reads 450 (round 8's F7).**
   `indicators/indicators.py:767–771`. Widening the window degrades more runs, so it
   changes trades. Viktor's, not ruled (the triage of 5 October).
@@ -2406,7 +2503,7 @@ the work before the audit, entry 1 apart.
   walk the tree; their new coverage control, anchored on the list, does not require
   them. Changes no engine code. Entry 49; not in the sort. Claude's suggestion, his to
   change: test gap, Claude, XS, wave 1.
-  **24 October: changed**, by the commit that writes this line, at Viktor's go:
+  **24 October: changed**, by `ad34c02`, at Viktor's go:
   `ENGINE_MODULES` names the three, so `test_every_module_imports` imports 24 modules
   where it imported 21, and `test_engine_modules_is_every_module_in_the_tree`, new,
   holds the list to the tree: every `.py` file `core/code_fingerprint.py` reads for
@@ -2444,6 +2541,35 @@ the work before the audit, entry 1 apart.
   by the suite. Changes no engine code. Entry 51; not in the sort. Claude's suggestion,
   his to change: test gap, Claude, XS, wave 1 — the suite's walk taking `code_hash`'s
   exclusions, with `docs/` added back for the compile check.
+- **The entry score's trend multiplier rewards agreement with itself** (found
+  25 October, filing that day's rulings; read at `ad34c02`). `calculate_entry_quality`
+  multiplies the score by 1.05 when the trade's direction agrees with trend health's
+  EMA-slope direction label and by 0.90 when it opposes it
+  (`models/entry_model.py:395–407`); the direction comes from that slope on 99.6% of
+  the bars with a side (version 2, measured), and an entry score of 70 is the line
+  between LONG and CONSERVATIVE LONG (`models/decision_model.py:485`, `718`, `746`).
+  Removing it changed the tier on 61 of 2,970 bars in version 2's decision-impact test,
+  never whether the engine traded. Rated Critical, a break of Tier 1 Item 11, by Claude
+  under Viktor's delegation (DECISIONS, "Decision, 25 October 2026 — the trend
+  multiplier is Critical, by F4's precedent"). Entry 52; fixed within entry 53 (ruling
+  5): weighting, ruled, M, wave 4.
+- **The redesign of 25 October** (DECISIONS, "Ruling, 25 October 2026 — the engine's
+  indicators …"). One change: the EMA slope as the one direction source, with ADX, the
+  structure regime and divergence as gates; continuation removed and volume sentiment
+  out of the decision; SuperTrend as Exit Watch only; macro a gate on LONG only, out of
+  the bias, the entry score and the validation score; trend health and its tiers
+  removed, the tier from entry quality; entry quality as distance from the EMA band's
+  middle in ATRs and HVN nearness, RSI in the divergence gate only, the trend and macro
+  multipliers removed; confidence and the EV line dropped; `bias_score`'s weighting,
+  and the HVN uses the confirmation of 27 September put with it, in the same change. It
+  settles entries 11, 12 and 15, takes 14 and 19 into its scope (Claude's reading, his
+  to change) and fixes entry 52. Its design — the ladder, the gates, the weights, and
+  the strength floor the ruling of 5 September ("a lean is not a case") needs once the
+  weighted sum is gone — is put to Viktor before it is built, with the tests and golden
+  fields each part would move. The held-back defects it reaches: DECISIONS, "Decision,
+  25 October 2026 — the held-back defects …". Entry 53: trading rules, Viktor (ruled;
+  its design his to rule), L, wave 4, after the reading of 14 November and before the
+  send.
 
 ## Work order — Claude's, under Viktor's delegation
 
@@ -2733,16 +2859,19 @@ Each code commit is its own commit and updates this file for its own landing.
 
 ## Resolved this session
 
-- **`34d8e3b`'s landing**, read off Viktor's disk again, with the times Claude had read
-  off it after the push, in chat, and its pytest run's `lastfailed` ("Where the project
-  is", the session of 20 October, from 17:49, and this session).
-- **Entry 49 of the list for after the audit** — a test gap of wave 1, Claude's under
-  the sort of 19 October: `conftest.ENGINE_MODULES` names the three modules it had
-  never listed, and a new test holds it to the tree; `code_hash` and the golden
-  snapshot unchanged ("Found after 22 September").
-- **One entry found**, 51 (the same section).
+- **`ad34c02`'s landing**, read off Viktor's disk, with the times Claude had read off it
+  after the push, in chat, and GitHub's tip, read once the repository was public again
+  ("Where the project is", the session of 24 October, from 20:16, and this session).
+- **The questions of version 2's section 6** — Viktor's, ruled at 16:34 by agreeing to
+  Claude's suggestions, with what wave 0 left open: `bias_score`'s weighting, and F4's
+  shape and who re-audits it (DECISIONS, "Ruling, 25 October 2026 — the engine's
+  indicators …").
+- **Two questions found filing them** — the held-back defects the redesign reaches, and
+  the trend multiplier's severity: Claude's, under Viktor's delegation (DECISIONS, the
+  two "Decision, 25 October 2026" entries).
+- **Two entries added**, 52 and 53 ("Found after 22 September").
 - **The once-per-session rewrite of this file**, by the commit that writes this line.
-  The previous version, as at `34d8e3b`, is in HISTORY verbatim, headings demoted one
+  The previous version, as at `ad34c02`, is in HISTORY verbatim, headings demoted one
   level, proven by un-demotion with a negative control (the commit message has the
   result).
 
@@ -2754,18 +2883,15 @@ Claude critiques it.
 - **Owed to the next commit:** nothing, unless this commit's push deviates from its
   prediction (ruling on proposal (b), 27 September).
 - **Wave 1 — what is left.** Its test gaps have landed: entry 48 at `ed005a0`, 36 at
-  `e88e0dd`, 37 at `d508b29`, and 49, found landing 37, with the commit that writes this
-  line. Found landing 49, and suggested for it: entry 51, a test gap, Claude's, next
+  `e88e0dd`, 37 at `d508b29`, and 49, found landing 37, at `ad34c02`. Found landing
+  49, and suggested for it: entry 51, a test gap, Claude's, next
   when Viktor says. **Viktor's, position first:** entries 26 and 31, Goal B's two
   rulings, docs only; entry 50's shape (docs, found landing 37); and entry 47's place in
   the sort, if he changes Claude's suggestion.
 - **The engine's indicators — the document of 24 October** (outside the repository,
-  "Where the project is"). Version 2's section 6 lists the questions. **Viktor's,
-  position first:** the engine's hypothesis; one direction source or several; how
-  macro is used; trend health rebuilt or replaced by ADX; entry quality simplified or
-  not; what "confidence" means and whether the EV line stays; and when any of it lands
-  relative to Amazon's audit. All are trading rules, and nothing that moves `code_hash`
-  lands before the reading of 14 November. **The tooling landed** with `d410bfa`:
+  "Where the project is"). Version 2's section 6 questions were ruled on 25 October
+  (Ruled — in force); the redesign is entry 53, the next item. **The tooling landed**
+  with `d410bfa`:
   `docs/build/indicator_overlap.py`, run as `python
   docs/build/indicator_overlap.py logs/archive --logs logs`, and
   `tests/test_indicator_overlap_tool.py`, which checks its statistics, that its baseline
@@ -2783,6 +2909,17 @@ Claude critiques it.
   today's cutoffs cut the trade actions by 35.5% (the tool's figure); its baseline
   matched the engine's own logged action on all 197 non-degraded live records it could
   be compared with.
+- **The redesign, entry 53 — owed before it is built**, after the reading of
+  14 November (DECISIONS, "Ruling, 25 October 2026 — the engine's indicators …"): its
+  design put to Viktor — the decision ladder, the gates, entry quality's weights, and
+  the strength floor the ruling of 5 September ("a lean is not a case", as the
+  AI-Attribution Statement records it) needs once the weighted sum is gone — with the
+  tests and golden fields each part would move; the HVN uses the confirmation of
+  27 September put with the weighting, not read on 25 October; and, once the design is
+  fixed, H1's replacement, and H2 and H5 judged against it, replacements proposed by
+  Claude for Viktor to accept (DECISIONS, "Decision, 25 October 2026 — the held-back
+  defects …"). Not covered by the eight: the entry score's structure multiplier
+  (BOS ×1.05, CHOCH ×0.90), which stays unless Viktor rules otherwise.
 - **The forward measurement — Claude's to count, under the ruling of 17 October.** Ten
   pairs — AEROUSDT, ETHUSDT, SOLUSDT, XRPUSDT, BNBUSDT, DOGEUSDT, ADAUSDT, LINKUSDT,
   AVAXUSDT, SUIUSDT — every four hours, by one Windows scheduled task on Viktor's
@@ -2933,14 +3070,6 @@ Claude critiques it.
   questions are an item of their own, below. Whether S1, S3, N1–N4, O1–O3 and the Part 7 reply's §1(3) and §1(5)
   join the label and record batch is settled by that sort: all are in the work before
   the audit, S1 after it with the four (S4 is held back as H1 since 18 October).
-- **Viktor's, not ruled — what wave 0 leaves open.** Whether `bias_score`'s weighting
-  (DECISIONS, "Ruling, 22 September 2026 — bias_score's weighting waits for after the
-  audit, and the auditor sees it"), with the HVN uses the confirmation of 27 September
-  put with it, joins the work before Amazon's audit (left open by the sort of
-  19 October, "Claude's reading"); and, from the ruling of 20 October on F4's third
-  path, the fix's shape — remove the multiplier or reweight it, which bears on the
-  weighting question — and who re-audits it: round 8's auditor, as with the stop, or
-  Amazon within its audit. Who builds the list was ruled on 20 October: Claude.
 - **Viktor's, from the Freqtrade comparison (5 October), nothing ruled.** The comparison
   is outside the repository (`Docs\02_Reviews_and_Feedback\Phase7_Freqtrade_Comparison_2026-10-05`
   in `G:\Phase_7_Engine_Random_Files`).
@@ -3080,10 +3209,9 @@ Claude critiques it.
   `a235783` named `0491b84` in both places. (`ef65f46` and
   `36de35d`, docs only, changed no line there.) `8360923` added its own line under the
   same wording; `ed005a0` named it there and added its own, and so did `e88e0dd`,
-  `d508b29` and `d410bfa`, each naming the one before; the commit that writes this line
-  named `d410bfa` there and added its own. The docs-only commits between them changed
-  no line there. (This paragraph stopped at `a235783` until the commit that writes this
-  line brought it current.)
+  `d508b29` and `d410bfa`, each naming the one before; `ad34c02` named `d410bfa` there
+  and added its own. The docs-only commits between them changed no line there. (This
+  paragraph stopped at `a235783` until `ad34c02` brought it current.)
 - **The pre-push hook is installed per clone, not per repository.** After any re-clone
   (including after a machine wipe), run `git config core.hooksPath githooks`;
   `session_handover_check.py` section 6 flags a clone without it.

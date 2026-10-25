@@ -5602,6 +5602,268 @@ the macro series' (`MACRO_TIMEFRAME`, `"1d"`).
 ruling first. The entry's own work — thresholds for each timeframe — waits without a
 date.
 
+## Ruling, 25 October 2026 — the engine's indicators: one direction source, gates for weights, and one redesign before Amazon's audit
+
+*New in this file on 25 October 2026. Viktor's, at 16:34, by agreeing to Claude's
+suggestions — not by writing his position first, which he chose at 16:24 and set aside
+at 16:30 by asking for them — in the session that opened at 15:20 at `ad34c02`; filed
+by its commit. It answers the eight questions of section 6 of the document of
+24 October, version 2 (`Phase7_Engine_Understanding_2026-10-24_v2`, outside the
+repository, in `G:\Phase_7_Engine_Random_Files\Docs\02_Reviews_and_Feedback`), which
+PHASE7_NEXT.md listed as his, position first, among them what the sort of 19 October
+left open on `bias_score`'s weighting and F4's fix.*
+
+**How it was made.** Asked what next, Claude suggested entry 51, or of his items the
+indicator questions first. Viktor asked for suggestions on his questions. Claude asked
+whether to keep his rule — his position first, Claude's critique after — and he kept
+it, so Claude set out each question's options and what each would commit the engine
+to, without a pick, from the document's sections 1, 2, 4 and 6. At 16:30 he asked for
+Claude's suggestions. Claude gave them, saying that this set his rule aside for these
+eight, that rulings taken from them are recorded as by agreeing to Claude's
+suggestions, and that none of them is shown to make the engine more profitable — that
+needs backtesting, which stays closed; they are about the engine measuring what it
+says it measures. At 16:34: "I accept." Claude built most of the engine and wrote the
+document, so every suggestion is its author's.
+
+**What was ruled.**
+
+1. **The hypothesis is the trend pullback:** "Buy when the 4h trend is up and strong
+   (EMA slope up, ADX at least 20) and price has pulled back near its average, because
+   established trends tend to continue and a pullback entry avoids buying the top of a
+   swing." Mean reversion stays out, under "trends only for now" (28 September).
+2. **One direction source, the EMA slope, stated plainly.** ADX, the structure regime
+   and divergence stay as gates, as they are now; continuation is removed, since it
+   copies the slope; volume sentiment leaves the decision, since it copies the price
+   move; SuperTrend stays as Exit Watch only. No weighted sum is shown as conviction.
+3. **Macro is a gate on LONG only:** no LONG while the daily trend is bearish. It leaves
+   the bias, the entry score's multipliers and the validation score. SHORT — on spot, a
+   move to USDT — is not gated by it.
+4. **Trend health is removed**, and its 75 and 50 tiers with it; the tier comes from
+   entry quality. Any threshold that remains is set by reasoning, and a measured
+   distribution is used only to check that no tier is empty or near-universal.
+5. **Entry quality asks two questions:** the distance from the EMA band's middle in
+   ATRs — one measure, in place of EMA zone, ATR distance and VWMA — and nearness to the
+   HVN. RSI keeps one use, the divergence gate. The trend multiplier is removed.
+6. **"Confidence" and the EV line are dropped for now.** The panel shows which gates
+   passed and the tier. The EV line comes back only with an input backtesting
+   measures: how often T1 is reached before the stop.
+7. **When: before Amazon's audit, after the forward measurement's reading of
+   14 November, as one change.**
+8. **`bias_score`'s weighting joins that change**, reversing "Ruling, 22 September 2026
+   — bias_score's weighting waits for after the audit, and the auditor sees it"; the
+   HVN uses the confirmation of 27 September put with it go in too. **F4's third
+   path:** the multiplier is removed, not reweighted, in the same change, and Amazon
+   re-audits it within its audit — the two questions "Ruling, 20 October 2026 — F4's
+   third path is Critical …" left his.
+
+**Claude's reasons, as given.**
+
+- 1: it is what the code already does, so it costs least, and it maps onto the
+  "finished" test of beating random entries in the same trend; a breakout hypothesis
+  would be another engine.
+- 2: in version 2's sample the bias side matches the slope on 99.6% of the bars that
+  have a side, and removing any of the four disputed factors never flipped a side
+  (measured); continuation and volume sentiment copy direction by construction (read
+  from the code).
+- 3: a higher timeframe is a yes-or-no question; on spot, blocking an exit because the
+  daily trend is bullish is the costlier mistake.
+- 4: trend health passes 75 on 89% of bars and is mostly ADX, which already gates at
+  20; thresholds fitted to 50 mostly bullish days are how overfitting starts.
+- 5: four of entry quality's five parts measure distance from the average, 90 of its
+  102 points; EMA zone and ATR distance are computed from one number; RSI extension
+  tracks ATR distance at 0.82; the trend multiplier rewards agreement with itself.
+- 6: confidence is the size of the bias score, and the EV line reads it as a win rate
+  at an average of 2R while T1 is at 1R (read from the code).
+- 7: Amazon is the auditor held back as the best left, and an audit spends it, so
+  auditing an engine that is about to change leaves none for the one that runs;
+  "finished" counts 100 closed trades of one version; and the redesign is
+  decision-path code, which is what an audit is for.
+- 8: it is the same work as 2 to 5, and the overlap was measured on 24 October, after
+  the ruling of 22 September; a reweighted multiplier would still let macro move the
+  tier, the breach itself.
+
+**The case against, given with them.** Every figure is from 50 days of ten pairs, the
+daily trend bullish on 86% of bars; whether any change makes decisions better needs
+outcomes, and backtesting is closed. Under 7 the send, the release gate's reopening and
+backtesting all wait longer. Gates in place of weights change how often the engine
+trades, and the forward measurement's readings are of today's version.
+
+**Read for it** (Claude, on 25 October, at `ad34c02`):
+
+- *The ruling of 2 September,* "Bias is the sole source of trade direction; no other
+  signal may open or override it", as the AI-Attribution Statement's script records it
+  (`docs/build/build_ai_attribution.py`). Ruling 2 keeps it: the bias stays the only
+  source of direction; what changes is what it is built from. Claude's reading, his to
+  correct.
+- *The ruling of 5 September,* "a lean is not a case": a bias below a fixed strength
+  floor (`MIN_ACTION_BIAS`) waits (the same source). Ruling 2 retires the weighted sum
+  the floor is measured on, so the redesign's design must say what its floor is.
+- *The Constitution.* None of the eight amends a rule; they change the engine the rules
+  govern, so no review by a party other than Claude is needed for them. They bear on
+  Tier 1 Items 7 (no predictive claim before it is tested: the EV line), 8 (epistemic
+  honesty), 11 (no circular reasoning: the sum and the multipliers) and 16 (complexity
+  must provide demonstrated value), read from the ratified PDF's text.
+- *The sort of 19 October.* The eight settle entry 11 (confidence read as a win rate:
+  dropped), entry 12 (F4's weight: removed) and entry 15 (the trend score: trend health
+  removed), and take entries 14 (two vocabularies in `calculate_entry_quality`) and 19
+  (an unknown volume label scored as neutral) into the redesign's scope — Claude's
+  reading, his to change. The redesign is entry 53 of the list, and point 2 of the sort
+  holds: nothing that moves `code_hash` lands before the reading of 14 November.
+- *The entry score's third multiplier,* structure (BOS ×1.05, CHOCH ×0.90,
+  `models/entry_model.py:409–425`), reads the swing sequence, a different measurement
+  from the slope. The eight do not cover it; it stays unless Viktor rules otherwise.
+- *Found filing it,* and left by Viktor to Claude: the held-back defects that rulings
+  2, 4, 5 and 8 reach, and the trend multiplier's severity (the two entries below).
+
+**What follows.**
+
+- Before the redesign is built, its design — the decision ladder, the gates, entry
+  quality's weights and the strength floor — is put to Viktor with, for each part, the
+  tests and golden fields it would move (version 2, section 6, Claude's point 3). It is
+  on the decision path: full scope, and a live run before its commit.
+- The release gate and backtesting stay closed.
+- The ruling of 22 September no longer holds; its entry is not edited ("Ruling,
+  20 September 2026 — dated records are not edited to follow a move").
+
+**What it weakens.**
+
+- Eight rulings were made together, four minutes after the suggestions were given, on
+  suggestions by the code's author, without Viktor's own position first.
+- The audit planned for today's engine will read another, later, and the forward
+  measurement's two readings are of a version that will not run after the redesign.
+- Rulings 1 to 6 rest on 50 days of data and no outcomes.
+- 8 reverses a ruling made so that the auditor would see the weighting before it
+  changed.
+
+### Claude's errors, recorded
+
+- At 16:30 Claude suggested ruling 7 with "it must leave the four held-back defects in
+  place" beside rulings 2, 4, 5 and 8, which reach three of them, and said only that
+  where they sit was not checked. The sort of 19 October names entry 15 beside H1 and
+  the weighting in H2's function, so the collision was findable before suggesting; it
+  was found filing.
+- Version 2, Claude's, suggested removing the trend multiplier as a bonus for agreeing
+  with itself without asking whether it breaks Item 11, as F4's third path had been
+  ruled to four days before; found filing.
+
+## Decision, 25 October 2026 — the held-back defects the redesign reaches are replaced or judged again, not protected
+
+*New in this file on 25 October 2026. Claude's, under Viktor's delegation in the same
+session: asked how to file the conflict below, he answered "Take the decision for me
+and deal with it". Filed by the commit that files the entry above. Viktor's to
+reverse.*
+
+**The question.** Ruling 7 above lands the redesign before Amazon's audit, and Amazon's
+audit is scored on four held-back defects that work on the list leaves as they are
+("Ruling, 17 October 2026 — Amazon's audit …"; "Ruling, 18 October 2026 — the four
+held-back defects …", "Who does what"). Read on 25 October from those rulings and the
+sort of 19 October's notes — not from a design, since none exists yet:
+
+- **H1**, the weak-validation WAIT in `DecisionModel._determine_final_action`, is a
+  branch on trend health under 40. Ruling 4 removes trend health, so the branch cannot
+  stay as described. The ruling of 18 October foresaw a change here: "H1 holds only
+  while CONSERVATIVE needs at least 40 … a replacement is chosen then, with that
+  recorded."
+- **H2**, `calculate_dynamic_bias` taking `trend_exhaustion` and never reading it, sits
+  in the function rulings 2 and 8 rewrite. It survives only if the new function still
+  takes the parameter.
+- **H5**, a flat candle credited to the wrong volume bin, moves HVN by one bin. Ruling 5
+  makes HVN nearness one of entry quality's two parts, where it is one of five, so the
+  shift can move a tier more often; the sort's notes already said an HVN veto would
+  need H5 judged again.
+- **H3**, the simulator's order file, is in `live_trading.py`, which none of the eight
+  reaches.
+
+**What was decided.**
+
+1. **The redesign is designed on its merits.** No parameter, branch or weight is kept or
+   shaped in the new code to preserve a held-back defect.
+2. **H1 is replaced**, under the ruling of 18 October's own clause.
+3. **H2 stays if the redesign's design keeps `calculate_dynamic_bias` taking
+   `trend_exhaustion` unread for reasons of its own; otherwise it is replaced.**
+4. **H5 is judged again once entry quality's weights are set.** If it is still minor, it
+   stays; if not, it is fixed in the redesign and replaced. A held-back defect must be
+   minor; one that can move a tier materially would sit in live decisions for the whole
+   audit.
+5. **H3 stays.**
+6. **When and how.** Replacements are chosen when the redesign's design is fixed, before
+   its code is built, by a search under the ruling of 18 October's criteria — minor,
+   touching none of Items 2, 3, 6 and 18, pointed at by no comment, docstring or test
+   that ships, in a file a scoped package on those four Items would carry — among
+   defects in code the redesign leaves alone. Claude proposes them and Viktor accepts or
+   rejects, as he accepted H5 on 18 October; each is filed here when chosen. Claude's
+   re-check of all four at the tag before the send stays.
+
+**Claude's reasons.** The four exist to measure the auditor; the engine exists to be
+right. Bending the redesign to keep a defect would let the measuring instrument shape
+what it measures, and code written to keep one alive would come close to planting,
+which "Ruling, 29 September 2026 — what the auditor sees, and no planted bugs" rules
+out ("Nothing is planted"). The other way out — the redesign after the audit — reverses
+ruling 7, whose reasons hold. The ruling of 18 October already provides for a
+replacement, and chose H5 the same way.
+
+**What it weakens.**
+
+- Up to three of the four may change after they were fixed on 18 October. Items swapped
+  once the work is planned are weaker evidence than items fixed in advance, and a
+  search can pick a defect for how well it tests rather than for how much it matters,
+  as the ruling of 18 October said of H5.
+- The engine Amazon reads differs most exactly where H1 and H2 sat.
+- The code's author proposes the replacements, as before.
+
+## Decision, 25 October 2026 — the trend multiplier is Critical, by F4's precedent
+
+*New in this file on 25 October 2026. Claude's, under Viktor's delegation in the same
+session: asked how to record it, he answered "Make the decision for me and deal with
+it". Found by Claude while filing the first entry above, and filed by the same commit.
+Viktor's to reverse.*
+
+**The finding.** Read at `ad34c02`: `calculate_entry_quality` multiplies the entry score
+by 1.05 when the trade's direction agrees with trend health's EMA-slope direction
+label, and by 0.90 when it opposes it (`models/entry_model.py:395–407`). The trade's
+direction is the bias's, whose side matches the EMA slope's sign on 99.6% of the bars
+that have a side (version 2, measured on 24 October in the Linux sandbox). An entry
+score of 70 or more is what gives LONG rather than CONSERVATIVE LONG
+(`models/decision_model.py:485` and `718`; SHORT at `746`). In version 2's
+decision-impact test, removing the multiplier changed the tier on 61 of 2,970 bars and
+never whether the engine traded. It was on no list; version 2 suggested removing it,
+and ruling 5 above removes it.
+
+**What was decided.** It breaks Tier 1 Item 11 and is **Critical**: entry 52 of the
+list for after the audit. Its fix is ruling 5's removal, in the redesign, and Amazon
+re-audits it within its audit, as it does F4's.
+
+**Claude's reasons.**
+
+1. F4's third path was ruled Critical on 20 October for this shape: a signal counted
+   again as confluence, able to decide the tier, printed beside the bias as a separate
+   fact. Here the reinforcement is closer: macro is at least another timeframe; the
+   trend label is the slope the side came from. A lower rating would need a difference
+   between the two, and Claude found none.
+2. The rubric: a Tier 1 breach that can reach a live decision is Critical (the
+   Constitution's finding schema, as the ruling of 20 October read it).
+3. It changes no timing: the release gate is already closed, and the fix is already
+   ruled, in the same change as F4's and re-audited the same way.
+
+**The case against.** The effect is a factor of 1.05 or 0.90, and the code's comment
+calls each multiplier "independently small"; Item 11 can be read as being about
+evidence presented as independent. No independent auditor has rated it: F4's third
+path had round 8's Major; this rating is the code's author's alone.
+
+**What follows.**
+
+- Two Criticals are open, both in the entry score. The release gate reopens when both
+  fixes have landed and been re-audited; backtesting stays closed.
+- README's "Engine code" and "Release gate" rows, a sentence of its "Independent audit"
+  row and the paragraph under its table say so in the commit that files this entry, in
+  wording Claude wrote under the delegation and put to Viktor before his commit.
+
+**What it weakens.**
+
+- A severity rated by the code's author, with no independent reading.
+- The gate is bound by two Criticals over effects of a few percent that the code
+  discloses.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then
