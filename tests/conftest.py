@@ -192,9 +192,10 @@ NOT_ENGINE_MODULES = {
                  "order when the run succeeds: importing it is running it",
 }
 
-# Every .py file in the repository, as a path relative to the root. The
-# compile check walks these; it does not import them, so it is safe to
-# include modules with side effects at import time.
+# The .py files code_hash reads, as paths relative to the root -- and with
+# include_doc_tooling, those under docs/ as well. The compile check walks
+# these; it does not import them, so it is safe to include modules with side
+# effects at import time.
 #
 # `docs/build/` holds the reportlab scripts that generate the project's PDFs.
 # They are real Python and a syntax error in one is a real bug, so the compile
@@ -204,19 +205,37 @@ NOT_ENGINE_MODULES = {
 # fresh `pip install -r requirements.txt` pull a PDF library the engine never
 # uses. Hence the flag: include them when checking syntax, exclude them when
 # checking declared dependencies.
+#
+# ONE LIST OF DIRECTORIES, 25 October 2026 (the list for after the audit,
+# entry 51, found on 24 October landing entry 49). This walk skipped a set of
+# directory names of its own, and core/code_fingerprint.py's
+# EXCLUDED_DIR_NAMES -- what code_hash, and so every decision record, counts
+# as the engine -- skipped four more: .pytest_cache, env, Backup and
+# Claude outputs. Two lists of the same directories, drifted apart (rule 11):
+# a .py file under env/, Backup/ or Claude outputs/ would have been read here
+# as the engine, by the compile check, the dependency check and every source
+# scan, and was not the engine in any record. So the walk takes code_hash's
+# list, read when it is called, and gives docs/ back to the compile check
+# alone: without the flag it reads exactly what code_hash reads. One list, so
+# the two cannot drift (rule 28).
+# tests/test_imports.py::test_the_suite_walks_the_files_code_hash_reads holds
+# it. `root` is for that test; every other caller walks the repository.
 DOC_TOOLING_DIRS = {"docs"}
 
 
-def all_python_files(include_doc_tooling=True):
+def all_python_files(include_doc_tooling=True, root=None):
+    from core import code_fingerprint
+
+    root = REPO_ROOT if root is None else root
+    skip = set(code_fingerprint.EXCLUDED_DIR_NAMES)
+    if include_doc_tooling:
+        skip -= DOC_TOOLING_DIRS
     out = []
-    skip = {".git", "__pycache__", "tests", "Logs", "logs", "aider-env", ".venv", "venv"}
-    if not include_doc_tooling:
-        skip = skip | DOC_TOOLING_DIRS
-    for dirpath, dirnames, filenames in os.walk(REPO_ROOT):
+    for dirpath, dirnames, filenames in os.walk(root):
         dirnames[:] = [d for d in dirnames if d not in skip]
         for fn in sorted(filenames):
             if fn.endswith(".py"):
-                out.append(os.path.relpath(os.path.join(dirpath, fn), REPO_ROOT))
+                out.append(os.path.relpath(os.path.join(dirpath, fn), root))
     return sorted(out)
 
 

@@ -117,19 +117,20 @@ def test_no_engine_module_calls_utcnow():
     The class, not the instance. utcnow() was fixed in data_fetcher.py and in
     _log_simulated_trade and survived in _build_simulated_order; this reads
     every engine module's parse tree, so the next copy fails here too.
+
+    25 October 2026 (the list for after the audit, entry 51): the engine is
+    the files conftest.all_python_files reads without the documentation
+    tooling, which are the files code_hash reads. This walked the tree with a
+    list of directories of its own, which skipped five fewer than code_hash's:
+    .pytest_cache, env, aider-env, Backup and Claude outputs.
     """
+    from conftest import all_python_files
+
     offenders = []
-    for dirpath, dirnames, filenames in os.walk(REPO):
-        dirnames[:] = [d for d in dirnames
-                       if d not in {".git", "__pycache__", "tests", "docs",
-                                    "logs", "Logs", ".venv", "venv"}]
-        for name in filenames:
-            if not name.endswith(".py"):
-                continue
-            rel = os.path.relpath(os.path.join(dirpath, name), REPO)
-            for node in ast.walk(_tree(rel)):
-                if isinstance(node, ast.Attribute) and node.attr == "utcnow":
-                    offenders.append(f"{rel}:{node.lineno}")
+    for rel in all_python_files(include_doc_tooling=False):
+        for node in ast.walk(_tree(rel)):
+            if isinstance(node, ast.Attribute) and node.attr == "utcnow":
+                offenders.append(f"{rel}:{node.lineno}")
     assert offenders == [], offenders
 
 

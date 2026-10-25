@@ -283,6 +283,87 @@ def test_engine_modules_is_every_module_in_the_tree():
         + "\n  ".join(problems))
 
 
+def test_the_suite_walks_the_files_code_hash_reads():
+    """
+    conftest.all_python_files, held to code_hash's walk (25 October 2026; the
+    list for after the audit, entry 51, found on 24 October landing entry 49).
+
+    The suite reads the engine through conftest.all_python_files: the compile
+    check and the dependency check in this file, the source scans of
+    test_execution_surface, test_no_lookahead, test_explicit_configuration
+    and test_risk_verdict_is_read_not_assumed, and, since entry 51, the
+    utcnow scan of test_no_fabricated_defaults_remain, which walked the tree
+    with a list of its own. Both lists skipped fewer directories than
+    core/code_fingerprint.py's EXCLUDED_DIR_NAMES: .pytest_cache, env, Backup
+    and Claude outputs, and the scan aider-env as well. So a .py file in one
+    of them would have been read by the suite as the engine, and was not the
+    engine in any decision record. Lists of the same directories, drifted
+    apart (rule 11).
+
+    The walk now takes code_hash's list when it is called, and gives docs/
+    back to the compile check alone. This test holds that on a tree built
+    for it: a .py file in a directory of every name code_hash excludes, at
+    the top, under core/ and under docs/, beside files in directories it
+    does not exclude, two of them named like ones it does. Without the
+    documentation tooling the suite's walk must read exactly the files
+    code_hash reads; with it, those and the ones under docs/ in no other
+    excluded directory. Then the same on the repository itself.
+    """
+    from conftest import DOC_TOOLING_DIRS
+    from core.code_fingerprint import EXCLUDED_DIR_NAMES, iter_source_files
+
+    def outside(rel, names):
+        """No directory in rel's path has a name in `names`."""
+        return not set(rel.split("/")[:-1]) & set(names)
+
+    def walks(root):
+        return (set(iter_source_files(root)),
+                {p.replace(os.sep, "/")
+                 for p in all_python_files(include_doc_tooling=False, root=root)},
+                {p.replace(os.sep, "/") for p in all_python_files(root=root)})
+
+    def compare(what, got, expected):
+        return ([f"{what} reads {p}, and should not" for p in sorted(got - expected)]
+                + [f"{what} does not read {p}" for p in sorted(expected - got)])
+
+    planted = {"main.py", "core/__init__.py", "core/a.py", "models/sub/b.py",
+               # Named like an excluded directory, and not one: both walks
+               # match whole names.
+               "environment/c.py", "Backups/d.py",
+               "docs/e.py", "docs/build/f.py"}
+    for name in EXCLUDED_DIR_NAMES:
+        for parent in ("", "core/", "docs/"):
+            planted.add(f"{parent}{name}/skipped.py")
+    engine = {rel for rel in planted if outside(rel, EXCLUDED_DIR_NAMES)}
+    with_docs = {rel for rel in planted
+                 if outside(rel, set(EXCLUDED_DIR_NAMES) - DOC_TOOLING_DIRS)}
+
+    with tempfile.TemporaryDirectory() as tmp:
+        for rel in sorted(planted):
+            path = os.path.join(tmp, *rel.split("/"))
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            with open(path, "w", encoding="utf-8") as f:
+                f.write("x = 1\n")
+        code, suite, compiled = walks(tmp)
+
+    problems = (compare("code_hash's walk of the planted tree", code, engine)
+                + compare("the suite's walk of it, without docs/", suite, code)
+                + compare("the compile check's walk of it", compiled, with_docs))
+
+    code, suite, compiled = walks(REPO_ROOT)
+    if not code:
+        problems.append("code_hash's walk of the repository reads no file")
+    problems += compare("the suite's walk of the repository, without docs/",
+                        suite, code)
+    problems += compare("the compile check's walk of the repository, outside docs/",
+                        {p for p in compiled if outside(p, DOC_TOOLING_DIRS)},
+                        code)
+
+    assert not problems, (
+        "the suite does not walk the files code_hash reads:\n  "
+        + "\n  ".join(problems))
+
+
 def test_the_engine_and_the_fetcher_module_share_one_singleton():
     """
     The guard against the bug the test above used to cause.
