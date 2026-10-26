@@ -77,6 +77,13 @@ Added 26 October 2026 (the list for after the audit, entry 54):
     skips the directories code_hash skips, tests apart; each is sorted by
     path.
 
+Added 26 October 2026 (the list for after the audit, entry 55):
+
+  * each bundle's header says the order its files follow in, and they
+    follow in it: the engine bundle's modules by path, then the project
+    files in the order the header names them; files to go first that are
+    not sorted are refused, not described.
+
 WHAT THESE TESTS DO NOT COVER
 
 Nothing here touches the network: the function that would POST is replaced by a
@@ -542,6 +549,68 @@ def test_the_package_reads_the_engine_code_hash_reads():
     assert not problems, (
         "the audit package does not read the engine code_hash reads:\n  "
         + "\n  ".join(problems))
+
+
+def test_each_bundle_says_the_order_its_files_follow_in():
+    """
+    build_audit_package.py's bundle headers, held to the files that follow
+    them (26 October 2026; the list for after the audit, entry 55, found on
+    26 October landing entry 54).
+
+    _bundle wrote "N files follow, in path order" above each bundle, and the
+    engine bundle is the engine's modules, sorted, and then the five project
+    files, which are not among them by path: a small untrue sentence in what
+    an auditor is told about its own material. The header is now made from
+    what follows it. This builds both bundles as main() does, from the
+    repository, and reads each one back: the count, the files that come in
+    path order, and the project files named in the order they come. First,
+    the call that wrote the untrue header -- the modules and the project
+    files as one list -- is refused.
+    """
+    bap = _load("phase7_build_audit_package_order", "build_audit_package.py")
+    source, tests = bap._walk("source"), bap._walk("tests")
+    project = [p for p in bap.PROJECT_FILES if os.path.exists(os.path.join(REPO_ROOT, p))]
+    assert source and tests and project, "the repository gives the build nothing to bundle"
+
+    try:
+        bap._bundle(source + project, "old", "the call before 26 October")
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("_bundle took the modules and the project files as one "
+                             "list, and its header says that list is in path order")
+
+    def markers(text):
+        return [line[len("=== FILE: "):-len(" ===")] for line in text.split("\n")
+                if line.startswith("=== FILE: ") and line.endswith(" ===")]
+
+    problems = []
+    for what, text, first, then in (
+            ("the engine bundle", bap._bundle(source, "t", "p", then=project)[0],
+             source, project),
+            ("the test bundle", bap._bundle(tests, "t", "p")[0], tests, [])):
+        header, _, body = text.partition("```")
+        follow = markers(text)
+        if follow != first + then:
+            problems.append(f"{what} does not carry the files it was given, in order")
+        if follow[:len(first)] != sorted(follow[:len(first)]):
+            problems.append(f"{what}'s first {len(first)} files are not in path order")
+        if f" {len(follow)} files follow" not in header:
+            problems.append(f"{what}'s header does not say {len(follow)} files follow")
+        if then:
+            if f"the first {len(first)} in path order, then " not in header:
+                problems.append(f"{what}'s header does not say how many come in path order")
+            at = [header.find(p) for p in then]
+            if -1 in at or at != sorted(at):
+                problems.append(f"{what}'s header does not name {then} in the order "
+                                f"they follow")
+            if "follow, in path order" in header:
+                problems.append(f"{what}'s header says every file follows in path order")
+        elif "files follow, in path order." not in header:
+            problems.append(f"{what}'s header does not say its files follow in path order")
+
+    assert not problems, ("a bundle's header says one order and its files follow "
+                          "another:\n  " + "\n  ".join(problems))
 
 
 # --- the first send: measured, or not sent ----------------------------------------

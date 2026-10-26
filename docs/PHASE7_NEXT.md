@@ -1,9 +1,9 @@
 # Next step — read this first
 
-*25 October 2026, from 19:20, going on to 26 October. Rewritten by the commit that lands
-entry 54 of the list for after the audit — audit tooling of wave 1, Claude's, a build
-script and a test, `code_hash` unchanged — and records `b387c03`'s landing; the version
-it replaced — as it stood at `b387c03` — is in HISTORY verbatim.
+*26 October 2026, from 16:51. Rewritten by the commit that lands entry 55 of the list
+for after the audit — audit tooling of wave 1, Claude's, a build script and a test,
+`code_hash` unchanged — and records `9862568`'s landing; the version it replaced — as
+it stood at `9862568` — is in HISTORY verbatim.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
 rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
@@ -305,10 +305,18 @@ at 09:36 Viktor asked for Claude's suggestion. GitHub asked the sandbox for
 credentials, as for a repository that is not public, and attaching it failed, GitHub
 not being linked to Claude; so the project's state was read off his disk. Claude
 suggested entry 54, with the two corrections in the same commit, or of his items
-entries 26 and 31, entry 50's shape or entry 47's place. He said go at 10:13. The
-commit that writes this line lands entry 54 ("Found after 22 September", below): a
-build script under `docs/` and a test, so `code_hash` and the golden snapshot hold.
-It found one entry more: 55, the engine bundle's header (the same section).
+entries 26 and 31, entry 50's shape or entry 47's place. He said go at 10:13.
+`9862568` landed entry 54 ("Found after 22 September", below): a build script under
+`docs/` and a test, so `code_hash` and the golden snapshot held. It found one entry
+more: 55, the engine bundle's header (the same section).
+**On 26 October, from 16:51**, after pushing `9862568` at 11:19, Viktor opened the
+session with its landing record, as the session before had written it for him. Claude
+read it off his disk and GitHub again (below): every part that could be read again
+held, and two could not be. At 18:09 Viktor asked for Claude's suggestion: entry 55,
+Claude's under the delegation of 4 October, or of his items entries 26 and 31, entry
+50's shape or entry 47's place. He said go at 18:09. The commit that writes this line
+lands entry 55 ("Found after 22 September", below): a build script under `docs/` and a
+test, so `code_hash` and the golden snapshot hold.
 
 **The review and the comparison are outside the repository**, in
 `G:\Phase_7_Engine_Random_Files\Docs\02_Reviews_and_Feedback`:
@@ -796,10 +804,10 @@ first comparison of GitHub's files with his disk failed: it added a CR to each l
 files its `git archive` had already written with CRLF, that clone's `core.autocrlf`
 being `true`; redone, they matched. The record it wrote for Viktor called the commit
 message byte-identical and put that failure down to GitHub's files being CRLF; neither
-is what was shown (this session, below). Its account is in HISTORY, in this file's
-version at `b387c03`, moved there by the commit that writes this line.
+is what was shown (the session of 25 October, from 19:20, below). Its account is in
+HISTORY, in this file's version at `b387c03`, moved there by `9862568`.
 
-**This session (25 October, from 19:20, going on to 26 October)**, configured for
+**The session of 25 October, from 19:20, going on to 26 October**, configured for
 Claude Opus 5.5, opened at `b387c03`. GitHub's tip, read with a bare clone at the
 start of the session on 25 October, is `b387c03`, its parent `89d2367`; its seven
 files are stored with LF, no line of them ending in CRLF, and the messages of
@@ -818,8 +826,41 @@ and `HEAD`'s reflog, and `origin/master`'s reflog line "update by push". The cac
 19:13:22, 2 minutes 54 seconds after the apply, recorded no failure, and it holds
 `tests/test_imports.py::test_the_suite_walks_the_files_code_hash_reads`, which only
 the applied tree has. `run_tests.py` leaves no trace, so its count for `b387c03` rests
-on Viktor's silence. The commit that writes this line lands entry 54 and records
-`b387c03`'s landing.
+on Viktor's silence. `9862568` landed entry 54 and recorded `b387c03`'s landing: a
+build script under `docs/`, one test file, `README.md`'s test counts, and docs. From
+his disk, staged in the next session: the apply was at 11:08:47 on 26 October, the
+pytest cache was rewritten at 11:12:15 and holds the new test's id, the commit is from
+11:18:58 and `origin/master`'s ref from 11:19:48, its reflog line "update by push";
+`master` and `origin/master` read `9862568`. Claude had read those times off his disk
+after the push, and found GitHub's tip, `9862568` — read at 16:49, the repository
+public again — an autocrlf checkout of its six files byte for byte the tree verified
+before delivery and the files on his disk, GitHub's six blobs LF, and its commit
+message the one delivered with its CRs removed, byte for byte, in chat only; Viktor
+listed them at the start of the next session. Its account is in HISTORY, in this
+file's version at `9862568`, moved there by the commit that writes this line.
+
+**This session (26 October, from 16:51)**, configured for Claude Opus 5.5, opened at
+`9862568`. GitHub's tip, read with `git ls-remote` at 16:56:03 and again at 16:58:19
+with every credential source in the sandbox switched off, is `9862568`, its parent
+`b387c03`, and the sandbox cloned it at 16:56; at 18:10 GitHub asked the sandbox for
+credentials again. `master` and `origin/master` on his disk, from `.git/refs` staged
+off it, read `9862568`. The commit object, staged off his disk, hashes to that name
+and is byte for byte GitHub's, with no CR in it. Each of the six files `9862568`
+changes is on his disk byte for byte an autocrlf checkout of GitHub's tip, whose six
+blobs hold no CR, and their mtimes are still the apply's, 11:08:47.570 to .585. The
+times above were read off his disk again: those mtimes,
+`.pytest_cache/v/cache/nodeids`, the commit object's date and `HEAD`'s and `master`'s
+reflogs, and `origin/master`'s reflog line "update by push". The cache's `lastfailed`
+is still `{}`, last written at 13:37:30 on 26 September, so the run of 11:12:15,
+3 minutes 28 seconds after the apply, recorded no failure, and it holds
+`tests/test_send_audit_round.py::test_the_package_reads_the_engine_code_hash_reads`,
+which only the applied tree has. Neither delivery file is left in the repository's
+root. `run_tests.py` leaves no trace, so its count for `9862568` rests on Viktor's
+silence. The commit message was compared with the one delivered, and the six files
+with the tree verified before delivery, by the session before, in its sandbox: the
+delivered message was deleted by its step 14 and that sandbox is gone, so neither is
+compared again here. The commit that writes this line lands entry 55 and records
+`9862568`'s landing.
 
 ## Ruled — in force
 
@@ -1245,8 +1286,10 @@ on Viktor's silence. The commit that writes this line lands entry 54 and records
 ## Where things stand, right now
 
 - **Tip:** the commit that writes this line (a commit cannot name its own hash) —
-  entry 54 of the list for after the audit, audit tooling and a test, and `b387c03`'s
-  landing recorded. Before it: `b387c03` (the session of 25 October, from 17:56: entry
+  entry 55 of the list for after the audit, audit tooling and a test, and `9862568`'s
+  landing recorded. Before it: `9862568` (the session of 25 October, from 19:20, going
+  on to 26 October: entry 54 of the list for after the audit, audit tooling and a test,
+  and `b387c03`'s landing recorded), `b387c03` (the session of 25 October, from 17:56: entry
   51 of the list for after the audit, tests only, and `89d2367`'s landing recorded),
   `89d2367` (the session of 25 October, from 15:20: Viktor's eight
   rulings of 25 October and Claude's two decisions under his delegation filed, and
@@ -1457,11 +1500,16 @@ on Viktor's silence. The commit that writes this line lands entry 54 and records
   for every test that walks the tree through it, which read the same files; and
   changed `test_no_engine_module_calls_utcnow` in
   `tests/test_no_fabricated_defaults_remain.py`, which walks the tree through it now,
-  with a dated paragraph in its docstring. It removed and renamed none. The commit
-  that writes this line adds one test to `tests/test_send_audit_round.py`,
+  with a dated paragraph in its docstring. It removed and renamed none. `9862568`
+  added one test to `tests/test_send_audit_round.py`,
   `test_the_package_reads_the_engine_code_hash_reads` (no fixture, no `pandas_ta`),
-  with a dated paragraph in that file's docstring, and changes no other test's code:
+  with a dated paragraph in that file's docstring, and changed no other test's code:
   `test_every_file_the_build_writes_is_one_the_send_sends` builds with the new walk,
+  and the names it checks are the same. It removed and renamed none. The commit that
+  writes this line adds one test to `tests/test_send_audit_round.py`,
+  `test_each_bundle_says_the_order_its_files_follow_in` (no fixture, no `pandas_ta`),
+  with a dated paragraph in that file's docstring, and changes no other test's code:
+  `test_every_file_the_build_writes_is_one_the_send_sends` builds with the new header,
   and the names it checks are the same. It removes and renames none.
 - **Where the project lives, from 26 September:** `E:\phase7_engine` on Viktor's machine;
   the files kept outside the repository in `G:\Phase_7_Engine_Random_Files`. Copied with
@@ -1471,14 +1519,19 @@ on Viktor's silence. The commit that writes this line lands entry 54 and records
   to `E:\phase7_engine`". Run the engine and every command from `E:\phase7_engine` (in
   cmd, changing drive needs `cd /d`). A dated record that names the D: paths means the
   same folders before the move; dated records are not edited.
-- **The push of `b387c03`** happened, at 19:18:30 on 25 October: GitHub's tip, read
-  that evening, is `b387c03`, `master` and `origin/master` on Viktor's disk read it
-  (their `.git/refs` files, and `origin/master`'s reflog line "update by push"), and
-  its seven files on his disk are byte for byte an autocrlf checkout of it. An autocrlf
-  checkout of GitHub's seven files was read byte for byte what was verified before
-  delivery, and its commit message the one delivered, line endings aside, after the
-  push, in the session that delivered it. No deviation was reported (ruling on proposal
-  (b)). So did `89d2367`'s, at 17:47:04 on 25 October, GitHub's tip read at 18:10 and
+- **The push of `9862568`** happened, at 11:19:48 on 26 October: GitHub's tip, read at
+  16:49 that day and at 16:56 and 16:58 in the next session, is `9862568`, `master` and
+  `origin/master` on Viktor's disk read it (their `.git/refs` files, and
+  `origin/master`'s reflog line "update by push"), and its six files on his disk are
+  byte for byte an autocrlf checkout of it. An autocrlf checkout of GitHub's six files
+  was read byte for byte what was verified before delivery, and its commit message the
+  one delivered with its CRs removed, byte for byte, after the push, in the session
+  that delivered it. No deviation was reported (ruling on proposal (b)). So did
+  `b387c03`'s, at 19:18:30 on 25 October, GitHub's tip read that evening, its seven
+  files on his disk byte for byte an autocrlf checkout of it, and an autocrlf checkout
+  of GitHub's seven files read byte for byte what was verified before delivery and its
+  commit message the one delivered, line endings aside, `89d2367`'s, at 17:47:04 on
+  25 October, GitHub's tip read at 18:10 and
   18:54 that day, its four files on his disk byte for byte an autocrlf checkout of it,
   and GitHub's four files read byte for byte what was verified before delivery and its
   commit message the one delivered, line endings aside (`b387c03` wrote "byte for
@@ -1509,9 +1562,8 @@ on Viktor's silence. The commit that writes this line lands entry 54 and records
   commit that writes this line unless it deviates. Earlier pushes and deviations are
   recorded in this file's previous versions, in HISTORY.
 - **Before this commit**, every file its patch changes was staged off Viktor's disk and
-  matched an autocrlf checkout of `b387c03` byte for byte — made from his own
-  repository's objects, staged off his disk, GitHub asking for credentials on
-  26 October; GitHub's tip, read on 25 October, is `b387c03` too.
+  matched an autocrlf checkout of `9862568`, GitHub's tip, cloned at 16:56 on
+  26 October, byte for byte.
 - **code_hash:** `816d4951bb0322763ec4abc4b9ed8161d5b902372823350e5272f2fb7176e380`,
   set by `0491b84` from `bc1b9c2c…` — `main.py` alone — and confirmed on Windows: its
   eleven hand-run records and the ten of each of the first two scheduled runs carry it.
@@ -1526,14 +1578,15 @@ on Viktor's silence. The commit that writes this line lands entry 54 and records
   `34d8e3b`, which changed one file under `docs/`, by `ad34c02`, which changed files
   under `docs/` and `tests/`, which it does not read, and `README.md`, which is not a
   `.py` file, by `89d2367`, which changed files under `docs/` and `README.md`, by
-  `b387c03`, which changed files under `tests/` and `docs/` and `README.md`, and by the
+  `b387c03`, which changed files under `tests/` and `docs/` and `README.md`, by
+  `9862568`, which changed files under `docs/` and `tests/` and `README.md`, and by the
   commit that writes this line, which changes files under `docs/` and `tests/` and
   `README.md`: computed on clones of `0491b84`,
   `a235783`, `8d5d64a`, `a48d9e5`, `fbd7877`, `8311167`, `d2dddf7`, `aa9e7ac`,
   `391c338`, `8360923`, `ed005a0` and `e88e0dd` and on the applied trees, under Python
   3.12.3; the trees of `d508b29`, `9f2f3d7`, `d410bfa`, `34d8e3b`, `ad34c02`,
-  `89d2367` and `b387c03` and the applied tree of the commit that writes this line give
-  the same. `bc1b9c2c…` was
+  `89d2367`, `b387c03` and `9862568` and the applied tree of the commit that writes
+  this line give the same. `bc1b9c2c…` was
   set by `9ea1cf3`, confirmed on Windows by its live run, and held through `f00bef6`,
   `36de35d`, `78ea37d`, `d3188f2` and `67f6ec1`, which changed only files under `docs/`
   and `tests/`, `README.md` and `run_tests.py`'s docstring.
@@ -1543,7 +1596,8 @@ on Viktor's silence. The commit that writes this line lands entry 54 and records
   (Viktor runs 3.12.10).
 - **Golden snapshot:** unchanged by the commit that writes this line, which changes a
   build script under `docs/`, one test file, `README.md`'s counts and docs, and reads
-  no fixture, by `b387c03`, which changed three test files, `README.md`'s counts and
+  no fixture, by `9862568`, which changed a build script under `docs/`, one test file,
+  `README.md`'s counts and docs, and read no fixture, by `b387c03`, which changed three test files, `README.md`'s counts and
   docs, and read no fixture, by `89d2367`,
   which changed docs and `README.md` and no code or test, by `ad34c02`, which changed
   two test files,
@@ -1566,8 +1620,8 @@ on Viktor's silence. The commit that writes this line lands entry 54 and records
   `22a9a35`, 4 leaves (the confirmation reason, `volume_sentiment` twice and
   `validation_note`'s volume half: VOLUME DIVERGENCE → FADING VOLUME); before that at
   `6469a67`, 8 leaves.
-- **Test suite** — **899 passed / 0 failed, no warnings line** with `pandas_ta`;
-  **723 passed / 165 skipped** without it; `run_tests.py` **831 passed / 0 failed /
+- **Test suite** — **900 passed / 0 failed, no warnings line** with `pandas_ta`;
+  **724 passed / 165 skipped** without it; `run_tests.py` **832 passed / 0 failed /
   31 errors**, all 31 fixture-collection `TypeError`s: the 32 of `e88e0dd` less
   `test_no_module_defaults_a_missing_risk_verdict_to_a_pass`. This is meant to be the
   one place the watched error count is written as a number (DECISIONS, "Ruling,
@@ -1575,8 +1629,16 @@ on Viktor's silence. The commit that writes this line lands entry 54 and records
   (entry 50). The commit that writes this line adds one test, taking no fixture and not
   needing `pandas_ta`: pytest rises by 1 in both configurations, and `run_tests.py`
   passes 1 more with its error count unchanged: from the Linux sandbox, Python 3.12.3,
-  pinned requirements, the patch applied to an autocrlf checkout of `b387c03` made
-  from his repository's objects. `b387c03` added one test, taking no fixture and not
+  pinned requirements, the patch applied to an autocrlf clone of `9862568`. `9862568`
+  added one test, taking no fixture and not needing `pandas_ta`: pytest rose by 1 in
+  both configurations, and `run_tests.py` passes 1 more with its error count unchanged:
+  from the Linux sandbox, Python 3.12.3, pinned requirements, the patch applied to an
+  autocrlf checkout of `b387c03` made from his repository's objects. Its pytest step
+  ran on Windows after the apply (the cache on his disk was rewritten at 11:12:15 on
+  26 October, 3 minutes 28 seconds after its files were written, at 11:08:47, and
+  holds the new test's id, and its `lastfailed` was left as it was, `{}`, so that run
+  recorded no failure), and Viktor went on to the commit, which confirms 899 by
+  proceeding. `b387c03` added one test, taking no fixture and not
   needing `pandas_ta`: pytest rose by 1 in both configurations, and `run_tests.py`
   passes 1 more with its error count unchanged: from the Linux sandbox, Python 3.12.3,
   pinned requirements, the patch applied to an autocrlf clone of `89d2367`. Its pytest
@@ -1677,7 +1739,7 @@ on Viktor's silence. The commit that writes this line lands entry 54 and records
   `test_the_commit_messages_up_to_the_tag_are_round_7s_to_the_byte`, runs `git log` up
   to the tag `round7-sent-2026-09-30`: it needs the tag, which a full clone has.
 - **Engineering Notes:** through Entry #183 (v1.36), which covers `68c6191`.
-  **Sixty-two commits behind** — `ec4e5fd`, the floor (a commit that regenerates the
+  **Sixty-three commits behind** — `ec4e5fd`, the floor (a commit that regenerates the
   Notes cannot
   cover itself, Entry #144), `e7a94d1`, `d5ced0c`, `59b747a`, `f256937`, `12b483e`,
   `01f2892`, `8b6fd00`, `e186423`, `86f30f1`, `3e8191a`, `1523e0c`, `ff12e17`,
@@ -1687,8 +1749,8 @@ on Viktor's silence. The commit that writes this line lands entry 54 and records
   `d77a8c4`, `64ad625`, `9ea1cf3`, `f00bef6`, `36de35d`, `78ea37d`, `d3188f2`,
   `67f6ec1`, `0491b84`, `a235783`, `8d5d64a`, `a48d9e5`, `fbd7877`, `8311167`,
   `d2dddf7`, `aa9e7ac`, `391c338`, `8360923`, `ed005a0`, `e88e0dd`, `d508b29`,
-  `9f2f3d7`, `d410bfa`, `34d8e3b`, `ad34c02`, `89d2367`, `b387c03` and the commit
-  that writes this line.
+  `9f2f3d7`, `d410bfa`, `34d8e3b`, `ad34c02`, `89d2367`, `b387c03`, `9862568` and the
+  commit that writes this line.
   Every later
   commit adds one
   until the
@@ -1704,7 +1766,7 @@ on Viktor's silence. The commit that writes this line lands entry 54 and records
   identical to the committed PDF. Neither changes in the commit that writes this line;
   the Attribution Statement's script last changed at `68c6191`, the Portfolio
   Document's at `6e1baba`.
-- **README.md:** its test counts are current (899, 723 / 165 and 831, and the error
+- **README.md:** its test counts are current (900, 724 / 165 and 832, and the error
   count, 31), last changed by the commit that writes this line, which changes only
   those numbers there; that README writes the error count at all is entry 50. **Its
   three status rows are
@@ -2753,7 +2815,7 @@ the work before the audit, entry 1 apart.
   disk, so the package is the same today. Changes no engine code. Entry 54; not in the
   sort. Claude's suggestion, his to change: audit tooling, Claude's under the
   delegation of 4 October, XS, wave 1 — before the package for Amazon is built.
-  **26 October: changed**, by the commit that writes this line, at Viktor's go: the
+  **26 October: changed**, by `9862568`, at Viktor's go: the
   engine bundle is `code_hash`'s own walk, `iter_source_files`, less `run_tests.py`
   and `test_live.py`, which `code_hash` reads and the package puts with the tests on
   purpose; the test bundle is those two and every `.py` under `tests/` in no directory
@@ -2786,6 +2848,21 @@ the work before the audit, entry 1 apart.
   delimiter out of the header. Changes no engine code. Entry 55; not in the sort.
   Claude's suggestion, his to change: audit tooling, Claude's under the delegation of
   4 October, XS, wave 1 — before the package for Amazon is built.
+  **26 October: changed**, by the commit that writes this line, at Viktor's go:
+  `_bundle` takes the files that go first, which it refuses unless they are sorted by
+  path, and `then`, files that follow them in the order given, and makes the header's
+  sentence about the order from the two: the engine bundle's now reads "N files follow:
+  the first K in path order, then `pytest.ini`, `requirements.txt`,
+  `requirements-dev.txt`, `.gitattributes` and `.gitignore`, in that order", and the
+  test bundle's is unchanged. The files, their order and their hashes in the manifest
+  are unchanged; `main()` passes the project files as `then`. The new
+  `tests/test_send_audit_round.py::test_each_bundle_says_the_order_its_files_follow_in`
+  builds both bundles as `main()` does, from the repository, and reads each header
+  against the files that follow it; and the call that wrote the untrue header, the
+  modules and the project files as one list, is refused. Against the script as it was,
+  it fails on that call, which the old `_bundle` took. Kept, not changed: the order
+  itself — the engine's modules first, then the files that build and pin them — and
+  the bundles already sent, which are records (Linux sandbox).
 
 ## Work order — Claude's, under Viktor's delegation
 
@@ -3075,20 +3152,15 @@ Each code commit is its own commit and updates this file for its own landing.
 
 ## Resolved this session
 
-- **`b387c03`'s landing**, read off Viktor's disk again, with the times Claude had read
-  off it after the push, in chat, and GitHub's tip ("Where the project is", the session
-  of 25 October, from 17:56, and this session). Two parts of the record written for
-  Viktor said more than its checks had shown; it is recorded as checked.
-- **`89d2367`'s commit message** — this file said it was byte for byte what was
-  verified; it was compared with its line endings made the same. Corrected in both
-  places it was said, Claude's error ("Where the project is", the session of
-  25 October, from 15:20, and "The push").
-- **Entry 54** — the audit package reads the engine `code_hash` reads, by the commit
+- **`9862568`'s landing**, read off Viktor's disk and GitHub again, with the times
+  Claude had read off them after the push, in chat ("Where the project is", the session
+  of 25 October, from 19:20, going on to 26 October, and this session). Every part that
+  could be read again held; the two that could not are named there.
+- **Entry 55** — each bundle's header says the order its files follow in, by the commit
   that writes this line ("Found after 22 September"): Claude's under the delegation of
-  4 October, at Viktor's go at 10:13 on 26 October. It found one entry more.
-- **One entry added**, 55 ("Found after 22 September").
+  4 October, at Viktor's go at 18:09 on 26 October. It found no entry more.
 - **The once-per-session rewrite of this file**, by the commit that writes this line.
-  The previous version, as at `b387c03`, is in HISTORY verbatim, headings demoted one
+  The previous version, as at `9862568`, is in HISTORY verbatim, headings demoted one
   level, proven by un-demotion with a negative control (the commit message has the
   result).
 
@@ -3101,10 +3173,10 @@ Claude critiques it.
   prediction (ruling on proposal (b), 27 September).
 - **Wave 1 — what is left.** Its test gaps have landed: entry 48 at `ed005a0`, 36 at
   `e88e0dd`, 37 at `d508b29`, 49, found landing 37, at `ad34c02`, and 51, found
-  landing 49, at `b387c03`; and entry 54, found landing 51, audit tooling, at the
-  commit that writes this line. Found landing 54, and suggested for it: entry 55, the
-  engine bundle's header, audit tooling, Claude's, before the package for Amazon is
-  built, next when Viktor says.
+  landing 49, at `b387c03`; entry 54, found landing 51, audit tooling, at `9862568`;
+  and entry 55, found landing 54, audit tooling, at the commit that writes this line.
+  Landing 55 found no entry more. Of wave 1, what this file names as Claude's has
+  landed.
   **Viktor's, position first:** entries 26 and 31, Goal B's two
   rulings, docs only; entry 50's shape (docs, found landing 37); and entry 47's place in
   the sort, if he changes Claude's suggestion.
@@ -3430,11 +3502,11 @@ Claude critiques it.
   `36de35d`, docs only, changed no line there.) `8360923` added its own line under the
   same wording; `ed005a0` named it there and added its own, and so did `e88e0dd`,
   `d508b29` and `d410bfa`, each naming the one before; `ad34c02` named `d410bfa` there
-  and added its own, `b387c03` named `ad34c02` there and added its own, and the commit
-  that writes this line names `b387c03` there and adds its own. The docs-only commits
-  between them changed no line there. (This paragraph stopped at `a235783` until
-  `ad34c02` brought it current, and at `ad34c02` until the commit that writes this
-  line did.)
+  and added its own, `b387c03` named `ad34c02` there and added its own, `9862568` named
+  `b387c03` there and added its own, and the commit that writes this line names
+  `9862568` there and adds its own. The docs-only commits between them changed no line
+  there. (This paragraph stopped at `a235783` until `ad34c02` brought it current, and
+  at `ad34c02` until `9862568` did.)
 - **The pre-push hook is installed per clone, not per repository.** After any re-clone
   (including after a machine wipe), run `git config core.hooksPath githooks`;
   `session_handover_check.py` section 6 flags a clone without it.

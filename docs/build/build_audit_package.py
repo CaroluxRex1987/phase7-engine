@@ -275,20 +275,40 @@ def _read(rel):
         return fh.read()
 
 
-def _bundle(rel_paths, title, purpose):
-    """One markdown bundle, with the delimiter the instruction document names."""
+def _bundle(rel_paths, title, purpose, then=()):
+    """
+    One markdown bundle, with the delimiter the instruction document names.
+
+    rel_paths go first and must be sorted by path; then follows them in the
+    order given. The header's sentence about the order is made from those two
+    arguments, so it cannot say more than the bundle does: until 26 October
+    2026 it said every file followed in path order, and the engine bundle put
+    the project files after the modules (the list for after the audit, entry
+    55). Unsorted rel_paths are refused rather than described.
+    """
+    rel_paths, then = list(rel_paths), list(then)
+    if rel_paths != sorted(rel_paths):
+        raise ValueError(f"{title}: the files given to go first are not sorted by "
+                         f"path, and the header would say they are")
     # The delimiter is DESCRIBED here rather than written out, because a
     # literal copy of it in the header is a phantom entry to anything that
     # splits the file on it -- a document containing a fake instance of its own
     # delimiter, which is a small dishonesty of exactly the kind this project
     # audits for.
+    count = len(rel_paths) + len(then)
+    if then:
+        named = (then[0] if len(then) == 1
+                 else ", ".join(then[:-1]) + " and " + then[-1])
+        order = (f"{count} files follow: the first {len(rel_paths)} in path order, "
+                 f"then {named}, in that order.")
+    else:
+        order = f"{count} files follow, in path order."
     parts = [f"# {title}\n\n{purpose}\n\n"
              f"Each file below begins with a line reading three equals signs, the word "
-             f"FILE, a colon, the path, and three equals signs. {len(rel_paths)} files "
-             f"follow, in path order. Cite locations by path and by quoting the code: "
-             f"line numbers are not included.\n\n"]
+             f"FILE, a colon, the path, and three equals signs. {order} Cite locations "
+             f"by path and by quoting the code: line numbers are not included.\n\n"]
     entries = []
-    for rel in rel_paths:
+    for rel in rel_paths + then:
         text = _read(rel)
         entries.append((rel, len(text.encode("utf-8")),
                         hashlib.sha256(text.encode("utf-8")).hexdigest()))
@@ -597,11 +617,12 @@ def main():
     project_present = [p for p in PROJECT_FILES if os.path.exists(os.path.join(REPO, p))]
 
     source_text, source_entries = _bundle(
-        source_files + project_present,
+        source_files,
         "Phase-7 Structural Quant Engine — complete source",
         "Every module the engine runs, plus the project files that decide how it is "
         "built and pinned. Nothing has been trimmed, summarised or withheld: if a "
-        "module is not here, it does not exist.")
+        "module is not here, it does not exist.",
+        then=project_present)
     test_text, test_entries = _bundle(
         test_files,
         "Phase-7 Structural Quant Engine — complete test suite",
