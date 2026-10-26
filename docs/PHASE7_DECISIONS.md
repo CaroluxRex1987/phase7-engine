@@ -163,14 +163,21 @@ The order is deliberate: cheapest information first.
    existing tail logic" — and the existing loading, validation and error paths then apply
    unchanged, for all three series at once.
 
-   **The truncation rule is the single highest-risk line in goal B.** Each series is
-   truncated by candle **open time strictly before `t`**, never by close time. At a 4h
-   decision point mid-day the current daily candle has not closed; handing the engine the
-   completed daily bar leaks the rest of that day into every decision, invisibly, with
-   clean hashes, passing every other check in this section.
+   **The truncation rule is the single highest-risk line in goal B.** *(Amended
+   26 October 2026: "Decision, 26 October 2026 — Goal B keeps a candle only once it has
+   closed at `t` (entry 26)", below, which quotes the sentences it replaces and states
+   what it weakens.)* At `t`, each series keeps a candle only when its **open time plus
+   one bar of its own timeframe is at or before `t`** — only once it has closed — the
+   rule the live engine applies to the time it runs at (`data/data_fetcher.py`,
+   `_split_forming`). `t` is the moment the decision is made; the decision candle is the
+   last 4h candle closed at or before it. At a 4h decision point mid-day the current
+   daily candle has not closed; handing the engine the completed daily bar leaks the rest
+   of that day into every decision, invisibly, with clean hashes, passing every other
+   check in this section.
 
    Negative control, because an assertion proves only that the guard did not fire:
-   re-run sampled decision points with all bars after `t` replaced by random noise, across
+   re-run sampled decision points with every candle the rule drops at `t` — the daily
+   candle still forming at `t` among them — replaced by random noise, across
    **at least three different seeds**, asserting byte-identical decisions on every one. A
    single noise draw can coincidentally land on the same side of a threshold.
 3. **Item 17 write guard.** Backtest mode requires an explicit flag; writes to live log
@@ -5863,6 +5870,78 @@ path had round 8's Major; this rating is the code's author's alone.
 - A severity rated by the code's author, with no independent reading.
 - The gate is bound by two Criticals over effects of a few percent that the code
   discloses.
+
+## Decision, 26 October 2026 — Goal B keeps a candle only once it has closed at `t` (entry 26)
+
+*New in this file on 26 October 2026. Claude's, under Viktor's delegation in the
+session that opened at 18:56 at `3d7e6cb`: shown entry 26 and asked for his position
+first, he asked what leak, was told, and answered at 19:02, "I don't understand. Just
+fix it as you see fit." Filed by that session's commit, docs only. Viktor's to reverse.
+Entry 31, Goal B's other ruling in wave 1, was not delegated and stays his.*
+
+**The finding.** Entry 26 of the list for after the audit (PHASE7_NEXT.md, "Found after
+22 September"), noted on 5 October from two documents. Goal B's precondition 2, as
+ratified on 15 September, read: "Each series is truncated by candle **open time
+strictly before `t`**, never by close time." A daily candle opens at 00:00 UTC, which
+is before a decision at 12:00 the same day, so that rule keeps it; a pinned file holds
+finished candles and treats every row as closed (finding 16, "Pinned data"), so the
+engine would read at 12:00 the whole of that day — its close at the next midnight, and
+a high and a low that may come after 12:00. That is the leak the precondition's next
+sentence warns against. Its negative control, as ratified — "all bars after `t`
+replaced by random noise" — would not have found it if "after `t`" is read by open
+time, as the truncation is: the daily candle opened before `t`, so no noise reaches
+it. Read again on 26 October at `3d7e6cb`: `_load_pinned` serves the
+file's tail and drops no row (`data/data_fetcher.py:200`); no code of the harness
+exists.
+
+**What was decided.**
+
+1. **The rule.** At `t` a candle of any series is kept only when its open time plus one
+   bar of its own timeframe is at or before `t`: only once it has closed. It is the
+   live engine's own rule — `_split_forming` drops a trailing candle whose open time
+   plus the bar length is later than the time the run reads at
+   (`data/data_fetcher.py:302–342`, read at `3d7e6cb`). So at `t` a backtest reads the
+   candles a live run at `t` would have read.
+2. **What `t` is.** The moment the decision is made, as the time it runs at is for a
+   live run; the decision candle is the last 4h candle closed at or before it. Every
+   `t` from that candle's close up to, not including, the next 4h close keeps the same
+   rows of all three series under this rule (a daily candle closes on a 4h close), so
+   where in that span the harness puts `t` — after the 60-second grace for exchange
+   delay, if it reuses the live checks — changes no row; it is set when the harness is
+   built.
+3. **The negative control** replaces with noise every candle the rule drops at `t`,
+   the daily candle still forming at `t` among them, not only the bars that open after
+   `t`.
+4. **The text.** Precondition 2 is changed in place, marked as amended, naming this
+   entry; the sentences it replaces are quoted above. "Open-time truncation", the name
+   used further down Goal B, stays: the rule is still worked out from open times, the
+   only time a pinned file carries.
+
+**Claude's reasons.**
+
+1. The precondition states its own purpose: no data from after the decision. The rule
+   as written did not carry it out for the daily series; this one does, by the same
+   comparison the live engine makes.
+2. A backtest and the live engine that use one rule cannot disagree about which candles
+   exist at a moment; one that uses a different rule is judging a different engine.
+3. On the 4h series the two rules keep the same rows when `t` falls exactly on a 4h
+   close. At any later `t` the old rule also keeps the 4h candle that opened at that
+   close and is still forming; the new one does not.
+4. Nothing of the harness exists, so this is the cheapest moment to change it: docs
+   only, before any code depends on it.
+
+**The case against.** Viktor ratified the text, and this changes it on Claude's
+reading, which he did not follow when it was put to him; it is his to reverse if he
+reads it otherwise. It is reasoned from the documents and from the live code, not
+tested: there is no harness to test it in.
+
+**What it weakens.**
+
+- Macro reads the previous day's candle all day: at 20:00 UTC the newest daily candle
+  it sees closed 20 hours before. That is what the live engine reads; a backtest under the
+  old rule would have read fresher macro than the engine ever has, and scored it.
+- A ratified specification is changed by Claude under delegation, not by Viktor's own
+  reasoning; that is a precedent, and this entry is its record.
 
 ## Working practice
 
