@@ -38,6 +38,7 @@ process itself. Each round gets its own directory.
 """
 
 import hashlib
+import importlib.util
 import os
 import re
 import subprocess
@@ -191,17 +192,36 @@ PART7_COMMITS_SINCE = "e65a0f7"
 # before it has stated its own identity, which is the one thing Section 5 of Rev 5
 # asks it to do unprompted. Rename after the package is out, not before.
 
-# Directories that never enter a bundle, for four different reasons:
+# Directories that never enter a bundle: those core/code_fingerprint.py's
+# EXCLUDED_DIR_NAMES names -- what code_hash, and so every decision record,
+# counts as not the engine -- tests/ apart, which is the test bundle. Four
+# reasons among them:
 #   docs      another party's reasoning about this code (see the docstring)
 #   logs      run artifacts; not the artifact under audit
 #   .git      history is supplied separately and deliberately shaped
 #   caches    derived bytes
-EXCLUDED_DIRS = {"docs", "logs", ".git", "__pycache__", ".pytest_cache",
-                 ".venv", "venv", "node_modules"}
+# and the rest -- virtual environments, Backup, Claude outputs -- hold tools
+# and copies, not the engine.
+#
+# ONE LIST OF DIRECTORIES, 26 October 2026 (the list for after the audit,
+# entry 54, found on 25 October landing entry 51). This script skipped a list
+# of its own -- docs, logs, .git, __pycache__, .pytest_cache, .venv, venv and
+# node_modules -- where code_hash skips Logs, env, aider-env, Backup and
+# Claude outputs as well, and not node_modules. Two lists of the same
+# directories, drifted apart (rule 11): a .py file under Claude outputs/ -- a
+# session backup's copy of an engine module, say -- would have gone to the
+# auditor as the engine, and was not the engine in any record; one under
+# node_modules/ was the engine, and would have been left out. So the engine
+# bundle is code_hash's own walk, iter_source_files, and the test bundle skips
+# the same names, both read from the packaged tree's core/code_fingerprint.py
+# when the bundles are made. One list, so the two cannot drift (rule 28).
+# tests/test_send_audit_round.py::test_the_package_reads_the_engine_code_hash_reads
+# holds it.
 
 # The test bundle is "every test module and the runner". run_tests.py is the
 # no-pytest runner and test_live.py is a root-level smoke check; both are test
-# material and belong with the tests rather than with the engine.
+# material and belong with the tests rather than with the engine. code_hash
+# reads both, so the engine bundle is code_hash's files less these two.
 TEST_ROOT_FILES = {"run_tests.py", "test_live.py"}
 
 # Not source, but the auditor needs them: Tier 3 asks about controlled changes
@@ -217,23 +237,37 @@ MARKER = "=== FILE: {path} ==="
 ANSI = re.compile(r"\x1b\[[0-9;]*m")
 
 
+def _code_fingerprint():
+    """The packaged tree's core/code_fingerprint.py, loaded by its path, as
+    send_round8_fix_verification.py loads it: the engine's own account of
+    what the engine is."""
+    path = os.path.join(REPO, "core", "code_fingerprint.py")
+    spec = importlib.util.spec_from_file_location("phase7_package_fingerprint", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
 def _walk(kind):
-    """Every .py in the repo, split into engine and test material."""
-    found = []
-    for root, dirs, files in os.walk(REPO):
-        dirs[:] = sorted(d for d in dirs if d not in EXCLUDED_DIRS)
-        for name in sorted(files):
-            if not name.endswith(".py"):
-                continue
-            full = os.path.join(root, name)
-            rel = os.path.relpath(full, REPO).replace(os.sep, "/")
-            is_test = rel.startswith("tests/") or rel in TEST_ROOT_FILES
-            # This script builds the package; it is not part of the artifact.
-            if rel.startswith("docs/"):
-                continue
-            if (kind == "tests") == bool(is_test):
-                found.append(rel)
-    return found
+    """
+    One bundle's .py files, as paths relative to the repository, sorted.
+
+    "tests": TEST_ROOT_FILES, and every .py under tests/ in no directory
+    code_hash skips, tests apart. Otherwise the engine: the files code_hash
+    reads, less TEST_ROOT_FILES.
+    """
+    fingerprint = _code_fingerprint()
+    if kind == "tests":
+        skip = set(fingerprint.EXCLUDED_DIR_NAMES) - {"tests"}
+        found = [p for p in TEST_ROOT_FILES if os.path.isfile(os.path.join(REPO, p))]
+        for root, dirs, files in os.walk(os.path.join(REPO, "tests")):
+            dirs[:] = [d for d in dirs if d not in skip]
+            for name in files:
+                if name.endswith(".py"):
+                    rel = os.path.relpath(os.path.join(root, name), REPO)
+                    found.append(rel.replace(os.sep, "/"))
+        return sorted(found)
+    return [p for p in fingerprint.iter_source_files(REPO) if p not in TEST_ROOT_FILES]
 
 
 def _read(rel):

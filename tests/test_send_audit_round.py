@@ -70,6 +70,13 @@ Added 4 October 2026, once round 8's first run had scored 0 of 4
     run is the one committed: round 8's first message, answered by Xiaomi,
     with reasoning, finished normally.
 
+Added 26 October 2026 (the list for after the audit, entry 54):
+
+  * the build's engine bundle is the files code_hash reads, less
+    run_tests.py and test_live.py, which go with the tests; its test bundle
+    skips the directories code_hash skips, tests apart; each is sorted by
+    path.
+
 WHAT THESE TESTS DO NOT COVER
 
 Nothing here touches the network: the function that would POST is replaced by a
@@ -432,6 +439,109 @@ def test_the_cut_is_the_ruled_commit():
     bap = _load("phase7_build_audit_package_const", "build_audit_package.py")
     assert bap.PART7_COMMITS_SINCE == "e65a0f7"
     assert bap.ROUND == "round7"
+
+
+# --- what the package reads as the engine ------------------------------------------
+
+
+def test_the_package_reads_the_engine_code_hash_reads():
+    """
+    build_audit_package.py's two bundles, held to code_hash's walk (26 October
+    2026; the list for after the audit, entry 54, found on 25 October landing
+    entry 51).
+
+    The engine bundle is what an auditor reads as the engine; code_hash is what
+    every decision record counts as the engine. The build skipped a list of
+    directories of its own, which lacked Logs, env, aider-env, Backup and
+    Claude outputs and had node_modules: a .py file under one of the five
+    would have gone to the auditor as the engine and was not the engine in any
+    record, and one under node_modules/ was the engine and would have been
+    left out. Lists of the same directories, drifted apart (rule 11).
+
+    The engine bundle is now code_hash's own walk less run_tests.py and
+    test_live.py, which go with the tests, and the test bundle is those two and
+    every .py under tests/ in no directory code_hash skips, tests apart. This
+    holds it on a tree built for it: a .py file in a directory of every name
+    code_hash skips, at the top, under core/ and under tests/ -- so a tests/
+    under core/, in neither bundle, and one under tests/, in the test bundle --
+    beside files in directories it does not skip, four of them named like
+    ones it does, and one under node_modules/; with the repository's
+    core/code_fingerprint.py copied in, since the build reads what the engine
+    is from the tree it packages. Then on the repository itself. Each bundle's
+    files are sorted by path.
+    """
+    from core.code_fingerprint import EXCLUDED_DIR_NAMES, iter_source_files
+
+    excluded = set(EXCLUDED_DIR_NAMES)
+
+    def dirs(rel):
+        return rel.split("/")[:-1]
+
+    def compare(what, got, expected):
+        got, expected = set(got), set(expected)
+        return ([f"{what} reads {p}, and should not" for p in sorted(got - expected)]
+                + [f"{what} does not read {p}" for p in sorted(expected - got)])
+
+    def in_order(what, files):
+        return [] if files == sorted(files) else [f"{what} is not sorted by path"]
+
+    planted = {"main.py", "run_tests.py", "test_live.py", "core/__init__.py",
+               "core/a.py", "models/sub/b.py", "tests/test_c.py", "tests/sub/test_d.py",
+               # Named like a directory code_hash skips, and not one: the
+               # walks match whole names.
+               "environment/e.py", "Backups/f.py",
+               "tests/environment/test_g.py", "tests/Backups/test_h.py",
+               # The engine to code_hash; the build's own list skipped it.
+               "node_modules/i.py"}
+    for name in excluded:
+        for parent in ("", "core/", "tests/"):
+            planted.add(f"{parent}{name}/skipped.py")
+    engine = {p for p in planted if not set(dirs(p)) & excluded}
+    engine.add("core/code_fingerprint.py")
+    suite = {p for p in planted if dirs(p)[:1] == ["tests"]
+             and not set(dirs(p)[1:]) & (excluded - {"tests"})}
+
+    tmp = tempfile.mkdtemp(prefix="phase7_package_walk_")
+    try:
+        for rel in sorted(planted):
+            _write(os.path.join(tmp, *rel.split("/")), "x = 1\n")
+        shutil.copyfile(os.path.join(REPO_ROOT, "core", "code_fingerprint.py"),
+                        os.path.join(tmp, "core", "code_fingerprint.py"))
+        bap = _load("phase7_build_audit_package_walk", "build_audit_package.py")
+        bap.REPO = tmp
+        source, tests = bap._walk("source"), bap._walk("tests")
+        problems = (compare("code_hash's walk of the planted tree",
+                            iter_source_files(tmp), engine)
+                    + compare("the engine bundle of it", source,
+                              engine - bap.TEST_ROOT_FILES)
+                    + compare("the test bundle of it", tests,
+                              suite | bap.TEST_ROOT_FILES)
+                    + in_order("the engine bundle of it", source)
+                    + in_order("the test bundle of it", tests))
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+    bap = _load("phase7_build_audit_package_walk_repo", "build_audit_package.py")
+    source, tests = bap._walk("source"), bap._walk("tests")
+    code = iter_source_files(REPO_ROOT)
+    if not code:
+        problems.append("code_hash's walk of the repository reads no file")
+    at_root = {p for p in bap.TEST_ROOT_FILES if os.path.isfile(os.path.join(REPO_ROOT, p))}
+    top = {f"tests/{n}" for n in os.listdir(os.path.join(REPO_ROOT, "tests"))
+           if n.endswith(".py")}
+    problems += compare("the engine bundle of the repository", source, set(code) - at_root)
+    problems += [f"the test bundle of the repository does not read {p}"
+                 for p in sorted((top | at_root) - set(tests))]
+    problems += [f"the test bundle of the repository reads {p}, which is not test material"
+                 for p in tests if not (p.startswith("tests/") or p in bap.TEST_ROOT_FILES)]
+    problems += [f"both bundles of the repository read {p}"
+                 for p in sorted(set(source) & set(tests))]
+    problems += in_order("the engine bundle of the repository", source)
+    problems += in_order("the test bundle of the repository", tests)
+
+    assert not problems, (
+        "the audit package does not read the engine code_hash reads:\n  "
+        + "\n  ".join(problems))
 
 
 # --- the first send: measured, or not sent ----------------------------------------
