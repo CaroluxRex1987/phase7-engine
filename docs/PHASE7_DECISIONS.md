@@ -6134,6 +6134,56 @@ delivered.
   reads the message's properties. Nothing else a landing check reads is given up.
 - Nothing ratified is removed or reworded.
 
+## Ruling, 27 October 2026 — the commit-msg hook stops a message with no `Verified-Tree:` line
+
+*New in this file on 27 October 2026. Viktor's, by agreeing to Claude's suggestion, in
+the session that opened at 12:31 on 27 October at `b8f88d8`: asked at 12:40 for his
+position first, and again after he said start at 12:47, with facts that bear on both
+answers, he asked at 13:06 for Claude's suggestion instead, and accepted it at 13:08.
+Filed by that session's commit, which lands the hook (entry 56).*
+
+**The question.** The ruling before this one left one point to the hook's own patch:
+what `githooks/commit-msg` does with a commit message that carries no `Verified-Tree:`
+line (point 2: "What it does with a message that has no such line is settled with
+that patch").
+
+**What was ruled.** The hook stops it, as it stops a message whose line names another
+tree. A commit without the line goes through only as `git commit --no-verify`, after a
+consult — the shape of the pre-push hook's option A (Working practice, "Ruled
+19 September 2026 — what the pre-push hook does on a finding"). The decision stays
+his; the hook only makes sure the look happens first.
+
+**Claude's, stated with the hook and not overruled.** A message that names no tree
+unambiguously is stopped too: two `Verified-Tree:` lines, or one not written exactly as
+`Verified-Tree: ` and forty lowercase hex digits — any case, indentation or spacing
+before the colon is caught as a line and then refused.
+
+**Claude's reasons, which Viktor accepted.**
+
+1. It is the structural fix. If a message with no line went through, the check would
+   depend on the line being there: a delivered message that lost its line would be
+   committed unchecked — the slip the hook exists to catch.
+2. It fails closed. The only way through is a staged tree equal to a well-formed hash
+   in the message. If a message with no line went through, anything that left the hook
+   finding no line — a line never written, or a tool failing while it read the
+   message — would pass.
+3. It costs little here. The 124 commits after `2fee78f` (19 September), the last
+   without one, to `b8f88d8` all carry the attribution lines, so each came from a
+   delivered message, and delivered messages carry the line from `b8f88d8` on. The
+   repository's 355 commits at `b8f88d8` include no merge.
+
+**The case against.** A commit made by hand, or a `git pull` that merges, is stopped and
+needs `--no-verify`, which skips the whole check for that commit: the override is all
+or nothing. On git 2.43 in the Linux sandbox, `git commit`, `--amend` included, and
+`git merge` run the hook; `git revert --no-edit`, `git cherry-pick` and `git rebase` do
+not. Not checked on Git for Windows.
+
+**What it weakens.**
+
+- A commit without a `Verified-Tree:` line needs an explicit override, where it needed
+  none before.
+- Nothing ratified is removed or reworded.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then
@@ -6224,7 +6274,9 @@ delivered.
      clone with `git config core.hooksPath githooks` — a local setting that a fresh clone
      silently lacks. The script flags it unset, the hook file missing, or the hook tracked
      without its executable bit (Linux/macOS git ignores such a hook; Git for Windows does
-     not).
+     not). Since 27 October the same setting switches on `githooks/commit-msg` too (the
+     two rulings of that date on the verified tree); the script checks the setting for
+     both, and the file and its bit for the pre-push hook only.
 
   **Ruled 19 September 2026 — what the pre-push hook does on a finding.** Asked to
   choose between (A) stop the push, consult, override with `git push --no-verify`; (B) a

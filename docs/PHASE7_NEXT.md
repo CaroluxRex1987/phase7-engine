@@ -1,10 +1,10 @@
 # Next step — read this first
 
-*27 October 2026, from 11:07. Rewritten by the commit that files Viktor's ruling that a
-commit names the tree verified before delivery — a `Verified-Tree:` line in every
-delivered commit message, by agreeing to Claude's suggestions, docs only — and records
-`0d86fda`'s landing; the version it replaced — as it stood at `0d86fda` — is in HISTORY
-verbatim.
+*27 October 2026, from 12:31. Rewritten by the commit that lands entry 56 — the
+commit-msg hook, which stops a commit whose staged tree is not the one its
+`Verified-Tree:` line names, and a message with no such line, by Viktor's ruling, by
+agreeing to Claude's suggestion — and records `b8f88d8`'s landing; the version it
+replaced — as it stood at `b8f88d8` — is in HISTORY verbatim.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
 rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
@@ -352,10 +352,24 @@ reading of 14 November; each read of GitHub dated, a later check adding its own;
 the proxy settled by a probe (below). At 11:43 he said, "We go with your suggestion."
 Asked then about the two points the answer had left open, he took Claude's suggestion
 on both — the hook, and accepting the message — and chose to start this commit at
-once. The commit that writes this line files that ruling, his by agreeing to Claude's
-suggestions (DECISIONS, "Ruling, 27 October 2026 — a commit names the tree verified
-before delivery"), docs only, and records `0d86fda`'s landing; it is the first commit
-to carry a `Verified-Tree:` line.
+once. `b8f88d8` filed that ruling, his by agreeing to Claude's suggestions (DECISIONS,
+"Ruling, 27 October 2026 — a commit names the tree verified before delivery"), docs
+only, and recorded `0d86fda`'s landing; it is the first commit to carry a
+`Verified-Tree:` line.
+**On 27 October, from 12:31**, after pushing `b8f88d8` at 12:22:59, Viktor opened the
+session with its landing record, as the session before had written it for him. Claude
+read it off his disk and GitHub again (below): every part that could be read again
+held, the tree verified before delivery among them, and three could not: the commit
+message as delivered, whose properties are read instead by the ruling of that morning,
+and they held; the session before's read of GitHub's tip at 12:24:15; and whether
+`run_tests.py` ran. At 12:40 Viktor asked for Claude's suggestion: entry 56, the
+commit-msg hook, ruled next that morning, with one point in it his — what the hook
+does with a message that has no `Verified-Tree:` line. He said start at 12:47. Asked
+for his position first, at 12:40 and again after 12:47, he asked at 13:06 for Claude's
+suggestion instead — stop it, as his pre-push ruling stops a push — and accepted it at
+13:08. The commit that writes this line lands the hook, files that ruling, his by
+agreeing to Claude's suggestion (DECISIONS, "Ruling, 27 October 2026 — the commit-msg
+hook stops a message with no `Verified-Tree:` line"), and records `b8f88d8`'s landing.
 
 **The review and the comparison are outside the repository**, in
 `G:\Phase_7_Engine_Random_Files\Docs\02_Reviews_and_Feedback`:
@@ -978,9 +992,9 @@ credentials — its three files on his disk and GitHub's blobs, CRs aside, byte 
 the tree verified before delivery, and its commit message the one delivered with its
 CRs removed, byte for byte, in chat only; Viktor listed them at the start of the next
 session. Its account is in HISTORY, in this file's version at `0d86fda`, moved there by
-the commit that writes this line.
+`b8f88d8`.
 
-**This session (27 October, from 11:07)**, configured for Claude Opus 5.5, opened at
+**The session of 27 October, from 11:07**, configured for Claude Opus 5.5, opened at
 `0d86fda`. GitHub's tip, read with `git ls-remote` at 11:09:04 with the sandbox's own
 git credentials still in its environment, cloned by the sandbox at 11:10, and read again
 at 11:17:53 and 12:03:12 with git's tokens, askpass, credential helper, prompts and
@@ -1011,19 +1025,77 @@ finds no file written — so its count for `0d86fda` rests on Viktor's silence. 
 commit message was compared with the one delivered, and the three files with the tree
 verified before delivery, by the session before, in its sandbox: the delivered message
 was deleted by its own step and that sandbox is gone, so neither is compared again
-here. The read of 11:06:33 is the session before's; this session's reads are its own,
-above. The commit that writes this line files Viktor's ruling that a commit names the
-tree verified before delivery and records `0d86fda`'s landing.
+here. The read of 11:06:33 is the session before's; that session's reads are its own,
+above. `b8f88d8` filed Viktor's ruling that a commit names the tree verified before
+delivery and recorded `0d86fda`'s landing: docs only. From his disk, staged in the next
+session: the apply was at 12:13:43 on 27 October, the pytest cache was rewritten at
+12:16:35, the commit is from 12:22:45 and `origin/master`'s ref from 12:22:59, its
+reflog line "update by push"; `master` and `origin/master` read `b8f88d8`. Claude had
+read those times off his disk after the push, and found GitHub's tip, `b8f88d8` — read
+at 12:24:15, with no credentials, the probe answered with a request for credentials —
+its tree the one its `Verified-Tree:` line names, its three files on his disk and
+GitHub's blobs, CRs aside, byte for byte the tree verified before delivery, and its
+commit message the one delivered with its CRs removed, byte for byte, in chat only;
+Viktor listed them at the start of the next session. Its account is in HISTORY, in
+this file's version at `b8f88d8`, moved there by the commit that writes this line.
+
+**This session (27 October, from 12:31)**, configured for Claude Opus 5.5, opened at
+`b8f88d8`. GitHub's tip, cloned by the sandbox at 12:33 with the sandbox's own git
+credentials still in its environment, and read with `git ls-remote` at 12:34:39 with
+git's tokens, askpass, credential helper, prompts and configuration files all removed
+from its environment, is `b8f88d8`, its parent `0d86fda`. In that same environment,
+also at 12:34:39, GitHub answered a read of a repository that does not exist,
+`CaroluxRex1987/phase7-engine-no-such-repo-probe`, with a request for credentials, so
+none reached it on that request. The tip's tree is
+`9f69d94d4855631e07ee6dfe4c2fbc2d1cc6c8d3`, the one its `Verified-Tree:` line names,
+read from GitHub alone: the first landing check to read the tree verified before
+delivery again. `master` and `origin/master` on his disk, from `.git/refs` staged off
+it, read `b8f88d8`. The commit object, staged off his disk, hashes to that name and is
+byte for byte GitHub's, with no CR in it; `.git/COMMIT_EDITMSG` is byte for byte its
+message, which ends with its `Verified-Tree:` line and its two attribution lines,
+listed by `git interpret-trailers --parse` as its three trailers. Each of the three
+files `b8f88d8` changes is on his disk byte for byte an autocrlf checkout of GitHub's
+tip, whose three blobs hold no CR, and their mtimes are still the apply's,
+12:13:43.178 to .188; his `.git/index` lists the same 293 paths, modes and blobs as
+`b8f88d8`'s tree, and `git write-tree` from a copy of it gives that tree. The times
+above were read off his disk again: those mtimes, `.pytest_cache/v/cache/nodeids`
+(12:16:35.808), the commit object's date and the reflogs of `HEAD` and `master`, the
+`master` ref (12:22:45.838), and `origin/master`'s ref (12:22:59.299) and its reflog
+line "update by push". The cache's `lastfailed` is still `{}`, last written at
+13:37:30 on 26 September, so the run of 12:16:35, 2 minutes 52 seconds after the
+apply, recorded no failure; `b8f88d8` changed no test, so there is no new test id to
+look for. No delivery file is left in the repository's root, in `docs/` or in
+`Claude outputs/`: none holds a `.patch` file or a commit message file. `run_tests.py`
+leaves no trace — his copy is byte for byte the tip's, unchanged since `0d86fda`, and
+nothing in it writes a file — so its count for `b8f88d8` rests on Viktor's silence.
+The commit message is not compared with the one delivered: by the ruling of that
+morning its properties, above, are read instead. The read of 12:24:15 is the session
+before's; this session's reads are its own, above. Claude's first comparison of his
+index with the tree reported a difference at line 3: Claude's own script had split the
+path `Claude outputs/…` at its space. Split on the tab instead, the two are identical,
+and `git write-tree` agrees. The commit that writes this line lands entry 56 and
+records `b8f88d8`'s landing.
 
 ## Ruled — in force
+
+- **New, 27 October — Viktor's, by agreeing to Claude's suggestion: the commit-msg hook
+  stops a message with no `Verified-Tree:` line** (DECISIONS, "Ruling, 27 October 2026
+  — the commit-msg hook stops a message with no `Verified-Tree:` line").
+  `githooks/commit-msg`, landed by the commit that writes this line, stops a commit
+  whose staged tree is not the one its message's `Verified-Tree:` line names, and a
+  message with no such line: a commit without it goes through only as
+  `git commit --no-verify`, after a consult, the shape of the pre-push hook's option A.
+  A message with two such lines, or one not written exactly as `Verified-Tree: ` and
+  forty lowercase hex digits, is stopped too — Claude's, stated with the hook, his to
+  overrule.
 
 - **New, 27 October — Viktor's, by agreeing to Claude's suggestions: a commit names the
   tree verified before delivery** (DECISIONS, "Ruling, 27 October 2026 — a commit names
   the tree verified before delivery"). Every delivered commit message carries
   `Verified-Tree:` and the git hash of the tree verified before delivery, and a landing
-  check compares it with the commit's own tree, from GitHub alone; the commit that
-  writes this line is the first. A commit-msg hook will refuse a commit whose staged
-  tree is any other (entry 56, its own patch, next). A later session does not compare
+  check compares it with the commit's own tree, from GitHub alone; `b8f88d8` is the
+  first. A commit-msg hook refuses a commit whose staged tree is any other (entry 56,
+  landed by the commit that writes this line). A later session does not compare
   the commit message with the one delivered: it checks that the message holds no CR,
   ends with its attribution lines and is `.git/COMMIT_EDITMSG` byte for byte.
   `run_tests.py` gets a last-run record after the reading of 14 November (entry 57).
@@ -1471,8 +1543,11 @@ tree verified before delivery and records `0d86fda`'s landing.
 ## Where things stand, right now
 
 - **Tip:** the commit that writes this line (a commit cannot name its own hash) —
-  Viktor's ruling that a commit names the tree verified before delivery filed, docs
-  only, and `0d86fda`'s landing recorded. Before it: `0d86fda` (the session of
+  entry 56 of the list for after the audit, the commit-msg hook, tooling and a test,
+  with Viktor's ruling on a message with no `Verified-Tree:` line filed, and
+  `b8f88d8`'s landing recorded. Before it: `b8f88d8` (the session of 27 October, from
+  11:07: Viktor's ruling that a commit names the tree verified before delivery filed,
+  docs only, and `0d86fda`'s landing recorded), `0d86fda` (the session of
   26 October, from 19:43, going on to 27 October: Viktor's ruling on entry 31 of the
   list for after the audit filed, docs only, and `78204ff`'s landing recorded),
   `78204ff` (the session of 26 October, from
@@ -1702,8 +1777,10 @@ tree verified before delivery and records `0d86fda`'s landing.
   `test_each_bundle_says_the_order_its_files_follow_in` (no fixture, no `pandas_ta`),
   with a dated paragraph in that file's docstring, and changed no other test's code:
   `test_every_file_the_build_writes_is_one_the_send_sends` builds with the new header,
-  and the names it checks are the same. It removed and renamed none. `78204ff` and
-  `0d86fda` changed no test, and the commit that writes this line changes none.
+  and the names it checks are the same. It removed and renamed none. `78204ff`,
+  `0d86fda` and `b8f88d8` changed no test. The commit that writes this line adds
+  `tests/test_commit_msg_hook.py` (11 tests, none taking a fixture or needing
+  `pandas_ta`) and changes no other test.
 - **Where the project lives, from 26 September:** `E:\phase7_engine` on Viktor's machine;
   the files kept outside the repository in `G:\Phase_7_Engine_Random_Files`. Copied with
   robocopy, verified — git's own checks on Windows for the tracked files, SHA-256 for the
@@ -1712,15 +1789,21 @@ tree verified before delivery and records `0d86fda`'s landing.
   to `E:\phase7_engine`". Run the engine and every command from `E:\phase7_engine` (in
   cmd, changing drive needs `cd /d`). A dated record that names the D: paths means the
   same folders before the move; dated records are not edited.
-- **The push of `0d86fda`** happened, at 10:43:16 on 27 October: GitHub's tip, read
-  at 11:06:33 that morning and at 11:09, 11:17 and 12:03 in the next session, is
-  `0d86fda`, `master` and `origin/master` on Viktor's disk read it (their `.git/refs`
-  files, and `origin/master`'s reflog line "update by push"), and its three files on his
-  disk are byte for byte an autocrlf checkout of it. Its three files on his disk and
-  GitHub's blobs were read, CRs aside, byte for byte what was verified before delivery,
-  and its commit message the one delivered with its CRs removed, byte for byte, after
-  the push, in the session that delivered it. No deviation was reported (ruling on
-  proposal (b)). So did `78204ff`'s, at 19:42:25 on 26 October, GitHub's tip read at
+- **The push of `b8f88d8`** happened, at 12:22:59 on 27 October: GitHub's tip, read
+  at 12:24:15 that day and at 12:34 in the next session, is `b8f88d8`, `master` and
+  `origin/master` on Viktor's disk read it (their `.git/refs` files, and
+  `origin/master`'s reflog line "update by push"), its three files on his disk are
+  byte for byte an autocrlf checkout of it, and its tree is the one its
+  `Verified-Tree:` line names. Its three files on his disk and GitHub's blobs were
+  read, CRs aside, byte for byte what was verified before delivery, and its commit
+  message the one delivered with its CRs removed, byte for byte, after the push, in
+  the session that delivered it. No deviation was reported (ruling on proposal (b)).
+  So did `0d86fda`'s, at 10:43:16 on 27 October, GitHub's tip read at 11:06:33 that
+  morning and at 11:09, 11:17 and 12:03 in the next session, its three files on his
+  disk byte for byte an autocrlf checkout of it, and its three files and GitHub's blobs
+  read, CRs aside, byte for byte what was verified before delivery and its commit
+  message the one delivered with its CRs removed, `78204ff`'s, at 19:42:25 on
+  26 October, GitHub's tip read at
   19:42:40 that evening and at 19:49 and, on 27 October, 10:09 in the next session, its
   three files on his disk byte for byte an autocrlf checkout of it, and its three files
   and GitHub's blobs read, CRs aside, byte for byte what was verified before delivery
@@ -1769,8 +1852,8 @@ tree verified before delivery and records `0d86fda`'s landing.
   commit that writes this line unless it deviates. Earlier pushes and deviations are
   recorded in this file's previous versions, in HISTORY.
 - **Before this commit**, every file its patch changes was staged off Viktor's disk and
-  matched an autocrlf checkout of `0d86fda`, GitHub's tip, cloned at 11:10 on
-  27 October, byte for byte.
+  matched an autocrlf checkout of `b8f88d8`, GitHub's tip, cloned at 12:33 on
+  27 October, byte for byte; neither of the two files it adds was on his disk.
 - **code_hash:** `816d4951bb0322763ec4abc4b9ed8161d5b902372823350e5272f2fb7176e380`,
   set by `0491b84` from `bc1b9c2c…` — `main.py` alone — and confirmed on Windows: its
   eleven hand-run records and the ten of each of the first two scheduled runs carry it.
@@ -1787,13 +1870,15 @@ tree verified before delivery and records `0d86fda`'s landing.
   `.py` file, by `89d2367`, which changed files under `docs/` and `README.md`, by
   `b387c03`, which changed files under `tests/` and `docs/` and `README.md`, by
   `9862568` and `3d7e6cb`, each of which changed files under `docs/` and `tests/` and
-  `README.md`, and by `78204ff`, `0d86fda` and the commit that writes this line, each of
-  which changes files under `docs/` only: computed on clones of `0491b84`,
+  `README.md`, by `78204ff`, `0d86fda` and `b8f88d8`, each of which changed files under
+  `docs/` only, and by the commit that writes this line, which changes files under
+  `docs/` and `tests/`, which it does not read, and `README.md` and
+  `githooks/commit-msg`, which are not `.py` files: computed on clones of `0491b84`,
   `a235783`, `8d5d64a`, `a48d9e5`, `fbd7877`, `8311167`, `d2dddf7`, `aa9e7ac`,
   `391c338`, `8360923`, `ed005a0` and `e88e0dd` and on the applied trees, under Python
   3.12.3; the trees of `d508b29`, `9f2f3d7`, `d410bfa`, `34d8e3b`, `ad34c02`,
-  `89d2367`, `b387c03`, `9862568`, `3d7e6cb`, `78204ff` and `0d86fda` and the applied
-  tree of the commit that writes this line give the same. `bc1b9c2c…` was
+  `89d2367`, `b387c03`, `9862568`, `3d7e6cb`, `78204ff`, `0d86fda` and `b8f88d8` and
+  the applied tree of the commit that writes this line give the same. `bc1b9c2c…` was
   set by `9ea1cf3`, confirmed on Windows by its live run, and held through `f00bef6`,
   `36de35d`, `78ea37d`, `d3188f2` and `67f6ec1`, which changed only files under `docs/`
   and `tests/`, `README.md` and `run_tests.py`'s docstring.
@@ -1801,8 +1886,10 @@ tree verified before delivery and records `0d86fda`'s landing.
   output, a CPython implementation detail (`core/code_fingerprint.py`, "WHAT IT DOES NOT
   SURVIVE"). **Every `code_hash` claim about this project is computed under Python 3.12**
   (Viktor runs 3.12.10).
-- **Golden snapshot:** unchanged by the commit that writes this line and by `0d86fda`
-  and `78204ff`, each of which changes docs and no code or test,
+- **Golden snapshot:** unchanged by the commit that writes this line, which adds a git
+  hook and one test file, reads no fixture, and changes `README.md`'s counts and
+  layout line and docs, by `b8f88d8`, `0d86fda` and `78204ff`, each of which changed
+  docs and no code or test,
   by `3d7e6cb`, which changed a build script under `docs/`,
   one test file, `README.md`'s counts and docs, and read no fixture,
   by `9862568`, which changed a build script under `docs/`, one test file,
@@ -1829,15 +1916,23 @@ tree verified before delivery and records `0d86fda`'s landing.
   `22a9a35`, 4 leaves (the confirmation reason, `volume_sentiment` twice and
   `validation_note`'s volume half: VOLUME DIVERGENCE → FADING VOLUME); before that at
   `6469a67`, 8 leaves.
-- **Test suite** — **900 passed / 0 failed, no warnings line** with `pandas_ta`;
-  **724 passed / 165 skipped** without it; `run_tests.py` **832 passed / 0 failed /
+- **Test suite** — **911 passed / 0 failed, no warnings line** with `pandas_ta`;
+  **735 passed / 165 skipped** without it; `run_tests.py` **843 passed / 0 failed /
   31 errors**, all 31 fixture-collection `TypeError`s: the 32 of `e88e0dd` less
   `test_no_module_defaults_a_missing_risk_verdict_to_a_pass`. This is meant to be the
   one place the watched error count is written as a number (DECISIONS, "Ruling,
   15 October 2026 — Part 4's three test shapes", point 5); `README.md` writes it too
-  (entry 50). The commit that writes this line changes no test, and the three counts
-  hold: from the Linux sandbox, Python 3.12.3, pinned requirements, the patch applied
-  to an autocrlf clone of `0d86fda`. `0d86fda` changed no test, and the three counts
+  (entry 50). The commit that writes this line adds 11 tests, none taking a fixture or
+  needing `pandas_ta`: pytest rises by 11 in both configurations, and `run_tests.py`
+  passes 11 more with its error count unchanged: from the Linux sandbox, Python 3.12.3,
+  pinned requirements, the patch applied to an autocrlf clone of `b8f88d8`. `b8f88d8`
+  changed no test, and the three counts held: from the Linux sandbox, Python 3.12.3,
+  pinned requirements, the patch applied to an autocrlf clone of `0d86fda`. Its pytest
+  step ran on Windows after the apply (the cache on his disk was rewritten at 12:16:35
+  on 27 October, 2 minutes 52 seconds after its files were written, at 12:13:43, and
+  its `lastfailed` was left as it was, `{}`, so that run recorded no failure), and
+  Viktor went on to the commit, which confirms 900 by proceeding. `0d86fda` changed no
+  test, and the three counts
   held: from the Linux sandbox, Python 3.12.3, pinned requirements, the patch applied
   to an autocrlf clone of `78204ff`. Its pytest step ran on Windows after the apply
   (the cache on his disk was rewritten at 10:26:32 on 27 October, 2 minutes 48 seconds
@@ -1967,7 +2062,7 @@ tree verified before delivery and records `0d86fda`'s landing.
   `test_the_commit_messages_up_to_the_tag_are_round_7s_to_the_byte`, runs `git log` up
   to the tag `round7-sent-2026-09-30`: it needs the tag, which a full clone has.
 - **Engineering Notes:** through Entry #183 (v1.36), which covers `68c6191`.
-  **Sixty-six commits behind** — `ec4e5fd`, the floor (a commit that regenerates the
+  **Sixty-seven commits behind** — `ec4e5fd`, the floor (a commit that regenerates the
   Notes cannot
   cover itself, Entry #144), `e7a94d1`, `d5ced0c`, `59b747a`, `f256937`, `12b483e`,
   `01f2892`, `8b6fd00`, `e186423`, `86f30f1`, `3e8191a`, `1523e0c`, `ff12e17`,
@@ -1978,7 +2073,7 @@ tree verified before delivery and records `0d86fda`'s landing.
   `67f6ec1`, `0491b84`, `a235783`, `8d5d64a`, `a48d9e5`, `fbd7877`, `8311167`,
   `d2dddf7`, `aa9e7ac`, `391c338`, `8360923`, `ed005a0`, `e88e0dd`, `d508b29`,
   `9f2f3d7`, `d410bfa`, `34d8e3b`, `ad34c02`, `89d2367`, `b387c03`, `9862568`,
-  `3d7e6cb`, `78204ff`, `0d86fda` and the commit that writes this line.
+  `3d7e6cb`, `78204ff`, `0d86fda`, `b8f88d8` and the commit that writes this line.
   Every later
   commit adds one
   until the
@@ -1994,9 +2089,11 @@ tree verified before delivery and records `0d86fda`'s landing.
   identical to the committed PDF. Neither changes in the commit that writes this line;
   the Attribution Statement's script last changed at `68c6191`, the Portfolio
   Document's at `6e1baba`.
-- **README.md:** its test counts are current (900, 724 / 165 and 832, and the error
-  count, 31), last changed by `3d7e6cb`, which changed only those numbers there, and
-  not by `78204ff`, `0d86fda` or the commit that writes this line; that README writes
+- **README.md:** its test counts are current (911, 735 / 165 and 843, and the error
+  count, 31), last changed by the commit that writes this line, which changes those
+  numbers there and the layout block's `githooks/` line, for the new hook — new
+  wording, put to Viktor before his commit — and before it by `3d7e6cb`, which changed
+  only the numbers, and not by `78204ff`, `0d86fda` or `b8f88d8`; that README writes
   the error count at all is entry 50. **Its
   three status rows are
   current** — "Independent audit", "Release
@@ -3120,11 +3217,18 @@ the work before the audit, entry 1 apart.
   **27 October: ruled**, by Viktor, agreeing to Claude's suggestions at 11:43
   (DECISIONS, "Ruling, 27 October 2026 — a commit names the tree verified before
   delivery"): every delivered commit message carries a `Verified-Tree:` line, the git
-  hash of the tree verified before delivery, from the commit that writes this line on;
-  and a commit-msg hook refuses a commit whose staged tree is not the one that line
-  names. The hook is its own patch, next: tooling, Claude's to build, XS, wave 1 — if it
-  adds no `.py` file outside `tests/` and `docs/`, it moves no `code_hash`. What it does
-  with a message that carries no such line is settled with that patch.
+  hash of the tree verified before delivery, from `b8f88d8` on; and a commit-msg hook
+  refuses a commit whose staged tree is not the one that line names. The hook is its
+  own patch, next: tooling, Claude's to build, XS, wave 1 — if it adds no `.py` file
+  outside `tests/` and `docs/`, it moves no `code_hash`. What it does with a message
+  that carries no such line is settled with that patch.
+  **27 October: landed**, by the commit that writes this line, with Viktor's ruling at
+  13:08, by agreeing to Claude's suggestion, that a message with no such line is
+  stopped too (DECISIONS, "Ruling, 27 October 2026 — the commit-msg hook stops a
+  message with no `Verified-Tree:` line"): `githooks/commit-msg`, and
+  `tests/test_commit_msg_hook.py`, 11 tests, nine of them committing for real in
+  throwaway repos (Linux sandbox). It adds no `.py` file outside `tests/`, and
+  `code_hash` holds.
 - **`run_tests.py` leaves no trace that it ran** (found 27 October, landing entry 31;
   read at `0d86fda`). pytest rewrites `.pytest_cache/v/cache/nodeids` at the end of
   every run, so a landing check can read that it ran after the apply; `run_tests.py`
@@ -3426,19 +3530,19 @@ Each code commit is its own commit and updates this file for its own landing.
 
 ## Resolved this session
 
-- **`0d86fda`'s landing**, read off Viktor's disk and GitHub again, with the times
+- **`b8f88d8`'s landing**, read off Viktor's disk and GitHub again, with the times
   Claude had read off them after the push, in chat ("Where the project is", the session
-  of 26 October, from 19:43, going on to 27 October, and this session). Every part that
-  could be read again held; the four that could not are named there.
-- **What a landing check could not read again** — the tree verified before delivery,
-  the message delivered, `run_tests.py`'s run and an earlier session's read of GitHub —
-  by the commit that writes this line ("Found after 22 September", entries 56 and 57;
-  DECISIONS, "Ruling, 27 October 2026 — a commit names the tree verified before
-  delivery"): Viktor's, by agreeing to Claude's suggestions at 11:43 on 27 October. The
-  commit that writes this line is the first to carry a `Verified-Tree:` line; the hook
-  and `run_tests.py`'s record are still to build.
+  of 27 October, from 11:07, and this session). Every part that could be read again
+  held, the tree verified before delivery among them, read again for the first time;
+  the three that could not are named there.
+- **Entry 56 — the commit-msg hook**, by the commit that writes this line ("Found after
+  22 September"; DECISIONS, "Ruling, 27 October 2026 — a commit names the tree verified
+  before delivery" and "Ruling, 27 October 2026 — the commit-msg hook stops a message
+  with no `Verified-Tree:` line"): Claude's to build; what it does with a message that
+  has no such line, Viktor's, by agreeing to Claude's suggestion at 13:08 on
+  27 October.
 - **The once-per-session rewrite of this file**, by the commit that writes this line.
-  The previous version, as at `0d86fda`, is in HISTORY verbatim, headings demoted one
+  The previous version, as at `b8f88d8`, is in HISTORY verbatim, headings demoted one
   level, proven by un-demotion with a negative control (the commit message has the
   result).
 
@@ -3453,9 +3557,10 @@ Claude critiques it.
   `e88e0dd`, 37 at `d508b29`, 49, found landing 37, at `ad34c02`, and 51, found
   landing 49, at `b387c03`; entry 54, found landing 51, audit tooling, at `9862568`;
   and entry 55, found landing 54, audit tooling, at `3d7e6cb`. Landing 55 found no
-  entry more; landing 31 found entries 56 and 57 ("Found after 22 September"). Of
-  wave 1, what this file names as Claude's has landed, except entry 56's commit-msg
-  hook, ruled on 27 October and next. Entry 26, one of
+  entry more; landing 31 found entries 56 and 57 ("Found after 22 September"), and
+  `b8f88d8`'s landing none. Entry 56, the commit-msg hook, lands with the commit that
+  writes this line, and with it, of wave 1, what this file names as Claude's has
+  landed. Entry 26, one of
   Goal B's two rulings, was decided by Claude under Viktor's delegation of 26 October
   (DECISIONS, "Decision, 26 October 2026 — Goal B keeps a candle only once it has
   closed at `t` (entry 26)"), his to reverse. Entry 31, the other, was ruled by Viktor
@@ -3790,13 +3895,15 @@ Claude critiques it.
   `d508b29` and `d410bfa`, each naming the one before; `ad34c02` named `d410bfa` there
   and added its own, `b387c03` named `ad34c02` there and added its own, `9862568` named
   `b387c03` there and added its own, and `3d7e6cb` named `9862568` there and added its
-  own. The docs-only commits between them, `78204ff`, `0d86fda` and the commit that
-  writes this line among them, changed no line there. (This paragraph stopped at
+  own. The docs-only commits between them, `78204ff`, `0d86fda` and `b8f88d8` among
+  them, changed no line there; the commit that writes this line names `3d7e6cb` there
+  and adds its own. (This paragraph stopped at
   `a235783` until `ad34c02`
   brought it current, and
   at `ad34c02` until `9862568` did.)
-- **The pre-push hook is installed per clone, not per repository.** After any re-clone
-  (including after a machine wipe), run `git config core.hooksPath githooks`;
+- **The pre-push and commit-msg hooks are installed per clone, not per repository.**
+  After any re-clone (including after a machine wipe), run
+  `git config core.hooksPath githooks`, which switches both on;
   `session_handover_check.py` section 6 flags a clone without it.
 - **Unrelated, not urgent:** confirm which YH programme permits AI-assisted
   examensarbete work.

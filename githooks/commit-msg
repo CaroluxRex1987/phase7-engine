@@ -1,0 +1,84 @@
+#!/bin/sh
+# Phase-7 commit-msg hook: stops a commit whose staged tree is not the tree its
+# message names on its Verified-Tree: line.
+#
+# Switched on per clone by the same setting as githooks/pre-push, from the repo
+# root:
+#     git config core.hooksPath githooks
+# docs/build/session_handover_check.py flags a clone without it (its section 6).
+#
+# Ruled by Viktor, 27 October 2026 (docs/PHASE7_DECISIONS.md, "Ruling,
+# 27 October 2026 -- a commit names the tree verified before delivery"): every
+# delivered commit message carries, just above its attribution lines,
+#     Verified-Tree: <the git hash of the tree verified before delivery>
+# This hook compares that hash with the tree git is about to commit -- `git
+# write-tree` of the index git commits from, which git names to the hook in
+# GIT_INDEX_FILE -- so a file left out of `git add`, a wrong file or a lost
+# executable bit stops the commit before it exists, instead of being found
+# after the push.
+#
+# Also ruled by Viktor, 27 October 2026, by agreeing to Claude's suggestion
+# ("Ruling, 27 October 2026 -- the commit-msg hook stops a message with no
+# Verified-Tree: line"): a message with no such line is stopped too. So is one
+# that names no tree unambiguously -- two such lines, or one not written
+# exactly as "Verified-Tree: " and forty lowercase hex digits.
+#
+# As with the pre-push hook, a stop is a consult, not a verdict: if the answer
+# is commit, the override is
+#     git commit --no-verify
+# which skips this check for that one commit. The decision stays his.
+#
+# Fails CLOSED: the only way through is a staged tree equal to a well-formed
+# hash in the message. If the message cannot be read or the staged tree cannot
+# be computed, the commit is stopped.
+#
+# This file must stay LF. Git for Windows runs it with its own sh, which reads
+# a CRLF line's \r as part of the command. .gitattributes pins githooks/* to
+# eol=lf, and tests/test_commit_msg_hook.py checks the bytes.
+
+stop() {
+    for line in "$@"; do
+        echo "commit-msg: $line" >&2
+    done
+    echo "commit-msg: commit STOPPED -- nothing was committed." >&2
+    echo "commit-msg: consult first. If the answer is commit: git commit --no-verify" >&2
+    exit 1
+}
+
+msg_file=$1
+if [ -z "$msg_file" ] || [ ! -r "$msg_file" ]; then
+    stop "cannot read the commit message (${msg_file:-no file given}) -- the check could not run."
+fi
+
+# Every line that looks like a Verified-Tree: line, CRs removed: any case, any
+# indentation, any spacing before the colon. Only the exact form names a tree.
+lines=$(tr -d '\r' < "$msg_file" | LC_ALL=C grep -a -i '^[[:space:]]*verified-tree[[:space:]]*:')
+count=$(printf '%s' "$lines" | LC_ALL=C grep -c '')
+
+if [ "$count" -eq 0 ]; then
+    stop "this message has no Verified-Tree: line, and every commit needs one (ruled 27 October 2026)."
+fi
+if [ "$count" -gt 1 ]; then
+    stop "this message has $count Verified-Tree: lines -- which tree was verified is ambiguous."
+fi
+
+named=$(printf '%s\n' "$lines" | LC_ALL=C sed -n 's/^Verified-Tree: \([0-9a-f]\{40\}\)$/\1/p')
+if [ -z "$named" ]; then
+    stop "this line is not 'Verified-Tree: ' and forty lowercase hex digits:" "    $lines"
+fi
+
+staged=$(git write-tree)
+status=$?
+if [ "$status" -ne 0 ] || [ -z "$staged" ]; then
+    stop "git write-tree failed (exit $status) -- the staged tree could not be computed."
+fi
+
+if [ "$staged" = "$named" ]; then
+    echo "commit-msg: the staged tree is $staged, the one Verified-Tree names." >&2
+    exit 0
+fi
+
+stop "the staged tree is  $staged" \
+     "Verified-Tree names $named" \
+     "they differ: a file not added, a wrong file or a lost executable bit." \
+     "Run git status --short and compare it with its prediction."
