@@ -164,13 +164,17 @@ was built from it, never reached the repository, and has not been rebuilt.
 [`docs/Phase7_Remediation_Plan.pdf`](docs/) is GLM 5.3's unedited prioritisation of the
 findings.
 
-That was not the last audit. Five more rounds have run since — 2 September, two on
-5 September, 12 September (GPT-6 Astra), and 13 September (Meta Muse Spark 1.3, plus its
-own fix-verification pass on the 14th). Every raw report that exists is in
+That was not the last audit. Seven more rounds have run since: five from 2 to
+13 September — 2 September, two on 5 September, 12 September (GPT-6 Astra) and
+13 September (Meta Muse Spark 1.3, plus its own fix-verification pass on the 14th) —
+then 30 September (Poolside's Laguna S 2.1, in two runs) and 4 October (Xiaomi's
+MiMo-V2.6-Pro, in two runs; on 17 October it also verified the fixes that came out of
+round 8's triage). Every raw report that exists is in
 [`docs/audit_reports/`](docs/audit_reports/), unedited -- round 2 produced none, as the
 next paragraph says. This sentence read "every raw report from every round" until
-20 September 2026, which the same paragraph then contradicted. Two of the five need saying
-plainly. Round 2 (2 September) produced no report: every attempt stopped before writing
+20 September 2026, which the same paragraph then contradicted. Two of the first five
+need saying plainly. Round 2 (2 September) produced no report: every attempt stopped
+before writing
 one. What survives is Kimi K3's reasoning trace, filed there; a Qwen response from the
 same day was never saved. Round 3 (5 September, GLM 5.3 Flash) was not independent. A
 chat left on OpenRouter's Auto Router sent it the package meant for another model, and
@@ -184,7 +188,10 @@ exposure, and what clears it"). A caveat worth stating rather than skipping: sev
 these models
 cannot confirm their own exact checkpoint from the inside, so "no prior exposure" rests
 on the provider's session being genuinely fresh, not on the model itself vouching for
-its own identity.
+its own identity. Rounds 7 and 8 ran on labs never used on this project before; what
+they found, and why neither's ratings count toward opening backtesting, is in the status
+table above. Until 27 October 2026 this paragraph said five rounds, which stopped being
+true on 30 September.
 
 **The most useful finding did not come from any of them.** After the original audit
 closed I built a test harness and ran the engine. It found three things four audit
@@ -209,13 +216,15 @@ the corrections are mine; most of the prose in the documents is not. I have trie
 exact about that distinction throughout, because the whole point of the constitution is
 that nobody — including me — gets to overstate what they did.
 
-Eleven models have now seen the constitution at various stages: Claude, Copilot, Gemini,
-ChatGPT, a second Claude instance in a dedicated reviewer role, Grok, Kimi K3, GPT-5.6
-Luna Pro, GLM 5.3, GPT-6 Astra, and Meta Muse Spark 1.3. Seven have graded the engine
-source: Claude, Kimi K3, DeepSeek V4 Pro, GPT-5.6 Luna Pro, GLM 5.3, GPT-6 Astra, and
-Meta Muse Spark 1.3 — Luna Pro's own independence for that round is a separate, weaker
-claim than the others', for reasons the engineering log states plainly rather than
-smoothing over.
+Fourteen models have now seen the constitution at various stages: Claude, Copilot,
+Gemini, ChatGPT, a second Claude instance in a dedicated reviewer role, Grok, Kimi K3,
+GPT-5.6 Luna Pro, GLM 5.3, GLM 5.3 Flash, GPT-6 Astra, Meta Muse Spark 1.3, Poolside's
+Laguna S 2.1 and Xiaomi's MiMo-V2.6-Pro. Ten have graded the engine source: Claude,
+Kimi K3, DeepSeek V4 Pro, GPT-5.6 Luna Pro, GLM 5.3, GLM 5.3 Flash, GPT-6 Astra,
+Meta Muse Spark 1.3, Laguna S 2.1 and MiMo-V2.6-Pro — Luna Pro's own independence for
+that round is a separate, weaker claim than the others', for reasons the engineering
+log states plainly rather than smoothing over. Until 27 October 2026 these lists
+stopped at round 6 and left out GLM 5.3 Flash, round 3's auditor.
 
 One caveat I have to state rather than bury: five models ran through Aider during the
 build itself — Claude Sonnet 4, DeepSeek V3, DeepSeek R1, Mistral Nemo and Claude 3
@@ -292,10 +301,13 @@ phase7_engine/
 │                       dated, committed snapshots of the live decision log
 ├── Claude outputs/     Claude's working products — comparisons, write-ups;
 │                       not evidence (see its README)
-├── logs/               the live decision log — not tracked, see .gitignore
+├── logs/               the live decision log and its candle archive; runs
+│                       on pinned data keep their own in logs/pinned/ —
+│                       not tracked, see .gitignore
 └── docs/               the constitution, audit record, engineering log, and the
     │                   project's own record (PHASE7_*.md — see below)
-    └── build/          the reportlab scripts that generate the PDFs
+    └── build/          the reportlab scripts that generate the PDFs, and the
+                        audit, handover-check and indicator tools
 ```
 
 Twenty-two files across `core/`, `data/`, `indicators/`, `models/`, `structure/`
@@ -311,9 +323,12 @@ all Compliant — is met, so that rebuilding it could not repeat the exact failu
 broke this engine's second build. That condition is not met yet — see the Status
 table above.
 
-`docs/build/` holds the scripts that generate every PDF in `docs/`. They are committed
-so the documents are reproducible from source rather than existing only as rendered
-output — the constitution's own reproducibility rule applies to its own documents too.
+`docs/build/` holds the scripts that generate every PDF in `docs/`, and beside them the
+project's tools, among them the audit package builders and send scripts, the session
+handover check the pre-push hook runs, and the indicator overlap tool. The PDF scripts
+are committed so the documents are reproducible from source rather than existing only as
+rendered output — the constitution's own reproducibility rule applies to its own
+documents too.
 
 The project's working record is three plain-text files in `docs/`:
 [`PHASE7_NEXT.md`](docs/PHASE7_NEXT.md) is the entry point — the current state and
