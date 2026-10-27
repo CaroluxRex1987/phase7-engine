@@ -6184,6 +6184,51 @@ not. Not checked on Git for Windows.
   none before.
 - Nothing ratified is removed or reworded.
 
+## Decision, 27 October 2026 — README does not write the watched error count (entry 50)
+
+*New in this file on 27 October 2026. Claude's, under Viktor's delegation in the
+session that opened at 16:41 at `a1c4218`: offered entry 50 at 17:49 as his to shape,
+position first, he answered at 17:52, "Do it." Claude took that as handing it the
+shape, as with entry 26 on 26 October, and did not ask again. Filed by that session's
+commit, docs only. Viktor's to reverse.*
+
+**The finding.** Entry 50 of the list for after the audit (PHASE7_NEXT.md, "Found after
+22 September"), found on 20 October landing entry 37. Point 5 of the ruling of
+15 October ("Ruling, 15 October 2026 — Part 4's three test shapes") has the watched
+error count of `run_tests.py` written as a number only in PHASE7_NEXT.md, under "Test
+suite", and turned `run_tests.py`'s docstring and three test files into pointers there.
+It did not name `README.md`, which went on writing the number in two places, its Tests
+row and its paragraph "All tests currently pass", both set to 31 by entry 37's commit
+with the other counts. That paragraph also said the count stays flat except when a new
+fixture-using test is added on purpose; entry 37 moved it by making a test
+fixture-free. Read again at `a1c4218`, off Viktor's disk: both places say 31.
+
+**What was decided.**
+
+1. README writes no number for `run_tests.py`'s errors. Its Tests row says the runner
+   reports a number of errors and points to PHASE7_NEXT.md, under "Test suite", for
+   it; its paragraph points there too, as `run_tests.py`'s docstring has since
+   15 October. The counts point 5 does not cover — 911, 735 / 165, and the runner's
+   843 passed and 0 failed — stay in README.
+2. The paragraph's sentence on when the count moves names every way it does: a test
+   that takes a fixture added or removed, or one made fixture-free.
+3. Point 5 is not amended. README comes under its words, "only in PHASE7_NEXT.md",
+   rather than being named beside them as a second place: a second copy of a number
+   that has gone stale before (the docstring's 29, three short, found on 15 October)
+   would go stale again, and adding one would change his ruling, which was not
+   delegated.
+
+**Not changed.** README's other stale passages (PHASE7_NEXT.md, Open items, "Claude's
+to draft, Viktor's to approve"), and counting fixture-taking tests apart from real
+errors in `run_tests.py`, which point 5 put on the list for after the audit.
+
+**What it weakens.**
+
+- A reader of README no longer sees how many errors the runner reports without
+  following the link.
+- README is written in Viktor's voice; the new wording is Claude's, put to him before
+  his commit, and his to reword.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then
