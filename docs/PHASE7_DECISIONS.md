@@ -6035,6 +6035,105 @@ it comes first.
 - It adds none of the four things the Freqtrade comparison named for Goal B's harness
   (PHASE7_NEXT.md, Open items, "Not added to Goal B"); those are still Viktor's.
 
+## Ruling, 27 October 2026 — a commit names the tree verified before delivery
+
+*New in this file on 27 October 2026. Viktor's, by agreeing to Claude's suggestions, in
+the session that opened at 11:07 on 27 October at `0d86fda`: at 11:29 he asked how to
+solve, or move past, what that session's landing check could not read again; Claude
+answered each point; at 11:43 he said, "We go with your suggestion." Asked then about
+the two points the answer had left open, he took Claude's suggestion on both. Filed by
+that session's first commit, docs only.*
+
+**The finding.** Entries 56 and 57 of the list for after the audit (PHASE7_NEXT.md,
+"Found after 22 September"), found checking `0d86fda`'s landing. The next session checks
+a landing by reading the landed commit off Viktor's disk and GitHub. Four parts of the
+record it is given cannot be read again there:
+
+1. the tree verified before delivery — it lived in the delivering session's sandbox,
+   which does not outlast that session, and the patch that would rebuild it is deleted
+   by its own step before the push;
+2. the commit message as delivered — deleted by its own step;
+3. whether `run_tests.py` ran — it writes no file (a search of its code at `0d86fda`
+   finds none), where pytest rewrites `.pytest_cache/v/cache/nodeids` at the end of
+   every run;
+4. the delivering session's read of GitHub's tip — a past snapshot, which only a new
+   read can stand in for.
+
+Whether the sandbox's network proxy adds credentials of its own to a read of GitHub had
+not been checked either.
+
+**What was ruled.**
+
+1. **The commit names its verified tree.** Every delivered commit message carries a line
+   `Verified-Tree: ` and forty hex characters, just above its attribution lines: the
+   git hash of the tree verified before delivery, computed in the sandbox from an
+   autocrlf checkout of the parent with the patch applied and the changed files staged
+   as Viktor's `git add` steps stage them. A landing check compares it with the commit's
+   own tree (`git rev-parse <commit>^{tree}`), from GitHub alone, at any time. The
+   commit that files this ruling is the first to carry it.
+2. **A hook refuses any other tree.** `githooks/commit-msg`, switched on by the same
+   `core.hooksPath` setting as the pre-push hook, refuses a commit whose staged tree is
+   not the one its `Verified-Tree:` line names, so a missed `git add` or a wrong file
+   stops the commit before it exists. Its own patch, after this ruling's commit
+   (entry 56). If it adds no `.py` file outside `tests/` and `docs/`, it moves no
+   `code_hash`. What it does with a message that has no such line is settled with that
+   patch.
+3. **The delivered message is not compared again by a later session.** A message cannot
+   hold its own hash, and keeping the file outside the repository would add a folder to
+   every landing check. A landing check reads what can be read: the message holds no
+   CR, its attribution lines come last, it is `.git/COMMIT_EDITMSG` byte for byte, and
+   its `Verified-Tree:` line ties it to the tree. The delivery steps are unchanged: both
+   files are still deleted before the push, and the delivering session still compares
+   the message with the one it delivered, after the push.
+4. **`run_tests.py` gets a last-run record.** At the end of each run it writes its
+   finish time and its passed, failed and errors counts to an ignored file, which a
+   landing check reads as it reads pytest's cache. `run_tests.py` is inside
+   `code_hash`'s walk (`core/code_fingerprint.py` names it), and no commit that moves
+   `code_hash` lands before the forward measurement's reading of 14 November, so it
+   comes after that reading (entry 57). Until then a landing record says `run_tests.py`
+   leaves no trace.
+
+**Claude's, stated with it and not overruled.** Each read of GitHub's tip is recorded
+with its time, and a later check adds its own read rather than claiming to read an
+earlier one again. A read with no credentials is made with git's tokens, askpass,
+credential helper, prompts and configuration files removed from its environment, and
+carries a probe: in the same environment, a read of a repository that does not exist.
+On 27 October GitHub answered that probe with a request for credentials, so none had
+reached it. That GitHub answers "Repository not found" instead when valid credentials
+arrive is known behaviour, not tested here: the control, the same probe with the
+sandbox's own credentials left in, was answered the same way, so the other answer was
+not seen.
+
+**Claude's reasons, which Viktor accepted.**
+
+1. The tree is what the engine is. Named in the commit before the apply, it cannot be
+   adjusted afterwards to match, by any session, the delivering one included; and
+   anyone, an auditor among them, can check it from GitHub alone.
+2. The hook makes the right commit the only one available. The landing check finds a
+   wrong tree only after the push, when the commit is public and cannot be undone
+   without rewriting history: a structural fix, not an instruction to be careful.
+3. Tested in the Linux sandbox before it was suggested: `0d86fda`'s CRLF checkout,
+   staged into an empty index, gives its tree hash,
+   `1819522a872e4b6bb67eff102435d4fed07d15b4`, exactly; and Viktor's `.git/index`,
+   staged off his disk, lists the same 293 paths, modes and blobs as that tree, so his
+   side computes the same hash.
+4. The message is public, and what could go wrong with it — a dropped body or a dropped
+   attribution line — is what the reads in 3 catch.
+5. A trace turns `run_tests.py`'s count from silence into evidence, as pytest's cache
+   already does for pytest; the `code_hash` rule decides when.
+
+**The case against.** The `Verified-Tree:` line records what Claude says it verified: it
+proves the landed tree is that tree, not that the verification was right. The hook is a
+check that can itself be wrong and stop a good commit; it needs its own tests and
+negative controls. A later session gives up comparing the message with the one
+delivered.
+
+**What it weakens.**
+
+- A later session no longer compares the commit message with the one delivered; it
+  reads the message's properties. Nothing else a landing check reads is given up.
+- Nothing ratified is removed or reworded.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then
@@ -6064,6 +6163,10 @@ it comes first.
 - **Verify a delivery by reading the file back off the device and diffing it** against the
   intended bytes. Compiling the copy that was sent proves syntax, not identity — both
   versions compiled.
+- **Name the verified tree in the commit message.** Added 27 October 2026 (the ruling of
+  that date, "a commit names the tree verified before delivery"). The message carries
+  `Verified-Tree:` and the git hash of the tree verified before delivery, just above its
+  attribution lines; a landing check compares it with the commit's own tree.
 - **Token-saving discipline — adopted 15 September 2026.** Five rules, implemented into
   the patch-delivery skill so a fresh session follows them without being told:
   1. Scoped-files review packages (touched files, direct callers, contract tests) are the
