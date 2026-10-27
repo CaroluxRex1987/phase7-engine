@@ -180,6 +180,21 @@ The order is deliberate: cheapest information first.
    candle still forming at `t` among them — replaced by random noise, across
    **at least three different seeds**, asserting byte-identical decisions on every one. A
    single noise draw can coincidentally land on the same side of a threshold.
+
+   **The harness reaches the engine only through the live path.** *(Added 27 October
+   2026: "Ruling, 27 October 2026 — a backtest decides through the live path
+   (entry 31)", below.)* At every `t` the harness runs the engine's single-decision
+   path, the one a live run takes, on the files truncated at `t`, so the decision bar is
+   the last row, as it is live. It never computes an indicator once over the whole
+   history and reads its value at `t`: `clean_series` fills a gap from the row before it
+   at every row but the last, so a value computed that way can exist at `t` where the
+   live engine had none. The backtest's record at `t` is what the engine, run that way,
+   returns at `t` — a decision, a fallback or a refusal — and nothing else.
+
+   Its test, once the harness exists: a missing indicator value planted at sampled
+   decision bars, chosen with **at least three different seeds**, and at each such bar
+   the backtest's record byte for byte what the live path returns on the file truncated
+   there.
 3. **Item 17 write guard.** Backtest mode requires an explicit flag; writes to live log
    directories, chart directories, or the cross-run state file raise and halt. This shares
    `fc35a2f`'s *intent* but not its mechanism: that commit redirects `config.LOG_DIR` and
@@ -294,8 +309,9 @@ control (precondition 2) is what covers it.
 - **Deterministic verification only — no external audit round.** The checks are
   `cut_checkpoint.py`'s suite/snapshot/`code_hash` verification, the `data_manifest.json`
   checksum gate, the open-time truncation assertion with its multi-seed negative control,
-  and metrics computed by the pre-registered formulas and emitted alongside the exact
-  commit tag and dataset hash.
+  the planted-gap test of precondition 2 (added 27 October 2026, entry 31), and metrics
+  computed by the pre-registered formulas and emitted alongside the exact commit tag and
+  dataset hash.
 
   **What that decision weakens, stated per this project's own amendment rule:** the
   deterministic checks confirm the data was pinned, the pipeline ran, `code_hash` held,
@@ -5942,6 +5958,82 @@ tested: there is no harness to test it in.
   old rule would have read fresher macro than the engine ever has, and scored it.
 - A ratified specification is changed by Claude under delegation, not by Viktor's own
   reasoning; that is a precedent, and this entry is its record.
+
+## Ruling, 27 October 2026 — a backtest decides through the live path (entry 31)
+
+*New in this file on 27 October 2026. Viktor's, by agreeing to Claude's suggestion, in
+the session that opened at 19:43 on 26 October at `78204ff` and went on to 27 October:
+shown entry 31 at 10:03 and asked for his position first, he asked at 10:07 for
+Claude's suggestion instead, and said go at 10:07. Filed by that session's commit, docs
+only.*
+
+**The finding.** Entry 31 of the list for after the audit (PHASE7_NEXT.md, "Found after
+22 September"), seen on 11 October while building F6. `clean_series`'s forward-fill
+branch (`indicators/indicators.py`, read again at `78204ff` and run in the Linux
+sandbox) fills a gap from the row before it at every row but the last: `[1, 2, NaN]`
+cleans to `[1, 2, NaN]`, `[1, 2, NaN, 4]` to `[1, 2, 2, 4]`. It never takes a value
+from a later row. At the last row the gap stays, and `unusable_reason`
+(`indicators/indicators.py:206`) reports it; for RSI that raises at `:437`–`:439` and
+sends the engine to its fallback calculation at `:441` (the other indicators' paths
+were not read for this entry). The live engine always decides at the last row. A
+backtest that computed indicators once over its whole history would meet the same gap
+mid-series, filled, and decide on the carried value where the live engine, deciding at
+that bar, would not have had it. Goal B's precondition 2 already implied the safe design
+— "the file truncated at `t`, then the existing tail logic" — and precondition 0's
+timing benchmark already counts each backtest run as "recomputing every indicator"; but
+nothing in Goal B forbade the other design, and no check in it would catch one. No code
+of the harness exists.
+
+**What was ruled.**
+
+1. **The rule.** Precondition 2 gains a paragraph: the harness reaches the engine only
+   through the single-decision path a live run takes, on the files truncated at `t`,
+   and never computes an indicator once over the whole history. The backtest's record
+   at `t` is what that path returns at `t` — a decision, a fallback or a refusal.
+2. **Its test**, once the harness exists: a missing indicator value planted at sampled
+   decision bars, chosen with at least three different seeds; at each, the backtest's
+   record is byte for byte what the live path returns on the file truncated there. The
+   list under "Deterministic verification only" names it.
+3. **`clean_series` is not changed.** Its forward fill reads only earlier rows, and its
+   refusal to fill the last row is finding 3's rule. The fault the entry describes would
+   be in how a harness is built, not in the function.
+4. **The text.** Precondition 2 and the verification list are added to in place, each
+   marked as added and naming this ruling. Nothing ratified is removed or reworded.
+
+**Claude's reasons, which Viktor accepted.**
+
+1. The specification already implies this design. Written down, the harness may only
+   be built this way, rather than happening to be: a structural fix, not an instruction
+   to be careful.
+2. Changing `clean_series` would change the live engine to fix a problem that only a
+   wrongly built harness could have.
+3. It is entry 26's argument again: a backtest and the live engine that compute
+   differently are judging different engines.
+4. Nothing of the harness exists, so this is the cheapest moment: docs only.
+
+**Two corrections to the suggestion as put.** (1) Claude's suggestion, as Viktor
+accepted it, said the backtest "records a refusal" wherever the live engine would
+refuse, and that its test checks the backtest "refuses at that bar". Writing the text,
+Claude read `unusable_reason`'s caller for RSI: a missing value at the last row sends it
+to a fallback calculation first, so the live engine does not always refuse there. The
+text therefore says the backtest records what the live path returns — a decision, a
+fallback or a refusal — and the test compares the two byte for byte. It asks the same
+of the harness, more exactly; Viktor's to change. (2) The suggestion said precondition 1
+puts the cost of recomputing into Goal B's budget. It is precondition 0, the timing
+benchmark, and it already counts each run as recomputing every indicator.
+
+**The case against.** It is reasoned from the documents and the code, not tested: there
+is no harness to test it in. It also rules out a design before anyone has measured
+whether the one it keeps is affordable; precondition 0 is where that is measured, and
+it comes first.
+
+**What it weakens.**
+
+- The faster design — indicators computed once over the whole history and read at each
+  `t` — is ruled out. By how much it would have been faster was not estimated: nothing
+  of the harness exists to measure.
+- It adds none of the four things the Freqtrade comparison named for Goal B's harness
+  (PHASE7_NEXT.md, Open items, "Not added to Goal B"); those are still Viktor's.
 
 ## Working practice
 

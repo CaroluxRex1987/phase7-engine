@@ -1,9 +1,10 @@
 # Next step — read this first
 
-*26 October 2026, from 18:56. Rewritten by the commit that files Claude's decision on
-entry 26 of the list for after the audit — Goal B's truncation rule, under Viktor's
-delegation, docs only — and records `3d7e6cb`'s landing; the version it replaced — as
-it stood at `3d7e6cb` — is in HISTORY verbatim.
+*26 October 2026, from 19:43, going on to 27 October. Rewritten by the commit that
+files Viktor's ruling on entry 31 of the list for after the audit — a backtest decides
+through the live path, by agreeing to Claude's suggestion, docs only — and records
+`78204ff`'s landing; the version it replaced — as it stood at `78204ff` — is in HISTORY
+verbatim.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
 rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
@@ -323,10 +324,20 @@ read it off his disk and GitHub again (below): every part that could be read aga
 held, and two could not be. At 18:59 Viktor asked for Claude's suggestion: entry 26,
 his, position first, or stopping there. He said go at 19:00; shown what entry 26 asks,
 he asked what leak, was told, and at 19:02 answered, "I don't understand. Just fix it
-as you see fit." The commit that writes this line files Claude's decision on entry 26
-under that delegation (DECISIONS, "Decision, 26 October 2026 — Goal B keeps a candle
-only once it has closed at `t` (entry 26)"), docs only, and records `3d7e6cb`'s
-landing. Entry 31 was not delegated and stays his.
+as you see fit." `78204ff` filed Claude's decision on entry 26 under that delegation
+(DECISIONS, "Decision, 26 October 2026 — Goal B keeps a candle only once it has closed
+at `t` (entry 26)"), docs only, and recorded `3d7e6cb`'s landing. Entry 31 was not
+delegated and stayed his.
+**On 26 October, from 19:43, going on to 27 October**, after pushing `78204ff` at
+19:42, Viktor opened the session with its landing record, as the session before had
+written it for him. Claude read it off his disk and GitHub again (below): every part
+that could be read again held, and two could not be. At 19:49 Viktor asked for
+Claude's suggestion: entry 31, his, position first, or stopping there. On 27 October
+at 10:03 he said go; shown what entry 31 asks, he asked at 10:07 for Claude's
+suggestion — a rule in Goal B's precondition 2, `clean_series` left as it is — and
+said go at 10:07. The commit that writes this line files that ruling, his by agreeing
+to Claude's suggestion (DECISIONS, "Ruling, 27 October 2026 — a backtest decides
+through the live path (entry 31)"), docs only, and records `78204ff`'s landing.
 
 **The review and the comparison are outside the repository**, in
 `G:\Phase_7_Engine_Random_Files\Docs\02_Reviews_and_Feedback`:
@@ -880,9 +891,9 @@ public again — an autocrlf checkout of its six files byte for byte the tree ve
 before delivery and the files on his disk, GitHub's six blobs LF, and its commit
 message the one delivered with its CRs removed, byte for byte, in chat only; Viktor
 listed them at the start of the next session. Its account is in HISTORY, in this
-file's version at `3d7e6cb`, moved there by the commit that writes this line.
+file's version at `3d7e6cb`, moved there by `78204ff`.
 
-**This session (26 October, from 18:56)**, configured for Claude Opus 5.5, opened at
+**The session of 26 October, from 18:56**, configured for Claude Opus 5.5, opened at
 `3d7e6cb`. GitHub's tip, cloned by the sandbox at 18:57 and read with `git ls-remote`
 at 18:58:39 with git's credential helper and prompts switched off, is `3d7e6cb`, its
 parent `9862568`; whether the sandbox's network proxy adds credentials of its own was
@@ -904,10 +915,55 @@ repository's root: it holds no `.patch` file and no commit message file.
 The commit message was compared with the one delivered, and the six files with the
 tree verified before delivery, by the session before, in its sandbox: the delivered
 message was deleted by its own step and that sandbox is gone, so neither is compared
-again here. The commit that writes this line files Claude's decision on entry 26 and
-records `3d7e6cb`'s landing.
+again here. `78204ff` filed Claude's decision on entry 26 and recorded `3d7e6cb`'s
+landing: docs only. From his disk, staged in the next session: the apply was at
+19:26:51 on 26 October, the pytest cache was rewritten at 19:29:40, the commit is from
+19:42:11 and `origin/master`'s ref from 19:42:25, its reflog line "update by push";
+`master` and `origin/master` read `78204ff`. Claude had read those times off his disk
+after the push, and found GitHub's tip, `78204ff` — read at 19:42:40, with no
+credentials — its three files on his disk and GitHub's blobs, CRs aside, byte for byte
+the tree verified before delivery, and its commit message the one delivered with its
+CRs removed, byte for byte, in chat only; Viktor listed them at the start of the next
+session. Its account is in HISTORY, in this file's version at `78204ff`, moved there by
+the commit that writes this line.
+
+**This session (26 October, from 19:43, going on to 27 October)**, configured for
+Claude Opus 5.5, opened at `78204ff`. GitHub's tip, cloned by the sandbox at 19:48 on
+26 October and read with `git ls-remote` at 19:49:26, and again at 10:09:27 on
+27 October with git's tokens, askpass, credential helper, prompts and configuration
+files all removed from its environment, is `78204ff`, its parent `3d7e6cb`; whether the
+sandbox's network proxy adds credentials of its own was not checked. `master` and
+`origin/master` on his disk, from `.git/refs` staged off it, read `78204ff`. The commit
+object, staged off his disk, hashes to that name and is byte for byte GitHub's, with no
+CR in it, and `.git/COMMIT_EDITMSG` is byte for byte its message. Each of the three
+files `78204ff` changes is on his disk byte for byte an autocrlf checkout of GitHub's
+tip, whose three blobs hold no CR, and their mtimes are still the apply's, 19:26:51.263;
+his `.git/index` lists the same 293 paths, modes and blobs as `78204ff`'s tree. The
+times above were read off his disk again: those mtimes, `.pytest_cache/v/cache/nodeids`
+(19:29:40.758), the commit object's date and `HEAD`'s reflog, the `master` ref
+(19:42:11.776), and `origin/master`'s ref (19:42:25.104) and its reflog line "update by
+push". The cache's `lastfailed` is still `{}`, last written at 13:37:30 on
+26 September, so the run of 19:29:40, 2 minutes 49 seconds after the apply, recorded no
+failure; `78204ff` changed no test, so there is no new test id to look for. Neither
+delivery file is left in the repository's root: it holds no `.patch` file and no commit
+message file. `run_tests.py` leaves no trace, so its count for `78204ff` rests on
+Viktor's silence. The commit message was compared with the one delivered, and the three
+files with the tree verified before delivery, by the session before, in its sandbox:
+the delivered message was deleted by its own step and that sandbox is gone, so neither
+is compared again here. The commit that writes this line files Viktor's ruling on
+entry 31 and records `78204ff`'s landing.
 
 ## Ruled — in force
+
+- **New, 27 October — Viktor's, by agreeing to Claude's suggestion: a backtest decides
+  through the live path** (DECISIONS, "Ruling, 27 October 2026 — a backtest decides
+  through the live path (entry 31)"). Entry 31: the harness reaches the engine only
+  through the single-decision path a live run takes, on the files truncated at `t`, and
+  never computes an indicator once over the whole history; its record at `t` is what
+  that path returns — a decision, a fallback or a refusal. Its test, once the harness
+  exists: missing values planted at sampled decision bars, three seeds at least, each
+  bar's record byte for byte the live path's. Precondition 2 and Goal B's verification
+  list are added to in place; `clean_series` is not changed.
 
 - **New, 26 October — Claude's, under Viktor's delegation of the same day: Goal B keeps
   a candle only once it has closed** (DECISIONS, "Decision, 26 October 2026 — Goal B
@@ -916,7 +972,7 @@ records `3d7e6cb`'s landing.
   timeframe is at or before `t` — the live engine's own rule, `_split_forming` — and
   the negative control's noise covers every candle so dropped, the daily candle still
   forming at `t` among them. Precondition 2's text is amended in place. Viktor's to
-  reverse; entry 31 stays his.
+  reverse; entry 31, Goal B's other ruling, he ruled on 27 October (above).
 - **New, 25 October — Viktor's, by agreeing to Claude's suggestions: the engine's
   indicators** (DECISIONS, "Ruling, 25 October 2026 — the engine's indicators: one
   direction source, gates for weights, and one redesign before Amazon's audit"). The
@@ -1339,8 +1395,10 @@ records `3d7e6cb`'s landing.
 ## Where things stand, right now
 
 - **Tip:** the commit that writes this line (a commit cannot name its own hash) —
-  Claude's decision on entry 26 of the list for after the audit filed, docs only, and
-  `3d7e6cb`'s landing recorded. Before it: `3d7e6cb` (the session of 26 October, from
+  Viktor's ruling on entry 31 of the list for after the audit filed, docs only, and
+  `78204ff`'s landing recorded. Before it: `78204ff` (the session of 26 October, from
+  18:56: Claude's decision on entry 26 of the list for after the audit filed, docs
+  only, and `3d7e6cb`'s landing recorded), `3d7e6cb` (the session of 26 October, from
   16:51: entry 55 of the list for after the audit, audit tooling and a test, and
   `9862568`'s landing recorded), `9862568` (the session of 25 October, from 19:20, going
   on to 26 October: entry 54 of the list for after the audit, audit tooling and a test,
@@ -1565,8 +1623,8 @@ records `3d7e6cb`'s landing.
   `test_each_bundle_says_the_order_its_files_follow_in` (no fixture, no `pandas_ta`),
   with a dated paragraph in that file's docstring, and changed no other test's code:
   `test_every_file_the_build_writes_is_one_the_send_sends` builds with the new header,
-  and the names it checks are the same. It removed and renamed none. The commit that
-  writes this line changes no test.
+  and the names it checks are the same. It removed and renamed none. `78204ff`
+  changed no test, and the commit that writes this line changes none.
 - **Where the project lives, from 26 September:** `E:\phase7_engine` on Viktor's machine;
   the files kept outside the repository in `G:\Phase_7_Engine_Random_Files`. Copied with
   robocopy, verified — git's own checks on Windows for the tracked files, SHA-256 for the
@@ -1575,14 +1633,19 @@ records `3d7e6cb`'s landing.
   to `E:\phase7_engine`". Run the engine and every command from `E:\phase7_engine` (in
   cmd, changing drive needs `cd /d`). A dated record that names the D: paths means the
   same folders before the move; dated records are not edited.
-- **The push of `3d7e6cb`** happened, at 18:44:47 on 26 October: GitHub's tip, read
-  at 18:57 and 18:58 in the next session, is `3d7e6cb`, `master` and `origin/master`
-  on Viktor's disk read it (their `.git/refs` files, and `origin/master`'s reflog line
-  "update by push"), and its six files on his disk are byte for byte an autocrlf
-  checkout of it. An autocrlf checkout of GitHub's six files was read byte for byte
-  what was verified before delivery, and its commit message the one delivered with its
-  CRs removed, byte for byte, after the push, in the session that delivered it. No
-  deviation was reported (ruling on proposal (b)). So did `9862568`'s, at 11:19:48 on
+- **The push of `78204ff`** happened, at 19:42:25 on 26 October: GitHub's tip, read
+  at 19:42:40 that evening and at 19:49 and, on 27 October, 10:09 in the next session,
+  is `78204ff`, `master` and `origin/master` on Viktor's disk read it (their `.git/refs`
+  files, and `origin/master`'s reflog line "update by push"), and its three files on his
+  disk are byte for byte an autocrlf checkout of it. Its three files on his disk and
+  GitHub's blobs were read, CRs aside, byte for byte what was verified before delivery,
+  and its commit message the one delivered with its CRs removed, byte for byte, after
+  the push, in the session that delivered it. No deviation was reported (ruling on
+  proposal (b)). So did `3d7e6cb`'s, at 18:44:47 on 26 October, GitHub's tip read at
+  18:57 and 18:58 in the next session, its six files on his disk byte for byte an
+  autocrlf checkout of it, and an autocrlf checkout of GitHub's six files read byte for
+  byte what was verified before delivery and its commit message the one delivered with
+  its CRs removed, `9862568`'s, at 11:19:48 on
   26 October, GitHub's tip read at 16:49 that day and at 16:56 and 16:58, its six files
   on his disk byte for byte an autocrlf checkout of it, and an autocrlf checkout of
   GitHub's six files read byte for byte what was verified before delivery and its
@@ -1622,8 +1685,8 @@ records `3d7e6cb`'s landing.
   commit that writes this line unless it deviates. Earlier pushes and deviations are
   recorded in this file's previous versions, in HISTORY.
 - **Before this commit**, every file its patch changes was staged off Viktor's disk and
-  matched an autocrlf checkout of `3d7e6cb`, GitHub's tip, cloned at 18:57 on
-  26 October, byte for byte.
+  matched an autocrlf checkout of `78204ff`, GitHub's tip, cloned at 10:08 on
+  27 October, byte for byte.
 - **code_hash:** `816d4951bb0322763ec4abc4b9ed8161d5b902372823350e5272f2fb7176e380`,
   set by `0491b84` from `bc1b9c2c…` — `main.py` alone — and confirmed on Windows: its
   eleven hand-run records and the ten of each of the first two scheduled runs carry it.
@@ -1640,13 +1703,13 @@ records `3d7e6cb`'s landing.
   `.py` file, by `89d2367`, which changed files under `docs/` and `README.md`, by
   `b387c03`, which changed files under `tests/` and `docs/` and `README.md`, by
   `9862568` and `3d7e6cb`, each of which changed files under `docs/` and `tests/` and
-  `README.md`, and by the commit that writes this line, which changes files under
-  `docs/` only: computed on clones of `0491b84`,
+  `README.md`, and by `78204ff` and the commit that writes this line, each of which
+  changes files under `docs/` only: computed on clones of `0491b84`,
   `a235783`, `8d5d64a`, `a48d9e5`, `fbd7877`, `8311167`, `d2dddf7`, `aa9e7ac`,
   `391c338`, `8360923`, `ed005a0` and `e88e0dd` and on the applied trees, under Python
   3.12.3; the trees of `d508b29`, `9f2f3d7`, `d410bfa`, `34d8e3b`, `ad34c02`,
-  `89d2367`, `b387c03`, `9862568` and `3d7e6cb` and the applied tree of the commit
-  that writes this line give the same. `bc1b9c2c…` was
+  `89d2367`, `b387c03`, `9862568`, `3d7e6cb` and `78204ff` and the applied tree of the
+  commit that writes this line give the same. `bc1b9c2c…` was
   set by `9ea1cf3`, confirmed on Windows by its live run, and held through `f00bef6`,
   `36de35d`, `78ea37d`, `d3188f2` and `67f6ec1`, which changed only files under `docs/`
   and `tests/`, `README.md` and `run_tests.py`'s docstring.
@@ -1654,8 +1717,9 @@ records `3d7e6cb`'s landing.
   output, a CPython implementation detail (`core/code_fingerprint.py`, "WHAT IT DOES NOT
   SURVIVE"). **Every `code_hash` claim about this project is computed under Python 3.12**
   (Viktor runs 3.12.10).
-- **Golden snapshot:** unchanged by the commit that writes this line, which changes
-  docs and no code or test, by `3d7e6cb`, which changed a build script under `docs/`,
+- **Golden snapshot:** unchanged by the commit that writes this line and by `78204ff`,
+  each of which changes docs and no code or test,
+  by `3d7e6cb`, which changed a build script under `docs/`,
   one test file, `README.md`'s counts and docs, and read no fixture,
   by `9862568`, which changed a build script under `docs/`, one test file,
   `README.md`'s counts and docs, and read no fixture, by `b387c03`, which changed three test files, `README.md`'s counts and
@@ -1689,7 +1753,13 @@ records `3d7e6cb`'s landing.
   15 October 2026 — Part 4's three test shapes", point 5); `README.md` writes it too
   (entry 50). The commit that writes this line changes no test, and the three counts
   hold: from the Linux sandbox, Python 3.12.3, pinned requirements, the patch applied
-  to an autocrlf clone of `3d7e6cb`. `3d7e6cb` added one test, taking no fixture and
+  to an autocrlf clone of `78204ff`. `78204ff` changed no test, and the three counts
+  held: from the Linux sandbox, Python 3.12.3, pinned requirements, the patch applied
+  to an autocrlf clone of `3d7e6cb`. Its pytest step ran on Windows after the apply
+  (the cache on his disk was rewritten at 19:29:40 on 26 October, 2 minutes 49 seconds
+  after its files were written, at 19:26:51, and its `lastfailed` was left as it was,
+  `{}`, so that run recorded no failure), and Viktor went on to the commit, which
+  confirms 900 by proceeding. `3d7e6cb` added one test, taking no fixture and
   not needing `pandas_ta`: pytest rose by 1 in both configurations, and `run_tests.py`
   passes 1 more with its error count unchanged: from the Linux sandbox, Python 3.12.3,
   pinned requirements, the patch applied to an autocrlf clone of `9862568`. Its pytest
@@ -1807,7 +1877,7 @@ records `3d7e6cb`'s landing.
   `test_the_commit_messages_up_to_the_tag_are_round_7s_to_the_byte`, runs `git log` up
   to the tag `round7-sent-2026-09-30`: it needs the tag, which a full clone has.
 - **Engineering Notes:** through Entry #183 (v1.36), which covers `68c6191`.
-  **Sixty-four commits behind** — `ec4e5fd`, the floor (a commit that regenerates the
+  **Sixty-five commits behind** — `ec4e5fd`, the floor (a commit that regenerates the
   Notes cannot
   cover itself, Entry #144), `e7a94d1`, `d5ced0c`, `59b747a`, `f256937`, `12b483e`,
   `01f2892`, `8b6fd00`, `e186423`, `86f30f1`, `3e8191a`, `1523e0c`, `ff12e17`,
@@ -1818,7 +1888,7 @@ records `3d7e6cb`'s landing.
   `67f6ec1`, `0491b84`, `a235783`, `8d5d64a`, `a48d9e5`, `fbd7877`, `8311167`,
   `d2dddf7`, `aa9e7ac`, `391c338`, `8360923`, `ed005a0`, `e88e0dd`, `d508b29`,
   `9f2f3d7`, `d410bfa`, `34d8e3b`, `ad34c02`, `89d2367`, `b387c03`, `9862568`,
-  `3d7e6cb` and the commit that writes this line.
+  `3d7e6cb`, `78204ff` and the commit that writes this line.
   Every later
   commit adds one
   until the
@@ -1836,8 +1906,8 @@ records `3d7e6cb`'s landing.
   Document's at `6e1baba`.
 - **README.md:** its test counts are current (900, 724 / 165 and 832, and the error
   count, 31), last changed by `3d7e6cb`, which changed only those numbers there, and
-  not by the commit that writes this line; that README writes the error count at
-  all is entry 50. **Its
+  not by `78204ff` or the commit that writes this line; that README writes the error
+  count at all is entry 50. **Its
   three status rows are
   current** — "Independent audit", "Release
   gate" and "Backtesting" — since `a235783`, in wording Viktor
@@ -2549,7 +2619,7 @@ the work before the audit, entry 1 apart.
   out; Freqtrade does it by shifting a higher-timeframe candle one interval forward (the
   comparison's item 4). Changing a ratified specification is Viktor's.
   **26 October: decided**, by Claude under Viktor's delegation of 19:02 ("I don't
-  understand. Just fix it as you see fit."), filed by the commit that writes this line
+  understand. Just fix it as you see fit."), filed by `78204ff`
   (DECISIONS, "Decision, 26 October 2026 — Goal B keeps a candle only once it has
   closed at `t` (entry 26)"): at `t` a candle is kept only when its open time plus
   one bar of its own timeframe is at or before `t`, the live engine's own rule
@@ -2604,6 +2674,14 @@ the work before the audit, entry 1 apart.
   that bar, would have reported a failure. Goal B's harness is where it matters; nothing
   on the engine's path today. On this list by the 22 September ruling, not separately
   ruled.
+  **27 October: ruled**, by Viktor, agreeing to Claude's suggestion at 10:07, filed by
+  the commit that writes this line (DECISIONS, "Ruling, 27 October 2026 — a backtest
+  decides through the live path (entry 31)"): the harness reaches the engine only
+  through the single-decision path a live run takes, on the files truncated at `t`, and
+  never computes an indicator once over the whole history; its record at `t` is what
+  that path returns, and a test planting missing values at sampled decision bars
+  checks it. `clean_series` is not changed. Read again at `78204ff`: the two examples
+  above hold (Linux sandbox). Docs only; nothing of the harness exists.
 - **`REGIME_HYSTERESIS_THRESHOLD` is a dead band, not hysteresis** (`structure/
   structure.py`; F9, 12 October). Renaming it moves `run_hash` and the golden snapshot,
   so the name was kept and its comment corrected; the rename waits for after the audit,
@@ -3231,16 +3309,16 @@ Each code commit is its own commit and updates this file for its own landing.
 
 ## Resolved this session
 
-- **`3d7e6cb`'s landing**, read off Viktor's disk and GitHub again, with the times
+- **`78204ff`'s landing**, read off Viktor's disk and GitHub again, with the times
   Claude had read off them after the push, in chat ("Where the project is", the session
-  of 26 October, from 16:51, and this session). Every part that could be read again
+  of 26 October, from 18:56, and this session). Every part that could be read again
   held; the two that could not are named there.
-- **Entry 26** — Goal B keeps a candle only once it has closed at `t`, by the commit
-  that writes this line ("Found after 22 September"; DECISIONS, "Decision, 26 October
-  2026 — Goal B keeps a candle only once it has closed at `t` (entry 26)"): Claude's
-  under Viktor's delegation of 19:02 on 26 October, his to reverse.
+- **Entry 31** — a backtest decides through the live path, by the commit that writes
+  this line ("Found after 22 September"; DECISIONS, "Ruling, 27 October 2026 — a
+  backtest decides through the live path (entry 31)"): Viktor's, by agreeing to
+  Claude's suggestion at 10:07 on 27 October.
 - **The once-per-session rewrite of this file**, by the commit that writes this line.
-  The previous version, as at `3d7e6cb`, is in HISTORY verbatim, headings demoted one
+  The previous version, as at `78204ff`, is in HISTORY verbatim, headings demoted one
   level, proven by un-demotion with a negative control (the commit message has the
   result).
 
@@ -3258,10 +3336,11 @@ Claude critiques it.
   entry more. Of wave 1, what this file names as Claude's has landed. Entry 26, one of
   Goal B's two rulings, was decided by Claude under Viktor's delegation of 26 October
   (DECISIONS, "Decision, 26 October 2026 — Goal B keeps a candle only once it has
-  closed at `t` (entry 26)"), his to reverse.
-  **Viktor's, position first:** entry 31, Goal B's other ruling, docs only; entry 50's
-  shape (docs, found landing 37); and entry 47's place in the sort, if he changes
-  Claude's suggestion.
+  closed at `t` (entry 26)"), his to reverse. Entry 31, the other, was ruled by Viktor
+  on 27 October, by agreeing to Claude's suggestion (DECISIONS, "Ruling, 27 October
+  2026 — a backtest decides through the live path (entry 31)").
+  **Viktor's, position first:** entry 50's shape (docs, found landing 37); and entry
+  47's place in the sort, if he changes Claude's suggestion.
 - **The engine's indicators — the document of 24 October** (outside the repository,
   "Where the project is"). Version 2's section 6 questions were ruled on 25 October
   (Ruled — in force); the redesign is entry 53, the next item. **The tooling landed**
@@ -3587,8 +3666,8 @@ Claude critiques it.
   `d508b29` and `d410bfa`, each naming the one before; `ad34c02` named `d410bfa` there
   and added its own, `b387c03` named `ad34c02` there and added its own, `9862568` named
   `b387c03` there and added its own, and `3d7e6cb` named `9862568` there and added its
-  own. The docs-only commits between them, the commit that writes this line among
-  them, changed no line there. (This paragraph stopped at `a235783` until `ad34c02`
+  own. The docs-only commits between them, `78204ff` and the commit that writes this
+  line among them, changed no line there. (This paragraph stopped at `a235783` until `ad34c02`
   brought it current, and
   at `ad34c02` until `9862568` did.)
 - **The pre-push hook is installed per clone, not per repository.** After any re-clone
