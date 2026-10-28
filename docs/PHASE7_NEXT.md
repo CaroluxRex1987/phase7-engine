@@ -1,10 +1,10 @@
 # Next step — read this first
 
-*27 October 2026, from 18:28. Rewritten by the commit that brings README's audit
-history and its layout block current — rounds 7 and 8 and their models, GLM 5.3 Flash,
-`logs/pinned/` and `docs/build/`'s tools, in Claude's wording, approved by Viktor, docs
-only — and records `713e084`'s landing; the version it replaced — as it stood at
-`713e084` — is in HISTORY verbatim.
+*27 October 2026, from 19:31. Rewritten by the commit that files Viktor's ruling that
+a landing check does not report its standing gaps — named once in DECISIONS, a gap
+reported only when it is new or bears on the landing — docs only, and records
+`134f85b`'s landing; the version it replaced — as it stood at `134f85b` — is in HISTORY
+verbatim.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
 rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
@@ -407,8 +407,22 @@ among the graders since `7158a7f`, on 29 August, a week before round 3 ran, so t
 name stands for GLM 5.3's own session of 28 August; whether that session graded the
 source is README's claim, and not found in the record. Claude put the paragraph to him
 again with the Flash added beside GLM 5.3 — ten graders, not nine — and at 19:03 he
-asked for Claude's suggestion: build with it. At 19:09 he said, "Go." The commit that
-writes this line lands that wording, docs only, and records `713e084`'s landing.
+asked for Claude's suggestion: build with it. At 19:09 he said, "Go." `134f85b`
+landed that wording, docs only, and recorded `713e084`'s landing.
+**On 27 October, from 19:31**, after pushing `134f85b` at 19:29:51, Viktor opened the
+session with its landing record, as the session before had written it for him. Claude
+read it off his disk and GitHub again (below): every part that could be read again
+held, the tree verified before delivery among them, and nothing differed. Claude also
+listed the four parts it could not read again, the same four as at every landing
+since that morning. At 19:34 Viktor asked whether that was an issue, whether it
+affected the project and why it happened, and said it should be fixed or got over.
+Claude answered that none of the four leaves a gap in what is verified, that they
+recur by the design of the report and are not findings, and suggested that a landing
+check report a part it cannot read again only when it is new or bears on whether the
+landing holds, the standing ones named once in DECISIONS. At 19:35 he said, "I
+agree." The commit that writes this line files that ruling, his by agreeing to
+Claude's suggestion (DECISIONS, "Ruling, 27 October 2026 — a landing check does not
+report its standing gaps"), docs only, and records `134f85b`'s landing.
 
 **The review and the comparison are outside the repository**, in
 `G:\Phase_7_Engine_Random_Files\Docs\02_Reviews_and_Feedback`:
@@ -1172,9 +1186,9 @@ line names, its four files on his disk and GitHub's blobs, CRs aside, byte for b
 the tree verified before delivery, and its commit message the one delivered with its
 CRs removed, byte for byte, in chat only; Viktor listed them at the start of the next
 session. Its account is in HISTORY, in this file's version at `713e084`, moved there
-by the commit that writes this line.
+by `134f85b`.
 
-**This session (27 October, from 18:28)**, configured for Claude Opus 5.5, opened at
+**The session of 27 October, from 18:28**, configured for Claude Opus 5.5, opened at
 `713e084`. GitHub's tip, read with `git ls-remote` between 18:33:29 and 18:34:51 with
 git's tokens, askpass, credential helper, prompts and configuration files all removed
 from its environment, outside any repository, is `713e084`, its parent `a1c4218`. In
@@ -1209,8 +1223,54 @@ landed tree staged in an index of its own, the hook prints the line predicted fo
 evidence about Linux that it accepts this commit, not that it ran on his. The commit
 message is not compared with the one delivered: by the ruling of 27 October its
 properties, above, are read instead. The read of 18:26:12 is the session before's;
-this session's reads are its own, above. The commit that writes this line lands
-README's audit history and layout block and records `713e084`'s landing.
+that session's reads are its own, above. `134f85b` landed README's audit history and
+layout block and recorded `713e084`'s landing: docs and `README.md`. From his disk,
+staged in the next session: the apply was at 19:21:30 on 27 October, the pytest cache
+was rewritten at 19:24:25, the commit is from 19:29:39 and `origin/master`'s ref from
+19:29:51, its reflog line "update by push"; `master` and `origin/master` read
+`134f85b`. Claude had read those times off his disk after the push, and found GitHub's
+tip, `134f85b` — read at 19:30:31, with no credentials, the probe answered with a
+request for credentials — its tree the one its `Verified-Tree:` line names, its three
+files on his disk and GitHub's blobs, CRs aside, byte for byte the tree verified
+before delivery, and its commit message the one delivered with its CRs removed, byte
+for byte, in chat only; Viktor listed them at the start of the next session. Its
+account is in HISTORY, in this file's version at `134f85b`, moved there by the commit
+that writes this line.
+
+**This session (27 October, from 19:31)**, configured for Claude Opus 5.5, opened at
+`134f85b`. GitHub's tip, cloned by the sandbox with the sandbox's own git credentials
+still in its environment, and read with `git ls-remote` at 19:32:02 with git's tokens,
+askpass, credential helper, prompts and configuration files all removed from its
+environment, outside any repository, is `134f85b`, its parent `713e084`. In that same
+environment, also at 19:32:02, GitHub answered a read of a repository that does not
+exist, `CaroluxRex1987/phase7-engine-no-such-repo-probe`, with a request for
+credentials, so none reached it on that request. The tip's tree is
+`068001124f6360568fca469ad6365d1451ef862b`, the one its `Verified-Tree:` line names,
+read from GitHub alone. `master` and `origin/master` on his disk, from `.git/refs`
+staged off it, read `134f85b`. The commit object, staged off his disk, hashes to that
+name and is byte for byte GitHub's, with no CR in it; `.git/COMMIT_EDITMSG` is byte for
+byte its message, which ends with its `Verified-Tree:` line and its two attribution
+lines. Each of the three files `134f85b` changes — `README.md`, PHASE7_HISTORY.md and
+this file — is on his disk byte for byte an autocrlf checkout of GitHub's tip, CRLF on
+every line, and, its CRs removed, hashes to the tip's blob; their mtimes are still the
+apply's, 19:21:30.963 to .974. His `.git/index` lists the same 295 paths, modes and
+blobs as `134f85b`'s tree, and `git write-tree` from a copy of it gives that tree. The
+times above were read off his disk again: those mtimes,
+`.pytest_cache/v/cache/nodeids` (19:24:25.689), the commit object's date and
+`master`'s reflog (19:29:39), the `master` ref (19:29:40.225), its reflog's last line
+"commit:", `713e084` to `134f85b`, and `origin/master`'s ref (19:29:51.931) and its
+reflog line "update by push", the same pair. `134f85b` changes no file under `tests/`
+and no `.py` file, so the cache has no new test id to hold; its `lastfailed` is still
+`{}`, last written at 13:37:30 on 26 September, so the run of 19:24:25, 2 minutes
+55 seconds after the apply, recorded no failure. No `.patch` file or commit message
+file is left in the repository's root. Nothing differed, and no part this check could
+not read again was new or bore on the landing (DECISIONS, "Ruling, 27 October 2026 — a
+landing check does not report its standing gaps", filed by the commit that writes this
+line). Claude's first comparison of his index with the tree reported a difference at
+line 3, the same slip as in the session of 27 October from 12:31: Claude's own script
+had split the path `Claude outputs/…` at its space. Split on the tab instead, the two
+are identical, and `git write-tree` agrees. The commit that writes this line files
+that ruling and records `134f85b`'s landing.
 
 ## Ruled — in force
 
@@ -1688,8 +1748,10 @@ README's audit history and layout block and records `713e084`'s landing.
 ## Where things stand, right now
 
 - **Tip:** the commit that writes this line (a commit cannot name its own hash) —
-  README's audit history and layout block brought current, in Claude's wording,
-  approved by Viktor, docs only, and `713e084`'s landing recorded. Before it:
+  Viktor's ruling that a landing check does not report its standing gaps filed, docs
+  only, and `134f85b`'s landing recorded. Before it: `134f85b` (the session of
+  27 October, from 18:28: README's audit history and layout block brought current, in
+  Claude's wording, approved by Viktor, docs only, and `713e084`'s landing recorded),
   `713e084` (the session of 27 October, from 16:41: entry 50 of the list for after the
   audit, README's watched error count, docs only, by Claude's decision under Viktor's
   delegation, filed, and `a1c4218`'s landing recorded), `a1c4218` (the session of
@@ -1931,8 +1993,8 @@ README's audit history and layout block and records `713e084`'s landing.
   and the names it checks are the same. It removed and renamed none. `78204ff`,
   `0d86fda` and `b8f88d8` changed no test. `a1c4218` added
   `tests/test_commit_msg_hook.py` (11 tests, none taking a fixture or needing
-  `pandas_ta`) and changed no other test. `713e084` changed no test, nor does the
-  commit that writes this line.
+  `pandas_ta`) and changed no other test. `713e084` and `134f85b` changed no test, nor
+  does the commit that writes this line.
 - **Where the project lives, from 26 September:** `E:\phase7_engine` on Viktor's machine;
   the files kept outside the repository in `G:\Phase_7_Engine_Random_Files`. Copied with
   robocopy, verified — git's own checks on Windows for the tracked files, SHA-256 for the
@@ -1941,16 +2003,21 @@ README's audit history and layout block and records `713e084`'s landing.
   to `E:\phase7_engine`". Run the engine and every command from `E:\phase7_engine` (in
   cmd, changing drive needs `cd /d`). A dated record that names the D: paths means the
   same folders before the move; dated records are not edited.
-- **The push of `713e084`** happened, at 18:25:33 on 27 October: GitHub's tip, read
-  at 18:26:12 that day and at 18:34:51 in the next session, is `713e084`, `master` and
+- **The push of `134f85b`** happened, at 19:29:51 on 27 October: GitHub's tip, read
+  at 19:30:31 that day and at 19:32:02 in the next session, is `134f85b`, `master` and
   `origin/master` on Viktor's disk read it (their `.git/refs` files, and
-  `origin/master`'s reflog line "update by push"), its four files on his disk are
+  `origin/master`'s reflog line "update by push"), its three files on his disk are
   byte for byte an autocrlf checkout of it, and its tree is the one its
-  `Verified-Tree:` line names. Its four files on his disk and GitHub's blobs were
+  `Verified-Tree:` line names. Its three files on his disk and GitHub's blobs were
   read, CRs aside, byte for byte what was verified before delivery, and its commit
   message the one delivered with its CRs removed, byte for byte, after the push, in
   the session that delivered it. No deviation was reported (ruling on proposal (b)).
-  So did `a1c4218`'s, at 14:44:37 on 27 October, GitHub's tip read at 16:36:34 that
+  So did `713e084`'s, at 18:25:33 on 27 October, GitHub's tip read at 18:26:12 that
+  day and at 18:34:51 in the next session, its four files on his disk byte for byte an
+  autocrlf checkout of it, its tree the one its `Verified-Tree:` line names, and its
+  four files and GitHub's blobs read, CRs aside, byte for byte what was verified
+  before delivery and its commit message the one delivered with its CRs removed,
+  `a1c4218`'s, at 14:44:37 on 27 October, GitHub's tip read at 16:36:34 that
   day and at 16:47 in the next session, its seven files on his disk byte for byte an
   autocrlf checkout of it, its tree the one its `Verified-Tree:` line names, and its
   seven files and GitHub's blobs read, CRs aside, byte for byte what was verified
@@ -2014,7 +2081,7 @@ README's audit history and layout block and records `713e084`'s landing.
   commit that writes this line unless it deviates. Earlier pushes and deviations are
   recorded in this file's previous versions, in HISTORY.
 - **Before this commit**, every file its patch changes was staged off Viktor's disk and
-  matched an autocrlf checkout of `713e084`, GitHub's tip, cloned at 18:35 on
+  matched an autocrlf checkout of `134f85b`, GitHub's tip, cloned by 19:32 on
   27 October, byte for byte; it adds no file.
 - **code_hash:** `816d4951bb0322763ec4abc4b9ed8161d5b902372823350e5272f2fb7176e380`,
   set by `0491b84` from `bc1b9c2c…` — `main.py` alone — and confirmed on Windows: its
@@ -2035,15 +2102,15 @@ README's audit history and layout block and records `713e084`'s landing.
   `README.md`, by `78204ff`, `0d86fda` and `b8f88d8`, each of which changed files under
   `docs/` only, by `a1c4218`, which changed files under `docs/` and `tests/`, which it
   does not read, and `README.md` and `githooks/commit-msg`, which are not `.py` files,
-  by `713e084`, which changed files under `docs/` and `README.md`, which is not a `.py`
-  file, and by the commit that writes this line, which changes files under `docs/` and
-  `README.md`: computed on clones of `0491b84`,
+  by `713e084` and `134f85b`, each of which changed files under `docs/` and
+  `README.md`, which is not a `.py` file, and by the commit that writes this line,
+  which changes files under `docs/` only: computed on clones of `0491b84`,
   `a235783`, `8d5d64a`, `a48d9e5`, `fbd7877`, `8311167`, `d2dddf7`, `aa9e7ac`,
   `391c338`, `8360923`, `ed005a0` and `e88e0dd` and on the applied trees, under Python
   3.12.3; the trees of `d508b29`, `9f2f3d7`, `d410bfa`, `34d8e3b`, `ad34c02`,
   `89d2367`, `b387c03`, `9862568`, `3d7e6cb`, `78204ff`, `0d86fda`, `b8f88d8`,
-  `a1c4218` and `713e084` and the applied tree of the commit that writes this line give
-  the same. `bc1b9c2c…` was
+  `a1c4218`, `713e084` and `134f85b` and the applied tree of the commit that writes
+  this line give the same. `bc1b9c2c…` was
   set by `9ea1cf3`, confirmed on Windows by its live run, and held through `f00bef6`,
   `36de35d`, `78ea37d`, `d3188f2` and `67f6ec1`, which changed only files under `docs/`
   and `tests/`, `README.md` and `run_tests.py`'s docstring.
@@ -2052,7 +2119,7 @@ README's audit history and layout block and records `713e084`'s landing.
   SURVIVE"). **Every `code_hash` claim about this project is computed under Python 3.12**
   (Viktor runs 3.12.10).
 - **Golden snapshot:** unchanged by the commit that writes this line, which changes
-  `README.md`'s wording and docs and no code or test, by `713e084`, which changed
+  docs and no code or test, by `134f85b` and `713e084`, each of which changed
   `README.md`'s wording and docs and no code or test, by `a1c4218`, which added a git
   hook and one test file, read no fixture, and changed `README.md`'s counts and layout
   line and docs, by `b8f88d8`, `0d86fda` and `78204ff`, each of which changed docs and
@@ -2091,7 +2158,13 @@ README's audit history and layout block and records `713e084`'s landing.
   15 October 2026 — Part 4's three test shapes", point 5); `README.md` wrote it too
   until `713e084` (entry 50). The commit that writes this line changes no test, and the
   three counts hold: from the Linux sandbox, Python 3.12.3, pinned requirements, the
-  patch applied to an autocrlf clone of `713e084`. `713e084` changed no test, and the
+  patch applied to an autocrlf clone of `134f85b`. `134f85b` changed no test, and the
+  three counts held: from the Linux sandbox, Python 3.12.3, pinned requirements, the
+  patch applied to an autocrlf clone of `713e084`. Its pytest step ran on Windows after
+  the apply (the cache on his disk was rewritten at 19:24:25 on 27 October, 2 minutes
+  55 seconds after its files were written, at 19:21:30, and its `lastfailed` was left
+  as it was, `{}`, so that run recorded no failure), and Viktor went on to the commit,
+  which confirms 911 by proceeding. `713e084` changed no test, and the
   three counts held: from the Linux sandbox, Python 3.12.3, pinned requirements, the
   patch applied to an autocrlf clone of `a1c4218`. Its pytest step ran on Windows after
   the apply (the cache on his disk was rewritten at 18:20:10 on 27 October, 3 minutes
@@ -2242,7 +2315,7 @@ README's audit history and layout block and records `713e084`'s landing.
   `test_the_commit_messages_up_to_the_tag_are_round_7s_to_the_byte`, runs `git log` up
   to the tag `round7-sent-2026-09-30`: it needs the tag, which a full clone has.
 - **Engineering Notes:** through Entry #183 (v1.36), which covers `68c6191`.
-  **Sixty-nine commits behind** — `ec4e5fd`, the floor (a commit that regenerates the
+  **Seventy commits behind** — `ec4e5fd`, the floor (a commit that regenerates the
   Notes cannot
   cover itself, Entry #144), `e7a94d1`, `d5ced0c`, `59b747a`, `f256937`, `12b483e`,
   `01f2892`, `8b6fd00`, `e186423`, `86f30f1`, `3e8191a`, `1523e0c`, `ff12e17`,
@@ -2253,8 +2326,8 @@ README's audit history and layout block and records `713e084`'s landing.
   `67f6ec1`, `0491b84`, `a235783`, `8d5d64a`, `a48d9e5`, `fbd7877`, `8311167`,
   `d2dddf7`, `aa9e7ac`, `391c338`, `8360923`, `ed005a0`, `e88e0dd`, `d508b29`,
   `9f2f3d7`, `d410bfa`, `34d8e3b`, `ad34c02`, `89d2367`, `b387c03`, `9862568`,
-  `3d7e6cb`, `78204ff`, `0d86fda`, `b8f88d8`, `a1c4218`, `713e084` and the commit that
-  writes this line.
+  `3d7e6cb`, `78204ff`, `0d86fda`, `b8f88d8`, `a1c4218`, `713e084`, `134f85b` and the
+  commit that writes this line.
   Every later
   commit adds one
   until the
@@ -2276,10 +2349,11 @@ README's audit history and layout block and records `713e084`'s landing.
   above, and reworded that paragraph's sentence on when the count moves (entry 50) —
   new wording, put to Viktor before his commit — and before it by `a1c4218`, which
   changed the numbers there and the layout block's `githooks/` line, for the new hook,
-  and by `3d7e6cb`, which changed only the numbers, and not by `78204ff`, `0d86fda` or
-  `b8f88d8`. **Its audit history and layout block are current** since the commit that
-  writes this line, in wording Claude drafted and Viktor approved, on 27 October at
-  18:52 and, one paragraph corrected, at 19:09: "The audit, and what it found" counts
+  and by `3d7e6cb`, which changed only the numbers, and not by `78204ff`, `0d86fda`,
+  `b8f88d8`, `134f85b` or the commit that writes this line. **Its audit history and
+  layout block are current** since `134f85b`, in wording Claude drafted and Viktor
+  approved, on 27 October at 18:52 and, one paragraph corrected, at 19:09: "The
+  audit, and what it found" counts
   seven rounds since the original audit, rounds 7 and 8 among them, and "How this was
   built" names their two models in both of its lists, and GLM 5.3 Flash, round 3's
   auditor, which both had left out since `ebb0a46` — fourteen have seen the
@@ -3436,6 +3510,9 @@ the work before the audit, entry 1 apart.
   it reads pytest's cache. `run_tests.py` is inside `code_hash`'s walk
   (`core/code_fingerprint.py` names it), so the change moves `code_hash` and waits for
   after the reading of 14 November: tooling, Claude's to build, XS, wave 2.
+  **27 October: until it lands**, whether `run_tests.py` ran is one of a landing
+  check's standing gaps, named once in DECISIONS and not reported at each landing
+  ("Ruling, 27 October 2026 — a landing check does not report its standing gaps").
 
 ## Work order — Claude's, under Viktor's delegation
 
@@ -3725,20 +3802,16 @@ Each code commit is its own commit and updates this file for its own landing.
 
 ## Resolved this session
 
-- **`713e084`'s landing**, read off Viktor's disk and GitHub again, with the times
+- **`134f85b`'s landing**, read off Viktor's disk and GitHub again, with the times
   Claude had read off them after the push, in chat ("Where the project is", the session
-  of 27 October, from 16:41, and this session). Every part that could be read again
-  held, the tree verified before delivery among them; the four that could not are
-  named there.
-- **README's other stale passages**, by the commit that writes this line (Open items,
-  as this file stood at `713e084`): "The audit, and what it found", "How this was
-  built" and the layout block's `logs/` line, and, found on the way, GLM 5.3 Flash in
-  both lists of models and the layout's `build/` line and the paragraph under it — in
-  wording Claude drafted and Viktor approved at 18:52 on 27 October, one paragraph
-  corrected before anything was built and approved again at 19:09; docs only. The
-  paragraph `6469a67` rewrote stays his (Open items).
+  of 27 October, from 18:28, and this session). Every part that could be read again
+  held, the tree verified before delivery among them, and nothing differed.
+- **The landing check's standing gaps**, by the commit that writes this line: named
+  once, and not reported again unless one is new or bears on the landing — Viktor's
+  ruling, by agreeing to Claude's suggestion at 19:35 on 27 October (DECISIONS,
+  "Ruling, 27 October 2026 — a landing check does not report its standing gaps").
 - **The once-per-session rewrite of this file**, by the commit that writes this line.
-  The previous version, as at `713e084`, is in HISTORY verbatim, headings demoted one
+  The previous version, as at `134f85b`, is in HISTORY verbatim, headings demoted one
   level, proven by un-demotion with a negative control (the commit message has the
   result).
 
@@ -3758,7 +3831,8 @@ Claude critiques it.
   with it all of wave 1 that this file names as Claude's; `a1c4218`'s landing found no
   entry more. Entry 50, README's watched error count, landed at `713e084`, by Claude's
   decision under Viktor's delegation of 27 October, his to reverse, and with it nothing
-  of wave 1 is left open; `713e084`'s landing found no entry more. Entry 26, one of
+  of wave 1 is left open; `713e084`'s and `134f85b`'s landings found no entry
+  more. Entry 26, one of
   Goal B's two rulings, was decided by Claude under Viktor's delegation of 26 October
   (DECISIONS, "Decision, 26 October 2026 — Goal B keeps a candle only once it has
   closed at `t` (entry 26)"), his to reverse. Entry 31, the other, was ruled by Viktor
@@ -4049,7 +4123,7 @@ Claude critiques it.
   the BTC-Adjusted Prediction gone, no part of the engine empirically validated. His to
   reword or reverse; asked again on 27 October, he gave it no new wording, and it stands
   as `6469a67` left it. The rest of the item it was part of, README's other stale
-  passages, lands with the commit that writes this line.
+  passages, landed at `134f85b`.
 - **Claude's — the running change list for the audit:** `docs/audit_change_list.md`,
   from the baseline `e65a0f7` (the tree round 6's fix-verification was sent). **Every
   later commit that changes engine code, tests or tooling adds its line there in the
@@ -4087,8 +4161,8 @@ Claude critiques it.
   `b387c03` there and added its own, and `3d7e6cb` named `9862568` there and added its
   own, and `a1c4218` named `3d7e6cb` there and added its own. The docs-only commits
   between them, `78204ff`, `0d86fda` and `b8f88d8` among them, changed no line there,
-  nor did `713e084`, which changed docs and `README.md` only, and the commit that
-  writes this line, which changes docs and `README.md` only, changes none. (This
+  nor did `713e084` and `134f85b`, which changed docs and `README.md` only, and the
+  commit that writes this line, which changes docs only, changes none. (This
   paragraph stopped at
   `a235783` until `ad34c02`
   brought it current, and

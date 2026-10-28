@@ -6090,8 +6090,10 @@ not been checked either.
    landing check reads as it reads pytest's cache. `run_tests.py` is inside
    `code_hash`'s walk (`core/code_fingerprint.py` names it), and no commit that moves
    `code_hash` lands before the forward measurement's reading of 14 November, so it
-   comes after that reading (entry 57). Until then a landing record says `run_tests.py`
-   leaves no trace.
+   comes after that reading (entry 57). Until then it is one of a landing check's
+   standing gaps, which a landing record does not report. *(Amended 27 October 2026:
+   "Ruling, 27 October 2026 — a landing check does not report its standing gaps",
+   below, which quotes the sentence it replaces and states what it weakens.)*
 
 **Claude's, stated with it and not overruled.** Each read of GitHub's tip is recorded
 with its time, and a later check adds its own read rather than claiming to read an
@@ -6228,6 +6230,64 @@ errors in `run_tests.py`, which point 5 put on the list for after the audit.
   following the link.
 - README is written in Viktor's voice; the new wording is Claude's, put to him before
   his commit, and his to reword.
+
+## Ruling, 27 October 2026 — a landing check does not report its standing gaps
+
+*New in this file on 27 October 2026. Viktor's, by agreeing to Claude's suggestion, in
+the session that opened at 19:31 on 27 October at `134f85b`: at 19:34 he asked whether
+the four parts that session's landing check could not read again were an issue,
+whether they affected the project and why they happened, and said they should be
+fixed or got over; Claude answered each; at 19:35 he said, "I agree." Filed by that
+session's commit, docs only.*
+
+**The finding.** Every landing check since the ruling of that morning ("Ruling,
+27 October 2026 — a commit names the tree verified before delivery") reported the same
+parts as not read again, and so did each landing record, commit message and account in
+PHASE7_NEXT.md. None of them is a finding: each cannot be read again because of how
+the process works, and each is the same at every landing.
+
+**What was ruled.**
+
+1. **The standing gaps are named here, once.** A landing check's report, a landing
+   record, a commit message and PHASE7_NEXT.md do not report them again:
+   1. whether `run_tests.py` ran, and its count — it writes no file until its last-run
+      record lands (entry 57); until then its count rests on Viktor's silence;
+   2. the commit-msg hook's line at his commit — it writes no file, so it rests on his
+      silence too;
+   3. the commit message as delivered — deleted by its own step; its properties are
+      read instead (the ruling of that morning, point 3);
+   4. an earlier session's read of GitHub's tip — a past snapshot; each check makes
+      its own read, with its time, and records it.
+2. **A part a landing check cannot read again is reported only when it is new, or when
+   it bears on whether the landing holds** — something that should be on Viktor's disk
+   or GitHub and is not, or a read that fails.
+3. **When entry 57 lands**, `run_tests.py`'s last-run record is read as pytest's cache
+   is, and the first standing gap leaves this list.
+
+**Claude's reasons, which Viktor accepted.**
+
+1. None of the four leaves a gap in what is verified. The hook exists to stop a commit
+   whose tree is not the one its `Verified-Tree:` line names, and a landing check reads
+   that tree from GitHub directly. The message's properties, `.git/COMMIT_EDITMSG` and
+   the commit object are read. Each check reads GitHub for itself. `run_tests.py` is
+   the third configuration of a suite whose pytest run leaves its trace, and entry 57
+   closes it.
+2. A line that is the same at every landing carries no information, and repeated at
+   every landing it buries a gap that is new.
+
+**The case against.** Until entry 57 lands, `run_tests.py`'s count still rests on
+Viktor's silence; a reader of one landing record alone no longer sees that. A new gap
+has to be recognised as new: one that resembles a standing gap could be passed over.
+
+**What it weakens.**
+
+- A landing record no longer states, each time, that `run_tests.py`'s count and the
+  hook's line rest on Viktor's silence, nor that the message as delivered and an
+  earlier read of GitHub are not read again; this ruling states it once.
+- Point 4 of the ruling of that morning said: "Until then a landing record says
+  `run_tests.py` leaves no trace." It now says that until then it is one of a landing
+  check's standing gaps, which a landing record does not report.
+- Nothing ratified is removed or reworded.
 
 ## Working practice
 
