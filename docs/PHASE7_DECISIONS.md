@@ -6289,6 +6289,72 @@ has to be recognised as new: one that resembles a standing gap could be passed o
   check's standing gaps, which a landing record does not report.
 - Nothing ratified is removed or reworded.
 
+## Ruling, 29 October 2026 — a ruling that changes how a patch is delivered or checked changes the patch-delivery skill in the same session
+
+*New in this file on 29 October 2026. Viktor's, by agreeing to Claude's suggestions, in
+the session that opened at 18:23 on 28 October at `fad0588`: at 13:08 on 29 October he
+asked what the issue was with the landing check's report, which had again listed parts
+it could not read again, beyond the obvious, and said he wanted it prevented; Claude
+answered and put an updated skill to him; at 13:41 and 13:44 he asked for Claude's
+suggestion, and at 13:44 he said, "Go." to a comparison of the whole skill with this
+file; at 13:46 he said, "Go." to a skill carrying what it found, and at 13:51, "Done.":
+he had saved it; at 13:52 he asked for Claude's suggestion on filing it, and said, "go".
+Filed by that session's commit, docs only.*
+
+**The finding.** `fad0588`'s landing check, at 18:23 on 28 October, reported two of the
+four standing gaps — the commit message as delivered, and the session before's read of
+GitHub's tip — against the ruling the commit it checked had filed ("Ruling, 27 October
+2026 — a landing check does not report its standing gaps"). A landing check follows the
+patch-delivery skill, which is in Viktor's account, outside the repository, and does not
+read this file during a delivery or a landing check. The ruling of 27 October reached
+this file only; the skill's section 10 still said to report what cannot be read again,
+and its bullets still described the four as things to say. Claude then compared every
+heading in this file at `fad0588`, and every ruling and the Working practice section
+that bear on building, delivering, recording or checking a patch, with the skill. Apart
+from the standing gaps nothing contradicted it, and four were absent from it:
+token-saving rule 5, a fresh session at a real closure point, though Working practice
+says all five were put into the skill; the ruling of 27 September that a push that goes
+as predicted leaves nothing owed; rule 38's one patch's files on disk at a time; and
+Working practice's "Never `device_stage_files` back into the sandbox working copy".
+
+**What was ruled.**
+
+1. **A ruling that changes how a patch is built, delivered, recorded or checked changes
+   the patch-delivery skill in the same session.** Claude puts the updated skill to
+   Viktor to save, and the handover check says whether it was.
+2. **The skill names the commit at which it was last compared with this file.** Every
+   delivery and landing check begins with `git diff --stat <that commit> HEAD --
+   docs/PHASE7_DECISIONS.md`; anything it shows is read and, where it changes the
+   procedure, followed over the skill and put to Viktor. A commit cannot name its own
+   hash, so the marker moves to the commit that files a ruling once that commit has
+   landed, in a skill put to Viktor after its push.
+3. **The skill carries what the comparison found**: the four standing gaps, not
+   reported, and the four absent rules. Viktor saved it at 13:51 on 29 October; its
+   marker is `fad0588`.
+
+**Claude's reasons, which Viktor accepted.**
+
+1. A session does the work by the skill. A ruling filed only here does not reach the
+   work, and the standing gaps' ruling is the instance: broken by the first landing
+   check after it, in the check of the very commit that filed it.
+2. The marker turns drift into a command's output rather than something to remember
+   (rules 28 and 37): a ruling filed here and not carried into the skill shows in the
+   next session's diff.
+3. The comparison found four more absences, each a step a session could have got wrong.
+
+**The case against.** The skill is outside the repository: its text is not versioned
+here, and a reader of the repository cannot see which version a session followed. The
+marker catches a change to this file, not a skill edited away from it. Whether a change
+touches the procedure is Claude's judgment, and the comparison of 29 October was
+Claude's reading, checked by no one else.
+
+**What it weakens.**
+
+- Nothing ratified is removed or reworded.
+- Working practice's sentence that all five token-saving rules were put into the skill
+  is left as written; it was true for four until 29 October, and this ruling records
+  that.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then

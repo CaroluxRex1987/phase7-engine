@@ -1,10 +1,11 @@
 # Next step — read this first
 
-*27 October 2026, from 19:31. Rewritten by the commit that files Viktor's ruling that
-a landing check does not report its standing gaps — named once in DECISIONS, a gap
-reported only when it is new or bears on the landing — docs only, and records
-`134f85b`'s landing; the version it replaced — as it stood at `134f85b` — is in HISTORY
-verbatim.
+*29 October 2026, from 13:08, in the session that opened at 18:23 on 28 October.
+Rewritten by the commit that files Viktor's ruling that a ruling changing how a patch is
+delivered or checked changes the patch-delivery skill in the same session — the skill
+names the commit it was last compared with DECISIONS at, and each session checks for
+what was filed since — docs only, and records `fad0588`'s landing; the version it
+replaced — as it stood at `fad0588` — is in HISTORY verbatim.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
 rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
@@ -420,9 +421,28 @@ Claude answered that none of the four leaves a gap in what is verified, that the
 recur by the design of the report and are not findings, and suggested that a landing
 check report a part it cannot read again only when it is new or bears on whether the
 landing holds, the standing ones named once in DECISIONS. At 19:35 he said, "I
-agree." The commit that writes this line files that ruling, his by agreeing to
-Claude's suggestion (DECISIONS, "Ruling, 27 October 2026 — a landing check does not
-report its standing gaps"), docs only, and records `134f85b`'s landing.
+agree." `fad0588` filed that ruling, his by agreeing to Claude's suggestion
+(DECISIONS, "Ruling, 27 October 2026 — a landing check does not report its standing
+gaps"), docs only, and recorded `134f85b`'s landing.
+**On 28 October, from 18:23**, after pushing `fad0588` at 15:23:12, Viktor opened the
+session with its landing record, as the session before had written it for him. Claude
+read it off his disk and GitHub again (below): every part that could be read again held,
+and nothing differed. But the report also listed two of the four standing gaps, the
+commit message as delivered and the session before's read of GitHub's tip, against the
+ruling `fad0588` had filed. At 13:08 on 29 October Viktor asked what the issue was,
+beyond the obvious, and said he wanted it prevented. A landing check follows the
+patch-delivery skill, which is in his account, outside the repository, and does not read
+DECISIONS; the skill's section 10 still said to report what cannot be read again. Claude
+put an updated skill to him. At 13:41 and 13:44 he asked for Claude's suggestion:
+compare the whole skill with DECISIONS, now, and have each session find what was filed
+since by a command. At 13:44 he said, "Go." Apart from the standing gaps nothing
+contradicted the skill, and four rulings were absent from it. At 13:46 he said, "Go." to
+a skill carrying all of it and naming `fad0588` as the commit it was compared at, and at
+13:51 that he had saved it. At 13:52 he asked for Claude's suggestion, filing it now,
+and said, "go". The commit that writes this line files that ruling, his by agreeing to
+Claude's suggestions (DECISIONS, "Ruling, 29 October 2026 — a ruling that changes how a
+patch is delivered or checked changes the patch-delivery skill in the same session"),
+docs only, and records `fad0588`'s landing.
 
 **The review and the comparison are outside the repository**, in
 `G:\Phase_7_Engine_Random_Files\Docs\02_Reviews_and_Feedback`:
@@ -1234,10 +1254,9 @@ request for credentials — its tree the one its `Verified-Tree:` line names, it
 files on his disk and GitHub's blobs, CRs aside, byte for byte the tree verified
 before delivery, and its commit message the one delivered with its CRs removed, byte
 for byte, in chat only; Viktor listed them at the start of the next session. Its
-account is in HISTORY, in this file's version at `134f85b`, moved there by the commit
-that writes this line.
+account is in HISTORY, in this file's version at `134f85b`, moved there by `fad0588`.
 
-**This session (27 October, from 19:31)**, configured for Claude Opus 5.5, opened at
+**The session of 27 October, from 19:31**, configured for Claude Opus 5.5, opened at
 `134f85b`. GitHub's tip, cloned by the sandbox with the sandbox's own git credentials
 still in its environment, and read with `git ls-remote` at 19:32:02 with git's tokens,
 askpass, credential helper, prompts and configuration files all removed from its
@@ -1265,14 +1284,76 @@ and no `.py` file, so the cache has no new test id to hold; its `lastfailed` is 
 55 seconds after the apply, recorded no failure. No `.patch` file or commit message
 file is left in the repository's root. Nothing differed, and no part this check could
 not read again was new or bore on the landing (DECISIONS, "Ruling, 27 October 2026 — a
-landing check does not report its standing gaps", filed by the commit that writes this
-line). Claude's first comparison of his index with the tree reported a difference at
-line 3, the same slip as in the session of 27 October from 12:31: Claude's own script
-had split the path `Claude outputs/…` at its space. Split on the tab instead, the two
-are identical, and `git write-tree` agrees. The commit that writes this line files
-that ruling and records `134f85b`'s landing.
+landing check does not report its standing gaps", filed by `fad0588`). Claude's
+first comparison of his index with the tree reported a difference at line 3, the same
+slip as in the session of 27 October from 12:31: Claude's own script had split the
+path `Claude outputs/…` at its space. Split on the tab instead, the two are
+identical, and `git write-tree` agrees.
+`fad0588` filed that ruling and recorded `134f85b`'s landing: docs only. From his disk,
+staged in the next session: the apply was at 15:05:44 on 28 October, the pytest cache
+was rewritten at 15:08:39, the commit is from 15:22:59 and `origin/master`'s ref from
+15:23:12, its reflog line "update by push"; `master` and `origin/master` read `fad0588`.
+Claude had read those times off his disk after the push, and found GitHub's tip,
+`fad0588` — read at 15:23:24, with no credentials, the probe answered with a request for
+credentials — its tree the one its `Verified-Tree:` line names, its three files on his
+disk and GitHub's blobs, CRs aside, byte for byte the tree verified before delivery, and
+its commit message the one delivered with its CRs removed, byte for byte, in chat only;
+Viktor listed them at the start of the next session. Its account is in HISTORY, in this
+file's version at `fad0588`, moved there by the commit that writes this line.
+
+**This session (28 October, from 18:23, and 29 October, from 13:08)**, configured for
+Claude Opus 5.5, opened at `fad0588`. GitHub's tip, read with `git ls-remote` at
+18:23:39 on 28 October and again at 13:10:20 on 29 October with git's tokens, askpass,
+credential helper, prompts and configuration files all removed from its environment,
+outside any repository, is `fad0588`, its parent `134f85b`. In that same environment, at
+both times, GitHub answered a read of a repository that does not exist,
+`CaroluxRex1987/phase7-engine-no-such-repo-probe`, with a request for credentials, so
+none reached it on those requests. The tip's tree is
+`4d362d004aae5c3e45c3d81192aecacab0ad5ecf`, the one its `Verified-Tree:` line names,
+read from GitHub alone. `master` and `origin/master` on his disk, from `.git/refs`
+staged off it, read `fad0588`. The commit object, staged off his disk, hashes to that
+name and is byte for byte GitHub's, with no CR in it; `.git/COMMIT_EDITMSG` is byte for
+byte its message, which ends with its `Verified-Tree:` line and its two attribution
+lines. Each of the three files `fad0588` changes — PHASE7_DECISIONS.md,
+PHASE7_HISTORY.md and this file — is on his disk byte for byte an autocrlf checkout of
+GitHub's tip; their mtimes are still the apply's, 15:05:44.321 to .332. His `.git/index`
+lists the same 295 paths, modes and blobs as `fad0588`'s tree. The times above were read
+off his disk again: those mtimes, `.pytest_cache/v/cache/nodeids` (15:08:39.371), the
+index and `.git/COMMIT_EDITMSG` (15:22:59.449), the commit object (15:22:59.684), the
+`master` ref (15:22:59.687), its reflog's last line "commit:", `134f85b` to `fad0588`,
+and `origin/master`'s ref (15:23:12.550) and its reflog line "update by push", the same
+pair. `fad0588` changes no file under `tests/` and no `.py` file, so the cache has no
+new test id to hold; its `lastfailed` is still `{}`, last written at 13:37:30 on 26
+September, so the run of 15:08:39, 2 minutes 55 seconds after the apply, recorded no
+failure. No `.patch` file or commit message file is left in the repository's root.
+Nothing differed. **The report broke the ruling `fad0588` filed:** it also listed two
+standing gaps, the commit message as delivered and the session before's read of GitHub's
+tip, because the patch-delivery skill's section 10 still said to; Viktor caught it at
+13:08 on 29 October (DECISIONS, "Ruling, 29 October 2026 — a ruling that changes how a
+patch is delivered or checked changes the patch-delivery skill in the same session").
+The three files were staged off his disk again on 29 October, before the patch was
+built, and had not changed. The commit that writes this line files that ruling and
+records `fad0588`'s landing.
 
 ## Ruled — in force
+
+- **New, 29 October — Viktor's, by agreeing to Claude's suggestions: a ruling that
+  changes how a patch is delivered or checked changes the patch-delivery skill in the
+  same session** (DECISIONS, "Ruling, 29 October 2026 — a ruling that changes how a
+  patch is delivered or checked changes the patch-delivery skill in the same session").
+  The skill names the commit at which it was last compared with DECISIONS, `fad0588`
+  since 29 October, and every delivery and landing check begins with a diff of DECISIONS
+  from that commit; the marker moves to the commit that files a ruling once it has
+  landed.
+
+- **New, 27 October — Viktor's, by agreeing to Claude's suggestion: a landing check does
+  not report its standing gaps** (DECISIONS, "Ruling, 27 October 2026 — a landing check
+  does not report its standing gaps"). Four parts that cannot be read again at any
+  landing — whether `run_tests.py` ran, the commit-msg hook's line at his commit, the
+  commit message as delivered, and an earlier session's read of GitHub's tip — are named
+  there once, and a landing check reports a part it cannot read again only when it is
+  new or bears on whether the landing holds. Added here on 29 October; `fad0588`, which
+  filed it, left it out of this list.
 
 - **New, 27 October — Claude's, under Viktor's delegation of the same day: README does
   not write the watched error count** (DECISIONS, "Decision, 27 October 2026 — README
@@ -1748,8 +1829,11 @@ that ruling and records `134f85b`'s landing.
 ## Where things stand, right now
 
 - **Tip:** the commit that writes this line (a commit cannot name its own hash) —
-  Viktor's ruling that a landing check does not report its standing gaps filed, docs
-  only, and `134f85b`'s landing recorded. Before it: `134f85b` (the session of
+  Viktor's ruling that a ruling changing how a patch is delivered or checked changes the
+  patch-delivery skill in the same session filed, docs only, and `fad0588`'s landing
+  recorded. Before it: `fad0588` (the session of 27 October, from 19:31: Viktor's ruling
+  that a landing check does not report its standing gaps filed, docs only, and
+  `134f85b`'s landing recorded), `134f85b` (the session of
   27 October, from 18:28: README's audit history and layout block brought current, in
   Claude's wording, approved by Viktor, docs only, and `713e084`'s landing recorded),
   `713e084` (the session of 27 October, from 16:41: entry 50 of the list for after the
@@ -1993,8 +2077,8 @@ that ruling and records `134f85b`'s landing.
   and the names it checks are the same. It removed and renamed none. `78204ff`,
   `0d86fda` and `b8f88d8` changed no test. `a1c4218` added
   `tests/test_commit_msg_hook.py` (11 tests, none taking a fixture or needing
-  `pandas_ta`) and changed no other test. `713e084` and `134f85b` changed no test, nor
-  does the commit that writes this line.
+  `pandas_ta`) and changed no other test. `713e084`, `134f85b` and `fad0588` changed no
+  test, nor does the commit that writes this line.
 - **Where the project lives, from 26 September:** `E:\phase7_engine` on Viktor's machine;
   the files kept outside the repository in `G:\Phase_7_Engine_Random_Files`. Copied with
   robocopy, verified — git's own checks on Windows for the tracked files, SHA-256 for the
@@ -2003,16 +2087,21 @@ that ruling and records `134f85b`'s landing.
   to `E:\phase7_engine`". Run the engine and every command from `E:\phase7_engine` (in
   cmd, changing drive needs `cd /d`). A dated record that names the D: paths means the
   same folders before the move; dated records are not edited.
-- **The push of `134f85b`** happened, at 19:29:51 on 27 October: GitHub's tip, read
-  at 19:30:31 that day and at 19:32:02 in the next session, is `134f85b`, `master` and
-  `origin/master` on Viktor's disk read it (their `.git/refs` files, and
-  `origin/master`'s reflog line "update by push"), its three files on his disk are
-  byte for byte an autocrlf checkout of it, and its tree is the one its
-  `Verified-Tree:` line names. Its three files on his disk and GitHub's blobs were
-  read, CRs aside, byte for byte what was verified before delivery, and its commit
-  message the one delivered with its CRs removed, byte for byte, after the push, in
-  the session that delivered it. No deviation was reported (ruling on proposal (b)).
-  So did `713e084`'s, at 18:25:33 on 27 October, GitHub's tip read at 18:26:12 that
+- **The push of `fad0588`** happened, at 15:23:12 on 28 October: GitHub's tip, read
+  at 15:23:24 that day, at 18:23:39 in the next session and at 13:10:20 on 29 October,
+  is `fad0588`, `master` and `origin/master` on Viktor's disk read it (their
+  `.git/refs` files, and `origin/master`'s reflog line "update by push"), its three
+  files on his disk are byte for byte an autocrlf checkout of it, and its tree is the
+  one its `Verified-Tree:` line names. Its three files on his disk and GitHub's blobs
+  were read, CRs aside, byte for byte what was verified before delivery, and its
+  commit message the one delivered with its CRs removed, byte for byte, after the
+  push, in the session that delivered it. No deviation was reported (ruling on
+  proposal (b)). So did `134f85b`'s, at 19:29:51 on 27 October, GitHub's tip read at
+  19:30:31 that day and at 19:32:02 in the next session, its three files on his disk
+  byte for byte an autocrlf checkout of it, its tree the one its `Verified-Tree:` line
+  names, and its three files and GitHub's blobs read, CRs aside, byte for byte what
+  was verified before delivery and its commit message the one delivered with its CRs
+  removed, `713e084`'s, at 18:25:33 on 27 October, GitHub's tip read at 18:26:12 that
   day and at 18:34:51 in the next session, its four files on his disk byte for byte an
   autocrlf checkout of it, its tree the one its `Verified-Tree:` line names, and its
   four files and GitHub's blobs read, CRs aside, byte for byte what was verified
@@ -2081,8 +2170,9 @@ that ruling and records `134f85b`'s landing.
   commit that writes this line unless it deviates. Earlier pushes and deviations are
   recorded in this file's previous versions, in HISTORY.
 - **Before this commit**, every file its patch changes was staged off Viktor's disk and
-  matched an autocrlf checkout of `134f85b`, GitHub's tip, cloned by 19:32 on
-  27 October, byte for byte; it adds no file.
+  matched an autocrlf checkout of `fad0588`, GitHub's tip, cloned by 18:24 on
+  28 October, byte for byte, and was staged again on 29 October, before the patch was
+  built, unchanged; it adds no file.
 - **code_hash:** `816d4951bb0322763ec4abc4b9ed8161d5b902372823350e5272f2fb7176e380`,
   set by `0491b84` from `bc1b9c2c…` — `main.py` alone — and confirmed on Windows: its
   eleven hand-run records and the ten of each of the first two scheduled runs carry it.
@@ -2103,14 +2193,15 @@ that ruling and records `134f85b`'s landing.
   `docs/` only, by `a1c4218`, which changed files under `docs/` and `tests/`, which it
   does not read, and `README.md` and `githooks/commit-msg`, which are not `.py` files,
   by `713e084` and `134f85b`, each of which changed files under `docs/` and
-  `README.md`, which is not a `.py` file, and by the commit that writes this line,
-  which changes files under `docs/` only: computed on clones of `0491b84`,
+  `README.md`, which is not a `.py` file, by `fad0588`, which changed files under
+  `docs/` only, and by the commit that writes this line, which changes files under
+  `docs/` only: computed on clones of `0491b84`,
   `a235783`, `8d5d64a`, `a48d9e5`, `fbd7877`, `8311167`, `d2dddf7`, `aa9e7ac`,
   `391c338`, `8360923`, `ed005a0` and `e88e0dd` and on the applied trees, under Python
   3.12.3; the trees of `d508b29`, `9f2f3d7`, `d410bfa`, `34d8e3b`, `ad34c02`,
   `89d2367`, `b387c03`, `9862568`, `3d7e6cb`, `78204ff`, `0d86fda`, `b8f88d8`,
-  `a1c4218`, `713e084` and `134f85b` and the applied tree of the commit that writes
-  this line give the same. `bc1b9c2c…` was
+  `a1c4218`, `713e084`, `134f85b` and `fad0588` and the applied tree of the commit that
+  writes this line give the same. `bc1b9c2c…` was
   set by `9ea1cf3`, confirmed on Windows by its live run, and held through `f00bef6`,
   `36de35d`, `78ea37d`, `d3188f2` and `67f6ec1`, which changed only files under `docs/`
   and `tests/`, `README.md` and `run_tests.py`'s docstring.
@@ -2119,7 +2210,8 @@ that ruling and records `134f85b`'s landing.
   SURVIVE"). **Every `code_hash` claim about this project is computed under Python 3.12**
   (Viktor runs 3.12.10).
 - **Golden snapshot:** unchanged by the commit that writes this line, which changes
-  docs and no code or test, by `134f85b` and `713e084`, each of which changed
+  docs and no code or test, by `fad0588`, which changed docs and no code or test, by
+  `134f85b` and `713e084`, each of which changed
   `README.md`'s wording and docs and no code or test, by `a1c4218`, which added a git
   hook and one test file, read no fixture, and changed `README.md`'s counts and layout
   line and docs, by `b8f88d8`, `0d86fda` and `78204ff`, each of which changed docs and
@@ -2158,7 +2250,13 @@ that ruling and records `134f85b`'s landing.
   15 October 2026 — Part 4's three test shapes", point 5); `README.md` wrote it too
   until `713e084` (entry 50). The commit that writes this line changes no test, and the
   three counts hold: from the Linux sandbox, Python 3.12.3, pinned requirements, the
-  patch applied to an autocrlf clone of `134f85b`. `134f85b` changed no test, and the
+  patch applied to an autocrlf clone of `fad0588`. `fad0588` changed no test, and the
+  three counts held: from the Linux sandbox, Python 3.12.3, pinned requirements, the
+  patch applied to an autocrlf clone of `134f85b`. Its pytest step ran on Windows after
+  the apply (the cache on his disk was rewritten at 15:08:39 on 28 October, 2 minutes
+  55 seconds after its files were written, at 15:05:44, and its `lastfailed` was left
+  as it was, `{}`, so that run recorded no failure), and Viktor went on to the commit,
+  which confirms 911 by proceeding. `134f85b` changed no test, and the
   three counts held: from the Linux sandbox, Python 3.12.3, pinned requirements, the
   patch applied to an autocrlf clone of `713e084`. Its pytest step ran on Windows after
   the apply (the cache on his disk was rewritten at 19:24:25 on 27 October, 2 minutes
@@ -2315,7 +2413,7 @@ that ruling and records `134f85b`'s landing.
   `test_the_commit_messages_up_to_the_tag_are_round_7s_to_the_byte`, runs `git log` up
   to the tag `round7-sent-2026-09-30`: it needs the tag, which a full clone has.
 - **Engineering Notes:** through Entry #183 (v1.36), which covers `68c6191`.
-  **Seventy commits behind** — `ec4e5fd`, the floor (a commit that regenerates the
+  **Seventy-one commits behind** — `ec4e5fd`, the floor (a commit that regenerates the
   Notes cannot
   cover itself, Entry #144), `e7a94d1`, `d5ced0c`, `59b747a`, `f256937`, `12b483e`,
   `01f2892`, `8b6fd00`, `e186423`, `86f30f1`, `3e8191a`, `1523e0c`, `ff12e17`,
@@ -2326,8 +2424,8 @@ that ruling and records `134f85b`'s landing.
   `67f6ec1`, `0491b84`, `a235783`, `8d5d64a`, `a48d9e5`, `fbd7877`, `8311167`,
   `d2dddf7`, `aa9e7ac`, `391c338`, `8360923`, `ed005a0`, `e88e0dd`, `d508b29`,
   `9f2f3d7`, `d410bfa`, `34d8e3b`, `ad34c02`, `89d2367`, `b387c03`, `9862568`,
-  `3d7e6cb`, `78204ff`, `0d86fda`, `b8f88d8`, `a1c4218`, `713e084`, `134f85b` and the
-  commit that writes this line.
+  `3d7e6cb`, `78204ff`, `0d86fda`, `b8f88d8`, `a1c4218`, `713e084`, `134f85b`,
+  `fad0588` and the commit that writes this line.
   Every later
   commit adds one
   until the
@@ -2350,7 +2448,8 @@ that ruling and records `134f85b`'s landing.
   new wording, put to Viktor before his commit — and before it by `a1c4218`, which
   changed the numbers there and the layout block's `githooks/` line, for the new hook,
   and by `3d7e6cb`, which changed only the numbers, and not by `78204ff`, `0d86fda`,
-  `b8f88d8`, `134f85b` or the commit that writes this line. **Its audit history and
+  `b8f88d8`, `134f85b`, `fad0588` or the commit that writes this line. **Its audit
+  history and
   layout block are current** since `134f85b`, in wording Claude drafted and Viktor
   approved, on 27 October at 18:52 and, one paragraph corrected, at 19:09: "The
   audit, and what it found" counts
@@ -3802,16 +3901,19 @@ Each code commit is its own commit and updates this file for its own landing.
 
 ## Resolved this session
 
-- **`134f85b`'s landing**, read off Viktor's disk and GitHub again, with the times
+- **`fad0588`'s landing**, read off Viktor's disk and GitHub again, with the times
   Claude had read off them after the push, in chat ("Where the project is", the session
-  of 27 October, from 18:28, and this session). Every part that could be read again
-  held, the tree verified before delivery among them, and nothing differed.
-- **The landing check's standing gaps**, by the commit that writes this line: named
-  once, and not reported again unless one is new or bears on the landing — Viktor's
-  ruling, by agreeing to Claude's suggestion at 19:35 on 27 October (DECISIONS,
-  "Ruling, 27 October 2026 — a landing check does not report its standing gaps").
+  of 27 October, from 19:31, and this session). Every part that could be read again
+  held, and nothing differed.
+- **The patch-delivery skill brought current with DECISIONS**, and a ruling that changes
+  the procedure carried into it in the same session — Viktor's ruling, by agreeing to
+  Claude's suggestions on 29 October (DECISIONS, "Ruling, 29 October 2026 — a ruling
+  that changes how a patch is delivered or checked changes the patch-delivery skill in
+  the same session"). He saved the updated skill at 13:51.
+- **The ruling of 27 October on standing gaps added to "Ruled — in force"**, which
+  `fad0588`, filing it, had left it out of.
 - **The once-per-session rewrite of this file**, by the commit that writes this line.
-  The previous version, as at `134f85b`, is in HISTORY verbatim, headings demoted one
+  The previous version, as at `fad0588`, is in HISTORY verbatim, headings demoted one
   level, proven by un-demotion with a negative control (the commit message has the
   result).
 
@@ -3822,6 +3924,12 @@ Claude critiques it.
 
 - **Owed to the next commit:** nothing, unless this commit's push deviates from its
   prediction (ruling on proposal (b), 27 September).
+- **After this commit's push, outside the repository:** the patch-delivery skill's
+  marker moved from `fad0588` to this commit, put to Viktor to save in the session that
+  delivers it (DECISIONS, "Ruling, 29 October 2026 — a ruling that changes how a patch
+  is delivered or checked changes the patch-delivery skill in the same session", point
+  2); the next commit records whether it was. Until it moves, a session's diff of
+  DECISIONS from `fad0588` shows that ruling, which the skill already carries.
 - **Wave 1 — what is left.** Its test gaps have landed: entry 48 at `ed005a0`, 36 at
   `e88e0dd`, 37 at `d508b29`, 49, found landing 37, at `ad34c02`, and 51, found
   landing 49, at `b387c03`; entry 54, found landing 51, audit tooling, at `9862568`;
@@ -3831,8 +3939,8 @@ Claude critiques it.
   with it all of wave 1 that this file names as Claude's; `a1c4218`'s landing found no
   entry more. Entry 50, README's watched error count, landed at `713e084`, by Claude's
   decision under Viktor's delegation of 27 October, his to reverse, and with it nothing
-  of wave 1 is left open; `713e084`'s and `134f85b`'s landings found no entry
-  more. Entry 26, one of
+  of wave 1 is left open; `713e084`'s, `134f85b`'s and `fad0588`'s landings found no
+  entry more. Entry 26, one of
   Goal B's two rulings, was decided by Claude under Viktor's delegation of 26 October
   (DECISIONS, "Decision, 26 October 2026 — Goal B keeps a candle only once it has
   closed at `t` (entry 26)"), his to reverse. Entry 31, the other, was ruled by Viktor
@@ -4161,8 +4269,9 @@ Claude critiques it.
   `b387c03` there and added its own, and `3d7e6cb` named `9862568` there and added its
   own, and `a1c4218` named `3d7e6cb` there and added its own. The docs-only commits
   between them, `78204ff`, `0d86fda` and `b8f88d8` among them, changed no line there,
-  nor did `713e084` and `134f85b`, which changed docs and `README.md` only, and the
-  commit that writes this line, which changes docs only, changes none. (This
+  nor did `713e084` and `134f85b`, which changed docs and `README.md` only, or
+  `fad0588`, which changed docs only, and the commit that writes this line, which
+  changes docs only, changes none. (This
   paragraph stopped at
   `a235783` until `ad34c02`
   brought it current, and
