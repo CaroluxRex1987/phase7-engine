@@ -332,6 +332,12 @@ control (precondition 2) is what covers it.
   stop first a loss. At T1 half is sold and the stop moves to the entry; the rest runs
   to T2 or T3, back to the entry, or to a SHORT signal. The same rules as paper
   trading — the same ruling, points 8 and C; C states what it weakens.
+- **A candle that touches both the stop and T1** *(added 29 October 2026)*: counts as
+  the stop. The stop moves to the entry at the close of T1's candle, not within it. The
+  trades the first rule decided, and the T1 candles that also reached the entry, are
+  reported beside the verdict with what the result would be the other way; they are
+  not graded. The data stays 4h. "Ruling, 29 October 2026 — a candle that touches both
+  the stop and T1 counts as the stop" states what it weakens.
 
 ### The verdict — pre-registered, before any result exists
 
@@ -6354,6 +6360,96 @@ Claude's reading, checked by no one else.
 - Working practice's sentence that all five token-saving rules were put into the skill
   is left as written; it was true for four until 29 October, and this ruling records
   that.
+
+## Ruling, 29 October 2026 — a candle that touches both the stop and T1 counts as the stop
+
+*New in this file on 29 October 2026. Viktor's, by agreeing to Claude's suggestions, in
+the session that opened at 14:27 on 29 October at `3dbd8dc`: at 14:29 he asked for
+Claude's suggestion on what to do, and Claude named this question, the fifth of the
+position of 6 October and the first item of the Freqtrade comparison of 5 October; at
+14:52 he said, "Go."; Claude set the question out for him to write his position first,
+and at 14:58 he asked for Claude's suggestion instead — Claude said that this reversed
+the order he asks for on his own decisions, then gave it; at 14:58 he said, "Go." to a
+count of the candles; at 15:01, given the count, he asked for Claude's suggestion on
+the second half, and said, "Agreed." Filed by that session's commit, docs only.*
+
+**The question.** A 4h candle shows its high and low, not which came first. A candle
+whose low reaches the stop and whose high reaches T1 does not show whether the trade
+won or lost, and Goal B's verdict and the finish line of 28 September (points 7 and 8)
+both turn on T1 before the stop. The same holds after T1, when half is sold and the
+stop moves to the entry: a candle that reaches T1 and the entry does not show whether
+the second half was stopped at the entry. It must be ruled before any backtest result
+exists, because Goal B's first out-of-sample result is its verdict of record (the
+re-run clause).
+
+**The count.** Made in the Linux sandbox from the candle archive on Viktor's disk,
+`logs/archive/`: 32 of AERO's archive files, 1,218 4h candles in two unbroken
+stretches, 1 January to 16 March 2025 and 23 June to 29 October 2026, and the newest
+archive of each of the nine other pairs the forward measurement runs, 449 candles each,
+15 August to 29 October 2026. It counts candles, not trades, and none of it is Goal B's
+pinned dataset. T1 is one stop distance `d` from the entry (`TARGET1_MULT = 1.0`). A
+candle can reach both the stop and T1 only if its high is at least `(1+d)/(1−d)` times
+its low: on AERO, 58 candles (4.8%) at a 3% stop, 11 (0.9%) at 5% and 2 (0.2%) at 8%;
+with the entry at the previous candle's close, 8, 1 and 0 did. A candle can reach both
+T1 and the entry only if its high is at least `1+d` times its low: on AERO, 363 (29.8%)
+at 3%, 113 (9.3%) at 5% and 30 (2.5%) at 8%; on the nine others at 3%, from 2.9% (BNB)
+to 35.9% (SUI). The comparison had counted 9 of 594 AERO candles with a range of 10% or
+more; on this archive, by the range over the open, 10 of 1,218.
+
+**What was ruled.**
+
+1. **Before T1, a candle that reaches both the stop and T1 counts as the stop.** The
+   trades it decided are counted, and the result is reported beside the verdict, and
+   beside the finish line's figures, as it would be had they reached T1. That second
+   figure is reported, not graded.
+2. **At T1, the stop moves to the entry at the close of T1's candle, not within it.** In
+   T1's candle the original stop still stands; a T1 candle that also reaches it is the
+   case of point 1. The T1 candles that also reached the entry are counted, and the
+   profit is reported as it would be had those second halves closed at the entry;
+   reported, not graded. The win count is unchanged by this point.
+3. **Paper trading and the random-longs benchmark follow the same rule.** On paper the
+   stop is moved to the entry at the close of T1's candle, never at T1's fill.
+4. **Goal B's data stays 4h** (the ruling of 28 September, point D, unchanged). Smaller
+   candles would be a new phase under the re-run clause, if the figures of points 1 and
+   2 show the question matters.
+
+Added to Goal B's methodology ("A candle that touches both the stop and T1").
+
+**Claude's reasons, which Viktor accepted.**
+
+1. Point 1 is the one choice whose error leans toward rejecting an engine rather than
+   passing one: Goal B exists for a verdict that can be trusted, not a favourable
+   number. Reporting the other reading beside it shows whether the choice decided the
+   result.
+2. Point 2 is what the engine can see. It decides on closed 4h candles, so it can know
+   T1 was reached only at that candle's close; the ruling of 28 September, point C,
+   makes the backtest and paper trading measure one strategy, and a rule the engine
+   cannot follow live would split them. It also turns T1's candle into the case of
+   point 1, which the count shows is rare.
+3. Point 3: a comparison with random longs is fair only if both are scored by one rule.
+4. Point 4: the reported figures give most of what smaller candles would, without
+   reopening a ratified dataset.
+
+**Claude's error, recorded.** Claude first suggested, for the second half, that a T1
+candle that also reaches the entry close the second half there, before the size of
+that case had been counted. The count showed up to 29.8% of AERO's candles could at a
+3% stop, enough to move the profit total, and Claude changed the suggestion to point 2.
+
+**The case against.** Point 1 understates the win rate by up to the share of trades it
+decides: an engine truly at or just above the finish line's 60% could fail it on this
+rule, and Goal B's Sharpe is lowered with it. Point 2 is mildly optimistic against an
+exchange stop moved at T1's fill: a second half such a stop would have closed at the
+entry runs for up to one more candle. The figures beside the result show both effects
+and change neither.
+
+**What it weakens.**
+
+- The ruling of 28 September, points 7 and 8, and Goal B's "How a trade ends" left the
+  case undefined; the verdict of record now measures this rule only. Another rule is a
+  new phase under the re-run clause.
+- Point 3 binds how Viktor paper-trades: the stop is moved at the candle's close, not
+  at the fill.
+- Nothing ratified is removed or reworded; Goal B's methodology gains one line.
 
 ## Working practice
 

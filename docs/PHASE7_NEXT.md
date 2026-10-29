@@ -1,11 +1,10 @@
 # Next step — read this first
 
-*29 October 2026, from 13:08, in the session that opened at 18:23 on 28 October.
-Rewritten by the commit that files Viktor's ruling that a ruling changing how a patch is
-delivered or checked changes the patch-delivery skill in the same session — the skill
-names the commit it was last compared with DECISIONS at, and each session checks for
-what was filed since — docs only, and records `fad0588`'s landing; the version it
-replaced — as it stood at `fad0588` — is in HISTORY verbatim.
+*29 October 2026, from 14:27. Rewritten by the commit that files Viktor's ruling on how
+a candle that touches both the stop and T1 is counted — as the stop, with the stop moved
+to the entry at the close of T1's candle, the same rule for paper trading and the
+random-longs benchmark, and Goal B's data left 4h — docs only, and records `3dbd8dc`'s
+landing; the version it replaced — as it stood at `3dbd8dc` — is in HISTORY verbatim.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
 rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
@@ -439,17 +438,32 @@ since by a command. At 13:44 he said, "Go." Apart from the standing gaps nothing
 contradicted the skill, and four rulings were absent from it. At 13:46 he said, "Go." to
 a skill carrying all of it and naming `fad0588` as the commit it was compared at, and at
 13:51 that he had saved it. At 13:52 he asked for Claude's suggestion, filing it now,
-and said, "go". The commit that writes this line files that ruling, his by agreeing to
-Claude's suggestions (DECISIONS, "Ruling, 29 October 2026 — a ruling that changes how a
-patch is delivered or checked changes the patch-delivery skill in the same session"),
-docs only, and records `fad0588`'s landing.
+and said, "go". `3dbd8dc` filed that ruling, his by agreeing to Claude's suggestions
+(DECISIONS, "Ruling, 29 October 2026 — a ruling that changes how a patch is delivered
+or checked changes the patch-delivery skill in the same session"), docs only, and
+recorded `fad0588`'s landing.
+**On 29 October, from 14:27**, after pushing `3dbd8dc` at 14:24:07, Viktor opened the
+session with its landing record. Claude read it off his disk and GitHub again (below):
+every part held, and nothing differed. The skill the session loaded names `3dbd8dc` as
+the commit it was last compared with DECISIONS at, so he had saved the marker. At 14:29
+he asked for Claude's suggestion on what to do: Claude named the count of a candle that
+touches both the stop and T1, his to rule, the one open item that must be ruled before
+any backtest result exists, with code work waiting for the reading of 14 November. At
+14:52 he said, "Go." Claude set out the question for him to write his position first; at
+14:58 he asked for Claude's suggestion instead, and Claude said that this reversed the
+order he asks for on his own decisions, then gave it. At 14:58 he said, "Go." to a count
+of the candles, and at 15:01, given the count, asked for Claude's suggestion on the
+second half's case, and said, "Agreed." The commit that writes this line files that
+ruling, his by agreeing to Claude's suggestions (DECISIONS, "Ruling, 29 October 2026 —
+a candle that touches both the stop and T1 counts as the stop"), docs only, and records
+`3dbd8dc`'s landing.
 
 **The review and the comparison are outside the repository**, in
 `G:\Phase_7_Engine_Random_Files\Docs\02_Reviews_and_Feedback`:
 `Phase7_Claude_Self_Review_2026-10-05` (the full review) and
 `Phase7_Self_Review_Short_2026-10-05` (the short version), and
 `Phase7_Freqtrade_Comparison_2026-10-05`, written later the same night — each as .md and
-.pdf. Nothing was ruled on the comparison (Open items). In the same folder since
+.pdf. Of the comparison, only its first item has been ruled, on 29 October (Open items). In the same folder since
 24 October: `Phase7_Engine_Understanding_2026-10-24` (version 1, 13 pages) and
 `Phase7_Engine_Understanding_2026-10-24_v2` (version 2, 18 pages), each as .md and .pdf.
 
@@ -460,8 +474,9 @@ no leverage, and on spot SHORT means sell to USDT; "finished" is at least 100 cl
 trades from one engine version, at least 60% reaching T1 first, profit after fees, and
 a better result than random longs with the same stop and T1; trends only for now;
 paper trading in ten equal slices. Goal B's verdict is kept exactly as pre-registered,
-with two lines added to its methodology (spot only; how a trade ends) and the finish
-criteria reported beside it. The portfolio is now secondary; goal A stands as
+with two lines added to its methodology (spot only; how a trade ends), a third on
+29 October (a candle that touches both the stop and T1), and the finish criteria
+reported beside it. The portfolio is now secondary; goal A stands as
 achieved. It changes no code. Two new trading rules go on the list for after the audit
 (below): the 3% floor and a range-trading mode.
 
@@ -1299,9 +1314,9 @@ credentials — its tree the one its `Verified-Tree:` line names, its three file
 disk and GitHub's blobs, CRs aside, byte for byte the tree verified before delivery, and
 its commit message the one delivered with its CRs removed, byte for byte, in chat only;
 Viktor listed them at the start of the next session. Its account is in HISTORY, in this
-file's version at `fad0588`, moved there by the commit that writes this line.
+file's version at `fad0588`, moved there by `3dbd8dc`.
 
-**This session (28 October, from 18:23, and 29 October, from 13:08)**, configured for
+**The session of 28 October, from 18:23, and 29 October, from 13:08**, configured for
 Claude Opus 5.5, opened at `fad0588`. GitHub's tip, read with `git ls-remote` at
 18:23:39 on 28 October and again at 13:10:20 on 29 October with git's tokens, askpass,
 credential helper, prompts and configuration files all removed from its environment,
@@ -1332,19 +1347,87 @@ tip, because the patch-delivery skill's section 10 still said to; Viktor caught 
 13:08 on 29 October (DECISIONS, "Ruling, 29 October 2026 — a ruling that changes how a
 patch is delivered or checked changes the patch-delivery skill in the same session").
 The three files were staged off his disk again on 29 October, before the patch was
-built, and had not changed. The commit that writes this line files that ruling and
-records `fad0588`'s landing.
+built, and had not changed.
+`3dbd8dc` filed that ruling and recorded `fad0588`'s landing: docs only. From his disk,
+staged in the next session: the apply was at 14:11:01 on 29 October, the pytest cache
+was rewritten at 14:14:04, the commit is from 14:23:52 and `origin/master`'s ref from
+14:24:07, its reflog line "update by push"; `master` and `origin/master` read `3dbd8dc`.
+Claude had read those times off his disk after the push, and found GitHub's tip,
+`3dbd8dc` — read at 14:24:27, with no credentials, the probe answered with a request for
+credentials — its tree the one its `Verified-Tree:` line names, its three files on his
+disk and GitHub's blobs, CRs aside, byte for byte the tree verified before delivery, and
+its commit message the one delivered with its CRs removed, byte for byte, in chat only;
+Viktor listed them at the start of the next session. The skill's marker was put to him
+after the push, moved to `3dbd8dc`. Its account is in HISTORY, in this file's version at
+`3dbd8dc`, moved there by the commit that writes this line.
+
+**This session (29 October, from 14:27)**, configured for Claude Opus 5.5, opened at
+`3dbd8dc`. GitHub's tip, read with `git ls-remote` at 14:28:08 with git's tokens,
+askpass, credential helper, prompts and configuration files all removed from its
+environment, outside any repository, is `3dbd8dc`, its parent `fad0588`. In that same
+environment GitHub answered a read of a repository that does not exist,
+`CaroluxRex1987/phase7-engine-no-such-repo-probe`, with a request for credentials, so
+none reached it on that request. The tip's tree is
+`9bd8e4e15f7bac578e10291b34df25479ba91df3`, the one its `Verified-Tree:` line names,
+read from GitHub alone. `master` and `origin/master` on his disk, from `.git/refs`
+staged off it, read `3dbd8dc`. The commit object, staged off his disk, hashes to that
+name and is byte for byte GitHub's, with no CR in it; `.git/COMMIT_EDITMSG` is byte for
+byte its message, which ends with its `Verified-Tree:` line and its two attribution
+lines. Each of the three files `3dbd8dc` changes — PHASE7_DECISIONS.md,
+PHASE7_HISTORY.md and this file — is on his disk byte for byte an autocrlf checkout of
+GitHub's tip, and, CRs removed, hashes to GitHub's blob; their mtimes are still the
+apply's, 14:11:01.005 to .017. His `.git/index` lists the same 295 paths, modes and
+blobs as `3dbd8dc`'s tree. The times above were read off his disk: those mtimes,
+`.pytest_cache/v/cache/nodeids` (14:14:04.169), the index (14:23:52.646) and
+`.git/COMMIT_EDITMSG` (.649), the commit object (.950), the `master` ref (.962), its
+reflog's last line "commit:", and `origin/master`'s ref (14:24:07.624) and its reflog
+line "update by push". `3dbd8dc` changes no file under `tests/` and no `.py` file, so
+the cache has no new test id to hold; its `lastfailed` is still `{}`, last written at
+13:37:30 on 26 September, so the run of 14:14:04, 3 minutes 3 seconds after the apply,
+recorded no failure. No `.patch` file or commit message file is left in the
+repository's root. Nothing differed. The patch-delivery skill this session loaded at
+14:27 names `3dbd8dc` as the commit it was last compared with DECISIONS at: Viktor had
+saved the marker. `git diff --stat 3dbd8dc HEAD -- docs/PHASE7_DECISIONS.md` was empty.
+**The count behind the ruling**, made after 14:58 on 29 October in the Linux sandbox
+from the candle archive on his disk, `logs/archive/` — 32 of AERO's archive files, 1,218
+4h candles in two unbroken stretches, 1 January to 16 March 2025 and 23 June to
+29 October 2026, and the
+newest archive of each of the nine other pairs, 449 candles each, 15 August to
+29 October. It counts candles, not trades, and none of it is Goal B's pinned dataset,
+which is not in `data/` or `logs/`. A candle can touch both a stop `d` below an entry and
+T1 `d` above it only if its high is at least `(1+d)/(1−d)` times its low: on AERO, 58
+candles (4.8%) at a 3% stop, 11 (0.9%) at 5% and 2 (0.2%) at 8%; with the entry at the
+previous candle's close, 8, 1 and 0 did. A candle can touch both T1 and the entry only if
+its high is at least `1+d` times its low: on AERO, 363 (29.8%) at 3%, 113 (9.3%) at 5%
+and 30 (2.5%) at 8%; on the nine others, from 2.9% (BNB) to 35.9% (SUI) at 3%. 10 of the
+1,218 AERO candles had a range of 10% of their open or more; the Freqtrade comparison
+had counted 9 of 594. The second count is why the ruling moves the stop to the entry at
+the close of T1's candle, not within it.
+The three files were staged off his disk again before the patch was built, and had not
+changed. The commit that writes this line files that ruling and records `3dbd8dc`'s
+landing.
 
 ## Ruled — in force
+
+- **New, 29 October — Viktor's, by agreeing to Claude's suggestions: a candle that
+  touches both the stop and T1 counts as the stop** (DECISIONS, "Ruling, 29 October
+  2026 — a candle that touches both the stop and T1 counts as the stop"). Before T1, a
+  candle that reaches both counts as the stop, and the trades it decided are reported
+  beside the result with what it would be had they reached T1. At T1, the stop moves to
+  the entry at the close of T1's candle, not within it; the T1 candles that also reached
+  the entry are reported with the profit had those second halves closed there. Paper
+  trading and the random-longs benchmark follow the same rule: on paper the stop is moved
+  at that close, never at T1's fill. Goal B's data stays 4h; smaller candles would be a
+  new phase. Added to Goal B's methodology.
 
 - **New, 29 October — Viktor's, by agreeing to Claude's suggestions: a ruling that
   changes how a patch is delivered or checked changes the patch-delivery skill in the
   same session** (DECISIONS, "Ruling, 29 October 2026 — a ruling that changes how a
   patch is delivered or checked changes the patch-delivery skill in the same session").
-  The skill names the commit at which it was last compared with DECISIONS, `fad0588`
-  since 29 October, and every delivery and landing check begins with a diff of DECISIONS
-  from that commit; the marker moves to the commit that files a ruling once it has
-  landed.
+  The skill names the commit at which it was last compared with DECISIONS, `3dbd8dc`
+  since 29 October (`fad0588` before it), and every delivery and landing check begins
+  with a diff of DECISIONS from that commit; the marker moves to the commit that files a
+  ruling once it has landed.
 
 - **New, 27 October — Viktor's, by agreeing to Claude's suggestion: a landing check does
   not report its standing gaps** (DECISIONS, "Ruling, 27 October 2026 — a landing check
@@ -1829,9 +1912,12 @@ records `fad0588`'s landing.
 ## Where things stand, right now
 
 - **Tip:** the commit that writes this line (a commit cannot name its own hash) —
-  Viktor's ruling that a ruling changing how a patch is delivered or checked changes the
-  patch-delivery skill in the same session filed, docs only, and `fad0588`'s landing
-  recorded. Before it: `fad0588` (the session of 27 October, from 19:31: Viktor's ruling
+  Viktor's ruling that a candle that touches both the stop and T1 counts as the stop
+  filed, docs only, and `3dbd8dc`'s landing recorded. Before it: `3dbd8dc` (the session
+  of 28 October, from 18:23, going on to 29 October: Viktor's ruling that a ruling
+  changing how a patch is delivered or checked changes the patch-delivery skill in the
+  same session filed, docs only, and `fad0588`'s landing recorded), `fad0588` (the
+  session of 27 October, from 19:31: Viktor's ruling
   that a landing check does not report its standing gaps filed, docs only, and
   `134f85b`'s landing recorded), `134f85b` (the session of
   27 October, from 18:28: README's audit history and layout block brought current, in
@@ -2077,8 +2163,8 @@ records `fad0588`'s landing.
   and the names it checks are the same. It removed and renamed none. `78204ff`,
   `0d86fda` and `b8f88d8` changed no test. `a1c4218` added
   `tests/test_commit_msg_hook.py` (11 tests, none taking a fixture or needing
-  `pandas_ta`) and changed no other test. `713e084`, `134f85b` and `fad0588` changed no
-  test, nor does the commit that writes this line.
+  `pandas_ta`) and changed no other test. `713e084`, `134f85b`, `fad0588` and `3dbd8dc`
+  changed no test, nor does the commit that writes this line.
 - **Where the project lives, from 26 September:** `E:\phase7_engine` on Viktor's machine;
   the files kept outside the repository in `G:\Phase_7_Engine_Random_Files`. Copied with
   robocopy, verified — git's own checks on Windows for the tracked files, SHA-256 for the
@@ -2087,16 +2173,20 @@ records `fad0588`'s landing.
   to `E:\phase7_engine`". Run the engine and every command from `E:\phase7_engine` (in
   cmd, changing drive needs `cd /d`). A dated record that names the D: paths means the
   same folders before the move; dated records are not edited.
-- **The push of `fad0588`** happened, at 15:23:12 on 28 October: GitHub's tip, read
-  at 15:23:24 that day, at 18:23:39 in the next session and at 13:10:20 on 29 October,
-  is `fad0588`, `master` and `origin/master` on Viktor's disk read it (their
-  `.git/refs` files, and `origin/master`'s reflog line "update by push"), its three
-  files on his disk are byte for byte an autocrlf checkout of it, and its tree is the
-  one its `Verified-Tree:` line names. Its three files on his disk and GitHub's blobs
-  were read, CRs aside, byte for byte what was verified before delivery, and its
-  commit message the one delivered with its CRs removed, byte for byte, after the
-  push, in the session that delivered it. No deviation was reported (ruling on
-  proposal (b)). So did `134f85b`'s, at 19:29:51 on 27 October, GitHub's tip read at
+- **The push of `3dbd8dc`** happened, at 14:24:07 on 29 October: GitHub's tip, read
+  at 14:24:27 that day and at 14:28:08 in the next session, is `3dbd8dc`, `master` and
+  `origin/master` on Viktor's disk read it (their `.git/refs` files, and
+  `origin/master`'s reflog line "update by push"), its three files on his disk are byte
+  for byte an autocrlf checkout of it, and its tree is the one its `Verified-Tree:` line
+  names. Its three files on his disk and GitHub's blobs were read, CRs aside, byte for
+  byte what was verified before delivery, and its commit message the one delivered with
+  its CRs removed, byte for byte, after the push, in the session that delivered it. No
+  deviation was reported (ruling on proposal (b)). So did `fad0588`'s, at 15:23:12 on
+  28 October, GitHub's tip read at 15:23:24 that day, at 18:23:39 in the next session
+  and at 13:10:20 on 29 October, its three files on his disk byte for byte an autocrlf
+  checkout of it, its tree the one its `Verified-Tree:` line names, and its three files
+  and GitHub's blobs read, CRs aside, byte for byte what was verified before delivery
+  and its commit message the one delivered with its CRs removed, `134f85b`'s, at 19:29:51 on 27 October, GitHub's tip read at
   19:30:31 that day and at 19:32:02 in the next session, its three files on his disk
   byte for byte an autocrlf checkout of it, its tree the one its `Verified-Tree:` line
   names, and its three files and GitHub's blobs read, CRs aside, byte for byte what
@@ -2170,9 +2260,9 @@ records `fad0588`'s landing.
   commit that writes this line unless it deviates. Earlier pushes and deviations are
   recorded in this file's previous versions, in HISTORY.
 - **Before this commit**, every file its patch changes was staged off Viktor's disk and
-  matched an autocrlf checkout of `fad0588`, GitHub's tip, cloned by 18:24 on
-  28 October, byte for byte, and was staged again on 29 October, before the patch was
-  built, unchanged; it adds no file.
+  matched an autocrlf checkout of `3dbd8dc`, GitHub's tip, cloned by 14:28 on
+  29 October, byte for byte, and was staged again before the patch was built,
+  unchanged; it adds no file.
 - **code_hash:** `816d4951bb0322763ec4abc4b9ed8161d5b902372823350e5272f2fb7176e380`,
   set by `0491b84` from `bc1b9c2c…` — `main.py` alone — and confirmed on Windows: its
   eleven hand-run records and the ten of each of the first two scheduled runs carry it.
@@ -2193,15 +2283,15 @@ records `fad0588`'s landing.
   `docs/` only, by `a1c4218`, which changed files under `docs/` and `tests/`, which it
   does not read, and `README.md` and `githooks/commit-msg`, which are not `.py` files,
   by `713e084` and `134f85b`, each of which changed files under `docs/` and
-  `README.md`, which is not a `.py` file, by `fad0588`, which changed files under
-  `docs/` only, and by the commit that writes this line, which changes files under
-  `docs/` only: computed on clones of `0491b84`,
+  `README.md`, which is not a `.py` file, by `fad0588` and `3dbd8dc`, each of which
+  changed files under `docs/` only, and by the commit that writes this line, which
+  changes files under `docs/` only: computed on clones of `0491b84`,
   `a235783`, `8d5d64a`, `a48d9e5`, `fbd7877`, `8311167`, `d2dddf7`, `aa9e7ac`,
   `391c338`, `8360923`, `ed005a0` and `e88e0dd` and on the applied trees, under Python
   3.12.3; the trees of `d508b29`, `9f2f3d7`, `d410bfa`, `34d8e3b`, `ad34c02`,
   `89d2367`, `b387c03`, `9862568`, `3d7e6cb`, `78204ff`, `0d86fda`, `b8f88d8`,
-  `a1c4218`, `713e084`, `134f85b` and `fad0588` and the applied tree of the commit that
-  writes this line give the same. `bc1b9c2c…` was
+  `a1c4218`, `713e084`, `134f85b`, `fad0588` and `3dbd8dc` and the applied tree of the
+  commit that writes this line give the same. `bc1b9c2c…` was
   set by `9ea1cf3`, confirmed on Windows by its live run, and held through `f00bef6`,
   `36de35d`, `78ea37d`, `d3188f2` and `67f6ec1`, which changed only files under `docs/`
   and `tests/`, `README.md` and `run_tests.py`'s docstring.
@@ -2210,7 +2300,8 @@ records `fad0588`'s landing.
   SURVIVE"). **Every `code_hash` claim about this project is computed under Python 3.12**
   (Viktor runs 3.12.10).
 - **Golden snapshot:** unchanged by the commit that writes this line, which changes
-  docs and no code or test, by `fad0588`, which changed docs and no code or test, by
+  docs and no code or test, by `3dbd8dc` and `fad0588`, each of which changed docs and
+  no code or test, by
   `134f85b` and `713e084`, each of which changed
   `README.md`'s wording and docs and no code or test, by `a1c4218`, which added a git
   hook and one test file, read no fixture, and changed `README.md`'s counts and layout
@@ -2250,7 +2341,13 @@ records `fad0588`'s landing.
   15 October 2026 — Part 4's three test shapes", point 5); `README.md` wrote it too
   until `713e084` (entry 50). The commit that writes this line changes no test, and the
   three counts hold: from the Linux sandbox, Python 3.12.3, pinned requirements, the
-  patch applied to an autocrlf clone of `fad0588`. `fad0588` changed no test, and the
+  patch applied to an autocrlf clone of `3dbd8dc`. `3dbd8dc` changed no test, and the
+  three counts held: from the Linux sandbox, Python 3.12.3, pinned requirements, the
+  patch applied to an autocrlf clone of `fad0588`. Its pytest step ran on Windows after
+  the apply (the cache on his disk was rewritten at 14:14:04 on 29 October, 3 minutes
+  3 seconds after its files were written, at 14:11:01, and its `lastfailed` was left
+  as it was, `{}`, so that run recorded no failure), and Viktor went on to the commit,
+  which confirms 911 by proceeding. `fad0588` changed no test, and the
   three counts held: from the Linux sandbox, Python 3.12.3, pinned requirements, the
   patch applied to an autocrlf clone of `134f85b`. Its pytest step ran on Windows after
   the apply (the cache on his disk was rewritten at 15:08:39 on 28 October, 2 minutes
@@ -2413,7 +2510,7 @@ records `fad0588`'s landing.
   `test_the_commit_messages_up_to_the_tag_are_round_7s_to_the_byte`, runs `git log` up
   to the tag `round7-sent-2026-09-30`: it needs the tag, which a full clone has.
 - **Engineering Notes:** through Entry #183 (v1.36), which covers `68c6191`.
-  **Seventy-one commits behind** — `ec4e5fd`, the floor (a commit that regenerates the
+  **Seventy-two commits behind** — `ec4e5fd`, the floor (a commit that regenerates the
   Notes cannot
   cover itself, Entry #144), `e7a94d1`, `d5ced0c`, `59b747a`, `f256937`, `12b483e`,
   `01f2892`, `8b6fd00`, `e186423`, `86f30f1`, `3e8191a`, `1523e0c`, `ff12e17`,
@@ -2425,7 +2522,7 @@ records `fad0588`'s landing.
   `d2dddf7`, `aa9e7ac`, `391c338`, `8360923`, `ed005a0`, `e88e0dd`, `d508b29`,
   `9f2f3d7`, `d410bfa`, `34d8e3b`, `ad34c02`, `89d2367`, `b387c03`, `9862568`,
   `3d7e6cb`, `78204ff`, `0d86fda`, `b8f88d8`, `a1c4218`, `713e084`, `134f85b`,
-  `fad0588` and the commit that writes this line.
+  `fad0588`, `3dbd8dc` and the commit that writes this line.
   Every later
   commit adds one
   until the
@@ -2448,7 +2545,8 @@ records `fad0588`'s landing.
   new wording, put to Viktor before his commit — and before it by `a1c4218`, which
   changed the numbers there and the layout block's `githooks/` line, for the new hook,
   and by `3d7e6cb`, which changed only the numbers, and not by `78204ff`, `0d86fda`,
-  `b8f88d8`, `134f85b`, `fad0588` or the commit that writes this line. **Its audit
+  `b8f88d8`, `134f85b`, `fad0588`, `3dbd8dc` or the commit that writes this line. **Its
+  audit
   history and
   layout block are current** since `134f85b`, in wording Claude drafted and Viktor
   approved, on 27 October at 18:52 and, one paragraph corrected, at 19:09: "The
@@ -3901,19 +3999,18 @@ Each code commit is its own commit and updates this file for its own landing.
 
 ## Resolved this session
 
-- **`fad0588`'s landing**, read off Viktor's disk and GitHub again, with the times
+- **`3dbd8dc`'s landing**, read off Viktor's disk and GitHub again, with the times
   Claude had read off them after the push, in chat ("Where the project is", the session
-  of 27 October, from 19:31, and this session). Every part that could be read again
-  held, and nothing differed.
-- **The patch-delivery skill brought current with DECISIONS**, and a ruling that changes
-  the procedure carried into it in the same session — Viktor's ruling, by agreeing to
-  Claude's suggestions on 29 October (DECISIONS, "Ruling, 29 October 2026 — a ruling
-  that changes how a patch is delivered or checked changes the patch-delivery skill in
-  the same session"). He saved the updated skill at 13:51.
-- **The ruling of 27 October on standing gaps added to "Ruled — in force"**, which
-  `fad0588`, filing it, had left it out of.
+  of 28 October, from 18:23, and this session). Every part held, and nothing differed.
+- **The patch-delivery skill's marker moved to `3dbd8dc`**: the skill this session
+  loaded names it, so Viktor saved it.
+- **How a candle that touches both the stop and T1 is counted** — the Freqtrade
+  comparison's first item and the fifth question of the position of 6 October — Viktor's
+  ruling, by agreeing to Claude's suggestions at 15:01 on 29 October (DECISIONS,
+  "Ruling, 29 October 2026 — a candle that touches both the stop and T1 counts as the
+  stop"), and added to Goal B's methodology.
 - **The once-per-session rewrite of this file**, by the commit that writes this line.
-  The previous version, as at `fad0588`, is in HISTORY verbatim, headings demoted one
+  The previous version, as at `3dbd8dc`, is in HISTORY verbatim, headings demoted one
   level, proven by un-demotion with a negative control (the commit message has the
   result).
 
@@ -3925,11 +4022,13 @@ Claude critiques it.
 - **Owed to the next commit:** nothing, unless this commit's push deviates from its
   prediction (ruling on proposal (b), 27 September).
 - **After this commit's push, outside the repository:** the patch-delivery skill's
-  marker moved from `fad0588` to this commit, put to Viktor to save in the session that
+  marker moved from `3dbd8dc` to this commit, put to Viktor to save in the session that
   delivers it (DECISIONS, "Ruling, 29 October 2026 — a ruling that changes how a patch
   is delivered or checked changes the patch-delivery skill in the same session", point
-  2); the next commit records whether it was. Until it moves, a session's diff of
-  DECISIONS from `fad0588` shows that ruling, which the skill already carries.
+  2); the next commit records whether it was. The ruling this commit files changes how
+  a trade is scored, not how a patch is built, delivered, recorded or checked, so
+  nothing else in the skill changes. Until the marker moves, a session's diff of
+  DECISIONS from `3dbd8dc` shows that ruling, and reading it finds nothing to follow.
 - **Wave 1 — what is left.** Its test gaps have landed: entry 48 at `ed005a0`, 36 at
   `e88e0dd`, 37 at `d508b29`, 49, found landing 37, at `ad34c02`, and 51, found
   landing 49, at `b387c03`; entry 54, found landing 51, audit tooling, at `9862568`;
@@ -3939,8 +4038,8 @@ Claude critiques it.
   with it all of wave 1 that this file names as Claude's; `a1c4218`'s landing found no
   entry more. Entry 50, README's watched error count, landed at `713e084`, by Claude's
   decision under Viktor's delegation of 27 October, his to reverse, and with it nothing
-  of wave 1 is left open; `713e084`'s, `134f85b`'s and `fad0588`'s landings found no
-  entry more. Entry 26, one of
+  of wave 1 is left open; `713e084`'s, `134f85b`'s, `fad0588`'s and `3dbd8dc`'s landings
+  found no entry more. Entry 26, one of
   Goal B's two rulings, was decided by Claude under Viktor's delegation of 26 October
   (DECISIONS, "Decision, 26 October 2026 — Goal B keeps a candle only once it has
   closed at `t` (entry 26)"), his to reverse. Entry 31, the other, was ruled by Viktor
@@ -4097,8 +4196,9 @@ Claude critiques it.
   which few settings may be tuned after the paper-trading year, named before it
   starts; and the Bedrock billing, after
   which the check of reach and fit is Claude's. How a candle that touches both the stop
-  and T1 is counted is the Freqtrade item below. For all but the billing he writes his
-  position first.
+  and T1 is counted was ruled on 29 October (DECISIONS, "Ruling, 29 October 2026 — a
+  candle that touches both the stop and T1 counts as the stop"). For all but the billing
+  he writes his position first.
 - **The independent audit — round 8 is done, triaged, and its fix verification accepted
   (17 October).** Claude's, under the delegation of 4 October; Viktor runs the commands.
   Round 8's preparation list — items 1 to 8, all done — is in HISTORY, in this file as
@@ -4132,16 +4232,17 @@ Claude critiques it.
   questions are an item of their own, below. Whether S1, S3, N1–N4, O1–O3 and the Part 7 reply's §1(3) and §1(5)
   join the label and record batch is settled by that sort: all are in the work before
   the audit, S1 after it with the four (S4 is held back as H1 since 18 October).
-- **Viktor's, from the Freqtrade comparison (5 October), nothing ruled.** The comparison
-  is outside the repository (`Docs\02_Reviews_and_Feedback\Phase7_Freqtrade_Comparison_2026-10-05`
-  in `G:\Phase_7_Engine_Random_Files`).
-  1. **How a candle that touches both the stop and T1 is counted** — to be ruled before
-     any backtest result exists, since pre-registration works only once. Goal B's
-     verdict calls T1 before the stop a win, and a 4h candle does not show which came
-     first. On the real AERO 4h candles 9 of 594 (1.5%) had a range of 10% or more, about
-     the gap between a 5% stop and a 5% T1 (the comparison's run). Its suggestion: count
-     such a candle as a stop, report how many trades it affected, and settle it on
-     smaller candles where they exist.
+- **Viktor's, from the Freqtrade comparison (5 October), its first item ruled.** The
+  comparison is outside the repository
+  (`Docs\02_Reviews_and_Feedback\Phase7_Freqtrade_Comparison_2026-10-05` in
+  `G:\Phase_7_Engine_Random_Files`).
+  1. **How a candle that touches both the stop and T1 is counted** — ruled on
+     29 October, by agreeing to Claude's suggestions (DECISIONS, "Ruling, 29 October
+     2026 — a candle that touches both the stop and T1 counts as the stop"): as the
+     stop, with the stop moved to the entry at the close of T1's candle, both reported
+     beside the result; the same for paper trading and the benchmark; Goal B's data
+     stays 4h. If Freqtrade's dry-run becomes the paper-trading ledger (point 3), it
+     must move the stop the same way.
   2. **A longer daily window for macro** — on the list for after the audit, above.
   3. **Protections, and Freqtrade's dry-run as the paper-trading ledger** — later; the
      comparison's view is not now.
@@ -4270,8 +4371,8 @@ Claude critiques it.
   own, and `a1c4218` named `3d7e6cb` there and added its own. The docs-only commits
   between them, `78204ff`, `0d86fda` and `b8f88d8` among them, changed no line there,
   nor did `713e084` and `134f85b`, which changed docs and `README.md` only, or
-  `fad0588`, which changed docs only, and the commit that writes this line, which
-  changes docs only, changes none. (This
+  `fad0588` and `3dbd8dc`, which changed docs only, and the commit that writes this
+  line, which changes docs only, changes none. (This
   paragraph stopped at
   `a235783` until `ad34c02`
   brought it current, and
