@@ -6451,6 +6451,98 @@ and change neither.
   at the fill.
 - Nothing ratified is removed or reworded; Goal B's methodology gains one line.
 
+## Decision, 30 October 2026 — what may be tuned after the paper-trading year: at most three thresholds, named at the redesign, judged on fresh trades
+
+*New in this file on 31 October 2026. Question 6 of the position of 6 October. Claude's
+decision under Viktor's delegation of 29 October, his to reverse, except the second half
+of point 3, which is his ruling, by agreeing to Claude's suggestion. In the session that
+opened at 15:30 on 29 October at `a2ca918`, Claude set the question out for him to write
+his position first and, asked for its suggestion, gave six points. At 16:06 he answered
+that these were highly technical questions he could not answer: "you are the engineer
+and the brain of this project. I am just the manager." That session closed with 7% of
+the weekly usage limit left and nothing filed. In the session that opened at 23:21 on 30 October he
+asked for it to be filed as Claude's decision under that delegation, his to reverse,
+with the six points, and for one line first on whether any of it needed his decision.
+Claude found that one part did (below); at 23:55 he asked for Claude's suggestion, and
+at 23:58 he said, "B". Filed by that session's commit, docs only.*
+
+**The question.** Which few settings may be tuned after the paper-trading year, named
+before it starts (the position of 6 October, question 6). The ruling of 28 September
+keeps tuning out of the year (point 5) and judges an engine on data it was not tuned on
+(point 7); Claude's critique of 7 October added that the trades that tune an engine
+cannot also judge it, since fitted to them it looks good by construction.
+
+**Who decides what.** Which settings, how many, which data tunes and which judges, and
+when they are named: Claude's, an engineering question under the delegation of
+29 October. Whether a value written into one of Viktor's rulings may be tuned: his,
+since moving it changes what his ruling says; ruled in point 3. The delegation is his to
+reverse, and each point with it.
+
+**What was decided.**
+
+1. **The principle now; the settings named when the redesign's design is fixed**,
+   before Amazon's audit, so that the audited engine carries the list. The redesign
+   ("Ruling, 25 October 2026 — the engine's indicators …") removes the weighted sum, so
+   a list named today would name settings it removes. When paper trading is built is
+   Viktor's (28 September, "What this ruling does not do"); a year started before the
+   redesign would measure a version the redesign replaces, and its count would start
+   again (point 5), so the year that counts starts after the list is named.
+2. **At most three settings.** The finish line asks for about 100 closed trades
+   (28 September, point 7). Every setting fitted to them fits some of their noise, and
+   three is already a lot for 100 trades.
+3. **Only thresholds whose effect the year's records show directly** — gate cutoffs,
+   such as the ADX floor, and the stop's ATR multiple. Not indicator lengths: there are
+   many of them, each changes everything at once, and 100 trades cannot separate them.
+   Not what a ruling decides: T1 at least 3% net and the 8% stop limit (28 September,
+   point 2), spot only (point 3), 60% over 100 trades (point 7), what the stop depends
+   on — ATR and the volatility factor alone (5 October, point 1) — and that a run under
+   the ADX floor makes no trade (5 October, point 4).
+   **A number inside a ruling may be named** — Viktor's ruling, by agreeing to Claude's
+   suggestion, at 23:58 on 30 October. The stop's 1.2 (5 October, point 1) and the ADX
+   floor of 20 (point 4) may be on the list; what each ruling decides stands. When the
+   list is named, any ruled value on it goes to Viktor for a yes or no.
+4. **A threshold moves for the result, never for the trade count** (28 September,
+   point 4: the count is never raised by loosening a threshold).
+5. **The year's trades tune; the tuned version is judged on its own fresh 100 closed
+   trades, paper traded forward.** It is a new version, and its count starts from zero
+   (28 September, points 5 and 7). A backtest window held out of the tuning may serve as
+   an earlier check once Goal B's harness exists. It does not replace the forward
+   trades, and under Goal B's re-run clause it is a new phase, with its own
+   pre-registration written before it runs.
+6. **One tuning round per year, no iterating.** Each round costs a new evidence period.
+
+**Why point 3 needed Viktor's ruling.** As given on 29 October, point 3 excluded
+"anything already ruled", and its two examples — gate cutoffs and the stop's ATR
+multiple — are values written into his rulings of 5 October: the stop is "ATR × 1.2 × the
+volatility factor" (point 1), and "ADX under 20 blocks both sides" (point 4). Read from
+this file at `a2ca918`, not from the code. The 1.2 was carried from the code as it stood
+at `9e42d30`: the ruling decided what the stop depends on, not that number. Whether the
+20 was ever chosen on evidence was not checked. Closed to tuning, the two values would
+leave almost nothing the year's records measure directly to be named.
+
+**Claude's errors, recorded.**
+
+- On 29 October Claude set an engineering question out for Viktor to write his position
+  on, and gave its own answer only when asked; he said it was Claude's to decide.
+- Point 3, as given on 29 October, contradicted itself: its examples were values its own
+  exclusion ruled out. Found on 30 October, before filing, when Viktor asked whether any
+  of it needed his decision.
+
+**The case against.** Three settings fitted to about 100 trades can still fit noise;
+the fresh 100 trades are what catches it, at the cost of another year. Naming the list
+at the redesign rather than now leaves "named before it starts" resting on the year
+that counts starting after the redesign. Opening ruled values lets a
+number Viktor ruled move by a tuning round instead of a new ruling, limited by his yes
+or no when the list is named.
+
+**What it weakens.**
+
+- The ruling of 28 September, point 5, still forbids tuning between readings; this adds
+  one round after the year, which makes a new version.
+- The rulings of 5 October, points 1 and 4: their numbers, 1.2 and 20, may be named for
+  tuning, with Viktor's yes; what they decide does not change.
+- Nothing ratified is removed or reworded, and no code changes.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then
