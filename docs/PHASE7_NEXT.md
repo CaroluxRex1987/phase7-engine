@@ -1,12 +1,11 @@
 # Next step — read this first
 
-*31 October 2026, in the session that opened at 23:21 on 30 October. Rewritten by the
-commit that files Claude's decision, under Viktor's delegation of 29 October, on which
-settings may be tuned after the paper-trading year — at most three thresholds, named
-when the redesign's design is fixed, judged on fresh trades, one round a year — with his
-ruling that a number inside one of his rulings may be named; docs only, and records
-`a2ca918`'s landing; the version it replaced — as it stood at `a2ca918` — is in HISTORY
-verbatim.
+*31 October 2026, in the session that opened at 01:53. Rewritten by the commit that
+files Viktor's ruling, by agreeing to Claude's suggestion at 00:55 on 31 October, that
+volume enters the redesign's scope as two gates — a liquidity floor on the USDT traded
+per candle and volume confirming the trend-resuming trigger above its recent median —
+and stays out of T1, T2 and T3; docs only, and records `d7d3ae0`'s landing; the version
+it replaced — as it stood at `d7d3ae0` — is in HISTORY verbatim.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
 rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
@@ -471,10 +470,19 @@ one line first on whether any of it needed his decision. One part did: the examp
 point 3, the stop's ATR multiple and the ADX floor, are values written into his rulings
 of 5 October, which point 3 itself excluded. At 23:55 he asked for Claude's suggestion,
 and at 23:58 he said, "B": a number inside a ruling may be named, what the ruling
-decides stands. The commit that writes this line files the decision with that ruling
-(DECISIONS, "Decision, 30 October 2026 — what may be tuned after the paper-trading
-year: at most three thresholds, named at the redesign, judged on fresh trades"), docs
-only, and records `a2ca918`'s landing.
+decides stands. `d7d3ae0` filed the decision with that ruling (DECISIONS, "Decision,
+30 October 2026 — what may be tuned after the paper-trading year: at most three
+thresholds, named at the redesign, judged on fresh trades"), docs only, and recorded
+`a2ca918`'s landing. In the same session, after `d7d3ae0`'s patch was delivered and
+before he applied it, he asked whether volume should feed T1, T2 and T3; Claude said
+it should not, and he agreed, then said volume should be implemented and asked which
+kinds. Claude gave two gates and two exclusions, and at 00:55 on 31 October he said,
+"Sounds good, we add in the next patch." He pushed `d7d3ae0` at 01:20:47; its landing
+was checked in that session, GitHub's tip read at 01:52 with no credentials, and nothing
+differed. **On 31 October, from 01:53**, he opened a session with that landing record and
+the ruling to file. The commit that writes this line files it (DECISIONS, "Ruling,
+31 October 2026 — volume enters the redesign as two gates: a liquidity floor and volume
+confirming the trigger"), docs only, and records `d7d3ae0`'s landing.
 
 **The review and the comparison are outside the repository**, in
 `G:\Phase_7_Engine_Random_Files\Docs\02_Reviews_and_Feedback`:
@@ -1427,9 +1435,9 @@ changed.
 checked in the session of 29 October from 15:30 — GitHub's tip read at 15:34:42 with no
 credentials — and nothing differed; that session's account was in chat only, and
 Viktor listed it at the start of the next. Its account is in HISTORY, in this file's
-version at `a2ca918`, moved there by the commit that writes this line.
+version at `a2ca918`, moved there by `d7d3ae0`.
 
-**This session (30 October, from 23:21, going on to 31 October)**, configured for Claude
+**The session of 30 October, from 23:21, going on to 31 October**, configured for Claude
 Opus 5.5, opened at `a2ca918`. GitHub's tip, read with `git ls-remote` at 00:06:13 on
 31 October with git's tokens, askpass, credential helper, prompts and configuration files
 all removed from its environment, outside any repository, is `a2ca918`, its parent
@@ -1460,11 +1468,60 @@ Split on the tab instead, the two are identical. The patch-delivery skill this s
 loaded names `a2ca918` as the commit it was last compared with DECISIONS at: Viktor had
 saved the marker. `git diff --stat a2ca918 HEAD -- docs/PHASE7_DECISIONS.md` was empty.
 The three files were staged off his disk at 00:05 on 31 October, before the patch was
-built, and matched the tip. The commit that writes this line files Claude's decision on
-what may be tuned after the paper-trading year, with Viktor's ruling in its point 3, and
-records `a2ca918`'s landing.
+built, and matched the tip. `d7d3ae0` filed Claude's decision on what may be tuned after
+the paper-trading year, with Viktor's ruling in its point 3, and recorded `a2ca918`'s
+landing: docs only. At 00:55 on 31 October, before he applied it, Viktor ruled that
+volume enters the redesign as two gates, to be filed in the next commit. `d7d3ae0`'s
+landing was checked in that session after the push — GitHub's tip read at 01:52 on
+31 October with no credentials — and nothing differed; that session's account was in
+chat only, and Viktor listed it at the start of the next. Its account is in HISTORY, in
+this file's version at `d7d3ae0`, moved there by the commit that writes this line.
+
+**This session (31 October, from 01:53)**, configured for Claude Opus 5.5, opened at
+`d7d3ae0`. GitHub's tip, read with `git ls-remote` at 01:55:03 with git's tokens,
+askpass, credential helper, prompts and configuration files all removed from its
+environment, outside any repository, is `d7d3ae0`, its parent `a2ca918`. In that same
+environment GitHub answered a read of a repository that does not exist,
+`CaroluxRex1987/phase7-engine-no-such-repo-probe`, with a request for credentials, so
+none reached it on that request. The tip's tree is
+`fccb0285101f70bd1843084b201241f869969468`, the one its `Verified-Tree:` line names,
+read from GitHub alone. `master` and `origin/master` on his disk, from `.git/refs`
+staged off it, read `d7d3ae0`. The commit object, staged off his disk, hashes to that
+name and is byte for byte GitHub's, with no CR in it; `.git/COMMIT_EDITMSG` is byte for
+byte its message, which ends with its `Verified-Tree:` line and its two attribution
+lines. Each of the three files `d7d3ae0` changes — PHASE7_DECISIONS.md,
+PHASE7_HISTORY.md and this file — is on his disk byte for byte an autocrlf checkout of
+GitHub's tip; their mtimes are still the apply's, 01:12:01.813 to .825 on 31 October.
+His `.git/index` lists the same 295 paths, modes and blobs as `d7d3ae0`'s tree. The
+times above were read off his disk: those mtimes, `.pytest_cache/v/cache/nodeids`
+(01:15:16.612), the index (01:20:33.931) and `.git/COMMIT_EDITMSG` (.933), the commit
+object (01:20:34.191), the `master` ref (.195), its reflog's last line "commit:",
+`a2ca918` to `d7d3ae0`, and `origin/master`'s ref (01:20:47.811) and its reflog line
+"update by push", the same pair. `d7d3ae0` changes no file under `tests/` and no `.py`
+file, so the cache has no new test id to hold; its `lastfailed` is still `{}`, last
+written at 13:37:30 on 26 September, so the run of 01:15:16, 3 minutes 15 seconds after
+the apply, recorded no failure. No `.patch` file or commit message file is left in the
+repository's root. Nothing differed. The patch-delivery skill this session loaded names
+`d7d3ae0` as the commit it was last compared with DECISIONS at: Viktor had saved the
+marker. `git diff --stat d7d3ae0 HEAD -- docs/PHASE7_DECISIONS.md` was empty. The three
+files were staged off his disk at 01:55 on 31 October, before the patch was built, and
+matched the tip. Read from the code at `d7d3ae0` for the ruling: `data/data_fetcher.py`
+drops MEXC's `quote_volume`, the decision declares volume as a label, and the candle
+archive, as far as read, holds no `quote_volume` (the ruling has the detail). The commit
+that writes this line files Viktor's ruling on volume and records `d7d3ae0`'s landing.
 
 ## Ruled — in force
+
+- **New, 31 October — Viktor's, by agreeing to Claude's suggestion: volume enters the
+  redesign as two gates** (DECISIONS, "Ruling, 31 October 2026 — volume enters the
+  redesign as two gates: a liquidity floor and volume confirming the trigger"). A
+  liquidity floor — a minimum of USDT traded per candle, from MEXC's `quote_volume`,
+  which the fetcher drops today — and volume confirming the trigger, the trend-resuming
+  candle's volume above its recent median. Not a buy/sell split (MEXC's candles as
+  fetched carry none) and not OBV-type indicators (direction counted twice). Volume
+  stays out of T1, T2 and T3. The gates' design comes to him with the redesign's; their
+  cutoffs are candidates for the at-most-three tunable settings. No code before
+  14 November.
 
 - **New, 30 October — Claude's, under Viktor's delegation of 29 October, his to reverse,
   with his ruling in point 3: what may be tuned after the paper-trading year** (DECISIONS,
@@ -1495,9 +1552,9 @@ records `a2ca918`'s landing.
   changes how a patch is delivered or checked changes the patch-delivery skill in the
   same session** (DECISIONS, "Ruling, 29 October 2026 — a ruling that changes how a
   patch is delivered or checked changes the patch-delivery skill in the same session").
-  The skill names the commit at which it was last compared with DECISIONS, `a2ca918`
-  since 29 October (`3dbd8dc` and `fad0588` before it), and every delivery and landing
-  check begins
+  The skill names the commit at which it was last compared with DECISIONS, `d7d3ae0`
+  since 31 October (`a2ca918`, `3dbd8dc` and `fad0588` before it), and every delivery
+  and landing check begins
   with a diff of DECISIONS from that commit; the marker moves to the commit that files a
   ruling once it has landed.
 
@@ -1984,9 +2041,12 @@ records `a2ca918`'s landing.
 ## Where things stand, right now
 
 - **Tip:** the commit that writes this line (a commit cannot name its own hash) —
-  Claude's decision on what may be tuned after the paper-trading year filed, with
-  Viktor's ruling in its point 3, docs only, and `a2ca918`'s landing recorded. Before
-  it: `a2ca918` (the session of 29 October, from 14:27: Viktor's ruling that a candle
+  Viktor's ruling that volume enters the redesign as two gates filed, docs only, and
+  `d7d3ae0`'s landing recorded. Before it: `d7d3ae0` (the session of 30 October, from
+  23:21, going on to 31 October: Claude's decision on what may be tuned after the
+  paper-trading year filed, with Viktor's ruling in its point 3, docs only, and
+  `a2ca918`'s landing recorded), `a2ca918` (the session of 29 October, from 14:27:
+  Viktor's ruling that a candle
   that touches both the stop and T1 counts as the stop filed, docs only, and
   `3dbd8dc`'s landing recorded), `3dbd8dc` (the session
   of 28 October, from 18:23, going on to 29 October: Viktor's ruling that a ruling
@@ -2238,8 +2298,8 @@ records `a2ca918`'s landing.
   and the names it checks are the same. It removed and renamed none. `78204ff`,
   `0d86fda` and `b8f88d8` changed no test. `a1c4218` added
   `tests/test_commit_msg_hook.py` (11 tests, none taking a fixture or needing
-  `pandas_ta`) and changed no other test. `713e084`, `134f85b`, `fad0588`, `3dbd8dc`
-  and `a2ca918` changed no test, nor does the commit that writes this line.
+  `pandas_ta`) and changed no other test. `713e084`, `134f85b`, `fad0588`, `3dbd8dc`,
+  `a2ca918` and `d7d3ae0` changed no test, nor does the commit that writes this line.
 - **Where the project lives, from 26 September:** `E:\phase7_engine` on Viktor's machine;
   the files kept outside the repository in `G:\Phase_7_Engine_Random_Files`. Copied with
   robocopy, verified — git's own checks on Windows for the tracked files, SHA-256 for the
@@ -2248,13 +2308,16 @@ records `a2ca918`'s landing.
   to `E:\phase7_engine`". Run the engine and every command from `E:\phase7_engine` (in
   cmd, changing drive needs `cd /d`). A dated record that names the D: paths means the
   same folders before the move; dated records are not edited.
-- **The push of `a2ca918`** happened, at 15:26:37 on 29 October: GitHub's tip, read
-  at 15:34:42 that day, in the next session, and at 00:06:13 on 31 October, is
-  `a2ca918`, `master` and `origin/master` on Viktor's disk read it (their `.git/refs`
+- **The push of `d7d3ae0`** happened, at 01:20:47 on 31 October: GitHub's tip, read
+  at 01:52 that day, in the session that delivered it, and at 01:55:03 in the next, is
+  `d7d3ae0`, `master` and `origin/master` on Viktor's disk read it (their `.git/refs`
   files, and `origin/master`'s reflog line "update by push"), its three files on his
   disk are byte for byte an autocrlf checkout of it, and its tree is the one its
   `Verified-Tree:` line names. No deviation was reported (ruling on proposal (b)). So
-  did `3dbd8dc`'s, at 14:24:07 on 29 October, GitHub's tip read at 14:24:27 that day
+  did `a2ca918`'s, at 15:26:37 on 29 October, GitHub's tip read at 15:34:42 that day,
+  in the next session, and at 00:06:13 on 31 October, its three files on his disk byte
+  for byte an autocrlf checkout of it and its tree the one its `Verified-Tree:` line
+  names, `3dbd8dc`'s, at 14:24:07 on 29 October, GitHub's tip read at 14:24:27 that day
   and at 14:28:08 in the next session, its three files on his disk byte for byte an
   autocrlf checkout of it, its tree the one its `Verified-Tree:` line names, and its
   three files and GitHub's blobs read, CRs aside, byte for byte what was verified before
@@ -2338,9 +2401,9 @@ records `a2ca918`'s landing.
   commit that writes this line unless it deviates. Earlier pushes and deviations are
   recorded in this file's previous versions, in HISTORY.
 - **Before this commit**, every file its patch changes was staged off Viktor's disk and
-  matched an autocrlf checkout of `a2ca918`, GitHub's tip, cloned at 23:21 on
-  30 October, byte for byte, staged at 00:05 on 31 October, before the patch was built;
-  it adds no file.
+  matched an autocrlf checkout of `d7d3ae0`, GitHub's tip, cloned at 01:54 on
+  31 October, byte for byte, staged at 01:55, before the patch was built; it adds no
+  file.
 - **code_hash:** `816d4951bb0322763ec4abc4b9ed8161d5b902372823350e5272f2fb7176e380`,
   set by `0491b84` from `bc1b9c2c…` — `main.py` alone — and confirmed on Windows: its
   eleven hand-run records and the ten of each of the first two scheduled runs carry it.
@@ -2361,16 +2424,17 @@ records `a2ca918`'s landing.
   `docs/` only, by `a1c4218`, which changed files under `docs/` and `tests/`, which it
   does not read, and `README.md` and `githooks/commit-msg`, which are not `.py` files,
   by `713e084` and `134f85b`, each of which changed files under `docs/` and
-  `README.md`, which is not a `.py` file, by `fad0588`, `3dbd8dc` and `a2ca918`, each
-  of which changed files under `docs/` only, and by the commit that writes this line,
+  `README.md`, which is not a `.py` file, by `fad0588`, `3dbd8dc`, `a2ca918` and
+  `d7d3ae0`, each of which changed files under `docs/` only, and by the commit that
+  writes this line,
   which
   changes files under `docs/` only: computed on clones of `0491b84`,
   `a235783`, `8d5d64a`, `a48d9e5`, `fbd7877`, `8311167`, `d2dddf7`, `aa9e7ac`,
   `391c338`, `8360923`, `ed005a0` and `e88e0dd` and on the applied trees, under Python
   3.12.3; the trees of `d508b29`, `9f2f3d7`, `d410bfa`, `34d8e3b`, `ad34c02`,
   `89d2367`, `b387c03`, `9862568`, `3d7e6cb`, `78204ff`, `0d86fda`, `b8f88d8`,
-  `a1c4218`, `713e084`, `134f85b`, `fad0588`, `3dbd8dc` and `a2ca918` and the applied
-  tree of the commit that writes this line give the same. `bc1b9c2c…` was
+  `a1c4218`, `713e084`, `134f85b`, `fad0588`, `3dbd8dc`, `a2ca918` and `d7d3ae0` and
+  the applied tree of the commit that writes this line give the same. `bc1b9c2c…` was
   set by `9ea1cf3`, confirmed on Windows by its live run, and held through `f00bef6`,
   `36de35d`, `78ea37d`, `d3188f2` and `67f6ec1`, which changed only files under `docs/`
   and `tests/`, `README.md` and `run_tests.py`'s docstring.
@@ -2379,8 +2443,8 @@ records `a2ca918`'s landing.
   SURVIVE"). **Every `code_hash` claim about this project is computed under Python 3.12**
   (Viktor runs 3.12.10).
 - **Golden snapshot:** unchanged by the commit that writes this line, which changes
-  docs and no code or test, by `a2ca918`, `3dbd8dc` and `fad0588`, each of which
-  changed docs and no code or test, by
+  docs and no code or test, by `d7d3ae0`, `a2ca918`, `3dbd8dc` and `fad0588`, each of
+  which changed docs and no code or test, by
   `134f85b` and `713e084`, each of which changed
   `README.md`'s wording and docs and no code or test, by `a1c4218`, which added a git
   hook and one test file, read no fixture, and changed `README.md`'s counts and layout
@@ -2420,7 +2484,13 @@ records `a2ca918`'s landing.
   15 October 2026 — Part 4's three test shapes", point 5); `README.md` wrote it too
   until `713e084` (entry 50). The commit that writes this line changes no test, and the
   three counts hold: from the Linux sandbox, Python 3.12.3, pinned requirements, the
-  patch applied to an autocrlf clone of `a2ca918`. `a2ca918` changed no test, and the
+  patch applied to an autocrlf clone of `d7d3ae0`. `d7d3ae0` changed no test, and the
+  three counts held: from the Linux sandbox, Python 3.12.3, pinned requirements, the
+  patch applied to an autocrlf clone of `a2ca918`. Its pytest step ran on Windows after
+  the apply (the cache on his disk was rewritten at 01:15:16 on 31 October, 3 minutes
+  15 seconds after its files were written, at 01:12:01, and its `lastfailed` was left
+  as it was, `{}`, so that run recorded no failure), and Viktor went on to the commit,
+  which confirms 911 by proceeding. `a2ca918` changed no test, and the
   three counts held: from the Linux sandbox, Python 3.12.3, pinned requirements, the
   patch applied to an autocrlf clone of `3dbd8dc`. Its pytest step ran on Windows after
   the apply (the cache on his disk was rewritten at 15:19:41 on 29 October, 3 minutes
@@ -2595,7 +2665,7 @@ records `a2ca918`'s landing.
   `test_the_commit_messages_up_to_the_tag_are_round_7s_to_the_byte`, runs `git log` up
   to the tag `round7-sent-2026-09-30`: it needs the tag, which a full clone has.
 - **Engineering Notes:** through Entry #183 (v1.36), which covers `68c6191`.
-  **Seventy-three commits behind** — `ec4e5fd`, the floor (a commit that regenerates the
+  **Seventy-four commits behind** — `ec4e5fd`, the floor (a commit that regenerates the
   Notes cannot
   cover itself, Entry #144), `e7a94d1`, `d5ced0c`, `59b747a`, `f256937`, `12b483e`,
   `01f2892`, `8b6fd00`, `e186423`, `86f30f1`, `3e8191a`, `1523e0c`, `ff12e17`,
@@ -2607,7 +2677,7 @@ records `a2ca918`'s landing.
   `d2dddf7`, `aa9e7ac`, `391c338`, `8360923`, `ed005a0`, `e88e0dd`, `d508b29`,
   `9f2f3d7`, `d410bfa`, `34d8e3b`, `ad34c02`, `89d2367`, `b387c03`, `9862568`,
   `3d7e6cb`, `78204ff`, `0d86fda`, `b8f88d8`, `a1c4218`, `713e084`, `134f85b`,
-  `fad0588`, `3dbd8dc`, `a2ca918` and the commit that writes this line.
+  `fad0588`, `3dbd8dc`, `a2ca918`, `d7d3ae0` and the commit that writes this line.
   Every later
   commit adds one
   until the
@@ -2630,8 +2700,8 @@ records `a2ca918`'s landing.
   new wording, put to Viktor before his commit — and before it by `a1c4218`, which
   changed the numbers there and the layout block's `githooks/` line, for the new hook,
   and by `3d7e6cb`, which changed only the numbers, and not by `78204ff`, `0d86fda`,
-  `b8f88d8`, `134f85b`, `fad0588`, `3dbd8dc`, `a2ca918` or the commit that writes this
-  line. **Its audit
+  `b8f88d8`, `134f85b`, `fad0588`, `3dbd8dc`, `a2ca918`, `d7d3ae0` or the commit that
+  writes this line. **Its audit
   history and
   layout block are current** since `134f85b`, in wording Claude drafted and Viktor
   approved, on 27 October at 18:52 and, one paragraph corrected, at 19:09: "The
@@ -4084,18 +4154,17 @@ Each code commit is its own commit and updates this file for its own landing.
 
 ## Resolved this session
 
-- **`a2ca918`'s landing**, checked in the session of 29 October from 15:30 and read off
-  Viktor's disk and GitHub again in this session ("Where the project is"). Every part
-  held, and nothing differed.
-- **The patch-delivery skill's marker moved to `a2ca918`**: the skill this session
+- **`d7d3ae0`'s landing**, checked in the session of 30 October from 23:21 after the
+  push and read off Viktor's disk and GitHub again in this session ("Where the project
+  is"). Every part held, and nothing differed.
+- **The patch-delivery skill's marker moved to `d7d3ae0`**: the skill this session
   loaded names it, so Viktor saved it.
-- **Which settings may be tuned after the paper-trading year** — the sixth question of
-  the position of 6 October — Claude's decision under Viktor's delegation of 29 October,
-  his to reverse, with his ruling at 23:58 on 30 October, by agreeing to Claude's
-  suggestion, that a number inside one of his rulings may be named (DECISIONS,
-  "Decision, 30 October 2026 — what may be tuned after the paper-trading year …").
+- **Volume in the engine** — Viktor's ruling, by agreeing to Claude's suggestion at
+  00:55 on 31 October: two gates in the redesign's scope, a liquidity floor and volume
+  confirming the trigger, and volume out of T1, T2 and T3 (DECISIONS, "Ruling,
+  31 October 2026 — volume enters the redesign as two gates …").
 - **The once-per-session rewrite of this file**, by the commit that writes this line.
-  The previous version, as at `a2ca918`, is in HISTORY verbatim, headings demoted one
+  The previous version, as at `d7d3ae0`, is in HISTORY verbatim, headings demoted one
   level, proven by un-demotion with a negative control (the commit message has the
   result).
 
@@ -4107,19 +4176,20 @@ Claude critiques it.
 - **Owed to the next commit:** nothing, unless this commit's push deviates from its
   prediction (ruling on proposal (b), 27 September).
 - **After this commit's push, outside the repository:** the patch-delivery skill's
-  marker moved from `a2ca918` to this commit, put to Viktor to save in the session that
+  marker moved from `d7d3ae0` to this commit, put to Viktor to save in the session that
   delivers it (DECISIONS, "Ruling, 29 October 2026 — a ruling that changes how a patch
   is delivered or checked changes the patch-delivery skill in the same session", point
-  2); the next commit records whether it was. The decision this commit files changes
-  what may be tuned after the paper-trading year, not how a patch is built, delivered,
-  recorded or checked, so nothing else in the skill changes. Until the marker moves, a
-  session's diff of DECISIONS from `a2ca918` shows that decision, and reading it finds
-  nothing to follow.
+  2); the next commit records whether it was. The ruling this commit files changes the
+  redesign's scope, not how a patch is built, delivered, recorded or checked, so nothing
+  else in the skill changes. Until the marker moves, a session's diff of DECISIONS from
+  `d7d3ae0` shows that ruling, and reading it finds nothing to follow.
 - **Claude's, when the redesign's design is fixed, before Amazon's audit — the list of
   settings that may be tuned after the paper-trading year** (DECISIONS, "Decision,
   30 October 2026 — what may be tuned after the paper-trading year …", points 1 to 3):
   at most three thresholds, named with the design; any value on it written into one of
-  Viktor's rulings goes to him for a yes or no.
+  Viktor's rulings goes to him for a yes or no. The two volume gates' cutoffs are
+  candidates (DECISIONS, "Ruling, 31 October 2026 — volume enters the redesign as two
+  gates …", point 4).
 - **Wave 1 — what is left.** Its test gaps have landed: entry 48 at `ed005a0`, 36 at
   `e88e0dd`, 37 at `d508b29`, 49, found landing 37, at `ad34c02`, and 51, found
   landing 49, at `b387c03`; entry 54, found landing 51, audit tooling, at `9862568`;
@@ -4130,7 +4200,7 @@ Claude critiques it.
   entry more. Entry 50, README's watched error count, landed at `713e084`, by Claude's
   decision under Viktor's delegation of 27 October, his to reverse, and with it nothing
   of wave 1 is left open; `713e084`'s, `134f85b`'s, `fad0588`'s, `3dbd8dc`'s and
-  `a2ca918`'s landings found no entry more. Entry 26, one of
+  `a2ca918`'s and `d7d3ae0`'s landings found no entry more. Entry 26, one of
   Goal B's two rulings, was decided by Claude under Viktor's delegation of 26 October
   (DECISIONS, "Decision, 26 October 2026 — Goal B keeps a candle only once it has
   closed at `t` (entry 26)"), his to reverse. Entry 31, the other, was ruled by Viktor
@@ -4171,7 +4241,11 @@ Claude critiques it.
   fixed, H1's replacement, and H2 and H5 judged against it, replacements proposed by
   Claude for Viktor to accept (DECISIONS, "Decision, 25 October 2026 — the held-back
   defects …"). Not covered by the eight: the entry score's structure multiplier
-  (BOS ×1.05, CHOCH ×0.90), which stays unless Viktor rules otherwise.
+  (BOS ×1.05, CHOCH ×0.90), which stays unless Viktor rules otherwise. Added to its
+  scope on 31 October: the two volume gates, a liquidity floor and volume confirming
+  the trigger, their design put to Viktor with the rest (DECISIONS, "Ruling,
+  31 October 2026 — volume enters the redesign as two gates …"); the floor needs
+  `quote_volume`, which the fetcher drops today.
 - **The forward measurement — Claude's to count, under the ruling of 17 October.** Ten
   pairs — AEROUSDT, ETHUSDT, SOLUSDT, XRPUSDT, BNBUSDT, DOGEUSDT, ADAUSDT, LINKUSDT,
   AVAXUSDT, SUIUSDT — every four hours, by one Windows scheduled task on Viktor's
@@ -4464,7 +4538,8 @@ Claude critiques it.
   own, and `a1c4218` named `3d7e6cb` there and added its own. The docs-only commits
   between them, `78204ff`, `0d86fda` and `b8f88d8` among them, changed no line there,
   nor did `713e084` and `134f85b`, which changed docs and `README.md` only, or
-  `fad0588`, `3dbd8dc` and `a2ca918`, which changed docs only, and the commit that
+  `fad0588`, `3dbd8dc`, `a2ca918` and `d7d3ae0`, which changed docs only, and the
+  commit that
   writes this line, which changes docs only, changes none. (This
   paragraph stopped at
   `a235783` until `ad34c02`

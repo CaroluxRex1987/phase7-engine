@@ -6543,6 +6543,94 @@ or no when the list is named.
   tuning, with Viktor's yes; what they decide does not change.
 - Nothing ratified is removed or reworded, and no code changes.
 
+## Ruling, 31 October 2026 — volume enters the redesign as two gates: a liquidity floor and volume confirming the trigger
+
+*New in this file on 31 October 2026. Viktor's ruling, by agreeing to Claude's
+suggestion, at 00:55 on 31 October, in the session that opened at 23:21 on 30 October,
+after `d7d3ae0`'s patch had been delivered and before it was applied. He asked whether
+volume should feed T1, T2 and T3; Claude said it should not (point 3), and he agreed:
+"forget about the T1, T2, T3 … youre right about that". He then said volume should be
+implemented and asked which kinds; Claude gave two gates and two exclusions, and he said,
+"Sounds good, we add in the next patch." He calls it his call (31 October, 01:53).
+Claude had said in that session that which volumes to use was its to decide; either
+way, the gates are new trading rules, and their design comes to him. Filed by the
+commit of the session that opened at 01:53 on 31 October, docs only.*
+
+**The question.** Whether volume should feed the targets, and which kinds of volume, if
+any, the engine should add.
+
+**Who decides what.** That volume enters the redesign, and that it stays out of the
+targets: Viktor's. Which two gates: Claude's suggestion, which he agreed to. The gates'
+design — their exact form, where they sit in the decision ladder, the tests and golden
+fields they move — comes to him with the redesign's design, before anything is built
+("Ruling, 25 October 2026 — the engine's indicators …").
+
+**What was ruled.**
+
+1. **Volume is added to the redesign's scope as two gates, not as a weight.**
+   (a) **A liquidity floor:** no trade on a candle on which less than a minimum amount
+   of USDT was traded, read from MEXC's `quote_volume`, which MEXC sends with every
+   candle and `data/data_fetcher.py` drops today (below). Thin markets make fills, fees
+   and slippage worse, and that matters more as pairs are added.
+   (b) **Volume confirming the trigger:** the candle that resumes the trend after the
+   pullback — the trend-pullback hypothesis of 25 October — must have volume above its
+   recent median. A healthy pullback is quiet; the resumption comes with volume.
+2. **Not added.** Buy volume against sell volume: MEXC's candles, as the fetcher reads
+   them, carry total volume only, with no split by side; whether MEXC publishes such a
+   split anywhere else was not checked. OBV and similar indicators: they mix price
+   direction with volume, and the redesign makes the EMA slope the one direction
+   source, so they would count direction twice.
+3. **Volume stays out of T1, T2 and T3.** The targets stay fixed multiples of the stop
+   distance, 1×, 2× and 3×. The finish line's test — at least 60% of about 100 closed
+   trades reaching T1 before the stop (28 September, point 7) — is built on T1 one stop
+   distance from the entry; a T1 moved by volume would make it measure a moving target,
+   and the comparison with random entries unfair. Volume at entry says more about
+   whether a move is real than about how far it goes. And every new setting fits noise
+   on about 100 trades.
+4. **The gates' cutoffs are candidates for the at-most-three tunable settings**
+   ("Decision, 30 October 2026 — what may be tuned after the paper-trading
+   year …", points 2 and 3): the floor's minimum, and the margin by which the trigger's
+   volume must exceed its median. The median's window — for example the last 20
+   candles — is a length, not a cutoff, and under that decision's point 3 is not one.
+5. **No code before 14 November.** The gates are built with the redesign, after the
+   reading of 14 November and before Amazon's audit.
+
+**Read from the code at `d7d3ae0`, on 31 October.** `data/data_fetcher.py` reads
+MEXC's eight kline columns, `quote_volume` the eighth, and keeps seven:
+`quote_volume` is dropped before the frame is returned. `core/decision_contract.py`
+declares the decision's volume as `volume_sentiment`, a string, a label. The candle
+archive stores the columns of the frame it is given (`core/lineage.py`,
+`canonical_text`); as far as read, that frame is the fetcher's, so the archive holds
+base-asset volume and prices, not `quote_volume` — not traced end to end. A count from
+the archive of how often the floor would have blocked a trade can therefore use volume
+× close only as an approximation of the USDT traded.
+
+**What this ruling does not decide.** What happens to volume's present uses in the
+entry decision — volume sentiment's 15% of `bias_score`, `volume_agreement` in
+`core/engine_core.py`, entry quality's VWMA and HVN points, as Claude read them at
+`a2ca918` in the session of 30 October, in chat — goes to the redesign as ruled on
+25 October, which already takes volume sentiment out of the decision.
+`data/validation.py`'s abnormal-volume check is a data check, not a trading rule, and
+is untouched.
+
+**Claude's error, recorded.** In the same session, before the ruling, Claude said the
+reading of 14 November could show whether trades on higher volume did better, because
+every decision record logs volume. Both halves were wrong, and Claude corrected them
+there: the forward measurement records decisions, not trade results, and the record
+logs a label, not the numbers. What the reading can give is a count, from the archived
+candles, of how often each gate would have blocked a trade — for the floor, only
+approximately (above). Whether the gates make trades better shows only in paper trading
+or a backtest.
+
+**The case against.** Two more gates mean fewer trades, and the finish line needs about
+100 closed trades of one version; a gate that blocks often lengthens the year. A floor
+in USDT reads the same on every pair but not at every time, as a market's volume drifts.
+The median's window is one more length that cannot be tuned. And two more cutoffs
+compete for the at-most-three places.
+
+**What it weakens.** Nothing ratified is removed or reworded, and no code changes. The
+redesign's scope (the ruling of 25 October) grows by two gates.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then
