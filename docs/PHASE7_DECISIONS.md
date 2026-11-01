@@ -6631,6 +6631,64 @@ compete for the at-most-three places.
 **What it weakens.** Nothing ratified is removed or reworded, and no code changes. The
 redesign's scope (the ruling of 25 October) grows by two gates.
 
+## Ruling, 1 November 2026 — a session does not ask Viktor what to do next: Claude does first what should be done first
+
+*New in this file on 1 November 2026. Viktor's, in his own words, in the session that
+opened at 00:26 on 1 November at `6d073f9`. That session's landing check ended, as the
+patch-delivery skill's section 10 then said, by asking him what he wanted to do; at
+00:28 he wrote, "Stop asking me what to do next and take your own initiative and do that
+which should be done first". The words are his; points 2 to 5 are Claude's reading of
+them, his to reverse. Filed by that session's commit, docs only.*
+
+**The question.** Since 15 September a session has opened by asking Viktor what he
+wanted to do first ("Goal B …", "The pace ruling made alongside this one"), and since
+27 October a landing check has ended the same way. His instruction is to stop.
+
+**What was ruled.**
+
+1. **A session does not ask Viktor what to do next.** After its opening — the landing
+   check, when it opens with a landing record — Claude chooses the work that should be
+   done first and starts it, saying in one line what it is and why it comes first. He
+   can redirect it at any point.
+2. **Of the pace ruling of 15 September, this replaces its last sentence only**: a
+   session no longer asks what he wants to do first. The rest stands. PHASE7_NEXT.md's
+   Open items are still not a queue to clear, and the work goes one piece at a time,
+   done properly.
+3. **What is marked Viktor's stays his to decide.** Claude may bring one of his items
+   to him as the work that comes first, with his position asked for first where that is
+   the practice; it does not decide it. Of the list for after the audit ("Ruling,
+   19 October 2026 — the list for after the audit, sorted …", point 1), an entry marked
+   Claude's is now Claude's to start, and an entry that is his is put to him.
+4. **The rulings in force bind the choice**, among them that no commit moving
+   `code_hash` lands before the reading of 14 November (the same ruling, point 2), and
+   the delegations as they stand.
+5. **The patch-delivery skill's section 10 changes in the same session** ("Ruling,
+   29 October 2026 — a ruling that changes how a patch is delivered or checked changes
+   the patch-delivery skill in the same session"): it ended a landing check by asking
+   him what he wanted to do, and now ends it with the choice in point 1. The change is
+   put to him with the skill's marker moved, after the push of the commit that files
+   this ruling.
+
+**Claude's reading of "first", Viktor's to change.** In this order: a commit owed — a
+landing to record, a ruling of his to file; then work due by its date, such as the
+forward measurement's reading of 14 November; then Claude's work that the rulings in
+force let land now, in the order ruled on 19 October; then an item of his, brought to
+him.
+
+**The case against.** The pace ruling of 15 September was his own judgment that the
+work had become hasty, and the question at a session's opening was the brake it set:
+the choice of what to work on was his each time. With Claude choosing, keeping the pace
+is Claude's, and a session can start on work he would not have chosen. What is left of
+the brake is the line saying what the work is before it starts, and points 2 to 4.
+
+**What it weakens.**
+
+- The pace ruling of 15 September loses its last sentence; it is left as written, and
+  this ruling records the change.
+- The ruling of 19 October, point 1, said each piece was still his to start; for an
+  entry marked Claude's, that no longer holds. It is left as written.
+- Nothing ratified is removed or reworded.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then
