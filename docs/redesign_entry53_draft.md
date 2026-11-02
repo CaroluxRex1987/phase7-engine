@@ -397,7 +397,10 @@ trend health goes, and it is noted so it is not lost.
 
 1. The measurements marked **to measure**, from the 14 November data: direction
    agreement, the tier distribution, F, the trigger and its volume pass rates, and
-   H5's bin width against ATR.
+   H5's bin width against ATR. Their computations, with point 4's, and the result that
+   would count against this draft were fixed on 2 November, before the data was read
+   (DECISIONS, "Decision, 2 November 2026 — how the reading of 14 November measures
+   the redesign draft's gaps …"); version 1 is otherwise unchanged.
 2. Done in version 1: every golden field (§13) and every test (§14). Left with the
    code: the three tests in §14 marked "to read", and each test's body read when it is
    rewritten.

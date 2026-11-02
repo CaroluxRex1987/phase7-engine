@@ -6689,6 +6689,152 @@ the brake is the line saying what the work is before it starts, and points 2 to 
   entry marked Claude's, that no longer holds. It is left as written.
 - Nothing ratified is removed or reworded.
 
+## Decision, 2 November 2026 — how the reading of 14 November measures the redesign draft's gaps, and what result counts against the draft
+
+*New in this file on 2 November 2026. Claude's, as the redesign's design draft is
+(`docs/redesign_entry53_draft.md`, entry 53), set in the session that opened at 11:23
+on 2 November at `7c23886`, before any of the reading's data was read for it; Viktor's
+to change. Filed by that session's commit, docs only. Filed here rather than in the
+draft because the draft is rewritten from version to version, and a method fixed in
+advance must not be.*
+
+**Why now.** The draft's section 12, point 1, names five numbers it does not have —
+direction's agreement with today's bias, the tiers' distribution, the liquidity floor
+F, how often the trigger and its volume would block, and H5's bin width against ATR —
+and its point 4 a sixth, how often the whole ladder would trade. None was given a
+computation or a result that would count against the draft. Set after the data is
+read, either could be fitted to it, the reason the count's own rules were fixed before
+any reading ("Decision, 17 October 2026 — how the forward measurement is counted").
+
+**The records.**
+
+1. **One population, fixed now:** the decisions the reading of 14 November counts
+   under the decision of 17 October — one per pair per candle, the scheduled task's,
+   `code_hash` `816d4951…`, from the candle that opened at 08:00 UTC on 17 October to
+   the last one a scheduled run read before the logs are staged for the reading.
+   Degraded records (`degradation.degraded`) are counted and reported apart and are in
+   no rate below: a degraded run authorizes no trade in today's version or the
+   draft's. The rest is **N**. The archives' earlier candles, which
+   `docs/build/indicator_overlap.py` can replay, are not used for these six, so that
+   there is one population chosen in advance, not two to choose between afterwards.
+2. **Values are the record's own** (`lineage.indicators_at_decision_bar`, `entry`,
+   `risk`, `macro_bias`, `exit.action`), unrounded: no rounding was found in
+   `core/decision_log.py` (searched at `7c23886`). Only what a record does not hold is
+   read from that run's own archive (`provenance.archive_path`): the candle before the
+   decision candle, the twenty before that, and the frame's price range. In the
+   archive's `struct` frame the decision candle is the row whose open time is the
+   record's `provenance.decision_candles.struct.open_time`; its open, close and volume
+   must equal the record's, and the twenty-one candles before it must be present at
+   4h steps with finite volumes. A record that fails any of this, or whose archive is
+   missing, is "not measured" for what needed the archive, counted apart.
+3. **Every share is reported with its count**, pooled and per pair.
+4. The thresholds under "counts against" below are Claude's judgment, set now; none is
+   derived from data. Viktor can change any before the reading; a change after the
+   data is read is recorded as made after.
+
+**The six computations, and what counts against the draft.**
+
+1. **Direction** (draft §2). For each record in N, the draft's direction: BULLISH when
+   `EMA20_Slope > 0`, `EMA50_Slope > 0` and `EMA_20 > EMA_50`; BEARISH when all three
+   point down; else NEUTRAL. Reported: the 3 × 3 table against the record's `bias.raw`;
+   how many records with a trade action today come out NEUTRAL; how many records have a
+   slope of exactly zero. **Counts against §2:** (a) opposite sides — both have a side
+   and the sides differ — on more than 2% of the records where both have one. §2 rests
+   on the document of 24 October, which found the bias side matching the slope on 99.6%
+   of bars with a side; 2% is five times its miss rate, room for a smaller sample. Then
+   the draft's direction is not today's direction minus its leans, and §2 is rewritten
+   before the draft goes to Viktor. (b) NEUTRAL on more than half of the records where
+   today's action names a side: the floor, not ADX or the pullback, would then be the
+   ladder's main cut, which §2 does not argue for. Not blind: that document's archives
+   of 23 October overlap the window's first week.
+2. **Tiers** (draft §4). For each record in N with a side: `d = |close − (EMA_20 +
+   EMA_50) / 2| / ATR`, `h = |close − HVN| / ATR`, quality `Q = 80 × max(0, 1 − d/3) +
+   20 × max(0, 1 − h/2)`; missing ATR, EMA or HVN is not measured. Reported: Q in bins
+   of ten; the shares at 70 and over (of them, AGGRESSIVE: close inside the band and
+   `risk.risk_regime` NORMAL RISK or LOW RISK), 50 to under 70, and under 50 — on all
+   records with a side, and on those that pass every other gate (computation 6).
+   **Counts against §4's lines:** on the records with a side, one of the three classes
+   empty, or holding more than 90%. The lines are then set again by reasoning, as ruling
+   4 of 25 October requires, not fitted to this distribution, and the new lines go to
+   Viktor with the draft. The second population is reported, not judged: it may be
+   small.
+3. **The liquidity floor F** (draft §5). For each record in N, the decision candle's
+   turnover `T = volume × close`, the stand-in the ruling of 31 October allows; the
+   USDT actually traded lies between `volume × low` and `volume × high`. Reported per
+   pair: the minimum, the 1st, 5th, 25th and 50th percentiles of T. **F proposed by
+   this rule:** the largest value in the series 1, 2, 5, 10, 20, 50 … USDT at which no
+   pair has more than 5% of its records under F — the thinnest twentieth, a choice,
+   not a reason; the value is Viktor's (draft §0). Reported at F, per pair: the share
+   under F for T, for `volume × low` and for `volume × high`. **Counts against:** (a)
+   on a pair where the three shares differ by more than 2 points, F is not measurable
+   from volume × close there, and the floor's value waits for `quote_volume`; (b) if F
+   is under 1% of the median turnover on nine of the ten pairs, one USDT floor guards
+   one pair, which is the ruling's case against ("a floor in USDT reads the same on
+   every pair but not at every time") borne out; it goes to Viktor as such.
+4. **The trigger and its volume** (draft §5). For each record in N with a side, from
+   its archive: the trigger passes, LONG, when the decision candle closes above its open
+   and above the previous candle's close (SHORT the mirror); its volume passes when the
+   decision candle's volume is strictly above the median of the twenty before it.
+   Reported: each pass rate over the records with a side; and, among the records that
+   pass every other gate, the share the trigger blocks, the share its volume blocks
+   once the trigger passed, and the share either blocks. **Counts against §5:** the two
+   together blocking 90% or more of the records that pass every other gate — the
+   ladder's bottleneck. Any change to the trigger is then argued, not fitted, and goes
+   to Viktor.
+5. **H5's reach** (draft §8). For each record with a side and a Q: the bin width
+   `w = (max high − min low) / 50` over the archived `struct` frame, the range the
+   volume profile bins (`indicators/volume_profile.py`, read). Check first: the
+   profile computed on that frame with 50 bins must give the record's HVN to a relative
+   10⁻⁹, or the record is not measured for H5. One bin moves `h` by at most `w / ATR`,
+   so Q by at most `b = 10 × w / ATR`. Reported: `w / ATR` per pair (median and
+   maximum) and the records with 50 or 70 within `b` of Q. **Counts against H5 being
+   minor:** one such record, as the draft words it ("if that can move a run across 50
+   or 70"); H5 is then fixed in the redesign and replaced (the decision of 25 October).
+   The check was run on the pinned AERO fixture in the sandbox (Linux, pandas 3.0.5,
+   not the pinned version): the whole 450-row frame gives the golden HVN, 0.6421571,
+   and there `w / ATR` is 0.598, a reach of six points — synthetic candles, saying
+   nothing about the live pairs.
+6. **The whole ladder** (draft §12, point 4). For each record in N, the draft's action:
+   gates 0 to 9 in the draft's order, then the tier. Gates 3 to 5 are read from the
+   record's `entry.long_signal_blockers` or `short_signal_blockers` for the draft's
+   side: they are today's confirmation gate unchanged, and those lists hold its three
+   tests and nothing else (`generate_entry_signals`, read at `7c23886`). Gate 1 is the
+   record's `risk.risk_valid`, which reads `|price − stop|` (`validate_risk_parameters`,
+   read); records whose draft side differs from the plan's side are counted apart.
+   Gate 6 is the record's `macro_bias`; gate 7 is T against F. Reported per pair:
+   today's trade actions, the draft's, and entries — a trade action whose previous
+   counted record on the pair is not one on the same side, a stand-in for one position
+   per pair that models no exit, so neither a bound on trades above nor below — and,
+   for gates 2 to 9, how many records each alone blocks. **Counts against the design
+   as a whole:** entries projected under 100 a year on the ten pairs — entries per
+   counted candle times 2,190 candles a pair a year, times ten — since at that rate the
+   finish line's 100 closed trades of one version (28 September) is not reached within
+   the paper-trading year. The gate that blocks most alone is named with it.
+
+**What none of this answers.** Whether the draft decides better: that needs what price
+did afterwards, which is backtesting, closed. These are counts of what the draft would
+have done on the candles the forward measurement read.
+
+**How it is run.** By one script under `docs/build/`, written from this entry and
+tested on synthetic records before 14 November; its tests never read the live logs.
+Where the script and this entry differ, this entry holds and the difference is
+recorded.
+
+**What it weakens.**
+
+- One population of about four weeks, in one market, with more than half its candles
+  missed by 31 October, mostly at night; the larger replay over the archives is set
+  aside to keep the population fixed in advance.
+- F's 5% is a choice; F stays Viktor's.
+- The entries are a stand-in that models no exit.
+- The six thresholds for "counts against" are judgment, not derived; that they are
+  set before the data is what they are worth.
+- Computation 1 is not blind on the window's first week.
+- F set from a distribution sits against ruling 4 of 25 October ("any threshold that
+  remains is set by reasoning") if that sentence reaches beyond the tiers. Claude
+  reads it as about the tiers, the point it is in; his to correct. Either way F is
+  his.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then
