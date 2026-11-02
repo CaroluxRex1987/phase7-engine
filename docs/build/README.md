@@ -134,6 +134,26 @@ Its numbers are behind the document on the engine's indicators, kept outside the
 repository (PHASE7_NEXT.md, "Where the project is"). Its docstring says what it does not
 model, and `tests/test_indicator_overlap_tool.py` checks it.
 
+## The reading of 14 November: the redesign draft's gaps
+
+`measure_draft_gaps.py` builds no document either. Added on 2 November 2026, it runs the
+six computations PHASE7_DECISIONS.md fixed that day, before the data was read ("Decision,
+2 November 2026 — how the reading of 14 November measures the redesign draft's gaps …"):
+the draft's direction against today's, its tiers, the liquidity floor F, the trigger and
+its volume, H5's reach, and the whole ladder, each with the result that counts against
+the draft. It reads the live decision logs, counting the records the forward measurement
+counts (the scheduled task's, one per pair per candle, at one `code_hash`, degraded ones
+apart), and each run's own archive only for what a record lacks. Where it and the entry
+differ, the entry holds; the choices it had to make are listed in its docstring.
+
+```
+python docs/build/measure_draft_gaps.py logs --json reading.json
+```
+
+`tests/test_measure_draft_gaps.py` checks it on synthetic records only — built in a
+temporary folder, or the golden decision of the pinned synthetic candles — and never
+reads the live logs.
+
 ## House style
 
 All scripts share the same visual system, and changes to one should be mirrored rather
