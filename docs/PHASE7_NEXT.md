@@ -1,9 +1,8 @@
 # Next step — read this first
 
-*2 November 2026, in the session that opened at 16:12. Rewritten by the commit that
-records `e939734`'s landing and adds the script that runs the reading of 14 November's
-six computations for the redesign draft, with its tests — documentation tooling, no
-engine code; the version it replaced — as it stood at `e939734` — is in HISTORY
+*2 November 2026, in the session that opened at 18:29. Rewritten by the commit that
+records `1b82ed0`'s landing, with the deviation in its test steps, and files entry 59 —
+docs only; the version it replaced — as it stood at `1b82ed0` — is in HISTORY
 verbatim.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
@@ -561,10 +560,10 @@ draft is, Viktor's to change, docs only, moving no `code_hash` — and recorded
 `7c23886`'s landing. He pushed `e939734` at 12:05:01 on 2 November; its landing was
 checked at 16:07, GitHub's tip read with no credentials, and nothing differed. **On
 2 November, from 16:12**, he opened a session with that landing record. In it, by the
-same ruling, Claude did what came first: the commit that writes this line adds the
+same ruling, Claude did what came first: `1b82ed0` added the
 script that entry names, `docs/build/measure_draft_gaps.py`, written from it and
 tested on synthetic records only (`tests/test_measure_draft_gaps.py`) — documentation
-tooling, which the code fingerprint does not read — and records `e939734`'s landing.
+tooling, which the code fingerprint does not read — and recorded `e939734`'s landing.
 The script has not been run on the live logs: it runs at the reading of 14 November,
 on the logs staged off his disk then. The eleven choices the entry left to it are
 listed in its docstring. One bears on the draft: the draft calls AGGRESSIVE's "close
@@ -573,7 +572,20 @@ reaches a whole band width either side of the band's midpoint; the script counts
 band itself, as the entry words it, and prints today's reading beside it, for the
 draft's next version to choose. Nothing of Claude's that moves `code_hash` lands
 before the reading — waves 2 to 5 — and the Bedrock billing stays his (Open items, the
-positions of 6 and 7 October).
+positions of 6 and 7 October). He pushed `1b82ed0` at 18:23:34 on 2 November; its
+landing was checked at 18:23, GitHub's tip read with no credentials, and nothing
+differed but one deviation in its test steps: `run_tests.py`'s first run gave 862
+passed / 1 failed / 31 errors, the failure the suite's guard on the real log
+directory, because the scheduled run of 18:05 appended to five decision logs while the
+suite ran; his re-run gave the predicted 863 / 0 / 31. The 14:05 run of 2 November was
+missed, the computer off. **On 2 November, from 18:29**, he opened a session with that
+landing record. The commit that writes this line records the landing and the
+deviation, docs only, and files what the deviation found: the guard cannot tell the
+scheduled task's write from a test's (entry 59, "Found after 22 September"). After it,
+by the ruling of 1 November, Claude chooses what comes first: entry 59's fix — tests
+only, Claude's, XS, moving no `code_hash`, so the rulings in force let it land now; the
+reading of 14 November owes nothing more before its date. Nothing of Claude's that
+moves `code_hash` lands before the reading, and the Bedrock billing stays his.
 
 **The review and the comparison are outside the repository**, in
 `G:\Phase_7_Engine_Random_Files\Docs\02_Reviews_and_Feedback`:
@@ -1809,9 +1821,10 @@ the index (18:27:20.969) and `.git/COMMIT_EDITMSG` (.971), the commit object (.2
 the `master` ref (.230), its reflog's last line "commit:", `e748b0b` to `f6aa126`, and
 `origin/master`'s ref (18:27:32.474) and its reflog line "update by push", the same
 pair. No `.patch` file or commit message file is left in the root. Nothing differed.
-The one file the patch of the commit that writes this line changes, this one, was
+The one file the patch of `e69d5bb` changes, this one, was
 staged off his disk at 18:35, before that patch was built, and matched the tip; the
-patch adds one file.
+patch adds one file. (`e8b42b8`, `d6fba83`, `7c23886`, `e939734` and `1b82ed0` left
+this sentence saying "the commit that writes this line"; corrected on 2 November.)
 `e69d5bb` filed the draft, version 0, and recorded `f6aa126`'s landing: docs only.
 Its landing was checked at 21:01 on 1 November after the push — GitHub's tip read with
 no credentials — and nothing differed; that check's account was in chat only, and
@@ -1960,9 +1973,9 @@ reading of 14 November: docs only. Its landing was checked at 16:07 on 2 Novembe
 after the push — GitHub's tip read with no credentials — and nothing differed; that
 check's account was in chat only, and Viktor listed it at the start of the next
 session. The session's account is in HISTORY, in this file's version at `e939734`,
-moved there by the commit that writes this line.
+moved there by `1b82ed0`.
 
-**This session (2 November, from 16:12)**, configured for Claude Opus 5.5, opened at
+**The session of 2 November, from 16:12**, configured for Claude Opus 5.5, opened at
 `e939734` with Viktor's record of its landing: pushed at 12:05:01; checked at 16:07 —
 GitHub's tip `e939734`, read with no credentials, its tree
 `dd5b3caa12baaf96ae2dc1c188813e7f1c5064dc`, the one its `Verified-Tree:` line names,
@@ -1977,11 +1990,59 @@ credentials, so none reached it. An autocrlf clone made at 16:13:05 gives `e9397
 tree as `dd5b3caa…`. His disk was read again only for the files the patch changes
 (below). The patch-delivery skill this session loaded names `e939734` as the commit it
 was last compared with DECISIONS at; `git diff --stat e939734 HEAD --
-docs/PHASE7_DECISIONS.md` was empty, and the commit that writes this line adds no
+docs/PHASE7_DECISIONS.md` was empty, and `1b82ed0` adds no
 ruling or decision, so the marker stays. The five files the patch changes were staged
 off his disk at 16:44 on 2 November, before the patch was built, and matched the
 tip; neither of the two files it adds was there.
-The commit that writes this line records `e939734`'s landing.
+`1b82ed0` recorded `e939734`'s landing and added the script for the reading of
+14 November's six computations, with its tests. Its landing was checked at 18:23 on
+2 November after the push — GitHub's tip read with no credentials — and nothing
+differed but one deviation in its `run_tests.py` step (below); that check's account
+was in chat only, and Viktor listed it at the start of the next session. The
+session's account is in HISTORY, in this file's version at `1b82ed0`, moved there by
+the commit that writes this line.
+
+**This session (2 November, from 18:29)**, configured for Claude Opus 5.5, opened at
+`1b82ed0` with Viktor's record of its landing: pushed at 18:23:34; checked at 18:23 —
+GitHub's tip `1b82ed0`, read with no credentials, its tree
+`016bd1013090f510d435034a3edbd2e2e54ce78f`, the one its `Verified-Tree:` line names,
+its message the delivered one less its CRs, his disk the tip in every part read, the
+pytest cache rewritten 4 minutes 13 seconds after the apply with the 20 new test ids
+and `lastfailed` `{}`; one deviation, in the `run_tests.py` step (Test suite); and the
+14:05 run of 2 November missed, the computer off. This session read it all again.
+GitHub's tip, read with `git ls-remote` at 18:37:35, with git's tokens, askpass,
+credential helper, prompts and configuration files all removed from its environment,
+outside any repository, is `1b82ed0` for `HEAD` and `master`; in that same
+environment a read of `CaroluxRex1987/phase7-engine-no-such-repo-probe` was answered
+with a request for credentials, so none reached it. An autocrlf clone made at 18:29:57
+gives `1b82ed0`'s tree as `016bd101…`, read from GitHub alone. `master` and
+`origin/master` on his disk, from `.git/refs` staged off it, read `1b82ed0`. The
+commit object, staged off his disk, hashes to that name and is byte for byte GitHub's,
+with no CR in it; `.git/COMMIT_EDITMSG` is byte for byte its message, which ends with
+its `Verified-Tree:` line and its two attribution lines. Each of the seven files
+`1b82ed0` changes or adds is on his disk byte for byte an autocrlf checkout of
+GitHub's tip; their mtimes are still the apply's, 17:56:11.054 to .076 on 2 November.
+His `.git/index`, written as a tree, gives `016bd101…`. The times above were read off
+his disk: those mtimes, `.pytest_cache/v/cache/nodeids` (18:00:23.911, holding the 20
+ids of `tests/test_measure_draft_gaps.py`), the index (18:23:19.914) and
+`.git/COMMIT_EDITMSG` (.916), the commit object (18:23:20.224) and the `master` ref
+(.229), its reflog's last line "commit:", `e939734` to `1b82ed0`, and
+`origin/master`'s ref (18:23:34.213) and its reflog line "update by push". Its
+`lastfailed` is still `{}`, last written at 13:37:30 on 26 September, so the pytest
+run of 18:00:23 recorded no failure. No `.patch` file or commit message file is left
+in the repository's root. The deviation's account was read too: the ten decision logs,
+staged off his disk at 18:37 and 18:38, each hold exactly one record logged after 22:05 on
+1 November, the 18:05 run's — live, MEXC, `code_hash` `816d4951…`, the struct candle
+that opened at 12:00 UTC — and their mtimes run from 18:05:22.264 (AEROUSDT) to
+18:06:02.326 (SUIUSDT), BNBUSDT's 18:05:39.519 and DOGEUSDT's 18:05:43.806;
+`logs/phase7_engine.log` has no line between 22:05 on 1 November and 18:05 on
+2 November, and 60 for the 18:05 run. Nothing differed from the landing record. The
+patch-delivery skill this session loaded names `e939734` as the commit it was last
+compared with DECISIONS at; `git diff --stat e939734 HEAD -- docs/PHASE7_DECISIONS.md`
+was empty, and the commit that writes this line adds no ruling or decision, so the
+marker stays. The two files the patch changes were staged off his disk at 18:36 and again
+at 18:45 on 2 November, the second before the patch was built, and matched the tip.
+The commit that writes this line records `1b82ed0`'s landing.
 
 ## Ruled — in force
 
@@ -1993,8 +2054,8 @@ The commit that writes this line records `e939734`'s landing.
   own values, and the run's own archive only for what a record lacks. Six
   computations — direction, tiers, F, the trigger and its volume, H5's reach, the whole
   ladder — each with the result that counts against the draft, set before the data is
-  read. Run by `docs/build/measure_draft_gaps.py`, added by the commit that writes this
-  line, written from it and tested on synthetic records only; the choices it had to
+  read. Run by `docs/build/measure_draft_gaps.py`, added by `1b82ed0`, written from it
+  and tested on synthetic records only; the choices it had to
   make are listed in its docstring, and where it and the entry differ, the entry
   holds.
 
@@ -2535,9 +2596,11 @@ The commit that writes this line records `e939734`'s landing.
 ## Where things stand, right now
 
 - **Tip:** the commit that writes this line (a commit cannot name its own hash) —
+  `1b82ed0`'s landing recorded, with the deviation in its test steps, and entry 59
+  filed: docs only. Before it: `1b82ed0` (the session of 2 November, from 16:12:
   `e939734`'s landing recorded and the script for the reading of 14 November's six
-  computations added, with its tests: documentation tooling, no engine code. Before
-  it: `e939734` (the session of 2 November, from 11:23: `7c23886`'s landing recorded
+  computations added, with its tests: documentation tooling, no engine code),
+  `e939734` (the session of 2 November, from 11:23: `7c23886`'s landing recorded
   and how the reading of 14 November measures the draft's gaps filed, docs only),
   `7c23886` (the session of 1 November, from 23:25,
   going on to 2 November: `d6fba83`'s landing recorded, docs only), `d6fba83` (the
@@ -2819,8 +2882,9 @@ The commit that writes this line records `e939734`'s landing.
   `pandas_ta`) and changed no other test. `713e084`, `134f85b`, `fad0588`, `3dbd8dc`,
   `a2ca918`, `d7d3ae0`, `b233c4a`, `6d073f9`, `8c810b1`, `248037d`, `e748b0b`,
   `f6aa126`, `e69d5bb`, `e8b42b8`, `d6fba83`, `7c23886` and `e939734` changed no test.
-  The commit that writes this line adds `tests/test_measure_draft_gaps.py` (20 tests,
-  none taking a fixture or needing `pandas_ta`) and changes no other test.
+  `1b82ed0` added `tests/test_measure_draft_gaps.py` (20 tests, none taking a fixture
+  or needing `pandas_ta`) and changed no other test. The commit that writes this line
+  changes no test.
 - **Where the project lives, from 26 September:** `E:\phase7_engine` on Viktor's machine;
   the files kept outside the repository in `G:\Phase_7_Engine_Random_Files`. Copied with
   robocopy, verified — git's own checks on Windows for the tracked files, SHA-256 for the
@@ -2829,11 +2893,16 @@ The commit that writes this line records `e939734`'s landing.
   to `E:\phase7_engine`". Run the engine and every command from `E:\phase7_engine` (in
   cmd, changing drive needs `cd /d`). A dated record that names the D: paths means the
   same folders before the move; dated records are not edited.
-- **The push of `e939734`** happened, at 12:05:01 on 2 November: GitHub's tip, read
-  at 16:07 that day and at 16:40:09 in the next session, is `e939734`, Viktor's disk
-  is the tip in every part the check of 16:07 read, and its tree is the one its
-  `Verified-Tree:` line names. No deviation was reported (ruling on proposal (b)). So
-  did `7c23886`'s, at 11:21:56 on 2 November, GitHub's tip read at 11:22 that day and
+- **The push of `1b82ed0`** happened, at 18:23:34 on 2 November: GitHub's tip, read
+  at 18:23 that day and at 18:37:35 in the next session, is `1b82ed0`, Viktor's disk
+  is the tip in every part read, and its tree is the one its `Verified-Tree:` line
+  names. One deviation was reported, in its test steps before the commit:
+  `run_tests.py`'s first run gave 862 / 1 / 31, and his re-run the predicted
+  863 / 0 / 31 (Test suite, below; entry 59). So did `e939734`'s, at 12:05:01 on
+  2 November, GitHub's tip read at 16:07 that day and at 16:40:09 in the next session,
+  Viktor's disk the tip in every part the check of 16:07 read and its tree the one its
+  `Verified-Tree:` line names, no deviation reported (ruling on proposal (b)),
+  `7c23886`'s, at 11:21:56 on 2 November, GitHub's tip read at 11:22 that day and
   at 11:29:37 in the next session, its two files on his disk byte for byte an autocrlf
   checkout of it and its tree the one its `Verified-Tree:` line names, `d6fba83`'s, at
   23:18:08 on 1 November, GitHub's tip read at 23:18 that day and at 10:34:59 on
@@ -2952,9 +3021,9 @@ The commit that writes this line records `e939734`'s landing.
   commit that writes this line unless it deviates. Earlier pushes and deviations are
   recorded in this file's previous versions, in HISTORY.
 - **Before this commit**, every file its patch changes was staged off Viktor's disk and
-  matched an autocrlf checkout of `e939734`, GitHub's tip, cloned at 16:13 on
-  2 November, byte for byte, staged at 16:44 on 2 November, before the patch was
-  built; neither of the two files it adds was on his disk.
+  matched an autocrlf checkout of `1b82ed0`, GitHub's tip, cloned at 18:29 on
+  2 November, byte for byte, staged at 18:36 and again at 18:45 on 2 November,
+  the second before the patch was built; it adds no file.
 - **code_hash:** `816d4951bb0322763ec4abc4b9ed8161d5b902372823350e5272f2fb7176e380`,
   set by `0491b84` from `bc1b9c2c…` — `main.py` alone — and confirmed on Windows: its
   eleven hand-run records and the ten of each of the first two scheduled runs carry it.
@@ -2978,18 +3047,19 @@ The commit that writes this line records `e939734`'s landing.
   `README.md`, which is not a `.py` file, by `fad0588`, `3dbd8dc`, `a2ca918`,
   `d7d3ae0`, `b233c4a`, `6d073f9`, `8c810b1`, `248037d`, `e748b0b`, `f6aa126`,
   `e69d5bb`, `e8b42b8`, `d6fba83`, `7c23886` and `e939734`, each of which changed
-  files under `docs/` only, and by the commit that writes this line,
+  files under `docs/` only, by `1b82ed0`,
   which
-  changes files under `docs/` and `tests/`, which it does not read, and `README.md`,
-  which is not a `.py` file: computed on clones of `0491b84`,
+  changed files under `docs/` and `tests/`, which it does not read, and `README.md`,
+  which is not a `.py` file, and by the commit that writes this line, which changes
+  files under `docs/` only: computed on clones of `0491b84`,
   `a235783`, `8d5d64a`, `a48d9e5`, `fbd7877`, `8311167`, `d2dddf7`, `aa9e7ac`,
   `391c338`, `8360923`, `ed005a0` and `e88e0dd` and on the applied trees, under Python
   3.12.3; the trees of `d508b29`, `9f2f3d7`, `d410bfa`, `34d8e3b`, `ad34c02`,
   `89d2367`, `b387c03`, `9862568`, `3d7e6cb`, `78204ff`, `0d86fda`, `b8f88d8`,
   `a1c4218`, `713e084`, `134f85b`, `fad0588`, `3dbd8dc`, `a2ca918`, `d7d3ae0`,
   `b233c4a`, `6d073f9`, `8c810b1`, `248037d`, `e748b0b`, `f6aa126`, `e69d5bb`,
-  `e8b42b8`, `d6fba83`, `7c23886` and `e939734` and the applied tree of the commit
-  that writes this line give the same.
+  `e8b42b8`, `d6fba83`, `7c23886`, `e939734` and `1b82ed0` and the applied tree of
+  the commit that writes this line give the same.
   `bc1b9c2c…` was
   set by `9ea1cf3`, confirmed on Windows by its live run, and held through `f00bef6`,
   `36de35d`, `78ea37d`, `d3188f2` and `67f6ec1`, which changed only files under `docs/`
@@ -2998,9 +3068,10 @@ The commit that writes this line records `e939734`'s landing.
   output, a CPython implementation detail (`core/code_fingerprint.py`, "WHAT IT DOES NOT
   SURVIVE"). **Every `code_hash` claim about this project is computed under Python 3.12**
   (Viktor runs 3.12.10).
-- **Golden snapshot:** unchanged by the commit that writes this line, which adds a
-  script under `docs/` and a test that reads the golden fixture without writing it,
-  and changes `README.md` and docs, by `e939734`, `7c23886`, `d6fba83`, `e8b42b8`, `e69d5bb`, `f6aa126`,
+- **Golden snapshot:** unchanged by the commit that writes this line, which changes
+  docs and no code or test, by `1b82ed0`, which added a script under `docs/` and a
+  test that reads the golden fixture without writing it, and changed `README.md` and
+  docs, by `e939734`, `7c23886`, `d6fba83`, `e8b42b8`, `e69d5bb`, `f6aa126`,
   `e748b0b`,
   `248037d`, `8c810b1`, `6d073f9`, `b233c4a`,
   `d7d3ae0`, `a2ca918`, `3dbd8dc` and `fad0588`, each of which changed docs and no code
@@ -3042,10 +3113,27 @@ The commit that writes this line records `e939734`'s landing.
   `test_no_module_defaults_a_missing_risk_verdict_to_a_pass`. This is meant to be the
   one place the watched error count is written as a number (DECISIONS, "Ruling,
   15 October 2026 — Part 4's three test shapes", point 5); `README.md` wrote it too
-  until `713e084` (entry 50). The commit that writes this line adds 20 tests, none
-  taking a fixture and none needing `pandas_ta`, so each passed count moves by 20 and
-  the error count holds: from the Linux sandbox, Python 3.12.3, pinned requirements, the
-  patch applied to an autocrlf clone of `e939734`. `e939734` changed no test, and the
+  until `713e084` (entry 50). The commit that writes this line changes no test, and
+  the three counts held: from the Linux sandbox, Python 3.12.3, pinned requirements,
+  the patch applied to an autocrlf clone of `1b82ed0`. `1b82ed0` added 20 tests, none
+  taking a fixture and none needing `pandas_ta`, so each passed count moved by 20 and
+  the error count held: from the Linux sandbox, Python 3.12.3, pinned requirements, the
+  patch applied to an autocrlf clone of `e939734`. Its pytest step ran on Windows after
+  the apply (the cache on his disk was rewritten at 18:00:23 on 2 November, 4 minutes
+  13 seconds after its files were written, at 17:56:11, and holds the 20 new tests'
+  ids, and its `lastfailed` was left as it was, `{}`, so that run recorded no failure),
+  and Viktor went on to the commit, which confirms 931 by proceeding. **Its
+  `run_tests.py` step deviated, and he reported it:** the first run gave 862 passed /
+  1 failed / 31 errors, the failure
+  `tests/test_real_log_directory_untouched.py::test_the_real_log_directory_was_not_written_to_or_deleted`,
+  because the scheduled run of 18:05 appended a record to AEROUSDT's, ETHUSDT's,
+  SOLUSDT's, XRPUSDT's and BNBUSDT's decision logs — the last written at 18:05:39.5 —
+  after conftest took its snapshot and before the guard read the directory, which it
+  did before DOGEUSDT's, at 18:05:43.8 (the landing record's account; the mtimes read
+  off his disk in this session agree). His re-run gave 863 / 0 / 31, as predicted. No
+  test reached the real record: each of the ten logs gained exactly one record since
+  22:05 on 1 November, the scheduled run's own. The guard cannot tell the two apart
+  (entry 59). `e939734` changed no test, and the
   three counts held: from the Linux sandbox, Python 3.12.3, pinned requirements, the
   patch applied to an autocrlf clone of `7c23886`. Its pytest step ran on Windows after
   the apply (the cache on his disk was rewritten 3 minutes 21 seconds after the apply,
@@ -3291,7 +3379,7 @@ The commit that writes this line records `e939734`'s landing.
   `test_the_commit_messages_up_to_the_tag_are_round_7s_to_the_byte`, runs `git log` up
   to the tag `round7-sent-2026-09-30`: it needs the tag, which a full clone has.
 - **Engineering Notes:** through Entry #183 (v1.36), which covers `68c6191`.
-  **Eighty-five commits behind** — `ec4e5fd`, the floor (a commit that regenerates the
+  **Eighty-six commits behind** — `ec4e5fd`, the floor (a commit that regenerates the
   Notes cannot
   cover itself, Entry #144), `e7a94d1`, `d5ced0c`, `59b747a`, `f256937`, `12b483e`,
   `01f2892`, `8b6fd00`, `e186423`, `86f30f1`, `3e8191a`, `1523e0c`, `ff12e17`,
@@ -3305,7 +3393,7 @@ The commit that writes this line records `e939734`'s landing.
   `3d7e6cb`, `78204ff`, `0d86fda`, `b8f88d8`, `a1c4218`, `713e084`, `134f85b`,
   `fad0588`, `3dbd8dc`, `a2ca918`, `d7d3ae0`, `b233c4a`, `6d073f9`, `8c810b1`,
   `248037d`, `e748b0b`, `f6aa126`, `e69d5bb`, `e8b42b8`, `d6fba83`, `7c23886`,
-  `e939734` and the commit that writes this line.
+  `e939734`, `1b82ed0` and the commit that writes this line.
   Every later
   commit adds one
   until the
@@ -3322,7 +3410,7 @@ The commit that writes this line records `e939734`'s landing.
   the Attribution Statement's script last changed at `68c6191`, the Portfolio
   Document's at `6e1baba`.
 - **README.md:** its test counts are current (931, 755 / 165 and 863 passed, 0
-  failed), last changed by the commit that writes this line, which changes only the
+  failed), last changed by `1b82ed0`, which changed only the
   numbers, for its 20 new tests, and before it by `713e084`, which took the error count
   out of its Tests row
   and its paragraph "All tests currently pass", each now pointing to "Test suite"
@@ -3332,7 +3420,7 @@ The commit that writes this line records `e939734`'s landing.
   and by `3d7e6cb`, which changed only the numbers, and not by `78204ff`, `0d86fda`,
   `b8f88d8`, `134f85b`, `fad0588`, `3dbd8dc`, `a2ca918`, `d7d3ae0`, `b233c4a`,
   `6d073f9`, `8c810b1`, `248037d`, `e748b0b`, `f6aa126`, `e69d5bb`, `e8b42b8`,
-  `d6fba83`, `7c23886` or `e939734`. **Its
+  `d6fba83`, `7c23886`, `e939734` or the commit that writes this line. **Its
   audit
   history and
   layout block are current** since `134f85b`, in wording Claude drafted and Viktor
@@ -4523,6 +4611,27 @@ the work before the audit, entry 1 apart.
   health. Entry 58; not in the sort. Claude's suggestion, his to change: a label fix,
   Claude's, XS, within entry 53, whose design carries the rule that no reasoning
   sentence rounds a compared value across its threshold.
+- **The suite's guard on the real log directory cannot tell the scheduled task's write
+  from a test's** (found 2 November, landing `1b82ed0`; read at `1b82ed0`).
+  `tests/conftest.py` records every file under each `logs`-named directory in the
+  repository's root, with its size, when the suite starts (`REAL_LOG_DIR_AT_START`);
+  `tests/test_real_log_directory_untouched.py::test_the_real_log_directory_was_not_written_to_or_deleted`
+  compares the directory with that record when it runs, and fails on any file created,
+  removed or changed in size, saying a test reached the engine's real record. Since
+  17 October the scheduled task runs the engine into that same directory every four
+  hours, at minute 05. A suite run that spans one of its runs fails the guard on the
+  task's own records: `1b82ed0`'s `run_tests.py` step, run while the 18:05 run of
+  2 November wrote, failed it on five decision logs (862 / 1 / 31), and the re-run
+  passed. Nothing was damaged — each of the ten logs gained one record, the task's —
+  but the guard said a test had reached the record, and a guard that fails on a normal
+  event teaches its reader to dismiss it, which is the one thing an alarm must not do
+  (its docstring: "the alarm for when something finds a way around" conftest's
+  redirection). pytest runs the same guard, so either suite can hit it. Changes no
+  engine code. Entry 59; not in the sort. Claude's suggestion, his to change: a test
+  fix, Claude's, XS, tests only, so it moves no `code_hash` and can land before the
+  reading of 14 November; its shape — how the guard tells the task's records from a
+  test's without letting a test's through — is settled with that patch, with a
+  negative control for each side.
 
 ## Work order — Claude's, under Viktor's delegation
 
@@ -4812,18 +4921,19 @@ Each code commit is its own commit and updates this file for its own landing.
 
 ## Resolved this session
 
-- **`e939734`'s landing**, checked at 16:07 on 2 November after the push, and GitHub
-  read again in this session ("Where the project is"). Every part held, and nothing
-  differed.
-- **The script for the reading of 14 November's six computations**,
-  `docs/build/measure_draft_gaps.py`, written from the decision of 2 November and
-  tested on synthetic records only (Ruled — in force; the forward measurement, Open
-  items).
+- **`1b82ed0`'s landing**, checked at 18:23 on 2 November after the push, and read
+  off his disk and GitHub again in this session ("Where the project is"). Every part
+  held; the one deviation, in its `run_tests.py` step, is recorded (Test suite).
+- **Entry 59 filed** — the suite's guard on the real log directory cannot tell the
+  scheduled task's write from a test's ("Found after 22 September").
+- **A stale "the commit that writes this line" corrected** — in the account of the
+  session of 1 November from 17:49, a sentence about `e69d5bb`'s patch had named, since
+  `e8b42b8`, whichever commit was the latest.
 - **The patch-delivery skill's marker** stays at `e939734`: the skill this session
   loaded names it, `git diff --stat e939734 HEAD -- docs/PHASE7_DECISIONS.md` was
   empty, and the commit that writes this line adds no ruling or decision.
 - **The once-per-session rewrite of this file**, by the commit that writes this line.
-  The previous version, as at `e939734`, is in HISTORY verbatim, headings demoted one
+  The previous version, as at `1b82ed0`, is in HISTORY verbatim, headings demoted one
   level, proven by un-demotion with a negative control (the commit message has the
   result).
 
@@ -4852,7 +4962,7 @@ Claude critiques it.
   decision under Viktor's delegation of 27 October, his to reverse, and with it nothing
   of wave 1 is left open; `713e084`'s, `134f85b`'s, `fad0588`'s, `3dbd8dc`'s and
   `a2ca918`'s, `d7d3ae0`'s, `b233c4a`'s, `6d073f9`'s, `8c810b1`'s, `248037d`'s,
-  `e748b0b`'s, `f6aa126`'s, `e69d5bb`'s, `e8b42b8`'s, `d6fba83`'s, `7c23886`'s and `e939734`'s landings found no entry more; entry 58 was found on a hand run, not a landing. Entry 26, one of
+  `e748b0b`'s, `f6aa126`'s, `e69d5bb`'s, `e8b42b8`'s, `d6fba83`'s, `7c23886`'s and `e939734`'s landings found no entry more; entry 58 was found on a hand run, not a landing, and entry 59 on `1b82ed0`'s landing, in its `run_tests.py` step. Entry 26, one of
   Goal B's two rulings, was decided by Claude under Viktor's delegation of 26 October
   (DECISIONS, "Decision, 26 October 2026 — Goal B keeps a candle only once it has
   closed at `t` (entry 26)"), his to reverse. Entry 31, the other, was ruled by Viktor
@@ -4860,6 +4970,9 @@ Claude critiques it.
   2026 — a backtest decides through the live path (entry 31)").
   **Viktor's, only if he wants it:** entry 47's place in the sort, if he changes
   Claude's suggestion.
+- **Entry 59 — the real-log guard's false alarm, next** ("Found after 22 September").
+  Tests only, so it moves no `code_hash` and can land before the reading: Claude's
+  suggestion, his to change — Claude's, XS.
 - **Entry 57 — `run_tests.py`'s last-run record, after the reading of 14 November**
   (wave 2: it moves `code_hash`). Ruled on 27 October; Claude's to build.
 - **The engine's indicators — the document of 24 October** (outside the repository,
@@ -5087,11 +5200,19 @@ Claude critiques it.
     on 2 November. Viktor's answer, at 11:30 on 2 November: "When something doesn't
     run, the computer is off." So those three candles are missed (rule 3), the machine
     off, and his answer stands for any candle no run read.
+  - **The afternoon of 2 November** — read off his disk from 18:37 to 18:41: no run at
+    14:05 (the landing record of `1b82ed0` names it), the computer off, by his answer
+    of 11:30, so that candle is missed too; `logs/phase7_engine.log` has nothing
+    between 22:05 on 1 November and 18:05 on 2 November. The 18:05 run wrote 60
+    lines and one record to each of the ten decision logs, of the candle that opened
+    at 12:00 UTC, `code_hash` `816d4951…`. It ran while `1b82ed0`'s `run_tests.py`
+    step did, and failed the suite's guard on the real log directory (entry 59); its
+    records are the task's own and count as any other.
   - **What the reading of 14 November also computes** — for the redesign's draft, from
     the same records (DECISIONS, "Decision, 2 November 2026 — how the reading of
     14 November measures the redesign draft's gaps …"): six computations, each with the
     result that counts against the draft, fixed before the data is read. Computed by
-    `docs/build/measure_draft_gaps.py`, added by the commit that writes this line and
+    `docs/build/measure_draft_gaps.py`, added by `1b82ed0` and
     tested on synthetic records only, from the repository:
     `python docs/build/measure_draft_gaps.py logs --json <file>`, on the logs as staged
     for the reading. Not yet run on them.
@@ -5293,8 +5414,8 @@ Claude critiques it.
   nor did `713e084` and `134f85b`, which changed docs and `README.md` only, or
   `fad0588`, `3dbd8dc`, `a2ca918`, `d7d3ae0`, `b233c4a`, `6d073f9`, `8c810b1`,
   `248037d`, `e748b0b`, `f6aa126`, `e69d5bb`, `e8b42b8`, `d6fba83`, `7c23886` and
-  `e939734`, which changed docs only. The commit that writes this line names `a1c4218`
-  there and adds its own. (This
+  `e939734`, which changed docs only. `1b82ed0` named `a1c4218` there and added its
+  own; the commit that writes this line, docs only, changes no line there. (This
   paragraph stopped at
   `a235783` until `ad34c02`
   brought it current, and
