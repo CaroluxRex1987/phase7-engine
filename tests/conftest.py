@@ -10,6 +10,7 @@ installed.
 """
 
 import atexit
+import importlib.util
 import os
 import shutil
 import sys
@@ -66,61 +67,46 @@ if REPO_ROOT not in sys.path:
 
 REAL_LOG_DIR = os.path.join(REPO_ROOT, "logs")
 
-# Matched case-INSENSITIVELY, and that is the whole point of this constant.
+# THE ALARM WATCHES THE SUITE, NOT THE FOLDER -- entry 59, 3 November 2026.
 #
-# `Logs/Charts` and `logs/charts` are two directories on Linux and one
-# directory on Windows. A test carrying the capitalised spelling therefore
-# creates a harmless stray folder in a sandbox and writes into the engine's
-# live chart directory on Viktor's machine -- so a guard that watches only
-# `logs` passes on the platform where the fix is developed and fails on the
-# platform that matters. That happened on 6 September 2026, to this guard, on
-# its first run: two PNGs from test_frame_ownership.py.
+# Until today this place took a snapshot of every `logs`-named directory in
+# the root (each file and its size), and the guard in
+# tests/test_real_log_directory_untouched.py compared the folder with it. Since
+# 17 October the scheduled task runs the engine into that same folder every
+# four hours, at minute 05, and a suite run spanning one of its runs failed the
+# guard on the task's own records (`1b82ed0`'s `run_tests.py` step, 2 November:
+# 862 / 1 / 31, five decision logs). A folder cannot say which process wrote
+# to it, and an alarm that fails on a normal event teaches its reader to
+# dismiss it.
 #
-# Scanning by lowercased name means a Linux run catches what a Windows run
-# would, which is the only way verification here is worth anything.
-LOG_DIR_NAMES = frozenset({"logs"})
+# So the alarm now asks the processes. tests/suite_guard/sitecustomize.py
+# installs a Python audit hook that records every open-for-writing, delete,
+# rename, mkdir and rmtree inside a real log directory, in the process doing
+# it. This process gets it here, before any test; every Python child the suite
+# starts gets it at its own startup, through PYTHONPATH and the two variables
+# set below, which it inherits. The scheduled task is started by Windows, not
+# by the suite, so nothing it writes is recorded; a test's write is recorded
+# whenever it happens, the task running or not. The directory name is still
+# matched lowercased, for the reason the module gives (`Logs/Charts`, 6
+# September). What the hook cannot see is listed in its docstring.
+SUITE_GUARD_DIR = os.path.join(TESTS_DIR, "suite_guard")
 
+_guard_spec = importlib.util.spec_from_file_location(
+    "phase7_suite_guard", os.path.join(SUITE_GUARD_DIR, "sitecustomize.py"))
+SUITE_GUARD = importlib.util.module_from_spec(_guard_spec)
+_guard_spec.loader.exec_module(SUITE_GUARD)
 
-def _snapshot_log_dirs(root=None):
-    """
-    Every directory directly under `root` whose name lowercases to "logs",
-    and every file inside it with its size, as sorted (path, size) pairs.
+_SUITE_GUARD_REPORT_DIR = tempfile.mkdtemp(prefix="phase7_suite_guard_")
+atexit.register(shutil.rmtree, _SUITE_GUARD_REPORT_DIR, True)
+SUITE_GUARD_REPORT = os.path.join(_SUITE_GUARD_REPORT_DIR, "writes.jsonl")
 
-    Paths are prefixed with the directory's real name, so `logs/x.jsonl` and
-    `Logs/x.jsonl` are distinguishable on a filesystem that distinguishes
-    them. Sizes rather than names alone, because appending a decision record
-    does not change the file list.
+os.environ[SUITE_GUARD.ENV_ROOTS] = REPO_ROOT
+os.environ[SUITE_GUARD.ENV_REPORT] = SUITE_GUARD_REPORT
+_pythonpath = [p for p in os.environ.get("PYTHONPATH", "").split(os.pathsep) if p]
+if SUITE_GUARD_DIR not in _pythonpath:
+    os.environ["PYTHONPATH"] = os.pathsep.join([SUITE_GUARD_DIR] + _pythonpath)
 
-    Returns None when no such directory exists, which is the normal state of
-    a fresh clone.
-    """
-    root = REPO_ROOT if root is None else root
-    try:
-        names = sorted(n for n in os.listdir(root)
-                       if n.lower() in LOG_DIR_NAMES
-                       and os.path.isdir(os.path.join(root, n)))
-    except OSError:
-        return None
-    if not names:
-        return None
-
-    out = []
-    for name in names:
-        base = os.path.join(root, name)
-        for dirpath, dirnames, filenames in os.walk(base):
-            dirnames.sort()
-            for fn in sorted(filenames):
-                full = os.path.join(dirpath, fn)
-                rel = os.path.relpath(full, base).replace(os.sep, "/")
-                try:
-                    size = os.path.getsize(full)
-                except OSError:
-                    size = None
-                out.append((f"{name}/{rel}", size))
-    return sorted(out)
-
-
-REAL_LOG_DIR_AT_START = _snapshot_log_dirs()
+SUITE_GUARD.install([REPO_ROOT], SUITE_GUARD_REPORT)
 
 _SUITE_LOG_DIR = tempfile.mkdtemp(prefix="phase7_suite_logs_")
 atexit.register(shutil.rmtree, _SUITE_LOG_DIR, True)

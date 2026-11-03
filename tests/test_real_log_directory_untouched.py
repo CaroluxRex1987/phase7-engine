@@ -46,15 +46,38 @@ by tests that ran before it. It is not the guarantee -- the guarantee is the
 redirection in conftest. This is the alarm that says the redirection stopped
 working, or that something found a route around it, which is exactly what it
 did on its first run.
+
+AND THEN IT RANG FOR SOMETHING THAT WAS NOT A TEST (entry 59)
+
+Until 3 November 2026 the alarm compared the real folder with a snapshot taken
+when the suite started. Since 17 October the scheduled task runs the engine
+into that folder every four hours, at minute 05; on 2 November `1b82ed0`'s
+`run_tests.py` step ran across the 18:05 run and failed here on five decision
+logs, saying a test had reached the record. None had: each log had gained one
+record, the task's. An alarm that rings on a normal event teaches its reader
+to dismiss it.
+
+A folder cannot say who wrote to it, so the alarm now asks the processes:
+tests/suite_guard/sitecustomize.py records every write a process of the suite
+makes inside a real log directory, as it happens, through Python's audit
+hooks. The scheduled task is not a process of the suite. The controls below
+hold both sides: a write by this process, by its child, through either
+spelling of the folder, is recorded; the same write by a process the suite did
+not start is not.
 """
 
 import os
+import shutil
+import subprocess
+import sys
+import tempfile
 
 import conftest
 from conftest import (
     REAL_LOG_DIR,
-    REAL_LOG_DIR_AT_START,
     SHIPPED_LOG_DIR,
+    SUITE_GUARD,
+    SUITE_GUARD_REPORT,
     SUITE_LOG_DIR,
 )
 
@@ -136,130 +159,206 @@ def test_the_shipped_default_still_points_at_the_repositorys_own_logs():
 
 def test_the_real_log_directory_was_not_written_to_or_deleted():
     """
-    Compares every `logs`-named directory in the repository root against the
-    snapshot conftest took before any test ran: each file and its size, so an
-    appended record is caught as well as a deleted one, and every casing of
-    the name is covered so the result does not depend on the platform.
+    Every write, delete, rename, mkdir or rmtree that a process of the suite
+    made inside a `logs`-named directory of the repository root, in any
+    casing, as tests/suite_guard/sitecustomize.py recorded it when it
+    happened. There must be none.
 
-    ORDER-DEPENDENT, deliberately and with its limits stated. It can only
-    observe damage done by tests that ran before it, and it cannot see a test
-    that deletes a directory and rebuilds it byte for byte. The guarantee is
-    conftest's redirection; this is the alarm for when something finds a way
-    around it.
+    ORDER-DEPENDENT, deliberately and with its limits stated: it reads what
+    was recorded before it ran. The guarantee is conftest's redirection; this
+    is the alarm for when something finds a way around it. What the hook
+    cannot see is listed in its module's docstring.
 
-    `None` on both sides means no such directory existed before the suite and
-    none exists now, which is the normal state on a fresh clone.
+    The scheduled task's writes are never here: it is not a process of the
+    suite (entry 59).
     """
-    now = conftest._snapshot_log_dirs()
+    found = SUITE_GUARD.read_report(SUITE_GUARD_REPORT, conftest.REPO_ROOT)
 
-    if REAL_LOG_DIR_AT_START is None and now is None:
-        return
-
-    assert REAL_LOG_DIR_AT_START is not None, (
-        f"no log directory existed under {conftest.REPO_ROOT} when the suite "
-        f"started and one exists now: {now}. A test created the engine's real "
-        f"log directory."
-    )
-    assert now is not None, (
-        f"{REAL_LOG_DIR} existed when the suite started and is gone now. A "
-        f"test deleted the engine's permanent record -- the decision log, "
-        f"the archives, the charts and the cross-run state file."
-    )
-
-    before, after = dict(REAL_LOG_DIR_AT_START), dict(now)
-    created = sorted(set(after) - set(before))
-    removed = sorted(set(before) - set(after))
-    changed = sorted(k for k in set(before) & set(after)
-                     if before[k] != after[k])
-
-    assert not (created or removed or changed), (
-        f"the suite modified a log directory under {conftest.REPO_ROOT}.\n"
-        f"  created: {created}\n"
-        f"  removed: {removed}\n"
-        f"  changed size: {changed}\n"
-        f"A test reached the engine's real record. Find it and give it a "
-        f"temporary directory. Note that a `Logs/...` path is the same file "
-        f"as `logs/...` on Windows."
+    assert not found, (
+        f"a process of the suite changed a log directory under "
+        f"{conftest.REPO_ROOT}:\n"
+        + "".join(f"  {e['event']} {e['path']}  (pid {e['pid']}, "
+                  f"test {e['test']})\n" for e in found)
+        + f"A test reached the engine's real record ({REAL_LOG_DIR}). Find it "
+        f"and give it a temporary directory. Note that a `Logs/...` path is "
+        f"the same file as `logs/...` on Windows."
     )
 
 
-def test_the_snapshot_comparison_can_actually_fail():
+# ============================================================
+# Negative controls -- each side of the line the alarm draws
+# ============================================================
+#
+# Each builds a stand-in repository root in a temporary folder and watches it
+# for the length of the control, so the real one is never touched. The report
+# is the suite's own; the alarm above reads only the real root's entries.
+
+def _stand_in_root(prefix, with_logs=False):
+    """A temporary root, watched from now; its `logs/` made first if asked,
+    so that making it is not among what the control records."""
+    root = tempfile.mkdtemp(prefix=prefix)
+    if with_logs:
+        os.makedirs(os.path.join(root, "logs"))
+    return root, SUITE_GUARD.watch(root)
+
+
+def _events(root):
+    return [(e["event"], e["path"])
+            for e in SUITE_GUARD.read_report(SUITE_GUARD_REPORT, root)]
+
+
+def _as_reported(path):
     """
-    Negative control for the test above.
+    A path as the hook reports it: what `os.path.normcase` makes of it, with
+    forward slashes. On Windows that lowercases it -- Windows does not tell
+    `Logs` from `logs` -- and on Linux it changes nothing.
 
-    A guard that compares two structures is worthless if the comparison
-    cannot report a difference -- and this one returns early when both sides
-    are None, which is the common case on a clean clone. So the comparison is
-    exercised here against a directory built for the purpose.
-
-    Sizes are measured rather than asserted as literals. The first version of
-    this test asserted 4 bytes for "one\\n" and failed on Windows, where text
-    mode writes 5 -- a hardcoded byte count that ignored line endings, in a
-    repository that has now been bitten by exactly that three times.
+    Found 3 November 2026 on Viktor's machine, the first run of these
+    controls there: the capitalised control expected `Logs/...` and the hook,
+    having caught the folder, reported `logs/...`. The sandbox could not
+    show it.
     """
-    import shutil
-    import tempfile
+    return os.path.normcase(path.replace("/", os.sep)).replace(os.sep, "/")
 
-    work = tempfile.mkdtemp(prefix="phase7_guard_")
+
+def test_every_kind_of_write_by_this_process_is_recorded():
+    """
+    The suite's own side, operation by operation, including the two the
+    snapshot before 3 November could not see: a file rewritten to the same
+    size, and a directory deleted and rebuilt as it was. A read is not a
+    write, and a folder beside `logs` is not a log directory.
+    """
+    root, stop = _stand_in_root("phase7_guard_self_")
     try:
-        logs = os.path.join(work, "logs")
-        os.makedirs(logs)
+        logs = os.path.join(root, "logs")
         record = os.path.join(logs, "record.jsonl")
-
+        os.makedirs(logs)
         with open(record, "w") as fh:
             fh.write("one\n")
-        first = conftest._snapshot_log_dirs(work)
-        assert first is not None and len(first) == 1, first
-        name, size = first[0]
-        assert name == "logs/record.jsonl", first
-        assert size == os.path.getsize(record), first
-
         with open(record, "a") as fh:
             fh.write("two\n")
-        appended = conftest._snapshot_log_dirs(work)
-        assert appended != first, (
-            "appending to a file did not change the snapshot, so the guard "
-            "above cannot see a suite run adding decision records"
-        )
-
-        os.remove(record)
-        emptied = conftest._snapshot_log_dirs(work)
-        assert emptied == [], emptied
-        assert emptied != appended
-
+        with open(record) as fh:
+            fh.read()
+        with open(record, "w") as fh:             # the same size again
+            fh.write("one\ntwo\n")
+        os.replace(record, record + ".moved")
+        os.remove(record + ".moved")
         shutil.rmtree(logs)
-        assert conftest._snapshot_log_dirs(work) is None, (
-            "a deleted directory did not snapshot as None, so the guard "
-            "above cannot see the rmtree that caused this file to exist"
-        )
+        os.makedirs(logs)                         # rebuilt as it was
+        os.makedirs(logs, exist_ok=True)          # there already: no change
+        os.makedirs(os.path.join(root, "notes"))
+        with open(os.path.join(root, "notes", "x.txt"), "w") as fh:
+            fh.write("x")
+
+        assert _events(root) == [
+            ("os.mkdir", "logs"),
+            ("open", "logs/record.jsonl"),
+            ("open", "logs/record.jsonl"),
+            ("open", "logs/record.jsonl"),
+            ("os.rename", "logs/record.jsonl"),
+            ("os.rename", "logs/record.jsonl.moved"),
+            ("os.remove", "logs/record.jsonl.moved"),
+            ("shutil.rmtree", "logs"),
+            ("os.rmdir", "logs"),
+            ("os.mkdir", "logs"),
+        ], _events(root)
+        assert all(e["pid"] == os.getpid()
+                   for e in SUITE_GUARD.read_report(SUITE_GUARD_REPORT, root))
     finally:
-        shutil.rmtree(work, ignore_errors=True)
+        stop()
+        shutil.rmtree(root, ignore_errors=True)
 
 
-def test_the_snapshot_sees_a_capitalised_logs_directory_too():
+def test_a_capitalised_logs_directory_is_watched_too():
     """
-    The case that broke the first version of this guard.
-
+    The case that broke the first version of this guard (6 September 2026):
     `Logs/Charts/x.png` is a second directory on Linux and the engine's own
-    chart directory on Windows. A snapshot that matches the name exactly
-    reports nothing on Linux and the guard passes -- on the platform where
-    the patch is written, and not on the one where it runs.
+    chart directory on Windows. Matched by name exactly, the alarm would stay
+    silent on the platform where the patch is written and not on the one
+    where it runs.
     """
-    import shutil
-    import tempfile
-
-    work = tempfile.mkdtemp(prefix="phase7_guard_case_")
+    root, stop = _stand_in_root("phase7_guard_case_")
     try:
-        charts = os.path.join(work, "Logs", "Charts")
+        charts = os.path.join(root, "Logs", "Charts")
         os.makedirs(charts)
         with open(os.path.join(charts, "_x.png"), "w") as fh:
             fh.write("x")
 
-        snap = conftest._snapshot_log_dirs(work)
-        assert snap is not None, (
-            "a capitalised Logs/ directory snapshotted as None, so the guard "
-            "cannot see files written through that spelling"
-        )
-        assert [n for n, _ in snap] == ["Logs/Charts/_x.png"], snap
+        assert _events(root) == [
+            ("os.mkdir", _as_reported("Logs")),
+            ("os.mkdir", _as_reported("Logs/Charts")),
+            ("open", _as_reported("Logs/Charts/_x.png")),
+        ], _events(root)
     finally:
-        shutil.rmtree(work, ignore_errors=True)
+        stop()
+        shutil.rmtree(root, ignore_errors=True)
+
+
+_APPEND_A_RECORD = (
+    "import sys\n"
+    "with open(sys.argv[1], 'a') as fh:\n"
+    "    fh.write('{\"record\": 1}\\n')\n"
+)
+
+
+def _append_from_a_child(root, env):
+    record = os.path.join(root, "logs", "phase7_decision_log_testusdt.jsonl")
+    before = os.path.getsize(record) if os.path.exists(record) else 0
+    proc = subprocess.run([sys.executable, "-c", _APPEND_A_RECORD, record],
+                          env=env, capture_output=True, text=True, timeout=60)
+    assert proc.returncode == 0, proc.stderr
+    assert os.path.getsize(record) > before, (
+        "the child did not append, so this control shows nothing")
+    return record
+
+
+def test_a_child_the_suite_starts_is_watched_too():
+    """
+    The suite's other side: a Python process a test starts inherits the
+    hook through the environment conftest set, and its write is recorded
+    under its own pid. tests/test_main_takes_pairs.py runs main.py this way.
+    """
+    root, stop = _stand_in_root("phase7_guard_child_", with_logs=True)
+    try:
+        env = dict(os.environ)
+        env[SUITE_GUARD.ENV_ROOTS] = os.pathsep.join([root, conftest.REPO_ROOT])
+        _append_from_a_child(root, env)
+
+        entries = SUITE_GUARD.read_report(SUITE_GUARD_REPORT, root)
+        opened = [e for e in entries
+                  if e["path"] == "logs/phase7_decision_log_testusdt.jsonl"]
+        assert opened, (
+            f"a child of the suite appended to a log directory and nothing "
+            f"was recorded: {entries}")
+        assert all(e["pid"] != os.getpid() for e in opened), opened
+    finally:
+        stop()
+        shutil.rmtree(root, ignore_errors=True)
+
+
+def test_a_process_the_suite_did_not_start_is_not_recorded():
+    """
+    The scheduled task's side, which is what entry 59 is about: the same
+    append as the control above, from a process started with the environment
+    the suite inherited rather than the one it set -- no PYTHONPATH entry, no
+    watched roots, no report -- while this process watches the same root. The
+    file grows and nothing is recorded, as on 2 November when the 18:05 run
+    appended to five decision logs during `run_tests.py`.
+    """
+    root, stop = _stand_in_root("phase7_guard_other_", with_logs=True)
+    try:
+        env = dict(os.environ)
+        env.pop(SUITE_GUARD.ENV_ROOTS, None)
+        env.pop(SUITE_GUARD.ENV_REPORT, None)
+        rest = [p for p in env.get("PYTHONPATH", "").split(os.pathsep)
+                if p and p != conftest.SUITE_GUARD_DIR]
+        if rest:
+            env["PYTHONPATH"] = os.pathsep.join(rest)
+        else:
+            env.pop("PYTHONPATH", None)
+        _append_from_a_child(root, env)
+
+        assert _events(root) == [], _events(root)
+    finally:
+        stop()
+        shutil.rmtree(root, ignore_errors=True)
