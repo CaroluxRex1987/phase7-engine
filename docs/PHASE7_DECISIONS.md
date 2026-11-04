@@ -6835,6 +6835,107 @@ recorded.
   reads it as about the tiers, the point it is in; his to correct. Either way F is
   his.
 
+## Correction, 4 November 2026 — a landing that went as predicted is never itself a commit owed
+
+*New in this file on 4 November 2026. Claude's, made in the session that checked
+`7b93769`'s landing at 00:21 on 4 November and made no commit, on purpose; Viktor
+carried it to the next session, the one that opened at 00:59 at `7b93769`, as Claude's
+correction, his to reverse, to be filed with the next commit made for its own reason and
+not in a commit of its own. Filed by that commit, with the ruling below.*
+
+**What it corrects.** Claude's reading of "first" under "Ruling, 1 November 2026 — a
+session does not ask Viktor what to do next …" put first "a commit owed — a landing to
+record, a ruling of his to file". Read that way, a landing that went as predicted was a
+commit owed, and a session with nothing else to do made a commit to record it.
+
+**The correction.** A landing that went as predicted is recorded in the next commit made
+for its own reason, and is never itself a commit owed. A landing-only commit creates a
+new landing to record: the floor of one owed item that the ruling of 27 September
+removed for pushes ("a push that goes as predicted is recorded once and leaves nothing
+owed"). A deviation is still owed, as that ruling says, and so is a ruling of his to
+file.
+
+**What it found.** Five commits since 1 November recorded nothing but a landing:
+`248037d` (which also recorded Viktor's save of the patch-delivery skill), `f6aa126`,
+`d6fba83`, `7c23886` and `7b93769`. They stand as made; dated records are not edited.
+
+**Claude's reading of "first", as corrected, Viktor's to change.** In this order: a
+commit owed — a ruling of his to file, or a deviation; then work due by its date; then
+Claude's work that the rulings in force let land now, in the order ruled on 19 October;
+then an item of his, brought to him. A landing to record goes with whichever of these
+makes the next commit.
+
+**What it changes.** The patch-delivery skill's section 10, whose last step names "a
+landing to record" as a commit owed. The change is put to Viktor with the skill's marker
+moved, after the push of the commit that files this ("Ruling, 29 October 2026 — a ruling
+that changes how a patch is delivered or checked changes the patch-delivery skill in the
+same session").
+
+**What it weakens.** A landing that went as predicted waits, unrecorded in the
+repository, until the next commit made for its own reason; the session's check of it
+lives in chat until then, as the check of 00:21 on 4 November did. Nothing ratified is
+removed or reworded.
+
+## Ruling, 4 November 2026 — HISTORY keeps what each rewrite of PHASE7_NEXT.md removes, not the whole file
+
+*New in this file on 4 November 2026. Viktor's, by agreeing to Claude's suggestion, in
+the session that opened at 00:59 on 4 November at `7b93769`: Claude read the fix as his
+to rule and put the question to him; at 01:02 he asked for Claude's suggestion, and at
+01:02 answered "Go". Filed by that session's commit, with the check it names.*
+
+**The finding.** Viktor's, verified at `7b93769` in the session that checked that
+commit's landing at 00:21 on 4 November: every commit appends the whole of
+PHASE7_NEXT.md to PHASE7_HISTORY.md, though the patch-delivery skill's section 9 says
+"the session account". Measured in the next session on GitHub's blobs: HISTORY is
+16,679,872 bytes at `7b93769`, 12,223,465 at `8c810b1`, eleven commits before; each
+commit added about 400 to 440 KB, rising about 6 KB a commit as NEXT grows. GitHub warns
+on a file over 50 MiB and refuses a push holding one over 100 MiB (its documentation,
+read on 4 November). At the pace of 1 to 3 November — an estimate, not a measurement —
+the warning would come in about 55 to 60 commits and the refusal in about 110: weeks,
+not months.
+
+**Where the practice came from.** Claude's, on 19 September: HISTORY had not been
+appended to since the 18 September split, so the 18 September session's account existed
+only in NEXT, and was moved whole before the rewrite (HISTORY, in this file's version at
+`5c73e24`: "Previous version of this file moved to HISTORY verbatim"). Every rewrite
+since moved the whole previous version. It was never ruled, and this file had no entry
+on it. Claude's reading of who decides, not contested: what the dated record keeps is a
+question of its integrity, Viktor's; how it is done and proved is Claude's.
+
+**What was ruled.**
+
+1. **Each commit that changes PHASE7_NEXT.md appends to HISTORY one entry holding every
+   line the rewrite removes or changes**, word for word and in order: each run of
+   removed lines in a fenced block, labelled with its line numbers in the previous
+   version, under a heading naming that version's commit, and a header that points to
+   the whole previous version in git (`git show <commit>:docs/PHASE7_NEXT.md`). A commit
+   that removes no line of NEXT appends nothing.
+2. **`docs/build/check_history_move.py` is the proof**: between a base commit and the
+   working tree, HISTORY is append-only and the new entry's blocks are exactly the runs
+   the rewrite removed, none missing, none extra, no line differing.
+   `tests/test_check_history_move.py` holds a negative control for each part. It runs in
+   the sandbox before a patch is built, and in Viktor's command list after the apply, so
+   its result is evidence about Windows too.
+3. **The 16.7 MB already in HISTORY stays as it is**, in the spirit of "Ruling, 20
+   September 2026 — dated records are not edited to follow a move".
+4. **The patch-delivery skill's section 9 changes in the same session** (the ruling of
+   29 October), put to Viktor with the marker moved after the push of the commit that
+   files this.
+
+**Size.** Over the eleven commits from `248037d` to `7b93769`, a rewrite removed or
+changed 2.1 to 5.6 KB of NEXT, measured as the removed lines of each diff, against about
+440 KB moved whole: about a hundredth.
+
+**The case against.** HISTORY no longer shows each old version of NEXT whole in one
+place; reading one means `git show`, or putting the removed lines back by their numbers.
+The proof rests on a script and its tests, where it rested on a byte comparison any
+session could run by hand. And git's history becomes part of the record HISTORY points
+into: a rewritten history, a force push, would break the pointers, which a whole copy
+did not depend on.
+
+**What it weakens.** The practice of 19 September, Claude's, ends; it was never
+ratified. Nothing ratified is removed or reworded.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then

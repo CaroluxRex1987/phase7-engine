@@ -218046,3 +218046,178 @@ Claude critiques it.
   October answered one part of the hostile-review request — whether each of the four
   test bugs breaks a specific rule (its C3: three of the four break none as written) —
   and left the ten questions unanswered, so that Viktor's answers can come first.
+
+## 4 November 2026 — the lines the rewrite of PHASE7_NEXT.md removed from its version at `7b93769`
+
+*Moved here on 4 November 2026 by the commit that records `7b93769`'s landing, the first
+entry under "Ruling, 4 November 2026 — HISTORY keeps what each rewrite of PHASE7_NEXT.md
+removes, not the whole file" (DECISIONS). Until that ruling each rewrite moved the whole
+previous version here; the last moved whole is the entry above, the file as it stood at
+`5fe8522`. Below the rule, each block is a run of lines of the file as it stood at
+`7b93769` that the rewrite deleted or replaced, word for word, labelled with its line
+numbers in that version; "this session" in them is the session that opened at 16:50 on
+3 November, and "the commit that writes this line" names `7b93769`. The whole version:
+`git show 7b93769:docs/PHASE7_NEXT.md`. Checked by `docs/build/check_history_move.py`.*
+
+---
+
+Lines 3–5 of the version at `7b93769`:
+
+~~~~~
+*3 November 2026, in the session that opened at 16:50. Rewritten by the commit that
+records `5fe8522`'s landing — docs only; the version it replaced — as it stood at
+`5fe8522` — is in HISTORY verbatim.
+~~~~~
+
+Lines 9–10 of the version at `7b93769`:
+
+~~~~~
+The dated record — including this file's previous version, moved there verbatim this
+session — lives in docs/PHASE7_HISTORY.md. A citation of this file written before the
+~~~~~
+
+Line 32 of the version at `7b93769`:
+
+~~~~~
+14 November. Until 1 November a session asked him what he wanted to do first.
+~~~~~
+
+Line 2108 of the version at `7b93769`:
+
+~~~~~
+moved there by the commit that writes this line.
+~~~~~
+
+Line 2110 of the version at `7b93769`:
+
+~~~~~
+**This session (3 November, from 16:50)**, configured for Claude Opus 5.5, opened at
+~~~~~
+
+Line 2118 of the version at `7b93769`:
+
+~~~~~
+recorded first-run failure. This session read it all again. GitHub's tip, read with
+~~~~~
+
+Line 2145 of the version at `7b93769`:
+
+~~~~~
+patch-delivery skill this session loaded names `e939734` as the commit it was last
+~~~~~
+
+Lines 2147–2148 of the version at `7b93769`:
+
+~~~~~
+was empty, and the commit that writes this line adds no ruling or decision, so the
+marker stays. The three files the patch changes were staged off his disk at 16:51 and
+~~~~~
+
+Line 2150 of the version at `7b93769`:
+
+~~~~~
+tip; it adds no file. The commit that writes this line records `5fe8522`'s landing.
+~~~~~
+
+Line 2704 of the version at `7b93769`:
+
+~~~~~
+  `5fe8522`'s landing recorded: docs only. Before it: `5fe8522` (the session of
+~~~~~
+
+Line 3008 of the version at `7b93769`:
+
+~~~~~
+- **The push of `5fe8522`** happened, at 16:49:47 on 3 November: GitHub's tip, read
+~~~~~
+
+Lines 3144–3146 of the version at `7b93769`:
+
+~~~~~
+  matched an autocrlf checkout of `5fe8522`, GitHub's tip, cloned at 16:51 on
+  3 November, byte for byte, staged at 16:51 and again at 16:54 on 3 November,
+  the second before the patch was built; it adds no file.
+~~~~~
+
+Lines 3169–3170 of the version at `7b93769`:
+
+~~~~~
+  `e69d5bb`, `e8b42b8`, `d6fba83`, `7c23886`, `e939734` and `7ff8128`, each of which
+  changed files under `docs/` only, by `1b82ed0`,
+~~~~~
+
+Line 3175 of the version at `7b93769`:
+
+~~~~~
+  the commit that writes this line, which changes files under `docs/` only: computed
+~~~~~
+
+Lines 3183–3184 of the version at `7b93769`:
+
+~~~~~
+  `e8b42b8`, `d6fba83`, `7c23886`, `e939734`, `1b82ed0`, `7ff8128` and `5fe8522` and
+  the applied tree of the commit that writes this line give the same.
+~~~~~
+
+Lines 3193–3194 of the version at `7b93769`:
+
+~~~~~
+- **Golden snapshot:** unchanged by the commit that writes this line, which changes
+  docs and no code or test, by `5fe8522`, which changed two test files and added a
+~~~~~
+
+Lines 3234–3235 of the version at `7b93769`:
+
+~~~~~
+- **Test suite** — **933 passed / 0 failed, no warnings line** with `pandas_ta`;
+  **757 passed / 165 skipped** without it; `run_tests.py` **865 passed / 0 failed /
+~~~~~
+
+Lines 3240–3242 of the version at `7b93769`:
+
+~~~~~
+  until `713e084` (entry 50). The commit that writes this line changes no test, and
+  the three counts held: from the Linux sandbox, Python 3.12.3, pinned requirements,
+  the patch applied to an autocrlf clone of `5fe8522`. `5fe8522` replaced the guard's
+~~~~~
+
+Line 3528 of the version at `7b93769`:
+
+~~~~~
+  **Eighty-seven commits behind** — `ec4e5fd`, the floor (a commit that regenerates the
+~~~~~
+
+Line 3542 of the version at `7b93769`:
+
+~~~~~
+  `e939734`, `1b82ed0`, `7ff8128`, `5fe8522` and the commit that writes this line.
+~~~~~
+
+Lines 3558–3559 of the version at `7b93769`:
+
+~~~~~
+- **README.md:** its test counts are current (933, 757 / 165 and 865 passed, 0
+  failed), last changed by `5fe8522`, which changed only the
+~~~~~
+
+Lines 5097–5107 of the version at `7b93769`:
+
+~~~~~
+- **`5fe8522`'s landing**, checked at 16:49 on 3 November after the push, and read
+  off his disk and GitHub again in this session ("Where the project is"). Every part
+  held; the one deviation, his first pytest run before the second patch, is recorded
+  by `5fe8522` itself (Test suite; entry 59).
+- **The patch-delivery skill's marker** stays at `e939734`: the skill this session
+  loaded names it, `git diff --stat e939734 HEAD -- docs/PHASE7_DECISIONS.md` was
+  empty, and the commit that writes this line adds no ruling or decision.
+- **The once-per-session rewrite of this file**, by the commit that writes this line.
+  The previous version, as at `5fe8522`, is in HISTORY verbatim, headings demoted one
+  level, proven by un-demotion with a negative control (the commit message has the
+  result).
+~~~~~
+
+Line 5134 of the version at `7b93769`:
+
+~~~~~
+  `e748b0b`'s, `f6aa126`'s, `e69d5bb`'s, `e8b42b8`'s, `d6fba83`'s, `7c23886`'s, `e939734`'s, `7ff8128`'s and `5fe8522`'s landings found no entry more; entry 58 was found on a hand run, not a landing, and entry 59 on `1b82ed0`'s landing, in its `run_tests.py` step, and landed by `5fe8522`. Entry 26, one of
+~~~~~

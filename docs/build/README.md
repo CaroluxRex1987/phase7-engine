@@ -154,6 +154,25 @@ python docs/build/measure_draft_gaps.py logs --json reading.json
 temporary folder, or the golden decision of the pinned synthetic candles — and never
 reads the live logs.
 
+## HISTORY's entry for each rewrite of PHASE7_NEXT.md
+
+`check_history_move.py` builds no document either. Added on 4 November 2026 with
+PHASE7_DECISIONS.md's "Ruling, 4 November 2026 — HISTORY keeps what each rewrite of
+PHASE7_NEXT.md removes, not the whole file": a commit that changes PHASE7_NEXT.md
+appends to PHASE7_HISTORY.md one entry holding, word for word, every line the rewrite
+deleted or replaced, in fenced blocks labelled with their line numbers in the previous
+version, and pointing to that whole version in git. The script checks it between a base
+commit (HEAD by default) and the working tree: HISTORY append-only, and the blocks
+exactly the lines removed. `--emit` prints the blocks to paste; the entry's form is in
+its docstring.
+
+```
+python docs/build/check_history_move.py
+```
+
+`tests/test_check_history_move.py` checks it on entries written out by hand, and end to
+end in a temporary repository.
+
 ## House style
 
 All scripts share the same visual system, and changes to one should be mirrored rather
