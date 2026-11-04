@@ -1,8 +1,8 @@
 # Next step — read this first
 
-*4 November 2026, in the session that opened at 00:59. Rewritten by the commit that
-records `7b93769`'s landing and files the ruling of 4 November on what HISTORY keeps,
-with its check; the lines it removed from the version at `7b93769` are in HISTORY,
+*4 November 2026, in the session that opened at 02:03. Rewritten by the commit that
+regenerates the Engineering Notes at v1.37, the first of three parts, and records
+`b990c93`'s landing; the lines it removed from the version at `b990c93` are in HISTORY,
 which points to that whole version in git.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
@@ -2157,51 +2157,47 @@ checked at 00:21 on 4 November, in a session that made no commit, on purpose (be
 GitHub's tip read with no credentials — and nothing differed; that check's account was
 in chat only, and Viktor listed it at the start of the next session. The session's
 account is in this file's version at `7b93769` (`git show 7b93769:docs/PHASE7_NEXT.md`);
-the lines the commit that writes this line removed from it are in HISTORY, the first
-entry under the ruling of 4 November.
+the lines `b990c93` removed from it are in HISTORY, the first entry under the ruling of
+4 November.
 
 **The session of 4 November, to 00:21** checked `7b93769`'s landing and made no commit,
-on purpose. From Viktor's record of it, at the start of the next session: GitHub's tip
-`7b93769`, read with no credentials (the probe asked for credentials), its tree
-`8183abdb…`, the one its `Verified-Tree:` line names; his disk the tip in every part
-read — the three files applied at 17:10:53 on 3 November, the index writing the same
-tree, the commit object and `.git/COMMIT_EDITMSG` byte for byte with no CR, the reflogs'
-"commit:" and "update by push"; the pytest cache rewritten at 17:14:28 after the apply,
-`lastfailed` `{}`; no patch or message file in the root; nothing differed. The skill's
-marker stayed at `e939734`. It left two things to file with the next commit made for its
-own reason, not in a commit of their own: Claude's correction of its reading of "first"
-under the ruling of 1 November, Viktor's to reverse (DECISIONS, "Correction, 4 November
-2026 — a landing that went as predicted is never itself a commit owed"), and a finding,
-verified at `7b93769`: every commit appended the whole of this file to HISTORY (entry
-60). The commit that writes this line files both.
+on purpose; its account, as Viktor gave it at the start of the next session, is in this
+file's version at `b990c93`. It left Claude's correction of its reading of "first"
+under the ruling of 1 November, and entry 60, to the next commit made for its own
+reason.
 
-**This session (4 November, from 00:59)**, configured for Claude Opus 5.5, opened at
-`7b93769` with that record, and did not check the landing again. GitHub's tip, read with
-`git ls-remote` at 01:07:36, with git's tokens, askpass, credential helper, prompts and
-configuration files all removed from its environment, outside any repository, is
-`7b93769` for `HEAD` and `master`; in that same environment a read of
-`CaroluxRex1987/phase7-engine-no-such-repo-probe` was answered with a request for
-credentials, so none reached it. `master` and `origin/master` on his disk, from
-`.git/refs` staged off it, read `7b93769`; `origin/master`'s ref was written at
-17:33:48.205 on 3 November, and its reflog's last line is "update by push", `5fe8522` to
-`7b93769` — the push. The patch-delivery skill this session loaded names `e939734` as
-the commit it was last compared with DECISIONS at; `git diff --stat e939734 HEAD --
-docs/PHASE7_DECISIONS.md` was empty. What came first, by the ruling of 1 November read
-with the correction: no commit owed; nothing due before 14 November; and none of
-Claude's work that the rulings let land now and that moves no `code_hash` — wave 1 is
-done, and wave 2, entry 57 and the redesign draft's measured gaps wait for the reading.
-So the finding came first, for its horizon: at the pace of 1 to 3 November, HISTORY
-would draw GitHub's warning in weeks (entry 60). Claude read its fix as Viktor's to rule
-— what the dated record keeps — and the mechanism as Claude's; at 01:02 he asked for
-Claude's suggestion, and at 01:02 answered "Go" (DECISIONS, "Ruling, 4 November 2026 —
-HISTORY keeps what each rewrite of PHASE7_NEXT.md removes, not the whole file"). The six
-files the patch changes were staged off his disk shortly before 01:07 and again at 01:15
-on 4 November, the second before the patch was built, and matched the tip; neither of
-the two files it adds was there. The commit that writes this line records `7b93769`'s
-landing, files the ruling and the correction, and files entry 60 and lands it:
-`docs/build/check_history_move.py`, its 18 tests, and the first HISTORY entry in the new
-form. The skill's sections 9 and 10 are put to Viktor after its push, with the marker
-moved to it.
+**The session of 4 November, from 00:59**, configured for Claude Opus 5.5, opened at
+`7b93769`, read GitHub's tip with no credentials at 01:07:36, and chose entry 60 first,
+for its horizon; Viktor ruled its fix at 01:02, by agreeing to Claude's suggestion
+(DECISIONS, "Ruling, 4 November 2026 — HISTORY keeps what each rewrite of
+PHASE7_NEXT.md removes, not the whole file"). `b990c93` recorded `7b93769`'s landing,
+filed the ruling and the correction, and landed entry 60: `docs/build/check_history_move.py`,
+its 18 tests, and the first HISTORY entry in the new form. That session's account is in
+this file's version at `b990c93`. **`b990c93`'s landing** was checked at 01:57 on
+4 November, in a session that made no commit; from Viktor's record of it, at the start
+of the next session: GitHub's tip `b990c93`, read with no credentials (the probe asked
+for credentials); its tree `579154e4…`, the one its `Verified-Tree:` line names; its
+message the one delivered, less its CRs; `python docs/build/check_history_move.py --base
+b990c93~1` on the tip gives the line its message recorded, 46 lines in 23 runs; his
+disk the tip in every part read — the eight files applied at 01:26:14–01:26:15, the
+index writing the same tree, the commit object and `.git/COMMIT_EDITMSG` byte for byte
+with no CR, the reflogs' "commit:" at 01:43:30 and "update by push" at 01:43:50; the
+pytest cache rewritten at 01:29:41, after the apply, with the 18 new tests' ids,
+`lastfailed` `{}`; no patch or message file in the root. Nothing differed.
+
+**This session (4 November, from 02:03)**, configured for Claude Opus 5.5, opened at
+`b990c93` with that record and did not check the landing again. The patch-delivery
+skill it loaded names `b990c93`, so Viktor's save of the card after `b990c93`'s push is
+confirmed; `git diff --stat b990c93 HEAD -- docs/PHASE7_DECISIONS.md` is empty. What
+came first, by the ruling of 1 November read with the correction: no commit owed;
+nothing due before 14 November; wave 1 done, and waves 2 to 5, entry 57 and the
+redesign draft's measured gaps waiting for the reading. So Claude's own work that moves
+no `code_hash`: the Engineering Notes, behind since `68c6191`, regenerated in three
+parts so that no part is more than a session's work — `e7a94d1` to `eb86846`, `c2b07fb`
+to `67f6ec1`, and `0491b84` to the tip. Viktor answered "Go" at 02:05. The five files
+the patch changes were staged off his disk at 02:11 on 4 November, before the
+patch was built, and matched the tip. The commit that writes this line is the first
+part, v1.37, Entries #184–#203, and records `b990c93`'s landing.
 
 ## Ruled — in force
 
@@ -2755,9 +2751,12 @@ moved to it.
 ## Where things stand, right now
 
 - **Tip:** the commit that writes this line (a commit cannot name its own hash) —
-  `7b93769`'s landing recorded, the ruling and the correction of 4 November filed,
-  and entry 60 filed and landed: documentation tooling, a test file and docs, no
-  engine code. Before it: `7b93769` (the session of 3 November, from 16:50:
+  the Engineering Notes regenerated at v1.37, the first of three parts, and
+  `b990c93`'s landing recorded: the Notes' script and PDF and docs, no engine code.
+  Before it: `b990c93` (the session of 4 November, from 00:59: `7b93769`'s landing
+  recorded, the ruling and the correction of 4 November filed, and entry 60 filed and
+  landed: documentation tooling, a test file and docs, no engine code), `7b93769` (the
+  session of 3 November, from 16:50:
   `5fe8522`'s landing recorded, docs only), `5fe8522` (the session of
   3 November, from 15:06: `7ff8128`'s landing recorded and entry 59's fix landed:
   tests and docs, no engine code), `7ff8128` (the session of 2 November, from 18:29: `1b82ed0`'s
@@ -3053,7 +3052,11 @@ moved to it.
   `tests/test_real_log_directory_untouched.py` and added
   `tests/suite_guard/sitecustomize.py` (entry 59): the guard's two snapshot controls
   replaced by four controls of the hook, none taking a fixture or needing `pandas_ta`.
-  The commit that writes this line changes no test.
+  `7b93769` changed no test. `b990c93` added `tests/test_check_history_move.py` (18
+  tests, none taking a fixture or needing `pandas_ta`) and changed no other test. The
+  commit that writes this line changes no test. (This file at `b990c93` still said
+  there that the commit writing the line changed no test, carried from `7b93769`;
+  corrected on 4 November.)
 - **Where the project lives, from 26 September:** `E:\phase7_engine` on Viktor's machine;
   the files kept outside the repository in `G:\Phase_7_Engine_Random_Files`. Copied with
   robocopy, verified — git's own checks on Windows for the tracked files, SHA-256 for the
@@ -3062,10 +3065,13 @@ moved to it.
   to `E:\phase7_engine`". Run the engine and every command from `E:\phase7_engine` (in
   cmd, changing drive needs `cd /d`). A dated record that names the D: paths means the
   same folders before the move; dated records are not edited.
-- **The push of `7b93769`** happened, at 17:33:48 on 3 November: GitHub's tip, read
-  at 00:21 on 4 November and at 01:07:36 in the next session, is `7b93769`, Viktor's
-  disk is the tip in every part the check of 00:21 read, and its tree is the one its
-  `Verified-Tree:` line names; no deviation reported (ruling on proposal (b)). So did
+- **The push of `b990c93`** happened, at 01:43:50 on 4 November: GitHub's tip, read
+  with no credentials at 01:57, is `b990c93`, Viktor's disk is the tip in every part
+  that check read, and its tree is the one its `Verified-Tree:` line names; no
+  deviation reported (ruling on proposal (b)). So did `7b93769`'s, at 17:33:48 on
+  3 November: GitHub's tip, read at 00:21 on 4 November and at 01:07:36 in the next
+  session, was `7b93769`, Viktor's disk the tip in every part the check of 00:21 read,
+  and its tree the one its `Verified-Tree:` line names. So did
   `5fe8522`'s, at 16:49:47 on 3 November: GitHub's tip, read
   at 16:49 that day and at 16:51:28 in the next session, is `5fe8522`, Viktor's disk
   is the tip in every part read, and its tree is the one its `Verified-Tree:` line
@@ -3202,9 +3208,9 @@ moved to it.
   commit that writes this line unless it deviates. Earlier pushes and deviations are
   recorded in this file's previous versions, in HISTORY.
 - **Before this commit**, every file its patch changes was staged off Viktor's disk and
-  matched an autocrlf checkout of `7b93769`, GitHub's tip, cloned at 01:00 on
-  4 November, byte for byte, staged shortly before 01:07 and again at 01:15,
-  the second before the patch was built; neither file it adds was there.
+  matched an autocrlf checkout of `b990c93`, GitHub's tip, cloned at 02:03 on
+  4 November, byte for byte, staged at 02:11, before the patch was built; it
+  adds no file.
 - **code_hash:** `816d4951bb0322763ec4abc4b9ed8161d5b902372823350e5272f2fb7176e380`,
   set by `0491b84` from `bc1b9c2c…` — `main.py` alone — and confirmed on Windows: its
   eleven hand-run records and the ten of each of the first two scheduled runs carry it.
@@ -3232,9 +3238,10 @@ moved to it.
   which
   changed files under `docs/` and `tests/`, which it does not read, and `README.md`,
   which is not a `.py` file, by `5fe8522`, which changed files under `docs/` and
-  `tests/`, which it does not read, and `README.md`, which is not a `.py` file, and by
-  the commit that writes this line, which changes files under `docs/` and `tests/`,
-  which it does not read, and `README.md`, which is not a `.py` file: computed
+  `tests/`, which it does not read, and `README.md`, which is not a `.py` file, by
+  `b990c93`, which changed files under `docs/` and `tests/`, which it does not read,
+  and `README.md`, which is not a `.py` file, and by the commit that writes this line,
+  which changes files under `docs/` only: computed
   on clones of `0491b84`,
   `a235783`, `8d5d64a`, `a48d9e5`, `fbd7877`, `8311167`, `d2dddf7`, `aa9e7ac`,
   `391c338`, `8360923`, `ed005a0` and `e88e0dd` and on the applied trees, under Python
@@ -3242,8 +3249,9 @@ moved to it.
   `89d2367`, `b387c03`, `9862568`, `3d7e6cb`, `78204ff`, `0d86fda`, `b8f88d8`,
   `a1c4218`, `713e084`, `134f85b`, `fad0588`, `3dbd8dc`, `a2ca918`, `d7d3ae0`,
   `b233c4a`, `6d073f9`, `8c810b1`, `248037d`, `e748b0b`, `f6aa126`, `e69d5bb`,
-  `e8b42b8`, `d6fba83`, `7c23886`, `e939734`, `1b82ed0`, `7ff8128`, `5fe8522` and
-  `7b93769` and the applied tree of the commit that writes this line give the same.
+  `e8b42b8`, `d6fba83`, `7c23886`, `e939734`, `1b82ed0`, `7ff8128`, `5fe8522`,
+  `7b93769` and `b990c93` and the applied tree of the commit that writes this line
+  give the same.
   `bc1b9c2c…` was
   set by `9ea1cf3`, confirmed on Windows by its live run, and held through `f00bef6`,
   `36de35d`, `78ea37d`, `d3188f2` and `67f6ec1`, which changed only files under `docs/`
@@ -3252,9 +3260,9 @@ moved to it.
   output, a CPython implementation detail (`core/code_fingerprint.py`, "WHAT IT DOES NOT
   SURVIVE"). **Every `code_hash` claim about this project is computed under Python 3.12**
   (Viktor runs 3.12.10).
-- **Golden snapshot:** unchanged by the commit that writes this line, which adds a
-  script under `docs/` and a test, neither reading the fixture, and changes
-  `README.md` and docs, by `7b93769`, which changed docs and no code or test, by
+- **Golden snapshot:** unchanged by the commit that writes this line, which changes
+  docs and no code or test, by `b990c93`, which added a script under `docs/` and a
+  test, neither reading the fixture, and changed `README.md` and docs, by `7b93769`, which changed docs and no code or test, by
   `5fe8522`, which changed two test files and added a
   third, none reading the fixture, and changed `README.md`'s counts and docs, by
   `7ff8128`, which changed docs and no code or test, by `1b82ed0`, which added a script under `docs/` and a
@@ -3301,11 +3309,16 @@ moved to it.
   `test_no_module_defaults_a_missing_risk_verdict_to_a_pass`. This is meant to be the
   one place the watched error count is written as a number (DECISIONS, "Ruling,
   15 October 2026 — Part 4's three test shapes", point 5); `README.md` wrote it too
-  until `713e084` (entry 50). The commit that writes this line adds
+  until `713e084` (entry 50). The commit that writes this line changes no test, and
+  the three counts held: from the Linux sandbox, Python 3.12.3, pinned requirements,
+  the patch applied to an autocrlf clone of `b990c93`. `b990c93` added
   `tests/test_check_history_move.py`, 18 tests, none taking a fixture and none needing
   `pandas_ta`, so each passed count moved by 18 and the error count held: from the
   Linux sandbox, Python 3.12.3, pinned requirements, the patch applied to an autocrlf
-  clone of `7b93769`. `7b93769` changed no test, and the three counts held: from the
+  clone of `7b93769`; its pytest step ran on Windows after the apply (the cache on his
+  disk was rewritten at 01:29:41 on 4 November, after its eight files were written at
+  01:26:14–01:26:15, and holds the 18 new tests' ids; its `lastfailed` is `{}`), and
+  Viktor went on to the commit. `7b93769` changed no test, and the three counts held: from the
   Linux sandbox, Python 3.12.3, pinned requirements, the patch applied to an autocrlf
   clone of `5fe8522`; its pytest step ran on Windows after the apply (the cache on his
   disk was rewritten at 17:14:28 on 3 November, after its three files were written at
@@ -3595,41 +3608,40 @@ moved to it.
   then run on Windows at 09:06 on 12 October: both matched (792; 721 / 0 / 32). One test,
   `test_the_commit_messages_up_to_the_tag_are_round_7s_to_the_byte`, runs `git log` up
   to the tag `round7-sent-2026-09-30`: it needs the tag, which a full clone has.
-- **Engineering Notes:** through Entry #183 (v1.36), which covers `68c6191`.
-  **Eighty-eight commits behind** — `ec4e5fd`, the floor (a commit that regenerates the
-  Notes cannot
-  cover itself, Entry #144), `e7a94d1`, `d5ced0c`, `59b747a`, `f256937`, `12b483e`,
-  `01f2892`, `8b6fd00`, `e186423`, `86f30f1`, `3e8191a`, `1523e0c`, `ff12e17`,
-  `4a4c6ce`, `217ede6`, `d27743f`, `a0276dd`, `040a529`, `9e42d30`, `eb86846`,
-  `c2b07fb`, `1b25f36`, `fcb7823`, `9e507b1`, `6469a67`, `ae37795`, `9d00d99`,
-  `27d3ed5`, `9051ffd`, `e5ac20a`, `ef65f46`, `797bdc9`, `69c92d6`, `22a9a35`,
-  `d77a8c4`, `64ad625`, `9ea1cf3`, `f00bef6`, `36de35d`, `78ea37d`, `d3188f2`,
-  `67f6ec1`, `0491b84`, `a235783`, `8d5d64a`, `a48d9e5`, `fbd7877`, `8311167`,
-  `d2dddf7`, `aa9e7ac`, `391c338`, `8360923`, `ed005a0`, `e88e0dd`, `d508b29`,
-  `9f2f3d7`, `d410bfa`, `34d8e3b`, `ad34c02`, `89d2367`, `b387c03`, `9862568`,
-  `3d7e6cb`, `78204ff`, `0d86fda`, `b8f88d8`, `a1c4218`, `713e084`, `134f85b`,
-  `fad0588`, `3dbd8dc`, `a2ca918`, `d7d3ae0`, `b233c4a`, `6d073f9`, `8c810b1`,
-  `248037d`, `e748b0b`, `f6aa126`, `e69d5bb`, `e8b42b8`, `d6fba83`, `7c23886`,
-  `e939734`, `1b82ed0`, `7ff8128`, `5fe8522`, `7b93769` and the commit that writes this
-  line.
-  Every later
-  commit adds one
-  until the
-  next regeneration. Batched, by
-  the 15 September rule; no time pressure. v1.36 records the round-1 recovery, the
-  rulings of 22 (filed 26), 26, 27, 28 and 29 September, the move to E:, the code for
-  findings 16, 7, 4, 6, 5 and 18, work order G and the Aider correction. Its PDF's
-  extracted text differs from v1.35's only by the seventeen entries, the new Document
-  History row and fourteen footer page numbers (127 pages to 143), compared word by
-  word.
+- **Engineering Notes:** through Entry #203 (v1.37), which covers `eb86846` — the
+  first of three regenerations closing the gap left by v1.36, chosen by Claude so that
+  no part is more than a session's work: the second covers `c2b07fb` to `67f6ec1`, the
+  third `0491b84` to the tip. **Sixty-nine commits behind** — `c2b07fb`, `1b25f36`,
+  `fcb7823`, `9e507b1`, `6469a67`, `ae37795`, `9d00d99`, `27d3ed5`, `9051ffd`,
+  `e5ac20a`, `ef65f46`, `797bdc9`, `69c92d6`, `22a9a35`, `d77a8c4`, `64ad625`,
+  `9ea1cf3`, `f00bef6`, `36de35d`, `78ea37d`, `d3188f2`, `67f6ec1`, `0491b84`,
+  `a235783`, `8d5d64a`, `a48d9e5`, `fbd7877`, `8311167`, `d2dddf7`, `aa9e7ac`,
+  `391c338`, `8360923`, `ed005a0`, `e88e0dd`, `d508b29`, `9f2f3d7`, `d410bfa`,
+  `34d8e3b`, `ad34c02`, `89d2367`, `b387c03`, `9862568`, `3d7e6cb`, `78204ff`,
+  `0d86fda`, `b8f88d8`, `a1c4218`, `713e084`, `134f85b`, `fad0588`, `3dbd8dc`,
+  `a2ca918`, `d7d3ae0`, `b233c4a`, `6d073f9`, `8c810b1`, `248037d`, `e748b0b`,
+  `f6aa126`, `e69d5bb`, `e8b42b8`, `d6fba83`, `7c23886`, `e939734`, `1b82ed0`,
+  `7ff8128`, `5fe8522`, `7b93769` and `b990c93` — and the commit that writes this
+  line, the floor (a commit that regenerates the Notes cannot cover itself, Entry
+  #144). Every later commit adds one until the next regeneration. Batched, by the
+  15 September rule. v1.37 records the rulings of 29 September on the audit and on
+  what opens backtesting, round 7's preparation, both its runs and its end, the
+  delegation of the audit to Claude, round 8's two runs and Part 7, its narrow
+  acceptance and its triage — each entry written from its commit's message, none
+  re-checked against the code. `code_hash` was recomputed on all nineteen trees and
+  on `68c6191`, under Python 3.12.3: `c6a44d4d…` on all twenty, and the golden fixture
+  the same blob on all twenty. Its PDF's extracted text differs from v1.36's only by
+  the twenty entries, the new Document History row and fourteen footer page numbers
+  (143 pages to 154), compared word by word; v1.36's script at `b990c93` rebuilt first
+  gave the committed v1.36 text exactly (Linux sandbox, reportlab 5.0.1).
 - **Portfolio Document and AI-Attribution Statement:** both current with their scripts —
   each rebuilt from `68c6191` in the sandbox (reportlab 5.0.1), its extracted text
   identical to the committed PDF. Neither changes in the commit that writes this line;
   the Attribution Statement's script last changed at `68c6191`, the Portfolio
   Document's at `6e1baba`.
 - **README.md:** its test counts are current (951, 775 / 165 and 883 passed, 0
-  failed), last changed by the commit that writes this line, which changes only the
-  numbers, for its 18 new tests, and before it by `5fe8522`, which changed only the
+  failed), last changed by `b990c93`, which changed only the numbers, for its 18 new
+  tests, and before it by `5fe8522`, which changed only the
   numbers, for entry 59's two tests more, and before it by `1b82ed0`, which changed
   only the numbers, for its 20 new tests, and before it by `713e084`, which took the error count
   out of its Tests row
@@ -3640,7 +3652,9 @@ moved to it.
   and by `3d7e6cb`, which changed only the numbers, and not by `78204ff`, `0d86fda`,
   `b8f88d8`, `134f85b`, `fad0588`, `3dbd8dc`, `a2ca918`, `d7d3ae0`, `b233c4a`,
   `6d073f9`, `8c810b1`, `248037d`, `e748b0b`, `f6aa126`, `e69d5bb`, `e8b42b8`,
-  `d6fba83`, `7c23886`, `e939734`, `7ff8128` or the commit that writes this line. **Its
+  `d6fba83`, `7c23886`, `e939734`, `7ff8128`, `7b93769` or the commit that writes this
+  line (this file at `b990c93` still had "the commit that writes this line" in this
+  list, carried from `7b93769`; corrected on 4 November). **Its
   audit
   history and
   layout block are current** since `134f85b`, in wording Claude drafted and Viktor
@@ -4892,7 +4906,7 @@ the work before the audit, entry 1 apart.
   record keeps — with the mechanism Claude's, and he ruled by agreeing to Claude's
   suggestion (DECISIONS, "Ruling, 4 November 2026 — HISTORY keeps what each rewrite of
   PHASE7_NEXT.md removes, not the whole file").
-  **4 November: landed**, by the commit that writes this line: each rewrite appends the
+  **4 November: landed**, by `b990c93`: each rewrite appends the
   lines it removes or changes, word for word, in blocks labelled with their line
   numbers, under an entry that points to the whole previous version in git;
   `docs/build/check_history_move.py` proves it between a base commit and the working
@@ -5188,20 +5202,19 @@ Each code commit is its own commit and updates this file for its own landing.
 
 ## Resolved this session
 
-- **`7b93769`'s landing**, checked at 00:21 on 4 November in a session that made no
-  commit, on purpose, and recorded by the commit that writes this line, made for its own
-  reason (DECISIONS, the correction of 4 November). Its push and this session's read of
-  GitHub are in "Where the project is" and "Where things stand".
-- **Entry 60, HISTORY's growth**, found, ruled on, and landed by the commit that writes
-  this line.
-- **Claude's correction of its reading of "first"**, filed in DECISIONS; Viktor's to
-  reverse.
-- **The patch-delivery skill's marker** moves to the commit that writes this line after
-  its push: that commit files a ruling that changes section 9 and a correction that
-  changes section 10, and the updated skill is put to Viktor then (the ruling of 29
-  October).
+- **`b990c93`'s landing**, checked at 01:57 on 4 November in a session that made no
+  commit, and recorded by the commit that writes this line, made for its own reason
+  (DECISIONS, the correction of 4 November). Its push is in "Where things stand".
+- **The Engineering Notes, the first of three parts:** v1.37, Entries #184–#203, through
+  `eb86846` ("Where things stand").
+- **Three lines `b990c93` carried unchanged that it made untrue**, corrected: the tests
+  paragraph said the commit writing it changed no test; README's "not by" list named
+  the commit writing it; and the change list's paragraph called it docs only, naming
+  `5fe8522`, and left out the line it added.
+- **The patch-delivery skill's marker** stays at `b990c93`: the commit that writes this
+  line files no ruling or decision.
 - **This file's rewrite**, by the commit that writes this line. The lines it removed
-  from the version at `7b93769` are in HISTORY's new entry, checked by
+  from the version at `b990c93` are in HISTORY's new entry, checked by
   `docs/build/check_history_move.py` (the commit message has the result).
 
 ## Open items
@@ -5229,7 +5242,7 @@ Claude critiques it.
   decision under Viktor's delegation of 27 October, his to reverse, and with it nothing
   of wave 1 is left open; `713e084`'s, `134f85b`'s, `fad0588`'s, `3dbd8dc`'s and
   `a2ca918`'s, `d7d3ae0`'s, `b233c4a`'s, `6d073f9`'s, `8c810b1`'s, `248037d`'s,
-  `e748b0b`'s, `f6aa126`'s, `e69d5bb`'s, `e8b42b8`'s, `d6fba83`'s, `7c23886`'s, `e939734`'s, `7ff8128`'s and `5fe8522`'s landings found no entry more; entry 58 was found on a hand run, not a landing, entry 59 on `1b82ed0`'s landing, in its `run_tests.py` step, and landed by `5fe8522`, and entry 60 in the session that checked `7b93769`'s landing, and landed by the commit that writes this line. Entry 26, one of
+  `e748b0b`'s, `f6aa126`'s, `e69d5bb`'s, `e8b42b8`'s, `d6fba83`'s, `7c23886`'s, `e939734`'s, `7ff8128`'s and `5fe8522`'s landings found no entry more; entry 58 was found on a hand run, not a landing, entry 59 on `1b82ed0`'s landing, in its `run_tests.py` step, and landed by `5fe8522`, and entry 60 in the session that checked `7b93769`'s landing, and landed by `b990c93`, whose landing found no entry more. Entry 26, one of
   Goal B's two rulings, was decided by Claude under Viktor's delegation of 26 October
   (DECISIONS, "Decision, 26 October 2026 — Goal B keeps a candle only once it has
   closed at `t` (entry 26)"), his to reverse. Entry 31, the other, was ruled by Viktor
@@ -5680,8 +5693,10 @@ Claude critiques it.
   `248037d`, `e748b0b`, `f6aa126`, `e69d5bb`, `e8b42b8`, `d6fba83`, `7c23886` and
   `e939734`, which changed docs only. `1b82ed0` named `a1c4218` there and added its
   own; `7ff8128`, docs only, changed no line there; `5fe8522` named `1b82ed0` there
-  and added its own; the commit that writes this line, docs only, names `5fe8522`
-  there. (This
+  and added its own; `b990c93` named `5fe8522` there and added its own (this file at
+  `b990c93` said it was docs only and named `5fe8522`, leaving out its own line;
+  corrected on 4 November); the commit that writes this line, docs only, names
+  `b990c93` there. (This
   paragraph stopped at
   `a235783` until `ad34c02`
   brought it current, and
