@@ -218625,3 +218625,187 @@ Lines 5698–5699 of the version at `f8805a6`:
   corrected on 4 November); the commit that writes this line, docs only, names
   `b990c93` there. (This
 ~~~~~
+
+## 6 November 2026 — the lines the rewrite of PHASE7_NEXT.md removed from its version at `0a518fd`
+
+*Moved here on 6 November 2026 by the commit that regenerates the Engineering Notes at
+v1.39 and records `0a518fd`'s landing, under "Ruling, 4 November 2026 — HISTORY keeps
+what each rewrite of PHASE7_NEXT.md removes, not the whole file" (DECISIONS). Below the
+rule, each block is a run of lines of the file as it stood at `0a518fd` that the rewrite
+deleted or replaced, word for word, labelled with its line numbers in that version;
+"this session" in them is the session that opened at 02:59 on 4 November, and "the
+commit that writes this line" names `0a518fd`. The whole version:
+`git show 0a518fd:docs/PHASE7_NEXT.md`. Checked by `docs/build/check_history_move.py`.*
+
+---
+
+Lines 3–5 of the version at `0a518fd`:
+
+~~~~~
+*4 November 2026, in the session that opened at 02:59. Rewritten by the commit that
+regenerates the Engineering Notes at v1.38, the second of three parts, and records
+`f8805a6`'s landing; the lines it removed from the version at `f8805a6` are in HISTORY,
+~~~~~
+
+Lines 2197–2216 of the version at `0a518fd`:
+
+~~~~~
+**This session (4 November, from 02:59)**, configured for Claude Opus 5.5, opened at
+`f8805a6` and checked its landing, by the patch-delivery skill's section 10. GitHub's
+tip, read with no credentials at 03:07:07 (the probe asked for credentials, so none
+reached it), is `f8805a6`; its tree `41104cd6…` is the one its `Verified-Tree:` line
+names; its message holds no CR and ends with the attribution lines;
+`python docs/build/check_history_move.py --base f8805a6~1` on the tip gives the line
+its message recorded, 113 lines in 21 runs. Viktor's disk, staged after 03:07: the
+five files the commit changed written at 02:45:01 and each byte for byte the tip; the
+index the tip's tree; the loose commit object hashing to `f8805a6`, GitHub's bytes,
+with no CR; `.git/COMMIT_EDITMSG` the message byte for byte; `master` and
+`origin/master` `f8805a6`, the reflogs' "commit:" at 02:52:54 and "update by push" at
+02:53:12; the pytest cache rewritten at 02:48:04, after the apply (`f8805a6` added no
+test), `lastfailed` `{}`; no patch or message file in the root. Nothing differed. The
+skill's marker is still `b990c93`, and `git diff --stat b990c93 HEAD --
+docs/PHASE7_DECISIONS.md` is empty. What came first, by the ruling of 1 November read
+with the correction of 4 November: no commit owed, nothing due before 14 November, so
+the second part of the Notes, as Viktor asked at the session's opening. The four files
+the patch changes, and `docs/audit_change_list.md`, were staged off his disk before
+the patch was built and matched the tip. The commit that writes this line is the second part, v1.38, Entries #204–#226,
+and records `f8805a6`'s landing.
+~~~~~
+
+Lines 2770–2773 of the version at `0a518fd`:
+
+~~~~~
+  the Engineering Notes regenerated at v1.38, the second of three parts, and
+  `f8805a6`'s landing recorded: the Notes' script and PDF and docs, no engine code.
+  Before it: `f8805a6` (the session of 4 November, from 02:03: the Engineering Notes
+  regenerated at v1.37, the first of three parts, and `b990c93`'s landing recorded:
+~~~~~
+
+Line 3075 of the version at `0a518fd`:
+
+~~~~~
+  `f8805a6` changed no test, and the commit that writes this line changes none.
+~~~~~
+
+Lines 3087–3088 of the version at `0a518fd`:
+
+~~~~~
+- **The push of `f8805a6`** happened, at 02:53:12 on 4 November: GitHub's tip, read
+  with no credentials at 03:07:07, is `f8805a6`, Viktor's disk is the tip in every part
+~~~~~
+
+Line 3090 of the version at `0a518fd`:
+
+~~~~~
+  no deviation (ruling on proposal (b)). So did `b990c93`'s, at 01:43:50 on
+~~~~~
+
+Lines 3233–3234 of the version at `0a518fd`:
+
+~~~~~
+  matched an autocrlf checkout of `f8805a6`, GitHub's tip, cloned at 03:00 on
+  4 November, byte for byte, before the patch was built; it adds no file.
+~~~~~
+
+Lines 3264–3266 of the version at `0a518fd`:
+
+~~~~~
+  and `README.md`, which is not a `.py` file, by `f8805a6`, which changed files under
+  `docs/` only, and by the commit that writes this line, which changes files under
+  `docs/` only: computed
+~~~~~
+
+Lines 3275–3276 of the version at `0a518fd`:
+
+~~~~~
+  `7b93769`, `b990c93` and `f8805a6` and the applied tree of the commit that writes
+  this line give the same.
+~~~~~
+
+Line 3286 of the version at `0a518fd`:
+
+~~~~~
+  docs and no code or test, by `f8805a6`, which changed docs and no code or test, by
+~~~~~
+
+Line 3337 of the version at `0a518fd`:
+
+~~~~~
+  the patch applied to an autocrlf clone of `f8805a6`. `f8805a6` changed no test, and
+~~~~~
+
+Lines 3638–3649 of the version at `0a518fd`:
+
+~~~~~
+- **Engineering Notes:** through Entry #226 (v1.38), which covers `67f6ec1` — the
+  second of three regenerations closing the gap left by v1.36, chosen by Claude so that
+  no part is more than a session's work: the first, v1.37 at `f8805a6`, covered
+  `e7a94d1` to `eb86846`; the third covers `0491b84` to the tip. **Forty-eight commits
+  behind** — `0491b84`,
+  `a235783`, `8d5d64a`, `a48d9e5`, `fbd7877`, `8311167`, `d2dddf7`, `aa9e7ac`,
+  `391c338`, `8360923`, `ed005a0`, `e88e0dd`, `d508b29`, `9f2f3d7`, `d410bfa`,
+  `34d8e3b`, `ad34c02`, `89d2367`, `b387c03`, `9862568`, `3d7e6cb`, `78204ff`,
+  `0d86fda`, `b8f88d8`, `a1c4218`, `713e084`, `134f85b`, `fad0588`, `3dbd8dc`,
+  `a2ca918`, `d7d3ae0`, `b233c4a`, `6d073f9`, `8c810b1`, `248037d`, `e748b0b`,
+  `f6aa126`, `e69d5bb`, `e8b42b8`, `d6fba83`, `7c23886`, `e939734`, `1b82ed0`,
+  `7ff8128`, `5fe8522`, `7b93769`, `b990c93` and `f8805a6` — and the commit that
+~~~~~
+
+Lines 3652–3665 of the version at `0a518fd`:
+
+~~~~~
+  Batched, by the 15 September rule. v1.38 records round 8's three fixes, the label and
+  record batch — B6, N5, F3, F5, F6, F8, F9, the fallback sweep, the repeated readings,
+  B4's labels, B7, B9, B10 and Part 4's three test shapes — the rulings of 12 to
+  15 October that shaped it, Viktor's position of 6 October, and round 8's fix
+  verification decided, built, answered and accepted — each entry written from its
+  commit's message, none re-checked against the code. `code_hash` was recomputed on
+  all twenty-two trees and on `eb86846`, under Python 3.12.3, and every value is the one
+  its commit's message records (sixteen moves, to `bc1b9c2c…` at `9ea1cf3`); the golden
+  fixture was diffed field by field at each of its six re-baselines (`c2b07fb`,
+  `1b25f36`, `fcb7823`, `9e507b1`, `6469a67`, `22a9a35`), each moving the leaves its
+  message predicted. Its PDF's extracted text differs from v1.37's only by the
+  twenty-three entries, the new Document History row and fifteen footer page numbers
+  (154 pages to 170), compared word by word; v1.37's script at `f8805a6` rebuilt first
+  gave the committed v1.37 text exactly (Linux sandbox, reportlab 5.0.1).
+~~~~~
+
+Lines 3684–3685 of the version at `0a518fd`:
+
+~~~~~
+  `d6fba83`, `7c23886`, `e939734`, `7ff8128`, `7b93769`, `f8805a6` or the commit that
+  writes this line (this file at `b990c93` still had "the commit that writes this line" in this
+~~~~~
+
+Line 5234 of the version at `0a518fd`:
+
+~~~~~
+- **`f8805a6`'s landing**, checked from 03:00 on 4 November, and recorded by the
+~~~~~
+
+Lines 5237–5239 of the version at `0a518fd`:
+
+~~~~~
+- **The Engineering Notes, the second of three parts:** v1.38, Entries #204–#226,
+  through `67f6ec1` ("Where things stand").
+- **The patch-delivery skill's marker** stays at `b990c93`: neither `f8805a6` nor the
+~~~~~
+
+Line 5242 of the version at `0a518fd`:
+
+~~~~~
+  from the version at `f8805a6` are in HISTORY's new entry, checked by
+~~~~~
+
+Line 5270 of the version at `0a518fd`:
+
+~~~~~
+  `e748b0b`'s, `f6aa126`'s, `e69d5bb`'s, `e8b42b8`'s, `d6fba83`'s, `7c23886`'s, `e939734`'s, `7ff8128`'s, `5fe8522`'s and `f8805a6`'s landings found no entry more; entry 58 was found on a hand run, not a landing, entry 59 on `1b82ed0`'s landing, in its `run_tests.py` step, and landed by `5fe8522`, and entry 60 in the session that checked `7b93769`'s landing, and landed by `b990c93`, whose landing found no entry more. Entry 26, one of
+~~~~~
+
+Lines 5724–5725 of the version at `0a518fd`:
+
+~~~~~
+  the commit that writes this line adds none: both change the Notes' build script and
+  documents only, as `ec4e5fd` did. (This
+~~~~~
