@@ -1,6 +1,12 @@
 # The redesign (entry 53) — design draft
 
-*Draft v3, 7 November 2026, in the session that opened at 05:14 at `94b7e96`. Version 3
+*Draft v4, 7 November 2026, in the session that opened at 06:51 at `a11ffc4`. Version 4
+answers half of §12's point 6, which distance STATUS reads (§3.1), and corrects version
+1's statement of what sets STATUS today; it adds a line each to §4, §12, §13.2, §13.3
+and §14.
+No engine `.py` file changed between `94b7e96` and `a11ffc4`, so version 3's reads of
+the code hold at `a11ffc4`, where version 4's were made. Version 3, 7 November 2026, was
+written in the session that opened at 05:14 at `94b7e96`. Version 3
 states §2's direction as Viktor ruled it on 7 November — EMA50's slope and the EMAs'
 order, not EMA20's slope (DECISIONS, "Ruling, 7 November 2026 — the redesign's
 direction is EMA50's slope and the EMAs' order …") — which reconciles §2, §3.1 and §4
@@ -26,7 +32,8 @@ of 14 November (DECISIONS, "Ruling, 25 October 2026 — the engine's indicators 
 point 7). Nothing here is ruled but §2's direction (7 November), and no code is written
 from it until the whole design is. Each
 statement says where it comes from: **read** means read in the code at `e748b0b`
-(version 0), `e69d5bb` (version 1), `4ab59d7` (version 2) or `94b7e96` (version 3);
+(version 0), `e69d5bb` (version 1), `4ab59d7` (version 2), `94b7e96` (version 3) or
+`a11ffc4` (version 4);
 **ruled** names the
 ruling; **proposed** is Claude's suggestion; **to measure** is a number this draft
 does not have yet. Where
@@ -208,11 +215,48 @@ and the run is degraded. That is the 29 August rule: today's neutral defaults (V
 removing. **Consequence:** `ZONE_POINTS_NOT_MEASURED` and `ATR_POINTS_NOT_MEASURED`
 go, and so do the VWMA and RSI defaults.
 
-**Two distances in one record** (found in version 1). `entry.distance_from_zone`, the
-percent distance from the band's midpoint since F5, sets STATUS and stays; `d` is the
-same distance in ATRs. Which one STATUS reads is not proposed yet; noted so the record
-does not carry one measurement under two names without saying so (F8, one name for
-one meaning). Claude's, for version 2.
+**One distance, in three units today and four in the draft** (found in version 1;
+corrected and answered in version 4). **Corrected:** version 1 said that
+`entry.distance_from_zone` sets STATUS. It does not. Read at `a11ffc4`
+(`models/entry_model.py`, `calculate_entry_quality`, section 1): STATUS is set by the
+close's distance from the band's midpoint counted in band widths — ACTIVE ENTRY ZONE
+within one, NEAR ZONE within two, APPROACHING ZONE within 3.5, else AWAY FROM ZONE, with
+ZONE HAS NO WIDTH when the averages coincide, ZONE NOT AVAILABLE when one is missing,
+and NO DATA when the frame is. The same 1, 2 and 3.5 give today's 30-point zone part,
+which §3.2 removes; no ruling sets them. `distance_from_zone` is that same distance as a
+percent of the close (F5); it is recorded and printed and decides nothing. `d` is the
+same distance in ATRs. And the decision does not read a number at all: AGGRESSIVE reads
+the display word, `"ACTIVE" in entry_status.upper()` (read, `models/decision_model.py`,
+`_determine_final_action`).
+
+**Proposed, Claude's (version 4):**
+
+1. **The tier reads a true-or-false field, never the STATUS word.** The entry block
+   records the fact AGGRESSIVE needs, and STATUS is printed from that same field. A
+   change to a panel word then cannot change an action, and the word on the panel
+   cannot disagree with the tier. Which fact it is follows Viktor's reading of
+   AGGRESSIVE (§4), so there are two branches, and this draft does not choose between
+   them:
+   - **(a) "close inside the band":** the field is `entry.close_inside_band`, the
+     close between `EMA_20` and `EMA_50` with the ends included, as computation 2
+     reads it (`measure_draft_gaps.py`, reading 3). STATUS becomes a position with no
+     threshold: INSIDE THE BAND, ABOVE THE BAND or BELOW THE BAND. NEAR, APPROACHING
+     and AWAY go with their 2 and 3.5, and so does ZONE HAS NO WIDTH, because a close
+     has a position against two equal averages too. ZONE NOT AVAILABLE and NO DATA
+     stay. On the pinned run the field is false and STATUS reads ABOVE THE BAND (read:
+     close 0.80173175, `zone_upper` 0.77559759).
+   - **(b) today's ACTIVE ENTRY ZONE:** the field is `entry.in_active_entry_zone`,
+     the distance from the midpoint within one band width. STATUS keeps today's words
+     and thresholds, so the 2 and 3.5 stay, as display only, since no tier reads
+     them. On the pinned run the field is false and STATUS stays APPROACHING ZONE.
+2. **STATUS does not read `d`.** A STATUS in ATRs would need thresholds that no ruling
+   sets and no tier reads: the tiers' limits on `d` move with the HVN points (0.375 and
+   1.125 ATR with none, 1.125 and 1.875 with full ones, §4), so no fixed band of `d`
+   can name a tier.
+3. **The distance line prints both units, each named:** the percent from the band's
+   midpoint, as since F5, and `d` beside it, in ATRs (`entry.distance_atr`, §13.3).
+   `distance_from_zone` keeps its key and definition. That is one measurement under
+   two names, each name saying its unit (F8, one name for one meaning).
 
 ### 3.2 What leaves
 
@@ -301,7 +345,8 @@ nearly every run:**
   (§16.4); under versions 0 to 2's direction it never was (§16.1). Today's rule is not
   "inside the band" but ACTIVE ENTRY ZONE, a whole band width either side of the
   middle (§16.1, point 2); which one this line means is open, and the tier lines are
-  Viktor's (§0). Computation 2 counts both.
+  Viktor's (§0). Computation 2 counts both. Under either reading the line reads a
+  true-or-false field in the entry block, not the STATUS word (§3.1, version 4).
 - **CONSERVATIVE:** 50 ≤ quality < 70.
 - **WAIT:** under 50 — not a pullback.
 
@@ -447,7 +492,9 @@ trend health goes, and it is noted so it is not lost.
 5. Done in version 2: "what it weakens" and "the case against", written for the
    design as a whole (§16).
 6. Added in version 1: which distance STATUS reads (§3.1), and the second pinned
-   decision's candle (§10).
+   decision's candle (§10). Half done in version 4: STATUS (§3.1), in two branches
+   that follow Viktor's reading of AGGRESSIVE. Left: the second pinned decision's
+   candle.
 7. Added in version 2, done in version 3: §2, §3.1 and §4 reconciled (§16.1, §16.4),
    by Viktor's ruling of 7 November on the floor; entry quality's formula is
    unchanged. The decision of 2 November's computation 1 was amended in place the same
@@ -522,6 +569,10 @@ So the action moves from CONSERVATIVE LONG to WAIT, at gate 8.
 - `entry` (1): `structure_multiplier`
 - `provenance.module_constants` (3): `models.entry_model.CONFLUENCE_BOOST_MULT`, `models.entry_model.CONFLUENCE_PENALTY_MULT`, `models.entry_model.SCORE_CEILING`
 
+**Version 4 (§3.1):** `entry.entry_status` is counted below as unchanged. It stays
+unchanged under branch (b) and moves under branch (a), to ABOVE THE BAND on the pinned
+run. The counts above are version 1's and were not re-made for it.
+
 **Unchanged — 125:**
 - `bias` (3): `raw`, `regime`, `volatility`
 - `btc_context` (9): `available`, `beta`, `broad_market_stress`, `correlation`, `correlation_label`, `degraded_inputs`, `n_observations`, `regime`, `volatility`
@@ -556,7 +607,9 @@ So the action moves from CONSERVATIVE LONG to WAIT, at gate 8.
 - `entry`: `distance_atr` (3.20703059 on the pinned run, computed), `distance_pts`
   (0.0), `hvn_distance_atr` (15.12021342), `hvn_pts` (0.0), `trigger` (false),
   `trigger_volume` (84693.7281), `trigger_volume_median` (179247.8923),
-  `quote_volume` (the fixture's value) and `liquidity_floor` (F).
+  `quote_volume` (the fixture's value) and `liquidity_floor` (F). Added in version 4
+  (§3.1): one true-or-false field for AGGRESSIVE, `close_inside_band` under branch (a)
+  or `in_active_entry_zone` under branch (b), false on the pinned run either way.
 - `lineage.direction`: `ema20_rising`, `ema50_rising`, `ema20_above_ema50` (each
   true) and `result` (BULLISH), in place of `lineage.bias_components`. The four
   numbers they compare are already in `lineage.indicators_at_decision_bar`, so they
@@ -598,6 +651,21 @@ they were not examined further. Files that go whole: `test_engine_core_confidenc
 `test_trend_score_has_a_denominator.py`, `test_validation_score_has_a_denominator.py`
 and `test_volume_agreement.py`; `test_bias_label.py` keeps two tests, and
 `test_no_circular_reasoning.py` one.
+
+**Version 4 (§3.1), not re-classified.** STATUS's words were found in `tests/` by grep
+at `a11ffc4`, not by reading each test. Under branch (a), four tests' assertions on a
+STATUS word move, and each is already R or G below for another reason:
+`test_entry_zone_is_measured.py::test_a_real_zone_still_scores_exactly_as_before` (R;
+its NEAR, APPROACHING and AWAY expectations go), `::test_a_zone_with_no_width_is_not_given_one`
+(G), `test_band_distance_is_from_the_midpoint.py::test_inside_the_band_the_line_names_the_midpoint`
+(R; ACTIVE ENTRY ZONE becomes INSIDE THE BAND) and
+`test_an_absent_value_is_not_a_reading.py::test_negative_control_present_readings_still_print`
+(R; its NEAR ZONE line). Under branch (b) none of those words moves, and
+`test_a_zone_with_no_width_is_not_given_one` is rewritten rather than removed, because
+STATUS still uses the band's width: one G becomes an R. Under either branch, a test
+that reaches AGGRESSIVE by giving an entry block the word ACTIVE ENTRY ZONE gives it the
+new field instead. Those tests were classified R below from their names, and were not
+re-read for version 4.
 
 **The two X**, flagged because a test written to hold a ruling would be turned
 round: `test_macro_counts_once.py::test_a_conservative_long_does_not_depend_on_macro`
