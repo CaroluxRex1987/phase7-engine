@@ -219305,3 +219305,228 @@ Lines 5802–5803 of the version at `706e858`:
   `0a518fd` and `a0ca299` added none and the commit that writes this line adds none:
   all four change the Notes' build script and documents only, as `ec4e5fd` did. (This
 ~~~~~
+
+## 7 November 2026 — the lines the rewrite of PHASE7_NEXT.md removed from its version at `4ab59d7`
+
+*Moved here on 7 November 2026 by the commit that files the redesign draft's version 2
+and records `4ab59d7`'s landing, under "Ruling, 4 November 2026 — HISTORY keeps what
+each rewrite of PHASE7_NEXT.md removes, not the whole file" (DECISIONS). Below the
+rule, each block is a run of lines of the file as it stood at `4ab59d7` that the
+rewrite deleted or replaced, word for word, labelled with its line numbers in that
+version; "this session" in them is the session that opened at 01:13 on 7 November,
+and "the commit that writes this line" names `4ab59d7`, except in the bullet "Before
+this commit", which that version carried unchanged from `bc250fc`, where "this
+commit" names `bc250fc`. The whole version: `git show 4ab59d7:docs/PHASE7_NEXT.md`.
+Checked by `docs/build/check_history_move.py`.*
+
+---
+
+Lines 3–5 of the version at `4ab59d7`:
+
+~~~~~
+*7 November 2026, in the session that opened at 01:13. Rewritten by the commit that
+adds the forward measurement's count and records `706e858`'s landing; the lines it
+removed from the version at `706e858` are in HISTORY, which points to that whole
+~~~~~
+
+Lines 2226–2229 of the version at `4ab59d7`:
+
+~~~~~
+**This session (7 November, from 01:13)**, configured for Claude Opus 5.5, opened at
+`706e858` and checked its landing, by the patch-delivery skill's section 10. GitHub's
+tip, read with no credentials at 01:14:56 (the probe asked for credentials, so none
+reached it), is `706e858`; its tree `61b338d8…` is the one its `Verified-Tree:` line
+~~~~~
+
+Lines 2231–2234 of the version at `4ab59d7`:
+
+~~~~~
+`python docs/build/check_history_move.py --base 706e858~1` on the tip gives the line
+its message recorded, 40 lines in 14 runs. Viktor's disk, staged after 01:14: the four
+files the commit changed written at 00:52:46 and each byte for byte the tip; the index
+the tip's tree, 301 entries; the loose commit object hashing to `706e858`, GitHub's
+~~~~~
+
+Lines 2236–2239 of the version at `4ab59d7`:
+
+~~~~~
+`origin/master` `706e858`, the reflogs' "commit:" at 01:03:01 and "update by push" at
+01:03:15; the pytest cache rewritten at 00:55:55, after the apply (`706e858` added no
+test), `lastfailed` `{}`; no patch or message file in the root. Nothing differed. The
+skill's marker is at `706e858` (Viktor saved the card), and
+~~~~~
+
+Lines 2242–2263 of the version at `4ab59d7`:
+
+~~~~~
+then work due by its date — the reading of 14 November, whose forward count has no
+filed method: the reading of 31 October was counted by a script in the sandbox that
+was never committed (`6d073f9`'s message and `docs/build/` both checked), so it cannot
+be re-run, and the reading of 14 November could not be checked against it.
+`measure_draft_gaps.py` computes the redesign's gaps, not this count. So Claude wrote
+`docs/build/count_forward_measurement.py` from the decision of 17 October, with
+`tests/test_count_forward_measurement.py` on synthetic records only, and, as the check
+that it counts as that reading did, ran it on Viktor's logs staged after 01:17 on
+7 November over the window of 31 October: every figure that reading filed came out
+the same (Open items, the forward measurement). No candle after that window was
+counted. Viktor turned the laptop off at 01:34 with the work in the sandbox only,
+nothing written to his disk; it was finished from 04:03, after he turned it on again.
+**Found while rewriting:** `706e858`'s rewrite left four of `bc250fc`'s sentences
+saying "the commit that writes this line" — the tests that changed, `code_hash`, the
+test counts and the change list's paragraph — so that file named `706e858` there for
+what `bc250fc` did, and left `bc250fc` out of each list; the change list's paragraph
+said the commit adds no line because it changed the Notes' build script only, which
+`706e858` did not change. And its "Resolved this session" said `bc250fc`'s push was in
+"Where things stand", which had no line for it. Each now names `bc250fc` and `706e858`
+for what each did, and the push is recorded. The commit that writes this line adds the
+script and its tests, records `706e858`'s landing, and changes `README.md`'s test
+counts: documentation tooling, a test file and docs, no engine code.
+~~~~~
+
+Lines 2826–2828 of the version at `4ab59d7`:
+
+~~~~~
+  the forward measurement's count, `docs/build/count_forward_measurement.py`, added
+  with its tests, and `706e858`'s landing recorded: documentation tooling, a test file
+  and docs, no engine code. Before it: `706e858` (the session of 7 November, from
+~~~~~
+
+Lines 3144–3146 of the version at `4ab59d7`:
+
+~~~~~
+  `f8805a6`, `0a518fd`, `a0ca299`, `bc250fc` and `706e858` changed no test, and the
+  commit that writes this line adds `tests/test_count_forward_measurement.py` (24
+  tests, none taking a fixture or needing `pandas_ta`) and changes no other test.
+~~~~~
+
+Lines 3158–3159 of the version at `4ab59d7`:
+
+~~~~~
+- **The push of `706e858`** happened, at 01:03:15 on 7 November: GitHub's tip, read
+  with no credentials at 01:14:56, is `706e858`, Viktor's disk is the tip in every part
+~~~~~
+
+Line 3161 of the version at `4ab59d7`:
+
+~~~~~
+  no deviation (ruling on proposal (b)). So did `bc250fc`'s, at 00:21:41 on
+~~~~~
+
+Lines 3317–3318 of the version at `4ab59d7`:
+
+~~~~~
+  matched an autocrlf checkout of `a0ca299`, GitHub's tip, cloned at 23:46 on
+  6 November, byte for byte, before the patch was built; it adds no file.
+~~~~~
+
+Lines 3350–3352 of the version at `4ab59d7`:
+
+~~~~~
+  under `docs/` and `README.md`, which is not a `.py` file, and by the commit that
+  writes this line, which changes files under `docs/` and `tests/`, which it does not
+  read, and `README.md`, which is not a `.py` file: computed
+~~~~~
+
+Lines 3361–3363 of the version at `4ab59d7`:
+
+~~~~~
+  `7b93769`, `b990c93`, `f8805a6`, `0a518fd`, `a0ca299`, `bc250fc` and `706e858` and
+  the applied tree of the commit that writes this line give the same (`bc250fc`'s,
+  `706e858`'s and the applied tree computed on 7 November, under Python 3.12.3); on
+~~~~~
+
+Lines 3377–3379 of the version at `4ab59d7`:
+
+~~~~~
+- **Golden snapshot:** unchanged by the commit that writes this line, which adds a
+  script under `docs/` and a test, neither reading the fixture, and changes
+  `README.md`'s counts and docs, by `706e858`, which changed `README.md`'s wording and
+~~~~~
+
+Lines 3430–3436 of the version at `4ab59d7`:
+
+~~~~~
+  until `713e084` (entry 50). The commit that writes this line adds
+  `tests/test_count_forward_measurement.py`, 24 tests, none taking a fixture and none
+  needing `pandas_ta`, so each passed count moved by 24 and the error count held: from
+  the Linux sandbox, Python 3.12.3, pinned requirements, the patch applied to an
+  autocrlf clone of `706e858`. `706e858` changed no test, and the three counts held:
+  run again on an autocrlf clone of it in this session's sandbox, 951, 775 / 165 and
+  883 / 0 / 31; its pytest step ran on Windows after the apply (the cache on his disk
+~~~~~
+
+Line 3760 of the version at `4ab59d7`:
+
+~~~~~
+  `a0ca299` `0491b84` to `b8f88d8`, and v1.40 `a1c4218` to `0a518fd`. **Two commits
+~~~~~
+
+Lines 3762–3763 of the version at `4ab59d7`:
+
+~~~~~
+  F2, and the commit that writes this line, which adds the forward measurement's
+  count; `a0ca299` and `bc250fc`, v1.39's and v1.40's own regenerations,
+~~~~~
+
+Lines 3793–3794 of the version at `4ab59d7`:
+
+~~~~~
+  799 / 165 and 907 passed, 0 failed), last changed by the commit that writes this
+  line, which changes only the numbers, for its 24 new tests, and before it by
+~~~~~
+
+Line 5357 of the version at `4ab59d7`:
+
+~~~~~
+- **`706e858`'s landing**, checked from 01:13 on 7 November, and recorded by the
+~~~~~
+
+Lines 5359–5366 of the version at `4ab59d7`:
+
+~~~~~
+  4 November). Its push, and `bc250fc`'s, are in "Where things stand".
+- **The forward measurement's count has a filed method:**
+  `docs/build/count_forward_measurement.py` and its tests, added by the commit that
+  writes this line; on the window of 31 October it gives that reading's figures
+  (Open items, the forward measurement).
+- **The patch-delivery skill's marker** is at `706e858`, Viktor having saved the
+  card. The commit that writes this line files no ruling and changes no procedure the
+  skill describes, so the marker stays.
+~~~~~
+
+Line 5368 of the version at `4ab59d7`:
+
+~~~~~
+  from the version at `706e858` are in HISTORY's new entry, checked by
+~~~~~
+
+Line 5443 of the version at `4ab59d7`:
+
+~~~~~
+  22 September, entry 58). **Design draft, version 1**, Claude's, started 1 November:
+~~~~~
+
+Line 5445 of the version at `4ab59d7`:
+
+~~~~~
+  `e8b42b8`). Not ruled. Version 1
+~~~~~
+
+Line 5465 of the version at `4ab59d7`:
+
+~~~~~
+  Viktor keeps them.
+~~~~~
+
+Line 5648 of the version at `4ab59d7`:
+
+~~~~~
+    7 November by the commit that writes this line, makes the count the decision of
+~~~~~
+
+Lines 5878–5879 of the version at `4ab59d7`:
+
+~~~~~
+  the Notes' script; corrected on 7 November); the commit that writes this line adds
+  its own. (This
+~~~~~

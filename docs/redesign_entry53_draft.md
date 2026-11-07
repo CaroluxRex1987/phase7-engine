@@ -1,6 +1,13 @@
 # The redesign (entry 53) — design draft
 
-*Draft v1, 1 November 2026, in the session that opened at 21:02. Version 0 was started
+*Draft v2, 7 November 2026, in the session that opened at 04:30 at `4ab59d7`. Version 2
+adds §16, what the design weakens and the case against, written before any of the
+reading of 14 November's data was read for it; writing it found that §2's direction
+and the band of §3.1 and §4 cannot meet (§16.1), which adds point 7 to §12 and a
+pointer each to §3.1 and §4. No engine `.py` file changed between `e69d5bb` and
+`4ab59d7` (`git diff --stat`, files outside `docs/` and `tests/`), so version 1's
+reads of the code hold at `4ab59d7`, where version 2's were made. Version 1, 1 November
+2026, was written in the session that opened at 21:02. Version 0 was started
 in the session that opened at 17:49, read at `e748b0b`, and filed at `e69d5bb`.
 Version 1 adds §13, every golden field one by one, and §14, every test the design
 moves one by one; reads entries 14 and 19 against §3.2 and rewrites that paragraph;
@@ -11,8 +18,9 @@ made. Claude's draft. It will be put to Viktor after the forward measurement's r
 of 14 November (DECISIONS, "Ruling, 25 October 2026 — the engine's indicators …",
 point 7). Nothing here is ruled, and no code is written from it until it is. Each
 statement says where it comes from: **read** means read in the code at `e748b0b`
-(version 0) or `e69d5bb` (version 1); **ruled** names the ruling; **proposed** is
-Claude's suggestion; **to measure** is a number this draft does not have yet. Where
+(version 0), `e69d5bb` (version 1) or `4ab59d7` (version 2); **ruled** names the
+ruling; **proposed** is Claude's suggestion; **to measure** is a number this draft
+does not have yet. Where
 something was not checked, the sentence says so.*
 
 ## 0. Who decides what
@@ -156,7 +164,8 @@ The HVN part uses percent distance (under 1.5% full, under 3% 8 points, else 4).
 - **Distance:** `d = |close − band_mid| / ATR`, where `band_mid` is the midpoint of
   `EMA_20` and `EMA_50`, the band the engine already uses (`zone_lower` / `zone_upper`
   in the record, read). **D = 80 × max(0, 1 − d / 3).** Full points at the band's
-  middle, nothing beyond three ATRs.
+  middle, nothing beyond three ATRs. On a candle §2 gives a side the middle is never
+  reached (§16.1, version 2).
 - **HVN nearness:** `h = |close − HVN| / ATR`. **H = 20 × max(0, 1 − h / 2).** Measured
   in ATRs like distance, so the two parts read in one unit. Today's HVN part uses
   percent distance.
@@ -265,6 +274,8 @@ nearly every run:**
 - **LONG / SHORT:** quality ≥ 70.
 - **AGGRESSIVE:** quality ≥ 70, close inside the band, and the risk regime NORMAL or
   LOW. Today's rule minus trend health; Item 14's gate on intensity is kept as it is.
+  Under §2 no close with a side is inside the band, so as written this tier is never
+  reached, and today's rule is not "inside the band" (§16.1, version 2).
 - **CONSERVATIVE:** 50 ≤ quality < 70.
 - **WAIT:** under 50 — not a pullback.
 
@@ -407,9 +418,15 @@ trend health goes, and it is noted so it is not lost.
 3. Done in version 1: entries 14 and 19 read against §3.2.
 4. A count of how often the whole ladder trades on the ten pairs, compared with
    today's version on the same candles.
-5. "What it weakens" and "the case against", written for the design as a whole.
+5. Done in version 2: "what it weakens" and "the case against", written for the
+   design as a whole (§16).
 6. Added in version 1: which distance STATUS reads (§3.1), and the second pinned
    decision's candle (§10).
+7. Added in version 2: §2, §3.1 and §4 reconciled (§16.1) — entry quality's formula
+   Claude's, the floor and the tier lines Viktor's. If that changes a rule the
+   decision of 2 November measures, the decision's change is filed before the
+   reading's data is read; otherwise the reading measures version 1's rules and
+   says so.
 
 ## 13. The golden snapshot, field by field (version 1)
 
@@ -1089,3 +1106,129 @@ Recorded, not quietly changed:
 3. **§5 gave an unmeasured market the label of a thin one.** An absent
    `quote_volume` now degrades the run instead of failing gate 7 as NO-TRADE (THIN
    MARKET).
+
+## 16. What it weakens, and the case against (version 2)
+
+*Written on 7 November 2026, in the session that opened at 04:30 at `4ab59d7`, before
+any of the reading of 14 November's data was read for it, so that the case against
+cannot be fitted to that reading (§12, point 5). It is for the design as a whole, as
+drafted; what the rulings themselves weaken is in their own entries ("Ruling,
+25 October 2026 — the engine's indicators …", "Ruling, 31 October 2026 — volume enters
+the redesign as two gates …"), and what the reading's method weakens in "Decision,
+2 November 2026 — how the reading of 14 November measures the redesign draft's gaps …".
+Neither is repeated here.*
+
+### 16.1 Found writing it: §2's direction and the band of §3.1 and §4 cannot meet
+
+**Read** at `4ab59d7`, in `indicators/indicators.py`: `EMA_20` and `EMA_50` come from
+`ta.ema`, or from `ewm(span, adjust=False)` when it fails, and each slope is the
+one-candle change of its EMA, `(EMA_t − EMA_{t−1}) / EMA_{t−1} × 100` (the slope loop).
+Both EMAs are recursive after their warm-up: `EMA_t = EMA_{t−1} + α × (close_t −
+EMA_{t−1})`, with α = 2 / (length + 1) between 0 and 1. So, on every candle after the
+warm-up:
+
+- `EMA20_Slope` is above zero exactly when the close is above the previous candle's
+  `EMA_20`; the same holds for `EMA50_Slope` and `EMA_50`.
+- When it is, `EMA_20` moves part of the way toward the close and stops short of it,
+  so **the close is above this candle's `EMA_20` as well.**
+
+**Checked** in the sandbox (Linux), on the pinned candles: through the engine's
+`add_technical_indicators` with `pandas_ta`, and through `ewm(span, adjust=False)`
+alone without it, the sign of each slope equalled the sign of the close minus the
+previous EMA on all 400 rows of `AEROUSDT_4h.csv` and of `BTCUSDT_4h.csv`, and on
+every row §2's rule calls BULLISH the close was above `EMA_20` (236 rows on AERO, 110
+on BTC), on every BEARISH row below it (42, 145). The identity is algebra and holds on
+any candles and either platform; the check is that the code computes what the algebra
+assumes. Whether `ta.ema`'s warm-up seed differs from `ewm`'s was not read; it does not
+reach a candle after the warm-up.
+
+What follows for the draft as written:
+
+1. **§2's rule, stated plainly:** BULLISH is "the close is above both EMAs' previous
+   values, and `EMA_20` is above `EMA_50`" — one candle's close against two levels.
+   That is what "EMA slope up" in ruling 1's hypothesis means on a one-candle slope.
+   Whether it is what Viktor meant is his to say (§0).
+2. **No candle with a side closes inside the band.** When `EMA_20` is above `EMA_50`
+   the band's upper edge is `EMA_20`, and a BULLISH close is above it; BEARISH is the
+   mirror. **§4's AGGRESSIVE, read as "close inside the band", is never reached, on
+   either side.** Version 1 called that condition "today's rule minus trend health";
+   today's rule is ACTIVE ENTRY ZONE, a close within one band width of the midpoint
+   (`models/entry_model.py`, `dist_to_mid <= zone_width`, read), which is not the same.
+   Read that way, AGGRESSIVE is reached only by a close between the band's edge and
+   half a band width beyond it. `docs/build/measure_draft_gaps.py` counts both (its
+   reading 3); which one §4 means is open.
+3. **§3.1's full distance points are never reached on a candle with a side.** There
+   `d` is more than half the EMAs' gap in ATRs, `(EMA_20 − EMA_50) / (2 × ATR)`, so the
+   gap caps D: at a gap of 2 ATR, D stays under 160 / 3, about 53.3, and LONG (70)
+   needs the HVN within a third of an ATR. The tier therefore partly reads the EMAs'
+   spread, and a wider spread scores worse. Whether a wider spread goes with a
+   stronger trend on these pairs was not checked.
+4. **What the design does, then:** it enters on the candle that closes back above the
+   previous `EMA_20` (and above its own open and the previous close, §5's trigger), and
+   scores how little that close is beyond the band. That is a defensible pullback
+   entry, the reclaim of the fast average, but it is not the pullback to the band's
+   middle that §3.1 says it scores.
+
+**Predicted for the reading of 14 November, from the identity and not from data:**
+computation 2's AGGRESSIVE count with the close inside the band is zero on every pair,
+whatever the candles; its count as today reads AGGRESSIVE can hold only closes in the
+strip of point 2. Every record whose close is at or under the previous `EMA_20` and
+whose action today is a LONG is NEUTRAL under the draft, which bears on computation
+1(b); no number is predicted for it.
+
+**Not decided here.** §2, §3.1 and §4 are reconciled before the draft goes to Viktor
+(§12, point 7). Ways it could go, none proposed yet: measure entry quality's distance
+from `EMA_20`, or from the band's near edge, instead of the middle; take the floor
+from `EMA_50`'s slope and the cross, which lets a close sit inside the band; or drop
+AGGRESSIVE's band condition. The floor and the tier lines are Viktor's (§0); entry
+quality's formula is Claude's.
+
+### 16.2 What it weakens
+
+- **Direction rests on one candle's close against two levels** (16.1, point 1), where
+  today's sum takes six inputs. A close a tick either side of the previous `EMA_20`
+  turns BULLISH into NEUTRAL, with no hysteresis. Entry 6, a side held for N closed
+  candles, is a separate trading rule of Viktor's and not in this design.
+- **Three paths to WAIT go and nothing replaces them:** the CHOCH ×0.5 discount (§2),
+  H1's branch (§4, §8) and trend health's tiers; and the exit watch loses its
+  exhaustion and reversal flags (§2). Each is flagged where it is. Together, the design
+  drops refusals of today's kind and adds gates of a new kind, and the reading counts
+  only how often it would trade (computation 6), not whether the refusals it drops were
+  right.
+- **The record loses its continuous measures.** `bias.score`, confidence and the
+  validation score leave (§2, §4, §7). A reader of the paper-trading year's records sees
+  which gates passed and a tier, and no number for how strong a case was; entry
+  quality is the only score left.
+- **The golden snapshot stops covering a trade's plan** until the second pinned
+  decision (§10) is chosen. Until then, a defect in a passing run's stop, targets or
+  sizing would not move the golden test.
+- **More runs degrade.** A missing ATR, band or HVN no longer scores a neutral part
+  (§3.1), and an absent `quote_volume` degrades the run (§5). That keeps the rule of
+  29 August, and it means more runs that authorize no trade.
+- **Its new numbers are set by reasoning only:** entry quality's 80, 3, 20 and 2, the
+  CONSERVATIVE line 50 and the trigger's lookback of 20 (§13.3) — six constants, none
+  on the tunable list (§9) and none measured against an outcome. F is measured by the
+  reading and is Viktor's.
+
+### 16.3 The case against
+
+1. **16.1.** As drafted, §2 and §3.1 and §4 describe two different entries. Until they
+   are reconciled the draft is not ready to put to Viktor, whatever the reading shows.
+2. **The trigger is proposed, not ruled** (§5): the ruling of 31 October assumes a
+   resumption candle and does not define one, and the trigger decides when the engine
+   enters. It is one candle's shape, chosen without data; backtesting is closed, so
+   nothing will show whether it picks better entries than no trigger, and the reading
+   counts only how often it blocks.
+3. **Gates in series.** Ten gates, each a refusal. Today's sum lets a strong part
+   outweigh a weak one; the gates do not. The reading counts what that costs in trades
+   (computation 6), not what it saves.
+4. **The size of one change.** 467 of the suite's 874 test functions move and 81 of
+   227 golden leaves go (§13, §14), on the decision path, in one change (ruling 7 of
+   25 October). The defect this project names most often, the `confidence_score` →
+   `confidence` rename that broke fourteen modules, came from one renamed field. §14's
+   list is the guard — a test that moves and is not on it stops the work — and its
+   verdicts were classified from names and docstrings, not read line by line (§14,
+   "Method").
+5. **The design and this section have one author.** Every proposal here is the code's
+   author's, and so is the case against it. Amazon's audit, after the design is built,
+   is the first reading by anyone else (ruling 8 of 25 October).
