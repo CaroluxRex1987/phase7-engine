@@ -1,6 +1,12 @@
 # The redesign (entry 53) — design draft
 
-*Draft v6, 7 November 2026, in the session that opened at 19:30 at `b874ec1`. Version 6
+*Draft v7, 7 November 2026, in the session that opened at 21:56 at `9db4ae2`. Version 7
+states §3.3 as Viktor ruled it on 7 November, the structure multiplier removed
+(DECISIONS, "Ruling, 7 November 2026 — the redesign's entry quality has no structure
+multiplier"), and brings §0, §2, §3, §3.3, §12, §13.2 and §16.2 to it. Version 7 reads
+the code at `9db4ae2` for one thing, what the structure gate compares (§2); no engine
+`.py` file changed between `b874ec1` and `9db4ae2`. Version 6, 7 November 2026, was
+written in the session that opened at 19:30 at `b874ec1`. Version 6
 states §4's AGGRESSIVE as Viktor ruled it on 7 November, the close inside the band
 (DECISIONS, "Ruling, 7 November 2026 — the redesign's AGGRESSIVE reads the close inside
 the band"), so §3.1's branch (a) is the design's and branch (b) is recorded as not
@@ -42,12 +48,13 @@ of version 0 that were wrong (§15). No `.py` file changed between `e748b0b` and
 `e69d5bb`, so version 0's reads of the code hold at `e69d5bb`, where version 1's were
 made. Claude's draft. It will be put to Viktor after the forward measurement's reading
 of 14 November (DECISIONS, "Ruling, 25 October 2026 — the engine's indicators …",
-point 7). Nothing here is ruled but §2's direction and §4's reading of AGGRESSIVE (both
-7 November), and no code is written
+point 7). Nothing here is ruled but §2's direction, §4's reading of AGGRESSIVE and §3.3's
+structure multiplier (all three 7 November), and no code is written
 from it until the whole design is. Each
 statement says where it comes from: **read** means read in the code at `e748b0b`
 (version 0), `e69d5bb` (version 1), `4ab59d7` (version 2), `94b7e96` (version 3) or
-`a11ffc4` (version 4) or `542085f` (version 5); version 6 reads none;
+`a11ffc4` (version 4) or `542085f` (version 5); version 6 reads none; version 7 reads
+at `9db4ae2`;
 **ruled** names the
 ruling; **proposed** is Claude's suggestion; **to measure** is a number this draft
 does not have yet. Where
@@ -60,9 +67,10 @@ something was not checked, the sentence says so.*
   rulings, so they are his even under the delegation of 29 October: the strength floor
   (§2; ruled on 7 November), the trigger candle (§5), the liquidity floor's value (§5), the tier lines
   (§4; which reading of AGGRESSIVE they mean ruled on 7 November, the lines themselves
-  not), whether the structure multiplier stays (§3.3), any ruled value named as
-  tunable (§9), and, added in version 1, the exit watch's exhaustion and reversal
-  flags, which go with trend health if nothing keeps them (§2).
+  not), whether the structure multiplier stays (§3.3; ruled on 7 November, removed),
+  whether a CHOCH against the side becomes its own gate (§2; version 7), any ruled
+  value named as tunable (§9), and, added in version 1, the exit watch's exhaustion
+  and reversal flags, which go with trend health if nothing keeps them (§2).
 - **Claude's, proposed here for him to reverse:** entry quality's formula and weights
   (§3), the order of the gates (§4), the sentence rule (§6), the code's shape, the
   tests, and the replacements for H1, H2 and H5 (§8), which Viktor accepts or rejects
@@ -148,9 +156,15 @@ it measures with a second number the same thing ADX already gates.
   inputs, so H2 cannot stay (§8).
 - The CHOCH-against-trend ×0.5 discount on `bias_score` disappears with the sum.
   Today it can push a bias under the floor and into WAIT. The structure-regime gate
-  (§4) and the structure multiplier (§3.3) still read structure; whether CHOCH should
-  also be its own gate is not proposed here. **Flagged for Viktor:** this is a path
-  that can reach WAIT and goes away.
+  (§4) still reads structure, but the regime only: `signal_blockers`
+  (`models/entry_model.py`) compares `structure_regime`, BULLISH TREND or BEARISH
+  TREND, and never the swing sequence, which `_detect_sequence`
+  (`structure/structure.py`) computes apart from it (read at `9db4ae2`, version 7).
+  Versions 0 to 6 said the gate and the structure multiplier still read structure;
+  with the multiplier removed on 7 November (§3.3), **nothing in the design reads a
+  CHOCH**. Whether a CHOCH against the side should be its own gate is not proposed
+  here; it is Viktor's, put to him with the whole design and the count of §12's
+  point 8. **Flagged for Viktor:** this is a path that can reach WAIT and goes away.
 - The BTC section calls the same bias function (`core/engine_core.py`, the BTC
   block, read). It takes the new function and stays reference only;
   `btc_context.trend_health` and its score go.
@@ -215,7 +229,7 @@ The HVN part uses percent distance (under 1.5% full, under 3% 8 points, else 4).
   in ATRs like distance, so the two parts read in one unit. Today's HVN part uses
   percent distance.
 - **Entry quality = D + H**, from 0 to 100. There is no multiplier and no clip
-  (except §3.3).
+  (§3.3, ruled on 7 November; versions 0 to 6 said "except §3.3").
 
 **Why 80 / 20.** The hypothesis is a pullback to the average (ruling 1), so distance
 is the question; HVN is supporting evidence that a level is there. Keeping HVN at 20
@@ -314,13 +328,23 @@ Version 0 said both were settled here; two of its reasons were wrong (§15).
   the median. `structure.volume_sentiment` stays in the record and on the panel as
   information nothing decides on.
 
-### 3.3 The structure multiplier — Viktor's
+### 3.3 The structure multiplier — ruled on 7 November: removed
 
 BOS ×1.05 and CHOCH ×0.90 (read) are not covered by the eight rulings, and they stay
 "unless Viktor rules otherwise" (25 October). **Claude's suggestion, his to rule:**
 remove it. It is the last multiplier on a score whose other two were removed for
 moving a tier on a factor measured elsewhere, and the structure regime is already a
 gate. If it stays, it multiplies D + H, and the score is clipped at 100.
+
+**Version 7:** Viktor ruled on 7 November to remove it (DECISIONS, "Ruling, 7 November
+2026 — the redesign's entry quality has no structure multiplier"). Entry quality is
+D + H, with no multiplier and no clip, and `structure_multiplier`,
+`CONFLUENCE_BOOST_MULT`, `CONFLUENCE_PENALTY_MULT` and `SCORE_CEILING` leave (§13.2).
+The suggestion's "the structure regime is already a gate" was taken from version 0 and
+holds for the regime only: the gate never reads BOS or CHOCH (§2, read at `9db4ae2`),
+so with the multiplier gone no part of the design reads a CHOCH. Recorded as Claude's
+error in the ruling's entry; whether CHOCH becomes its own gate is Viktor's, with the
+count of §12's point 8.
 
 ## 4. The ladder and the gates
 
@@ -605,6 +629,12 @@ design. It is entry 61 of the list for after the audit (PHASE7_NEXT.md, "Found a
    day, before the reading's data was read. Left with the tier lines, Viktor's: which
    reading of AGGRESSIVE §4 means. Done in version 6: he ruled the close inside
    the band on 7 November (§4); the lines themselves stay with point 1.
+8. Added in version 7, Claude's, before the data is read: one count more for the
+   reading of 14 November. Of the records with a side, how many have a swing sequence
+   that is a CHOCH against that side (`structure.sequence`), and how many of those pass
+   every other gate — so that whether CHOCH becomes its own gate (§2, §3.3) comes to
+   Viktor with a number. An amendment to the decision of 2 November and to
+   `docs/build/measure_draft_gaps.py`, in a commit of its own.
 
 ## 13. The golden snapshot, field by field (version 1)
 
@@ -637,7 +667,8 @@ So the action moves from CONSERVATIVE LONG to WAIT, at gate 8.
 ### 13.2 Every leaf
 
 227 leaves (a list counts as one). 125 unchanged, 81 removed, 15 move, 2 renamed, and
-4 that are Viktor's.
+4 that were Viktor's, removed by his ruling of 7 November on §3.3 (version 7): 85
+removed in all.
 
 **Removed — 81.** Each leaves the record with what produces it.
 - `bias` (1): `score`
@@ -670,7 +701,8 @@ So the action moves from CONSERVATIVE LONG to WAIT, at gate 8.
 - `provenance.module_constants.models.decision_model.DecisionModel.AGGRESSIVE_ENTRY_SCORE_MIN` — becomes the one 70 line for LONG / SHORT and AGGRESSIVE (§4); value 70.0 unchanged
 - `provenance.module_constants.models.decision_model.DecisionModel.DEGRADED_CONFIDENCE_CEILING` — renamed to say it caps trade quality (§7); value 50.0 unchanged
 
-**Viktor's — 4**: removed if the structure multiplier goes (§3.3), unchanged if it stays:
+**Were Viktor's — 4**, removed: the structure multiplier goes (§3.3, ruled on 7 November;
+versions 1 to 6 had them removed if it went, unchanged if it stayed):
 - `entry` (1): `structure_multiplier`
 - `provenance.module_constants` (3): `models.entry_model.CONFLUENCE_BOOST_MULT`, `models.entry_model.CONFLUENCE_PENALTY_MULT`, `models.entry_model.SCORE_CEILING`
 
@@ -1404,6 +1436,11 @@ quality's formula is Claude's.
   drops refusals of today's kind and adds gates of a new kind, and the reading counts
   only how often it would trade (computation 6), not whether the refusals it drops were
   right.
+- **No part of the design reads a CHOCH** (version 7). Today a CHOCH against the side
+  is read twice, by the bias's ×0.5 discount (§2) and the entry score's ×0.90 (§3.3);
+  both go, and the structure gate reads the regime only (§2). A LONG on CHOCH BEARISH
+  passes wherever the regime is BULLISH TREND. How often the two disagree is what §12's
+  point 8 counts; a gate for it is Viktor's, not proposed here.
 - **The record loses its continuous measures.** `bias.score`, confidence and the
   validation score leave (§2, §4, §7). A reader of the paper-trading year's records sees
   which gates passed and a tier, and no number for how strong a case was; entry

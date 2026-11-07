@@ -220578,3 +220578,220 @@ Lines 6064–6065 of the version at `82ea40e`:
   `542085f` and `b874ec1`, docs only, changed no line there; and the commit that writes
   this line, docs only, changes no line there. (This
 ~~~~~
+
+## 7 November 2026 — the lines the rewrite of PHASE7_NEXT.md removed from its version at `9db4ae2`
+
+*Moved here on 7 November 2026 by the commit that files Viktor's ruling of 7 November
+that the redesign's entry quality has no structure multiplier, writes the draft's
+version 7 and records `9db4ae2`'s landing, under "Ruling, 4 November 2026 — HISTORY
+keeps what each rewrite of PHASE7_NEXT.md removes, not the whole file" (DECISIONS).
+Below the rule, each block is a run of lines of the file as it stood at `9db4ae2` that
+the rewrite deleted or replaced, word for word, labelled with its line numbers in that
+version; "this session" in them is the session that opened at 20:47 on 7 November, and
+"the commit that writes this line" and "this commit" name `9db4ae2`. The whole version:
+`git show 9db4ae2:docs/PHASE7_NEXT.md`. Checked by `docs/build/check_history_move.py`.*
+
+---
+
+Lines 3–6 of the version at `9db4ae2`:
+
+~~~~~
+*7 November 2026, in the session that opened at 20:47. Rewritten by the commit that
+regenerates the Engineering Notes at v1.41, Entries #277 to #283, and records
+`82ea40e`'s landing; the lines it removed from the version at `82ea40e` are in HISTORY,
+which points to that whole version in git.
+~~~~~
+
+Lines 2271–2274 of the version at `9db4ae2`:
+
+~~~~~
+**This session (7 November, from 20:47)**, configured for Claude Opus 5.5, opened at
+`82ea40e` and checked its landing, by the patch-delivery skill's section 10. GitHub's
+tip, read with no credentials at 20:48:30 (the probe asked for credentials, so none
+reached it), is `82ea40e`; its tree `ba647446…` is the one its `Verified-Tree:` line
+~~~~~
+
+Lines 2276–2278 of the version at `9db4ae2`:
+
+~~~~~
+docs/build/check_history_move.py --base 82ea40e~1` on the tip gives the line its message
+recorded, 68 lines in 25 runs. Viktor's disk, staged after 20:48: the four files the
+commit changed written at 20:05:15 and each byte for byte the tip; the index the tip's
+~~~~~
+
+Lines 2280–2283 of the version at `9db4ae2`:
+
+~~~~~
+commit object hashing to `82ea40e`, GitHub's bytes, with no CR; `.git/COMMIT_EDITMSG`
+the message byte for byte; `master` and `origin/master` `82ea40e`, written at 20:46:22
+and 20:46:36, the reflogs' last lines "commit:" and "update by push"; the pytest cache
+rewritten at 20:08:26, after the apply, `lastfailed` `{}`; no patch or message file in
+~~~~~
+
+Lines 2285–2286 of the version at `9db4ae2`:
+
+~~~~~
+-- docs/PHASE7_DECISIONS.md` adds one entry, the ruling `82ea40e` files, which changes
+how the redesign would label a trade and no procedure the skill describes.
+~~~~~
+
+Lines 2289–2293 of the version at `9db4ae2`:
+
+~~~~~
+commit owed; no work due by a date before the reading of 14 November; so Claude's work
+that the rulings in force let land now and that moves no `code_hash`: the Engineering
+Notes, seven commits behind, which the session before named as next. The commit that
+writes this line is v1.41, Entries #277 to #283, one for each commit from `706e858` to
+`82ea40e`. Docs only: no engine code, no test, no tooling.
+~~~~~
+
+Lines 2879–2880 of the version at `9db4ae2`:
+
+~~~~~
+  the Engineering Notes regenerated at v1.41, Entries #277 to #283, and `82ea40e`'s
+  landing recorded: docs only, no engine code. Before it: `82ea40e` (the session of
+~~~~~
+
+Lines 3219–3220 of the version at `9db4ae2`:
+
+~~~~~
+  `542085f`, `b874ec1` and `82ea40e` changed no test; and the commit that writes this
+  line changes no test.
+~~~~~
+
+Lines 3232–3233 of the version at `9db4ae2`:
+
+~~~~~
+- **The push of `82ea40e`** happened, at 20:46:36 on 7 November: GitHub's tip, read
+  with no credentials at 20:48:30, is `82ea40e`, Viktor's disk is the tip in every part
+~~~~~
+
+Line 3235 of the version at `9db4ae2`:
+
+~~~~~
+  no deviation (ruling on proposal (b)). So did `b874ec1`'s, at 19:29:01 on
+~~~~~
+
+Line 3409 of the version at `9db4ae2`:
+
+~~~~~
+  matched an autocrlf checkout of `82ea40e`, GitHub's tip, cloned at 20:47 on
+~~~~~
+
+Lines 3448–3449 of the version at `9db4ae2`:
+
+~~~~~
+  `542085f`, `b874ec1` and `82ea40e`, which changed files under `docs/` only, and by
+  the commit that writes this line, which changes files under `docs/` only:
+~~~~~
+
+Lines 3460–3463 of the version at `9db4ae2`:
+
+~~~~~
+  `4ab59d7`, `94b7e96`, `a11ffc4`, `542085f`, `b874ec1` and `82ea40e` and the applied
+  tree of the commit that writes this line give the same (`bc250fc`'s, `706e858`'s,
+  `4ab59d7`'s, `94b7e96`'s, `a11ffc4`'s, `542085f`'s, `b874ec1`'s, `82ea40e`'s and the
+  applied tree computed on 7 November, under Python 3.12.3); on
+~~~~~
+
+Line 3479 of the version at `9db4ae2`:
+
+~~~~~
+  the Notes' build script and documents and no code or test, by `82ea40e`, `b874ec1`
+~~~~~
+
+Line 3537 of the version at `9db4ae2`:
+
+~~~~~
+  an autocrlf clone of `82ea40e` and on the patch applied to another. `82ea40e` changed
+~~~~~
+
+Line 3889 of the version at `9db4ae2`:
+
+~~~~~
+- **Engineering Notes:** through Entry #283 (v1.41), which covers `82ea40e`. The gap
+~~~~~
+
+Lines 3892–3897 of the version at `9db4ae2`:
+
+~~~~~
+  to `b8f88d8`, and v1.40 at `bc250fc` `a1c4218` to `0a518fd`. v1.41, by the commit
+  that writes this line, covers the seven commits `706e858` to `82ea40e`, one entry
+  each. **No commit that needs an entry is behind:** `bc250fc` and the commit that
+  writes this line are regenerations and have none (a commit that regenerates the
+  Notes cannot cover itself, Entry #144). Every later commit adds one until the next
+  regeneration. Batched, by the 15 September rule. v1.41 records the ruling on round
+~~~~~
+
+Line 3919 of the version at `9db4ae2`:
+
+~~~~~
+  `82ea40e` and the commit that writes this line do not change `README.md`), and
+~~~~~
+
+Line 5504 of the version at `9db4ae2`:
+
+~~~~~
+- **`82ea40e`'s landing**, checked from 20:47 on 7 November, and recorded by the
+~~~~~
+
+Lines 5507–5511 of the version at `9db4ae2`:
+
+~~~~~
+- **The Engineering Notes, v1.41**, Entries #277 to #283, by the commit that writes
+  this line: no commit that needs an entry is behind.
+- **The patch-delivery skill's marker** is at `a11ffc4`. `82ea40e`'s ruling changes no
+  procedure the skill describes, and the commit that writes this line files no ruling,
+  so the marker stays.
+~~~~~
+
+Line 5513 of the version at `9db4ae2`:
+
+~~~~~
+  from the version at `82ea40e` are in HISTORY's new entry, checked by
+~~~~~
+
+Line 5541 of the version at `9db4ae2`:
+
+~~~~~
+  `e748b0b`'s, `f6aa126`'s, `e69d5bb`'s, `e8b42b8`'s, `d6fba83`'s, `7c23886`'s, `e939734`'s, `7ff8128`'s, `5fe8522`'s, `f8805a6`'s, `0a518fd`'s, `a0ca299`'s, `bc250fc`'s, `706e858`'s, `4ab59d7`'s, `94b7e96`'s, `a11ffc4`'s, `542085f`'s, `b874ec1`'s and `82ea40e`'s landings found no entry more (this list stopped at `a0ca299`'s from `bc250fc` to `82ea40e`; brought current on 7 November); entry 58 was found on a hand run, not a landing, entry 61 writing the redesign draft's version 5, not at a landing, entry 59 on `1b82ed0`'s landing, in its `run_tests.py` step, and landed by `5fe8522`, and entry 60 in the session that checked `7b93769`'s landing, and landed by `b990c93`, whose landing found no entry more. Entry 26, one of
+~~~~~
+
+Line 5582 of the version at `9db4ae2`:
+
+~~~~~
+  (BOS ×1.05, CHOCH ×0.90), which stays unless Viktor rules otherwise. Added to its
+~~~~~
+
+Line 5588 of the version at `9db4ae2`:
+
+~~~~~
+  22 September, entry 58). **Design draft, version 6**, Claude's, started 1 November:
+~~~~~
+
+Lines 5591–5592 of the version at `9db4ae2`:
+
+~~~~~
+  version 5 at `b874ec1`, version 6 by the commit that writes this line).
+  Not ruled, but for its direction and its reading of AGGRESSIVE (both 7 November).
+~~~~~
+
+Line 5595 of the version at `9db4ae2`:
+
+~~~~~
+  renamed and 4 that go only if Viktor removes the structure multiplier — and every
+~~~~~
+
+Line 5639 of the version at `9db4ae2`:
+
+~~~~~
+  the tier lines.
+~~~~~
+
+Lines 6055–6057 of the version at `9db4ae2`:
+
+~~~~~
+  `542085f`, `b874ec1` and `82ea40e`, docs only, changed no line there; and the commit
+  that writes this line adds none: it changes the Notes' build script and documents
+  only, as `bc250fc` did. (This
+~~~~~

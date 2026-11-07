@@ -7207,6 +7207,100 @@ came before the correction.
   one.
 - The suggestion is its author's: Claude wrote the draft and both branches.
 
+## Ruling, 7 November 2026 — the redesign's entry quality has no structure multiplier
+
+*New in this file on 7 November 2026. Viktor's, at 22:19, by agreeing to Claude's
+suggestion — not by writing his position first — in the session that opened at 21:56 on
+7 November at `9db4ae2`; filed by its commit. It settles the redesign draft's §3.3
+(`docs/redesign_entry53_draft.md`), whether the entry score's structure multiplier stays,
+which the ruling of 25 October left standing "unless Viktor rules otherwise" and the
+draft's §0 marks his.*
+
+**The question.** Today the entry score is multiplied by a structure factor
+(`models/entry_model.py`, `calculate_entry_quality`, read at `9db4ae2`): ×1.05
+(`CONFLUENCE_BOOST_MULT`) when the swing sequence is a BOS in the trade's direction,
+×0.90 (`CONFLUENCE_PENALTY_MULT`) when it is a CHOCH against it, ×1.0 otherwise, and the
+product is clipped at `SCORE_CEILING`, 100. The draft keeps the two other multipliers
+out — macro's (F4) and trend's (Critical, by F4's precedent, 25 October) — and its
+entry quality is D + H, from 0 to 100, with no multiplier and no clip "except §3.3".
+**(A)** remove it; **(B)** keep it, multiplying D + H, clipped at 100.
+
+**How it was made.** At the session's opening Claude checked `9db4ae2`'s landing and,
+with no commit owed and Claude's work waiting on the reading of 14 November, brought
+§3.3 to Viktor as what came first: the decision of 2 November's computation 2 computes
+entry quality with no multiplier (read), so an answer had to be settled before the data
+is read. Claude suggested (A). At 22:07: "We go with A." Before filing, Claude read the
+structure gate in the code, which the suggestion had taken from the draft without
+reading, found it narrower than the case against had said (below), and put the question
+to him again. At 22:17: "Go with A."; then "Stop", and at 22:18 that he had read wrong
+and asked for Claude's suggestion. Claude suggested (A) again, with the count below
+added to the reading. At 22:19: "Okay, go with A as your recommend it."
+
+**What was ruled.** The redesign's entry quality is **D + H with no structure
+multiplier**: BOS ×1.05 and CHOCH ×0.90 go, and with them `structure_multiplier`,
+`CONFLUENCE_BOOST_MULT`, `CONFLUENCE_PENALTY_MULT` and `SCORE_CEILING`, which nothing
+else in the design uses (draft §13.2, version 1's count). D + H cannot leave 0 to 100,
+so no clip is needed. The rest of the draft stays unruled, and nothing is built from it
+until the whole design is (the ruling of 25 October, "What follows").
+
+**Claude's reasons, as given.**
+
+1. The design's tiers come from entry quality only (ruling 4 of 25 October, as the
+   draft's §4 cites it). A ×0.90 that moves a setup across 50 or 70 is the shape of the
+   two multipliers already removed: a tier moved by a reading the score does not
+   measure.
+2. It is a weak way to read CHOCH: it changes a decision only when 10% happens to carry
+   a score under a line. If CHOCH should stop a trade, a gate is the honest form; if it
+   should not, nothing is lost.
+3. A CHOCH gate now would be a new trading rule with nothing measured behind it. The
+   count added to the reading (below) gives it a number first.
+4. Ruled before any of the reading of 14 November's data is read, the choice cannot be
+   fitted to its counts.
+
+**Claude's error, recorded.** The case against (A), as first sent, said structure is
+already a gate in the draft and "if the gate lets a CHOCH bar through, that bar now
+scores as well as a clean one", with the gate taken from the draft and flagged as not
+re-read in the code. Read before filing, at `9db4ae2`: gate 4 (`signal_blockers` in
+`models/entry_model.py`) compares only `structure_regime`, BULLISH TREND or BEARISH
+TREND, and never reads the sequence, which `_detect_sequence` in
+`structure/structure.py` computes apart from the regime. So the gate never sees a
+CHOCH, and the case against had understated what (A) gives up. Claude said so at once
+and asked again; Viktor's first "We go with A." (22:07) came before the correction, his
+"Go with A." (22:17) and the ruling (22:19) after it.
+
+**What follows.**
+
+- **The draft's version 7**, filed by this entry's commit: §0 marks §3.3 ruled; §2, §3,
+  §3.3, §12, §13.2 and §16.2 are brought to it. §13.2's four leaves marked Viktor's go
+  to the removed: 85 removed, none left his. §14 already classes every test of the
+  multiplier as going (version 1), so no test moves class.
+- **Claude's, before the reading of 14 November: one count more.** Of the records with
+  a side, how many have a swing sequence that is a CHOCH against that side
+  (`structure.sequence`, which today's records carry), and how many of those pass every
+  other gate. An amendment to the decision of 2 November, Claude's, and to
+  `docs/build/measure_draft_gaps.py` with its tests, filed by a commit of its own
+  before the data is read; documentation tooling, so `code_hash` does not move.
+- **Viktor's, with the whole design: whether a CHOCH against the side becomes its own
+  gate**, with the count above. Not proposed here; the draft's §2 already flags it.
+- **The decision of 2 November is otherwise unchanged.** Its computation 2 already
+  computes Q with no multiplier (read), so (A) needs no amendment to it.
+- **No engine code and no tooling changes**, and `code_hash` does not move.
+
+**What it weakens.**
+
+- **Until Viktor rules on a gate, the design reads no CHOCH at all.** Today two things
+  read a CHOCH against the side: this ×0.90 and the bias's ×0.5 discount, which goes
+  with the weighted sum (draft §2). A LONG on CHOCH BEARISH then passes wherever the
+  regime is BULLISH TREND and scores as any other bar. The regime and the sequence come
+  from separate functions, so the two can disagree on a bar; how often has not been
+  measured.
+- A BOS in the trade's direction earns nothing: a setup just under 70 or 50 that its
+  ×1.05 would have carried across the line reads one tier lower.
+- Since 28 September every trade is one of ten equal capital slices, so a tier changes
+  no position size; a CHOCH bar that should have been refused is a trade taken,
+  not one mis-sized.
+- The suggestion is its author's: Claude wrote the draft and §3.3's suggestion.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then
