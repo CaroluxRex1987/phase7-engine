@@ -1,6 +1,13 @@
 # The redesign (entry 53) — design draft
 
-*Draft v4, 7 November 2026, in the session that opened at 06:51 at `a11ffc4`. Version 4
+*Draft v5, 7 November 2026, in the session that opened at 07:26 at `542085f`. Version 5
+answers the rest of §12's point 6, the second pinned decision's candle, as far as it
+can be answered before the reading of 14 November: no candle of the pinned series is a
+sound one, and it proposes a second seeded series (§10.1). It adds a finding to §11
+and a line each to §10, §12 and §16.2. No engine `.py` file changed between `a11ffc4`
+and `542085f`, so version 4's reads of the code hold at `542085f`, where version 5's
+were made. Version 4, 7 November 2026, was written in the session that opened at 06:51
+at `a11ffc4`. Version 4
 answers half of §12's point 6, which distance STATUS reads (§3.1), and corrects version
 1's statement of what sets STATUS today; it adds a line each to §4, §12, §13.2, §13.3
 and §14.
@@ -33,7 +40,7 @@ point 7). Nothing here is ruled but §2's direction (7 November), and no code is
 from it until the whole design is. Each
 statement says where it comes from: **read** means read in the code at `e748b0b`
 (version 0), `e69d5bb` (version 1), `4ab59d7` (version 2), `94b7e96` (version 3) or
-`a11ffc4` (version 4);
+`a11ffc4` (version 4) or `542085f` (version 5);
 **ruled** names the
 ruling; **proposed** is Claude's suggestion; **to measure** is a number this draft
 does not have yet. Where
@@ -456,7 +463,8 @@ and is not tuned.
 through the gates in §13.1. Version 0's grouped prediction is replaced by it. The
 golden run stops exercising a trade (it becomes a WAIT at gate 8). **Proposed:** keep
 this fixture as the WAIT case and add a second pinned decision that passes every gate,
-so the golden snapshot still covers a trade's plan; its candle is not chosen yet.
+so the golden snapshot still covers a trade's plan. Version 5 found that no candle of
+this series can be that decision, and proposes a second series (§10.1).
 
 **Tests:** every test, one by one, in §14. Version 0's per-file grep counts (at
 `e748b0b`) are replaced by it. Still owed with the code: `core/decision_contract.py`
@@ -467,6 +475,67 @@ over the panel (the skill's decision-path scope).
 **`code_hash`** moves. The change is decision-path work, so there is a live run
 before its commit.
 
+### 10.1 The second pinned decision (version 5)
+
+**Scanned in the Linux sandbox**, Python 3.12.3 with the pinned requirements and
+`pandas_ta`, on an autocrlf clone of `542085f`: `tests/fixtures/ohlcv_clean_4h.csv`
+cut to its first *k* candles, for every *k* from 60 to 450, and each cut run through
+`tests/test_golden_path.py`'s `_run`, which is the production path, with the macro and
+BTC series derived from the cut the way that harness derives them. §4's gates were
+then applied to each run's record and the cut's candles. Gates 0, 1 and 3 to 6 come
+from today's engine, which the design keeps (§4's table). Gate 2 is §2's rule, gate 8
+§5's, and gate 9 §3.1's. Gate 7 is taken as passing, because the fixture's
+`quote_volume` is synthetic (§5). The scan is a script in the sandbox and is not
+committed; this paragraph is its method. **Its control:** at *k* = 450 the run is the
+golden record, and the scan gives §13.1's path: gates 8 and 9 fail, with `d` 3.207 ATR
+and `h` 15.120 ATR.
+
+**Found.** Of the 391 runs, the 55 at *k* 60 to 114 are degraded and stop at gate 0.
+Of the other 336, three pass every gate:
+
+| k | decision candle (open, UTC) | side | entry quality | tier | daily candles behind it |
+|---|------|------|------|------|------|
+| 171 | 29 January 2025, 08:00 | SHORT | 52.2 | CONSERVATIVE | 29 |
+| 173 | 29 January 2025, 16:00 | SHORT | 58.3 | CONSERVATIVE | 29 |
+| 234 | 8 February 2025, 20:00 | LONG | 76.3 | LONG | 39 |
+
+None of them is AGGRESSIVE under either reading of §4: none closes inside the band,
+and none within one band width of its middle. For the other 333, the first gate to
+fail is ADX in 108, the trigger in 70, direction in 55, structure in 53, entry quality
+in 31 and divergence in 16.
+
+**Why none of the three is proposed.** Each has fewer than 50 daily candles behind
+it, and 50 is the length of the macro average. On such a frame `ta.ema` returns no
+EMA_50, and `add_technical_indicators` computes it with its `ewm` fallback over the
+candles there are and records nothing (§11; read, and run at *k* = 234: 39 daily
+rows, `ta.ema` returns None, no failure listed). So each of the three passes gate 0
+only because that goes unrecorded, and *k* = 234 passes gate 6 on a 39-day average.
+If §11's finding is fixed by recording it, all three become degraded runs that stop
+at gate 0, and a second pinned decision taken from them would stop covering a trade
+with that fix. None of the 156 cuts with 50 daily candles or more (*k* ≥ 295) passes
+every gate; twelve of them fail at gate 8 alone. And each of the three is close to a
+tier line that is still to be checked against the measured distribution (§4): 171 is
+2.2 points above 50, 173 is 8.3 above 50, and 234 is 6.3 above 70.
+
+**Proposed, Claude's (version 5):** the second pinned decision is a second base
+series, written beside `ohlcv_clean_4h.csv` from a fixed seed by `make_pinned.py`'s
+`synth` (read), with its macro and BTC series derived by `_write_pinned_set` as the
+first series' are. It ends on its decision candle and has at least 300 4h candles,
+which is 50 whole days, before that candle. Its seed is chosen once F and the tier
+lines are set and Viktor has said which reading of AGGRESSIVE he means (§12, points 1
+and 7), by running this scan's method on the candidate series: the first seed,
+counted from a start stated before the search, whose last candle passes every gate
+under the lines as set, and under both readings unless one has been ruled. A series
+searched for because it passes is chosen by construction. That is acceptable here,
+because the golden snapshot's job is to be stable, not representative
+(`make_pinned.py`'s docstring, read), and the first fixture stays the case where the
+gates fail.
+
+**The case against:** a second fixture is a second file for the golden tests to pin,
+and the seed search is one more step before the code. The alternative, taking one of
+the three cuts, costs nothing now and loses its trade on the day §11's finding is
+fixed.
+
 ## 11. Read in passing
 
 `trend_health.py` scores the slope as `tanh(|trend_slope| × 100) × 45`, while
@@ -474,6 +543,23 @@ before its commit.
 candle, which may be part of why trend health passes 75 on 89% of bars (25 October,
 reason 4). This was read, not checked against the record. It does not matter once
 trend health goes, and it is noted so it is not lost.
+
+**An EMA on a frame shorter than its length goes unrecorded** (found in version 5;
+read at `542085f`, and run in the sandbox on the pinned series cut to 234 candles).
+`add_technical_indicators` (`indicators/indicators.py`, the EMA loop) asks `ta.ema`
+for EMA_20 and EMA_50. When the frame is shorter than the length, `ta.ema` returns
+None. That is treated as a failure, and the `ewm(span, adjust=False)` fallback then
+computes an average over the candles there are. No failure is recorded, because only
+a failed fallback records one. The function's docstring keeps the fallback because it
+"produces the same number"; on a short frame, pandas_ta gives no number at all.
+`_validate_dataframe` accepts any frame of 20 rows or more (`core/engine_core.py`, read),
+so a frame of 20 to 49 rows gets an EMA_50 that nothing marks. A live run asks for 100
+daily candles (`macro_limit`, read), so AERO does not reach this path. A pair listed
+less than 50 days ago would (reasoned, not run): gate 6 and today's macro read would rest on a shorter
+average than the one they name. Read for the macro frame; the 4h and BTC frames go
+through the same function, and that was read, not run. It changes nothing in this
+design. It is entry 61 of the list for after the audit (PHASE7_NEXT.md, "Found after
+22 September"), and §10.1 is why it matters here.
 
 ## 12. Still to do before this goes to Viktor
 
@@ -494,7 +580,9 @@ trend health goes, and it is noted so it is not lost.
 6. Added in version 1: which distance STATUS reads (§3.1), and the second pinned
    decision's candle (§10). Half done in version 4: STATUS (§3.1), in two branches
    that follow Viktor's reading of AGGRESSIVE. Left: the second pinned decision's
-   candle.
+   candle. Done in version 5 as far as it can be before the reading (§10.1): no candle
+   of the pinned series is a sound one. Proposed: a second seeded series, its seed
+   chosen once F, the tier lines and the reading of AGGRESSIVE are set.
 7. Added in version 2, done in version 3: §2, §3.1 and §4 reconciled (§16.1, §16.4),
    by Viktor's ruling of 7 November on the floor; entry quality's formula is
    unchanged. The decision of 2 November's computation 1 was amended in place the same
@@ -1299,7 +1387,8 @@ quality's formula is Claude's.
   which gates passed and a tier, and no number for how strong a case was; entry
   quality is the only score left.
 - **The golden snapshot stops covering a trade's plan** until the second pinned
-  decision (§10) is chosen. Until then, a defect in a passing run's stop, targets or
+  decision (§10) is chosen, which version 5 puts after F, the tier lines and the
+  reading of AGGRESSIVE are set (§10.1). Until then, a defect in a passing run's stop, targets or
   sizing would not move the golden test.
 - **More runs degrade.** A missing ATR, band or HVN no longer scores a neutral part
   (§3.1), and an absent `quote_volume` degrades the run (§5). That keeps the rule of

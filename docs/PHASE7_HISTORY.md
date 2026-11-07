@@ -219963,3 +219963,191 @@ Lines 5949–5950 of the version at `a11ffc4`:
   docs only, changed no line there; the commit that writes this line names `4ab59d7`
   there and adds its own. (This
 ~~~~~
+
+## 7 November 2026 — the lines the rewrite of PHASE7_NEXT.md removed from its version at `542085f`
+
+*Moved here on 7 November 2026 by the commit that writes the redesign draft's version 5,
+the second pinned decision, and records `542085f`'s landing, under "Ruling, 4 November
+2026 — HISTORY keeps what each rewrite of PHASE7_NEXT.md removes, not the whole file"
+(DECISIONS). Below the rule, each block is a run of lines of the file as it stood at
+`542085f` that the rewrite deleted or replaced, word for word, labelled with its line
+numbers in that version; "this session" in them is the session that opened at 06:51 on
+7 November, and "the commit that writes this line" and "this commit" name `542085f`. The
+whole version: `git show 542085f:docs/PHASE7_NEXT.md`. Checked by
+`docs/build/check_history_move.py`.*
+
+---
+
+Lines 3–5 of the version at `542085f`:
+
+~~~~~
+*7 November 2026, in the session that opened at 06:51. Rewritten by the commit that
+writes the redesign draft's version 4, which distance STATUS reads, and records
+`a11ffc4`'s landing; the lines it removed from the version at `a11ffc4` are in HISTORY,
+~~~~~
+
+Lines 2249–2252 of the version at `542085f`:
+
+~~~~~
+**This session (7 November, from 06:51)**, configured for Claude Opus 5.5, opened at
+`a11ffc4` and checked its landing, by the patch-delivery skill's section 10. GitHub's
+tip, read with no credentials at 06:53:02 (the probe asked for credentials, so none
+reached it), is `a11ffc4`; its tree `c1d00cbe…` is the one its `Verified-Tree:` line
+~~~~~
+
+Lines 2254–2263 of the version at `542085f`:
+
+~~~~~
+docs/build/check_history_move.py --base a11ffc4~1` on the tip gives the line its message
+recorded, 82 lines in 24 runs. Viktor's disk, staged at 06:52: the seven files the
+commit changed written at 06:20:40 and each byte for byte the tip; the index the tip's
+tree, 303 entries (`git write-tree` on a copy gives `c1d00cbe…`); the loose commit
+object hashing to `a11ffc4`, GitHub's bytes, with no CR; `.git/COMMIT_EDITMSG` the
+message byte for byte; `master` and `origin/master` `a11ffc4`, written at 06:48:47 and
+06:49:00, the reflogs' last lines "commit:" and "update by push"; the pytest cache
+rewritten at 06:24:10, after the apply, holding the renamed test's id, `lastfailed`
+`{}`; no patch or message file in the root. Nothing differed. The skill's marker is at
+`a11ffc4`, and `git diff --stat a11ffc4 HEAD -- docs/PHASE7_DECISIONS.md` was empty.
+~~~~~
+
+Lines 2266–2277 of the version at `542085f`:
+
+~~~~~
+commit owed; no work due by a date before the reading of 14 November — the question
+left of point 7, which reading of AGGRESSIVE §4 means, is not, because computation 2
+counts both readings; so Claude's work that the rulings in force let land now and that
+moves no `code_hash`: the draft's §12, point 6, its first half, which distance STATUS
+reads, owed since version 1 for version 2 and not written. The commit that writes this
+line is the draft's version 4. **Version 1's error, found scoping it and recorded in
+§3.1:** it said `entry.distance_from_zone` sets STATUS; read at `a11ffc4`
+(`models/entry_model.py`), STATUS is set by the distance from the band's midpoint
+counted in band widths, `distance_from_zone` is that distance as a percent of the close
+and decides nothing, and AGGRESSIVE reads the STATUS word itself. Version 4 proposes
+that the tier read a true-or-false field and STATUS be printed from it, in two branches
+that follow Viktor's reading of AGGRESSIVE, and chooses neither. Docs only: no engine
+~~~~~
+
+Lines 2854–2855 of the version at `542085f`:
+
+~~~~~
+  the redesign draft's version 4, which distance STATUS reads, and `a11ffc4`'s landing
+  recorded: docs only, no engine code. Before it: `a11ffc4` (the session of
+~~~~~
+
+Lines 3186–3187 of the version at `542085f`:
+
+~~~~~
+  slope, no test added or removed, none taking a fixture or needing `pandas_ta`; and
+  the commit that writes this line changes no test.
+~~~~~
+
+Lines 3199–3200 of the version at `542085f`:
+
+~~~~~
+- **The push of `a11ffc4`** happened, at 06:49:00 on 7 November: GitHub's tip, read
+  with no credentials at 06:53:02, is `a11ffc4`, Viktor's disk is the tip in every part
+~~~~~
+
+Line 3202 of the version at `542085f`:
+
+~~~~~
+  no deviation (ruling on proposal (b)). So did `94b7e96`'s, at 04:58:29 on
+~~~~~
+
+Line 3367 of the version at `542085f`:
+
+~~~~~
+  matched an autocrlf checkout of `a11ffc4`, GitHub's tip, cloned at 06:51 on
+~~~~~
+
+Lines 3405–3406 of the version at `542085f`:
+
+~~~~~
+  `a11ffc4`, which changed files under `docs/` and `tests/`, which it does not read,
+  and by the commit that writes this line, which changes files under `docs/` only:
+~~~~~
+
+Lines 3417–3419 of the version at `542085f`:
+
+~~~~~
+  `4ab59d7`, `94b7e96` and `a11ffc4` and the applied tree of the commit that writes this
+  line give the same (`bc250fc`'s, `706e858`'s, `4ab59d7`'s, `94b7e96`'s, `a11ffc4`'s and
+  the applied tree computed on 7 November, under Python 3.12.3); on
+~~~~~
+
+Line 3434 of the version at `542085f`:
+
+~~~~~
+  docs and no code or test, by `a11ffc4`, which changed a
+~~~~~
+
+Line 3491 of the version at `542085f`:
+
+~~~~~
+  an autocrlf clone of `a11ffc4` and on the patch applied to another. `a11ffc4` changed
+~~~~~
+
+Line 3833 of the version at `542085f`:
+
+~~~~~
+  `a0ca299` `0491b84` to `b8f88d8`, and v1.40 `a1c4218` to `0a518fd`. **Five commits
+~~~~~
+
+Line 3837 of the version at `542085f`:
+
+~~~~~
+  the draft's version 3, and the commit that writes this line, the draft's version 4;
+~~~~~
+
+Lines 3869–3870 of the version at `542085f`:
+
+~~~~~
+  the numbers, for its 24 new tests (`94b7e96`, `a11ffc4` and the commit that writes
+  this line do not change `README.md`), and before it by
+~~~~~
+
+Line 5433 of the version at `542085f`:
+
+~~~~~
+- **`a11ffc4`'s landing**, checked from 06:51 on 7 November, and recorded by the
+~~~~~
+
+Lines 5436–5439 of the version at `542085f`:
+
+~~~~~
+- **The redesign draft's section 12, point 6, its first half** — which distance STATUS
+  reads — by the draft's version 4 (§3.1), in two branches that follow Viktor's
+  reading of AGGRESSIVE, neither chosen. Left of point 6: the second pinned decision's
+  candle.
+~~~~~
+
+Line 5443 of the version at `542085f`:
+
+~~~~~
+  from the version at `a11ffc4` are in HISTORY's new entry, checked by
+~~~~~
+
+Line 5518 of the version at `542085f`:
+
+~~~~~
+  22 September, entry 58). **Design draft, version 4**, Claude's, started 1 November:
+~~~~~
+
+Lines 5520–5521 of the version at `542085f`:
+
+~~~~~
+  `e8b42b8`, version 2 at `94b7e96`, version 3 at `a11ffc4`, version 4 by the commit
+  that writes this line).
+~~~~~
+
+Line 5556 of the version at `542085f`:
+
+~~~~~
+  Left of point 6: the second pinned decision's candle.
+~~~~~
+
+Line 5972 of the version at `542085f`:
+
+~~~~~
+  the commit that writes this line, docs only, changes no line there. (This
+~~~~~
