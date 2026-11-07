@@ -1,9 +1,9 @@
 # Next step — read this first
 
-*7 November 2026, in the session that opened at 04:30. Rewritten by the commit that
-files the redesign draft's version 2 and records `4ab59d7`'s landing; the lines it
-removed from the version at `4ab59d7` are in HISTORY, which points to that whole
-version in git.
+*7 November 2026, in the session that opened at 05:14. Rewritten by the commit that
+files Viktor's ruling on the redesign's direction, the draft's version 3 and the
+amended computation 1, and records `94b7e96`'s landing; the lines it removed from the
+version at `94b7e96` are in HISTORY, which points to that whole version in git.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
 rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
@@ -2230,43 +2230,63 @@ date: the reading of 14 November's forward count had no filed method. `4ab59d7` 
 31 October give every figure that reading filed, and recorded `706e858`'s landing.
 That session's account is in this file's version at `4ab59d7`.
 
-**This session (7 November, from 04:30)**, configured for Claude Opus 5.5, opened at
-`4ab59d7` and checked its landing, by the patch-delivery skill's section 10. GitHub's
-tip, read with no credentials at 04:30:34 (the probe asked for credentials, so none
-reached it), is `4ab59d7`; its tree `cfe5dfbe…` is the one its `Verified-Tree:` line
-names; its message holds no CR and ends with the attribution lines;
-`python docs/build/check_history_move.py --base 4ab59d7~1` on the tip gives the line
-its message recorded, 69 lines in 18 runs. Viktor's disk, staged at 04:31: the seven
-files the commit changed written at 04:14:59 and each byte for byte the tip; the index
-the tip's tree, 303 entries; the loose commit object hashing to `4ab59d7`, GitHub's
-bytes, with no CR; `.git/COMMIT_EDITMSG` the message byte for byte; `master` and
-`origin/master` `4ab59d7`, written at 04:28:19 and 04:28:34, the reflogs' last lines
-"commit:" and "update by push"; the pytest cache rewritten at 04:18:33, after the
-apply, holding the 24 new tests' ids, `lastfailed` `{}`; no patch or message file in
-the root. Nothing differed. The skill's marker is at `706e858`, and
-`git diff --stat 706e858 HEAD -- docs/PHASE7_DECISIONS.md` is empty. What came first,
-by the ruling of 1 November read with the correction of 4 November: no commit owed;
-the reading of 14 November not yet due, both its scripts filed; waves 0 and 1 done,
-and waves 2 to 5 moving `code_hash`, which no commit does before that reading. So,
-Claude's work that moves none: the redesign draft's section 12, point 5 — what the
-design weakens and the case against — written before any of the reading's data is
-read, so that it cannot be fitted to it. Version 2 of `docs/redesign_entry53_draft.md`
-adds them as §16. **Writing it found that the draft's direction and its band cannot
-meet** (§16.1): each EMA is recursive, so its one-candle slope is above zero exactly
-when the close is above the previous candle's EMA, and the close is then above this
-candle's EMA too; a candle the draft calls BULLISH always closes above the band, and
-BEARISH below it. As written, §4's AGGRESSIVE (close inside the band) is never
-reached, §3.1's full distance points never on a candle with a side, and the tier
-partly reads the EMAs' spread. Checked on the pinned candles in the sandbox (Linux):
-the sign identity on all 400 rows of AEROUSDT and of BTCUSDT, with and without
-`pandas_ta`. Reconciling §2, §3.1 and §4 is §12's new point 7, not done in version 2.
-**Found while rewriting:** the bullet "Before this commit" in "Where things stand"
-still gave `bc250fc`'s sentence — staged against `a0ca299`, adding no file — in this
-file at `706e858` and at `4ab59d7`, though `4ab59d7` added two files; it now gives
-this commit's own. The commit that writes this line changes the draft and docs only:
-no code, no test, no tooling.
+**The session of 7 November, from 04:30**, configured for Claude Opus 5.5, opened at
+`4ab59d7`, checked its landing, in which nothing differed, and chose Claude's work that
+moves no `code_hash`: the redesign draft's section 12, point 5. `94b7e96` is the draft's
+version 2, whose §16, what the design weakens and the case against, found that §2's
+direction and the band of §3.1 and §4 cannot meet (§16.1), and recorded `4ab59d7`'s
+landing. That session's account is in this file's version at `94b7e96`.
+
+**This session (7 November, from 05:14)**, configured for Claude Opus 5.5, opened at
+`94b7e96` and checked its landing, by the patch-delivery skill's section 10. GitHub's
+tip, read with no credentials at 05:14:49 (the probe asked for credentials, so none
+reached it), is `94b7e96`; its tree `c912fbe2…` is the one its `Verified-Tree:` line
+names; its message holds no CR and ends with the attribution lines; `python
+docs/build/check_history_move.py --base 94b7e96~1` on the tip gives the line its message
+recorded, 85 lines in 25 runs. Viktor's disk, staged after 05:15: the three files the
+commit changed written at 04:50:39 and each byte for byte the tip; the index the tip's
+tree, 303 entries; the loose commit object hashing to `94b7e96`, GitHub's bytes, with no
+CR; `.git/COMMIT_EDITMSG` the message byte for byte; `master` and `origin/master`
+`94b7e96`, written at 04:58:14 and 04:58:29, the reflogs' last lines "commit:" and
+"update by push"; the pytest cache rewritten at 04:54:00, after the apply, `lastfailed`
+`{}`; no patch or message file in the root. Nothing differed. The skill's marker is at
+`706e858`, and `git diff --stat 706e858 HEAD -- docs/PHASE7_DECISIONS.md` was empty.
+**Claude's error, caught before it was reported:** the first comparison of the index
+with the tip's tree split paths at their spaces and flagged `Claude outputs/…`; `git
+write-tree` on a copy of the index, which gives `c912fbe2…`, is the comparison that
+holds.
+
+What came first, by the ruling of 1 November read with the correction of 4 November: no
+commit owed; and work due by a date that moves no `code_hash` — §12's point 7 of the
+draft, since whatever it changes in a rule the decision of 2 November measures has to be
+filed before the reading of 14 November's data is read. Claude put two ways of
+reconciling §2, §3.1 and §4 to Viktor without a view, his position asked for first: A,
+keep the floor and measure entry quality from `EMA_20`, with a new AGGRESSIVE line; B,
+take the floor from EMA50's slope and the EMAs' order. He asked for a suggestion at
+05:33; Claude suggested B with what it weakens; at 05:34 he ruled B (DECISIONS, "Ruling,
+7 November 2026 — the redesign's direction is EMA50's slope and the EMAs' order;
+computation 1 of 2 November follows it"). The commit that writes this line files that
+ruling; amends computation 1 of the decision of 2 November in place, before the data is
+read; brings `docs/build/measure_draft_gaps.py` and its test to it; writes the draft's
+version 3, with §16.4; and names `4ab59d7` in `docs/audit_change_list.md` and adds its
+own line. **Claude's error, recorded in the ruling's entry:** the pinned-candle counts
+first put to Viktor came from pandas' `ewm` alone over rows 50 to 449, not the engine's
+`ta.ema` (AERO 343 and BTC 305 sides, 50 inside the band on BTC, 41 changes of side on
+BTC); through the engine they are 342 and 307, 52, and 45. Documentation tooling, a test
+file and docs: no engine code.
 
 ## Ruled — in force
+
+- **New, 7 November — Viktor's, by agreeing to Claude's suggestion: the redesign's
+  direction is EMA50's slope and the EMAs' order** (DECISIONS, "Ruling, 7 November
+  2026 — the redesign's direction is EMA50's slope and the EMAs' order; computation 1
+  of 2 November follows it"). In the redesign's draft, BULLISH when `EMA50_Slope > 0`
+  and `EMA_20 > EMA_50`, BEARISH when both point down, else NEUTRAL; `EMA20_Slope` is
+  not read. It reconciles the draft's §2, §3.1 and §4 (version 3, §16.4) and settles
+  the strength floor, which the draft marks his. The decision of 2 November's
+  computation 1 is amended in place to it, before the reading of 14 November's data
+  is read, and `docs/build/measure_draft_gaps.py` follows. The rest of the design
+  stays unruled, the tier lines among it.
 
 - **New, 7 November — Viktor's, by agreeing to Claude's suggestion: round 8's F2 is
   Critical** (DECISIONS, "Ruling, 7 November 2026 — round 8's F2 is Critical: the risk
@@ -2288,7 +2308,9 @@ no code, no test, no tooling.
   read. Run by `docs/build/measure_draft_gaps.py`, added by `1b82ed0`, written from it
   and tested on synthetic records only; the choices it had to
   make are listed in its docstring, and where it and the entry differ, the entry
-  holds.
+  holds. Computation 1's direction was amended in place on 7 November, before the data
+  was read, by the ruling of that date on the redesign's direction, and the script
+  follows it.
 
 - **New, 1 November — Viktor's: a session does not ask him what to do next** (DECISIONS,
   "Ruling, 1 November 2026 — a session does not ask Viktor what to do next: Claude does
@@ -2827,8 +2849,12 @@ no code, no test, no tooling.
 ## Where things stand, right now
 
 - **Tip:** the commit that writes this line (a commit cannot name its own hash) —
-  the redesign draft's version 2, with its §16, and `4ab59d7`'s landing recorded:
-  docs only, no engine code. Before it: `4ab59d7` (the session of 7 November, from
+  Viktor's ruling of 7 November on the redesign's direction filed, the draft's
+  version 3, computation 1 of 2 November amended and `measure_draft_gaps.py` with it,
+  and `94b7e96`'s landing recorded: documentation tooling, a test file and docs, no
+  engine code. Before it: `94b7e96` (the session of 7 November, from 04:30: the
+  redesign draft's version 2, with its §16, and `4ab59d7`'s landing recorded: docs
+  only, no engine code), `4ab59d7` (the session of 7 November, from
   01:13: the forward measurement's count, `docs/build/count_forward_measurement.py`,
   added with its tests, and `706e858`'s landing recorded: documentation tooling, a
   test file and docs, no engine code), `706e858` (the session of 7 November, from
@@ -3149,8 +3175,11 @@ no code, no test, no tooling.
   tests, none taking a fixture or needing `pandas_ta`) and changed no other test.
   `f8805a6`, `0a518fd`, `a0ca299`, `bc250fc` and `706e858` changed no test;
   `4ab59d7` added `tests/test_count_forward_measurement.py` (24 tests, none taking a
-  fixture or needing `pandas_ta`) and changed no other test; and the commit that
-  writes this line changes no test.
+  fixture or needing `pandas_ta`) and changed no other test; `94b7e96` changed no
+  test; and the commit that writes this line changes one test file,
+  `tests/test_measure_draft_gaps.py`: its direction test renamed and rewritten for
+  the ruling of 7 November, and the whole reading's NEUTRAL record turned by EMA50's
+  slope, no test added or removed, none taking a fixture or needing `pandas_ta`.
   (This file at `b990c93` still said
   there that the commit writing the line changed no test, carried from `7b93769`;
   corrected on 4 November.)
@@ -3162,10 +3191,13 @@ no code, no test, no tooling.
   to `E:\phase7_engine`". Run the engine and every command from `E:\phase7_engine` (in
   cmd, changing drive needs `cd /d`). A dated record that names the D: paths means the
   same folders before the move; dated records are not edited.
-- **The push of `4ab59d7`** happened, at 04:28:34 on 7 November: GitHub's tip, read
-  with no credentials at 04:30:34, is `4ab59d7`, Viktor's disk is the tip in every part
+- **The push of `94b7e96`** happened, at 04:58:29 on 7 November: GitHub's tip, read
+  with no credentials at 05:14:49, is `94b7e96`, Viktor's disk is the tip in every part
   this session's check read, and its tree is the one its `Verified-Tree:` line names;
-  no deviation (ruling on proposal (b)). So did `706e858`'s, at 01:03:15 on
+  no deviation (ruling on proposal (b)). So did `4ab59d7`'s, at 04:28:34 on
+  7 November: GitHub's tip, read with no credentials at 04:30:34, was `4ab59d7`,
+  Viktor's disk the tip in every part that check read, and its tree the one its
+  `Verified-Tree:` line names. So did `706e858`'s, at 01:03:15 on
   7 November: GitHub's tip, read with no credentials at 01:14:56, was `706e858`,
   Viktor's disk the tip in every part that check read, and its tree the one its
   `Verified-Tree:` line names. So did `bc250fc`'s, at 00:21:41 on
@@ -3324,7 +3356,7 @@ no code, no test, no tooling.
   commit that writes this line unless it deviates. Earlier pushes and deviations are
   recorded in this file's previous versions, in HISTORY.
 - **Before this commit**, every file its patch changes was staged off Viktor's disk and
-  matched an autocrlf checkout of `4ab59d7`, GitHub's tip, cloned at 04:30 on
+  matched an autocrlf checkout of `94b7e96`, GitHub's tip, cloned at 05:14 on
   7 November, byte for byte, before the patch was built; it adds no file. (This file
   at `706e858` and at `4ab59d7` still gave `bc250fc`'s sentence here, against
   `a0ca299`; corrected on 7 November.)
@@ -3361,8 +3393,9 @@ no code, no test, no tooling.
   `bc250fc`, which changed files under `docs/` only, by `706e858`, which changed files
   under `docs/` and `README.md`, which is not a `.py` file, by `4ab59d7`, which
   changed files under `docs/` and `tests/`, which it does not read, and `README.md`,
-  which is not a `.py` file, and by the commit that writes this line, which changes
-  files under `docs/` only: computed
+  which is not a `.py` file, by `94b7e96`, which changed files under `docs/` only, and
+  by the commit that writes this line, which changes files under `docs/` and
+  `tests/`, which it does not read: computed
   on clones of `0491b84`,
   `a235783`, `8d5d64a`, `a48d9e5`, `fbd7877`, `8311167`, `d2dddf7`, `aa9e7ac`,
   `391c338`, `8360923`, `ed005a0` and `e88e0dd` and on the applied trees, under Python
@@ -3371,10 +3404,10 @@ no code, no test, no tooling.
   `a1c4218`, `713e084`, `134f85b`, `fad0588`, `3dbd8dc`, `a2ca918`, `d7d3ae0`,
   `b233c4a`, `6d073f9`, `8c810b1`, `248037d`, `e748b0b`, `f6aa126`, `e69d5bb`,
   `e8b42b8`, `d6fba83`, `7c23886`, `e939734`, `1b82ed0`, `7ff8128`, `5fe8522`,
-  `7b93769`, `b990c93`, `f8805a6`, `0a518fd`, `a0ca299`, `bc250fc`, `706e858` and
-  `4ab59d7` and the applied tree of the commit that writes this line give the same
-  (`bc250fc`'s, `706e858`'s, `4ab59d7`'s and the applied tree computed on 7 November,
-  under Python 3.12.3); on
+  `7b93769`, `b990c93`, `f8805a6`, `0a518fd`, `a0ca299`, `bc250fc`, `706e858`,
+  `4ab59d7` and `94b7e96` and the applied tree of the commit that writes this line give
+  the same (`bc250fc`'s, `706e858`'s, `4ab59d7`'s, `94b7e96`'s and the applied tree
+  computed on 7 November, under Python 3.12.3); on
   6 November it was computed again on
   each of `67f6ec1` and the twenty-four trees `0491b84` to `b8f88d8`, for the Notes'
   v1.39: `bc1b9c2c…` at `67f6ec1`, this value on all twenty-four; and on 6 November
@@ -3388,8 +3421,9 @@ no code, no test, no tooling.
   output, a CPython implementation detail (`core/code_fingerprint.py`, "WHAT IT DOES NOT
   SURVIVE"). **Every `code_hash` claim about this project is computed under Python 3.12**
   (Viktor runs 3.12.10).
-- **Golden snapshot:** unchanged by the commit that writes this line, which changes
-  docs and no code or test, by `4ab59d7`, which added a script under `docs/` and a
+- **Golden snapshot:** unchanged by the commit that writes this line, which changes a
+  script under `docs/`, its test and docs, the test reading the fixture without
+  writing it, by `94b7e96`, which changed docs and no code or test, by `4ab59d7`, which added a script under `docs/` and a
   test, neither reading the fixture, and changed `README.md`'s counts and docs, by
   `706e858`, which changed `README.md`'s wording and
   docs and no code or test, by `bc250fc`, `a0ca299`, `0a518fd` and `f8805a6`, which
@@ -3442,10 +3476,14 @@ no code, no test, no tooling.
   `test_no_module_defaults_a_missing_risk_verdict_to_a_pass`. This is meant to be the
   one place the watched error count is written as a number (DECISIONS, "Ruling,
   15 October 2026 — Part 4's three test shapes", point 5); `README.md` wrote it too
-  until `713e084` (entry 50). The commit that writes this line changes no test, and
-  the three counts held: from the Linux sandbox, Python 3.12.3, pinned requirements,
-  on an autocrlf clone of `4ab59d7` and on the patch applied to another.
-  `4ab59d7` added `tests/test_count_forward_measurement.py`, 24 tests, none taking a
+  until `713e084` (entry 50). The commit that writes this line changes one test file
+  and adds and removes no test, and the three counts held: from the Linux sandbox,
+  Python 3.12.3, pinned requirements, on an autocrlf clone of `94b7e96` and on the
+  patch applied to another. `94b7e96` changed no test, and the three counts held:
+  from the Linux sandbox, on an autocrlf clone of `4ab59d7` and on the patch applied to
+  another; its pytest step ran on Windows after the apply (the cache on his disk was
+  rewritten at 04:54:00 on 7 November, after its three files were written at
+  04:50:39; its `lastfailed` is `{}`), and Viktor went on to the commit. `4ab59d7` added `tests/test_count_forward_measurement.py`, 24 tests, none taking a
   fixture and none needing `pandas_ta`, so each passed count moved by 24 and the error
   count held: from the Linux sandbox, the patch applied to an autocrlf clone of
   `706e858`; its pytest step ran on Windows after the apply (the cache on his disk was
@@ -3777,10 +3815,11 @@ no code, no test, no tooling.
   that no part is more than a session's work; the third, forty-eight commits, was more,
   and on 4 November Claude split it in two, Viktor not objecting: v1.37 at `f8805a6`
   covered `e7a94d1` to `eb86846`, v1.38 at `0a518fd` `c2b07fb` to `67f6ec1`, v1.39 at
-  `a0ca299` `0491b84` to `b8f88d8`, and v1.40 `a1c4218` to `0a518fd`. **Three commits
+  `a0ca299` `0491b84` to `b8f88d8`, and v1.40 `a1c4218` to `0a518fd`. **Four commits
   that need an entry are behind:** `706e858`, which files the ruling of 7 November on
-  F2, `4ab59d7`, which adds the forward measurement's count, and the commit that
-  writes this line, the redesign draft's version 2; `a0ca299` and `bc250fc`, v1.39's and v1.40's own regenerations,
+  F2, `4ab59d7`, which adds the forward measurement's count, `94b7e96`, the redesign
+  draft's version 2, and the commit that writes this line, the ruling of 7 November on
+  the redesign's direction and the draft's version 3; `a0ca299` and `bc250fc`, v1.39's and v1.40's own regenerations,
   have none (a commit that regenerates the Notes cannot cover itself, Entry #144).
   Every later commit adds one until the next regeneration.
   Batched, by the 15 September rule. v1.40 records the commit-msg hook (entry 56),
@@ -3811,8 +3850,8 @@ no code, no test, no tooling.
   rows**, for the ruling of 7 November on F2, in wording Claude wrote and put to
   Viktor before his commit, and nothing else in it. Its test counts are current (975,
   799 / 165 and 907 passed, 0 failed), last changed by `4ab59d7`, which changed only
-  the numbers, for its 24 new tests (the commit that writes this line does not change
-  `README.md`), and before it by
+  the numbers, for its 24 new tests (`94b7e96` and the commit that writes this line
+  do not change `README.md`), and before it by
   `b990c93`, which changed only the numbers, for its 18 new
   tests, and before it by `5fe8522`, which changed only the
   numbers, for entry 59's two tests more, and before it by `1b82ed0`, which changed
@@ -5375,17 +5414,19 @@ Each code commit is its own commit and updates this file for its own landing.
 
 ## Resolved this session
 
-- **`4ab59d7`'s landing**, checked from 04:30 on 7 November, and recorded by the
+- **`94b7e96`'s landing**, checked from 05:14 on 7 November, and recorded by the
   commit that writes this line, made for its own reason (DECISIONS, the correction of
   4 November). Its push is in "Where things stand".
-- **The redesign draft's section 12, point 5** — what the design weakens and the case
-  against — is §16 of its version 2, written before the reading of 14 November's data
-  was read. It found §16.1, which adds point 7 to §12 (Open items, the redesign).
+- **The redesign draft's section 12, point 7** — §2, §3.1 and §4 reconciled — by
+  Viktor's ruling of 7 November on the direction, filed by the commit that writes
+  this line with the draft's version 3 (§16.4) and computation 1 of 2 November amended
+  in place before the reading's data is read. Left of it, Viktor's with the tier
+  lines: which reading of AGGRESSIVE §4 means.
 - **The patch-delivery skill's marker** is at `706e858`. The commit that writes this
-  line files no ruling and changes no procedure the skill describes, so the marker
-  stays.
+  line files a ruling that changes no procedure the skill describes; moving the marker
+  to it after its push is put to Viktor as a card.
 - **This file's rewrite**, by the commit that writes this line. The lines it removed
-  from the version at `4ab59d7` are in HISTORY's new entry, checked by
+  from the version at `94b7e96` are in HISTORY's new entry, checked by
   `docs/build/check_history_move.py` (the commit message has the result).
 
 ## Open items
@@ -5460,9 +5501,10 @@ Claude critiques it.
   31 October 2026 — volume enters the redesign as two gates …"); the floor needs
   `quote_volume`, which the fetcher drops today. Added on 1 November: entry 58's rule,
   that no reasoning sentence rounds a compared value across its threshold (Found after
-  22 September, entry 58). **Design draft, version 2**, Claude's, started 1 November:
+  22 September, entry 58). **Design draft, version 3**, Claude's, started 1 November:
   `docs/redesign_entry53_draft.md` (version 0 filed at `e69d5bb`, version 1 at
-  `e8b42b8`, version 2 by the commit that writes this line). Not ruled. Version 1
+  `e8b42b8`, version 2 at `94b7e96`, version 3 by the commit that writes this line).
+  Not ruled, but for its direction (7 November). Version 1
   lists every golden field — 227 leaves: 125 unchanged, 81 removed, 15 that move, 2
   renamed and 4 that go only if Viktor removes the structure multiplier — and every
   test it moves — 467 of the suite's 874 test functions: 95 go, 124 are rewritten, 2
@@ -5484,11 +5526,12 @@ Claude critiques it.
   the exit watch's exhaustion and reversal flags would go with trend health unless
   Viktor keeps them. **Version 2** adds §16, what the design weakens and the case
   against, and found that §2's direction and the band of §3.1 and §4 cannot meet
-  (§16.1): a candle with a side never closes inside the band. Reconciling them is
-  §12's point 7, before the draft goes to Viktor — entry quality's formula Claude's,
-  the floor and the tier lines his; if it changes a rule the decision of 2 November
-  measures, that decision's change is filed before the reading's data is read, or the
-  reading measures version 1's rules and says so.
+  (§16.1): a candle with a side never closed inside the band. **Version 3** states
+  §2's direction as Viktor ruled it on 7 November, EMA50's slope and the EMAs' order,
+  which reconciles §2, §3.1 and §4 with §3.1's and §4's rules unchanged (§16.4, §12's
+  point 7 done); the decision of 2 November's computation 1 is amended to it. Left of
+  point 7, Viktor's with the tier lines: which reading of AGGRESSIVE §4 means, the close
+  inside the band or today's ACTIVE ENTRY ZONE.
 - **The forward measurement — Claude's to count, under the ruling of 17 October.** Ten
   pairs — AEROUSDT, ETHUSDT, SOLUSDT, XRPUSDT, BNBUSDT, DOGEUSDT, ADAUSDT, LINKUSDT,
   AVAXUSDT, SUIUSDT — every four hours, by one Windows scheduled task on Viktor's
@@ -5669,7 +5712,8 @@ Claude critiques it.
     `docs/build/measure_draft_gaps.py`, added by `1b82ed0` and
     tested on synthetic records only, from the repository:
     `python docs/build/measure_draft_gaps.py logs --json <file>`, on the logs as staged
-    for the reading. Not yet run on them.
+    for the reading. Not yet run on them. Computation 1's direction amended on
+    7 November, before the data was read, and the script with it (Ruled — in force).
   - **The count itself, filed** — `docs/build/count_forward_measurement.py`, added on
     7 November by `4ab59d7`, makes the count the decision of
     17 October sets: the records are `measure_draft_gaps.py`'s population, imported
@@ -5901,8 +5945,9 @@ Claude critiques it.
   script and documents only, as `ec4e5fd` did; `706e858`, docs only, changed no line
   there (this file at `706e858` still said "the commit that writes this line adds
   none" there, as `bc250fc` wrote it, and so named `706e858` for `bc250fc`'s change of
-  the Notes' script; corrected on 7 November); `4ab59d7` added its own; the commit
-  that writes this line, docs only, changes no line there. (This
+  the Notes' script; corrected on 7 November); `4ab59d7` added its own; `94b7e96`,
+  docs only, changed no line there; the commit that writes this line names `4ab59d7`
+  there and adds its own. (This
   paragraph stopped at
   `a235783` until `ad34c02`
   brought it current, and

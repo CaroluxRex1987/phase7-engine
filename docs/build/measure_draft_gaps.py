@@ -9,6 +9,14 @@ read. That entry is the method. Where this script and the entry differ, the
 entry holds and the difference is recorded; the readings this script had to
 make where the entry leaves a choice are listed under READINGS below.
 
+Computation 1's direction was amended on 7 November 2026, before any of the
+reading's data was read, by DECISIONS, "Ruling, 7 November 2026 -- the
+redesign's direction is EMA50's slope and the EMAs' order; computation 1 of
+2 November follows it": BULLISH when EMA50_Slope > 0 and EMA_20 > EMA_50,
+BEARISH when both point down, else NEUTRAL. EMA20_Slope is not read, and the
+slopes counted as exactly zero are EMA50_Slope's. `draft_direction` follows
+the amended entry.
+
 WHAT IT READS. The live decision logs (`phase7_decision_log_<pair>.jsonl` in
 the folder given) and, for what a record does not hold, that run's own archive
 (`provenance.archive_path`, resolved under --root, the repository by default).
@@ -327,13 +335,16 @@ def check_archive(row, root, cache):
 # ---------------------------------------------------------------- the six
 
 def draft_direction(ind):
-    """Point 1: BULLISH, BEARISH, NEUTRAL, or None when an input is missing."""
-    s20, s50, e20, e50 = (num(ind.get(k)) for k in ("EMA20_Slope", "EMA50_Slope", "EMA_20", "EMA_50"))
-    if None in (s20, s50, e20, e50):
+    """
+    Point 1, as amended on 7 November: BULLISH, BEARISH, NEUTRAL, or None
+    when an input is missing. EMA20_Slope is not read.
+    """
+    s50, e20, e50 = (num(ind.get(k)) for k in ("EMA50_Slope", "EMA_20", "EMA_50"))
+    if None in (s50, e20, e50):
         return None
-    if s20 > 0 and s50 > 0 and e20 > e50:
+    if s50 > 0 and e20 > e50:
         return "BULLISH"
-    if s20 < 0 and s50 < 0 and e20 < e50:
+    if s50 < 0 and e20 < e50:
         return "BEARISH"
     return "NEUTRAL"
 
@@ -511,13 +522,12 @@ def measure(population, root, floor=None):
     opposite = [r for r in both if r["draft dir"] != r["raw"]]
     trading = [r for r in n if r["today"] in TRADE_ACTIONS and r["draft dir"] is not None]
     neutral = [r for r in trading if r["draft dir"] == "NEUTRAL"]
-    zero = sum(1 for r in n if any(num(bar_values(r["decision"]).get(k)) == 0.0
-                                   for k in ("EMA20_Slope", "EMA50_Slope")))
+    zero = sum(1 for r in n if num(bar_values(r["decision"]).get("EMA50_Slope")) == 0.0)
     one.update({"table, draft / today": {f"{a} / {b}": v for (a, b), v in table.items()},
                 "raw bias not one of the three": other_raw,
                 "opposite": _share(opposite, both, pairs),
                 "NEUTRAL where today trades": _share(neutral, trading, pairs),
-                "a slope exactly zero": zero})
+                "EMA50's slope exactly zero": zero})
     one["against (a)"] = _over(len(opposite), len(both), 0.02)
     one["against (b)"] = _over(len(neutral), len(trading), 0.5)
     res["1 direction"] = one

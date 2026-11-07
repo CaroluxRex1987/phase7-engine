@@ -6734,11 +6734,15 @@ any reading ("Decision, 17 October 2026 — how the forward measurement is count
 
 **The six computations, and what counts against the draft.**
 
-1. **Direction** (draft §2). For each record in N, the draft's direction: BULLISH when
-   `EMA20_Slope > 0`, `EMA50_Slope > 0` and `EMA_20 > EMA_50`; BEARISH when all three
-   point down; else NEUTRAL. Reported: the 3 × 3 table against the record's `bias.raw`;
-   how many records with a trade action today come out NEUTRAL; how many records have a
-   slope of exactly zero. **Counts against §2:** (a) opposite sides — both have a side
+1. **Direction** (draft §2). *(Amended 7 November 2026: "Ruling, 7 November 2026 —
+   the redesign's direction is EMA50's slope and the EMAs' order; computation 1 of
+   2 November follows it", below, which quotes the sentences it replaces and states
+   what it weakens.)* For each record in N, the draft's direction: BULLISH when
+   `EMA50_Slope > 0` and `EMA_20 > EMA_50`; BEARISH when both point down; else
+   NEUTRAL. Reported: the 3 × 3 table against the record's `bias.raw`; how many
+   records with a trade action today come out NEUTRAL; how many records have an
+   `EMA50_Slope` of exactly zero.
+   **Counts against §2:** (a) opposite sides — both have a side
    and the sides differ — on more than 2% of the records where both have one. §2 rests
    on the document of 24 October, which found the bias side matching the slope on 99.6%
    of bars with a side; 2% is five times its miss rate, room for a smaller sample. Then
@@ -7001,6 +7005,115 @@ Claude, so the suggestion is its author's.
 Criticals rises by one for a defect whose fix was verified three weeks before it was
 ruled; a reader of the count alone would not see that F2 never changed a live action,
 which this entry and README say.
+
+## Ruling, 7 November 2026 — the redesign's direction is EMA50's slope and the EMAs' order; computation 1 of 2 November follows it
+
+*New in this file on 7 November 2026. Viktor's, at 05:34, by agreeing to Claude's
+suggestion — not by writing his position first — in the session that opened at 05:14 on
+7 November at `94b7e96`; filed by its commit. It settles the strength floor of the
+redesign's draft (`docs/redesign_entry53_draft.md`, §2), which the draft's §0 marks his,
+and with it §12's point 7 of the draft's version 2.*
+
+**The question.** Version 2 of the draft found that its direction and its band cannot
+meet (§16.1). Each EMA is recursive after its warm-up, so its one-candle slope is above
+zero exactly when the close is above the previous candle's EMA, and the close is then
+above this candle's EMA too. With the draft's direction — BULLISH when `EMA20_Slope >
+0`, `EMA50_Slope > 0` and `EMA_20 > EMA_50` — a candle with a side always closes beyond
+the band: §4's AGGRESSIVE (close inside the band) is never reached, and §3.1's full
+distance points never on a candle with a side. Two ways to reconcile them were put to
+Viktor: **A**, keep the floor, measure entry quality's distance from `EMA_20` instead of
+the band's middle (Claude's), and set a new AGGRESSIVE line (his); **B**, take the floor
+from EMA50's slope and the EMAs' order, and leave §3.1 and §4 as written.
+
+**How it was made.** By the ruling of 1 November read with the correction of 4 November,
+Claude chose it as what came first: no commit owed, and work due by a date — what it
+changes in a rule the decision of 2 November measures has to be filed before the reading
+of 14 November's data is read — that moves no `code_hash`. Claude put both routes to him
+in its first reply, with counts from the pinned candles, without a view, his position
+asked for first. He asked for a suggestion at 05:33; Claude suggested B, with what it
+weakens; at 05:34: "We go with B".
+
+**What was ruled.** The draft's direction is **BULLISH when `EMA50_Slope > 0` and
+`EMA_20 > EMA_50`; BEARISH when `EMA50_Slope < 0` and `EMA_20 < EMA_50`; anything else
+NEUTRAL** — a lean, and WAIT. `EMA20_Slope` is not part of it. This is the floor that "a
+lean is not a case" (5 September) needs once the weighted sum is gone (the ruling of 25
+October, point 7). The rest of the draft stays unruled, and nothing is built from it
+until the whole design is (the same ruling, "What follows").
+
+**Claude's reasons, as given.**
+
+1. It fits the hypothesis ruled on 25 October (point 1), a trend and a pullback within
+   it: the trend keeps its side through the pullback. Under A the pullback candle is
+   NEUTRAL, and a side returns only on the candle that closes back above the previous
+   `EMA_20`, so A enters on the reclaim, not on the pullback.
+2. One change reconciles §2, §3.1 and §4. By the algebra of §16.1, a close that gives
+   `EMA_50` a positive slope is above this candle's `EMA_50` as well, so a BULLISH close
+   is above the band's lower edge and can be inside the band; BEARISH is the mirror.
+   §3.1's middle and §4's AGGRESSIVE are reachable as written. A needs a new distance
+   and a new tier line.
+3. It adds no number, so it takes none of the three tunable places (Decision, 30
+   October).
+4. It is steadier on the pinned candles (below): fewer changes of side.
+5. The line between a lean and a case stays, in another place: a lean is the EMAs' order
+   and the slow EMA's slope disagreeing — the averages have crossed and the slow one has
+   not turned. The trigger (§5) already keeps a candle that is still falling from
+   entering.
+
+**Checked** in the sandbox (Linux, Python 3.12.3, pinned requirements, at `94b7e96`),
+through the engine's `add_technical_indicators` with `pandas_ta`, on the pinned candles,
+on all 400 rows after the EMAs' warm-up: the sign of `EMA50_Slope` equalled the sign of
+the close minus the previous `EMA_50` on all 400 rows of `AEROUSDT_4h.csv` and of
+`BTCUSDT_4h.csv`; under B every BULLISH close was above `EMA_50` and every BEARISH close
+below it. Rows with a side under B: AERO 342 (290 BULLISH, 52 BEARISH), 64 of them
+closing inside the band; BTC 307 (132, 175), 52 inside. Under version 2's rule: AERO 278
+and BTC 255, none inside. Changes of side over the 400 rows: AERO 41 under B against 65,
+BTC 45 against 57. The pinned candles are synthetic: these counts say nothing about the
+live pairs. **Claude's error, recorded:** the counts first put to Viktor in chat came
+from pandas' `ewm(span, adjust=False)` alone, over rows 50 to 449 (AERO 343 and BTC 305
+sides, 50 inside on BTC, 41 changes on BTC), stated with that method but not the
+engine's `ta.ema`; the counts above are the engine's and replace them. The difference is
+the EMAs' warm-up seed, not read.
+
+**What follows.**
+
+- **The draft's version 3**, filed by this entry's commit: §2 states the ruled rule and
+  §0 marks it ruled; §16.4 records the reconciliation; §12's point 7 is done; §3.1, §4,
+  §13.1, §14 and §16 are brought to it. §3.1 and §4 keep their rules.
+- **Computation 1 of the decision of 2 November is amended in place**, before any of the
+  reading's data is read, marked as amended and naming this entry. The sentences it
+  replaces: "For each record in N, the draft's direction: BULLISH when `EMA20_Slope >
+  0`, `EMA50_Slope > 0` and `EMA_20 > EMA_50`; BEARISH when all three point down; else
+  NEUTRAL." and "how many records have a slope of exactly zero." Now: BULLISH when
+  `EMA50_Slope > 0` and `EMA_20 > EMA_50`, BEARISH when both point down, else NEUTRAL;
+  and how many records have an `EMA50_Slope` of exactly zero. Its two thresholds, (a)
+  and (b), and every other computation are unchanged. Version 2's prediction, from the
+  identity, that computation 2's AGGRESSIVE count with the close inside the band is zero
+  on every pair no longer holds, and nothing is predicted for it.
+- **`docs/build/measure_draft_gaps.py` follows**: `draft_direction` reads `EMA50_Slope`,
+  `EMA_20` and `EMA_50`, and its count of zero slopes reads `EMA50_Slope`; its direction
+  test is rewritten. Documentation tooling, under `docs/`, which the code fingerprint
+  does not read.
+- **No engine code changes**, and `code_hash` does not move.
+- **Still Viktor's** (draft §0): the rest of the design, among it the tier lines — which
+  of two readings §4's AGGRESSIVE means, the close inside the band or today's ACTIVE
+  ENTRY ZONE, a whole band width either side of its middle (§16.1, point 2), both
+  counted by computation 2.
+
+**What it weakens.**
+
+- More runs have a side (on the pinned candles, 342 against 278 on AERO and 307 against
+  255 on BTC), so the floor cuts less, and ADX, the trigger and the gates after it cut
+  more.
+- A fast EMA turned down against a slow one still rising is no longer a refusal; under
+  version 2's rule it was.
+- Direction still rests on one candle's close, against the previous candle's `EMA_50`,
+  with no hysteresis.
+- Computation 1's 2% (its (a)) was set against the document of 24 October, which
+  compared the bias side with the mean of both slopes; the amended rule reads one of
+  them, so that anchor is weaker than when it was set. The threshold is not changed.
+- Whether the extra sides make better or worse trades is not known: backtesting is
+  closed.
+- The suggestion is its author's: Claude wrote the draft, §16.1 and both routes.
 
 ## Working practice
 

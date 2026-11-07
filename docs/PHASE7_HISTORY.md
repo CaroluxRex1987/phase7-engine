@@ -219530,3 +219530,219 @@ Lines 5878–5879 of the version at `4ab59d7`:
   the Notes' script; corrected on 7 November); the commit that writes this line adds
   its own. (This
 ~~~~~
+
+## 7 November 2026 — the lines the rewrite of PHASE7_NEXT.md removed from its version at `94b7e96`
+
+*Moved here on 7 November 2026 by the commit that files Viktor's ruling on the
+redesign's direction, the draft's version 3 and the amended computation 1, and records
+`94b7e96`'s landing, under "Ruling, 4 November 2026 — HISTORY keeps what each rewrite
+of PHASE7_NEXT.md removes, not the whole file" (DECISIONS). Below the rule, each block
+is a run of lines of the file as it stood at `94b7e96` that the rewrite deleted or
+replaced, word for word, labelled with its line numbers in that version; "this
+session" in them is the session that opened at 04:30 on 7 November, and "the commit
+that writes this line" and "this commit" name `94b7e96`. The whole version:
+`git show 94b7e96:docs/PHASE7_NEXT.md`. Checked by `docs/build/check_history_move.py`.*
+
+---
+
+Lines 3–6 of the version at `94b7e96`:
+
+~~~~~
+*7 November 2026, in the session that opened at 04:30. Rewritten by the commit that
+files the redesign draft's version 2 and records `4ab59d7`'s landing; the lines it
+removed from the version at `4ab59d7` are in HISTORY, which points to that whole
+version in git.
+~~~~~
+
+Lines 2233–2267 of the version at `94b7e96`:
+
+~~~~~
+**This session (7 November, from 04:30)**, configured for Claude Opus 5.5, opened at
+`4ab59d7` and checked its landing, by the patch-delivery skill's section 10. GitHub's
+tip, read with no credentials at 04:30:34 (the probe asked for credentials, so none
+reached it), is `4ab59d7`; its tree `cfe5dfbe…` is the one its `Verified-Tree:` line
+names; its message holds no CR and ends with the attribution lines;
+`python docs/build/check_history_move.py --base 4ab59d7~1` on the tip gives the line
+its message recorded, 69 lines in 18 runs. Viktor's disk, staged at 04:31: the seven
+files the commit changed written at 04:14:59 and each byte for byte the tip; the index
+the tip's tree, 303 entries; the loose commit object hashing to `4ab59d7`, GitHub's
+bytes, with no CR; `.git/COMMIT_EDITMSG` the message byte for byte; `master` and
+`origin/master` `4ab59d7`, written at 04:28:19 and 04:28:34, the reflogs' last lines
+"commit:" and "update by push"; the pytest cache rewritten at 04:18:33, after the
+apply, holding the 24 new tests' ids, `lastfailed` `{}`; no patch or message file in
+the root. Nothing differed. The skill's marker is at `706e858`, and
+`git diff --stat 706e858 HEAD -- docs/PHASE7_DECISIONS.md` is empty. What came first,
+by the ruling of 1 November read with the correction of 4 November: no commit owed;
+the reading of 14 November not yet due, both its scripts filed; waves 0 and 1 done,
+and waves 2 to 5 moving `code_hash`, which no commit does before that reading. So,
+Claude's work that moves none: the redesign draft's section 12, point 5 — what the
+design weakens and the case against — written before any of the reading's data is
+read, so that it cannot be fitted to it. Version 2 of `docs/redesign_entry53_draft.md`
+adds them as §16. **Writing it found that the draft's direction and its band cannot
+meet** (§16.1): each EMA is recursive, so its one-candle slope is above zero exactly
+when the close is above the previous candle's EMA, and the close is then above this
+candle's EMA too; a candle the draft calls BULLISH always closes above the band, and
+BEARISH below it. As written, §4's AGGRESSIVE (close inside the band) is never
+reached, §3.1's full distance points never on a candle with a side, and the tier
+partly reads the EMAs' spread. Checked on the pinned candles in the sandbox (Linux):
+the sign identity on all 400 rows of AEROUSDT and of BTCUSDT, with and without
+`pandas_ta`. Reconciling §2, §3.1 and §4 is §12's new point 7, not done in version 2.
+**Found while rewriting:** the bullet "Before this commit" in "Where things stand"
+still gave `bc250fc`'s sentence — staged against `a0ca299`, adding no file — in this
+file at `706e858` and at `4ab59d7`, though `4ab59d7` added two files; it now gives
+this commit's own. The commit that writes this line changes the draft and docs only:
+no code, no test, no tooling.
+~~~~~
+
+Line 2291 of the version at `94b7e96`:
+
+~~~~~
+  holds.
+~~~~~
+
+Lines 2830–2831 of the version at `94b7e96`:
+
+~~~~~
+  the redesign draft's version 2, with its §16, and `4ab59d7`'s landing recorded:
+  docs only, no engine code. Before it: `4ab59d7` (the session of 7 November, from
+~~~~~
+
+Lines 3152–3153 of the version at `94b7e96`:
+
+~~~~~
+  fixture or needing `pandas_ta`) and changed no other test; and the commit that
+  writes this line changes no test.
+~~~~~
+
+Lines 3165–3166 of the version at `94b7e96`:
+
+~~~~~
+- **The push of `4ab59d7`** happened, at 04:28:34 on 7 November: GitHub's tip, read
+  with no credentials at 04:30:34, is `4ab59d7`, Viktor's disk is the tip in every part
+~~~~~
+
+Line 3168 of the version at `94b7e96`:
+
+~~~~~
+  no deviation (ruling on proposal (b)). So did `706e858`'s, at 01:03:15 on
+~~~~~
+
+Line 3327 of the version at `94b7e96`:
+
+~~~~~
+  matched an autocrlf checkout of `4ab59d7`, GitHub's tip, cloned at 04:30 on
+~~~~~
+
+Lines 3364–3365 of the version at `94b7e96`:
+
+~~~~~
+  which is not a `.py` file, and by the commit that writes this line, which changes
+  files under `docs/` only: computed
+~~~~~
+
+Lines 3374–3377 of the version at `94b7e96`:
+
+~~~~~
+  `7b93769`, `b990c93`, `f8805a6`, `0a518fd`, `a0ca299`, `bc250fc`, `706e858` and
+  `4ab59d7` and the applied tree of the commit that writes this line give the same
+  (`bc250fc`'s, `706e858`'s, `4ab59d7`'s and the applied tree computed on 7 November,
+  under Python 3.12.3); on
+~~~~~
+
+Lines 3391–3392 of the version at `94b7e96`:
+
+~~~~~
+- **Golden snapshot:** unchanged by the commit that writes this line, which changes
+  docs and no code or test, by `4ab59d7`, which added a script under `docs/` and a
+~~~~~
+
+Lines 3445–3448 of the version at `94b7e96`:
+
+~~~~~
+  until `713e084` (entry 50). The commit that writes this line changes no test, and
+  the three counts held: from the Linux sandbox, Python 3.12.3, pinned requirements,
+  on an autocrlf clone of `4ab59d7` and on the patch applied to another.
+  `4ab59d7` added `tests/test_count_forward_measurement.py`, 24 tests, none taking a
+~~~~~
+
+Line 3780 of the version at `94b7e96`:
+
+~~~~~
+  `a0ca299` `0491b84` to `b8f88d8`, and v1.40 `a1c4218` to `0a518fd`. **Three commits
+~~~~~
+
+Lines 3782–3783 of the version at `94b7e96`:
+
+~~~~~
+  F2, `4ab59d7`, which adds the forward measurement's count, and the commit that
+  writes this line, the redesign draft's version 2; `a0ca299` and `bc250fc`, v1.39's and v1.40's own regenerations,
+~~~~~
+
+Lines 3814–3815 of the version at `94b7e96`:
+
+~~~~~
+  the numbers, for its 24 new tests (the commit that writes this line does not change
+  `README.md`), and before it by
+~~~~~
+
+Line 5378 of the version at `94b7e96`:
+
+~~~~~
+- **`4ab59d7`'s landing**, checked from 04:30 on 7 November, and recorded by the
+~~~~~
+
+Lines 5381–5383 of the version at `94b7e96`:
+
+~~~~~
+- **The redesign draft's section 12, point 5** — what the design weakens and the case
+  against — is §16 of its version 2, written before the reading of 14 November's data
+  was read. It found §16.1, which adds point 7 to §12 (Open items, the redesign).
+~~~~~
+
+Lines 5385–5386 of the version at `94b7e96`:
+
+~~~~~
+  line files no ruling and changes no procedure the skill describes, so the marker
+  stays.
+~~~~~
+
+Line 5388 of the version at `94b7e96`:
+
+~~~~~
+  from the version at `4ab59d7` are in HISTORY's new entry, checked by
+~~~~~
+
+Line 5463 of the version at `94b7e96`:
+
+~~~~~
+  22 September, entry 58). **Design draft, version 2**, Claude's, started 1 November:
+~~~~~
+
+Line 5465 of the version at `94b7e96`:
+
+~~~~~
+  `e8b42b8`, version 2 by the commit that writes this line). Not ruled. Version 1
+~~~~~
+
+Lines 5487–5491 of the version at `94b7e96`:
+
+~~~~~
+  (§16.1): a candle with a side never closes inside the band. Reconciling them is
+  §12's point 7, before the draft goes to Viktor — entry quality's formula Claude's,
+  the floor and the tier lines his; if it changes a rule the decision of 2 November
+  measures, that decision's change is filed before the reading's data is read, or the
+  reading measures version 1's rules and says so.
+~~~~~
+
+Line 5672 of the version at `94b7e96`:
+
+~~~~~
+    for the reading. Not yet run on them.
+~~~~~
+
+Lines 5904–5905 of the version at `94b7e96`:
+
+~~~~~
+  the Notes' script; corrected on 7 November); `4ab59d7` added its own; the commit
+  that writes this line, docs only, changes no line there. (This
+~~~~~

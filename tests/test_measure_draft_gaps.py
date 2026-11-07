@@ -196,15 +196,25 @@ def test_another_pairs_record_in_a_log_is_not_counted():
 
 # ---------------------------------------------------------------- 1, 2, 3
 
-def test_direction_needs_both_slopes_and_the_ema_order():
+def test_direction_is_ema50s_slope_and_the_ema_order():
+    """
+    Computation 1 as amended on 7 November: EMA50's slope and the EMAs' order.
+    EMA20's slope is not read, so a pullback that turns EMA20 down keeps its
+    side, and a missing or zero EMA20 slope changes nothing.
+    """
     tool = _tool()
     f = tool.draft_direction
     assert f({"EMA20_Slope": 0.1, "EMA50_Slope": 0.1, "EMA_20": 2, "EMA_50": 1}) == "BULLISH"
     assert f({"EMA20_Slope": -0.1, "EMA50_Slope": -0.1, "EMA_20": 1, "EMA_50": 2}) == "BEARISH"
+    assert f({"EMA20_Slope": -0.1, "EMA50_Slope": 0.1, "EMA_20": 2, "EMA_50": 1}) == "BULLISH"
+    assert f({"EMA20_Slope": 0.1, "EMA50_Slope": -0.1, "EMA_20": 1, "EMA_50": 2}) == "BEARISH"
+    assert f({"EMA20_Slope": 0.0, "EMA50_Slope": 0.1, "EMA_20": 2, "EMA_50": 1}) == "BULLISH"
+    assert f({"EMA20_Slope": None, "EMA50_Slope": 0.1, "EMA_20": 2, "EMA_50": 1}) == "BULLISH"
     assert f({"EMA20_Slope": 0.1, "EMA50_Slope": 0.1, "EMA_20": 1, "EMA_50": 2}) == "NEUTRAL"
     assert f({"EMA20_Slope": 0.1, "EMA50_Slope": -0.1, "EMA_20": 2, "EMA_50": 1}) == "NEUTRAL"
-    assert f({"EMA20_Slope": 0.0, "EMA50_Slope": 0.1, "EMA_20": 2, "EMA_50": 1}) == "NEUTRAL"
-    assert f({"EMA20_Slope": None, "EMA50_Slope": 0.1, "EMA_20": 2, "EMA_50": 1}) is None
+    assert f({"EMA20_Slope": 0.1, "EMA50_Slope": 0.0, "EMA_20": 2, "EMA_50": 1}) == "NEUTRAL"
+    assert f({"EMA20_Slope": 0.1, "EMA50_Slope": 0.1, "EMA_20": 2, "EMA_50": 2}) == "NEUTRAL"
+    assert f({"EMA20_Slope": 0.1, "EMA50_Slope": None, "EMA_20": 2, "EMA_50": 1}) is None
 
 
 def test_quality_is_eighty_for_distance_and_twenty_for_the_hvn():
@@ -388,7 +398,8 @@ def _rising_tail(frame, k=4):
 
 def test_the_whole_reading_on_four_synthetic_candles():
     """
-    Four task records on one pair: Q 100 inside the band, twice; then NEUTRAL;
+    Four task records on one pair: Q 100 inside the band, twice; then NEUTRAL
+    (EMA50's slope turned down; EMA20's is not read);
     then Q 100 again. Draft: AGGRESSIVE LONG, AGGRESSIVE LONG, WAIT, AGGRESSIVE
     LONG -- two entries in four measured records, so 2 / 4 x 2,190 x 10 =
     10,950 a year. Today: LONG four times, one entry.
@@ -406,7 +417,7 @@ def test_the_whole_reading_on_four_synthetic_candles():
             rec = _record(opened=opened, archive=path, frame=frame)
             rec["decision"]["lineage"]["indicators_at_decision_bar"].update(
                 {"EMA_20": c + 0.001, "EMA_50": c - 0.001, "HVN": c, "ATR": 1.0,
-                 "EMA20_Slope": -0.1 if neutral else 0.1})
+                 "EMA50_Slope": -0.1 if neutral else 0.1})
             records.append(rec)
         logs = os.path.join(tmp, "logs")
         _write_logs(logs, records)
