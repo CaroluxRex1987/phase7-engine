@@ -7115,6 +7115,98 @@ the EMAs' warm-up seed, not read.
   closed.
 - The suggestion is its author's: Claude wrote the draft, §16.1 and both routes.
 
+## Ruling, 7 November 2026 — the redesign's AGGRESSIVE reads the close inside the band
+
+*New in this file on 7 November 2026. Viktor's, at 19:47, by agreeing to Claude's
+suggestion — not by writing his position first — in the session that opened at 19:30 on
+7 November at `b874ec1`; filed by its commit. It settles which of two readings the
+redesign draft's AGGRESSIVE line means (`docs/redesign_entry53_draft.md`, §4 and §3.1),
+which the draft's §0 marks his with the tier lines, and with it what was left of §12's
+point 7.*
+
+**The question.** The draft's §4 sets AGGRESSIVE at entry quality 70 or more, the close
+inside the band, and the risk regime NORMAL or LOW. Version 1 called that "today's rule
+minus trend health", but today's AGGRESSIVE reads the STATUS word ACTIVE ENTRY ZONE
+(`models/decision_model.py`, `_determine_final_action`, read at `a11ffc4` for version
+4), which is a close within one band width of the band's midpoint (`models/entry_model.py`,
+`dist_to_mid <= zone_width`, read for §16.1). So there were two readings: **(a)** the
+close inside the band, between `EMA_20` and `EMA_50`, ends included; **(b)** today's
+ACTIVE ENTRY ZONE. Version 4 wrote §3.1's STATUS and its true-or-false field in two
+branches, one for each.
+
+**How it was made.** At the session's opening Claude checked `b874ec1`'s landing and
+chose the Engineering Notes, six commits behind, as what came first, naming this
+question as Viktor's and, by the ruling of 1 November, after Claude's work. At 19:46 he
+asked for a suggestion; Claude suggested (a), with what it gives up and the case
+against; at 19:47: "We go with A then."
+
+**What was ruled.** AGGRESSIVE's band condition is **the close inside the band**:
+between `EMA_20` and `EMA_50`, ends included, as computation 2 of the decision of
+2 November reads it (`docs/build/measure_draft_gaps.py`, its reading 3). With it, §3.1's
+branch (a) of version 4: the tier reads `entry.close_inside_band`, never the STATUS word,
+and STATUS is printed from that field as a position — INSIDE THE BAND, ABOVE THE BAND or
+BELOW THE BAND — with ZONE NOT AVAILABLE and NO DATA kept. The tier lines themselves, 70
+and 50, are still Viktor's, to be checked against the measured distribution (draft §4;
+the decision of 2 November, computation 2). The rest of the draft stays unruled, and
+nothing is built from it until the whole design is (the ruling of 25 October, "What
+follows").
+
+**Claude's reasons, as given.**
+
+1. It is the hypothesis ruled on 25 October (point 1), a pullback to the average,
+   stated as a fact with no distance in it.
+2. It adds no number. (b)'s one band width is set by no ruling (draft §3.1, read at
+   `a11ffc4`), the shape of constant on a decision path that the audits have kept
+   missing; (a) has no threshold and takes none of the three tunable places (Decision,
+   30 October).
+3. (b) labels as AGGRESSIVE closes outside the band. Under the direction ruled at 05:34
+   these are, on a LONG, the closes up to half a band width above `EMA_20`, which have
+   not pulled back below the fast average; SHORT is the mirror.
+4. Ruled before any of the reading of 14 November's data is read, the choice cannot be
+   fitted to its counts. Computation 2 counts both readings, so what (b) would have
+   given is still seen.
+
+**Claude's error, recorded.** The third reason, as first sent in chat, also said that
+(b) would label AGGRESSIVE a LONG closing below `EMA_50`. Under the direction ruled at
+05:34 a BULLISH close is always above this candle's `EMA_50` (draft §16.4, point 2),
+and BEARISH is the mirror, so that half was wrong; it was stated without being checked
+against §16.4. Claude corrected it in chat at 19:49, before this entry was written, and
+kept the suggestion; the reason above is the corrected one. Viktor's "We go with A then"
+came before the correction.
+
+**What follows.**
+
+- **The draft's version 6**, filed by this entry's commit: §0 marks the reading ruled;
+  §3.1 keeps branch (a) and records (b) as not taken; §4's AGGRESSIVE line, §10.1,
+  §12's points 6 and 7, §13.2, §13.3, §14, §16.1's point 2, §16.2 and §16.4 are brought
+  to it.
+- **The second pinned decision's seed** (draft §10.1) now waits on F and the tier lines
+  only, and is searched under (a).
+- **The decision of 2 November is unchanged.** Its computation 2 already reads
+  AGGRESSIVE as the close inside the band and counts today's ACTIVE ENTRY ZONE beside
+  it, and `measure_draft_gaps.py`'s ladder (computation 6) already tiers by the close
+  inside the band (read: `inside_band`). The script's docstring, which says the second
+  count is printed "for the draft to choose", is left as it is: the count is still
+  printed, and a change to the script is a tooling commit of its own.
+- **No engine code and no tooling changes**, and `code_hash` does not move.
+
+**What it weakens.**
+
+- It changes today's rule. A close in today's ACTIVE ENTRY ZONE but beyond the fast
+  average — above `EMA_20` on a LONG, below it on a SHORT — that reads AGGRESSIVE today
+  would read LONG or SHORT under the design, if it reached quality 70.
+- AGGRESSIVE may be rare. When the averages are close the band is narrow, and few
+  closes fall inside it. AGGRESSIVE is a part of the 70-and-over class, so an empty
+  AGGRESSIVE alone does not meet computation 2's "counts against" (one of the three
+  classes empty, or holding more than 90%), as Claude reads that decision's text; it
+  would come to Viktor as a question, not be re-set by that rule.
+- §3.1 loses today's STATUS words: NEAR, APPROACHING and AWAY go with their 2 and 3.5,
+  and four tests' assertions on a STATUS word move (draft §14, version 4).
+- Since 28 September every trade is one of ten equal capital slices, so the tier
+  changes no position size: a wrong reading mislabels a trade and does not mis-size
+  one.
+- The suggestion is its author's: Claude wrote the draft and both branches.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then

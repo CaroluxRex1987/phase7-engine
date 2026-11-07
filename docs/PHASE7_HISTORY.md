@@ -220151,3 +220151,210 @@ Line 5972 of the version at `542085f`:
 ~~~~~
   the commit that writes this line, docs only, changes no line there. (This
 ~~~~~
+
+## 7 November 2026 — the lines the rewrite of PHASE7_NEXT.md removed from its version at `b874ec1`
+
+*Moved here on 7 November 2026 by the commit that files Viktor's ruling of 7 November on
+the redesign's AGGRESSIVE, writes the draft's version 6, and records `b874ec1`'s
+landing, under "Ruling, 4 November 2026 — HISTORY keeps what each rewrite of
+PHASE7_NEXT.md removes, not the whole file" (DECISIONS). Below the rule, each block is a
+run of lines of the file as it stood at `b874ec1` that the rewrite deleted or replaced,
+word for word, labelled with its line numbers in that version; "this session" in them is
+the session that opened at 07:26 on 7 November, and "the commit that writes this line"
+and "this commit" name `b874ec1`. The whole version:
+`git show b874ec1:docs/PHASE7_NEXT.md`. Checked by `docs/build/check_history_move.py`.*
+
+---
+
+Lines 3–5 of the version at `b874ec1`:
+
+~~~~~
+*7 November 2026, in the session that opened at 07:26. Rewritten by the commit that
+writes the redesign draft's version 5, the second pinned decision, and records
+`542085f`'s landing; the lines it removed from the version at `542085f` are in HISTORY,
+~~~~~
+
+Lines 2256–2259 of the version at `b874ec1`:
+
+~~~~~
+**This session (7 November, from 07:26)**, configured for Claude Opus 5.5, opened at
+`542085f` and checked its landing, by the patch-delivery skill's section 10. GitHub's
+tip, read with no credentials at 07:27:56 (the probe asked for credentials, so none
+reached it), is `542085f`; its tree `587095c2…` is the one its `Verified-Tree:` line
+~~~~~
+
+Lines 2261–2268 of the version at `b874ec1`:
+
+~~~~~
+docs/build/check_history_move.py --base 542085f~1` on the tip gives the line its message
+recorded, 78 lines in 25 runs. Viktor's disk, staged at 07:27: the three files the
+commit changed written at 07:13:35 and each byte for byte the tip; the index the tip's
+tree, 303 entries (`git write-tree` on a copy gives `587095c2…`); the loose commit
+object hashing to `542085f`, GitHub's bytes, with no CR; `.git/COMMIT_EDITMSG` the
+message byte for byte; `master` and `origin/master` `542085f`, written at 07:25:20 and
+07:25:47, the reflogs' last lines "commit:" and "update by push"; the pytest cache
+rewritten at 07:16:39, after the apply, `lastfailed` `{}`; no patch or message file in
+~~~~~
+
+Lines 2274–2286 of the version at `b874ec1`:
+
+~~~~~
+that the rulings in force let land now and that moves no `code_hash`: the rest of the
+draft's §12, point 6, the second pinned decision's candle. Claude scanned the pinned
+series in the sandbox first and put what it found to Viktor, with the scope and an
+estimate of what writing it up would cost, by his rule of 6 September on starting
+only what can be finished; he said go at 07:48. The commit that writes this line is
+the draft's version 5 (§10.1, and a finding in §11). **Found:** of the 336 undegraded
+cuts of the pinned series, three pass every gate of the draft, and each of them has
+fewer than 50 daily candles behind it, where today's engine computes the macro EMA_50
+with its `ewm` fallback over the candles there are and records nothing. So none is
+proposed. Proposed instead: a second seeded series, its seed chosen once F, the tier
+lines and the reading of AGGRESSIVE are set. The unrecorded short-frame EMA is entry
+61 of the list for after the audit (Found after 22 September). Docs only: no engine
+code, no test.
+~~~~~
+
+Line 2299 of the version at `b874ec1`:
+
+~~~~~
+  stays unruled, the tier lines among it.
+~~~~~
+
+Lines 2862–2863 of the version at `b874ec1`:
+
+~~~~~
+  the redesign draft's version 5, the second pinned decision, with entry 61 filed, and
+  `542085f`'s landing recorded: docs only, no engine code. Before it: `542085f` (the
+~~~~~
+
+Line 3197 of the version at `b874ec1`:
+
+~~~~~
+  `542085f` changed no test; and the commit that writes this line changes no test.
+~~~~~
+
+Lines 3209–3210 of the version at `b874ec1`:
+
+~~~~~
+- **The push of `542085f`** happened, at 07:25:47 on 7 November: GitHub's tip, read
+  with no credentials at 07:27:56, is `542085f`, Viktor's disk is the tip in every part
+~~~~~
+
+Line 3212 of the version at `b874ec1`:
+
+~~~~~
+  no deviation (ruling on proposal (b)). So did `a11ffc4`'s, at 06:49:00 on
+~~~~~
+
+Line 3380 of the version at `b874ec1`:
+
+~~~~~
+  matched an autocrlf checkout of `542085f`, GitHub's tip, cloned at 07:26 on
+~~~~~
+
+Lines 3419–3420 of the version at `b874ec1`:
+
+~~~~~
+  `542085f`, which changed files under `docs/` only, and by the commit that writes this
+  line, which changes files under `docs/` only:
+~~~~~
+
+Lines 3431–3434 of the version at `b874ec1`:
+
+~~~~~
+  `4ab59d7`, `94b7e96`, `a11ffc4` and `542085f` and the applied tree of the commit that
+  writes this line give the same (`bc250fc`'s, `706e858`'s, `4ab59d7`'s, `94b7e96`'s,
+  `a11ffc4`'s, `542085f`'s and the applied tree computed on 7 November, under Python
+  3.12.3); on
+~~~~~
+
+Lines 3449–3450 of the version at `b874ec1`:
+
+~~~~~
+  docs and no code or test, by `542085f`, which changed docs and no code or test, by
+  `a11ffc4`, which changed a
+~~~~~
+
+Line 3507 of the version at `b874ec1`:
+
+~~~~~
+  an autocrlf clone of `542085f` and on the patch applied to another. `542085f` changed
+~~~~~
+
+Line 3854 of the version at `b874ec1`:
+
+~~~~~
+  `a0ca299` `0491b84` to `b8f88d8`, and v1.40 `a1c4218` to `0a518fd`. **Six commits
+~~~~~
+
+Lines 3858–3859 of the version at `b874ec1`:
+
+~~~~~
+  the draft's version 3, `542085f`, the draft's version 4, and the commit that writes
+  this line, the draft's version 5 and entry 61;
+~~~~~
+
+Lines 3891–3892 of the version at `b874ec1`:
+
+~~~~~
+  the numbers, for its 24 new tests (`94b7e96`, `a11ffc4`, `542085f` and the commit
+  that writes this line do not change `README.md`), and before it by
+~~~~~
+
+Line 5476 of the version at `b874ec1`:
+
+~~~~~
+- **`542085f`'s landing**, checked from 07:26 on 7 November, and recorded by the
+~~~~~
+
+Lines 5479–5487 of the version at `b874ec1`:
+
+~~~~~
+- **The redesign draft's section 12, point 6, the rest** — the second pinned decision's
+  candle — by the draft's version 5 (§10.1), as far as it can be answered before the
+  reading of 14 November: no candle of the pinned series is a sound one; proposed, a
+  second seeded series, its seed chosen once F, the tier lines and the reading of
+  AGGRESSIVE are set.
+- **Entry 61 filed** (Found after 22 September): an EMA on a frame shorter than its
+  length goes unrecorded. Found writing version 5; not fixed, not ruled.
+- **The patch-delivery skill's marker** is at `a11ffc4`. The commit that writes this
+  line files no ruling, so the marker stays.
+~~~~~
+
+Line 5489 of the version at `b874ec1`:
+
+~~~~~
+  from the version at `542085f` are in HISTORY's new entry, checked by
+~~~~~
+
+Line 5564 of the version at `b874ec1`:
+
+~~~~~
+  22 September, entry 58). **Design draft, version 5**, Claude's, started 1 November:
+~~~~~
+
+Lines 5567–5568 of the version at `b874ec1`:
+
+~~~~~
+  version 5 by the commit that writes this line).
+  Not ruled, but for its direction (7 November). Version 1
+~~~~~
+
+Line 5595 of the version at `b874ec1`:
+
+~~~~~
+  inside the band or today's ACTIVE ENTRY ZONE. **Version 4** answers half of §12's
+~~~~~
+
+Line 5608 of the version at `b874ec1`:
+
+~~~~~
+  set.
+~~~~~
+
+Lines 6024–6025 of the version at `b874ec1`:
+
+~~~~~
+  `542085f`, docs only, changed no line there; and the commit that writes this line,
+  docs only, changes no line there. (This
+~~~~~

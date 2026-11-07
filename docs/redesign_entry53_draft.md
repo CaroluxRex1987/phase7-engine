@@ -1,6 +1,12 @@
 # The redesign (entry 53) — design draft
 
-*Draft v5, 7 November 2026, in the session that opened at 07:26 at `542085f`. Version 5
+*Draft v6, 7 November 2026, in the session that opened at 19:30 at `b874ec1`. Version 6
+states §4's AGGRESSIVE as Viktor ruled it on 7 November, the close inside the band
+(DECISIONS, "Ruling, 7 November 2026 — the redesign's AGGRESSIVE reads the close inside
+the band"), so §3.1's branch (a) is the design's and branch (b) is recorded as not
+taken; it brings §0, §3.1, §4, §10.1, §12, §13.2, §13.3, §14 and §16 to it. Version 6
+reads no code; no engine `.py` file changed between `542085f` and `b874ec1`. Version 5,
+7 November 2026, was written in the session that opened at 07:26 at `542085f`. Version 5
 answers the rest of §12's point 6, the second pinned decision's candle, as far as it
 can be answered before the reading of 14 November: no candle of the pinned series is a
 sound one, and it proposes a second seeded series (§10.1). It adds a finding to §11
@@ -36,11 +42,12 @@ of version 0 that were wrong (§15). No `.py` file changed between `e748b0b` and
 `e69d5bb`, so version 0's reads of the code hold at `e69d5bb`, where version 1's were
 made. Claude's draft. It will be put to Viktor after the forward measurement's reading
 of 14 November (DECISIONS, "Ruling, 25 October 2026 — the engine's indicators …",
-point 7). Nothing here is ruled but §2's direction (7 November), and no code is written
+point 7). Nothing here is ruled but §2's direction and §4's reading of AGGRESSIVE (both
+7 November), and no code is written
 from it until the whole design is. Each
 statement says where it comes from: **read** means read in the code at `e748b0b`
 (version 0), `e69d5bb` (version 1), `4ab59d7` (version 2), `94b7e96` (version 3) or
-`a11ffc4` (version 4) or `542085f` (version 5);
+`a11ffc4` (version 4) or `542085f` (version 5); version 6 reads none;
 **ruled** names the
 ruling; **proposed** is Claude's suggestion; **to measure** is a number this draft
 does not have yet. Where
@@ -52,7 +59,8 @@ something was not checked, the sentence says so.*
   before it is built. Inside it, these are new trading rules or change one of his
   rulings, so they are his even under the delegation of 29 October: the strength floor
   (§2; ruled on 7 November), the trigger candle (§5), the liquidity floor's value (§5), the tier lines
-  (§4), whether the structure multiplier stays (§3.3), any ruled value named as
+  (§4; which reading of AGGRESSIVE they mean ruled on 7 November, the lines themselves
+  not), whether the structure multiplier stays (§3.3), any ruled value named as
   tunable (§9), and, added in version 1, the exit watch's exhaustion and reversal
   flags, which go with trend health if nothing keeps them (§2).
 - **Claude's, proposed here for him to reverse:** entry quality's formula and weights
@@ -242,9 +250,11 @@ the display word, `"ACTIVE" in entry_status.upper()` (read, `models/decision_mod
    records the fact AGGRESSIVE needs, and STATUS is printed from that same field. A
    change to a panel word then cannot change an action, and the word on the panel
    cannot disagree with the tier. Which fact it is follows Viktor's reading of
-   AGGRESSIVE (§4), so there are two branches, and this draft does not choose between
-   them:
-   - **(a) "close inside the band":** the field is `entry.close_inside_band`, the
+   AGGRESSIVE (§4), so version 4 wrote two branches and chose neither. **Version 6:**
+   Viktor ruled (a) on 7 November (DECISIONS, "Ruling, 7 November 2026 — the
+   redesign's AGGRESSIVE reads the close inside the band"); (b) is kept below as the
+   branch not taken.
+   - **(a) "close inside the band" — ruled:** the field is `entry.close_inside_band`, the
      close between `EMA_20` and `EMA_50` with the ends included, as computation 2
      reads it (`measure_draft_gaps.py`, reading 3). STATUS becomes a position with no
      threshold: INSIDE THE BAND, ABOVE THE BAND or BELOW THE BAND. NEAR, APPROACHING
@@ -252,10 +262,12 @@ the display word, `"ACTIVE" in entry_status.upper()` (read, `models/decision_mod
      has a position against two equal averages too. ZONE NOT AVAILABLE and NO DATA
      stay. On the pinned run the field is false and STATUS reads ABOVE THE BAND (read:
      close 0.80173175, `zone_upper` 0.77559759).
-   - **(b) today's ACTIVE ENTRY ZONE:** the field is `entry.in_active_entry_zone`,
-     the distance from the midpoint within one band width. STATUS keeps today's words
-     and thresholds, so the 2 and 3.5 stay, as display only, since no tier reads
-     them. On the pinned run the field is false and STATUS stays APPROACHING ZONE.
+   - **(b) today's ACTIVE ENTRY ZONE — not taken:** the field would have been
+     `entry.in_active_entry_zone`,
+     the distance from the midpoint within one band width. STATUS would have kept
+     today's words and thresholds, so the 2 and 3.5 would have stayed, as display
+     only, since no tier reads them. On the pinned run the field would be false and
+     STATUS would stay APPROACHING ZONE.
 2. **STATUS does not read `d`.** A STATUS in ATRs would need thresholds that no ruling
    sets and no tier reads: the tiers' limits on `d` move with the HVN points (0.375 and
    1.125 ATR with none, 1.125 and 1.875 with full ones, §4), so no fixed band of `d`
@@ -351,9 +363,12 @@ nearly every run:**
   Under §2 as ruled on 7 November a close with a side can be inside the band
   (§16.4); under versions 0 to 2's direction it never was (§16.1). Today's rule is not
   "inside the band" but ACTIVE ENTRY ZONE, a whole band width either side of the
-  middle (§16.1, point 2); which one this line means is open, and the tier lines are
-  Viktor's (§0). Computation 2 counts both. Under either reading the line reads a
-  true-or-false field in the entry block, not the STATUS word (§3.1, version 4).
+  middle (§16.1, point 2). **Version 6:** Viktor ruled on 7 November that this line
+  means the close inside the band, between `EMA_20` and `EMA_50`, ends included
+  (DECISIONS, "Ruling, 7 November 2026 — the redesign's AGGRESSIVE reads the close
+  inside the band"); the lines themselves, 70 and 50, are still his (§0). Computation
+  2 counts both readings. The line reads `entry.close_inside_band`, a true-or-false
+  field in the entry block, not the STATUS word (§3.1, versions 4 and 6).
 - **CONSERVATIVE:** 50 ≤ quality < 70.
 - **WAIT:** under 50 — not a pullback.
 
@@ -522,10 +537,10 @@ series, written beside `ohlcv_clean_4h.csv` from a fixed seed by `make_pinned.py
 `synth` (read), with its macro and BTC series derived by `_write_pinned_set` as the
 first series' are. It ends on its decision candle and has at least 300 4h candles,
 which is 50 whole days, before that candle. Its seed is chosen once F and the tier
-lines are set and Viktor has said which reading of AGGRESSIVE he means (§12, points 1
-and 7), by running this scan's method on the candidate series: the first seed,
-counted from a start stated before the search, whose last candle passes every gate
-under the lines as set, and under both readings unless one has been ruled. A series
+lines are set (§12, point 1) — Viktor ruled the reading of AGGRESSIVE on 7 November,
+the close inside the band (§4, version 6) — by running this scan's method on the
+candidate series: the first seed, counted from a start stated before the search, whose
+last candle passes every gate under the lines as set, AGGRESSIVE read as ruled. A series
 searched for because it passes is chosen by construction. That is acceptable here,
 because the golden snapshot's job is to be stable, not representative
 (`make_pinned.py`'s docstring, read), and the first fixture stays the case where the
@@ -582,12 +597,14 @@ design. It is entry 61 of the list for after the audit (PHASE7_NEXT.md, "Found a
    that follow Viktor's reading of AGGRESSIVE. Left: the second pinned decision's
    candle. Done in version 5 as far as it can be before the reading (§10.1): no candle
    of the pinned series is a sound one. Proposed: a second seeded series, its seed
-   chosen once F, the tier lines and the reading of AGGRESSIVE are set.
+   chosen once F, the tier lines and the reading of AGGRESSIVE are set. Version 6: the
+   reading is ruled (§4), so the seed waits on F and the tier lines.
 7. Added in version 2, done in version 3: §2, §3.1 and §4 reconciled (§16.1, §16.4),
    by Viktor's ruling of 7 November on the floor; entry quality's formula is
    unchanged. The decision of 2 November's computation 1 was amended in place the same
    day, before the reading's data was read. Left with the tier lines, Viktor's: which
-   reading of AGGRESSIVE §4 means.
+   reading of AGGRESSIVE §4 means. Done in version 6: he ruled the close inside
+   the band on 7 November (§4); the lines themselves stay with point 1.
 
 ## 13. The golden snapshot, field by field (version 1)
 
@@ -659,7 +676,9 @@ So the action moves from CONSERVATIVE LONG to WAIT, at gate 8.
 
 **Version 4 (§3.1):** `entry.entry_status` is counted below as unchanged. It stays
 unchanged under branch (b) and moves under branch (a), to ABOVE THE BAND on the pinned
-run. The counts above are version 1's and were not re-made for it.
+run. The counts above are version 1's and were not re-made for it. **Version 6:** branch
+(a) is ruled (§3.1), so `entry.entry_status` moves, to ABOVE THE BAND; the counts are
+still not re-made.
 
 **Unchanged — 125:**
 - `bias` (3): `raw`, `regime`, `volatility`
@@ -698,6 +717,7 @@ run. The counts above are version 1's and were not re-made for it.
   `quote_volume` (the fixture's value) and `liquidity_floor` (F). Added in version 4
   (§3.1): one true-or-false field for AGGRESSIVE, `close_inside_band` under branch (a)
   or `in_active_entry_zone` under branch (b), false on the pinned run either way.
+  Version 6: `close_inside_band`, branch (a) being ruled.
 - `lineage.direction`: `ema20_rising`, `ema50_rising`, `ema20_above_ema50` (each
   true) and `result` (BULLISH), in place of `lineage.bias_components`. The four
   numbers they compare are already in `lineage.indicators_at_decision_bar`, so they
@@ -753,7 +773,8 @@ its NEAR, APPROACHING and AWAY expectations go), `::test_a_zone_with_no_width_is
 STATUS still uses the band's width: one G becomes an R. Under either branch, a test
 that reaches AGGRESSIVE by giving an entry block the word ACTIVE ENTRY ZONE gives it the
 new field instead. Those tests were classified R below from their names, and were not
-re-read for version 4.
+re-read for version 4. **Version 6:** branch (a) is ruled (§3.1), so the four
+assertions above move; the classification is not re-made.
 
 **The two X**, flagged because a test written to hold a ruling would be turned
 round: `test_macro_counts_once.py::test_a_conservative_long_does_not_depend_on_macro`
@@ -1342,7 +1363,8 @@ What follows for the draft as written:
    (`models/entry_model.py`, `dist_to_mid <= zone_width`, read), which is not the same.
    Read that way, AGGRESSIVE is reached only by a close between the band's edge and
    half a band width beyond it. `docs/build/measure_draft_gaps.py` counts both (its
-   reading 3); which one §4 means is open.
+   reading 3); which one §4 means is open. (Version 6: ruled, the close inside the
+   band, §4.)
 3. **§3.1's full distance points are never reached on a candle with a side.** There
    `d` is more than half the EMAs' gap in ATRs, `(EMA_20 − EMA_50) / (2 × ATR)`, so the
    gap caps D: at a gap of 2 ATR, D stays under 160 / 3, about 53.3, and LONG (70)
@@ -1388,7 +1410,8 @@ quality's formula is Claude's.
   quality is the only score left.
 - **The golden snapshot stops covering a trade's plan** until the second pinned
   decision (§10) is chosen, which version 5 puts after F, the tier lines and the
-  reading of AGGRESSIVE are set (§10.1). Until then, a defect in a passing run's stop, targets or
+  reading of AGGRESSIVE are set (§10.1); the reading was ruled on 7 November (§4,
+  version 6). Until then, a defect in a passing run's stop, targets or
   sizing would not move the golden test.
 - **More runs degrade.** A missing ATR, band or HVN no longer scores a neutral part
   (§3.1), and an absent `quote_volume` degrades the run (§5). That keeps the rule of
@@ -1446,6 +1469,7 @@ here.
    `EMA_20` and above the previous `EMA_50` turns the fast average down and keeps the
    side. §4's AGGRESSIVE, read as "close inside the band", is reachable; so is the
    reading as today's ACTIVE ENTRY ZONE. Which one §4 means is still open (§4).
+   (Version 6: ruled, the close inside the band, §4.)
 3. **§3.1's full distance points are reachable on a candle with a side:** the band's
    middle is above `EMA_50`. On a candle whose close is above the band, `d` is still
    more than half the EMAs' gap in ATRs, as in §16.1's point 3; a close inside the band
