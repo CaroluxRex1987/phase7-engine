@@ -1,10 +1,9 @@
 # Next step — read this first
 
-*7 November 2026, in the session that opened at 00:25. Rewritten by the commit that
-files Viktor's ruling of 7 November that round 8's F2 is Critical and records
-`bc250fc`'s landing; the lines it removed from the version at `bc250fc` are in
-HISTORY,
-which points to that whole version in git.
+*7 November 2026, in the session that opened at 01:13. Rewritten by the commit that
+adds the forward measurement's count and records `706e858`'s landing; the lines it
+removed from the version at `706e858` are in HISTORY, which points to that whole
+version in git.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
 rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
@@ -2218,33 +2217,50 @@ part of the Notes, `a1c4218` to `0a518fd`, chosen as what came first. `bc250fc` 
 fourth part, v1.40, Entries #253–#276, and recorded `a0ca299`'s landing. That session's
 account is in this file's version at `bc250fc`.
 
-**This session (7 November, from 00:25)**, configured for Claude Opus 5.5, opened at
-`bc250fc` and checked its landing, by the patch-delivery skill's section 10. GitHub's
-tip, read with no credentials at 00:27:21 (the probe asked for credentials, so none
-reached it), is `bc250fc`; its tree `6ca960d1…` is the one its `Verified-Tree:` line
+**The session of 7 November, from 00:25**, configured for Claude Opus 5.5, opened at
+`bc250fc`, checked its landing, in which nothing differed, and found what came first
+an item of Viktor's, the severity of round 8's F2, which he ruled Critical at 00:33 by
+agreeing to Claude's suggestion. `706e858` files that ruling and recorded `bc250fc`'s
+landing. That session's account is in this file's version at `706e858`.
+
+**This session (7 November, from 01:13)**, configured for Claude Opus 5.5, opened at
+`706e858` and checked its landing, by the patch-delivery skill's section 10. GitHub's
+tip, read with no credentials at 01:14:56 (the probe asked for credentials, so none
+reached it), is `706e858`; its tree `61b338d8…` is the one its `Verified-Tree:` line
 names; its message holds no CR and ends with the attribution lines;
-`python docs/build/check_history_move.py --base bc250fc~1` on the tip gives the line
-its message recorded, 88 lines in 19 runs. Viktor's disk, staged after 00:27: the four
-files the commit changed written at 00:11:22 and each byte for byte the tip; the index
-the tip's tree; the loose commit object hashing to `bc250fc`, GitHub's bytes, with no
-CR; `.git/COMMIT_EDITMSG` the message byte for byte; `master` and `origin/master`
-`bc250fc`, the reflogs' "commit:" at 00:21:26 and "update by push" at 00:21:41; the
-pytest cache rewritten at 00:14:46, after the apply (`bc250fc` added no test),
-`lastfailed` `{}`; no patch or message file in the root. Nothing differed. Claude's
-first comparison of `.git/COMMIT_EDITMSG` was against `git log --format=%B`, which
-adds a newline of its own, and showed a difference; against the raw message from the
-commit object it matched — caught before anything was reported. The skill's marker is
-still `b990c93`, and `git diff --stat b990c93 HEAD -- docs/PHASE7_DECISIONS.md` is
-empty. What came first, by the ruling of 1 November read with the correction of
-4 November: no commit owed; nothing due before 14 November; nothing of Claude's that
-can land before then, since what is left of it moves `code_hash` or waits for the
-reading's data — so an item of his, the severity of round 8's F2, the one item the
-triage left unruled that the audit's record needs before the send. Claude put the
-facts to him at 00:30 without a view, his position asked for first; he asked for a
-suggestion, and at 00:33 ruled F2 Critical by agreeing to it (DECISIONS, "Ruling,
-7 November 2026 — round 8's F2 is Critical …"). The commit that writes this line files
-that ruling, counts it in README's "Independent audit" and "Engine code" rows, and
-records `bc250fc`'s landing: docs only, no engine code.
+`python docs/build/check_history_move.py --base 706e858~1` on the tip gives the line
+its message recorded, 40 lines in 14 runs. Viktor's disk, staged after 01:14: the four
+files the commit changed written at 00:52:46 and each byte for byte the tip; the index
+the tip's tree, 301 entries; the loose commit object hashing to `706e858`, GitHub's
+bytes, with no CR; `.git/COMMIT_EDITMSG` the message byte for byte; `master` and
+`origin/master` `706e858`, the reflogs' "commit:" at 01:03:01 and "update by push" at
+01:03:15; the pytest cache rewritten at 00:55:55, after the apply (`706e858` added no
+test), `lastfailed` `{}`; no patch or message file in the root. Nothing differed. The
+skill's marker is at `706e858` (Viktor saved the card), and
+`git diff --stat 706e858 HEAD -- docs/PHASE7_DECISIONS.md` is empty. What came first,
+by the ruling of 1 November read with the correction of 4 November: no commit owed;
+then work due by its date — the reading of 14 November, whose forward count has no
+filed method: the reading of 31 October was counted by a script in the sandbox that
+was never committed (`6d073f9`'s message and `docs/build/` both checked), so it cannot
+be re-run, and the reading of 14 November could not be checked against it.
+`measure_draft_gaps.py` computes the redesign's gaps, not this count. So Claude wrote
+`docs/build/count_forward_measurement.py` from the decision of 17 October, with
+`tests/test_count_forward_measurement.py` on synthetic records only, and, as the check
+that it counts as that reading did, ran it on Viktor's logs staged after 01:17 on
+7 November over the window of 31 October: every figure that reading filed came out
+the same (Open items, the forward measurement). No candle after that window was
+counted. Viktor turned the laptop off at 01:34 with the work in the sandbox only,
+nothing written to his disk; it was finished from 04:03, after he turned it on again.
+**Found while rewriting:** `706e858`'s rewrite left four of `bc250fc`'s sentences
+saying "the commit that writes this line" — the tests that changed, `code_hash`, the
+test counts and the change list's paragraph — so that file named `706e858` there for
+what `bc250fc` did, and left `bc250fc` out of each list; the change list's paragraph
+said the commit adds no line because it changed the Notes' build script only, which
+`706e858` did not change. And its "Resolved this session" said `bc250fc`'s push was in
+"Where things stand", which had no line for it. Each now names `bc250fc` and `706e858`
+for what each did, and the push is recorded. The commit that writes this line adds the
+script and its tests, records `706e858`'s landing, and changes `README.md`'s test
+counts: documentation tooling, a test file and docs, no engine code.
 
 ## Ruled — in force
 
@@ -2807,8 +2823,11 @@ records `bc250fc`'s landing: docs only, no engine code.
 ## Where things stand, right now
 
 - **Tip:** the commit that writes this line (a commit cannot name its own hash) —
-  Viktor's ruling of 7 November that round 8's F2 is Critical filed, and `bc250fc`'s
-  landing recorded: docs only, no engine code. Before it: `bc250fc` (the session of
+  the forward measurement's count, `docs/build/count_forward_measurement.py`, added
+  with its tests, and `706e858`'s landing recorded: documentation tooling, a test file
+  and docs, no engine code. Before it: `706e858` (the session of 7 November, from
+  00:25: Viktor's ruling of 7 November that round 8's F2 is Critical filed, and
+  `bc250fc`'s landing recorded: docs only, no engine code), `bc250fc` (the session of
   6 November, from 23:46: the Engineering Notes regenerated at v1.40, the last of four
   parts, and `a0ca299`'s landing recorded: the Notes' script and PDF and docs, no
   engine code), `a0ca299` (the session of 4 November, from 03:28, resumed 6 November at
@@ -3122,8 +3141,9 @@ records `bc250fc`'s landing: docs only, no engine code.
   replaced by four controls of the hook, none taking a fixture or needing `pandas_ta`.
   `7b93769` changed no test. `b990c93` added `tests/test_check_history_move.py` (18
   tests, none taking a fixture or needing `pandas_ta`) and changed no other test.
-  `f8805a6`, `0a518fd` and `a0ca299` changed no test, and the commit that writes this
-  line changes none.
+  `f8805a6`, `0a518fd`, `a0ca299`, `bc250fc` and `706e858` changed no test, and the
+  commit that writes this line adds `tests/test_count_forward_measurement.py` (24
+  tests, none taking a fixture or needing `pandas_ta`) and changes no other test.
   (This file at `b990c93` still said
   there that the commit writing the line changed no test, carried from `7b93769`;
   corrected on 4 November.)
@@ -3135,10 +3155,17 @@ records `bc250fc`'s landing: docs only, no engine code.
   to `E:\phase7_engine`". Run the engine and every command from `E:\phase7_engine` (in
   cmd, changing drive needs `cd /d`). A dated record that names the D: paths means the
   same folders before the move; dated records are not edited.
-- **The push of `a0ca299`** happened, at 23:40:32 on 6 November: GitHub's tip, read
-  with no credentials at 23:49:24, is `a0ca299`, Viktor's disk is the tip in every part
+- **The push of `706e858`** happened, at 01:03:15 on 7 November: GitHub's tip, read
+  with no credentials at 01:14:56, is `706e858`, Viktor's disk is the tip in every part
   this session's check read, and its tree is the one its `Verified-Tree:` line names;
-  no deviation (ruling on proposal (b)). So did `0a518fd`'s, at 23:00:29 on
+  no deviation (ruling on proposal (b)). So did `bc250fc`'s, at 00:21:41 on
+  7 November: GitHub's tip, read with no credentials at 00:27:21, was `bc250fc`,
+  Viktor's disk the tip in every part that check read, and its tree the one its
+  `Verified-Tree:` line names (this file at `706e858` had no line for it). So did
+  `a0ca299`'s, at 23:40:32 on 6 November: GitHub's tip, read
+  with no credentials at 23:49:24, was `a0ca299`, Viktor's disk the tip in every part
+  that check read, and its tree the one its `Verified-Tree:` line names.
+  So did `0a518fd`'s, at 23:00:29 on
   6 November: GitHub's tip, read with no credentials at 23:00:42, was `0a518fd`,
   Viktor's disk the tip in every part that check read, and its tree the one its
   `Verified-Tree:` line names. So did `f8805a6`'s, at 02:53:12 on
@@ -3318,9 +3345,11 @@ records `bc250fc`'s landing: docs only, no engine code.
   which is not a `.py` file, by `5fe8522`, which changed files under `docs/` and
   `tests/`, which it does not read, and `README.md`, which is not a `.py` file, by
   `b990c93`, which changed files under `docs/` and `tests/`, which it does not read,
-  and `README.md`, which is not a `.py` file, by `f8805a6`, `0a518fd` and `a0ca299`,
-  which changed files under `docs/` only, and by the commit that writes this line,
-  which changes files under `docs/` only: computed
+  and `README.md`, which is not a `.py` file, by `f8805a6`, `0a518fd`, `a0ca299` and
+  `bc250fc`, which changed files under `docs/` only, by `706e858`, which changed files
+  under `docs/` and `README.md`, which is not a `.py` file, and by the commit that
+  writes this line, which changes files under `docs/` and `tests/`, which it does not
+  read, and `README.md`, which is not a `.py` file: computed
   on clones of `0491b84`,
   `a235783`, `8d5d64a`, `a48d9e5`, `fbd7877`, `8311167`, `d2dddf7`, `aa9e7ac`,
   `391c338`, `8360923`, `ed005a0` and `e88e0dd` and on the applied trees, under Python
@@ -3329,8 +3358,10 @@ records `bc250fc`'s landing: docs only, no engine code.
   `a1c4218`, `713e084`, `134f85b`, `fad0588`, `3dbd8dc`, `a2ca918`, `d7d3ae0`,
   `b233c4a`, `6d073f9`, `8c810b1`, `248037d`, `e748b0b`, `f6aa126`, `e69d5bb`,
   `e8b42b8`, `d6fba83`, `7c23886`, `e939734`, `1b82ed0`, `7ff8128`, `5fe8522`,
-  `7b93769`, `b990c93`, `f8805a6`, `0a518fd` and `a0ca299` and the applied tree of the
-  commit that writes this line give the same; on 6 November it was computed again on
+  `7b93769`, `b990c93`, `f8805a6`, `0a518fd`, `a0ca299`, `bc250fc` and `706e858` and
+  the applied tree of the commit that writes this line give the same (`bc250fc`'s,
+  `706e858`'s and the applied tree computed on 7 November, under Python 3.12.3); on
+  6 November it was computed again on
   each of `67f6ec1` and the twenty-four trees `0491b84` to `b8f88d8`, for the Notes'
   v1.39: `bc1b9c2c…` at `67f6ec1`, this value on all twenty-four; and on 6 November
   again on `b8f88d8` and the twenty-five trees `a1c4218` to `0a518fd`, for v1.40: this
@@ -3343,9 +3374,11 @@ records `bc250fc`'s landing: docs only, no engine code.
   output, a CPython implementation detail (`core/code_fingerprint.py`, "WHAT IT DOES NOT
   SURVIVE"). **Every `code_hash` claim about this project is computed under Python 3.12**
   (Viktor runs 3.12.10).
-- **Golden snapshot:** unchanged by the commit that writes this line, which changes
-  docs and no code or test, by `a0ca299`, `0a518fd` and `f8805a6`, which changed docs
-  and no code or test, by
+- **Golden snapshot:** unchanged by the commit that writes this line, which adds a
+  script under `docs/` and a test, neither reading the fixture, and changes
+  `README.md`'s counts and docs, by `706e858`, which changed `README.md`'s wording and
+  docs and no code or test, by `bc250fc`, `a0ca299`, `0a518fd` and `f8805a6`, which
+  changed docs and no code or test, by
   `b990c93`, which added a script under `docs/` and a
   test, neither reading the fixture, and changed `README.md` and docs, by `7b93769`, which changed docs and no code or test, by
   `5fe8522`, which changed two test files and added a
@@ -3388,15 +3421,27 @@ records `bc250fc`'s landing: docs only, no engine code.
   `22a9a35`, 4 leaves (the confirmation reason, `volume_sentiment` twice and
   `validation_note`'s volume half: VOLUME DIVERGENCE → FADING VOLUME); before that at
   `6469a67`, 8 leaves.
-- **Test suite** — **951 passed / 0 failed, no warnings line** with `pandas_ta`;
-  **775 passed / 165 skipped** without it; `run_tests.py` **883 passed / 0 failed /
+- **Test suite** — **975 passed / 0 failed, no warnings line** with `pandas_ta`;
+  **799 passed / 165 skipped** without it; `run_tests.py` **907 passed / 0 failed /
   31 errors**, all 31 fixture-collection `TypeError`s: the 32 of `e88e0dd` less
   `test_no_module_defaults_a_missing_risk_verdict_to_a_pass`. This is meant to be the
   one place the watched error count is written as a number (DECISIONS, "Ruling,
   15 October 2026 — Part 4's three test shapes", point 5); `README.md` wrote it too
-  until `713e084` (entry 50). The commit that writes this line changes no test, and
-  the three counts held: from the Linux sandbox, Python 3.12.3, pinned requirements,
-  the patch applied to an autocrlf clone of `a0ca299`. `a0ca299` changed no test, and
+  until `713e084` (entry 50). The commit that writes this line adds
+  `tests/test_count_forward_measurement.py`, 24 tests, none taking a fixture and none
+  needing `pandas_ta`, so each passed count moved by 24 and the error count held: from
+  the Linux sandbox, Python 3.12.3, pinned requirements, the patch applied to an
+  autocrlf clone of `706e858`. `706e858` changed no test, and the three counts held:
+  run again on an autocrlf clone of it in this session's sandbox, 951, 775 / 165 and
+  883 / 0 / 31; its pytest step ran on Windows after the apply (the cache on his disk
+  was rewritten at 00:55:55 on 7 November, after its four files were written at
+  00:52:46; its `lastfailed` is `{}`), and Viktor went on to the commit. `bc250fc`
+  changed no test, and the three counts held: from the Linux sandbox, the patch
+  applied to an autocrlf clone of `a0ca299`; its pytest step ran on Windows after the
+  apply (the cache on his disk was rewritten at 00:14:46 on 7 November, after its four
+  files were written at 00:11:22), and Viktor went on to the commit (this file at
+  `706e858` still gave `bc250fc`'s sentence here as the commit's own). `a0ca299`
+  changed no test, and
   the three counts held: from the Linux sandbox, the patch applied to an autocrlf
   clone of `0a518fd`; its pytest step ran on Windows after the apply (the cache on his
   disk was rewritten at 23:31:58 on 6 November, after its four files were written at
@@ -3712,9 +3757,10 @@ records `bc250fc`'s landing: docs only, no engine code.
   that no part is more than a session's work; the third, forty-eight commits, was more,
   and on 4 November Claude split it in two, Viktor not objecting: v1.37 at `f8805a6`
   covered `e7a94d1` to `eb86846`, v1.38 at `0a518fd` `c2b07fb` to `67f6ec1`, v1.39 at
-  `a0ca299` `0491b84` to `b8f88d8`, and v1.40 `a1c4218` to `0a518fd`. **One commit that
-  needs an entry is behind:** the commit that writes this line, which files the ruling
-  of 7 November on F2; `a0ca299` and `bc250fc`, v1.39's and v1.40's own regenerations,
+  `a0ca299` `0491b84` to `b8f88d8`, and v1.40 `a1c4218` to `0a518fd`. **Two commits
+  that need an entry are behind:** `706e858`, which files the ruling of 7 November on
+  F2, and the commit that writes this line, which adds the forward measurement's
+  count; `a0ca299` and `bc250fc`, v1.39's and v1.40's own regenerations,
   have none (a commit that regenerates the Notes cannot cover itself, Entry #144).
   Every later commit adds one until the next regeneration.
   Batched, by the 15 September rule. v1.40 records the commit-msg hook (entry 56),
@@ -3741,10 +3787,12 @@ records `bc250fc`'s landing: docs only, no engine code.
   identical to the committed PDF. Neither changes in the commit that writes this line;
   the Attribution Statement's script last changed at `68c6191`, the Portfolio
   Document's at `6e1baba`.
-- **README.md:** **the commit that writes this line changes its "Independent audit"
-  and "Engine code" rows**, for the ruling of 7 November on F2, in wording Claude wrote
-  and put to Viktor before his commit, and nothing else in it. Its test counts are current (951, 775 / 165 and 883 passed, 0
-  failed), last changed by `b990c93`, which changed only the numbers, for its 18 new
+- **README.md:** **`706e858` changed its "Independent audit" and "Engine code"
+  rows**, for the ruling of 7 November on F2, in wording Claude wrote and put to
+  Viktor before his commit, and nothing else in it. Its test counts are current (975,
+  799 / 165 and 907 passed, 0 failed), last changed by the commit that writes this
+  line, which changes only the numbers, for its 24 new tests, and before it by
+  `b990c93`, which changed only the numbers, for its 18 new
   tests, and before it by `5fe8522`, which changed only the
   numbers, for entry 59's two tests more, and before it by `1b82ed0`, which changed
   only the numbers, for its 20 new tests, and before it by `713e084`, which took the error count
@@ -5306,17 +5354,18 @@ Each code commit is its own commit and updates this file for its own landing.
 
 ## Resolved this session
 
-- **`bc250fc`'s landing**, checked from 00:25 on 7 November, and recorded by the
+- **`706e858`'s landing**, checked from 01:13 on 7 November, and recorded by the
   commit that writes this line, made for its own reason (DECISIONS, the correction of
-  4 November). Its push is in "Where things stand".
-- **The severity of round 8's F2:** Critical, ruled by Viktor at 00:33 on 7 November,
-  by agreeing to Claude's suggestion ("Ruled — in force"), and counted in README's
-  "Independent audit" and "Engine code" rows.
-- **The patch-delivery skill's marker** is at `b990c93`. The ruling of 7 November
-  changes no procedure the skill describes; moving the marker to the commit that
-  writes this line, after its push, is put to Viktor as a card.
+  4 November). Its push, and `bc250fc`'s, are in "Where things stand".
+- **The forward measurement's count has a filed method:**
+  `docs/build/count_forward_measurement.py` and its tests, added by the commit that
+  writes this line; on the window of 31 October it gives that reading's figures
+  (Open items, the forward measurement).
+- **The patch-delivery skill's marker** is at `706e858`, Viktor having saved the
+  card. The commit that writes this line files no ruling and changes no procedure the
+  skill describes, so the marker stays.
 - **This file's rewrite**, by the commit that writes this line. The lines it removed
-  from the version at `bc250fc` are in HISTORY's new entry, checked by
+  from the version at `706e858` are in HISTORY's new entry, checked by
   `docs/build/check_history_move.py` (the commit message has the result).
 
 ## Open items
@@ -5595,6 +5644,29 @@ Claude critiques it.
     tested on synthetic records only, from the repository:
     `python docs/build/measure_draft_gaps.py logs --json <file>`, on the logs as staged
     for the reading. Not yet run on them.
+  - **The count itself, filed** — `docs/build/count_forward_measurement.py`, added on
+    7 November by the commit that writes this line, makes the count the decision of
+    17 October sets: the records are `measure_draft_gaps.py`'s population, imported
+    from it, degraded ones counted with the rest and listed apart; refusals and
+    failures from `main.py`'s "Engine returned error for" lines; missed candles per
+    pair; actions per pair; LONGs on the same candle; and when in the day the candles
+    were read. Ten choices the decision left open are in its docstring, among them
+    that the window's last candle is given, never guessed, and that a second
+    `code_hash` in the window stops it. The reading of 31 October was counted by a
+    script that was never filed. **Checked against that reading:** on Viktor's logs
+    staged on 7 November, `--last-open "2026-10-31 04:00"` gives every figure it
+    filed — 84 candles; 390 records, 39 per pair, logged 5 min 4 s to 6 min 10 s after
+    the close (220) and 65 min 5 s to 66 min 1 s (170); 449 rows, one forming candle
+    dropped and MEXC's close the open plus one bar on all 390; 45 missed per pair,
+    450, 54%; 10 refused, each candle read by the 14:05 run; 0 failed; 40 runs, 39 at
+    the task's minute; LONG 56, SHORT 143, WAIT 60, NO-TRADE 131, with their labels
+    and every pair's row; the three degraded DOGEUSDT records; 56 LONGs on 14 candles,
+    45 of them on eight in a row; and 3, 3, 8, 11, 9 and 5 of 14 read by the close's
+    hour, the winter 05:00 close on none of its 7 days. Linux sandbox, Python 3.12.3.
+    No candle after that window was counted. Tested on synthetic records only
+    (`tests/test_count_forward_measurement.py`, 24 tests). For the reading:
+    `python docs/build/count_forward_measurement.py logs --last-open "<the last candle
+    closed before the logs are staged>"`.
 - **Viktor's, only if he wants it — an engine output with a section missing leaves no
   record.** The router now reads every section of the engine's output by subscript
   (the fallback sweep), so a missing one fails in `route_and_execute`'s own handler,
@@ -5799,8 +5871,12 @@ Claude critiques it.
   and added its own; `b990c93` named `5fe8522` there and added its own (this file at
   `b990c93` said it was docs only and named `5fe8522`, leaving out its own line;
   corrected on 4 November); `f8805a6` named `b990c93` there and added no line, as
-  `0a518fd` and `a0ca299` added none and the commit that writes this line adds none:
-  all four change the Notes' build script and documents only, as `ec4e5fd` did. (This
+  `0a518fd`, `a0ca299` and `bc250fc` added none: all four changed the Notes' build
+  script and documents only, as `ec4e5fd` did; `706e858`, docs only, changed no line
+  there (this file at `706e858` still said "the commit that writes this line adds
+  none" there, as `bc250fc` wrote it, and so named `706e858` for `bc250fc`'s change of
+  the Notes' script; corrected on 7 November); the commit that writes this line adds
+  its own. (This
   paragraph stopped at
   `a235783` until `ad34c02`
   brought it current, and

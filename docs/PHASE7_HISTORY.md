@@ -219130,3 +219130,178 @@ Line 5619 of the version at `bc250fc`:
 ~~~~~
   third path is Critical …"). F7, the veto and C1–C7 are on the list for after the
 ~~~~~
+
+## 7 November 2026 — the lines the rewrite of PHASE7_NEXT.md removed from its version at `706e858`
+
+*Moved here on 7 November 2026 by the commit that adds the forward measurement's count
+and records `706e858`'s landing, under "Ruling, 4 November 2026 — HISTORY keeps what
+each rewrite of PHASE7_NEXT.md removes, not the whole file" (DECISIONS). Below the
+rule, each block is a run of lines of the file as it stood at `706e858` that the
+rewrite deleted or replaced, word for word, labelled with its line numbers in that
+version; "this session" in them is the session that opened at 00:25 on 7 November,
+and "the commit that writes this line" names `706e858`, except in four sentences that
+version carried unchanged from `bc250fc` (the tests that changed, `code_hash`, the
+test counts and the change list's paragraph), where it names `bc250fc`. The whole
+version: `git show 706e858:docs/PHASE7_NEXT.md`. Checked by
+`docs/build/check_history_move.py`.*
+
+---
+
+Lines 3–7 of the version at `706e858`:
+
+~~~~~
+*7 November 2026, in the session that opened at 00:25. Rewritten by the commit that
+files Viktor's ruling of 7 November that round 8's F2 is Critical and records
+`bc250fc`'s landing; the lines it removed from the version at `bc250fc` are in
+HISTORY,
+which points to that whole version in git.
+~~~~~
+
+Lines 2221–2224 of the version at `706e858`:
+
+~~~~~
+**This session (7 November, from 00:25)**, configured for Claude Opus 5.5, opened at
+`bc250fc` and checked its landing, by the patch-delivery skill's section 10. GitHub's
+tip, read with no credentials at 00:27:21 (the probe asked for credentials, so none
+reached it), is `bc250fc`; its tree `6ca960d1…` is the one its `Verified-Tree:` line
+~~~~~
+
+Lines 2226–2247 of the version at `706e858`:
+
+~~~~~
+`python docs/build/check_history_move.py --base bc250fc~1` on the tip gives the line
+its message recorded, 88 lines in 19 runs. Viktor's disk, staged after 00:27: the four
+files the commit changed written at 00:11:22 and each byte for byte the tip; the index
+the tip's tree; the loose commit object hashing to `bc250fc`, GitHub's bytes, with no
+CR; `.git/COMMIT_EDITMSG` the message byte for byte; `master` and `origin/master`
+`bc250fc`, the reflogs' "commit:" at 00:21:26 and "update by push" at 00:21:41; the
+pytest cache rewritten at 00:14:46, after the apply (`bc250fc` added no test),
+`lastfailed` `{}`; no patch or message file in the root. Nothing differed. Claude's
+first comparison of `.git/COMMIT_EDITMSG` was against `git log --format=%B`, which
+adds a newline of its own, and showed a difference; against the raw message from the
+commit object it matched — caught before anything was reported. The skill's marker is
+still `b990c93`, and `git diff --stat b990c93 HEAD -- docs/PHASE7_DECISIONS.md` is
+empty. What came first, by the ruling of 1 November read with the correction of
+4 November: no commit owed; nothing due before 14 November; nothing of Claude's that
+can land before then, since what is left of it moves `code_hash` or waits for the
+reading's data — so an item of his, the severity of round 8's F2, the one item the
+triage left unruled that the audit's record needs before the send. Claude put the
+facts to him at 00:30 without a view, his position asked for first; he asked for a
+suggestion, and at 00:33 ruled F2 Critical by agreeing to it (DECISIONS, "Ruling,
+7 November 2026 — round 8's F2 is Critical …"). The commit that writes this line files
+that ruling, counts it in README's "Independent audit" and "Engine code" rows, and
+records `bc250fc`'s landing: docs only, no engine code.
+~~~~~
+
+Lines 2810–2811 of the version at `706e858`:
+
+~~~~~
+  Viktor's ruling of 7 November that round 8's F2 is Critical filed, and `bc250fc`'s
+  landing recorded: docs only, no engine code. Before it: `bc250fc` (the session of
+~~~~~
+
+Lines 3125–3126 of the version at `706e858`:
+
+~~~~~
+  `f8805a6`, `0a518fd` and `a0ca299` changed no test, and the commit that writes this
+  line changes none.
+~~~~~
+
+Lines 3138–3139 of the version at `706e858`:
+
+~~~~~
+- **The push of `a0ca299`** happened, at 23:40:32 on 6 November: GitHub's tip, read
+  with no credentials at 23:49:24, is `a0ca299`, Viktor's disk is the tip in every part
+~~~~~
+
+Line 3141 of the version at `706e858`:
+
+~~~~~
+  no deviation (ruling on proposal (b)). So did `0a518fd`'s, at 23:00:29 on
+~~~~~
+
+Lines 3321–3323 of the version at `706e858`:
+
+~~~~~
+  and `README.md`, which is not a `.py` file, by `f8805a6`, `0a518fd` and `a0ca299`,
+  which changed files under `docs/` only, and by the commit that writes this line,
+  which changes files under `docs/` only: computed
+~~~~~
+
+Lines 3332–3333 of the version at `706e858`:
+
+~~~~~
+  `7b93769`, `b990c93`, `f8805a6`, `0a518fd` and `a0ca299` and the applied tree of the
+  commit that writes this line give the same; on 6 November it was computed again on
+~~~~~
+
+Lines 3346–3348 of the version at `706e858`:
+
+~~~~~
+- **Golden snapshot:** unchanged by the commit that writes this line, which changes
+  docs and no code or test, by `a0ca299`, `0a518fd` and `f8805a6`, which changed docs
+  and no code or test, by
+~~~~~
+
+Lines 3391–3392 of the version at `706e858`:
+
+~~~~~
+- **Test suite** — **951 passed / 0 failed, no warnings line** with `pandas_ta`;
+  **775 passed / 165 skipped** without it; `run_tests.py` **883 passed / 0 failed /
+~~~~~
+
+Lines 3397–3399 of the version at `706e858`:
+
+~~~~~
+  until `713e084` (entry 50). The commit that writes this line changes no test, and
+  the three counts held: from the Linux sandbox, Python 3.12.3, pinned requirements,
+  the patch applied to an autocrlf clone of `a0ca299`. `a0ca299` changed no test, and
+~~~~~
+
+Lines 3715–3717 of the version at `706e858`:
+
+~~~~~
+  `a0ca299` `0491b84` to `b8f88d8`, and v1.40 `a1c4218` to `0a518fd`. **One commit that
+  needs an entry is behind:** the commit that writes this line, which files the ruling
+  of 7 November on F2; `a0ca299` and `bc250fc`, v1.39's and v1.40's own regenerations,
+~~~~~
+
+Lines 3744–3747 of the version at `706e858`:
+
+~~~~~
+- **README.md:** **the commit that writes this line changes its "Independent audit"
+  and "Engine code" rows**, for the ruling of 7 November on F2, in wording Claude wrote
+  and put to Viktor before his commit, and nothing else in it. Its test counts are current (951, 775 / 165 and 883 passed, 0
+  failed), last changed by `b990c93`, which changed only the numbers, for its 18 new
+~~~~~
+
+Line 5309 of the version at `706e858`:
+
+~~~~~
+- **`bc250fc`'s landing**, checked from 00:25 on 7 November, and recorded by the
+~~~~~
+
+Lines 5311–5317 of the version at `706e858`:
+
+~~~~~
+  4 November). Its push is in "Where things stand".
+- **The severity of round 8's F2:** Critical, ruled by Viktor at 00:33 on 7 November,
+  by agreeing to Claude's suggestion ("Ruled — in force"), and counted in README's
+  "Independent audit" and "Engine code" rows.
+- **The patch-delivery skill's marker** is at `b990c93`. The ruling of 7 November
+  changes no procedure the skill describes; moving the marker to the commit that
+  writes this line, after its push, is put to Viktor as a card.
+~~~~~
+
+Line 5319 of the version at `706e858`:
+
+~~~~~
+  from the version at `bc250fc` are in HISTORY's new entry, checked by
+~~~~~
+
+Lines 5802–5803 of the version at `706e858`:
+
+~~~~~
+  `0a518fd` and `a0ca299` added none and the commit that writes this line adds none:
+  all four change the Notes' build script and documents only, as `ec4e5fd` did. (This
+~~~~~

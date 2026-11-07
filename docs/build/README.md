@@ -154,6 +154,26 @@ python docs/build/measure_draft_gaps.py logs --json reading.json
 temporary folder, or the golden decision of the pinned synthetic candles — and never
 reads the live logs.
 
+## The forward measurement's count
+
+`count_forward_measurement.py` builds no document either. Added on 7 November 2026, it
+makes the forward measurement's own count, by PHASE7_DECISIONS.md's "Decision, 17 October
+2026 — how the forward measurement is counted": per pair, the scheduled task's records
+(the same population as `measure_draft_gaps.py`, imported from it), their actions, the
+degraded ones, the candles no run read, the refusals and failures from the process log's
+"Engine returned error for" lines, the LONGs that fall on the same candle across pairs,
+and when in the day the candles were read. The reading of 31 October was counted by a
+script that was never filed; this one gives that reading's figures from the same logs.
+The window's last candle is given, never guessed; the choices it had to make are listed
+in its docstring.
+
+```
+python docs/build/count_forward_measurement.py logs --last-open "2026-11-14 04:00"
+```
+
+`tests/test_count_forward_measurement.py` checks it on synthetic records and process logs
+only, built in a temporary folder, and never reads the live logs.
+
 ## HISTORY's entry for each rewrite of PHASE7_NEXT.md
 
 `check_history_move.py` builds no document either. Added on 4 November 2026 with
