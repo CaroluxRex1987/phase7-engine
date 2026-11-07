@@ -1,8 +1,8 @@
 # Next step — read this first
 
-*7 November 2026, in the session that opened at 23:46 on 6 November. Rewritten by the
-commit that regenerates the Engineering Notes at v1.40, the last of four parts, and
-records `a0ca299`'s landing; the lines it removed from the version at `a0ca299` are in
+*7 November 2026, in the session that opened at 00:25. Rewritten by the commit that
+files Viktor's ruling of 7 November that round 8's F2 is Critical and records
+`bc250fc`'s landing; the lines it removed from the version at `bc250fc` are in
 HISTORY,
 which points to that whole version in git.
 This file is the project's current-state entry point: it states only what is true right
@@ -2212,29 +2212,50 @@ nothing differed, and made the third part. `a0ca299` is the third part, v1.39, E
 #227–#252, and recorded `0a518fd`'s landing. That session's account is in this file's
 version at `a0ca299`.
 
-**This session (6 November, from 23:46)**, configured for Claude Opus 5.5, opened at
-`a0ca299` and checked its landing, by the patch-delivery skill's section 10. GitHub's
-tip, read with no credentials at 23:49:24 (the probe asked for credentials, so none
-reached it), is `a0ca299`; its tree `14df799c…` is the one its `Verified-Tree:` line
+**The session of 6 November, from 23:46**, configured for Claude Opus 5.5, opened at
+`a0ca299`, checked its landing, in which nothing differed, and made the fourth and last
+part of the Notes, `a1c4218` to `0a518fd`, chosen as what came first. `bc250fc` is the
+fourth part, v1.40, Entries #253–#276, and recorded `a0ca299`'s landing. That session's
+account is in this file's version at `bc250fc`.
+
+**This session (7 November, from 00:25)**, configured for Claude Opus 5.5, opened at
+`bc250fc` and checked its landing, by the patch-delivery skill's section 10. GitHub's
+tip, read with no credentials at 00:27:21 (the probe asked for credentials, so none
+reached it), is `bc250fc`; its tree `6ca960d1…` is the one its `Verified-Tree:` line
 names; its message holds no CR and ends with the attribution lines;
-`python docs/build/check_history_move.py --base a0ca299~1` on the tip gives the line
-its message recorded, 76 lines in 19 runs. Viktor's disk, staged after 23:47: the four
-files the commit changed written at 23:28:49 and each byte for byte the tip; the index
-the tip's tree; the loose commit object hashing to `a0ca299`, GitHub's bytes, with no
+`python docs/build/check_history_move.py --base bc250fc~1` on the tip gives the line
+its message recorded, 88 lines in 19 runs. Viktor's disk, staged after 00:27: the four
+files the commit changed written at 00:11:22 and each byte for byte the tip; the index
+the tip's tree; the loose commit object hashing to `bc250fc`, GitHub's bytes, with no
 CR; `.git/COMMIT_EDITMSG` the message byte for byte; `master` and `origin/master`
-`a0ca299`, the reflogs' "commit:" at 23:40:18 and "update by push" at 23:40:32; the
-pytest cache rewritten at 23:31:58, after the apply (`a0ca299` added no test),
-`lastfailed` `{}`; no patch or message file in the root. Nothing differed. The skill's
-marker is still `b990c93`, and `git diff --stat b990c93 HEAD --
-docs/PHASE7_DECISIONS.md` is empty. What came first, as Viktor asked at the session's
-opening and by the ruling of 1 November read with the correction of 4 November: no
-commit owed, nothing due before 14 November, so the fourth and last part of the Notes,
-`a1c4218` to `0a518fd`, which moves no `code_hash`. The four files the patch changes,
-and `docs/audit_change_list.md`, were staged off his disk before the patch was built
-and matched the tip. The commit that writes this line is the fourth part, v1.40,
-Entries #253–#276, and records `a0ca299`'s landing.
+`bc250fc`, the reflogs' "commit:" at 00:21:26 and "update by push" at 00:21:41; the
+pytest cache rewritten at 00:14:46, after the apply (`bc250fc` added no test),
+`lastfailed` `{}`; no patch or message file in the root. Nothing differed. Claude's
+first comparison of `.git/COMMIT_EDITMSG` was against `git log --format=%B`, which
+adds a newline of its own, and showed a difference; against the raw message from the
+commit object it matched — caught before anything was reported. The skill's marker is
+still `b990c93`, and `git diff --stat b990c93 HEAD -- docs/PHASE7_DECISIONS.md` is
+empty. What came first, by the ruling of 1 November read with the correction of
+4 November: no commit owed; nothing due before 14 November; nothing of Claude's that
+can land before then, since what is left of it moves `code_hash` or waits for the
+reading's data — so an item of his, the severity of round 8's F2, the one item the
+triage left unruled that the audit's record needs before the send. Claude put the
+facts to him at 00:30 without a view, his position asked for first; he asked for a
+suggestion, and at 00:33 ruled F2 Critical by agreeing to it (DECISIONS, "Ruling,
+7 November 2026 — round 8's F2 is Critical …"). The commit that writes this line files
+that ruling, counts it in README's "Independent audit" and "Engine code" rows, and
+records `bc250fc`'s landing: docs only, no engine code.
 
 ## Ruled — in force
+
+- **New, 7 November — Viktor's, by agreeing to Claude's suggestion: round 8's F2 is
+  Critical** (DECISIONS, "Ruling, 7 November 2026 — round 8's F2 is Critical: the risk
+  regime read ADX, a break of Item 14 that could reach a live decision"). Before
+  `fcb7823`, an ADX under 20 made the risk regime HIGH VOLATILITY RISK, which refused
+  AGGRESSIVE; that breaks Tier 1 Item 14 and could reach a live decision, though no
+  live run's regime was decided by ADX. The fix landed at `fcb7823` and round 8's
+  auditor verified it on 17 October, so the release gate does not change. README
+  counts nine Criticals resolved and two open.
 
 - **New, 2 November — Claude's, as the redesign's draft is, Viktor's to change: how the
   reading of 14 November measures the draft's gaps** (DECISIONS, "Decision, 2 November
@@ -2786,9 +2807,11 @@ Entries #253–#276, and records `a0ca299`'s landing.
 ## Where things stand, right now
 
 - **Tip:** the commit that writes this line (a commit cannot name its own hash) —
-  the Engineering Notes regenerated at v1.40, the last of four parts, and
-  `a0ca299`'s landing recorded: the Notes' script and PDF and docs, no engine code.
-  Before it: `a0ca299` (the session of 4 November, from 03:28, resumed 6 November at
+  Viktor's ruling of 7 November that round 8's F2 is Critical filed, and `bc250fc`'s
+  landing recorded: docs only, no engine code. Before it: `bc250fc` (the session of
+  6 November, from 23:46: the Engineering Notes regenerated at v1.40, the last of four
+  parts, and `a0ca299`'s landing recorded: the Notes' script and PDF and docs, no
+  engine code), `a0ca299` (the session of 4 November, from 03:28, resumed 6 November at
   23:00: the Engineering Notes regenerated at v1.39, the third part, and `0a518fd`'s
   landing recorded: the Notes' script and PDF and docs, no engine code), `0a518fd` (the
   session of 4 November, from 02:59: the Engineering Notes
@@ -2990,7 +3013,10 @@ Entries #253–#276, and records `a0ca299`'s landing.
   2026 — round 8 triaged …", point 2) until Viktor accepted the report of round 8's
   auditor, which verified the fix of the stop that landed at `c2b07fb`, on 17 October
   ("Ruling, 17 October 2026 — round 8's fix verification accepted on the stop's answer;
-  the release gate reopens"); open from then to 20 October.
+  the release gate reopens"); open from then to 20 October. Round 8's F2, ruled
+  Critical on 7 November (DECISIONS, "Ruling, 7 November 2026 — round 8's F2 is
+  Critical …"), changes nothing in it: its fix landed at `fcb7823`, and round 8's
+  auditor verified it on 17 October.
 - **The freeze is lifted** (point 11 of the same ruling): round 8's report is triaged, so
   commits may touch engine code and tests again. It held from 29 September (DECISIONS,
   "Ruling, 29 September 2026 — six questions before the send", point 1) to 5 October,
@@ -3686,10 +3712,11 @@ Entries #253–#276, and records `a0ca299`'s landing.
   that no part is more than a session's work; the third, forty-eight commits, was more,
   and on 4 November Claude split it in two, Viktor not objecting: v1.37 at `f8805a6`
   covered `e7a94d1` to `eb86846`, v1.38 at `0a518fd` `c2b07fb` to `67f6ec1`, v1.39 at
-  `a0ca299` `0491b84` to `b8f88d8`, and v1.40 `a1c4218` to `0a518fd`. **No commit that
-  needs an entry is behind:** `a0ca299`, v1.39's own regeneration, and the commit that
-  writes this line, v1.40's, have none (a commit that regenerates the Notes cannot
-  cover itself, Entry #144). Every later commit adds one until the next regeneration.
+  `a0ca299` `0491b84` to `b8f88d8`, and v1.40 `a1c4218` to `0a518fd`. **One commit that
+  needs an entry is behind:** the commit that writes this line, which files the ruling
+  of 7 November on F2; `a0ca299` and `bc250fc`, v1.39's and v1.40's own regenerations,
+  have none (a commit that regenerates the Notes cannot cover itself, Entry #144).
+  Every later commit adds one until the next regeneration.
   Batched, by the 15 September rule. v1.40 records the commit-msg hook (entry 56),
   entry 50, README's audit history and layout, the rulings on a landing check's
   standing gaps and on a ruling that changes the patch-delivery skill, a candle
@@ -3714,7 +3741,9 @@ Entries #253–#276, and records `a0ca299`'s landing.
   identical to the committed PDF. Neither changes in the commit that writes this line;
   the Attribution Statement's script last changed at `68c6191`, the Portfolio
   Document's at `6e1baba`.
-- **README.md:** its test counts are current (951, 775 / 165 and 883 passed, 0
+- **README.md:** **the commit that writes this line changes its "Independent audit"
+  and "Engine code" rows**, for the ruling of 7 November on F2, in wording Claude wrote
+  and put to Viktor before his commit, and nothing else in it. Its test counts are current (951, 775 / 165 and 883 passed, 0
   failed), last changed by `b990c93`, which changed only the numbers, for its 18 new
   tests, and before it by `5fe8522`, which changed only the
   numbers, for entry 59's two tests more, and before it by `1b82ed0`, which changed
@@ -3728,7 +3757,7 @@ Entries #253–#276, and records `a0ca299`'s landing.
   `b8f88d8`, `134f85b`, `fad0588`, `3dbd8dc`, `a2ca918`, `d7d3ae0`, `b233c4a`,
   `6d073f9`, `8c810b1`, `248037d`, `e748b0b`, `f6aa126`, `e69d5bb`, `e8b42b8`,
   `d6fba83`, `7c23886`, `e939734`, `7ff8128`, `7b93769`, `f8805a6`, `0a518fd`,
-  `a0ca299` or the commit that writes this line (this file at `b990c93` still had "the commit that writes this line" in this
+  `a0ca299` or `bc250fc` (this file at `b990c93` still had "the commit that writes this line" in this
   list, carried from `7b93769`; corrected on 4 November). **Its
   audit
   history and
@@ -5277,15 +5306,17 @@ Each code commit is its own commit and updates this file for its own landing.
 
 ## Resolved this session
 
-- **`a0ca299`'s landing**, checked from 23:46 on 6 November, and recorded by the
+- **`bc250fc`'s landing**, checked from 00:25 on 7 November, and recorded by the
   commit that writes this line, made for its own reason (DECISIONS, the correction of
   4 November). Its push is in "Where things stand".
-- **The Engineering Notes, the last of four parts:** v1.40, Entries #253–#276,
-  through `0a518fd` ("Where things stand"). The gap left by v1.36 is closed.
-- **The patch-delivery skill's marker** stays at `b990c93`: neither `a0ca299` nor the
-  commit that writes this line files a ruling or decision.
+- **The severity of round 8's F2:** Critical, ruled by Viktor at 00:33 on 7 November,
+  by agreeing to Claude's suggestion ("Ruled — in force"), and counted in README's
+  "Independent audit" and "Engine code" rows.
+- **The patch-delivery skill's marker** is at `b990c93`. The ruling of 7 November
+  changes no procedure the skill describes; moving the marker to the commit that
+  writes this line, after its push, is put to Viktor as a card.
 - **This file's rewrite**, by the commit that writes this line. The lines it removed
-  from the version at `a0ca299` are in HISTORY's new entry, checked by
+  from the version at `bc250fc` are in HISTORY's new entry, checked by
   `docs/build/check_history_move.py` (the commit message has the result).
 
 ## Open items
@@ -5614,9 +5645,10 @@ Claude critiques it.
   Claude's.
 - **Viktor's, not ruled — what the triage left open** (DECISIONS, "Ruling, 5 October
   2026 — round 8 triaged …", "Not ruled"): F7; B4's divergence veto; C1–C7; the ten
-  questions of 1 October; the severity of F2. B5 and the severity of F4's third path
+  questions of 1 October. B5 and the severity of F4's third path
   were ruled on 20 October (DECISIONS, "Ruling, 20 October 2026 — B5 …" and "… — F4's
-  third path is Critical …"). F7, the veto and C1–C7 are on the list for after the
+  third path is Critical …"), and the severity of F2 on 7 November, Critical
+  (DECISIONS, "Ruling, 7 November 2026 — round 8's F2 is Critical …"). F7, the veto and C1–C7 are on the list for after the
   audit, above; the ten
   questions are an item of their own, below. Whether S1, S3, N1–N4, O1–O3 and the Part 7 reply's §1(3) and §1(5)
   join the label and record batch is settled by that sort: all are in the work before

@@ -6936,6 +6936,72 @@ did not depend on.
 **What it weakens.** The practice of 19 September, Claude's, ends; it was never
 ratified. Nothing ratified is removed or reworded.
 
+## Ruling, 7 November 2026 — round 8's F2 is Critical: the risk regime read ADX, a break of Item 14 that could reach a live decision
+
+*New in this file on 7 November 2026. Viktor's, at 00:33, by agreeing to Claude's
+suggestion — not by writing his position first — in the session that opened at 00:25 on
+7 November at `bc250fc`; filed by its commit. It settles the severity of F2, which the
+triage left unruled ("Ruling, 5 October 2026 — round 8 triaged …", "Not ruled").*
+
+**The question.** Round 8's run 2 rated F2 Major, under Tier 1 Item 14 (Risk Is Not
+Conviction), with a cross-reference to Item 11. The triage fixed it (point 3; landed at
+`fcb7823` on 6 October, and verified fixed by round 8's auditor on 17 October) and left
+its severity unruled. The review's C4 noted that it reaches live decisions.
+
+**What Claude read for it, at `fcb7823~1`, the code before the fix.**
+`classify_risk_regime` (`models/risk_model.py:474–503`) returned HIGH VOLATILITY RISK
+when ADX was under 20, whatever the volatility, and LOW RISK when volatility was LOW and
+ADX 25 or more. `models/decision_model.py:577` allows AGGRESSIVE only under NORMAL RISK
+or LOW RISK; a setup that would otherwise be AGGRESSIVE LONG stays LONG under any other
+regime (lines 713–720; the SHORT side mirrors it). So the chop test could change a live
+action; the LOW RISK test could not, since NORMAL RISK allows AGGRESSIVE too. The path
+was in the code from `0c7dec5` (11 September) to `fcb7823`. From the evidence filed on
+5 October (point 3, not re-derived): volatility was HIGH or EXTREME on all 37 live runs,
+so neither ADX test decided a live run's regime, and no live action changed.
+
+**How it was made.** By the ruling of 1 November read with the correction of
+4 November, Claude brought it to Viktor as what came first: no commit owed, nothing due
+before 14 November, and nothing of Claude's that can land before then. Claude put the
+facts above to him at 00:30 without a view, his position asked for first. He asked for
+a suggestion at 00:32; at 00:33: "Agree."
+
+**What was ruled.** F2 breaks Tier 1 Item 14 and is **Critical**.
+
+**Claude's reasons, as given.**
+
+1. The rubric asks whether a Tier 1 break could reach a live decision, not whether one
+   did: Critical *"violates a Tier 1 invariant in a way that could reach a live decision
+   or a customer"* (the ratified text, its severity scale). The chop test could, through
+   `aggressive_allowed`.
+2. The rubric makes no exception for a break that errs only toward caution. Ruling F2
+   Major on that ground would add a direction exemption the Constitution does not
+   contain, and weaken it without an amendment.
+3. F4's third path was ruled Critical on 20 October on the same reading of "could
+   reach" ("Ruling, 20 October 2026 — F4's third path is Critical …").
+
+The case against, given with them, is round 8's own rating: no live action moved, and
+the one path that could reach one is a veto pointing the same way as conviction.
+Claude called it a sound position, but an argument for amending the rubric rather than
+for applying it. `0c7dec5`, the commit that put ADX into the regime, is co-authored by
+Claude, so the suggestion is its author's.
+
+**What follows.**
+
+- **The release gate does not change.** It has been closed since 20 October; F2's fix
+  has landed and been verified by an independent auditor, so nothing is added to what
+  reopens it.
+- **README's "Independent audit" and "Engine code" rows count it**, in wording Claude
+  wrote and put to Viktor before his commit, in the commit that files this entry: nine
+  Criticals resolved, two open.
+- **No code changes**, and `code_hash` does not move. The next full audit already checks
+  `fcb7823` for new defects, as one of the seven fixes round 8's verification checked
+  only as fixes.
+
+**What it weakens.** Nothing ratified is removed or reworded. The record's count of
+Criticals rises by one for a defect whose fix was verified three weeks before it was
+ruled; a reader of the count alone would not see that F2 never changed a live action,
+which this entry and README say.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then

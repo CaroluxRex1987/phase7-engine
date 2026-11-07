@@ -219006,3 +219006,127 @@ Lines 5755–5756 of the version at `a0ca299`:
   `0a518fd` added none and the commit that writes this line adds none: all three
   change the Notes' build script and documents only, as `ec4e5fd` did. (This
 ~~~~~
+
+## 7 November 2026 — the lines the rewrite of PHASE7_NEXT.md removed from its version at `bc250fc`
+
+*Moved here on 7 November 2026 by the commit that files Viktor's ruling of 7 November
+that round 8's F2 is Critical and records `bc250fc`'s landing, under "Ruling, 4 November
+2026 — HISTORY keeps what each rewrite of PHASE7_NEXT.md removes, not the whole file"
+(DECISIONS). Below the rule, each block is a run of lines of the file as it stood at
+`bc250fc` that the rewrite deleted or replaced, word for word, labelled with its line
+numbers in that version; "this session" in them is the session that opened at 23:46 on
+6 November, and "the commit that writes this line" names `bc250fc`. The whole version:
+`git show bc250fc:docs/PHASE7_NEXT.md`. Checked by
+`docs/build/check_history_move.py`.*
+
+---
+
+Lines 3–5 of the version at `bc250fc`:
+
+~~~~~
+*7 November 2026, in the session that opened at 23:46 on 6 November. Rewritten by the
+commit that regenerates the Engineering Notes at v1.40, the last of four parts, and
+records `a0ca299`'s landing; the lines it removed from the version at `a0ca299` are in
+~~~~~
+
+Lines 2215–2218 of the version at `bc250fc`:
+
+~~~~~
+**This session (6 November, from 23:46)**, configured for Claude Opus 5.5, opened at
+`a0ca299` and checked its landing, by the patch-delivery skill's section 10. GitHub's
+tip, read with no credentials at 23:49:24 (the probe asked for credentials, so none
+reached it), is `a0ca299`; its tree `14df799c…` is the one its `Verified-Tree:` line
+~~~~~
+
+Lines 2220–2223 of the version at `bc250fc`:
+
+~~~~~
+`python docs/build/check_history_move.py --base a0ca299~1` on the tip gives the line
+its message recorded, 76 lines in 19 runs. Viktor's disk, staged after 23:47: the four
+files the commit changed written at 23:28:49 and each byte for byte the tip; the index
+the tip's tree; the loose commit object hashing to `a0ca299`, GitHub's bytes, with no
+~~~~~
+
+Lines 2225–2235 of the version at `bc250fc`:
+
+~~~~~
+`a0ca299`, the reflogs' "commit:" at 23:40:18 and "update by push" at 23:40:32; the
+pytest cache rewritten at 23:31:58, after the apply (`a0ca299` added no test),
+`lastfailed` `{}`; no patch or message file in the root. Nothing differed. The skill's
+marker is still `b990c93`, and `git diff --stat b990c93 HEAD --
+docs/PHASE7_DECISIONS.md` is empty. What came first, as Viktor asked at the session's
+opening and by the ruling of 1 November read with the correction of 4 November: no
+commit owed, nothing due before 14 November, so the fourth and last part of the Notes,
+`a1c4218` to `0a518fd`, which moves no `code_hash`. The four files the patch changes,
+and `docs/audit_change_list.md`, were staged off his disk before the patch was built
+and matched the tip. The commit that writes this line is the fourth part, v1.40,
+Entries #253–#276, and records `a0ca299`'s landing.
+~~~~~
+
+Lines 2789–2791 of the version at `bc250fc`:
+
+~~~~~
+  the Engineering Notes regenerated at v1.40, the last of four parts, and
+  `a0ca299`'s landing recorded: the Notes' script and PDF and docs, no engine code.
+  Before it: `a0ca299` (the session of 4 November, from 03:28, resumed 6 November at
+~~~~~
+
+Line 2993 of the version at `bc250fc`:
+
+~~~~~
+  the release gate reopens"); open from then to 20 October.
+~~~~~
+
+Lines 3689–3692 of the version at `bc250fc`:
+
+~~~~~
+  `a0ca299` `0491b84` to `b8f88d8`, and v1.40 `a1c4218` to `0a518fd`. **No commit that
+  needs an entry is behind:** `a0ca299`, v1.39's own regeneration, and the commit that
+  writes this line, v1.40's, have none (a commit that regenerates the Notes cannot
+  cover itself, Entry #144). Every later commit adds one until the next regeneration.
+~~~~~
+
+Line 3717 of the version at `bc250fc`:
+
+~~~~~
+- **README.md:** its test counts are current (951, 775 / 165 and 883 passed, 0
+~~~~~
+
+Line 3731 of the version at `bc250fc`:
+
+~~~~~
+  `a0ca299` or the commit that writes this line (this file at `b990c93` still had "the commit that writes this line" in this
+~~~~~
+
+Line 5280 of the version at `bc250fc`:
+
+~~~~~
+- **`a0ca299`'s landing**, checked from 23:46 on 6 November, and recorded by the
+~~~~~
+
+Lines 5283–5286 of the version at `bc250fc`:
+
+~~~~~
+- **The Engineering Notes, the last of four parts:** v1.40, Entries #253–#276,
+  through `0a518fd` ("Where things stand"). The gap left by v1.36 is closed.
+- **The patch-delivery skill's marker** stays at `b990c93`: neither `a0ca299` nor the
+  commit that writes this line files a ruling or decision.
+~~~~~
+
+Line 5288 of the version at `bc250fc`:
+
+~~~~~
+  from the version at `a0ca299` are in HISTORY's new entry, checked by
+~~~~~
+
+Line 5617 of the version at `bc250fc`:
+
+~~~~~
+  questions of 1 October; the severity of F2. B5 and the severity of F4's third path
+~~~~~
+
+Line 5619 of the version at `bc250fc`:
+
+~~~~~
+  third path is Critical …"). F7, the veto and C1–C7 are on the list for after the
+~~~~~
