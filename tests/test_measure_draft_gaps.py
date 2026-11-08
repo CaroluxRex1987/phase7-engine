@@ -1,8 +1,11 @@
 """
-docs/build/measure_draft_gaps.py -- the reading of 14 November's six computations.
+docs/build/measure_draft_gaps.py -- the reading of 14 November's computations.
 
 Written 2 November 2026 with the script, from DECISIONS, "Decision, 2 November
-2026 -- how the reading of 14 November measures the redesign draft's gaps ...".
+2026 -- how the reading of 14 November measures the redesign draft's gaps ...";
+computation 7's two tests added 7 November 2026, from "Amendment, 7 November
+2026 -- the reading of 14 November counts the CHOCHs against the side
+(computation 7)".
 Synthetic records only: every record and archive below is built here, in a
 temporary folder, or is the golden decision of the pinned synthetic candles. No
 test reads the live logs.
@@ -380,6 +383,100 @@ def test_an_entry_is_a_trade_whose_previous_record_is_not_the_same_side():
            "AGGRESSIVE SHORT", "NO-TRADE (SIGNAL UNCONFIRMED)", "SHORT"]
     rows = [{"pair": "A", "draft": a} for a in seq] + [{"pair": "B", "draft": "LONG"}]
     assert tool.entries(rows, "draft") == {"A": (5, 1), "B": (1, 0)}
+
+
+# ---------------------------------------------------------------- 7. the CHOCH count
+
+def test_a_choch_against_is_the_whole_sequence_opposite_the_side():
+    """
+    READINGS 12: the two strings entry_model.py's structure multiplier compares,
+    whole; "UNKNOWN", a missing or non-string sequence, or no side, is not
+    measured. The golden record's own sequence (BOS BULLISH) reads as a
+    sequence that is no CHOCH, on either side -- so the field's path is a real
+    record's.
+    """
+    tool = _tool()
+    bear = "CHOCH BEARISH (POSSIBLE REVERSAL)"
+    bull = "CHOCH BULLISH (POSSIBLE REVERSAL)"
+
+    def against(seq, side):
+        return tool.choch_against({"structure": {"sequence": seq}}, side)
+
+    assert against(bear, "LONG") is True and against(bull, "SHORT") is True
+    assert against(bull, "LONG") is False and against(bear, "SHORT") is False
+    for seq in ("BOS BULLISH (TREND CONTINUATION)", "BOS BEARISH (TREND CONTINUATION)",
+                "BULLISH SWING SEQUENCE (HH-HL)", "BEARISH SWING SEQUENCE (LH-LL)", "NONE",
+                "CHOCH BEARISH"):
+        assert against(seq, "LONG") is False and against(seq, "SHORT") is False
+    assert against("UNKNOWN", "LONG") is None and against(None, "LONG") is None
+    assert against(5, "SHORT") is None and against(bear, None) is None
+    assert tool.choch_against({}, "LONG") is None
+    assert tool.choch_against({"structure": "CHOCH BEARISH"}, "LONG") is None
+    with open(os.path.join(HERE, "fixtures", "golden_decision.json"), encoding="utf-8") as f:
+        golden = json.load(f)
+    assert golden["structure"]["sequence"] == "BOS BULLISH (TREND CONTINUATION)"
+    assert tool.choch_against(golden, "LONG") is False
+    assert tool.choch_against(golden, "SHORT") is False
+
+
+def test_the_choch_count_gates_nothing_and_counts_who_passes():
+    """
+    Six task records on one pair, every one BULLISH but the fifth:
+      1 CHOCH BEARISH, passes every gate        -> counted, and passing
+      2 CHOCH BEARISH, macro BEARISH            -> counted, fails gate 6
+      3 BOS BULLISH                             -> a sequence, no CHOCH
+      4 no structure at all                     -> not measured
+      5 CHOCH BEARISH, NEUTRAL (no side)        -> not among the sided
+      6 UNKNOWN                                 -> not measured
+    So: 5 with a side, 2 not measured, CHOCH against 2 of 3, of those 1 passing
+    and 1 failing another gate; 1 CHOCH of the 2 records with a sequence that
+    pass every gate (1 and 3; 4 and 6 pass too, but their sequence is not
+    measured). The CHOCH is no gate: the draft's actions are what they would be
+    without it.
+    """
+    tool = _tool()
+    tmp = tempfile.mkdtemp(prefix="phase7_gaps_")
+    bear = {"sequence": "CHOCH BEARISH (POSSIBLE REVERSAL)"}
+    plan = [dict(structure=bear), dict(structure=bear, macro_bias="BEARISH"),
+            dict(structure={"sequence": "BOS BULLISH (TREND CONTINUATION)"}), dict(),
+            dict(structure=bear), dict(structure={"sequence": "UNKNOWN"})]
+    try:
+        frame = _rising_tail(_frame(n=40, last_open="2026-10-20 20:00:00"), k=6)
+        records = []
+        for i, pos in enumerate(range(len(frame) - 6, len(frame))):
+            path = _archive(tmp, frame.iloc[:pos + 1], run=f"run{i}" + "x" * 12)
+            c = float(frame["close"].iloc[pos])
+            rec = _record(opened=str(frame.index[pos]), archive=path, frame=frame, **plan[i])
+            rec["decision"]["lineage"]["indicators_at_decision_bar"].update(
+                {"EMA_20": c + 0.001, "EMA_50": c - 0.001, "HVN": c, "ATR": 1.0,
+                 "EMA50_Slope": -0.1 if i == 4 else 0.1})
+            records.append(rec)
+        logs = os.path.join(tmp, "logs")
+        _write_logs(logs, records)
+        pop = tool.select_population(tool.read_logs(logs), HASH, first_open=_t("2026-10-17 08:00:00"))
+        res = tool.measure(pop, tmp, floor=1.0)
+        text = tool.report(pop, res)
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+    seven = res["7 CHOCH"]
+    assert res["N"] == 6
+    assert seven["records with a side"] == 5
+    assert seven["not measured (no sequence)"] == 2
+    assert seven["sequences"] == {"BOS BULLISH (TREND CONTINUATION)": 1,
+                                  "CHOCH BEARISH (POSSIBLE REVERSAL)": 2, "None": 1, "UNKNOWN": 1}
+    assert seven["CHOCH against the side"]["pooled"] == (2, 3)
+    assert seven["CHOCH against the side"]["per pair"] == {"AAAUSDT": (2, 3)}
+    assert seven["of those, passing every other gate"]["pooled"] == (1, 2)
+    assert seven["of those, failing another gate"] == 1
+    assert seven["of those, none failing and one not measured"] == 0
+    assert seven["of those, apart (the plan's side not the draft's)"] == 0
+    assert seven["CHOCH against, of the records passing every gate"]["pooled"] == (1, 2)
+    assert seven["their draft actions"] == {"AGGRESSIVE LONG": 1}
+    assert seven["against"] is None
+    assert [r["draft"] for r in pop["n"]] == ["AGGRESSIVE LONG", "NO-TRADE (MACRO AGAINST)",
+                                              "AGGRESSIVE LONG", "AGGRESSIVE LONG", "WAIT",
+                                              "AGGRESSIVE LONG"]
+    assert "== 7 CHOCH" in text and "CHOCH count reported, not judged" in text
 
 
 # ---------------------------------------------------------------- end to end

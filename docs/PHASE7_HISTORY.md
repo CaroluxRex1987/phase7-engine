@@ -220795,3 +220795,257 @@ Lines 6055–6057 of the version at `9db4ae2`:
   that writes this line adds none: it changes the Notes' build script and documents
   only, as `bc250fc` did. (This
 ~~~~~
+
+## 7 November 2026 — the lines the rewrite of PHASE7_NEXT.md removed from its version at `7dac328`
+
+*Moved here on 7 November 2026 by the commit that adds the reading of 14 November's
+computation 7, the CHOCH count, to the decision of 2 November and to
+`docs/build/measure_draft_gaps.py` with its tests, and records `7dac328`'s landing,
+under "Ruling, 4 November 2026 — HISTORY keeps what each rewrite of PHASE7_NEXT.md
+removes, not the whole file" (DECISIONS).
+Below the rule, each block is a run of lines of the file as it stood at `7dac328` that
+the rewrite deleted or replaced, word for word, labelled with its line numbers in that
+version; "this session" in them is the session that opened at 21:56 on 7 November, and
+"the commit that writes this line" and "this commit" name `7dac328`. The whole version:
+`git show 7dac328:docs/PHASE7_NEXT.md`. Checked by `docs/build/check_history_move.py`.*
+
+---
+
+Lines 3–7 of the version at `7dac328`:
+
+~~~~~
+*7 November 2026, in the session that opened at 21:56. Rewritten by the commit that
+files Viktor's ruling of 7 November that the redesign's entry quality has no structure
+multiplier, writes the draft's version 7 and records `9db4ae2`'s landing; the lines it
+removed from the version at `9db4ae2` are in HISTORY, which points to that whole version
+in git.
+~~~~~
+
+Lines 602–603 of the version at `7dac328`:
+
+~~~~~
+and by the ruling of 1 November the commit owed comes first: the commit that writes
+this line records the landing, docs only. The reading of 14 November owes nothing more
+~~~~~
+
+Lines 2277–2280 of the version at `7dac328`:
+
+~~~~~
+**This session (7 November, from 21:56)**, configured for Claude Opus 5.5, opened at
+`9db4ae2` and checked its landing, by the patch-delivery skill's section 10. GitHub's
+tip, read with no credentials at 22:01:49 (the probe asked for credentials, so none
+reached it), is `9db4ae2`; its tree `06a1b570…` is the one its `Verified-Tree:` line
+~~~~~
+
+Lines 2282–2284 of the version at `7dac328`:
+
+~~~~~
+docs/build/check_history_move.py --base 9db4ae2~1` on the tip gives the line its message
+recorded, 101 lines in 21 runs. Viktor's disk, staged after 21:57: the four files the
+commit changed written at 21:05:20 and each byte for byte the tip; the index the tip's
+~~~~~
+
+Lines 2286–2289 of the version at `7dac328`:
+
+~~~~~
+commit object hashing to `9db4ae2`, GitHub's bytes, with no CR; `.git/COMMIT_EDITMSG`
+the message byte for byte; `master` and `origin/master` `9db4ae2`, written at 21:47:12
+and 21:47:27, the reflogs' last lines "commit:" and "update by push"; the pytest cache
+rewritten at 21:08:45, after the apply, `lastfailed` `{}`; no patch or message file in
+~~~~~
+
+Lines 2291–2292 of the version at `7dac328`:
+
+~~~~~
+-- docs/PHASE7_DECISIONS.md` adds one entry, `82ea40e`'s ruling, which changes no
+procedure the skill describes.
+~~~~~
+
+Lines 2295–2306 of the version at `7dac328`:
+
+~~~~~
+commit owed; no work due by a date before the reading of 14 November; none of Claude's
+work that the rulings in force let land now, all of it waiting on that reading; so an
+item of Viktor's: the draft's §3.3, whether the structure multiplier stays, which the
+decision of 2 November's computation 2 answers by computing entry quality with none, so
+that it had to be settled before the data is read. Claude suggested removing it, and
+Viktor ruled so at 22:19, by agreeing (DECISIONS, "Ruling, 7 November 2026 — the
+redesign's entry quality has no structure multiplier"). Claude's case against, as first
+sent, said the structure gate would still read CHOCH; read in the code before filing, it
+reads the regime only, and Claude said so and asked again before the ruling (the entry
+records it). The commit that writes this line files the ruling, writes the draft's
+version 7 and records `9db4ae2`'s landing. Docs only: no engine code, no test, no
+tooling.
+~~~~~
+
+Line 2316 of the version at `7dac328`:
+
+~~~~~
+  and a count Claude adds to the reading of 14 November before its data is read. The
+~~~~~
+
+Line 2363 of the version at `7dac328`:
+
+~~~~~
+  follows it.
+~~~~~
+
+Lines 2903–2904 of the version at `7dac328`:
+
+~~~~~
+  multiplier filed, the draft's version 7, and `9db4ae2`'s landing recorded: docs only,
+  no engine code. Before it: `9db4ae2` (the session of 7 November, from 20:47: the
+~~~~~
+
+Lines 3245–3246 of the version at `7dac328`:
+
+~~~~~
+  `542085f`, `b874ec1`, `82ea40e` and `9db4ae2` changed no test; and the commit that
+  writes this line changes no test.
+~~~~~
+
+Lines 3258–3259 of the version at `7dac328`:
+
+~~~~~
+- **The push of `9db4ae2`** happened, at 21:47:27 on 7 November: GitHub's tip, read
+  with no credentials at 22:01:49, is `9db4ae2`, Viktor's disk is the tip in every part
+~~~~~
+
+Line 3261 of the version at `7dac328`:
+
+~~~~~
+  no deviation (ruling on proposal (b)). So did `82ea40e`'s, at 20:46:36 on
+~~~~~
+
+Line 3438 of the version at `7dac328`:
+
+~~~~~
+  matched an autocrlf checkout of `9db4ae2`, GitHub's tip, cloned at 21:57 on
+~~~~~
+
+Lines 3477–3479 of the version at `7dac328`:
+
+~~~~~
+  `542085f`, `b874ec1`, `82ea40e` and `9db4ae2`, which changed files under `docs/`
+  only, and by the commit that writes this line, which changes files under `docs/`
+  only:
+~~~~~
+
+Lines 3490–3494 of the version at `7dac328`:
+
+~~~~~
+  `4ab59d7`, `94b7e96`, `a11ffc4`, `542085f`, `b874ec1`, `82ea40e` and `9db4ae2` and
+  the applied tree of the commit that writes this line give the same (`bc250fc`'s,
+  `706e858`'s, `4ab59d7`'s, `94b7e96`'s, `a11ffc4`'s, `542085f`'s, `b874ec1`'s,
+  `82ea40e`'s, `9db4ae2`'s and the applied tree computed on 7 November, under Python
+  3.12.3); on
+~~~~~
+
+Lines 3509–3510 of the version at `7dac328`:
+
+~~~~~
+- **Golden snapshot:** unchanged by the commit that writes this line, which changes
+  docs and no code or test, by `9db4ae2`, which changed the Notes' build script and
+~~~~~
+
+Lines 3561–3562 of the version at `7dac328`:
+
+~~~~~
+- **Test suite** — **975 passed / 0 failed, no warnings line** with `pandas_ta`;
+  **799 passed / 165 skipped** without it; `run_tests.py` **907 passed / 0 failed /
+~~~~~
+
+Lines 3567–3569 of the version at `7dac328`:
+
+~~~~~
+  until `713e084` (entry 50). The commit that writes this line changes no test, and
+  the three counts held: from the Linux sandbox, Python 3.12.3, pinned requirements, on
+  an autocrlf clone of `9db4ae2` and on the patch applied to another. `9db4ae2` changed
+~~~~~
+
+Lines 3931–3933 of the version at `7dac328`:
+
+~~~~~
+  covers the seven commits `706e858` to `82ea40e`, one entry each. **One commit that
+  needs an entry is behind:** the commit that writes this line, which files a ruling
+  and will be Entry #284; `bc250fc` and `9db4ae2` are regenerations and have none (a
+~~~~~
+
+Lines 3955–3958 of the version at `7dac328`:
+
+~~~~~
+  Viktor before his commit, and nothing else in it. Its test counts are current (975,
+  799 / 165 and 907 passed, 0 failed), last changed by `4ab59d7`, which changed only
+  the numbers, for its 24 new tests (`94b7e96`, `a11ffc4`, `542085f`, `b874ec1`,
+  `82ea40e`, `9db4ae2` and the commit that writes this line do not change
+~~~~~
+
+Line 5544 of the version at `7dac328`:
+
+~~~~~
+- **`9db4ae2`'s landing**, checked from 21:56 on 7 November, and recorded by the
+~~~~~
+
+Lines 5547–5554 of the version at `7dac328`:
+
+~~~~~
+- **The redesign's structure multiplier — ruled removed**, Viktor's, at 22:19 on 7
+  November, by agreeing to Claude's suggestion (DECISIONS, "Ruling, 7 November 2026 —
+  the redesign's entry quality has no structure multiplier"), with Claude's error in the
+  case against recorded there. Filed, with the draft's version 7, by the commit that
+  writes this line.
+- **The patch-delivery skill's marker** is at `a11ffc4`. `82ea40e`'s ruling and the
+  ruling the commit that writes this line files change no procedure the skill
+  describes, so the marker stays.
+~~~~~
+
+Line 5556 of the version at `7dac328`:
+
+~~~~~
+  from the version at `9db4ae2` are in HISTORY's new entry, checked by
+~~~~~
+
+Line 5584 of the version at `7dac328`:
+
+~~~~~
+  `e748b0b`'s, `f6aa126`'s, `e69d5bb`'s, `e8b42b8`'s, `d6fba83`'s, `7c23886`'s, `e939734`'s, `7ff8128`'s, `5fe8522`'s, `f8805a6`'s, `0a518fd`'s, `a0ca299`'s, `bc250fc`'s, `706e858`'s, `4ab59d7`'s, `94b7e96`'s, `a11ffc4`'s, `542085f`'s, `b874ec1`'s, `82ea40e`'s and `9db4ae2`'s landings found no entry more (this list stopped at `a0ca299`'s from `bc250fc` to `82ea40e`; brought current on 7 November); entry 58 was found on a hand run, not a landing, entry 61 writing the redesign draft's version 5, not at a landing, entry 59 on `1b82ed0`'s landing, in its `run_tests.py` step, and landed by `5fe8522`, and entry 60 in the session that checked `7b93769`'s landing, and landed by `b990c93`, whose landing found no entry more. Entry 26, one of
+~~~~~
+
+Lines 5637–5638 of the version at `7dac328`:
+
+~~~~~
+  version 5 at `b874ec1`, version 6 at `82ea40e`, version 7 by the commit that writes
+  this line).
+~~~~~
+
+Lines 5693–5700 of the version at `7dac328`:
+
+~~~~~
+- **Claude's, before the reading of 14 November — the CHOCH count** (draft §12, point 8;
+  DECISIONS, "Ruling, 7 November 2026 — the redesign's entry quality has no structure
+  multiplier", "What follows"): of the records with a side, how many have a swing
+  sequence that is a CHOCH against that side (`structure.sequence`), and how many of
+  those pass every other gate. An amendment to the decision of 2 November and to
+  `docs/build/measure_draft_gaps.py` with its tests, in a commit of its own, before the
+  data is read; documentation tooling, so `code_hash` does not move. Then **Viktor's,
+  with the whole design:** whether a CHOCH against the side becomes its own gate.
+~~~~~
+
+Line 5877 of the version at `7dac328`:
+
+~~~~~
+    result that counts against the draft, fixed before the data is read. Computed by
+~~~~~
+
+Line 5882 of the version at `7dac328`:
+
+~~~~~
+    7 November, before the data was read, and the script with it (Ruled — in force).
+~~~~~
+
+Lines 6117–6118 of the version at `7dac328`:
+
+~~~~~
+  none: it changed the Notes' build script and documents only, as `bc250fc` did; and
+  the commit that writes this line, docs only, adds none. (This
+~~~~~

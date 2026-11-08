@@ -141,7 +141,10 @@ six computations PHASE7_DECISIONS.md fixed that day, before the data was read ("
 2 November 2026 — how the reading of 14 November measures the redesign draft's gaps …"):
 the draft's direction against today's, its tiers, the liquidity floor F, the trigger and
 its volume, H5's reach, and the whole ladder, each with the result that counts against
-the draft. It reads the live decision logs, counting the records the forward measurement
+the draft. A seventh was added on 7 November, also before the data was read ("Amendment,
+7 November 2026 — the reading of 14 November counts the CHOCHs against the side
+(computation 7)"): the records whose swing sequence is a CHOCH against the draft's side,
+and how many of them pass every other gate, reported with nothing counting against. It reads the live decision logs, counting the records the forward measurement
 counts (the scheduled task's, one per pair per candle, at one `code_hash`, degraded ones
 apart), and each run's own archive only for what a record lacks. Where it and the entry
 differ, the entry holds; the choices it had to make are listed in its docstring.

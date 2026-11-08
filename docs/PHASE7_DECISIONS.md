@@ -6732,7 +6732,10 @@ any reading ("Decision, 17 October 2026 — how the forward measurement is count
    derived from data. Viktor can change any before the reading; a change after the
    data is read is recorded as made after.
 
-**The six computations, and what counts against the draft.**
+**The six computations, and what counts against the draft.** *(A seventh since
+7 November 2026, point 7 below: "Amendment, 7 November 2026 — the reading of
+14 November counts the CHOCHs against the side (computation 7)", further below, which
+replaces nothing written here.)*
 
 1. **Direction** (draft §2). *(Amended 7 November 2026: "Ruling, 7 November 2026 —
    the redesign's direction is EMA50's slope and the EMAs' order; computation 1 of
@@ -6814,6 +6817,23 @@ any reading ("Decision, 17 October 2026 — how the forward measurement is count
    counted candle times 2,190 candles a pair a year, times ten — since at that rate the
    finish line's 100 closed trades of one version (28 September) is not reached within
    the paper-trading year. The gate that blocks most alone is named with it.
+7. **The CHOCH count** (draft §12, point 8). *(Added 7 November 2026: "Amendment,
+   7 November 2026 — the reading of 14 November counts the CHOCHs against the side
+   (computation 7)", below.)* For each record in N with a draft side, the record's
+   `structure.sequence`: a CHOCH against LONG is "CHOCH BEARISH (POSSIBLE REVERSAL)",
+   against SHORT "CHOCH BULLISH (POSSIBLE REVERSAL)", each compared whole; a sequence
+   missing, not a string, or "UNKNOWN" is not measured, and any other value is a
+   sequence that is no CHOCH against the side. Reported, pooled and per pair: the
+   sequences' tally; the records with a CHOCH against their side, of those whose
+   sequence is measured; of them, how many pass every other gate — gates 0 to 9 all
+   measured and passing, which is a draft trade action — how many fail another gate,
+   how many have none failing and one not measured, and how many are apart; the share
+   with a CHOCH against among the records with a measured sequence that pass every
+   gate; and those records' draft actions. **Nothing counts against the draft:** the
+   count is for Viktor's ruling on whether a CHOCH against the side becomes its own gate
+   ("Ruling, 7 November 2026 — the redesign's entry quality has no structure
+   multiplier", "What follows"), and a threshold set here would make that ruling in
+   advance.
 
 **What none of this answers.** Whether the draft decides better: that needs what price
 did afterwards, which is backtesting, closed. These are counts of what the draft would
@@ -7300,6 +7320,67 @@ and asked again; Viktor's first "We go with A." (22:07) came before the correcti
   no position size; a CHOCH bar that should have been refused is a trade taken,
   not one mis-sized.
 - The suggestion is its author's: Claude wrote the draft and §3.3's suggestion.
+
+## Amendment, 7 November 2026 — the reading of 14 November counts the CHOCHs against the side (computation 7)
+
+*New in this file on 7 November 2026. Claude's, as the decision of 2 November is, made
+in the session that opened at 22:50 on 7 November at `7dac328`, before any of the
+reading's data was read for it; Viktor's to change. Filed by that session's commit,
+with `docs/build/measure_draft_gaps.py` and its tests. It carries out the second point
+of "What follows" in Viktor's ruling of the same day that the redesign's entry quality
+has no structure multiplier, above.*
+
+**Why.** With the structure multiplier gone, nothing in the redesign reads a CHOCH:
+gate 4 compares the structure regime only, never the swing sequence (read at
+`9db4ae2`, recorded in that ruling). Whether a CHOCH against the side becomes its own
+gate is Viktor's, with the whole design, and the ruling asked that it come to him with
+a number, fixed before the data is read so that the count cannot be fitted to it.
+
+**What was added.** The decision of 2 November gains computation 7, written into it in
+place, above: a note under its heading and point 7 after point 6. Nothing it said is
+replaced, so nothing is quoted here. Its six computations, their thresholds and their
+population stand as they were.
+
+**Claude's reasons.**
+
+1. **Nothing counts against the draft**, unlike points 1 to 6. Those test whether the
+   draft's own parts hold; this one informs a ruling of Viktor's on a gate the draft
+   does not have, and a threshold set here would make that ruling in advance.
+2. **The two strings are compared whole**, as today's structure multiplier compares them
+   (`calculate_entry_quality`, `models/entry_model.py`, read at `7dac328`). The
+   sequence's values come from one function (`_detect_sequence`, `structure/structure.py`,
+   read), so a whole comparison is exact; a value that is neither string still shows in
+   the tally rather than being guessed at.
+3. **"UNKNOWN" is not measured.** It is what the structure engine writes when the frame
+   is empty or the detector raised (`structure/structure.py`, read at `7dac328`): no
+   sequence was computed. "NONE" is computed — too few confirmed swings, or highs and
+   lows that disagree — and is no CHOCH.
+4. **"Every other gate" is gates 0 to 9.** The draft has no CHOCH gate, so the records
+   that pass every other gate are the ones whose draft action is a trade. The share of
+   those that sit on a CHOCH against is what a CHOCH gate would take away, so it is
+   reported beside the ruling's two counts. It is not an entry count: taking a trade
+   away changes which later record is an entry, and that belongs to the gate's design,
+   not to this count.
+
+**What it weakens.**
+
+- It reads today's swing sequence, from today's swing detection (`STRUCT_LOOKBACK` 8 in
+  `core/config.py`, the two most recent confirmed swing highs and lows; read at
+  `7dac328`). A gate, if Viktor rules one, could be
+  built on another reading of structure; the count says nothing about that one.
+- The draft's side comes from the EMAs and the sequence from the swings. A CHOCH
+  against the side may be the start of a reversal the EMAs have not turned on yet, or
+  noise; telling them apart needs what price did afterwards, which is backtesting,
+  closed.
+- One population of about four weeks, as the decision of 2 November's own weaknesses
+  say. A CHOCH against the side is likely a minority of records, so its count may be
+  small, and is reported as it is.
+- It is its author's: Claude wrote the draft and suggested removing the multiplier.
+
+**What follows.** Nothing to rule now. The count is read with the other six at the
+reading of 14 November and goes to Viktor with the whole design. Documentation tooling
+and a test file, under `docs/` and `tests/`, which the code fingerprint does not read:
+`code_hash` does not move.
 
 ## Working practice
 

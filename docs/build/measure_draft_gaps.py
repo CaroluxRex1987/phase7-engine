@@ -1,5 +1,6 @@
 """
-The reading of 14 November's six computations for the redesign's draft.
+The reading of 14 November's computations for the redesign's draft: six fixed
+on 2 November, and a seventh added on 7 November.
 
 Written 2 November 2026 from DECISIONS, "Decision, 2 November 2026 -- how the
 reading of 14 November measures the redesign draft's gaps, and what result
@@ -17,6 +18,15 @@ BEARISH when both point down, else NEUTRAL. EMA20_Slope is not read, and the
 slopes counted as exactly zero are EMA50_Slope's. `draft_direction` follows
 the amended entry.
 
+Computation 7, the CHOCH count, was added on 7 November 2026, before any of
+the reading's data was read, by DECISIONS, "Amendment, 7 November 2026 -- the
+reading of 14 November counts the CHOCHs against the side (computation 7)",
+which follows Viktor's ruling of that day that the redesign's entry quality has
+no structure multiplier: of the records with a side, how many have a swing
+sequence (`structure.sequence`) that is a CHOCH against that side, and how many
+of those pass every other gate. It is reported, not judged: no result counts
+against the draft. `choch_against` and point 7 of `measure` are its.
+
 WHAT IT READS. The live decision logs (`phase7_decision_log_<pair>.jsonl` in
 the folder given) and, for what a record does not hold, that run's own archive
 (`provenance.archive_path`, resolved under --root, the repository by default).
@@ -33,8 +43,9 @@ when it was logged in the five minutes from the first such start at or after
 its candle closed. Degraded records are counted apart and are in no rate. The
 rest is N.
 
-THE SIX COMPUTATIONS, each with what counts against the draft, are the entry's
-points 1 to 6; each function below names its point.
+THE COMPUTATIONS, each with what counts against the draft, are the entry's
+points 1 to 6, and point 7 with nothing counting against; each function below
+names its point.
 
 READINGS -- where the entry leaves a choice, this is the one made:
 
@@ -74,6 +85,15 @@ READINGS -- where the entry leaves a choice, this is the one made:
 10. F's series is 1, 2, 5, 10, 20, 50 ... USDT, up to 10**15; a pair with no
     measured turnover takes no part in proposing F.
 11. Point 3 (b)'s "nine of the ten pairs" is read as at least nine pairs.
+12. Point 7: a CHOCH against LONG is the sequence "CHOCH BEARISH (POSSIBLE
+    REVERSAL)" and against SHORT "CHOCH BULLISH (POSSIBLE REVERSAL)", compared
+    whole, as `models/entry_model.py`'s structure multiplier compares them
+    today. A record with a side whose `structure` holds no sequence as a
+    string, or the sequence "UNKNOWN" (the structure engine's fallback, which
+    computed none), is not measured for point 7; any other string, "NONE"
+    among them, is a sequence that is not a CHOCH against the side. "Every
+    other gate" is gates 0 to 9 all measured and passing -- the draft has no
+    CHOCH gate -- which is exactly a record whose draft action is a trade.
 
 What none of this answers is the entry's: whether the draft decides better.
 
@@ -414,6 +434,29 @@ def h5_reach(frame, ind):
     return (w / atr if atr else None), ok
 
 
+GATES = (0, 1, 2, "3-5", 6, 7, 8, 9)
+CHOCH_AGAINST = {"LONG": "CHOCH BEARISH (POSSIBLE REVERSAL)",     # models/entry_model.py
+                 "SHORT": "CHOCH BULLISH (POSSIBLE REVERSAL)"}
+
+
+def sequence_of(d):
+    """Point 7: the record's `structure.sequence`, or None."""
+    structure = d.get("structure")
+    return structure.get("sequence") if isinstance(structure, dict) else None
+
+
+def choch_against(d, side):
+    """
+    Point 7, READINGS 12: True when the record's swing sequence is a CHOCH
+    against `side`, False when it is any other sequence, None when there is no
+    side or the sequence was not computed.
+    """
+    seq = sequence_of(d)
+    if side not in CHOCH_AGAINST or not isinstance(seq, str) or seq == "UNKNOWN":
+        return None
+    return seq == CHOCH_AGAINST[side]
+
+
 def ladder(d, side, q, t, floor, trig):
     """
     Point 6, READINGS 5 and 6: (results, action). `results` maps each gate 0..9
@@ -653,6 +696,31 @@ def measure(population, root, floor=None):
     six["blocks most alone"] = max(alone, key=lambda g: alone[g]) if any(alone.values()) else None
     six["blocks most alone"] = None if six["blocks most alone"] is None else str(six["blocks most alone"])
     res["6 ladder"] = six
+
+    # 7. the CHOCH count (added 7 November)
+    with_side = [r for r in n if r["side"]]
+    for r in n:
+        r["choch"] = choch_against(r["decision"], r["side"])
+    seq_rows = [r for r in with_side if r["choch"] is not None]
+    choch = [r for r in seq_rows if r["choch"]]
+    passing = [r for r in full if r["choch"] is not None and passes_except(r, None)]
+    both = [r for r in passing if r["choch"]]
+    res["7 CHOCH"] = {
+        "records with a side": len(with_side),
+        "not measured (no sequence)": len(with_side) - len(seq_rows),
+        "sequences": _count(sequence_of(r["decision"]) for r in with_side),
+        "CHOCH against the side": _share(choch, seq_rows, pairs),
+        "of those, passing every other gate": _share(both, choch, pairs),
+        "of those, failing another gate": sum(1 for r in choch if r["draft"] != "APART"
+                                              and any(r["gates"][g] is False for g in GATES)),
+        "of those, none failing and one not measured": sum(
+            1 for r in choch if r["draft"] != "APART"
+            and not any(r["gates"][g] is False for g in GATES) and not _all_measured(r)),
+        "of those, apart (the plan's side not the draft's)": sum(1 for r in choch if r["draft"] == "APART"),
+        "CHOCH against, of the records passing every gate": _share(both, passing, pairs),
+        "their draft actions": _count(r["draft"] for r in both),
+        "against": None,
+    }
     return res
 
 
@@ -734,7 +802,7 @@ def report(population, res):
     add(f"not counted: {population['excluded']}")
     if off:
         add(f"the task's records were logged {off[0]} to {off[1]} after their candle closed")
-    for name in ("1 direction", "2 tiers", "3 liquidity floor", "4 trigger", "5 H5", "6 ladder"):
+    for name in ("1 direction", "2 tiers", "3 liquidity floor", "4 trigger", "5 H5", "6 ladder", "7 CHOCH"):
         add("")
         add(f"== {name}")
         add(json.dumps(_readable(res[name]), indent=1, default=str))
@@ -747,7 +815,8 @@ def report(population, res):
         f"F (a) {bool(res['3 liquidity floor']['against (a), pairs'])}, "
         f"(b) {res['3 liquidity floor']['against (b)']}; "
         f"trigger {res['4 trigger']['against']}; H5 {res['5 H5']['against H5 being minor']}; "
-        f"ladder {res['6 ladder']['against']} (blocks most alone: gate {res['6 ladder']['blocks most alone']})")
+        f"ladder {res['6 ladder']['against']} (blocks most alone: gate {res['6 ladder']['blocks most alone']}); "
+        "CHOCH count reported, not judged")
     return "\n".join(lines)
 
 
