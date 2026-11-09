@@ -1,9 +1,9 @@
 # Next step — read this first
 
-*9 November 2026, in the session that opened at 09:30. Rewritten by the commit that
-files Claude's decision of 9 November on the route and model of Amazon's audit and
-records `6bb82cc`'s landing; the lines it removed from the version at `6bb82cc` are in
-HISTORY,
+*9 November 2026, in the session that opened at 12:37. Rewritten by the commit that
+files Viktor's ruling of 9 November that Amazon's audit sends Nova 2 Lite through
+OpenRouter's API and records `e4363d5`'s landing; the lines it removed from the version
+at `e4363d5` are in HISTORY,
 which points to that whole version in git.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
@@ -2303,46 +2303,56 @@ Claude's suggestion; `6bb82cc` filed the ruling, wrote the draft's version 8 and
 recorded `82b824d`'s landing. That session's account is in this file's version at
 `6bb82cc`.
 
-**This session (9 November, from 09:30)**, configured for Claude Opus 5.5, opened at
-`6bb82cc` and checked its landing, by the patch-delivery skill's section 10. GitHub's
-tip, read with no credentials at 09:33:40 (the probe asked for credentials, so none
-reached it), is `6bb82cc`; its tree `d928778b…` is the one its `Verified-Tree:` line
-names; its message holds no CR and ends with the attribution lines; `python
-docs/build/check_history_move.py --base 6bb82cc~1` on the tip gives the line its message
-recorded, 60 lines in 26 runs. Viktor's disk, staged after 09:30: the four files the
-commit changed written at 09:02:13 and each byte for byte the tip; the index the tip's
-tree, 303 entries (its `git ls-files -s` against the tip's `git ls-tree -r`); the loose
-commit object hashing to `6bb82cc`, GitHub's bytes, with no CR; `.git/COMMIT_EDITMSG`
-the message byte for byte; `master` and `origin/master` `6bb82cc`, written at 09:21:19
-and 09:21:33, the reflogs' last lines "commit:" and "update by push"; the pytest cache
-rewritten at 09:07:19, after the apply, `lastfailed` `{}`; no patch or message file in
-the root. Nothing differed. The skill's marker is at `a11ffc4`; `git diff a11ffc4 HEAD
--- docs/PHASE7_DECISIONS.md` adds four entries, `82ea40e`'s, `7dac328`'s and
-`6bb82cc`'s rulings and `340ee8d`'s amendment; read by their headings and a search for
-procedure words, none changes a procedure the skill describes.
+**The session of 9 November, from 09:30**, configured for Claude Opus 5.5, opened at
+`6bb82cc`, checked its landing, in which nothing differed, and brought Viktor the
+Bedrock billing, an item of his on the audit's path. It was not set up; the reads that
+followed changed the audit's route, and `e4363d5` filed Claude's decision of
+9 November on the route and model of Amazon's audit and recorded `6bb82cc`'s landing.
+That session's account is in this file's version at `e4363d5`.
 
-What came first, by the ruling of 1 November read with the correction of 4 November: no
-commit owed; no work due by a date before the reading of 14 November; Claude's waves 2
-to 5 move `code_hash`, and the Notes, one commit behind, are batched by the 15 September
-rule; every item of Viktor's in the redesign draft needs the reading's data. So an item
-of his on the audit's path that does not: the Bedrock billing. At 09:42: "It is not set
-up. Won't be for some while." From 10:23 he asked what else could reach Amazon; the
-reads that followed, his `curl` of OpenRouter's endpoints API at 12:01 among them,
-changed the audit's route, which is Claude's under the delegation of 4 October. The
-commit that writes this line files that decision (DECISIONS, "Decision, 9 November
-2026 — Amazon's audit goes through OpenRouter to Amazon Bedrock; Nova 2 Pro if it can
-be reached at the send, otherwise Nova 2 Lite") and records `6bb82cc`'s landing. Docs
-only: no engine code, no test, no tooling.
+**This session (9 November, from 12:37)**, configured for Claude Opus 5.5, opened at
+`e4363d5` and checked its landing, by the patch-delivery skill's section 10. GitHub's
+tip, read with no credentials at 12:39:08 (the probe asked for credentials, so none
+reached it), is `e4363d5`; its tree `7d92aefd…` is the one its `Verified-Tree:` line
+names; its message holds no CR and ends with the attribution lines; `python
+docs/build/check_history_move.py --base e4363d5~1` on the tip gives the line its message
+recorded, 60 lines in 25 runs. Viktor's disk, staged after 12:37: the three files the
+commit changed written at 12:20:25 and each byte for byte the tip; the index the tip's
+tree, 303 entries (its `git ls-files -s` against the tip's `git ls-tree -r`); the loose
+commit object hashing to `e4363d5`, GitHub's bytes, with no CR; `.git/COMMIT_EDITMSG`
+the message byte for byte; `master` and `origin/master` `e4363d5`, written at 12:36:24
+and 12:36:41, the reflogs' last lines "commit:" and "update by push"; the pytest cache
+rewritten at 12:23:59, after the apply, `lastfailed` `{}`; no patch or message file in
+the root. Nothing differed. The skill's marker is at `a11ffc4`; `git diff a11ffc4 HEAD
+-- docs/PHASE7_DECISIONS.md` adds five entries, `82ea40e`'s, `7dac328`'s and
+`6bb82cc`'s rulings, `340ee8d`'s amendment and `e4363d5`'s decision; read by their
+headings and a search for procedure words, none changes a procedure the skill
+describes.
+
+What came first, by the ruling of 1 November: a ruling of Viktor's to file. At 12:38,
+before the check was reported: "We are to use Nova 2 Lite with Openrouter through API".
+Claude gave its feedback and asked for his reasons and whether Vercel stays; at 12:40
+he gave both. The commit that writes this line files the ruling (DECISIONS, "Ruling,
+9 November 2026 — Amazon's audit sends Nova 2 Lite, through OpenRouter's API") and
+records `e4363d5`'s landing. Docs only: no engine code, no test, no tooling.
 
 ## Ruled — in force
+
+- **New, 9 November — Viktor's: Amazon's audit sends Nova 2 Lite, through OpenRouter's
+  API** (DECISIONS, "Ruling, 9 November 2026 — Amazon's audit sends Nova 2 Lite, through
+  OpenRouter's API"). It replaces the model rule of Claude's decision below; Nova 2 Pro
+  is not sought at the send. His reasons: Nova 2 Pro is not released, and OpenRouter
+  hosts Nova 2 Lite; Vercel stays a backup only. The route, its pin to Amazon Bedrock
+  and the checks before the send stand, and the Bedrock billing is off the audit's path
+  entirely.
 
 - **New, 9 November — Claude's, under Viktor's delegation of 4 October, his to reverse:
   Amazon's audit goes through OpenRouter to Amazon Bedrock** (DECISIONS, "Decision,
   9 November 2026 — Amazon's audit goes through OpenRouter to Amazon Bedrock …"). The
   provider is pinned to Amazon Bedrock with no fallbacks, and Vercel's gateway is the
-  fallback route. The model is chosen at the send: Nova 2 Pro if it can be reached
-  then, with reasoning and an output cap no smaller than Nova 2 Lite's 65,535;
-  otherwise Nova 2 Lite. The Bedrock billing is off the audit's path. Claude's before
+  fallback route. Its rule choosing the model at the send, Nova 2 Pro if it could be
+  reached then, otherwise Nova 2 Lite, is replaced by Viktor's ruling of the same day,
+  above: Nova 2 Lite. The Bedrock billing is off the audit's path. Claude's before
   the send: whether reasoning counts against the cap, the count with Nova's own
   tokenizer, and the endpoint's data policy; if the fit cannot be counted without the
   package reaching Amazon, changing the ruling of 26 September is Viktor's.
@@ -2954,8 +2964,11 @@ only: no engine code, no test, no tooling.
 ## Where things stand, right now
 
 - **Tip:** the commit that writes this line (a commit cannot name its own hash) —
-  Claude's decision of 9 November on the route and model of Amazon's audit filed, and
-  `6bb82cc`'s landing recorded: docs only, no engine code. Before it: `6bb82cc` (the
+  Viktor's ruling of 9 November that Amazon's audit sends Nova 2 Lite through
+  OpenRouter's API filed, and `e4363d5`'s landing recorded: docs only, no engine code.
+  Before it: `e4363d5` (the session of 9 November, from 09:30: Claude's decision of
+  9 November on the route and model of Amazon's audit filed, and `6bb82cc`'s landing
+  recorded: docs only, no engine code), `6bb82cc` (the
   session of 9 November, from 08:24: Viktor's ruling of 9 November that the redesign's
   exit watch drops its exhaustion and reversal flags filed, the draft's version 8, and
   `82b824d`'s landing recorded: docs only, no engine code), `82b824d` (the session of
@@ -3313,7 +3326,7 @@ only: no engine code, no test, no tooling.
   `542085f`, `b874ec1`, `82ea40e`, `9db4ae2` and `7dac328` changed no test; `340ee8d`
   added two tests to `tests/test_measure_draft_gaps.py`, for computation 7, with a
   dated paragraph in that file's docstring, neither taking a fixture or needing
-  `pandas_ta`, and changed no other test's code, removing and renaming none; `82b824d` and `6bb82cc` changed no test; and the
+  `pandas_ta`, and changed no other test's code, removing and renaming none; `82b824d`, `6bb82cc` and `e4363d5` changed no test; and the
   commit that writes this line changes no test.
   (This file at `b990c93` still said
   there that the commit writing the line changed no test, carried from `7b93769`;
@@ -3326,10 +3339,13 @@ only: no engine code, no test, no tooling.
   to `E:\phase7_engine`". Run the engine and every command from `E:\phase7_engine` (in
   cmd, changing drive needs `cd /d`). A dated record that names the D: paths means the
   same folders before the move; dated records are not edited.
-- **The push of `6bb82cc`** happened, at 09:21:33 on 9 November: GitHub's tip, read
-  with no credentials at 09:33:40 on 9 November, is `6bb82cc`, Viktor's disk is the tip
+- **The push of `e4363d5`** happened, at 12:36:41 on 9 November: GitHub's tip, read
+  with no credentials at 12:39:08 on 9 November, is `e4363d5`, Viktor's disk is the tip
   in every part this session's check read, and its tree is the one its
   `Verified-Tree:` line names; no deviation (ruling on proposal (b)). So did
+  `6bb82cc`'s, at 09:21:33 on 9 November: GitHub's tip, read with no credentials at
+  09:33:40 on 9 November, was `6bb82cc`, Viktor's disk the tip in every part that check
+  read, and its tree the one its `Verified-Tree:` line names. So did
   `82b824d`'s, at 08:13:39 on 9 November: GitHub's tip, read with no credentials at
   08:28:58 on 9 November, was `82b824d`, Viktor's disk the tip in every part that check
   read, and its tree the one its `Verified-Tree:` line names. So did
@@ -3518,7 +3534,7 @@ only: no engine code, no test, no tooling.
   commit that writes this line unless it deviates. Earlier pushes and deviations are
   recorded in this file's previous versions, in HISTORY.
 - **Before this commit**, every file its patch changes was staged off Viktor's disk and
-  matched an autocrlf checkout of `6bb82cc`, GitHub's tip, cloned at 09:30 on
+  matched an autocrlf checkout of `e4363d5`, GitHub's tip, cloned at 12:38 on
   9 November, byte for byte, before the patch was built; it adds no file. (This file
   at `706e858` and at `4ab59d7` still gave `bc250fc`'s sentence here, against
   `a0ca299`; corrected on 7 November.)
@@ -3559,7 +3575,7 @@ only: no engine code, no test, no tooling.
   `a11ffc4`, which changed files under `docs/` and `tests/`, which it does not read, by
   `542085f`, `b874ec1`, `82ea40e`, `9db4ae2` and `7dac328`, which changed files under
   `docs/` only, by `340ee8d`, which changed files under `docs/` and `tests/`, which it
-  does not read, and `README.md`, which is not a `.py` file, by `82b824d` and `6bb82cc`, which
+  does not read, and `README.md`, which is not a `.py` file, by `82b824d`, `6bb82cc` and `e4363d5`, which
   changed files under `docs/` only, and by the commit that
   writes this line, which changes files under `docs/` only:
   computed
@@ -3573,11 +3589,11 @@ only: no engine code, no test, no tooling.
   `e8b42b8`, `d6fba83`, `7c23886`, `e939734`, `1b82ed0`, `7ff8128`, `5fe8522`,
   `7b93769`, `b990c93`, `f8805a6`, `0a518fd`, `a0ca299`, `bc250fc`, `706e858`,
   `4ab59d7`, `94b7e96`, `a11ffc4`, `542085f`, `b874ec1`, `82ea40e`, `9db4ae2`,
-  `7dac328`, `340ee8d`, `82b824d` and `6bb82cc` and the applied tree of the commit
+  `7dac328`, `340ee8d`, `82b824d`, `6bb82cc` and `e4363d5` and the applied tree of the commit
   that writes this line give the same (`bc250fc`'s, `706e858`'s, `4ab59d7`'s, `94b7e96`'s, `a11ffc4`'s,
   `542085f`'s, `b874ec1`'s, `82ea40e`'s, `9db4ae2`'s, `7dac328`'s and `340ee8d`'s
-  computed on 7 November, and `82b824d`'s, `6bb82cc`'s and the applied tree of the
-  commit that writes this line on 9 November, under Python 3.12.3); on
+  computed on 7 November, and `82b824d`'s, `6bb82cc`'s, `e4363d5`'s and the applied tree
+  of the commit that writes this line on 9 November, under Python 3.12.3); on
   6 November it was computed again on
   each of `67f6ec1` and the twenty-four trees `0491b84` to `b8f88d8`, for the Notes'
   v1.39: `bc1b9c2c…` at `67f6ec1`, this value on all twenty-four; and on 6 November
@@ -3594,7 +3610,8 @@ only: no engine code, no test, no tooling.
   SURVIVE"). **Every `code_hash` claim about this project is computed under Python 3.12**
   (Viktor runs 3.12.10).
 - **Golden snapshot:** unchanged by the commit that writes this line, which changes
-  docs and no code or test, by `6bb82cc`, which changed docs and no code or test, by
+  docs and no code or test, by `6bb82cc` and `e4363d5`, which changed docs and no code
+  or test, by
   `82b824d`, which changed the Notes' build script and
   documents and no code or test, by `340ee8d`, which
   changed a script under `docs/`, its test — the new test reading the fixture without
@@ -3658,7 +3675,12 @@ only: no engine code, no test, no tooling.
   15 October 2026 — Part 4's three test shapes", point 5); `README.md` wrote it too
   until `713e084` (entry 50). The commit that writes this line changes no test, and the
   three counts held: from the Linux sandbox, Python 3.12.3, pinned requirements, on an
-  autocrlf clone of `6bb82cc` and on the patch applied to another. `6bb82cc` changed
+  autocrlf clone of `e4363d5` and on the patch applied to another. `e4363d5` changed
+  no test, and the three counts held: from the Linux sandbox, on an autocrlf clone of
+  `6bb82cc` and on the patch applied to another; its pytest step ran on Windows after
+  the apply (the cache on his disk was rewritten at 12:23:59 on 9 November, after its
+  three files were written at 12:20:25; its `lastfailed` is `{}`), and Viktor went on
+  to the commit. `6bb82cc` changed
   no test, and the three counts held: from the Linux sandbox, on an autocrlf clone of
   `82b824d` and on the patch applied to another; its pytest step ran on Windows after
   the apply (the cache on his disk was rewritten at 09:07:19 on 9 November, after its
@@ -4043,8 +4065,8 @@ only: no engine code, no test, no tooling.
   to `b8f88d8`, and v1.40 at `bc250fc` `a1c4218` to `0a518fd`. v1.41, at `9db4ae2`,
   covered the seven commits `706e858` to `82ea40e`, and v1.42, at `82b824d`, covers the
   two commits `7dac328` and `340ee8d`, one entry each.
-  **Two commits that need an entry are behind: `6bb82cc` and the commit that writes
-  this line**, Entries #286 and #287 to come; `bc250fc`, `9db4ae2` and `82b824d` are regenerations and have none (a commit that regenerates the
+  **Three commits that need an entry are behind: `6bb82cc`, `e4363d5` and the commit
+  that writes this line**, Entries #286 to #288 to come; `bc250fc`, `9db4ae2` and `82b824d` are regenerations and have none (a commit that regenerates the
   Notes cannot cover itself, Entry #144). Every later commit adds one until the next
   regeneration. Batched, by the 15 September rule. v1.42 records the ruling that the
   redesign's entry quality has no structure multiplier and the reading's computation
@@ -4066,8 +4088,8 @@ only: no engine code, no test, no tooling.
   rows**, for the ruling of 7 November on F2, in wording Claude wrote and put to
   Viktor before his commit, and nothing else in it. Its test counts are current (977,
   801 / 165 and 909 passed, 0 failed), last changed by `340ee8d`, which changed only
-  the numbers, for its two new tests (`82b824d`, `6bb82cc` and the commit that writes this line do
-  not change `README.md`), and before it by `4ab59d7`, which changed only the numbers, for its 24 new tests (`94b7e96`,
+  the numbers, for its two new tests (`82b824d`, `6bb82cc`, `e4363d5` and the commit that writes this
+  line do not change `README.md`), and before it by `4ab59d7`, which changed only the numbers, for its 24 new tests (`94b7e96`,
   `a11ffc4`, `542085f`, `b874ec1`, `82ea40e`, `9db4ae2` and `7dac328` do not change
   `README.md`), and
   before it by
@@ -5654,16 +5676,16 @@ Each code commit is its own commit and updates this file for its own landing.
 
 ## Resolved this session
 
-- **`6bb82cc`'s landing**, checked from 09:30 on 9 November, and recorded by the
+- **`e4363d5`'s landing**, checked from 12:37 on 9 November, and recorded by the
   commit that writes this line, made for its own reason (DECISIONS, the correction of
   4 November). Its push is in "Where things stand".
-- **The route of Amazon's audit**: Claude's decision of 9 November, under the
-  delegation of 4 October, filed by the commit that writes this line (Open items, the
+- **The model of Amazon's audit**: Viktor's ruling of 9 November, Nova 2 Lite through
+  OpenRouter's API, filed by the commit that writes this line (Open items, the
   independent audit).
-- **The patch-delivery skill's marker** is at `a11ffc4`. The decision the commit that
+- **The patch-delivery skill's marker** is at `a11ffc4`. The ruling the commit that
   writes this line files changes no procedure the skill describes, so the marker stays.
 - **This file's rewrite**, by the commit that writes this line. The lines it removed
-  from the version at `6bb82cc` are in HISTORY's new entry, checked by
+  from the version at `e4363d5` are in HISTORY's new entry, checked by
   `docs/build/check_history_move.py` (the commit message has the result).
 
 ## Open items
@@ -5691,7 +5713,7 @@ Claude critiques it.
   decision under Viktor's delegation of 27 October, his to reverse, and with it nothing
   of wave 1 is left open; `713e084`'s, `134f85b`'s, `fad0588`'s, `3dbd8dc`'s and
   `a2ca918`'s, `d7d3ae0`'s, `b233c4a`'s, `6d073f9`'s, `8c810b1`'s, `248037d`'s,
-  `e748b0b`'s, `f6aa126`'s, `e69d5bb`'s, `e8b42b8`'s, `d6fba83`'s, `7c23886`'s, `e939734`'s, `7ff8128`'s, `5fe8522`'s, `f8805a6`'s, `0a518fd`'s, `a0ca299`'s, `bc250fc`'s, `706e858`'s, `4ab59d7`'s, `94b7e96`'s, `a11ffc4`'s, `542085f`'s, `b874ec1`'s, `82ea40e`'s, `9db4ae2`'s, `7dac328`'s, `340ee8d`'s, `82b824d`'s and `6bb82cc`'s landings found no entry more (this list stopped at `a0ca299`'s from `bc250fc` to `82ea40e`; brought current on 7 November); entry 58 was found on a hand run, not a landing, entry 61 writing the redesign draft's version 5, not at a landing, entry 59 on `1b82ed0`'s landing, in its `run_tests.py` step, and landed by `5fe8522`, and entry 60 in the session that checked `7b93769`'s landing, and landed by `b990c93`, whose landing found no entry more. Entry 26, one of
+  `e748b0b`'s, `f6aa126`'s, `e69d5bb`'s, `e8b42b8`'s, `d6fba83`'s, `7c23886`'s, `e939734`'s, `7ff8128`'s, `5fe8522`'s, `f8805a6`'s, `0a518fd`'s, `a0ca299`'s, `bc250fc`'s, `706e858`'s, `4ab59d7`'s, `94b7e96`'s, `a11ffc4`'s, `542085f`'s, `b874ec1`'s, `82ea40e`'s, `9db4ae2`'s, `7dac328`'s, `340ee8d`'s, `82b824d`'s, `6bb82cc`'s and `e4363d5`'s landings found no entry more (this list stopped at `a0ca299`'s from `bc250fc` to `82ea40e`; brought current on 7 November); entry 58 was found on a hand run, not a landing, entry 61 writing the redesign draft's version 5, not at a landing, entry 59 on `1b82ed0`'s landing, in its `run_tests.py` step, and landed by `5fe8522`, and entry 60 in the session that checked `7b93769`'s landing, and landed by `b990c93`, whose landing found no entry more. Entry 26, one of
   Goal B's two rulings, was decided by Claude under Viktor's delegation of 26 October
   (DECISIONS, "Decision, 26 October 2026 — Goal B keeps a candle only once it has
   closed at `t` (entry 26)"), his to reverse. Entry 31, the other, was ruled by Viktor
@@ -6042,8 +6064,9 @@ Claude critiques it.
   the Bedrock billing, after which the check of reach and fit is Claude's, is off the
   audit's path since Claude's decision of 9 November sent the audit through OpenRouter
   (DECISIONS, "Decision, 9 November 2026 — Amazon's audit goes through OpenRouter to
-  Amazon Bedrock …"); the billing is his only if Nova 2 Pro has to be reached through
-  his own AWS account. How a candle that touches both the stop
+  Amazon Bedrock …"), and off it entirely since Viktor's ruling of the same day that the
+  audit sends Nova 2 Lite (DECISIONS, "Ruling, 9 November 2026 — Amazon's audit sends
+  Nova 2 Lite, through OpenRouter's API"). How a candle that touches both the stop
   and T1 is counted was ruled on 29 October (DECISIONS, "Ruling, 29 October 2026 — a
   candle that touches both the stop and T1 counts as the stop"). Which few settings may
   be tuned after the paper-trading year was decided by Claude on 30 October, under
@@ -6075,9 +6098,11 @@ Claude critiques it.
   marked Claude's Claude's to start and each of his put to him (DECISIONS, the ruling
   of 1 November, point 3). **Decided 9 November** (DECISIONS, "Decision, 9 November
   2026 — Amazon's audit goes through OpenRouter to Amazon Bedrock …"): OpenRouter,
-  pinned to Amazon Bedrock, with Vercel's gateway the fallback route; Nova 2 Pro if it
-  can be reached at the send, with reasoning and an output cap no smaller than Nova 2
-  Lite's 65,535, otherwise Nova 2 Lite. Then the check of reach and fit, Claude's, no
+  pinned to Amazon Bedrock, with Vercel's gateway the fallback route. **Ruled
+  9 November** (DECISIONS, "Ruling, 9 November 2026 — Amazon's audit sends Nova 2 Lite,
+  through OpenRouter's API"): the model is Nova 2 Lite, Viktor's, replacing the
+  decision's rule of Nova 2 Pro if it could be reached at the send; Vercel a backup
+  only. Then the check of reach and fit, Claude's, no
   longer waiting on the Bedrock billing; before the send, whether reasoning counts
   against the cap, the count with Nova's own tokenizer, and the endpoint's data
   policy.
@@ -6141,7 +6166,8 @@ Claude critiques it.
   five earlier records — and where they disagree the later wins; its section 9 lists
   what changed. **Spent:** thirteen labs, Poolside (round 7) and Xiaomi (round 8 and the
   fix verification) added. **Clean for a full round:** Amazon alone (Nova 2 Pro, a
-  preview release on 22 September). **Scoped rounds only:** Upstage, NVIDIA, Cohere,
+  preview release on 22 September; the audit's model is Nova 2 Lite since Viktor's
+  ruling of 9 November, and the roster is not reissued for it). **Scoped rounds only:** Upstage, NVIDIA, Cohere,
   AI21. Mistral is spent (HISTORY, 2 September; reaffirmed 29 September). Viktor stated
   on 29 September that he has never used an NVIDIA or Poolside model anywhere, and on
   4 October a Xiaomi or MiMo model; on 17 October, that no Amazon model has been sent
@@ -6247,7 +6273,7 @@ Claude critiques it.
   none: it changed the Notes' build script and documents only, as `bc250fc` did;
   `7dac328`, docs only, changed no line there; `340ee8d` named `a11ffc4` there and
   added its own; `82b824d` added none: it changed the Notes' build script and documents
-  only, as `9db4ae2` did; `6bb82cc`, docs only, changed no line there; and the commit
+  only, as `9db4ae2` did; `6bb82cc` and `e4363d5`, docs only, changed no line there; and the commit
   that writes this line, docs only, changes no line there. (This
   paragraph stopped at
   `a235783` until `ad34c02`

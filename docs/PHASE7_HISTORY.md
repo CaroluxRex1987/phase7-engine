@@ -221681,3 +221681,214 @@ Lines 6209–6210 of the version at `6bb82cc`:
   only, as `9db4ae2` did; and the commit that writes this line, docs only, changes no
   line there. (This
 ~~~~~
+
+## 9 November 2026 — the lines the rewrite of PHASE7_NEXT.md removed from its version at `e4363d5`
+
+*Moved here on 9 November 2026 by the commit that files Viktor's ruling of 9 November
+that Amazon's audit sends Nova 2 Lite through OpenRouter's API and records `e4363d5`'s
+landing, under "Ruling, 4 November 2026 — HISTORY keeps what each rewrite of
+PHASE7_NEXT.md removes, not the whole file" (DECISIONS).
+Below the rule, each block is a run of lines of the file as it stood at `e4363d5` that
+the rewrite deleted or replaced, word for word, labelled with its line numbers in that
+version; "this session" in them is the session that opened at 09:30 on 9 November, and
+"the commit that writes this line" and "this commit" name `e4363d5`. The whole version:
+`git show e4363d5:docs/PHASE7_NEXT.md`. Checked by `docs/build/check_history_move.py`.*
+
+---
+
+Lines 3–6 of the version at `e4363d5`:
+
+~~~~~
+*9 November 2026, in the session that opened at 09:30. Rewritten by the commit that
+files Claude's decision of 9 November on the route and model of Amazon's audit and
+records `6bb82cc`'s landing; the lines it removed from the version at `6bb82cc` are in
+HISTORY,
+~~~~~
+
+Lines 2306–2309 of the version at `e4363d5`:
+
+~~~~~
+**This session (9 November, from 09:30)**, configured for Claude Opus 5.5, opened at
+`6bb82cc` and checked its landing, by the patch-delivery skill's section 10. GitHub's
+tip, read with no credentials at 09:33:40 (the probe asked for credentials, so none
+reached it), is `6bb82cc`; its tree `d928778b…` is the one its `Verified-Tree:` line
+~~~~~
+
+Lines 2311–2313 of the version at `e4363d5`:
+
+~~~~~
+docs/build/check_history_move.py --base 6bb82cc~1` on the tip gives the line its message
+recorded, 60 lines in 26 runs. Viktor's disk, staged after 09:30: the four files the
+commit changed written at 09:02:13 and each byte for byte the tip; the index the tip's
+~~~~~
+
+Lines 2315–2318 of the version at `e4363d5`:
+
+~~~~~
+commit object hashing to `6bb82cc`, GitHub's bytes, with no CR; `.git/COMMIT_EDITMSG`
+the message byte for byte; `master` and `origin/master` `6bb82cc`, written at 09:21:19
+and 09:21:33, the reflogs' last lines "commit:" and "update by push"; the pytest cache
+rewritten at 09:07:19, after the apply, `lastfailed` `{}`; no patch or message file in
+~~~~~
+
+Lines 2320–2322 of the version at `e4363d5`:
+
+~~~~~
+-- docs/PHASE7_DECISIONS.md` adds four entries, `82ea40e`'s, `7dac328`'s and
+`6bb82cc`'s rulings and `340ee8d`'s amendment; read by their headings and a search for
+procedure words, none changes a procedure the skill describes.
+~~~~~
+
+Lines 2324–2335 of the version at `e4363d5`:
+
+~~~~~
+What came first, by the ruling of 1 November read with the correction of 4 November: no
+commit owed; no work due by a date before the reading of 14 November; Claude's waves 2
+to 5 move `code_hash`, and the Notes, one commit behind, are batched by the 15 September
+rule; every item of Viktor's in the redesign draft needs the reading's data. So an item
+of his on the audit's path that does not: the Bedrock billing. At 09:42: "It is not set
+up. Won't be for some while." From 10:23 he asked what else could reach Amazon; the
+reads that followed, his `curl` of OpenRouter's endpoints API at 12:01 among them,
+changed the audit's route, which is Claude's under the delegation of 4 October. The
+commit that writes this line files that decision (DECISIONS, "Decision, 9 November
+2026 — Amazon's audit goes through OpenRouter to Amazon Bedrock; Nova 2 Pro if it can
+be reached at the send, otherwise Nova 2 Lite") and records `6bb82cc`'s landing. Docs
+only: no engine code, no test, no tooling.
+~~~~~
+
+Lines 2343–2345 of the version at `e4363d5`:
+
+~~~~~
+  fallback route. The model is chosen at the send: Nova 2 Pro if it can be reached
+  then, with reasoning and an output cap no smaller than Nova 2 Lite's 65,535;
+  otherwise Nova 2 Lite. The Bedrock billing is off the audit's path. Claude's before
+~~~~~
+
+Lines 2957–2958 of the version at `e4363d5`:
+
+~~~~~
+  Claude's decision of 9 November on the route and model of Amazon's audit filed, and
+  `6bb82cc`'s landing recorded: docs only, no engine code. Before it: `6bb82cc` (the
+~~~~~
+
+Line 3316 of the version at `e4363d5`:
+
+~~~~~
+  `pandas_ta`, and changed no other test's code, removing and renaming none; `82b824d` and `6bb82cc` changed no test; and the
+~~~~~
+
+Lines 3329–3330 of the version at `e4363d5`:
+
+~~~~~
+- **The push of `6bb82cc`** happened, at 09:21:33 on 9 November: GitHub's tip, read
+  with no credentials at 09:33:40 on 9 November, is `6bb82cc`, Viktor's disk is the tip
+~~~~~
+
+Line 3521 of the version at `e4363d5`:
+
+~~~~~
+  matched an autocrlf checkout of `6bb82cc`, GitHub's tip, cloned at 09:30 on
+~~~~~
+
+Line 3562 of the version at `e4363d5`:
+
+~~~~~
+  does not read, and `README.md`, which is not a `.py` file, by `82b824d` and `6bb82cc`, which
+~~~~~
+
+Line 3576 of the version at `e4363d5`:
+
+~~~~~
+  `7dac328`, `340ee8d`, `82b824d` and `6bb82cc` and the applied tree of the commit
+~~~~~
+
+Lines 3579–3580 of the version at `e4363d5`:
+
+~~~~~
+  computed on 7 November, and `82b824d`'s, `6bb82cc`'s and the applied tree of the
+  commit that writes this line on 9 November, under Python 3.12.3); on
+~~~~~
+
+Line 3597 of the version at `e4363d5`:
+
+~~~~~
+  docs and no code or test, by `6bb82cc`, which changed docs and no code or test, by
+~~~~~
+
+Line 3661 of the version at `e4363d5`:
+
+~~~~~
+  autocrlf clone of `6bb82cc` and on the patch applied to another. `6bb82cc` changed
+~~~~~
+
+Lines 4046–4047 of the version at `e4363d5`:
+
+~~~~~
+  **Two commits that need an entry are behind: `6bb82cc` and the commit that writes
+  this line**, Entries #286 and #287 to come; `bc250fc`, `9db4ae2` and `82b824d` are regenerations and have none (a commit that regenerates the
+~~~~~
+
+Lines 4069–4070 of the version at `e4363d5`:
+
+~~~~~
+  the numbers, for its two new tests (`82b824d`, `6bb82cc` and the commit that writes this line do
+  not change `README.md`), and before it by `4ab59d7`, which changed only the numbers, for its 24 new tests (`94b7e96`,
+~~~~~
+
+Line 5657 of the version at `e4363d5`:
+
+~~~~~
+- **`6bb82cc`'s landing**, checked from 09:30 on 9 November, and recorded by the
+~~~~~
+
+Lines 5660–5661 of the version at `e4363d5`:
+
+~~~~~
+- **The route of Amazon's audit**: Claude's decision of 9 November, under the
+  delegation of 4 October, filed by the commit that writes this line (Open items, the
+~~~~~
+
+Line 5663 of the version at `e4363d5`:
+
+~~~~~
+- **The patch-delivery skill's marker** is at `a11ffc4`. The decision the commit that
+~~~~~
+
+Line 5666 of the version at `e4363d5`:
+
+~~~~~
+  from the version at `6bb82cc` are in HISTORY's new entry, checked by
+~~~~~
+
+Line 5694 of the version at `e4363d5`:
+
+~~~~~
+  `e748b0b`'s, `f6aa126`'s, `e69d5bb`'s, `e8b42b8`'s, `d6fba83`'s, `7c23886`'s, `e939734`'s, `7ff8128`'s, `5fe8522`'s, `f8805a6`'s, `0a518fd`'s, `a0ca299`'s, `bc250fc`'s, `706e858`'s, `4ab59d7`'s, `94b7e96`'s, `a11ffc4`'s, `542085f`'s, `b874ec1`'s, `82ea40e`'s, `9db4ae2`'s, `7dac328`'s, `340ee8d`'s, `82b824d`'s and `6bb82cc`'s landings found no entry more (this list stopped at `a0ca299`'s from `bc250fc` to `82ea40e`; brought current on 7 November); entry 58 was found on a hand run, not a landing, entry 61 writing the redesign draft's version 5, not at a landing, entry 59 on `1b82ed0`'s landing, in its `run_tests.py` step, and landed by `5fe8522`, and entry 60 in the session that checked `7b93769`'s landing, and landed by `b990c93`, whose landing found no entry more. Entry 26, one of
+~~~~~
+
+Lines 6045–6046 of the version at `e4363d5`:
+
+~~~~~
+  Amazon Bedrock …"); the billing is his only if Nova 2 Pro has to be reached through
+  his own AWS account. How a candle that touches both the stop
+~~~~~
+
+Lines 6078–6080 of the version at `e4363d5`:
+
+~~~~~
+  pinned to Amazon Bedrock, with Vercel's gateway the fallback route; Nova 2 Pro if it
+  can be reached at the send, with reasoning and an output cap no smaller than Nova 2
+  Lite's 65,535, otherwise Nova 2 Lite. Then the check of reach and fit, Claude's, no
+~~~~~
+
+Line 6144 of the version at `e4363d5`:
+
+~~~~~
+  preview release on 22 September). **Scoped rounds only:** Upstage, NVIDIA, Cohere,
+~~~~~
+
+Line 6250 of the version at `e4363d5`:
+
+~~~~~
+  only, as `9db4ae2` did; `6bb82cc`, docs only, changed no line there; and the commit
+~~~~~

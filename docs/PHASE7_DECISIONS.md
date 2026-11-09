@@ -7586,6 +7586,58 @@ as always, accepting the audit's result.
 - The decision is its author's: Claude wrote most of the code Amazon will audit and
   chose its examiner, as the delegation of 4 October allows.
 
+## Ruling, 9 November 2026 — Amazon's audit sends Nova 2 Lite, through OpenRouter's API
+
+*New in this file on 9 November 2026. Viktor's, at 12:38, his own position, in the
+session that opened at 12:37 on 9 November at `e4363d5`; filed by its commit. It
+replaces point 2 of "Decision, 9 November 2026 — Amazon's audit goes through OpenRouter
+to Amazon Bedrock; Nova 2 Pro if it can be reached at the send, otherwise Nova 2 Lite",
+Claude's under the delegation of 4 October and his to reverse, and changes nothing else
+in it. That entry is not edited (the ruling of 20 September).*
+
+**What was ruled.** At 12:38, while Claude was checking `e4363d5`'s landing: "We are to
+use Nova 2 Lite with Openrouter through API". **The model of Amazon's audit is Nova 2
+Lite** (`amazon/nova-2-lite-v1`), sent through OpenRouter's API. The decision's rule
+that chose the model at the send — Nova 2 Pro if it could be reached then, otherwise
+Nova 2 Lite — no longer applies, and Nova 2 Pro is not sought at the send.
+
+**His reasons, at 12:40, in his words.** "We use Nova 2 Lite since the Pro version is
+not released, we will use openrouter because it hosts Nova 2 Lite, Vercel was just a
+backup."
+
+**What stands from the decision.** The route, its point 1: OpenRouter, the provider
+pinned to Amazon Bedrock with `allow_fallbacks` false, as round 8's pin is written;
+both of Nova 2 Lite's endpoints on OpenRouter were Amazon Bedrock in Viktor's read at
+12:01. Vercel's AI Gateway stays a backup route and no more, for an OpenRouter endpoint
+that returns no reasoning tokens: "Vercel was just a backup", read as keeping it as
+that — Claude's reading, his to correct. The checks before the send, its point 3, and
+everything under its "Not checked, and Claude's before the send". The Bedrock billing
+is now off the audit's path entirely: the decision kept it his only if Nova 2 Pro had
+to be reached through his own AWS account, and Nova 2 Pro is no longer sought.
+
+**Claude's feedback, given at 12:39, before his reasons.** Against: Amazon is the last
+lab clean for a full round, and the ruling sends that round to the smaller model for
+certain, where the decision's rule cost no time, since the send cannot come before the
+redesign is built. For: certainty now — the package and the send can be planned
+against Nova 2 Lite's limits today, and no choice is left for the send; and a Nova 2
+Pro reachable only as a preview through his own AWS account would not have met the
+rule anyway. Unchanged by the ruling: the output cap of 65,535, half of round 8's, and
+whether reasoning counts against it, unchecked. His reason agrees with the decision's
+reads, which found Nova 2 Pro still a preview with no general availability announced;
+those reads came from secondary sites through a search tool, as the decision says, and
+were not repeated. Claude had recommended the rule; it was overruled.
+
+**What it weakens.** Amazon's one full round goes to Nova 2 Lite even if Nova 2 Pro
+becomes generally available before the send (AWS re:Invent runs from 30 November to
+4 December 2026; a release there is speculation). A fail then takes the project to the
+fallback of 17 October: a scoped round, then a wait for a clean lab. The model roster
+of 17 October, outside the repository, names Nova 2 Pro for Amazon; independence is
+counted by lab, so Amazon stays clean, and the roster is not reissued for this — its
+next reissue carries it.
+
+**What stays Viktor's.** As in the decision: how the fit is shown if no count is
+possible without the package reaching Amazon, and accepting the audit's result.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then
