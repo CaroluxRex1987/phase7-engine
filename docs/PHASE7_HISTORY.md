@@ -221482,3 +221482,202 @@ Lines 6168–6169 of the version at `82b824d`:
   added its own; and the commit that writes this line adds none: it changes the Notes'
   build script and documents only, as `9db4ae2` did. (This
 ~~~~~
+
+## 9 November 2026 — the lines the rewrite of PHASE7_NEXT.md removed from its version at `6bb82cc`
+
+*Moved here on 9 November 2026 by the commit that files Claude's decision of 9 November
+on the route and model of Amazon's audit and records `6bb82cc`'s landing, under
+"Ruling, 4 November 2026 — HISTORY keeps what each rewrite of PHASE7_NEXT.md removes,
+not the whole file" (DECISIONS).
+Below the rule, each block is a run of lines of the file as it stood at `6bb82cc` that
+the rewrite deleted or replaced, word for word, labelled with its line numbers in that
+version; "this session" in them is the session that opened at 08:24 on 9 November, and
+"the commit that writes this line" and "this commit" name `6bb82cc`. The whole version:
+`git show 6bb82cc:docs/PHASE7_NEXT.md`. Checked by `docs/build/check_history_move.py`.*
+
+---
+
+Lines 3–6 of the version at `6bb82cc`:
+
+~~~~~
+*9 November 2026, in the session that opened at 08:24. Rewritten by the commit that
+files Viktor's ruling of 9 November on the redesign's exit watch, writes the draft's
+version 8 and records `82b824d`'s landing; the lines it removed from the version at
+`82b824d` are in HISTORY,
+~~~~~
+
+Lines 2298–2301 of the version at `6bb82cc`:
+
+~~~~~
+**This session (9 November, from 08:24)**, configured for Claude Opus 5.5, opened at
+`82b824d` and checked its landing, by the patch-delivery skill's section 10. GitHub's
+tip, read with no credentials at 08:28:58 (the probe asked for credentials, so none
+reached it), is `82b824d`; its tree `cefe6c23…` is the one its `Verified-Tree:` line
+~~~~~
+
+Lines 2303–2305 of the version at `6bb82cc`:
+
+~~~~~
+docs/build/check_history_move.py --base 82b824d~1` on the tip gives the line its message
+recorded, 100 lines in 23 runs. Viktor's disk, staged after 08:28: the four files the
+commit changed written at 07:55:44 and each byte for byte the tip; the index the tip's
+~~~~~
+
+Lines 2307–2310 of the version at `6bb82cc`:
+
+~~~~~
+commit object hashing to `82b824d`, GitHub's bytes, with no CR; `.git/COMMIT_EDITMSG`
+the message byte for byte; `master` and `origin/master` `82b824d`, written at 08:13:24
+and 08:13:39, the reflogs' last lines "commit:" and "update by push"; the pytest cache
+rewritten at 08:00:07, after the apply, `lastfailed` `{}`; no patch or message file in
+~~~~~
+
+Lines 2312–2313 of the version at `6bb82cc`:
+
+~~~~~
+-- docs/PHASE7_DECISIONS.md` adds three entries, `82ea40e`'s and `7dac328`'s rulings and
+`340ee8d`'s amendment, none changing a procedure the skill describes.
+~~~~~
+
+Lines 2317–2325 of the version at `6bb82cc`:
+
+~~~~~
+to 5 move `code_hash` and wait on the reading, and the Notes are current; so an item of
+Viktor's. Of his items in the redesign draft, the only one that needs none of the
+reading's data: the exit watch's exhaustion and reversal flags (draft §0, §2). Claude
+put three options with (A), both removed, as its suggestion; at 08:36 he asked for the
+suggestion, and at 08:38: "Go." The commit that writes this line files the ruling
+(DECISIONS, "Ruling, 9 November 2026 — the redesign's exit watch drops its exhaustion
+and reversal flags"), writes the draft's version 8 with two corrections found reading
+the exit watch, and records `82b824d`'s landing. Docs only: no engine code, no test,
+no tooling.
+~~~~~
+
+Lines 2936–2938 of the version at `6bb82cc`:
+
+~~~~~
+  Viktor's ruling of 9 November that the redesign's exit watch drops its exhaustion and
+  reversal flags filed, the draft's version 8, and `82b824d`'s landing recorded: docs
+  only, no engine code. Before it: `82b824d` (the session of 9 November, from 07:02:
+~~~~~
+
+Line 3292 of the version at `6bb82cc`:
+
+~~~~~
+  `pandas_ta`, and changed no other test's code, removing and renaming none; `82b824d` changed no test; and the
+~~~~~
+
+Lines 3305–3306 of the version at `6bb82cc`:
+
+~~~~~
+- **The push of `82b824d`** happened, at 08:13:39 on 9 November: GitHub's tip, read
+  with no credentials at 08:28:58 on 9 November, is `82b824d`, Viktor's disk is the tip
+~~~~~
+
+Line 3494 of the version at `6bb82cc`:
+
+~~~~~
+  matched an autocrlf checkout of `82b824d`, GitHub's tip, cloned at 08:28 on
+~~~~~
+
+Line 3535 of the version at `6bb82cc`:
+
+~~~~~
+  does not read, and `README.md`, which is not a `.py` file, by `82b824d`, which
+~~~~~
+
+Lines 3549–3550 of the version at `6bb82cc`:
+
+~~~~~
+  `7dac328`, `340ee8d` and `82b824d` and the applied tree of the commit that writes
+  this line give the same (`bc250fc`'s, `706e858`'s, `4ab59d7`'s, `94b7e96`'s, `a11ffc4`'s,
+~~~~~
+
+Lines 3552–3553 of the version at `6bb82cc`:
+
+~~~~~
+  computed on 7 November, and `82b824d`'s and the applied tree of the commit that
+  writes this line on 9 November, under Python 3.12.3); on
+~~~~~
+
+Line 3570 of the version at `6bb82cc`:
+
+~~~~~
+  docs and no code or test, by `82b824d`, which changed the Notes' build script and
+~~~~~
+
+Line 3633 of the version at `6bb82cc`:
+
+~~~~~
+  autocrlf clone of `82b824d` and on the patch applied to another. `82b824d` changed
+~~~~~
+
+Lines 4013–4014 of the version at `6bb82cc`:
+
+~~~~~
+  **One commit that needs an entry is behind: the commit that writes this line**, Entry
+  #286 to come; `bc250fc`, `9db4ae2` and `82b824d` are regenerations and have none (a commit that regenerates the
+~~~~~
+
+Lines 4036–4037 of the version at `6bb82cc`:
+
+~~~~~
+  the numbers, for its two new tests (`82b824d` and the commit that writes this line do not
+  change `README.md`), and before it by `4ab59d7`, which changed only the numbers, for its 24 new tests (`94b7e96`,
+~~~~~
+
+Line 5624 of the version at `6bb82cc`:
+
+~~~~~
+- **`82b824d`'s landing**, checked from 08:24 on 9 November, and recorded by the
+~~~~~
+
+Lines 5627–5630 of the version at `6bb82cc`:
+
+~~~~~
+- **The exit watch's exhaustion and reversal flags** (draft §0, §2): Viktor's, ruled at
+  08:38 by agreeing to Claude's suggestion, both removed; filed by the commit that
+  writes this line, with the draft's version 8 and its two corrections.
+- **The patch-delivery skill's marker** is at `a11ffc4`. The ruling the commit that
+~~~~~
+
+Line 5633 of the version at `6bb82cc`:
+
+~~~~~
+  from the version at `82b824d` are in HISTORY's new entry, checked by
+~~~~~
+
+Line 5661 of the version at `6bb82cc`:
+
+~~~~~
+  `e748b0b`'s, `f6aa126`'s, `e69d5bb`'s, `e8b42b8`'s, `d6fba83`'s, `7c23886`'s, `e939734`'s, `7ff8128`'s, `5fe8522`'s, `f8805a6`'s, `0a518fd`'s, `a0ca299`'s, `bc250fc`'s, `706e858`'s, `4ab59d7`'s, `94b7e96`'s, `a11ffc4`'s, `542085f`'s, `b874ec1`'s, `82ea40e`'s, `9db4ae2`'s, `7dac328`'s, `340ee8d`'s and `82b824d`'s landings found no entry more (this list stopped at `a0ca299`'s from `bc250fc` to `82ea40e`; brought current on 7 November); entry 58 was found on a hand run, not a landing, entry 61 writing the redesign draft's version 5, not at a landing, entry 59 on `1b82ed0`'s landing, in its `run_tests.py` step, and landed by `5fe8522`, and entry 60 in the session that checked `7b93769`'s landing, and landed by `b990c93`, whose landing found no entry more. Entry 26, one of
+~~~~~
+
+Lines 5715–5716 of the version at `6bb82cc`:
+
+~~~~~
+  version 5 at `b874ec1`, version 6 at `82ea40e`, version 7 at `7dac328`, version 8 at the commit that writes
+  this line).
+~~~~~
+
+Lines 6009–6011 of the version at `6bb82cc`:
+
+~~~~~
+  (DECISIONS, "Ruling, 17 October 2026 — if Amazon fails the check twice …"). Open:
+  the Bedrock billing, after
+  which the check of reach and fit is Claude's. How a candle that touches both the stop
+~~~~~
+
+Lines 6041–6042 of the version at `6bb82cc`:
+
+~~~~~
+  of 1 November, point 3); the Bedrock billing, his; then the check of reach and fit,
+  Claude's.
+~~~~~
+
+Lines 6209–6210 of the version at `6bb82cc`:
+
+~~~~~
+  only, as `9db4ae2` did; and the commit that writes this line, docs only, changes no
+  line there. (This
+~~~~~

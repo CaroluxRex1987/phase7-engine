@@ -7473,6 +7473,119 @@ becomes its own gate: the panel already warns of one, in words, and refuses noth
   other flag gives. Whether the panel prints ADX elsewhere was not checked.
 - The suggestion is its author's: Claude wrote the draft and the suggestion.
 
+## Decision, 9 November 2026 — Amazon's audit goes through OpenRouter to Amazon Bedrock; Nova 2 Pro if it can be reached at the send, otherwise Nova 2 Lite
+
+*New in this file on 9 November 2026. Claude's, under the delegation of 4 October,
+Viktor's to reverse; made in the session that opened at 09:30 on 9 November at
+`6bb82cc`, and filed by its commit. It settles the route of question 7 of "Position,
+6 October 2026 — all the work and the list for after the audit first, then one full
+audit by Amazon; not ruled" and changes nothing else in it.*
+
+**How it came about.** At the session's opening Claude checked `6bb82cc`'s landing, in
+which nothing differed. With no commit owed, no work due by a date before the reading
+of 14 November, Claude's work left moving `code_hash` and every item of Viktor's in the
+redesign draft needing the reading's data, Claude brought him the Bedrock billing as
+what came first (the ruling of 1 November). At 09:42: "It is not set up. Won't be for
+some while." At 10:23 he asked whether OpenRouter has an alternative to Amazon's
+Bedrock; until 12:02 the session read what Amazon serves and where. Nothing from the
+project was sent to any Amazon model, and no Amazon model was called: every read below
+is of a public listing.
+
+**What was found.**
+
+1. **Nova 2 Pro**, the roster's model for Amazon since 30 September, is still a
+   preview: on Bedrock since 2 December 2025, early access for Nova Forge customers,
+   with no general availability announced (benchlm.ai, data as of 7 November 2026;
+   innFactory's Nova overview, updated 28 October 2026; both read through a web search
+   tool, not AWS's own pages). One site gives a July 2026 release with a 500,000-token
+   context; it disagrees with the others and is not relied on. Whether Viktor's AWS
+   account can enable it was not checked.
+2. **Nova 2 Lite** is generally available, on Bedrock and through OpenRouter.
+   OpenRouter's endpoints API for `amazon/nova-2-lite-v1`, read by Viktor with `curl`
+   from `E:\phase7_engine` at 12:01 and pasted into the chat whole: two endpoints, both
+   `provider_name` "Amazon Bedrock", tagged `amazon-bedrock/eu-west-1` and
+   `amazon-bedrock`; on each a context of 1,000,000, `max_completion_tokens` 65,535,
+   `reasoning` and `include_reasoning` among the supported parameters, and $0.30 and
+   $2.50 per million input and output tokens; the tokenizer named "Nova". AWS's own
+   material, read through a search tool, gives 64K and 65K for its output.
+3. **Vercel's AI Gateway** serves Nova 2 Lite from Bedrock alone, its extended thinking
+   off unless `providerOptions.bedrock.reasoningConfig.maxReasoningEffort` is set; it
+   lists a maximum output of 1,000,000, its context window again, against OpenRouter's
+   and AWS's 65,535 (Vercel's model page, read at 11:57). Viktor has a Vercel account.
+4. **Ruled out.** Nova Pro 1.0: 300,000 context and 5,120 completion tokens on
+   OpenRouter. Nova Premier 1.0: 1,000,000 context and 32,000 output on OpenRouter,
+   but one listing gives it no reasoning, and one secondary site says it reached end of
+   life on Bedrock on 14 September 2026; whether OpenRouter still serves it was not
+   checked. "Nova-3", which OpenRouter's search lists beside them, is Deepgram's
+   speech-to-text model, not Amazon's.
+
+**What was decided.**
+
+1. **The route is OpenRouter, pinned to Amazon Bedrock**: `provider.only` Amazon
+   Bedrock and `allow_fallbacks` false, as round 8's pin is written
+   (`docs/build/send_audit_round.py`, :456–461, read at `6bb82cc`). The model is still
+   served by Amazon from Bedrock; only the billing goes through OpenRouter, which Viktor
+   already uses. The Bedrock billing is no longer on the audit's path, and the check of
+   reach and fit no longer waits on it. Vercel's gateway is the fallback route if
+   OpenRouter's endpoint returns no reasoning tokens; the send script would then need
+   adapting to it, which is tooling, not engine code.
+2. **The model is chosen at the send, by one rule:** Nova 2 Pro if, once the redesign
+   is built and the package is ready, it can be reached on a route the send script
+   uses, with reasoning and an output cap no smaller than Nova 2 Lite's; otherwise
+   Nova 2 Lite. Nova Premier and Nova Pro 1.0 are out. The choice, with its checks, is
+   filed before the send, as the delegation of 4 October requires.
+3. **The checks before the send** are round 8's four ("Decision, 4 October 2026 —
+   round 8: Xiaomi MiMo-V2.6-Pro, the full package in one session"): the served
+   context and output cap, read again from the endpoints API; lineage; reasoning, by
+   the probe the send script already runs, which refuses the send unless it shows
+   reasoning tokens above zero; and the count with the model's own tokenizer (below).
+
+**Why.**
+
+- Amazon is the last lab clean for a full round (the critique of 6 October, point 1;
+  "Ruling, 17 October 2026 — Amazon's audit …"). Spent on Nova 2 Lite while Nova 2 Pro
+  might be served by the time of the send, it would go to the weaker model: AWS calls
+  Nova 2 Lite a cost-effective model for everyday workloads and Nova 2 Pro its most
+  intelligent (its announcement of 2 December 2025, read through a search tool). The
+  send cannot come before the redesign is built, so the rule costs no time now. AWS
+  re:Invent runs from 30 November to 4 December 2026; a release there is speculation,
+  not a plan.
+- OpenRouter over Bedrock directly: no new billing, and the send script, its provider
+  record and the ledger's billing export already work through it.
+- In the chat Claude first put Nova Premier second, then Nova 2 Lite first; the rule
+  above replaces both.
+
+**Not checked, and Claude's before the send.**
+
+- Whether reasoning tokens count against the 65,535. If they do, a run that reasons as
+  round 8's run 2 did (68,464 reasoning tokens) is cut off, and a cut-off reply counts
+  as a run ("Ruling, 30 September 2026 — what follows round 7's first reply", point 5),
+  one of two. The reasoning effort, low, medium or high, is the send's setting, chosen
+  from the probe; whether OpenRouter's `reasoning` parameter reaches Bedrock's setting
+  was not checked either.
+- The count with the model's own tokenizer ("Ruling, 26 September 2026 — the pre-send
+  token check is audit preparation, not an engine item"). The endpoints API names it
+  "Nova"; whether Amazon publishes it, or offers a count that does not send the package
+  to Amazon, was not checked.
+- Whether OpenRouter's Amazon Bedrock endpoint takes `data_collection: deny`, and what
+  Bedrock's data policy is for this use.
+
+**What stays Viktor's.** If no count is possible without the package reaching Amazon,
+how the fit is shown changes the ruling of 26 September, and that is his. The Bedrock
+billing is his only if Nova 2 Pro has to be reached through his own AWS account. And,
+as always, accepting the audit's result.
+
+**What it weakens.**
+
+- If Nova 2 Pro is not served by the send, Amazon's one full round goes to Nova 2 Lite,
+  a smaller model, and a fail takes the project to the fallback of 17 October: a scoped
+  round, then a wait for a clean lab.
+- An output cap of 65,535 is half of round 8's 131,072; a thorough run may not fit.
+- Except the endpoints read, the facts above come from secondary sites through a search
+  tool, not from AWS's own model cards.
+- The decision is its author's: Claude wrote most of the code Amazon will audit and
+  chose its examiner, as the delegation of 4 October allows.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then
