@@ -221049,3 +221049,232 @@ Lines 6117–6118 of the version at `7dac328`:
   none: it changed the Notes' build script and documents only, as `bc250fc` did; and
   the commit that writes this line, docs only, adds none. (This
 ~~~~~
+
+## 9 November 2026 — the lines the rewrite of PHASE7_NEXT.md removed from its version at `340ee8d`
+
+*Moved here on 9 November 2026 by the commit that regenerates the Engineering Notes at
+v1.42, Entries #284 and #285, and records `340ee8d`'s landing, under "Ruling,
+4 November 2026 — HISTORY keeps what each rewrite of PHASE7_NEXT.md removes, not the
+whole file" (DECISIONS).
+Below the rule, each block is a run of lines of the file as it stood at `340ee8d` that
+the rewrite deleted or replaced, word for word, labelled with its line numbers in that
+version; "this session" in them is the session that opened at 22:50 on 7 November, and
+"the commit that writes this line" and "this commit" name `340ee8d`. The whole version:
+`git show 340ee8d:docs/PHASE7_NEXT.md`. Checked by `docs/build/check_history_move.py`.*
+
+---
+
+Lines 3–6 of the version at `340ee8d`:
+
+~~~~~
+*7 November 2026, in the session that opened at 22:50. Rewritten by the commit that
+adds the reading of 14 November's computation 7, the CHOCH count, to the decision of
+2 November and to `docs/build/measure_draft_gaps.py` with its tests, and records
+`7dac328`'s landing; the lines it removed from the version at `7dac328` are in HISTORY,
+~~~~~
+
+Lines 2285–2288 of the version at `340ee8d`:
+
+~~~~~
+**This session (7 November, from 22:50)**, configured for Claude Opus 5.5, opened at
+`7dac328` and checked its landing, by the patch-delivery skill's section 10. GitHub's
+tip, read with no credentials at 22:50:43 (the probe asked for credentials, so none
+reached it), is `7dac328`; its tree `22de5d7e…` is the one its `Verified-Tree:` line
+~~~~~
+
+Lines 2290–2300 of the version at `340ee8d`:
+
+~~~~~
+docs/build/check_history_move.py --base 7dac328~1` on the tip gives the line its message
+recorded, 63 lines in 28 runs. Viktor's disk, staged after 22:51: the four files the
+commit changed written at 22:36:08 and each byte for byte the tip; the index the tip's
+tree, 303 entries (its `git ls-files -s` against the tip's `git ls-tree -r`); the loose
+commit object hashing to `7dac328`, GitHub's bytes, with no CR; `.git/COMMIT_EDITMSG`
+the message byte for byte; `master` and `origin/master` `7dac328`, written at 22:46:29
+and 22:46:43, the reflogs' last lines "commit:" and "update by push"; the pytest cache
+rewritten at 22:39:23, after the apply, `lastfailed` `{}`; no patch or message file in
+the root. Nothing differed. The skill's marker is at `a11ffc4`; `git diff a11ffc4 HEAD
+-- docs/PHASE7_DECISIONS.md` adds two entries, `82ea40e`'s and `7dac328`'s rulings,
+neither changing a procedure the skill describes.
+~~~~~
+
+Lines 2303–2310 of the version at `340ee8d`:
+
+~~~~~
+commit owed; then work due by its date — Claude's, before the reading of 14 November:
+the CHOCH count that `7dac328`'s ruling asked for, a count the reading needs fixed
+before its data is read. The commit that writes this line adds it as computation 7, by
+Claude's amendment to the decision of 2 November (DECISIONS, "Amendment, 7 November
+2026 — the reading of 14 November counts the CHOCHs against the side (computation
+7)"), with `docs/build/measure_draft_gaps.py`, two tests, the two READMEs and the
+change list, and records `7dac328`'s landing. Documentation tooling, a test file and
+docs: no engine code, `code_hash` unmoved.
+~~~~~
+
+Lines 2911–2914 of the version at `340ee8d`:
+
+~~~~~
+  the reading of 14 November's computation 7, the CHOCH count, added by Claude's
+  amendment to the decision of 2 November, with `docs/build/measure_draft_gaps.py` and
+  two tests, and `7dac328`'s landing recorded: documentation tooling, a test file and
+  docs, no engine code. Before it: `7dac328` (the session of 7 November, from 21:56:
+~~~~~
+
+Lines 3258–3262 of the version at `340ee8d`:
+
+~~~~~
+  `542085f`, `b874ec1`, `82ea40e`, `9db4ae2` and `7dac328` changed no test; and the
+  commit that writes this line adds two tests to `tests/test_measure_draft_gaps.py`,
+  for computation 7, with a dated paragraph in that file's docstring, neither taking a
+  fixture or needing `pandas_ta`, and changes no other test's code; it removes and
+  renames none.
+~~~~~
+
+Lines 3274–3277 of the version at `340ee8d`:
+
+~~~~~
+- **The push of `7dac328`** happened, at 22:46:43 on 7 November: GitHub's tip, read
+  with no credentials at 22:50:43, is `7dac328`, Viktor's disk is the tip in every part
+  this session's check read, and its tree is the one its `Verified-Tree:` line names;
+  no deviation (ruling on proposal (b)). So did `9db4ae2`'s, at 21:47:27 on
+~~~~~
+
+Lines 3457–3458 of the version at `340ee8d`:
+
+~~~~~
+  matched an autocrlf checkout of `7dac328`, GitHub's tip, cloned at 22:50 on
+  7 November, byte for byte, before the patch was built; it adds no file. (This file
+~~~~~
+
+Lines 3497–3499 of the version at `340ee8d`:
+
+~~~~~
+  `docs/` only, and by the commit that writes this line, which changes files under
+  `docs/` and `tests/`, which it does not read, and `README.md`, which is not a `.py`
+  file:
+~~~~~
+
+Lines 3510–3514 of the version at `340ee8d`:
+
+~~~~~
+  `4ab59d7`, `94b7e96`, `a11ffc4`, `542085f`, `b874ec1`, `82ea40e`, `9db4ae2` and
+  `7dac328` and the applied tree of the commit that writes this line give the same
+  (`bc250fc`'s, `706e858`'s, `4ab59d7`'s, `94b7e96`'s, `a11ffc4`'s, `542085f`'s,
+  `b874ec1`'s, `82ea40e`'s, `9db4ae2`'s, `7dac328`'s and the applied tree computed on
+  7 November, under Python 3.12.3); on
+~~~~~
+
+Line 3520 of the version at `340ee8d`:
+
+~~~~~
+  `706e858` to `82ea40e`, for v1.41: this value on all eight.
+~~~~~
+
+Lines 3529–3531 of the version at `340ee8d`:
+
+~~~~~
+- **Golden snapshot:** unchanged by the commit that writes this line, which changes a
+  script under `docs/`, its test — the new test reading the fixture without writing it
+  — `README.md`'s counts and docs, by `7dac328`, which changed docs and no code or
+~~~~~
+
+Lines 3589–3593 of the version at `340ee8d`:
+
+~~~~~
+  until `713e084` (entry 50). The commit that writes this line adds two tests, both in
+  `tests/test_measure_draft_gaps.py`, neither with a fixture nor needing `pandas_ta`,
+  and the three counts moved by two each, as predicted, from 975, 799 / 165 and
+  907 / 0 / 31: from the Linux sandbox, Python 3.12.3, pinned requirements, on the
+  patch applied to an autocrlf clone of `7dac328`. `7dac328` changed no test, and the
+~~~~~
+
+Lines 3955–3956 of the version at `340ee8d`:
+
+~~~~~
+- **Engineering Notes:** through Entry #283 (v1.41, at `9db4ae2`), which covers
+  `82ea40e`. The gap
+~~~~~
+
+Lines 3960–3977 of the version at `340ee8d`:
+
+~~~~~
+  covers the seven commits `706e858` to `82ea40e`, one entry each. **Two commits that
+  need an entry are behind:** `7dac328`, which files a ruling and will be Entry #284,
+  and the commit that writes this line, which adds computation 7 to the reading and
+  will be #285; `bc250fc` and `9db4ae2` are regenerations and have none (a
+  commit that regenerates the Notes cannot cover itself, Entry #144). Every later
+  commit adds one until the next regeneration.
+  Batched, by the 15 September rule. v1.41 records the ruling on round
+  8's F2, the forward measurement's count, the redesign draft's versions 2, 4 and 5
+  with entry 61, and the rulings on the redesign's direction and on its AGGRESSIVE —
+  seven entries for seven commits, each written from its commit's message (#283 also
+  from the DECISIONS entry it files), none re-checked against the code. `code_hash`
+  was recomputed on the seven trees and on `bc250fc`, under Python 3.12.3:
+  `816d4951…` on all eight, no move, as every message records; the golden fixture was
+  not re-baselined in this range, its blob the same on all eight trees. Its PDF's
+  extracted text differs from v1.40's only by the seven entries, the new Document
+  History row and eighteen footer page numbers (198 pages to 203), compared word by
+  word; v1.40's script at `82ea40e` rebuilt first gave the committed v1.40 text
+  exactly (Linux sandbox, reportlab 5.0.1).
+~~~~~
+
+Lines 3986–3988 of the version at `340ee8d`:
+
+~~~~~
+  801 / 165 and 909 passed, 0 failed), last changed by the commit that writes this
+  line, which changes only the numbers, for its two new tests, and before it by
+  `4ab59d7`, which changed only the numbers, for its 24 new tests (`94b7e96`,
+~~~~~
+
+Line 5575 of the version at `340ee8d`:
+
+~~~~~
+- **`7dac328`'s landing**, checked from 22:50 on 7 November, and recorded by the
+~~~~~
+
+Lines 5578–5586 of the version at `340ee8d`:
+
+~~~~~
+- **The CHOCH count — computation 7 of the reading of 14 November**, Claude's, chosen
+  as what came first under the ruling of 1 November: Claude's work due before the
+  reading, with no commit owed. Added to the decision of 2 November in place, with
+  its reasons and what it weakens in DECISIONS, "Amendment, 7 November 2026 — the
+  reading of 14 November counts the CHOCHs against the side (computation 7)", and to
+  `docs/build/measure_draft_gaps.py` with two tests, by the commit that writes this
+  line, before any of the reading's data was read. Nothing in it counts against the
+  draft; it is for Viktor's ruling, with the whole design, on whether a CHOCH against
+  the side becomes its own gate.
+~~~~~
+
+Lines 5588–5589 of the version at `340ee8d`:
+
+~~~~~
+  rulings and the amendment the commit that writes this line files change no
+  procedure the skill describes, so the marker stays.
+~~~~~
+
+Line 5591 of the version at `340ee8d`:
+
+~~~~~
+  from the version at `7dac328` are in HISTORY's new entry, checked by
+~~~~~
+
+Line 5619 of the version at `340ee8d`:
+
+~~~~~
+  `e748b0b`'s, `f6aa126`'s, `e69d5bb`'s, `e8b42b8`'s, `d6fba83`'s, `7c23886`'s, `e939734`'s, `7ff8128`'s, `5fe8522`'s, `f8805a6`'s, `0a518fd`'s, `a0ca299`'s, `bc250fc`'s, `706e858`'s, `4ab59d7`'s, `94b7e96`'s, `a11ffc4`'s, `542085f`'s, `b874ec1`'s, `82ea40e`'s, `9db4ae2`'s and `7dac328`'s landings found no entry more (this list stopped at `a0ca299`'s from `bc250fc` to `82ea40e`; brought current on 7 November); entry 58 was found on a hand run, not a landing, entry 61 writing the redesign draft's version 5, not at a landing, entry 59 on `1b82ed0`'s landing, in its `run_tests.py` step, and landed by `5fe8522`, and entry 60 in the session that checked `7b93769`'s landing, and landed by `b990c93`, whose landing found no entry more. Entry 26, one of
+~~~~~
+
+Lines 5730–5731 of the version at `340ee8d`:
+
+~~~~~
+  2 November in place and to `docs/build/measure_draft_gaps.py` with two tests by the
+  commit that writes this line, before any of the reading's data was read (DECISIONS,
+~~~~~
+
+Lines 6158–6159 of the version at `340ee8d`:
+
+~~~~~
+  `7dac328`, docs only, changed no line there; and the commit that writes this line
+  names `a11ffc4` there and adds its own. (This
+~~~~~
