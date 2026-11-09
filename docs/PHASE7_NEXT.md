@@ -1,8 +1,9 @@
 # Next step — read this first
 
-*9 November 2026, in the session that opened at 07:02. Rewritten by the commit that
-regenerates the Engineering Notes at v1.42, Entries #284 and #285, and records
-`340ee8d`'s landing; the lines it removed from the version at `340ee8d` are in HISTORY,
+*9 November 2026, in the session that opened at 08:24. Rewritten by the commit that
+files Viktor's ruling of 9 November on the redesign's exit watch, writes the draft's
+version 8 and records `82b824d`'s landing; the lines it removed from the version at
+`82b824d` are in HISTORY,
 which points to that whole version in git.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
@@ -2288,40 +2289,59 @@ added it as computation 7, by Claude's amendment to the decision of 2 November, 
 `docs/build/measure_draft_gaps.py` and two tests, and recorded `7dac328`'s landing.
 That session's account is in this file's version at `340ee8d`.
 
-**This session (9 November, from 07:02)**, configured for Claude Opus 5.5, opened at
-`340ee8d` and checked its landing, by the patch-delivery skill's section 10. GitHub's
-tip, read with no credentials at 07:03:16 (the probe asked for credentials, so none
-reached it), is `340ee8d`; its tree `03d58597…` is the one its `Verified-Tree:` line
+**The session of 9 November, from 07:02**, configured for Claude Opus 5.5, opened at
+`340ee8d`, checked its landing, in which nothing differed, and chose the Engineering
+Notes, two commits behind, as Claude's work that the rulings in force let land now.
+`82b824d` regenerated them at v1.42, Entries #284 and #285, and recorded `340ee8d`'s
+landing. That session's account is in this file's version at `82b824d`.
+
+**This session (9 November, from 08:24)**, configured for Claude Opus 5.5, opened at
+`82b824d` and checked its landing, by the patch-delivery skill's section 10. GitHub's
+tip, read with no credentials at 08:28:58 (the probe asked for credentials, so none
+reached it), is `82b824d`; its tree `cefe6c23…` is the one its `Verified-Tree:` line
 names; its message holds no CR and ends with the attribution lines; `python
-docs/build/check_history_move.py --base 340ee8d~1` on the tip gives the line its message
-recorded, 89 lines in 30 runs. Viktor's disk, staged after 07:03: the eight files the
-commit changed written at 06:05:50 on 8 November and each byte for byte the tip; the
-index the tip's tree, 303 entries (its `git ls-files -s` against the tip's `git ls-tree
--r`); the loose commit object hashing to `340ee8d`, GitHub's bytes, with no CR;
-`.git/COMMIT_EDITMSG` the message byte for byte; `master` and `origin/master`
-`340ee8d`, written at 06:17:24 and 06:17:38, the reflogs' last lines "commit:" and
-"update by push"; the pytest cache rewritten at 06:09:00, after the apply, holding both
-new tests' ids, `lastfailed` `{}`; no patch or message file in the root. Nothing
-differed. The skill's marker is at `a11ffc4`; `git diff a11ffc4 HEAD --
-docs/PHASE7_DECISIONS.md` adds three entries, `82ea40e`'s and `7dac328`'s rulings and
+docs/build/check_history_move.py --base 82b824d~1` on the tip gives the line its message
+recorded, 100 lines in 23 runs. Viktor's disk, staged after 08:28: the four files the
+commit changed written at 07:55:44 and each byte for byte the tip; the index the tip's
+tree, 303 entries (its `git ls-files -s` against the tip's `git ls-tree -r`); the loose
+commit object hashing to `82b824d`, GitHub's bytes, with no CR; `.git/COMMIT_EDITMSG`
+the message byte for byte; `master` and `origin/master` `82b824d`, written at 08:13:24
+and 08:13:39, the reflogs' last lines "commit:" and "update by push"; the pytest cache
+rewritten at 08:00:07, after the apply, `lastfailed` `{}`; no patch or message file in
+the root. Nothing differed. The skill's marker is at `a11ffc4`; `git diff a11ffc4 HEAD
+-- docs/PHASE7_DECISIONS.md` adds three entries, `82ea40e`'s and `7dac328`'s rulings and
 `340ee8d`'s amendment, none changing a procedure the skill describes.
 
 What came first, by the ruling of 1 November read with the correction of 4 November: no
-commit owed; no work due by a date before the reading of 14 November, its computation 7
-now filed; Claude's waves 2 to 5 move `code_hash` and wait on the reading; so Claude's
-work that the rulings in force let land now and that moves no `code_hash`: the
-Engineering Notes, two commits behind. The commit that writes this line is v1.42,
-Entries #284 and #285, one for each commit from `7dac328` to `340ee8d`. Docs only: no
-engine code, no test, no tooling.
+commit owed; no work due by a date before the reading of 14 November; Claude's waves 2
+to 5 move `code_hash` and wait on the reading, and the Notes are current; so an item of
+Viktor's. Of his items in the redesign draft, the only one that needs none of the
+reading's data: the exit watch's exhaustion and reversal flags (draft §0, §2). Claude
+put three options with (A), both removed, as its suggestion; at 08:36 he asked for the
+suggestion, and at 08:38: "Go." The commit that writes this line files the ruling
+(DECISIONS, "Ruling, 9 November 2026 — the redesign's exit watch drops its exhaustion
+and reversal flags"), writes the draft's version 8 with two corrections found reading
+the exit watch, and records `82b824d`'s landing. Docs only: no engine code, no test,
+no tooling.
 
 ## Ruled — in force
+
+- **New, 9 November — Viktor's, by agreeing to Claude's suggestion: the redesign's exit
+  watch drops its exhaustion and reversal flags** (DECISIONS, "Ruling, 9 November 2026
+  — the redesign's exit watch drops its exhaustion and reversal flags"). In the
+  redesign's draft, §2: both flags go with trend health and nothing replaces them; the
+  exit watch keeps the divergence, the CHOCH against the side, the HVN and LVN
+  proximity, the SuperTrend and bias flips and the Target 1 note. Advisory only: no
+  action, tier or gate moves, and the golden snapshot and the tests are unchanged. The
+  rest of the design stays unruled.
 
 - **New, 7 November — Viktor's, by agreeing to Claude's suggestion: the redesign's entry
   quality has no structure multiplier** (DECISIONS, "Ruling, 7 November 2026 — the
   redesign's entry quality has no structure multiplier"). In the redesign's draft,
   §3.3's BOS ×1.05 and CHOCH ×0.90 go, and entry quality is D + H, with no multiplier
-  and no clip. The structure gate reads the regime only, so nothing in the design reads
-  a CHOCH until Viktor rules on a gate for it, which comes to him with the whole design
+  and no clip. The structure gate reads the regime only, so nothing in the design's decision
+  reads a CHOCH (the exit watch's advisory CHOCH flag stays; corrected on 9 November)
+  until Viktor rules on a gate for it, which comes to him with the whole design
   and the reading of 14 November's computation 7, the count of CHOCHs against the side,
   added before its data was read (the amendment of 7 November). The
   decision of 2 November's computation 2 is unchanged: it already computes entry quality
@@ -2913,8 +2933,11 @@ engine code, no test, no tooling.
 ## Where things stand, right now
 
 - **Tip:** the commit that writes this line (a commit cannot name its own hash) —
+  Viktor's ruling of 9 November that the redesign's exit watch drops its exhaustion and
+  reversal flags filed, the draft's version 8, and `82b824d`'s landing recorded: docs
+  only, no engine code. Before it: `82b824d` (the session of 9 November, from 07:02:
   the Engineering Notes regenerated at v1.42, Entries #284 and #285, and `340ee8d`'s
-  landing recorded: docs only, no engine code. Before it: `340ee8d` (the session of
+  landing recorded: docs only, no engine code), `340ee8d` (the session of
   7 November, from 22:50, going on to 8 November: the reading of 14 November's
   computation 7, the CHOCH count, added by Claude's amendment to the decision of
   2 November, with `docs/build/measure_draft_gaps.py` and two tests, and `7dac328`'s
@@ -3266,7 +3289,7 @@ engine code, no test, no tooling.
   `542085f`, `b874ec1`, `82ea40e`, `9db4ae2` and `7dac328` changed no test; `340ee8d`
   added two tests to `tests/test_measure_draft_gaps.py`, for computation 7, with a
   dated paragraph in that file's docstring, neither taking a fixture or needing
-  `pandas_ta`, and changed no other test's code, removing and renaming none; and the
+  `pandas_ta`, and changed no other test's code, removing and renaming none; `82b824d` changed no test; and the
   commit that writes this line changes no test.
   (This file at `b990c93` still said
   there that the commit writing the line changed no test, carried from `7b93769`;
@@ -3279,10 +3302,13 @@ engine code, no test, no tooling.
   to `E:\phase7_engine`". Run the engine and every command from `E:\phase7_engine` (in
   cmd, changing drive needs `cd /d`). A dated record that names the D: paths means the
   same folders before the move; dated records are not edited.
-- **The push of `340ee8d`** happened, at 06:17:38 on 8 November: GitHub's tip, read
-  with no credentials at 07:03:16 on 9 November, is `340ee8d`, Viktor's disk is the tip
+- **The push of `82b824d`** happened, at 08:13:39 on 9 November: GitHub's tip, read
+  with no credentials at 08:28:58 on 9 November, is `82b824d`, Viktor's disk is the tip
   in every part this session's check read, and its tree is the one its
   `Verified-Tree:` line names; no deviation (ruling on proposal (b)). So did
+  `340ee8d`'s, at 06:17:38 on 8 November: GitHub's tip, read with no credentials at
+  07:03:16 on 9 November, was `340ee8d`, Viktor's disk the tip in every part that check
+  read, and its tree the one its `Verified-Tree:` line names. So did
   `7dac328`'s, at 22:46:43 on 7 November: GitHub's tip, read with no credentials at
   22:50:43, was `7dac328`, Viktor's disk the tip in every part that check read, and its
   tree the one its `Verified-Tree:` line names. So did `9db4ae2`'s, at 21:47:27 on
@@ -3465,7 +3491,7 @@ engine code, no test, no tooling.
   commit that writes this line unless it deviates. Earlier pushes and deviations are
   recorded in this file's previous versions, in HISTORY.
 - **Before this commit**, every file its patch changes was staged off Viktor's disk and
-  matched an autocrlf checkout of `340ee8d`, GitHub's tip, cloned at 07:03 on
+  matched an autocrlf checkout of `82b824d`, GitHub's tip, cloned at 08:28 on
   9 November, byte for byte, before the patch was built; it adds no file. (This file
   at `706e858` and at `4ab59d7` still gave `bc250fc`'s sentence here, against
   `a0ca299`; corrected on 7 November.)
@@ -3506,7 +3532,8 @@ engine code, no test, no tooling.
   `a11ffc4`, which changed files under `docs/` and `tests/`, which it does not read, by
   `542085f`, `b874ec1`, `82ea40e`, `9db4ae2` and `7dac328`, which changed files under
   `docs/` only, by `340ee8d`, which changed files under `docs/` and `tests/`, which it
-  does not read, and `README.md`, which is not a `.py` file, and by the commit that
+  does not read, and `README.md`, which is not a `.py` file, by `82b824d`, which
+  changed files under `docs/` only, and by the commit that
   writes this line, which changes files under `docs/` only:
   computed
   on clones of `0491b84`,
@@ -3519,11 +3546,11 @@ engine code, no test, no tooling.
   `e8b42b8`, `d6fba83`, `7c23886`, `e939734`, `1b82ed0`, `7ff8128`, `5fe8522`,
   `7b93769`, `b990c93`, `f8805a6`, `0a518fd`, `a0ca299`, `bc250fc`, `706e858`,
   `4ab59d7`, `94b7e96`, `a11ffc4`, `542085f`, `b874ec1`, `82ea40e`, `9db4ae2`,
-  `7dac328` and `340ee8d` and the applied tree of the commit that writes this line give
-  the same (`bc250fc`'s, `706e858`'s, `4ab59d7`'s, `94b7e96`'s, `a11ffc4`'s,
+  `7dac328`, `340ee8d` and `82b824d` and the applied tree of the commit that writes
+  this line give the same (`bc250fc`'s, `706e858`'s, `4ab59d7`'s, `94b7e96`'s, `a11ffc4`'s,
   `542085f`'s, `b874ec1`'s, `82ea40e`'s, `9db4ae2`'s, `7dac328`'s and `340ee8d`'s
-  computed on 7 November, and the applied tree of the commit that writes this line on
-  9 November, under Python 3.12.3); on
+  computed on 7 November, and `82b824d`'s and the applied tree of the commit that
+  writes this line on 9 November, under Python 3.12.3); on
   6 November it was computed again on
   each of `67f6ec1` and the twenty-four trees `0491b84` to `b8f88d8`, for the Notes'
   v1.39: `bc1b9c2c…` at `67f6ec1`, this value on all twenty-four; and on 6 November
@@ -3540,7 +3567,8 @@ engine code, no test, no tooling.
   SURVIVE"). **Every `code_hash` claim about this project is computed under Python 3.12**
   (Viktor runs 3.12.10).
 - **Golden snapshot:** unchanged by the commit that writes this line, which changes
-  the Notes' build script and documents and no code or test, by `340ee8d`, which
+  docs and no code or test, by `82b824d`, which changed the Notes' build script and
+  documents and no code or test, by `340ee8d`, which
   changed a script under `docs/`, its test — the new test reading the fixture without
   writing it — `README.md`'s counts and docs, by `7dac328`, which changed docs and no code or
   test, by `9db4ae2`, which changed the Notes' build script and
@@ -3602,7 +3630,12 @@ engine code, no test, no tooling.
   15 October 2026 — Part 4's three test shapes", point 5); `README.md` wrote it too
   until `713e084` (entry 50). The commit that writes this line changes no test, and the
   three counts held: from the Linux sandbox, Python 3.12.3, pinned requirements, on an
-  autocrlf clone of `340ee8d` and on the patch applied to another. `340ee8d` added two
+  autocrlf clone of `82b824d` and on the patch applied to another. `82b824d` changed
+  no test, and the three counts held: from the Linux sandbox, on an autocrlf clone of
+  `340ee8d` and on the patch applied to another; its pytest step ran on Windows after
+  the apply (the cache on his disk was rewritten at 08:00:07 on 9 November, after its
+  four files were written at 07:55:44; its `lastfailed` is `{}`), and Viktor went on
+  to the commit. `340ee8d` added two
   tests, both in `tests/test_measure_draft_gaps.py`, neither with a fixture nor needing
   `pandas_ta`, and the three counts moved by two each, as predicted, from 975, 799 / 165
   and 907 / 0 / 31: from the Linux sandbox, on the patch applied to an autocrlf clone
@@ -3975,10 +4008,10 @@ engine code, no test, no tooling.
   left by v1.36 was closed in four regenerations: v1.37 at `f8805a6` covered `e7a94d1`
   to `eb86846`, v1.38 at `0a518fd` `c2b07fb` to `67f6ec1`, v1.39 at `a0ca299` `0491b84`
   to `b8f88d8`, and v1.40 at `bc250fc` `a1c4218` to `0a518fd`. v1.41, at `9db4ae2`,
-  covered the seven commits `706e858` to `82ea40e`, and v1.42, by the commit that
-  writes this line, covers the two commits `7dac328` and `340ee8d`, one entry each.
-  **No commit that needs an entry is behind:** `bc250fc`, `9db4ae2` and the commit that
-  writes this line are regenerations and have none (a commit that regenerates the
+  covered the seven commits `706e858` to `82ea40e`, and v1.42, at `82b824d`, covers the
+  two commits `7dac328` and `340ee8d`, one entry each.
+  **One commit that needs an entry is behind: the commit that writes this line**, Entry
+  #286 to come; `bc250fc`, `9db4ae2` and `82b824d` are regenerations and have none (a commit that regenerates the
   Notes cannot cover itself, Entry #144). Every later commit adds one until the next
   regeneration. Batched, by the 15 September rule. v1.42 records the ruling that the
   redesign's entry quality has no structure multiplier and the reading's computation
@@ -4000,8 +4033,8 @@ engine code, no test, no tooling.
   rows**, for the ruling of 7 November on F2, in wording Claude wrote and put to
   Viktor before his commit, and nothing else in it. Its test counts are current (977,
   801 / 165 and 909 passed, 0 failed), last changed by `340ee8d`, which changed only
-  the numbers, for its two new tests (the commit that writes this line does not change
-  `README.md`), and before it by `4ab59d7`, which changed only the numbers, for its 24 new tests (`94b7e96`,
+  the numbers, for its two new tests (`82b824d` and the commit that writes this line do not
+  change `README.md`), and before it by `4ab59d7`, which changed only the numbers, for its 24 new tests (`94b7e96`,
   `a11ffc4`, `542085f`, `b874ec1`, `82ea40e`, `9db4ae2` and `7dac328` do not change
   `README.md`), and
   before it by
@@ -5588,16 +5621,16 @@ Each code commit is its own commit and updates this file for its own landing.
 
 ## Resolved this session
 
-- **`340ee8d`'s landing**, checked from 07:02 on 9 November, and recorded by the
+- **`82b824d`'s landing**, checked from 08:24 on 9 November, and recorded by the
   commit that writes this line, made for its own reason (DECISIONS, the correction of
   4 November). Its push is in "Where things stand".
-- **The Engineering Notes, v1.42**, Entries #284 and #285, by the commit that writes
-  this line: no commit that needs an entry is behind.
-- **The patch-delivery skill's marker** is at `a11ffc4`. `82ea40e`'s and `7dac328`'s
-  rulings and `340ee8d`'s amendment change no procedure the skill describes, and the
-  commit that writes this line files no ruling, so the marker stays.
+- **The exit watch's exhaustion and reversal flags** (draft §0, §2): Viktor's, ruled at
+  08:38 by agreeing to Claude's suggestion, both removed; filed by the commit that
+  writes this line, with the draft's version 8 and its two corrections.
+- **The patch-delivery skill's marker** is at `a11ffc4`. The ruling the commit that
+  writes this line files changes no procedure the skill describes, so the marker stays.
 - **This file's rewrite**, by the commit that writes this line. The lines it removed
-  from the version at `340ee8d` are in HISTORY's new entry, checked by
+  from the version at `82b824d` are in HISTORY's new entry, checked by
   `docs/build/check_history_move.py` (the commit message has the result).
 
 ## Open items
@@ -5625,7 +5658,7 @@ Claude critiques it.
   decision under Viktor's delegation of 27 October, his to reverse, and with it nothing
   of wave 1 is left open; `713e084`'s, `134f85b`'s, `fad0588`'s, `3dbd8dc`'s and
   `a2ca918`'s, `d7d3ae0`'s, `b233c4a`'s, `6d073f9`'s, `8c810b1`'s, `248037d`'s,
-  `e748b0b`'s, `f6aa126`'s, `e69d5bb`'s, `e8b42b8`'s, `d6fba83`'s, `7c23886`'s, `e939734`'s, `7ff8128`'s, `5fe8522`'s, `f8805a6`'s, `0a518fd`'s, `a0ca299`'s, `bc250fc`'s, `706e858`'s, `4ab59d7`'s, `94b7e96`'s, `a11ffc4`'s, `542085f`'s, `b874ec1`'s, `82ea40e`'s, `9db4ae2`'s, `7dac328`'s and `340ee8d`'s landings found no entry more (this list stopped at `a0ca299`'s from `bc250fc` to `82ea40e`; brought current on 7 November); entry 58 was found on a hand run, not a landing, entry 61 writing the redesign draft's version 5, not at a landing, entry 59 on `1b82ed0`'s landing, in its `run_tests.py` step, and landed by `5fe8522`, and entry 60 in the session that checked `7b93769`'s landing, and landed by `b990c93`, whose landing found no entry more. Entry 26, one of
+  `e748b0b`'s, `f6aa126`'s, `e69d5bb`'s, `e8b42b8`'s, `d6fba83`'s, `7c23886`'s, `e939734`'s, `7ff8128`'s, `5fe8522`'s, `f8805a6`'s, `0a518fd`'s, `a0ca299`'s, `bc250fc`'s, `706e858`'s, `4ab59d7`'s, `94b7e96`'s, `a11ffc4`'s, `542085f`'s, `b874ec1`'s, `82ea40e`'s, `9db4ae2`'s, `7dac328`'s, `340ee8d`'s and `82b824d`'s landings found no entry more (this list stopped at `a0ca299`'s from `bc250fc` to `82ea40e`; brought current on 7 November); entry 58 was found on a hand run, not a landing, entry 61 writing the redesign draft's version 5, not at a landing, entry 59 on `1b82ed0`'s landing, in its `run_tests.py` step, and landed by `5fe8522`, and entry 60 in the session that checked `7b93769`'s landing, and landed by `b990c93`, whose landing found no entry more. Entry 26, one of
   Goal B's two rulings, was decided by Claude under Viktor's delegation of 26 October
   (DECISIONS, "Decision, 26 October 2026 — Goal B keeps a candle only once it has
   closed at `t` (entry 26)"), his to reverse. Entry 31, the other, was ruled by Viktor
@@ -5668,19 +5701,22 @@ Claude critiques it.
   defects …"). Not covered by the eight: the entry score's structure multiplier
   (BOS ×1.05, CHOCH ×0.90), ruled removed on 7 November (DECISIONS, "Ruling,
   7 November 2026 — the redesign's entry quality has no structure multiplier"); with
-  it nothing in the design reads a CHOCH, and whether a CHOCH against the side becomes
+  it nothing in the design's decision reads a CHOCH (the exit watch's advisory CHOCH
+  flag stays: corrected on 9 November), and whether a CHOCH against the side becomes
   its own gate is Viktor's, with the whole design. Added to its
   scope on 31 October: the two volume gates, a liquidity floor and volume confirming
   the trigger, their design put to Viktor with the rest (DECISIONS, "Ruling,
   31 October 2026 — volume enters the redesign as two gates …"); the floor needs
   `quote_volume`, which the fetcher drops today. Added on 1 November: entry 58's rule,
   that no reasoning sentence rounds a compared value across its threshold (Found after
-  22 September, entry 58). **Design draft, version 7**, Claude's, started 1 November:
+  22 September, entry 58). **Design draft, version 8**, Claude's, started 1 November:
   `docs/redesign_entry53_draft.md` (version 0 filed at `e69d5bb`, version 1 at
   `e8b42b8`, version 2 at `94b7e96`, version 3 at `a11ffc4`, version 4 at `542085f`,
-  version 5 at `b874ec1`, version 6 at `82ea40e`, version 7 at `7dac328`).
+  version 5 at `b874ec1`, version 6 at `82ea40e`, version 7 at `7dac328`, version 8 at the commit that writes
+  this line).
   Not ruled, but for its direction, its reading of AGGRESSIVE and the structure
-  multiplier (all three 7 November).
+  multiplier (all three 7 November) and its exit watch's exhaustion and reversal flags
+  (9 November, removed).
   Version 1
   lists every golden field — 227 leaves: 125 unchanged, 81 removed, 15 that move, 2
   renamed and 4 that go only if Viktor removes the structure multiplier, which he did
@@ -5731,8 +5767,12 @@ Claude critiques it.
   the tier lines. **Version 7** states §3.3 as Viktor ruled it on 7 November: no
   structure multiplier, entry quality D + H with no clip. §2 records, read at
   `9db4ae2`, that the structure gate compares the regime only and never the swing
-  sequence, so nothing in the design reads a CHOCH; §12 gains point 8, the count
-  below; §13.2's four leaves that were Viktor's are removed.
+  sequence, so nothing in the design's decision reads a CHOCH; §12 gains point 8, the
+  count below; §13.2's four leaves that were Viktor's are removed. **Version 8** states
+  §2's exit watch as Viktor ruled it on 9 November, its exhaustion and reversal flags
+  removed, lists every flag it keeps, and corrects version 7: the exit watch's CHOCH
+  flag reads the swing sequence, so it is the decision, not the whole design, that
+  reads no CHOCH.
 - **The CHOCH count — filed, read on 14 November** (draft §12, point 8; DECISIONS,
   "Ruling, 7 November 2026 — the redesign's entry quality has no structure
   multiplier", "What follows"): computation 7 of the reading, added to the decision of
@@ -6165,8 +6205,9 @@ Claude critiques it.
   `542085f`, `b874ec1` and `82ea40e`, docs only, changed no line there; `9db4ae2` added
   none: it changed the Notes' build script and documents only, as `bc250fc` did;
   `7dac328`, docs only, changed no line there; `340ee8d` named `a11ffc4` there and
-  added its own; and the commit that writes this line adds none: it changes the Notes'
-  build script and documents only, as `9db4ae2` did. (This
+  added its own; `82b824d` added none: it changed the Notes' build script and documents
+  only, as `9db4ae2` did; and the commit that writes this line, docs only, changes no
+  line there. (This
   paragraph stopped at
   `a235783` until `ad34c02`
   brought it current, and

@@ -1,6 +1,14 @@
 # The redesign (entry 53) — design draft
 
-*Draft v7, 7 November 2026, in the session that opened at 21:56 at `9db4ae2`. Version 7
+*Draft v8, 9 November 2026, in the session that opened at 08:24 at `82b824d`. Version 8
+states §2's exit watch as Viktor ruled it on 9 November, its exhaustion and reversal
+flags removed (DECISIONS, "Ruling, 9 November 2026 — the redesign's exit watch drops its
+exhaustion and reversal flags"), and corrects two statements of earlier versions, found
+reading `models/exit_model.py` at `82b824d`: §2 named only the divergence and SuperTrend
+flags as what the exit watch keeps, and §2, §3.3 and §16.2 said nothing in the design
+reads a CHOCH, where the exit watch's CHOCH flag does. It brings §0, §2, §3.3 and §16.2
+to it. No engine `.py` file changed between `9db4ae2` and `82b824d`. Version 7, 7
+November 2026, was written in the session that opened at 21:56 at `9db4ae2`. Version 7
 states §3.3 as Viktor ruled it on 7 November, the structure multiplier removed
 (DECISIONS, "Ruling, 7 November 2026 — the redesign's entry quality has no structure
 multiplier"), and brings §0, §2, §3, §3.3, §12, §13.2 and §16.2 to it. Version 7 reads
@@ -49,12 +57,12 @@ of version 0 that were wrong (§15). No `.py` file changed between `e748b0b` and
 made. Claude's draft. It will be put to Viktor after the forward measurement's reading
 of 14 November (DECISIONS, "Ruling, 25 October 2026 — the engine's indicators …",
 point 7). Nothing here is ruled but §2's direction, §4's reading of AGGRESSIVE and §3.3's
-structure multiplier (all three 7 November), and no code is written
+structure multiplier (all three 7 November) and §2's exit watch flags (9 November), and no code is written
 from it until the whole design is. Each
 statement says where it comes from: **read** means read in the code at `e748b0b`
 (version 0), `e69d5bb` (version 1), `4ab59d7` (version 2), `94b7e96` (version 3) or
 `a11ffc4` (version 4) or `542085f` (version 5); version 6 reads none; version 7 reads
-at `9db4ae2`;
+at `9db4ae2`; version 8 at `82b824d`;
 **ruled** names the
 ruling; **proposed** is Claude's suggestion; **to measure** is a number this draft
 does not have yet. Where
@@ -70,7 +78,8 @@ something was not checked, the sentence says so.*
   not), whether the structure multiplier stays (§3.3; ruled on 7 November, removed),
   whether a CHOCH against the side becomes its own gate (§2; version 7), any ruled
   value named as tunable (§9), and, added in version 1, the exit watch's exhaustion
-  and reversal flags, which go with trend health if nothing keeps them (§2).
+  and reversal flags, which go with trend health if nothing keeps them (§2; ruled on
+  9 November, both removed).
 - **Claude's, proposed here for him to reverse:** entry quality's formula and weights
   (§3), the order of the gates (§4), the sentence rule (§6), the code's shape, the
   tests, and the replacements for H1, H2 and H5 (§8), which Viktor accepts or rejects
@@ -161,8 +170,10 @@ it measures with a second number the same thing ADX already gates.
   TREND, and never the swing sequence, which `_detect_sequence`
   (`structure/structure.py`) computes apart from it (read at `9db4ae2`, version 7).
   Versions 0 to 6 said the gate and the structure multiplier still read structure;
-  with the multiplier removed on 7 November (§3.3), **nothing in the design reads a
-  CHOCH**. Whether a CHOCH against the side should be its own gate is not proposed
+  with the multiplier removed on 7 November (§3.3), **nothing in the design's decision
+  reads a CHOCH**: no gate, tier or score. The exit watch's CHOCH flag still reads the
+  swing sequence and warns, refusing nothing (`models/exit_model.py`, :155–164, read at
+  `82b824d`); version 7 said nothing in the design read one, corrected in version 8. Whether a CHOCH against the side should be its own gate is not proposed
   here; it is Viktor's, put to him with the whole design and the count of §12's
   point 8. **Flagged for Viktor:** this is a path that can reach WAIT and goes away.
 - The BTC section calls the same bias function (`core/engine_core.py`, the BTC
@@ -176,9 +187,15 @@ it measures with a second number the same thing ADX already gates.
   `reversal_*` the exit watch reads (`models/exit_model.py`, :110 and :143–144).
   **Proposed:** the module keeps ADX, the divergence and its degraded inputs, and loses
   the score, exhaustion, continuation, reversal, `momentum_mode` and `trend_direction`;
-  the exit watch loses its exhaustion and reversal flags with them, and keeps the
-  divergence and SuperTrend flags. **Flagged for Viktor (§0):** two exit-watch flags
-  go, and neither has a ruling of its own.
+  the exit watch loses its exhaustion and reversal flags with them, and keeps every
+  other flag: the divergence, the CHOCH against the side, the HVN and LVN proximity,
+  the SuperTrend flip, the bias flip and the Target 1 note (`models/exit_model.py`,
+  read at `82b824d`; versions 1 to 7 named only the divergence and SuperTrend flags,
+  corrected in version 8). **Ruled on 9 November** (DECISIONS, "Ruling, 9 November
+  2026 — the redesign's exit watch drops its exhaustion and reversal flags"): both
+  flags go, and nothing replaces them. Neither is in the golden `exit_watch`, which
+  holds only the Target 1 note, and no test names either (searched at `82b824d`), so
+  §13 and §14 are unchanged.
 - **The bias-flip flag would fire once on every pair.** The engine saves
   `detailed_bias` as its state (`core/engine_core.py`, `_save_state`, read), and the
   exit watch reports a flip when the saved label differs from this run's
@@ -342,7 +359,8 @@ D + H, with no multiplier and no clip, and `structure_multiplier`,
 `CONFLUENCE_BOOST_MULT`, `CONFLUENCE_PENALTY_MULT` and `SCORE_CEILING` leave (§13.2).
 The suggestion's "the structure regime is already a gate" was taken from version 0 and
 holds for the regime only: the gate never reads BOS or CHOCH (§2, read at `9db4ae2`),
-so with the multiplier gone no part of the design reads a CHOCH. Recorded as Claude's
+so with the multiplier gone no part of the design's decision reads a CHOCH (the exit
+watch's CHOCH flag does, and refuses nothing: version 8, §2). Recorded as Claude's
 error in the ruling's entry; whether CHOCH becomes its own gate is Viktor's, with the
 count of §12's point 8.
 
@@ -1432,13 +1450,15 @@ quality's formula is Claude's.
   candles, is a separate trading rule of Viktor's and not in this design.
 - **Three paths to WAIT go and nothing replaces them:** the CHOCH ×0.5 discount (§2),
   H1's branch (§4, §8) and trend health's tiers; and the exit watch loses its
-  exhaustion and reversal flags (§2). Each is flagged where it is. Together, the design
+  exhaustion and reversal flags (§2; ruled on 9 November). Each is flagged where it is. Together, the design
   drops refusals of today's kind and adds gates of a new kind, and the reading counts
   only how often it would trade (computation 6), not whether the refusals it drops were
   right.
-- **No part of the design reads a CHOCH** (version 7). Today a CHOCH against the side
-  is read twice, by the bias's ×0.5 discount (§2) and the entry score's ×0.90 (§3.3);
-  both go, and the structure gate reads the regime only (§2). A LONG on CHOCH BEARISH
+- **No part of the design's decision reads a CHOCH** (version 7; "decision's" added in
+  version 8). Today the decision reads a CHOCH against the side twice, by the bias's
+  ×0.5 discount (§2) and the entry score's ×0.90 (§3.3); both go, and the structure
+  gate reads the regime only (§2). The exit watch's CHOCH flag stays, and warns without
+  refusing (§2, read at `82b824d`). A LONG on CHOCH BEARISH
   passes wherever the regime is BULLISH TREND. How often the two disagree is what §12's
   point 8 counts; a gate for it is Viktor's, not proposed here.
 - **The record loses its continuous measures.** `bias.score`, confidence and the

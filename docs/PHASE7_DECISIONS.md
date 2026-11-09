@@ -7382,6 +7382,97 @@ reading of 14 November and goes to Viktor with the whole design. Documentation t
 and a test file, under `docs/` and `tests/`, which the code fingerprint does not read:
 `code_hash` does not move.
 
+## Ruling, 9 November 2026 — the redesign's exit watch drops its exhaustion and reversal flags
+
+*New in this file on 9 November 2026. Viktor's, at 08:38, by agreeing to Claude's
+suggestion — not by writing his position first — in the session that opened at 08:24 on
+9 November at `82b824d`; filed by its commit. It settles an item the redesign draft's §0
+(`docs/redesign_entry53_draft.md`) has marked his since version 1: the exit watch's
+exhaustion and reversal flags, which go with trend health if nothing keeps them (§2).*
+
+**The question.** The exit watch (`models/exit_model.py`, `build_exit_watch`, read at
+`82b824d`) prints advisory flags for whoever holds a position and decides nothing. Two
+of its flags read outputs of `compute_trend_health` (`indicators/trend_health.py`, read
+at `82b824d`), whose score the ruling of 25 October removes:
+
+- **Exhaustion** (`exit_model.py`, :110): fires when the candle's range is wider than
+  the previous candle's and ADX is under 20, or when the trend health score is under 35
+  and ADX under 15. Its text says momentum "looks stretched and may be due for a pause
+  or pullback".
+- **Reversal** (:143–153): fires against the raw bias when `reversal_strength` reaches
+  40. That strength adds 25 for a divergence, 20 for an HVN within 1.5% of the close
+  (10 within 3%) and 20 for exhaustion, and is cut to 40% of the sum unless momentum is
+  EXTENDED or EXTREME or the trend is exhausted.
+
+Neither flag has a ruling of its own. **(A)** both go, as the draft proposes; **(B)**
+the reversal flag goes and exhaustion's first clause stays, relabelled to what it tests;
+**(C)** both stay, rebuilt from what the design keeps, with new weights.
+
+**How it was made.** At the session's opening Claude checked `82b824d`'s landing, in
+which nothing differed. With no commit owed, no work due by a date before the reading
+of 14 November, and all of Claude's work left moving `code_hash`, an item of Viktor's
+came first (the ruling of 1 November), and of his items in the draft this is the only
+one that needs none of the reading's data. Claude put the three options, with (A) as
+its suggestion. At 08:36 Viktor asked: "Suggestion?" Claude gave (A) with the reasons
+below and said it would file it if he went with A. At 08:38: "Go." Read as going with
+(A) — Claude's reading, his to correct.
+
+**What was ruled.** In the redesign the exit watch has **no exhaustion flag and no
+reversal flag**, and nothing replaces them. Its other flags stay as they are: the
+divergence, the CHOCH against the side, the HVN and LVN proximity, the SuperTrend flip,
+the bias flip and the Target 1 note. The rest of the draft stays unruled, and nothing
+is built from it until the whole design is (the ruling of 25 October, "What follows").
+
+**Claude's reasons, as given.**
+
+1. Every firing of the reversal flag needs at least two of its parts, and two of them,
+   the divergence and an HVN within 1.5%, are flags of their own. It is the same level:
+   `structure/structure.py` writes the frame's `HVN` column from the result whose `hvn`
+   the exit watch reads (:583, read). What the flag adds is a weighted sum, and no
+   ruling or evidence backs its weights or its line at 40; kept, it puts numbers with
+   no ruling back into a design built to take them out.
+2. Half of the exhaustion flag needs the trend health score, which goes. The other
+   half, ADX under 20 on a wider candle, is a weak trend, not stretched momentum, so
+   its text does not say what it measures — the shape B4's labels fixed on 14 October.
+   Relabelled, it would be a new flag, and a new flag belongs with the whole design,
+   not ahead of it.
+3. Neither flag decides anything, so removing them moves no action, tier or gate. The
+   golden snapshot's `exit_watch` holds only the Target 1 note, and no test asserts
+   either flag's text (searched under `tests/` at `82b824d`).
+4. Ruled before any of the reading of 14 November's data is read; neither flag is in
+   the reading's computations.
+
+**Claude's error, recorded.** Reading the exit watch in the code for this question,
+Claude found two statements of its own wrong. The draft's §2, from version 1 to
+version 7, named only the divergence and SuperTrend flags as what the exit watch keeps,
+and left out the CHOCH against the side, the HVN and LVN proximity, the bias flip and
+the Target 1 note. And the draft's §2, §3.3 and §16.2 (version 7), the ruling of
+7 November on the structure multiplier ("What it weakens") and the amendment of
+7 November ("Why") say that nothing in the design reads a CHOCH, where the exit watch's
+CHOCH flag (`models/exit_model.py`, :155–164) reads the swing sequence and stays. The
+statement holds for the decision — no gate, tier or score reads a CHOCH — and not for
+the panel. The two dated entries are not edited (the ruling of 20 September); the
+draft is corrected in version 8, and PHASE7_NEXT.md's present-state lines with it. It
+bears on Viktor's question, with the whole design, whether a CHOCH against the side
+becomes its own gate: the panel already warns of one, in words, and refuses nothing.
+
+**What follows.**
+
+- **The draft's version 8**, filed by this entry's commit: §0 marks the flags ruled;
+  §2 records the ruling and every flag the exit watch keeps; §2, §3.3 and §16.2 say
+  that the decision reads no CHOCH and the exit watch's flag does. §13 and §14 are
+  unchanged: the golden `exit_watch` leaf holds neither flag, and no test names
+  either.
+- **No engine code, no test and no tooling changes**, and `code_hash` does not move.
+
+**What it weakens.**
+
+- Whoever holds a position loses two warnings. The divergence and an HVN within 1.5%
+  stay on flags of their own; what goes is their combination, the 1.5–3% HVN band,
+  momentum mode's part, and the one warning of a weak trend on a wider candle, which no
+  other flag gives. Whether the panel prints ADX elsewhere was not checked.
+- The suggestion is its author's: Claude wrote the draft and the suggestion.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then

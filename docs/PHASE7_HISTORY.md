@@ -221278,3 +221278,207 @@ Lines 6158–6159 of the version at `340ee8d`:
   `7dac328`, docs only, changed no line there; and the commit that writes this line
   names `a11ffc4` there and adds its own. (This
 ~~~~~
+
+## 9 November 2026 — the lines the rewrite of PHASE7_NEXT.md removed from its version at `82b824d`
+
+*Moved here on 9 November 2026 by the commit that files Viktor's ruling of 9 November on
+the redesign's exit watch, writes the draft's version 8 and records `82b824d`'s landing,
+under "Ruling, 4 November 2026 — HISTORY keeps what each rewrite of PHASE7_NEXT.md
+removes, not the whole file" (DECISIONS).
+Below the rule, each block is a run of lines of the file as it stood at `82b824d` that
+the rewrite deleted or replaced, word for word, labelled with its line numbers in that
+version; "this session" in them is the session that opened at 07:02 on 9 November, and
+"the commit that writes this line" and "this commit" name `82b824d`. The whole version:
+`git show 82b824d:docs/PHASE7_NEXT.md`. Checked by `docs/build/check_history_move.py`.*
+
+---
+
+Lines 3–5 of the version at `82b824d`:
+
+~~~~~
+*9 November 2026, in the session that opened at 07:02. Rewritten by the commit that
+regenerates the Engineering Notes at v1.42, Entries #284 and #285, and records
+`340ee8d`'s landing; the lines it removed from the version at `340ee8d` are in HISTORY,
+~~~~~
+
+Lines 2291–2294 of the version at `82b824d`:
+
+~~~~~
+**This session (9 November, from 07:02)**, configured for Claude Opus 5.5, opened at
+`340ee8d` and checked its landing, by the patch-delivery skill's section 10. GitHub's
+tip, read with no credentials at 07:03:16 (the probe asked for credentials, so none
+reached it), is `340ee8d`; its tree `03d58597…` is the one its `Verified-Tree:` line
+~~~~~
+
+Lines 2296–2306 of the version at `82b824d`:
+
+~~~~~
+docs/build/check_history_move.py --base 340ee8d~1` on the tip gives the line its message
+recorded, 89 lines in 30 runs. Viktor's disk, staged after 07:03: the eight files the
+commit changed written at 06:05:50 on 8 November and each byte for byte the tip; the
+index the tip's tree, 303 entries (its `git ls-files -s` against the tip's `git ls-tree
+-r`); the loose commit object hashing to `340ee8d`, GitHub's bytes, with no CR;
+`.git/COMMIT_EDITMSG` the message byte for byte; `master` and `origin/master`
+`340ee8d`, written at 06:17:24 and 06:17:38, the reflogs' last lines "commit:" and
+"update by push"; the pytest cache rewritten at 06:09:00, after the apply, holding both
+new tests' ids, `lastfailed` `{}`; no patch or message file in the root. Nothing
+differed. The skill's marker is at `a11ffc4`; `git diff a11ffc4 HEAD --
+docs/PHASE7_DECISIONS.md` adds three entries, `82ea40e`'s and `7dac328`'s rulings and
+~~~~~
+
+Lines 2310–2315 of the version at `82b824d`:
+
+~~~~~
+commit owed; no work due by a date before the reading of 14 November, its computation 7
+now filed; Claude's waves 2 to 5 move `code_hash` and wait on the reading; so Claude's
+work that the rulings in force let land now and that moves no `code_hash`: the
+Engineering Notes, two commits behind. The commit that writes this line is v1.42,
+Entries #284 and #285, one for each commit from `7dac328` to `340ee8d`. Docs only: no
+engine code, no test, no tooling.
+~~~~~
+
+Lines 2323–2324 of the version at `82b824d`:
+
+~~~~~
+  and no clip. The structure gate reads the regime only, so nothing in the design reads
+  a CHOCH until Viktor rules on a gate for it, which comes to him with the whole design
+~~~~~
+
+Line 2917 of the version at `82b824d`:
+
+~~~~~
+  landing recorded: docs only, no engine code. Before it: `340ee8d` (the session of
+~~~~~
+
+Line 3269 of the version at `82b824d`:
+
+~~~~~
+  `pandas_ta`, and changed no other test's code, removing and renaming none; and the
+~~~~~
+
+Lines 3282–3283 of the version at `82b824d`:
+
+~~~~~
+- **The push of `340ee8d`** happened, at 06:17:38 on 8 November: GitHub's tip, read
+  with no credentials at 07:03:16 on 9 November, is `340ee8d`, Viktor's disk is the tip
+~~~~~
+
+Line 3468 of the version at `82b824d`:
+
+~~~~~
+  matched an autocrlf checkout of `340ee8d`, GitHub's tip, cloned at 07:03 on
+~~~~~
+
+Line 3509 of the version at `82b824d`:
+
+~~~~~
+  does not read, and `README.md`, which is not a `.py` file, and by the commit that
+~~~~~
+
+Lines 3522–3523 of the version at `82b824d`:
+
+~~~~~
+  `7dac328` and `340ee8d` and the applied tree of the commit that writes this line give
+  the same (`bc250fc`'s, `706e858`'s, `4ab59d7`'s, `94b7e96`'s, `a11ffc4`'s,
+~~~~~
+
+Lines 3525–3526 of the version at `82b824d`:
+
+~~~~~
+  computed on 7 November, and the applied tree of the commit that writes this line on
+  9 November, under Python 3.12.3); on
+~~~~~
+
+Line 3543 of the version at `82b824d`:
+
+~~~~~
+  the Notes' build script and documents and no code or test, by `340ee8d`, which
+~~~~~
+
+Line 3605 of the version at `82b824d`:
+
+~~~~~
+  autocrlf clone of `340ee8d` and on the patch applied to another. `340ee8d` added two
+~~~~~
+
+Lines 3978–3981 of the version at `82b824d`:
+
+~~~~~
+  covered the seven commits `706e858` to `82ea40e`, and v1.42, by the commit that
+  writes this line, covers the two commits `7dac328` and `340ee8d`, one entry each.
+  **No commit that needs an entry is behind:** `bc250fc`, `9db4ae2` and the commit that
+  writes this line are regenerations and have none (a commit that regenerates the
+~~~~~
+
+Lines 4003–4004 of the version at `82b824d`:
+
+~~~~~
+  the numbers, for its two new tests (the commit that writes this line does not change
+  `README.md`), and before it by `4ab59d7`, which changed only the numbers, for its 24 new tests (`94b7e96`,
+~~~~~
+
+Line 5591 of the version at `82b824d`:
+
+~~~~~
+- **`340ee8d`'s landing**, checked from 07:02 on 9 November, and recorded by the
+~~~~~
+
+Lines 5594–5598 of the version at `82b824d`:
+
+~~~~~
+- **The Engineering Notes, v1.42**, Entries #284 and #285, by the commit that writes
+  this line: no commit that needs an entry is behind.
+- **The patch-delivery skill's marker** is at `a11ffc4`. `82ea40e`'s and `7dac328`'s
+  rulings and `340ee8d`'s amendment change no procedure the skill describes, and the
+  commit that writes this line files no ruling, so the marker stays.
+~~~~~
+
+Line 5600 of the version at `82b824d`:
+
+~~~~~
+  from the version at `340ee8d` are in HISTORY's new entry, checked by
+~~~~~
+
+Line 5628 of the version at `82b824d`:
+
+~~~~~
+  `e748b0b`'s, `f6aa126`'s, `e69d5bb`'s, `e8b42b8`'s, `d6fba83`'s, `7c23886`'s, `e939734`'s, `7ff8128`'s, `5fe8522`'s, `f8805a6`'s, `0a518fd`'s, `a0ca299`'s, `bc250fc`'s, `706e858`'s, `4ab59d7`'s, `94b7e96`'s, `a11ffc4`'s, `542085f`'s, `b874ec1`'s, `82ea40e`'s, `9db4ae2`'s, `7dac328`'s and `340ee8d`'s landings found no entry more (this list stopped at `a0ca299`'s from `bc250fc` to `82ea40e`; brought current on 7 November); entry 58 was found on a hand run, not a landing, entry 61 writing the redesign draft's version 5, not at a landing, entry 59 on `1b82ed0`'s landing, in its `run_tests.py` step, and landed by `5fe8522`, and entry 60 in the session that checked `7b93769`'s landing, and landed by `b990c93`, whose landing found no entry more. Entry 26, one of
+~~~~~
+
+Line 5671 of the version at `82b824d`:
+
+~~~~~
+  it nothing in the design reads a CHOCH, and whether a CHOCH against the side becomes
+~~~~~
+
+Line 5678 of the version at `82b824d`:
+
+~~~~~
+  22 September, entry 58). **Design draft, version 7**, Claude's, started 1 November:
+~~~~~
+
+Line 5681 of the version at `82b824d`:
+
+~~~~~
+  version 5 at `b874ec1`, version 6 at `82ea40e`, version 7 at `7dac328`).
+~~~~~
+
+Line 5683 of the version at `82b824d`:
+
+~~~~~
+  multiplier (all three 7 November).
+~~~~~
+
+Lines 5734–5735 of the version at `82b824d`:
+
+~~~~~
+  sequence, so nothing in the design reads a CHOCH; §12 gains point 8, the count
+  below; §13.2's four leaves that were Viktor's are removed.
+~~~~~
+
+Lines 6168–6169 of the version at `82b824d`:
+
+~~~~~
+  added its own; and the commit that writes this line adds none: it changes the Notes'
+  build script and documents only, as `9db4ae2` did. (This
+~~~~~
