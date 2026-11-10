@@ -221892,3 +221892,193 @@ Line 6250 of the version at `e4363d5`:
 ~~~~~
   only, as `9db4ae2` did; `6bb82cc`, docs only, changed no line there; and the commit
 ~~~~~
+
+## 10 November 2026 — the lines the rewrite of PHASE7_NEXT.md removed from its version at `a60d66b`
+
+*Moved here on 10 November 2026 by the commit that regenerates the Engineering Notes at
+v1.43, Entries #286 to #288, and records `a60d66b`'s landing, under "Ruling, 4 November
+2026 — HISTORY keeps what each rewrite of PHASE7_NEXT.md removes, not the whole file"
+(DECISIONS).
+Below the rule, each block is a run of lines of the file as it stood at `a60d66b` that
+the rewrite deleted or replaced, word for word, labelled with its line numbers in that
+version; "this session" in them is the session that opened at 12:37 on 9 November, and
+"the commit that writes this line" and "this commit" name `a60d66b`. The whole version:
+`git show a60d66b:docs/PHASE7_NEXT.md`. Checked by `docs/build/check_history_move.py`.*
+
+---
+
+Lines 3–6 of the version at `a60d66b`:
+
+~~~~~
+*9 November 2026, in the session that opened at 12:37. Rewritten by the commit that
+files Viktor's ruling of 9 November that Amazon's audit sends Nova 2 Lite through
+OpenRouter's API and records `e4363d5`'s landing; the lines it removed from the version
+at `e4363d5` are in HISTORY,
+~~~~~
+
+Lines 2313–2330 of the version at `a60d66b`:
+
+~~~~~
+**This session (9 November, from 12:37)**, configured for Claude Opus 5.5, opened at
+`e4363d5` and checked its landing, by the patch-delivery skill's section 10. GitHub's
+tip, read with no credentials at 12:39:08 (the probe asked for credentials, so none
+reached it), is `e4363d5`; its tree `7d92aefd…` is the one its `Verified-Tree:` line
+names; its message holds no CR and ends with the attribution lines; `python
+docs/build/check_history_move.py --base e4363d5~1` on the tip gives the line its message
+recorded, 60 lines in 25 runs. Viktor's disk, staged after 12:37: the three files the
+commit changed written at 12:20:25 and each byte for byte the tip; the index the tip's
+tree, 303 entries (its `git ls-files -s` against the tip's `git ls-tree -r`); the loose
+commit object hashing to `e4363d5`, GitHub's bytes, with no CR; `.git/COMMIT_EDITMSG`
+the message byte for byte; `master` and `origin/master` `e4363d5`, written at 12:36:24
+and 12:36:41, the reflogs' last lines "commit:" and "update by push"; the pytest cache
+rewritten at 12:23:59, after the apply, `lastfailed` `{}`; no patch or message file in
+the root. Nothing differed. The skill's marker is at `a11ffc4`; `git diff a11ffc4 HEAD
+-- docs/PHASE7_DECISIONS.md` adds five entries, `82ea40e`'s, `7dac328`'s and
+`6bb82cc`'s rulings, `340ee8d`'s amendment and `e4363d5`'s decision; read by their
+headings and a search for procedure words, none changes a procedure the skill
+describes.
+~~~~~
+
+Lines 2332–2337 of the version at `a60d66b`:
+
+~~~~~
+What came first, by the ruling of 1 November: a ruling of Viktor's to file. At 12:38,
+before the check was reported: "We are to use Nova 2 Lite with Openrouter through API".
+Claude gave its feedback and asked for his reasons and whether Vercel stays; at 12:40
+he gave both. The commit that writes this line files the ruling (DECISIONS, "Ruling,
+9 November 2026 — Amazon's audit sends Nova 2 Lite, through OpenRouter's API") and
+records `e4363d5`'s landing. Docs only: no engine code, no test, no tooling.
+~~~~~
+
+Lines 2967–2969 of the version at `a60d66b`:
+
+~~~~~
+  Viktor's ruling of 9 November that Amazon's audit sends Nova 2 Lite through
+  OpenRouter's API filed, and `e4363d5`'s landing recorded: docs only, no engine code.
+  Before it: `e4363d5` (the session of 9 November, from 09:30: Claude's decision of
+~~~~~
+
+Line 3329 of the version at `a60d66b`:
+
+~~~~~
+  `pandas_ta`, and changed no other test's code, removing and renaming none; `82b824d`, `6bb82cc` and `e4363d5` changed no test; and the
+~~~~~
+
+Lines 3342–3345 of the version at `a60d66b`:
+
+~~~~~
+- **The push of `e4363d5`** happened, at 12:36:41 on 9 November: GitHub's tip, read
+  with no credentials at 12:39:08 on 9 November, is `e4363d5`, Viktor's disk is the tip
+  in every part this session's check read, and its tree is the one its
+  `Verified-Tree:` line names; no deviation (ruling on proposal (b)). So did
+~~~~~
+
+Lines 3537–3538 of the version at `a60d66b`:
+
+~~~~~
+  matched an autocrlf checkout of `e4363d5`, GitHub's tip, cloned at 12:38 on
+  9 November, byte for byte, before the patch was built; it adds no file. (This file
+~~~~~
+
+Line 3578 of the version at `a60d66b`:
+
+~~~~~
+  does not read, and `README.md`, which is not a `.py` file, by `82b824d`, `6bb82cc` and `e4363d5`, which
+~~~~~
+
+Line 3592 of the version at `a60d66b`:
+
+~~~~~
+  `7dac328`, `340ee8d`, `82b824d`, `6bb82cc` and `e4363d5` and the applied tree of the commit
+~~~~~
+
+Lines 3595–3596 of the version at `a60d66b`:
+
+~~~~~
+  computed on 7 November, and `82b824d`'s, `6bb82cc`'s, `e4363d5`'s and the applied tree
+  of the commit that writes this line on 9 November, under Python 3.12.3); on
+~~~~~
+
+Line 3603 of the version at `a60d66b`:
+
+~~~~~
+  on `9db4ae2`, `7dac328` and `340ee8d`, for v1.42: this value on all three.
+~~~~~
+
+Lines 3613–3614 of the version at `a60d66b`:
+
+~~~~~
+  docs and no code or test, by `6bb82cc` and `e4363d5`, which changed docs and no code
+  or test, by
+~~~~~
+
+Line 3678 of the version at `a60d66b`:
+
+~~~~~
+  autocrlf clone of `e4363d5` and on the patch applied to another. `e4363d5` changed
+~~~~~
+
+Line 4062 of the version at `a60d66b`:
+
+~~~~~
+- **Engineering Notes:** through Entry #285 (v1.42), which covers `340ee8d`. The gap
+~~~~~
+
+Lines 4066–4081 of the version at `a60d66b`:
+
+~~~~~
+  covered the seven commits `706e858` to `82ea40e`, and v1.42, at `82b824d`, covers the
+  two commits `7dac328` and `340ee8d`, one entry each.
+  **Three commits that need an entry are behind: `6bb82cc`, `e4363d5` and the commit
+  that writes this line**, Entries #286 to #288 to come; `bc250fc`, `9db4ae2` and `82b824d` are regenerations and have none (a commit that regenerates the
+  Notes cannot cover itself, Entry #144). Every later commit adds one until the next
+  regeneration. Batched, by the 15 September rule. v1.42 records the ruling that the
+  redesign's entry quality has no structure multiplier and the reading's computation
+  7, the CHOCH count — two entries for two commits, each written from its commit's
+  message and from the DECISIONS entry it files, none re-checked against the code.
+  `code_hash` was recomputed on the two trees and on `9db4ae2`, under Python 3.12.3:
+  `816d4951…` on all three, no move, as every message records; the golden fixture was
+  not re-baselined in this range, its blob the same on all three trees. Its PDF's
+  extracted text differs from v1.41's only by the two entries, the new Document
+  History row and nineteen footer page numbers (203 pages to 205), compared word by
+  word; v1.41's script at `340ee8d` rebuilt first gave the committed v1.41 text
+  exactly (Linux sandbox, reportlab 5.1.0).
+~~~~~
+
+Line 4091 of the version at `a60d66b`:
+
+~~~~~
+  the numbers, for its two new tests (`82b824d`, `6bb82cc`, `e4363d5` and the commit that writes this
+~~~~~
+
+Lines 5679–5686 of the version at `a60d66b`:
+
+~~~~~
+- **`e4363d5`'s landing**, checked from 12:37 on 9 November, and recorded by the
+  commit that writes this line, made for its own reason (DECISIONS, the correction of
+  4 November). Its push is in "Where things stand".
+- **The model of Amazon's audit**: Viktor's ruling of 9 November, Nova 2 Lite through
+  OpenRouter's API, filed by the commit that writes this line (Open items, the
+  independent audit).
+- **The patch-delivery skill's marker** is at `a11ffc4`. The ruling the commit that
+  writes this line files changes no procedure the skill describes, so the marker stays.
+~~~~~
+
+Line 5688 of the version at `a60d66b`:
+
+~~~~~
+  from the version at `e4363d5` are in HISTORY's new entry, checked by
+~~~~~
+
+Line 5716 of the version at `a60d66b`:
+
+~~~~~
+  `e748b0b`'s, `f6aa126`'s, `e69d5bb`'s, `e8b42b8`'s, `d6fba83`'s, `7c23886`'s, `e939734`'s, `7ff8128`'s, `5fe8522`'s, `f8805a6`'s, `0a518fd`'s, `a0ca299`'s, `bc250fc`'s, `706e858`'s, `4ab59d7`'s, `94b7e96`'s, `a11ffc4`'s, `542085f`'s, `b874ec1`'s, `82ea40e`'s, `9db4ae2`'s, `7dac328`'s, `340ee8d`'s, `82b824d`'s, `6bb82cc`'s and `e4363d5`'s landings found no entry more (this list stopped at `a0ca299`'s from `bc250fc` to `82ea40e`; brought current on 7 November); entry 58 was found on a hand run, not a landing, entry 61 writing the redesign draft's version 5, not at a landing, entry 59 on `1b82ed0`'s landing, in its `run_tests.py` step, and landed by `5fe8522`, and entry 60 in the session that checked `7b93769`'s landing, and landed by `b990c93`, whose landing found no entry more. Entry 26, one of
+~~~~~
+
+Lines 6276–6277 of the version at `a60d66b`:
+
+~~~~~
+  only, as `9db4ae2` did; `6bb82cc` and `e4363d5`, docs only, changed no line there; and the commit
+  that writes this line, docs only, changes no line there. (This
+~~~~~
