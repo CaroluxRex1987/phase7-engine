@@ -1,9 +1,9 @@
 # Next step — read this first
 
 *11 November 2026, in the session that opened at 09:41. Rewritten by the commit that
-files Viktor's ruling of 09:41 on 11 November, writes the redesign draft's
-version 10, and records `a9b83a9`'s landing; the lines it removed from the version at
-`a9b83a9` are in HISTORY, which points to that whole version in git.
+files Viktor's ruling of 10:08 on 11 November, writes the redesign draft's
+version 11, and records `66b5c50`'s landing; the lines it removed from the version at
+`66b5c50` are in HISTORY, which points to that whole version in git.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
 rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
@@ -2385,14 +2385,34 @@ writes this). That session's account is in this file's version at `a9b83a9`.
 `a9b83a9` with Viktor's message: his ruling of 09:41 to file, the draft's version 10
 to write with the lines and F as ruled, and then the trigger candle brought to him.
 It checked `a9b83a9`'s landing first, by the patch-delivery skill's section 10, and
-nothing differed (Where things stand, the push of `a9b83a9`). The commit that writes
-this line files the ruling in DECISIONS ("Ruling, 11 November 2026 — the redesign's
-tier lines are 70 and 50 …"), with his slice check recorded as open, writes the
-draft's version 10, and records `a9b83a9`'s landing. Docs only: no engine code, no
-test, no tooling; it moves no `code_hash`. Found writing version 10: the second pinned
-decision's seed, which no longer waits on the lines or F, waits on the trigger.
+nothing differed (Where things stand, the push of `66b5c50`). `66b5c50` filed the
+ruling in DECISIONS ("Ruling, 11 November 2026 — the redesign's
+tier lines are 70 and 50 …"), with his slice check recorded as open, wrote the
+draft's version 10, and recorded `a9b83a9`'s landing. Found writing version 10: the
+second pinned decision's seed, which no longer waits on the lines or F, waited on the
+trigger. The message that delivered its patch brought him the trigger candle, with
+four options and Claude's suggestion. At 10:07, after its push, he asked for Claude's
+suggestions on what was open; Claude gave three, and at 10:08 he answered, "I agree."
+Claude reads that as agreement to all three, his to correct. The commit that writes
+this line files it
+(DECISIONS, "Ruling, 11 November 2026 — the redesign's trigger is the candle that closes beyond its open and the previous close …"),
+writes the draft's version 11, and records `66b5c50`'s landing, checked first and
+nothing differing. Docs only: no engine code, no test, no tooling; it moves no
+`code_hash`.
 
 ## Ruled — in force
+
+- **New, 11 November, 10:08 — Viktor's, by agreeing to Claude's suggestions: the
+  redesign's trigger is the candle that closes beyond its open and the previous
+  close; F against his slice is ruled when the paper account's size is set; the count
+  of the 92 is not made**
+  (DECISIONS, "Ruling, 11 November 2026 — the redesign's trigger is the candle that closes beyond its open and the previous close …").
+  (1) LONG: the decision candle closes above its open and above the previous candle's
+  close; SHORT the mirror; no turn yet is a WAIT at gate 8. The trigger volume's
+  details stay proposed. (2) F stays at 10,000 USDT; the tie to his slice has its
+  time, not its answer. (3) How many of the 92 records at 70 and over pass the
+  trigger is not counted. His "I agree." to three suggestions is read as covering
+  each; his to correct.
 
 - **New, 11 November, 09:41 — Viktor's, each by agreeing to Claude's suggestion: the
   redesign's tier lines are 70 and 50 and its three labels are kept; F is
@@ -3060,8 +3080,11 @@ decision's seed, which no longer waits on the lines or F, waits on the trigger.
 ## Where things stand, right now
 
 - **Tip:** the commit that writes this line (a commit cannot name its own hash) —
-  Viktor's ruling of 09:41 on 11 November filed, the redesign draft's version 10,
-  and `a9b83a9`'s landing recorded: docs only, no engine code. Before it: `a9b83a9`
+  Viktor's ruling of 10:08 on 11 November filed, the redesign draft's version 11,
+  and `66b5c50`'s landing recorded: docs only, no engine code. Before it: `66b5c50`
+  (the session of 11 November, from 09:41: Viktor's ruling of 09:41 on 11 November
+  filed, the redesign draft's version 10, and `a9b83a9`'s landing recorded: docs
+  only, no engine code), `a9b83a9`
   (the session of 11 November, from 08:55: Viktor's three rulings of 08:55 on
   11 November filed, the redesign draft's version 9, and `9cc48d7`'s landing
   recorded: docs only, no engine code), `9cc48d7`
@@ -3446,7 +3469,20 @@ decision's seed, which no longer waits on the lines or F, waits on the trigger.
   to `E:\phase7_engine`". Run the engine and every command from `E:\phase7_engine` (in
   cmd, changing drive needs `cd /d`). A dated record that names the D: paths means the
   same folders before the move; dated records are not edited.
-- **The push of `a9b83a9`** happened, at 09:39:32 on 11 November, and its landing was
+- **The push of `66b5c50`** happened, at 10:07:03 on 11 November, and its landing was
+  checked by this session from 10:08; nothing differed, no deviation (ruling on
+  proposal (b)). GitHub's tip, read with no credentials at 10:08:57 (the probe asked
+  for credentials), was `66b5c50`; its tree `f5738d44…` the one its `Verified-Tree:`
+  line names; its message with no CR, the attribution lines last, and the delivered
+  one less its CRs; `python docs/build/check_history_move.py --base 66b5c50~1` on the
+  tip gave 54 lines in 20 runs, its recorded line. Viktor's disk: the four files the
+  commit changed written at 09:56:47 and each byte for byte the tip; the index the
+  tip's tree, 303 entries; the loose commit object hashing to `66b5c50`, GitHub's
+  bytes, with no CR; `.git/COMMIT_EDITMSG` the message; `master` and `origin/master`
+  `66b5c50`, the reflogs' last lines "commit:" at 10:06:47 and "update by push" at
+  10:07:03; the pytest cache's `nodeids` written at 10:00:09, after the apply,
+  `lastfailed` `{}`; no patch or message file in the root. So did `a9b83a9`'s, at
+  09:39:32 on 11 November, and its landing was
   checked by this session from 09:43; nothing differed, no deviation (ruling on
   proposal (b)). GitHub's tip, read with no credentials at 09:43:26 (the probe asked
   for credentials), was `a9b83a9`; its tree `83839aa9…` the one its `Verified-Tree:`
@@ -3824,7 +3860,12 @@ decision's seed, which no longer waits on the lines or F, waits on the trigger.
   15 October 2026 — Part 4's three test shapes", point 5); `README.md` wrote it too
   until `713e084` (entry 50). The commit that writes this line changes no test, and the
   three counts held: from the Linux sandbox, Python 3.12.3, pinned requirements, on an
-  autocrlf clone of `a9b83a9` and on the patch applied to another. `a9b83a9` changed
+  autocrlf clone of `66b5c50` and on the patch applied to another. `66b5c50` changed
+  no test, and the three counts held: from the Linux sandbox, on an autocrlf clone of
+  `a9b83a9` and on the patch applied to another; its pytest step ran on Windows after
+  the apply (read off his disk by this session: the cache was written at 10:00:09 on
+  11 November, after its four files were written at 09:56:47; its `lastfailed` is
+  `{}`), and Viktor went on to the commit. `a9b83a9` changed
   no test, and the three counts held: from the Linux sandbox, on an autocrlf clone of
   `9cc48d7` and on the patch applied to another; its pytest step ran on Windows after
   the apply (read off his disk by this session: the cache was written at 09:26:30 on
@@ -4228,19 +4269,21 @@ decision's seed, which no longer waits on the lines or F, waits on the trigger.
   then run on Windows at 09:06 on 12 October: both matched (792; 721 / 0 / 32). One test,
   `test_the_commit_messages_up_to_the_tag_are_round_7s_to_the_byte`, runs `git log` up
   to the tag `round7-sent-2026-09-30`: it needs the tag, which a full clone has.
-- **Engineering Notes:** through Entry #288 (v1.43), which covers `a60d66b`; three
-  commits behind, `9cc48d7`, `a9b83a9` and the commit that writes this line (below). The gap
+- **Engineering Notes:** through Entry #288 (v1.43), which covers `a60d66b`; four
+  commits behind, `9cc48d7`, `a9b83a9`, `66b5c50` and the commit that writes this line
+  (below). The gap
   left by v1.36 was closed in four regenerations: v1.37 at `f8805a6` covered `e7a94d1`
   to `eb86846`, v1.38 at `0a518fd` `c2b07fb` to `67f6ec1`, v1.39 at `a0ca299` `0491b84`
   to `b8f88d8`, and v1.40 at `bc250fc` `a1c4218` to `0a518fd`. v1.41, at `9db4ae2`,
   covered the seven commits `706e858` to `82ea40e`, v1.42, at `82b824d`, the two
   commits `7dac328` and `340ee8d`, and v1.43, at `4cdad4e`,
   covers the three commits `6bb82cc`, `e4363d5` and `a60d66b`, one entry each.
-  **Three commits that need an entry are behind:** `9cc48d7`, which files the ruling of
+  **Four commits that need an entry are behind:** `9cc48d7`, which files the ruling of
   11 November and the reading, `a9b83a9`, which files the rulings of 08:55 on
-  11 November and writes the draft's version 9, and the commit that writes this line,
-  which files the ruling of 09:41 on 11 November and writes the draft's version 10;
-  none has one until the next regeneration. `bc250fc`, `9db4ae2`, `82b824d` and
+  11 November and writes the draft's version 9, `66b5c50`, which files the ruling of
+  09:41 on 11 November and writes the draft's version 10, and the commit that writes
+  this line, which files the ruling of 10:08 on 11 November and writes the draft's
+  version 11; none has one until the next regeneration. `bc250fc`, `9db4ae2`, `82b824d` and
   `4cdad4e` are regenerations and have none (a commit that
   regenerates the Notes cannot cover itself, Entry #144). Every later commit adds one
   until the next regeneration. Batched, by the 15 September rule. v1.43 records the
@@ -5859,20 +5902,27 @@ Each code commit is its own commit and updates this file for its own landing.
 ## Resolved this session
 
 - **`a9b83a9`'s landing**, checked by this session from 09:43 on 11 November, nothing
+  differing, and recorded by `66b5c50`. Its push is in "Where things stand".
+- **`66b5c50`'s landing**, checked by this session from 10:08 on 11 November, nothing
   differing, and recorded by the commit that writes this line, made for its own reason
   (DECISIONS, the correction of 4 November). Its push is in "Where things stand".
 - **Viktor's ruling of 09:41 on 11 November**, by agreeing to Claude's suggestion:
   the tier lines 70 and 50 with all three labels kept, and F at 10,000 USDT as a
-  starting value on the tunable list; filed by the commit that writes this line
+  starting value on the tunable list; filed by `66b5c50`
   (DECISIONS, "Ruling, 11 November 2026 — the redesign's tier lines are 70 and 50 …").
-  Not resolved by it: F against his slice (Open items).
-- **The redesign draft's version 10**, by the commit that writes this line: the lines
+- **The redesign draft's version 10**, by `66b5c50`: the lines
   and F stated as ruled (Open items, the redesign).
+- **Viktor's ruling of 10:08 on 11 November**, by agreeing to Claude's suggestions:
+  the trigger as drafted, F against his slice ruled when the paper account's size is
+  set, and the count of the 92 not made; filed by the commit that writes this line
+  (DECISIONS, "Ruling, 11 November 2026 — the redesign's trigger is the candle that closes beyond its open and the previous close …").
+- **The redesign draft's version 11**, by the commit that writes this line: the
+  trigger stated as ruled (Open items, the redesign).
 - **The patch-delivery skill's marker**: the skill as loaded in this session names
   `9cc48d7` on its marker line, as ruled at 08:55 on 11 November. The entry filed
   today changes no procedure it describes, and no update is proposed.
 - **This file's rewrite**, by the commit that writes this line. The lines it removed
-  from the version at `a9b83a9` are in HISTORY's new entry, checked by
+  from the version at `66b5c50` are in HISTORY's new entry, checked by
   `docs/build/check_history_move.py` (the commit message has the result).
 
 ## Open items
@@ -5882,7 +5932,12 @@ Claude critiques it.
 
 - **Owed to the next commit:** nothing, unless this commit's push deviates from its
   prediction (ruling on proposal (b), 27 September).
-- **Viktor's call, open since 11 November — F against his slice.** Claude's check,
+- **Viktor's call, when the paper account's size is set — F against his slice**
+  (its time ruled at 10:08 on 11 November:
+  (DECISIONS, "Ruling, 11 November 2026 — the redesign's trigger is the candle that closes beyond its open and the previous close …")).
+  Claude's view, not ruled: about 1% of a candle for one order, which at a
+  1,000 USDT slice would put F at 100,000 USDT; what that would block was not
+  counted. Claude's check,
   which his ruling of 09:41 on 11 November did not answer
   (DECISIONS, "Ruling, 11 November 2026 — the redesign's tier lines are 70 and 50 …"):
   a 1,000 USDT slice is a tenth of a candle's turnover at F, 13.5% of AVAXUSDT's
@@ -5963,14 +6018,14 @@ Claude critiques it.
   31 October 2026 — volume enters the redesign as two gates …"); the floor needs
   `quote_volume`, which the fetcher drops today. Added on 1 November: entry 58's rule,
   that no reasoning sentence rounds a compared value across its threshold (Found after
-  22 September, entry 58). **Design draft, version 10**, Claude's, started 1 November:
+  22 September, entry 58). **Design draft, version 11**, Claude's, started 1 November:
   `docs/redesign_entry53_draft.md` (version 0 filed at `e69d5bb`, version 1 at
   `e8b42b8`, version 2 at `94b7e96`, version 3 at `a11ffc4`, version 4 at `542085f`,
-  version 5 at `b874ec1`, version 6 at `82ea40e`, version 7 at `7dac328`, version 8 at `6bb82cc`, version 9 at `a9b83a9`, version 10 by the commit that
+  version 5 at `b874ec1`, version 6 at `82ea40e`, version 7 at `7dac328`, version 8 at `6bb82cc`, version 9 at `a9b83a9`, version 10 at `66b5c50`, version 11 by the commit that
   writes this line).
   Not ruled, but for its direction, its reading of AGGRESSIVE and the structure
   multiplier (all three 7 November), its exit watch's exhaustion and reversal flags
-  (9 November, removed) and its tier lines and F (11 November).
+  (9 November, removed) and its tier lines, F and trigger (11 November).
   Version 1
   lists every golden field — 227 leaves: 125 unchanged, 81 removed, 15 that move, 2
   renamed and 4 that go only if Viktor removes the structure multiplier, which he did
@@ -6056,10 +6111,15 @@ Claude critiques it.
   pinned fixture's `quote_volume` as `volume × close` (every candle of the fixture
   then at or over F, the smallest at 10,650.02; computed in the Linux sandbox at
   `a9b83a9`), and finds that the second pinned decision's seed, no longer waiting on
-  the lines or F, waits on the trigger, which its search applies as gate 8. **His
-  next, brought to him on 11 November in this order:** the trigger candle; then
-  whether a CHOCH against the side becomes a gate, the ADX floor and the stop's 1.2 as
-  tunable, and the design as a whole.
+  the lines or F, waited on the trigger, which its search applies as gate 8. **The
+  trigger, brought to him on 11 November and ruled at 10:08 that day:** as drafted,
+  the candle that closes beyond its open and the previous close (Ruled — in force).
+  **Version 11** states it as ruled. **His next, in this order:** whether a CHOCH
+  against the side becomes a gate, brought to him on 11 November; then the ADX floor
+  and the stop's 1.2 as tunable, and the design as a whole. **Claude's, after the
+  CHOCH question is ruled:** the second pinned decision's seed, searched by the
+  method of the draft's §10.1; a CHOCH gate ruled in after the search would mean a
+  second one.
 - **The CHOCH count — filed, and read on 11 November** (draft §12, point 8; DECISIONS,
   "Ruling, 7 November 2026 — the redesign's entry quality has no structure
   multiplier", "What follows"): computation 7 of the reading, added to the decision of

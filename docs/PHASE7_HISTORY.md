@@ -222637,3 +222637,129 @@ Lines 6003–6006 of the version at `a9b83a9`:
   those: the trigger candle, whether a CHOCH against the side becomes a gate, any ruled
   value named as tunable, and the design as a whole.
 ~~~~~
+
+## 11 November 2026 — the lines the rewrite of PHASE7_NEXT.md removed from its version at `66b5c50`
+
+*Moved here on 11 November 2026 by the commit that files Viktor's ruling of 10:08 on
+11 November, writes the redesign draft's version 11, and records `66b5c50`'s landing,
+under "Ruling, 4 November 2026 — HISTORY keeps what each rewrite of PHASE7_NEXT.md
+removes, not the whole file" (DECISIONS).
+Below the rule, each block is a run of lines of the file as it stood at `66b5c50` that
+the rewrite deleted or replaced, word for word, labelled with its line numbers in that
+version; "this session" in them is the session that opened at 09:41 on 11 November, the
+one that writes this entry too, and "the commit that writes this line" and "this
+commit" name `66b5c50`. The whole version:
+`git show 66b5c50:docs/PHASE7_NEXT.md`. Checked by `docs/build/check_history_move.py`.*
+
+---
+
+Lines 4–6 of the version at `66b5c50`:
+
+~~~~~
+files Viktor's ruling of 09:41 on 11 November, writes the redesign draft's
+version 10, and records `a9b83a9`'s landing; the lines it removed from the version at
+`a9b83a9` are in HISTORY, which points to that whole version in git.
+~~~~~
+
+Lines 2388–2393 of the version at `66b5c50`:
+
+~~~~~
+nothing differed (Where things stand, the push of `a9b83a9`). The commit that writes
+this line files the ruling in DECISIONS ("Ruling, 11 November 2026 — the redesign's
+tier lines are 70 and 50 …"), with his slice check recorded as open, writes the
+draft's version 10, and records `a9b83a9`'s landing. Docs only: no engine code, no
+test, no tooling; it moves no `code_hash`. Found writing version 10: the second pinned
+decision's seed, which no longer waits on the lines or F, waits on the trigger.
+~~~~~
+
+Lines 3063–3064 of the version at `66b5c50`:
+
+~~~~~
+  Viktor's ruling of 09:41 on 11 November filed, the redesign draft's version 10,
+  and `a9b83a9`'s landing recorded: docs only, no engine code. Before it: `a9b83a9`
+~~~~~
+
+Line 3449 of the version at `66b5c50`:
+
+~~~~~
+- **The push of `a9b83a9`** happened, at 09:39:32 on 11 November, and its landing was
+~~~~~
+
+Line 3827 of the version at `66b5c50`:
+
+~~~~~
+  autocrlf clone of `a9b83a9` and on the patch applied to another. `a9b83a9` changed
+~~~~~
+
+Lines 4231–4232 of the version at `66b5c50`:
+
+~~~~~
+- **Engineering Notes:** through Entry #288 (v1.43), which covers `a60d66b`; three
+  commits behind, `9cc48d7`, `a9b83a9` and the commit that writes this line (below). The gap
+~~~~~
+
+Line 4239 of the version at `66b5c50`:
+
+~~~~~
+  **Three commits that need an entry are behind:** `9cc48d7`, which files the ruling of
+~~~~~
+
+Lines 4241–4243 of the version at `66b5c50`:
+
+~~~~~
+  11 November and writes the draft's version 9, and the commit that writes this line,
+  which files the ruling of 09:41 on 11 November and writes the draft's version 10;
+  none has one until the next regeneration. `bc250fc`, `9db4ae2`, `82b824d` and
+~~~~~
+
+Line 5866 of the version at `66b5c50`:
+
+~~~~~
+  starting value on the tunable list; filed by the commit that writes this line
+~~~~~
+
+Lines 5868–5869 of the version at `66b5c50`:
+
+~~~~~
+  Not resolved by it: F against his slice (Open items).
+- **The redesign draft's version 10**, by the commit that writes this line: the lines
+~~~~~
+
+Line 5875 of the version at `66b5c50`:
+
+~~~~~
+  from the version at `a9b83a9` are in HISTORY's new entry, checked by
+~~~~~
+
+Line 5885 of the version at `66b5c50`:
+
+~~~~~
+- **Viktor's call, open since 11 November — F against his slice.** Claude's check,
+~~~~~
+
+Line 5966 of the version at `66b5c50`:
+
+~~~~~
+  22 September, entry 58). **Design draft, version 10**, Claude's, started 1 November:
+~~~~~
+
+Line 5969 of the version at `66b5c50`:
+
+~~~~~
+  version 5 at `b874ec1`, version 6 at `82ea40e`, version 7 at `7dac328`, version 8 at `6bb82cc`, version 9 at `a9b83a9`, version 10 by the commit that
+~~~~~
+
+Line 5973 of the version at `66b5c50`:
+
+~~~~~
+  (9 November, removed) and its tier lines and F (11 November).
+~~~~~
+
+Lines 6059–6062 of the version at `66b5c50`:
+
+~~~~~
+  the lines or F, waits on the trigger, which its search applies as gate 8. **His
+  next, brought to him on 11 November in this order:** the trigger candle; then
+  whether a CHOCH against the side becomes a gate, the ADX floor and the stop's 1.2 as
+  tunable, and the design as a whole.
+~~~~~

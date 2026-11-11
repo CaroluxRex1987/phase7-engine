@@ -7875,6 +7875,74 @@ meanwhile. Viktor's.
    a whole.
 5. No procedure the patch-delivery skill describes changes.
 
+## Ruling, 11 November 2026 — the redesign's trigger is the candle that closes beyond its open and the previous close; F against the slice is ruled when the paper account's size is set; the count of the 92 is not made
+
+*New in this file on 11 November 2026. Viktor's, at 10:08 on 11 November, by agreeing
+to Claude's suggestions. In the session that opened at 09:41 at `a9b83a9`, Claude
+brought him the trigger candle with four options and its suggestion, in the message
+that delivered `66b5c50`'s patch; at 10:07, after its push, he asked for Claude's
+suggestions on what was open, and Claude gave three; at 10:08 he answered, "I agree."
+**Claude reads that as agreement to all
+three, the trigger among them; his to correct.** Filed by that session's second
+commit, docs only. No earlier entry is edited (the ruling of 20 September).*
+
+**What was ruled.**
+
+1. **The redesign's trigger is the one its draft proposed** (§5; option A as put to
+   him). LONG: the decision candle, the last closed one, closes above its open and
+   above the previous candle's close. SHORT is the mirror. A pullback that has not
+   turned yet is a WAIT at gate 8. Put beside it and not taken: B, the close above
+   the open alone; C, the close above the previous candle's high; D, no trigger,
+   which would have reopened the ruling of 31 October, whose volume gate confirms a
+   trigger. Not ruled by this: the trigger volume's details (the median of the
+   previous 20 candles, strictly above), which stay proposed, his with the design as
+   a whole.
+2. **F stays at 10,000 USDT, and whether it is tied to his slice is ruled when the
+   paper account's size is set.** This gives the question left open by the entry
+   above its time; it does not answer it. Until the account has a size the slice
+   has none on record, and a tie would rest on a guessed number. Claude's view, given
+   with the suggestion and not ruled: a tenth of a candle is too large a share for
+   one order and about 1% is more realistic, which at a 1,000 USDT slice would put F
+   at 100,000 USDT. What 100,000 would block was not counted. Claude offered to count
+   it at 20,000, 50,000 and 100,000 from the decision logs; he did not ask for it.
+3. **The count of how many of the 92 records at 70 and over pass the trigger is not
+   made.** It would test the reason argued for the top tier being empty (draft
+   §16.3, point 5), and that question waits for the redesign's own first reading by
+   the entry above. Nor are options B and C counted.
+
+**Why A, as Claude gave it.** It is the simplest rule that needs the candle to turn,
+and the only option the reading measured: it passes on 277 of the 539 records with a
+side, and with its volume blocks 68 of the 76 that pass every other gate. Choosing
+among A, B and C on the reading's counts would fit the rule to three and a half weeks
+of one falling market.
+
+**What it weakens.**
+
+- The trigger decides when the engine enters, and it is one candle's shape chosen
+  with no outcome data. Backtesting is closed, so nothing shows that it picks better
+  entries than no trigger; the reading counts only how often it blocks.
+- With its volume it blocks 89.5% of the records that pass every other gate, one
+  record short of the line of 2 November that would have counted against it.
+- It probably keeps LONG, SHORT and AGGRESSIVE empty: it asks for a close moving away
+  from the band, and entry quality falls with distance from the band's middle. That is
+  argued and, by point 3, stays unmeasured.
+- The alternatives were set aside unmeasured, on an argument about fitting and not on
+  evidence that A is better.
+- The ruling is one "I agree." to three suggestions at once, read by Claude as
+  covering each.
+- F is in force with no rule against his slice until the paper account has a size.
+
+**What follows.**
+
+1. The redesign draft's version 11, filed with this entry, states the trigger as
+   ruled.
+2. The second pinned decision's seed (draft §10.1) is Claude's to search. One
+   question of his could still make it a second search, so it is put to him first:
+   whether a CHOCH against the side becomes a gate.
+3. His after that: the ADX floor and the stop's 1.2 as tunable, and the design as a
+   whole.
+4. No procedure the patch-delivery skill describes changes.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then

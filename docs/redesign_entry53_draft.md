@@ -1,6 +1,14 @@
 # The redesign (entry 53) — design draft
 
-*Draft v10, 11 November 2026, in the session that opened at 09:41 at `a9b83a9`. Version
+*Draft v11, 11 November 2026, in the session that opened at 09:41 at `a9b83a9`, written
+at `66b5c50`. Version 11 states §5's trigger as Viktor ruled it on 11 November, as
+drafted
+(DECISIONS, "Ruling, 11 November 2026 — the redesign's trigger is the candle that closes beyond its open and the previous close …"),
+records that F against his slice is ruled when the paper account's size is set (§5)
+and that the count of the 92 is not made (§16.3), and brings §0, §4, §10.1 and §12 to
+it. It reads no code; no engine `.py` file changed between `a9b83a9` and `66b5c50`.
+It is the version put to Viktor for whether a CHOCH against the side becomes a gate.
+Version 10, 11 November 2026, was written in the same session, at `a9b83a9`. Version
 10 states §4's tier lines and §5's F as Viktor ruled them on 11 November: the lines stay
 70 and 50 with all three labels kept, and F is 10,000 USDT, a starting value on the
 tunable list
@@ -9,7 +17,7 @@ It records his check of F against his slice as open (§5), proposes the pinned f
 `quote_volume` (§5), finds that the second pinned decision's seed now waits on the
 trigger (§10.1), and brings §0, §9, §12, §16.3 and §17.2 to it. It reads no engine code
 and one fixture, `tests/fixtures/ohlcv_clean_4h.csv` at `a9b83a9`; no engine `.py` file
-changed between `9cc48d7` and `a9b83a9`. It is the version put to Viktor for the trigger
+changed between `9cc48d7` and `a9b83a9`. It was the version put to Viktor for the trigger
 candle. Version 9, 11 November 2026, was written in the session that opened at 08:55 at
 `9cc48d7`. Version 9
 writes in the reading of 14 November, taken on 11 November (§17, new); rewrites §2's
@@ -76,12 +84,12 @@ made. Claude's draft. It will be put to Viktor after the forward measurement's r
 of 14 November (DECISIONS, "Ruling, 25 October 2026 — the engine's indicators …",
 point 7). Nothing here is ruled but §2's direction, §4's reading of AGGRESSIVE and §3.3's
 structure multiplier (all three 7 November), §2's exit watch flags (9 November) and
-§4's tier lines and §5's F (both 11 November), and no code is written
+§4's tier lines, §5's F and §5's trigger (all three 11 November), and no code is written
 from it until the whole design is. Each
 statement says where it comes from: **read** means read in the code at `e748b0b`
 (version 0), `e69d5bb` (version 1), `4ab59d7` (version 2), `94b7e96` (version 3) or
 `a11ffc4` (version 4) or `542085f` (version 5); version 6 reads none; version 7 reads
-at `9db4ae2`; version 8 at `82b824d`; version 9 at `9cc48d7`; version 10 reads none;
+at `9db4ae2`; version 8 at `82b824d`; version 9 at `9cc48d7`; version 10 reads none, nor does version 11;
 **ruled** names the
 ruling; **proposed** is Claude's suggestion; **to measure** was a number this draft
 did not have yet, and since version 9 each is **measured**, from the reading (§17), or
@@ -93,7 +101,7 @@ something was not checked, the sentence says so.*
 - **Viktor's, as the design's ruling** (25 October, "What follows"): the whole design
   before it is built. Inside it, these are new trading rules or change one of his
   rulings, so they are his even under the delegation of 29 October: the strength floor
-  (§2; ruled on 7 November), the trigger candle (§5), the liquidity floor's value (§5; ruled on
+  (§2; ruled on 7 November), the trigger candle (§5; ruled on 11 November, as drafted), the liquidity floor's value (§5; ruled on
   11 November, 10,000 USDT), the tier lines
   (§4; which reading of AGGRESSIVE they mean ruled on 7 November, the lines themselves
   on 11 November, 70 and 50), whether the structure multiplier stays (§3.3; ruled on 7 November, removed),
@@ -469,7 +477,7 @@ that fails records its own sentence.
 | 5 | no price/RSI divergence against | today, in the confirmation gate | NO-TRADE (SIGNAL UNCONFIRMED) |
 | 6 | LONG only: daily trend not BEARISH | ruled 25 Oct, point 3 | NO-TRADE (MACRO AGAINST) — new label, proposed |
 | 7 | liquidity floor (§5) | ruled 31 Oct | NO-TRADE (THIN MARKET) — new label, proposed |
-| 8 | trigger, and its volume (§5) | ruled 31 Oct; the trigger proposed | WAIT — no resumption candle yet |
+| 8 | trigger, and its volume (§5) | ruled 31 Oct; the trigger ruled 11 Nov | WAIT — no resumption candle yet |
 | 9 | entry quality ≥ the CONSERVATIVE line | ruled 25 Oct, point 4 | WAIT — not a pullback |
 
 Gates 3–5 stay where they are, in `_apply_signal_gate`, with their sentences
@@ -545,6 +553,13 @@ resumes the trend after the pullback", so the design has to say which candle tha
   16) closes above its open and above the previous candle's close. SHORT is the
   mirror. Entry quality is read on that candle's close, so the pullback and its end
   are the same candle. A pullback that has not turned yet means WAIT.
+  **Ruled (version 11):** on 11 November, at 10:08, Viktor ruled this trigger, by
+  agreeing to Claude's suggestion
+  (DECISIONS, "Ruling, 11 November 2026 — the redesign's trigger is the candle that closes beyond its open and the previous close …").
+  Put to him beside it and not taken: the close above the open alone; the close
+  above the previous candle's high; and no trigger. None of the three was measured.
+  What this bullet says of entry quality being read on the trigger's candle is part
+  of the draft, his with the design as a whole.
 - **Trigger volume:** that candle's `volume` > the median of the previous 20 candles'
   `volume`. The margin starts at zero: strictly above the median. Twenty is a length,
   not a cutoff (31 October, point 4). Base-asset volume is used because it is
@@ -563,6 +578,11 @@ resumes the trend after the pullback", so the design has to say which candle tha
   AVAXUSDT's thinnest candle in the window, which gate 7 blocks, and 7.6% of
   LINKUSDT's. The slice's size in USDT is not on record (28 September: ten equal
   slices of 10%, and no account size); the 1,000 is from his message of 11 November.
+  **Version 11:** by his ruling of 10:08 on 11 November F stays at 10,000 USDT, and
+  whether it is tied to the slice is ruled when the paper account's size is set.
+  Claude's view, given with the suggestion and not ruled: a tenth of a candle is too
+  large a share for one order and about 1% is more realistic, which at a 1,000 USDT
+  slice would be an F of 100,000 USDT; what that would block was not counted.
 - **`quote_volume` has to reach the frame.** `data/data_fetcher.py` reads it as the
   eighth kline column and drops it (read: `_OHLCV_COLUMNS` keeps five). Keeping it
   changes the fetched frame. That moves the candle archive's `canonical_text`, and so
@@ -777,6 +797,11 @@ The same holds if he rules a CHOCH against the side in as a gate (§2). So the s
 searched once the trigger is ruled, with gate 7 no longer taken as passing: F = 10,000
 on the series' `quote_volume`, written by §5's rule.
 
+**Version 11.** The trigger is ruled, as drafted (§5), so the scan's gate 8 is the
+design's. The seed is Claude's to search now. One question of Viktor's could still
+make it a second search, whether a CHOCH against the side becomes a gate (§2), so
+that question is put to him first.
+
 **The case against:** a second fixture is a second file for the golden tests to pin,
 and the seed search is one more step before the code. The alternative, taking one of
 the three cuts, costs nothing now and loses its trade on the day §11's finding is
@@ -859,6 +884,12 @@ design. It is entry 61 of the list for after the audit (PHASE7_NEXT.md, "Found a
     gate (§2, with computation 7's count); the ADX floor and the stop's 1.2 as
     tunable, a yes or no each (§9); and the design as a whole. **Open beside them,
     his:** F against his slice (§5).
+11. Added in version 11. The trigger is ruled (11 November; §5). **His, in this
+    order:** whether a CHOCH against the side becomes a gate (§2, with computation
+    7's count); the ADX floor and the stop's 1.2 as tunable, a yes or no each (§9);
+    and the design as a whole. **Claude's, after the first of those:** the second
+    pinned decision's seed (§10.1). **His, when the paper account's size is set:** F
+    against his slice (§5).
 
 ## 13. The golden snapshot, field by field (version 1)
 
@@ -1704,7 +1735,8 @@ quality's formula is Claude's.
    resumption candle and does not define one, and the trigger decides when the engine
    enters. It is one candle's shape, chosen without data; backtesting is closed, so
    nothing will show whether it picks better entries than no trigger, and the reading
-   counts only how often it blocks.
+   counts only how often it blocks. Version 11: ruled on 11 November, as drafted;
+   every sentence of this point still holds of the ruled trigger.
 3. **Gates in series.** Ten gates, each a refusal. Today's sum lets a strong part
    outweigh a weak one; the gates do not. The reading counts what that costs in trades
    (computation 6), not what it saves.
@@ -1729,7 +1761,8 @@ quality's formula is Claude's.
    never gives, and that goes to Viktor with the tier lines (§17.2). Version 10: he
    ruled the lines and the three labels kept on 11 November; collapsing them is raised
    again only if those tiers are still empty after the redesign's own first reading
-   (§4).
+   (§4). Version 11: the count of how many of the 92 pass the trigger is not made, by
+   his agreement of 11 November; the reason stays argued and not measured.
 6. **The design and this section have one author.** Every proposal here is the code's
    author's, and so is the case against it. Amazon's audit, after the design is built,
    is the first reading by anyone else (ruling 8 of 25 October).
