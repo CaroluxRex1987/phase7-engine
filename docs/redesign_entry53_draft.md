@@ -1,6 +1,13 @@
 # The redesign (entry 53) — design draft
 
-*Draft v8, 9 November 2026, in the session that opened at 08:24 at `82b824d`. Version 8
+*Draft v9, 11 November 2026, in the session that opened at 08:55 at `9cc48d7`. Version 9
+writes in the reading of 14 November, taken on 11 November (§17, new); rewrites §2's
+account of the direction, which the reading's computation 1(a) counts against; fixes H5
+in the design, which computation 5 finds is not minor (§8); and brings §0, §4, §5, §9,
+§12 and §16 to it. It reads `indicators/volume_profile.py` at `9cc48d7`; no engine `.py`
+file changed between `82b824d` and `9cc48d7`. It is the version put to Viktor, for the
+tier lines and F first. Version 8, 9 November 2026, was written in the session that
+opened at 08:24 at `82b824d`. Version 8
 states §2's exit watch as Viktor ruled it on 9 November, its exhaustion and reversal
 flags removed (DECISIONS, "Ruling, 9 November 2026 — the redesign's exit watch drops its
 exhaustion and reversal flags"), and corrects two statements of earlier versions, found
@@ -62,10 +69,11 @@ from it until the whole design is. Each
 statement says where it comes from: **read** means read in the code at `e748b0b`
 (version 0), `e69d5bb` (version 1), `4ab59d7` (version 2), `94b7e96` (version 3) or
 `a11ffc4` (version 4) or `542085f` (version 5); version 6 reads none; version 7 reads
-at `9db4ae2`; version 8 at `82b824d`;
+at `9db4ae2`; version 8 at `82b824d`; version 9 at `9cc48d7`;
 **ruled** names the
-ruling; **proposed** is Claude's suggestion; **to measure** is a number this draft
-does not have yet. Where
+ruling; **proposed** is Claude's suggestion; **to measure** was a number this draft
+did not have yet, and since version 9 each is **measured**, from the reading (§17), or
+says what was not. Where
 something was not checked, the sentence says so.*
 
 ## 0. Who decides what
@@ -82,8 +90,11 @@ something was not checked, the sentence says so.*
   9 November, both removed).
 - **Claude's, proposed here for him to reverse:** entry quality's formula and weights
   (§3), the order of the gates (§4), the sentence rule (§6), the code's shape, the
-  tests, and the replacements for H1, H2 and H5 (§8), which Viktor accepts or rejects
-  (DECISIONS, "Decision, 25 October 2026 — the held-back defects …", point 6).
+  tests, H5's fix (§8, version 9), and the replacements for H1, H2 and H5 (§8), which
+  Viktor accepts or rejects (DECISIONS, "Decision, 25 October 2026 — the held-back
+  defects …", point 6) and which are proposed when the redesign's code exists (agreed
+  on 11 November; DECISIONS, "Ruling, 11 November 2026 — the bar on `code_hash` is
+  passed …", "Also agreed").
 
 ## 1. Scope, from the rulings
 
@@ -135,15 +146,80 @@ floor.**
 - BEARISH when both point down.
 - Anything else is NEUTRAL: a lean, and WAIT. `EMA20_Slope` is not read.
 
-Why: the 5 September ruling separates a lean from a case. Once the sum is gone, the
-plainest version of that line on the slope itself is the averages' order and the slow
-average's slope disagreeing: they have crossed and the slow one has not turned. The
-fast average turning against the slow one is the pullback the hypothesis enters on
-(ruling 1); versions 0 to 2 called it a lean as well, so that a pullback candle never
-had a side and a candle with a side never closed inside the band (§16.1). That
-introduces **no new number**, so it takes none of the three tunable places. ADX ≥ 20
-stays the gate on how strong the trend is (5 October, point 4), so "how strong" is not
-counted twice.
+**What this direction is — rewritten in version 9, after the reading.** Versions 3 to
+8 gave one paragraph of reasons here and left the rule's relation to today's direction
+unsaid. The decision of 2 November said it for them: §2 "rests on the document of
+24 October, which found the bias side matching the slope on 99.6% of bars with a
+side", so the draft's direction would be today's direction minus its leans, and it set
+a line to test that, opposite sides on more than 2% of the records where both have a
+side. **The reading is over that line: 38 of 495, 7.7%, and over it on every pair**
+(§17, computation 1(a)). So the draft's direction is not today's minus its leans, and
+this section says what it is. Version 8's paragraph is in git, at `6bb82cc`.
+
+1. **It is the slow trend's side.** BULLISH is "the close is above the previous
+   candle's `EMA_50`, and `EMA_20` is above `EMA_50`" (§16.4, point 1); BEARISH is the
+   mirror. On the reading's 618 counted records it gives BULLISH 18, BEARISH 521 and
+   NEUTRAL 79, and no record with a side closes on the wrong side of its `EMA_50`
+   (0 of 539; §16.4's prediction, counted on 11 November as point 3 below was).
+2. **It holds its side through a pullback, and today's direction does not.** Today's
+   `bias.raw` comes from a weighted sum of six inputs, one of them the mean of both
+   EMAs' slopes (read, above). When price bounces inside a falling trend the fast
+   average turns up, and the sum can turn BULLISH while `EMA_50` still falls and
+   `EMA_20` is still under it. The ruled rule does not read `EMA20_Slope`, so it stays
+   BEARISH on that candle.
+3. **Where the two part is the pullback candle itself.** Counted on 11 November, after
+   the reading, on the same 618 records: the ten logs staged at 09:00 have the SHA-256
+   the reading's `staged_sha256.txt` records, and the script, which imports
+   `measure_draft_gaps.py`'s population and direction, gave computation 1's table to
+   the record before anything else was read from it. Linux sandbox, Python 3.13.18; the
+   script is not filed. **It is not one of the seven computations: it was chosen after
+   the data was read, no line was set for it, and nothing counts for or against the
+   draft by it.**
+   - All 38 opposite records close **inside the band**, with `EMA20_Slope` against the
+     draft's side: the close has crossed `EMA_20` and has not crossed `EMA_50`. 37 are
+     a bounce in a falling trend (the draft BEARISH, today BULLISH) and 1 is a dip in a
+     rising one. The window was a falling market: both read BEARISH on 441 of the 495.
+   - Today's action on the 38: a LONG on 29 (AGGRESSIVE LONG 16, LONG 12, CONSERVATIVE
+     LONG 1), WAIT on 6 and NO-TRADE (SIGNAL UNCONFIRMED) on 3. Today's engine buys
+     the bounce, most often at its strongest tier.
+   - The draft keeps the trend's side on them and trades none: today's confirmation
+     gate, read for the draft's side as computation 6 reads it, fails on all 38 (gates
+     3 to 5), and all 38 are among computation 6's 55 records apart, the plan's side
+     not the draft's, so the rest of the ladder was not measured on them.
+   - Of the 95 records with a side that close inside the band, today's side is the
+     opposite on 38, the same on 35, and NEUTRAL on 22. 34 of the 38 have an entry
+     quality of 70 or over: 34 of the 92 records at 70 or over in computation 2.
+4. **So the disagreement is not noise at the edges of two like rules.** It is on the
+   candle the hypothesis enters on (ruling 1 of 25 October: a pullback inside a
+   trend), and there the two engines take opposite sides. That follows from the ruling
+   of 7 November, whose reason was that a pullback candle must be able to have a side
+   (§16.4); version 3 did not say, and its author had not counted, that today's engine
+   is on the other side of that candle.
+5. **What no count here says:** which side was right. That needs what price did
+   afterwards, which is backtesting, and backtesting is closed.
+6. **NEUTRAL, the floor.** 79 of the 618 records; today reads BULLISH on 63 of them,
+   BEARISH on 8 and NEUTRAL on 8. On them the averages' order and the slow average's
+   slope disagree (`EMA50_Slope` is exactly zero on none), which is the lean the
+   ruling of 5 September keeps out. It is
+   NEUTRAL on 42 of the 326 records where today's action names a side, 12.9%, against
+   a line of half (computation 1(b)): the floor is not the ladder's main cut by that
+   line, though alone it blocks more records than any other gate (79; computation 6).
+
+**Why this rule, as ruled.** The 5 September ruling separates a lean from a case. Once
+the sum is gone, the plainest version of that line on the slope itself is the averages'
+order and the slow average's slope disagreeing: they have crossed and the slow one has
+not turned. That introduces **no new number**, so it takes none of the three tunable
+places. ADX ≥ 20 stays the gate on how strong the trend is (5 October, point 4), so
+"how strong" is not counted twice. None of this is changed by the reading; what the
+reading removed is the claim that the rule continues today's direction.
+
+**Not proposed: a change to the ruled direction.** The line of 2 November tested §2's
+argument, and the argument is rewritten above. The rule is Viktor's ruling of
+7 November, and whether the reading changes it is his. Claude's view, his to reverse:
+it does not have to. The rule does what the ruling chose it for, and the reading shows
+the size of that choice, which version 3 did not: on four in ten of the closes inside
+the band, the redesigned engine and today's are on opposite sides. What that weakens
+is in §16.2.
 
 **The alternative, not proposed:** a minimum slope measured in ATRs (how far `EMA_20`
 moved over the last *k* candles, divided by ATR). That adds a cutoff and a length, and
@@ -223,9 +299,10 @@ it measures with a second number the same thing ADX already gates.
 - `RAW_BIAS_THRESHOLD`, the six `WEIGHT_*` constants and `MIN_ACTION_BIAS` leave the
   fingerprinted constants. That moves `run_hash` (predicted).
 
-**To measure before it is put to him:** on the ten pairs' archived candles, how often
-the ruled direction agrees with today's `raw_bias`, and how often it is NEUTRAL
-where today's would act.
+**Measured (version 9):** how often the ruled direction agrees with today's
+`bias.raw`, and how often it is NEUTRAL where today's would act, on the reading's
+records, not on the archives' earlier candles (the decision of 2 November, point 1 of
+"The records"): above, and §17.
 
 ## 3. Entry quality
 
@@ -416,6 +493,16 @@ nearly every run:**
 
 With no HVN points, LONG then needs `d` ≤ 0.375 ATR and CONSERVATIVE needs
 `d` ≤ 1.125 ATR. With full HVN points, the limits are 1.125 and 1.875 ATR.
+
+**Measured (version 9; §17, computation 2).** Of the 539 records with a side: 92 at 70
+and over (17.1%), 163 at 50 to under 70 (30.2%) and 284 under 50 (52.7%). No class is
+empty and none holds more than 90%, so by the line of 2 November the reading does not
+count against 70 and 50. Of the 92, 42 close inside the band and have a NORMAL or LOW
+risk regime, AGGRESSIVE as ruled. **Of the 55 records that pass every other gate: none
+at 70 and over, 8 at 50 to under 70, and 47 under 50** — reported, not judged, and
+small. So in this window the lines as proposed give eight trades, every one
+CONSERVATIVE, and no LONG, SHORT or AGGRESSIVE tier at all (§17.2 puts this to Viktor
+with the lines).
 **Flagged for Viktor:** since 28 September every trade is one of ten equal capital
 slices, so the tier changes no position size; it is a label. Keeping three labels
 moves the fewest tests and panel lines. Collapsing them is a separate question, not
@@ -442,10 +529,14 @@ resumes the trend after the pullback", so the design has to say which candle tha
   `volume`. The margin starts at zero: strictly above the median. Twenty is a length,
   not a cutoff (31 October, point 4). Base-asset volume is used because it is
   compared with itself on one pair.
-- **Liquidity floor:** the decision candle's `quote_volume` ≥ **F** USDT. **F is to
-  be measured:** from the ten pairs' candles, using `volume × close` as the stand-in
-  the ruling allows for counting, F is set so the floor blocks the thinnest candles
-  and not ordinary ones. Until it is measured, no value is proposed.
+- **Liquidity floor:** the decision candle's `quote_volume` ≥ **F** USDT. **Measured
+  (version 9; §17, computation 3): F = 10,000 USDT by the rule of 2 November**, the
+  largest value in the series 1, 2, 5, 10, 20, 50 … at which no pair has more than 5%
+  of its records under F, counted on `volume × close`, the stand-in the ruling allows.
+  Under it: AVAXUSDT on 2 of its 61 records, 3.3% (its smallest turnover 7,431 USDT),
+  and no other pair on any; the next thinnest is LINKUSDT, whose smallest is 13,243
+  USDT. The value is Viktor's (§0, §17.2); until he sets it, 10,000 is what the rule
+  gives and nothing more.
 - **`quote_volume` has to reach the frame.** `data/data_fetcher.py` reads it as the
   eighth kline column and drops it (read: `_OHLCV_COLUMNS` keeps five). Keeping it
   changes the fetched frame. That moves the candle archive's `canonical_text`, and so
@@ -471,7 +562,11 @@ resumes the trend after the pullback", so the design has to say which candle tha
 **The case against, given with it:** the trigger and both volume gates each cut
 trades, and the finish line needs about 100 closed trades of one version. The count
 of how often each would have blocked comes from the 14 November data (31 October,
-"Claude's error, recorded").
+"Claude's error, recorded"). **Measured (version 9; §17, computation 4):** the trigger
+passes on 277 of the 539 records with a side, 51.4%, and its volume on 265, 49.2%. Of
+the 76 records that pass every other gate, the trigger blocks 52, its volume 16 more,
+and either 68, 89.5%, against a line of 90%: it does not count against §5, by one
+record. The floor blocks one record of the 563 with a draft action.
 
 ## 6. Entry 58's rule — no sentence rounds across its line
 
@@ -498,19 +593,68 @@ still authorizes no trade.
 
 ## 8. The held-back defects (Decision, 25 October)
 
-- **H1:** replaced. Its branch is gone (§4). A replacement is searched for once this
-  design is fixed.
+- **H1:** replaced. Its branch is gone (§4).
 - **H2:** replaced. The new direction function does not take `trend_exhaustion` (§2).
-- **H5:** judged again. One HVN bin shifts `h` by the bin's width ÷ ATR, which moves
-  H by at most 20 × width ÷ (2 × ATR). **To measure:** the bin width against ATR on
-  the ten pairs. If that can move a run across 50 or 70, H5 is not minor, and it is
-  fixed here and replaced.
+- **H5:** judged again, and **not minor: fixed in this design, and replaced (version
+  9).** One HVN bin shifts `h` by the bin's width ÷ ATR, which moves H by at most
+  20 × width ÷ (2 × ATR). **Measured (§17, computation 5):** the width against ATR has
+  medians from 0.42 (BNBUSDT) to 0.67 (XRPUSDT) and a largest value of 0.80 (SUIUSDT),
+  so one bin moves entry quality by up to 8 points; 179 of the 539 records with a side
+  have 50 or 70 within that reach, 107 at 50 and 72 at 70, on every pair, against a
+  line of one record. By point 4 of the decision of 25 October and computation 5 of
+  the decision of 2 November, it is fixed here.
 - **H3:** stays.
+- **When the replacements are proposed:** when the redesign's code exists, for H1, H2
+  and H5 together (agreed on 11 November; it amends point 6 of the decision of
+  25 October, which said "when the redesign's design is fixed, before its code is
+  built"). Versions 0 to 8 said H1's was searched for once the design is fixed.
+
+**H5's fix (version 9, Claude's, his to reverse).** *Read* at `9cc48d7`,
+`indicators/volume_profile.py`, `compute_volume_profile`: the bins are fifty equal
+intervals over the frame's lowest low to its highest high, closed on the right
+(`pd.IntervalIndex.from_breaks(edges, closed="right")`). A candle with a range is
+spread over the bins it overlaps, in proportion. A flat candle, one whose range is at
+most one millionth of its price, takes another branch: it goes whole to the bin whose
+nearest edge is closest to its price. Neighbouring bins share an edge, so for a price
+in the lower half of a bin the two distances tie, and the strict `<` gives the candle
+to the bin below (PHASE7_NEXT.md, "Found after 22 September"; found on 18 October).
+
+- **Proposed:** a flat candle's volume goes to **the bin that holds its price**: the
+  interval (left, right] its price lies in, and the first bin for a price equal to the
+  range's lowest edge, which no right-closed bin holds. As code, the bin's index is
+  `numpy.searchsorted(edges, price, side="left") − 1`, clipped to the first and last
+  bin. No nearest-edge search is left. For a price that is not on an edge, this is
+  where the proportional branch puts a candle as its range shrinks to that price, so
+  the two branches agree where they meet.
+- **Tests, with ten bins of width 1 from 0 to 10:** a flat candle at 4.2 and one at
+  4.7 both land in (4, 5], where today's code puts 4.2 in (3, 4]; one at 4.0 lands in
+  (3, 4]; one at 0.0 in (0, 1]; one at 10.0 in (9, 10]; and on a frame with no flat
+  candle the profile, the HVN and the LVN are what today's code gives, to the bit.
+  The first of these is the behavioural test: by the finding of 18 October, not run
+  again here, today's code fails it.
+- **What moves.** `indicators/volume_profile.py` is in `code_hash`, which the redesign
+  moves anyway. **No golden leaf moves by this fix:** none of the four candle fixtures
+  holds a flat candle (counted in the sandbox on 11 November at `9cc48d7`, by the
+  code's own test of flatness: 0 of 450 in `ohlcv_clean_4h.csv`, 0 of 450 in each
+  pinned 4h file, 0 of 120 in the pinned daily one), so §13 is unchanged. On live
+  candles the HVN, and by the same branch the LVN, moves by one bin on a frame where a
+  flat candle in the lower half of a bin carries enough volume to decide which bin is
+  fullest or emptiest. Whether the ten pairs' archives hold a flat candle was not
+  counted: the archives were not staged in this session.
+- **What the fix does not remove.** Computation 5 measured the size of a bin, not how
+  often H5 fires. With H5 fixed, no known defect puts volume in the wrong bin; but the
+  HVN is still a bin's midpoint, so `h` is known only to half a bin either way, and
+  entry quality to about ±2 to ±4 points by the measured widths. A third of the
+  records with a side sit within one whole bin of a tier line. That is a property of
+  the HVN part, recorded in §16.2 and put to Viktor with the tier lines (§17.2); it is
+  not changed here, because fifty bins is today's own number (`num_bins`, read) and a
+  finer one would be a new number set without an outcome to judge it by.
 
 ## 9. Candidates for the tunable list (at most three; named when the design is fixed)
 
 The ADX floor (20, a ruled value: his yes or no), the stop's 1.2 (ruled: his yes or
-no), the liquidity floor F, and the trigger volume's margin. That is four candidates
+no), the liquidity floor F (10,000 USDT by the rule of 2 November, if he sets it
+there: §5), and the trigger volume's margin. That is four candidates
 for three places. **Proposed:** ADX floor, stop multiple, F. The margin stays at zero
 and is not tuned.
 
@@ -625,13 +769,16 @@ design. It is entry 61 of the list for after the audit (PHASE7_NEXT.md, "Found a
    H5's bin width against ATR. Their computations, with point 4's, and the result that
    would count against this draft were fixed on 2 November, before the data was read
    (DECISIONS, "Decision, 2 November 2026 — how the reading of 14 November measures
-   the redesign draft's gaps …"); version 1 is otherwise unchanged.
+   the redesign draft's gaps …"); version 1 is otherwise unchanged. **Done in version
+   9:** the reading was taken on 11 November and every figure is written in (§17, and
+   §2, §4, §5 and §8). Two results count against the draft, and both are answered:
+   §2 is rewritten, and H5 is fixed in the design (§8).
 2. Done in version 1: every golden field (§13) and every test (§14). Left with the
    code: the three tests in §14 marked "to read", and each test's body read when it is
    rewritten.
 3. Done in version 1: entries 14 and 19 read against §3.2.
 4. A count of how often the whole ladder trades on the ten pairs, compared with
-   today's version on the same candles.
+   today's version on the same candles. Done in version 9: §17, computation 6.
 5. Done in version 2: "what it weakens" and "the case against", written for the
    design as a whole (§16).
 6. Added in version 1: which distance STATUS reads (§3.1), and the second pinned
@@ -652,7 +799,14 @@ design. It is entry 61 of the list for after the audit (PHASE7_NEXT.md, "Found a
    that is a CHOCH against that side (`structure.sequence`), and how many of those pass
    every other gate — so that whether CHOCH becomes its own gate (§2, §3.3) comes to
    Viktor with a number. An amendment to the decision of 2 November and to
-   `docs/build/measure_draft_gaps.py`, in a commit of its own.
+   `docs/build/measure_draft_gaps.py`, in a commit of its own. Read in version 9:
+   4 of 539, none passing every other gate (§17, computation 7).
+9. Added in version 9. Nothing of Claude's is left before the draft goes to Viktor.
+   **His, in this order:** the tier lines and F (§17.2), which the second pinned
+   decision's seed waits on (§10.1); then the trigger candle (§5), whether a CHOCH
+   against the side becomes a gate (§2, with computation 7's count), any ruled value
+   named as tunable (§9), and the design as a whole. The replacements for H1, H2 and
+   H5 come when the code exists (§8).
 
 ## 13. The golden snapshot, field by field (version 1)
 
@@ -1448,6 +1602,16 @@ quality's formula is Claude's.
   the previous `EMA_50` turns BULLISH into NEUTRAL, with no hysteresis; under versions
   0 to 2 it was the previous `EMA_20` as well (16.1, point 1). Entry 6, a side held for N closed
   candles, is a separate trading rule of Viktor's and not in this design.
+- **The redesigned engine and today's take opposite sides on the pullback candle**
+  (version 9; §2, points 3 and 4): on 38 of the 95 records of the reading with a side
+  that close inside the band. So the forward measurement of today's version says
+  nothing about the redesign's direction on the candle it enters on; a pair that is in
+  a pullback when the change lands changes side with it; and which side is right is
+  not known and cannot be until backtesting opens.
+- **Entry quality is no finer than the volume profile's bins** (version 9; §8): the
+  HVN is a bin's midpoint, a bin is 0.42 to 0.80 ATR wide on the ten pairs, and 179 of
+  539 records sit within one bin's reach of a tier line. With H5 fixed that is
+  resolution, not a defect, and a tier line is that soft.
 - **Three paths to WAIT go and nothing replaces them:** the CHOCH ×0.5 discount (§2),
   H1's branch (§4, §8) and trend health's tiers; and the exit watch loses its
   exhaustion and reversal flags (§2; ruled on 9 November). Each is flagged where it is. Together, the design
@@ -1499,7 +1663,19 @@ quality's formula is Claude's.
    list is the guard — a test that moves and is not on it stops the work — and its
    verdicts were classified from names and docstrings, not read line by line (§14,
    "Method").
-5. **The design and this section have one author.** Every proposal here is the code's
+5. **What the reading adds (version 9), written after the data was read, as the four
+   points above were not.** In the window the whole ladder gives 8 entries against
+   today's 108, every one a CONSERVATIVE SHORT: no LONG and no tier above CONSERVATIVE
+   came out of it (§17, computation 6). The projection of 311 entries a year clears
+   the line of 100 and rests on those 8. And none of the 55 records that pass every
+   other gate reaches 70 (§4): the trigger asks for a candle that closes beyond its
+   open and the previous close in the side's direction, which on a pullback is a close
+   moving away from the band, while entry quality loses 26.7 points for each ATR of
+   distance from the band's middle. That reason is argued from the two definitions,
+   not measured: how many of the 92 records at 70 and over pass the trigger was not
+   counted. If it holds, LONG, SHORT and AGGRESSIVE are labels the design rarely or
+   never gives, and that goes to Viktor with the tier lines (§17.2).
+6. **The design and this section have one author.** Every proposal here is the code's
    author's, and so is the case against it. Amazon's audit, after the design is built,
    is the first reading by anyone else (ruling 8 of 25 October).
 
@@ -1554,7 +1730,10 @@ computation 1 as amended, no record with a side closes on the wrong side of its
 today is a LONG is NEUTRAL under the draft, which bears on computation 1(b), and no
 number is predicted for it. Version 2's prediction that computation 2's count of
 AGGRESSIVE with the close inside the band is zero on every pair no longer holds, and
-nothing is predicted for it.
+nothing is predicted for it. **Version 9:** the first prediction held on the reading's
+records, 0 of the 539 with a side on the wrong side of their `EMA_50` (counted on
+11 November, as §2's point 3 was); computation 2 counted 42 AGGRESSIVE by the close
+inside the band.
 
 **What this section changes elsewhere:** §0 marks the floor ruled; §2 states the rule;
 §3.1's and §4's pointers; §12's point 7 done; §13.1's gate 2 reads EMA50's slope (the
@@ -1564,3 +1743,76 @@ pinned run is BULLISH under both rules); one verdict's reason in §14
 BULLISH and passes gate 2 under both rules. §14's counts are not changed and no test was
 re-classified for the rule, only one reason reworded; its verdicts were classified from
 names and docstrings, as its method says, and were not re-read for version 3.
+
+## 17. The reading, written in (version 9)
+
+*Written on 11 November 2026, in the session that opened at 08:55 at `9cc48d7`. The
+reading of 14 November was taken on 11 November by Viktor's ruling of that day
+(DECISIONS, "Ruling, 11 November 2026 — the reading of 14 November is taken on
+11 November …"), and is filed in full in PHASE7_NEXT.md, Open items, the forward
+measurement, "The seven computations". Every figure in §17.1 is from that run's
+`gaps.txt`, staged off Viktor's disk again at 09:00 on 11 November; no script of the
+reading was run again. The computations and the lines that count against the draft
+were fixed on 2 November, and amended twice on 7 November, before any of this data was
+read. What was counted after it was read says so where it stands (§2, point 3).*
+
+### 17.1 The seven computations
+
+The population: the scheduled task's records at `code_hash` `816d4951…`, on the 147
+candles that opened from 08:00 UTC on 17 October to 16:00 UTC on 10 November. 630
+records on 63 of those candles, 84 candles missed by all ten pairs; 12 degraded and
+apart; **N = 618**, of which 539 have a side under §2. No record was "not measured" in
+any computation.
+
+| # | What | Result | The line of 2 November | Counts against? | In this version |
+|---|------|--------|------------------------|-----------------|-----------------|
+| 1(a) | direction: opposite to today's | 38 of 495, 7.7%; every pair, 4.3% to 14.0% | over 2% | **yes** | §2 rewritten |
+| 1(b) | direction: NEUTRAL where today trades | 42 of 326, 12.9% | over half | no | §2, point 6 |
+| 2 | tiers, of 539 with a side | 92 / 163 / 284 at 70 and over, 50 to under 70, under 50 | a class empty or over 90% | no | §4, §17.2 |
+| 3 | the liquidity floor | F = 10,000 USDT; AVAXUSDT under it on 3.3%, no other pair | (a) shares differing by over 2 points; (b) F under 1% of the median on nine pairs | no (4 pairs) | §5, §17.2 |
+| 4 | the trigger and its volume | block 68 of the 76 that pass every other gate, 89.5% | 90% or more | no, by one record | §5 |
+| 5 | H5's reach | one bin is up to 0.80 ATR, 8 points; 179 of 539 within it of 50 or 70 | one record | **yes** | §8: H5 fixed |
+| 6 | the whole ladder | 8 entries, all CONSERVATIVE SHORT; 311 a year projected; today 108 entries | under 100 a year | no | §16.3, point 5 |
+| 7 | CHOCH against the side | 4 of 539, all LINKUSDT, none passing every other gate | none set | not judged | §12, point 8 |
+
+Computation 6's draft actions, of the 563 records with one (55 are apart, the plan's
+side not the draft's): WAIT 331, NO-TRADE (SIGNAL UNCONFIRMED) 210, NO-TRADE (RISK TOO
+HIGH) 11, CONSERVATIVE SHORT 8, NO-TRADE (MACRO AGAINST) 2 and NO-TRADE (THIN MARKET)
+1. Blocking alone, of the 484 records fully measured: gate 2, 79; gate 8, 68; gate 9,
+47; gates 3 to 5, 28; gates 6 and 7, none.
+
+**What the reading cannot carry**, from its own entries and not repeated in full: 57%
+of the window's candles were missed; it is three and a half
+weeks of one falling market, in which the draft finds 18 BULLISH records in 618 and no
+LONG; it was run under Python 3.13.18, numpy 2.5.3 and pandas 3.0.5, not the pinned
+versions, and that this moves no figure was not checked; and it counts what the draft
+would have done, never whether that was right.
+
+### 17.2 For Viktor: the tier lines and F
+
+Both are his (§0). What he has to rule them on:
+
+1. **The lines 70 and 50 are set by reasoning, and ruling 4 of 25 October keeps them
+   so:** if they move, they are argued again, not fitted to this distribution. By the
+   line fixed on 2 November the reading gives no reason to move them: no class is
+   empty, none holds over 90%.
+2. **What the lines do in this window.** Of every record with a side, about a sixth
+   is at 70 and over, three in ten between the lines, and half under 50. Of the 55
+   records that pass every other gate, none is at 70 and over and 8 are between the
+   lines. With 70 and 50 the redesign's trades in the window are those 8, all
+   CONSERVATIVE.
+3. **Why the top tier may stay empty** (argued, not measured; §16.3, point 5): the
+   trigger candle closes away from the band, and entry quality falls with distance
+   from the band's middle. Lowering 70 would fill the tier by fitting it, which
+   ruling 4 rules out; the tier changes no position size since 28 September (§4), so
+   an empty one costs no trade. Whether three labels are kept is the separate
+   question §4 flags.
+4. **How firm a line is.** Entry quality is known to about ±2 to ±4 points, the HVN
+   being a bin's midpoint (§8); 107 records lie within one bin's reach of 50 and 72 of
+   70.
+5. **F.** The rule of 2 November gives 10,000 USDT. On these ten pairs it is a floor
+   under AVAXUSDT, which fell below it on 2 of 61 records, with LINKUSDT next above
+   it; ETHUSDT's median turnover is 26.8 million USDT a candle and F is under 1% of
+   the median on four pairs. The 5% in the rule is a choice, not a reason, and the
+   count used `volume × close`, the stand-in, since the fetcher drops `quote_volume`
+   today (§5). It blocked one record in the window.

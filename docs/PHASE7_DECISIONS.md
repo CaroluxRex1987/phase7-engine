@@ -7734,6 +7734,71 @@ One thing in `RUN.txt` cannot be as written: it says the archives were staged at
 01:25", and the file itself was written at 01:18:57 by his disk's clock, before a
 session that opened at 01:21. An error of the note's, or two clocks apart; not resolved.
 
+## Ruling, 11 November 2026 — the bar on `code_hash` is passed; the scheduled task keeps running, with no third reading of this version; the patch-delivery skill's section 10 follows
+
+*New in this file on 11 November 2026. Viktor's, at 08:55 on 11 November, each by
+agreeing to Claude's suggestion. Filed by the commit of the session that opened at
+08:55 at `9cc48d7`, docs only. That session witnessed neither the suggestions nor his
+agreement: what was ruled and agreed is from Viktor's message opening it, and from
+nothing else, but that `9cc48d7`'s message records the skill's update as proposed in
+the session that opened at 01:21. No earlier entry is edited (the ruling of
+20 September).*
+
+**What was ruled.**
+
+1. **The bar "no commit that moves `code_hash` before the reading of 14 November" is
+   passed.** Point 1 of "What follows" in the entry above was Claude's reading, his to
+   correct; it is his ruling now. The bar is that of "Ruling, 19 October 2026 — the
+   list for after the audit, sorted …". Every other ruling that binds a commit which
+   moves `code_hash` stands, the live run before the commit among them.
+2. **The scheduled task keeps running, with no third reading of this version**, the
+   one whose `code_hash` is `816d4951…`. **It measures the redesign's version from that
+   version's first run.** This rules point 3 of the entry above, which left it his. A
+   commit that moves `code_hash` starts a new version for the task, whose count starts
+   from zero (the ruling of 17 October, "What it weakens"); the decision of 17 October
+   on how the count is made stands for it. Not set here: when the new version is read.
+3. **The patch-delivery skill's update for section 10 is accepted, and its marker moves
+   to `9cc48d7`.** The update, as the skill carries it when this is filed: section 10's last
+   step names the bar as passed on 11 November and no longer as holding a commit back,
+   and the skill's "Current with DECISIONS as of" line names the commit that filed the
+   ruling of 11 November above, `9cc48d7`. This entry changes no procedure the skill
+   describes beyond that.
+
+**Also agreed, in the same message.**
+
+- **The replacements for the held-back defects H1, H2 and H5 are proposed when the
+  redesign's code exists.** This amends point 6 of "Decision, 25 October 2026 — the
+  held-back defects the redesign reaches are replaced or judged again, not protected",
+  which says "Replacements are chosen when the redesign's design is fixed, before its
+  code is built"; that entry is not edited. The rest of the point stands: the criteria
+  of 18 October, a search among defects in code the redesign leaves alone, Claude
+  proposing and Viktor accepting or rejecting, each filed when chosen, and Claude's
+  re-check of all four at the tag before the send. Claude's reading, his to correct:
+  "when the code exists" still means before that tag, since Amazon's audit is scored on
+  four. H5 is one of the three since the reading: computation 5 counts against its
+  being minor, and it is fixed in the redesign (the draft's §8, version 9).
+- **`RUN.txt`'s "about 01:25" is the note's error.** The entry above left open whether
+  the note was wrong or two clocks were apart. Viktor's message: the device's clock and
+  the sandbox's agreed within seconds at 01:45 on 11 November. So the clocks were not
+  apart, and the note, written at 01:18:57, is wrong about when the archives were
+  staged. Not known: when they were. It was before 01:18:57, when the outputs computed
+  from them were written. The session that files this did not make that comparison of
+  clocks; it is his statement of it.
+
+**What it weakens.**
+
+- The task's records of this version from the run after 22:05 on 10 November on are
+  kept in the logs and are in no reading, now by ruling. The reading's limits — 147
+  candles, 57% of them missed, one falling market, eight entries of the draft's — are
+  not reduced by more candles of the same version.
+- The redesign's version is measured from its own first run, so the two versions are
+  never measured on the same candles by the task. What compares them is computation
+  6 of the reading, on the old version's records.
+- Replacements chosen once the code exists are chosen with the new code in view, by
+  its author. That is further from "fixed in advance" than the decision of 25 October
+  already was, and between the redesign's landing and the choice only H3 of the four
+  is in the code.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then

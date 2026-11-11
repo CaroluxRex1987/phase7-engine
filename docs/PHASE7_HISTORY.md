@@ -222256,3 +222256,216 @@ Line 6052 of the version at `4cdad4e`:
 ~~~~~
     for the reading. Not yet run on them. Computation 1's direction amended on
 ~~~~~
+
+## 11 November 2026 — the lines the rewrite of PHASE7_NEXT.md removed from its version at `9cc48d7`
+
+*Moved here on 11 November 2026 by the commit that files Viktor's three rulings of 08:55
+on 11 November, writes the redesign draft's version 9, and records `9cc48d7`'s landing,
+under "Ruling, 4 November 2026 — HISTORY keeps what each rewrite of PHASE7_NEXT.md
+removes, not the whole file" (DECISIONS).
+Below the rule, each block is a run of lines of the file as it stood at `9cc48d7` that
+the rewrite deleted or replaced, word for word, labelled with its line numbers in that
+version; "this session" in them is the session that opened at 01:21 on 11 November, and
+"the commit that writes this line" and "this commit" name `9cc48d7`. The whole version:
+`git show 9cc48d7:docs/PHASE7_NEXT.md`. Checked by `docs/build/check_history_move.py`.*
+
+---
+
+Lines 3–6 of the version at `9cc48d7`:
+
+~~~~~
+*11 November 2026, in the session that opened at 01:21. Rewritten by the commit that
+files the forward measurement's second reading, taken on 11 November by Viktor's ruling
+of that day, and records `4cdad4e`'s landing; the lines it removed from the version at
+`4cdad4e` are in HISTORY, which points to that whole version in git.
+~~~~~
+
+Line 37 of the version at `9cc48d7`:
+
+~~~~~
+so that bar is passed — Claude's reading of the ruling of 19 October, his to correct.
+~~~~~
+
+Line 2366 of the version at `9cc48d7`:
+
+~~~~~
+**This session (11 November, from 01:21)**, configured for Claude Fable 5.2, opened at
+~~~~~
+
+Lines 2368–2373 of the version at `9cc48d7`:
+
+~~~~~
+the scripts again. What came first, by the ruling of 1 November: a commit owed, his
+ruling of 01:12 to file, and the reading with it. The commit that writes this line
+files the ruling and the window's end in DECISIONS and the reading in this file (Open
+items, the forward measurement), and records `4cdad4e`'s landing. Docs only: no engine
+code, no test, no tooling; it moves no `code_hash`. The two results that count against
+the redesign's draft, computations 1(a) and 5, were brought to Viktor in chat after it.
+~~~~~
+
+Lines 2387–2388 of the version at `9cc48d7`:
+
+~~~~~
+  comes after this one. Not ruled, and his: whether the scheduled task goes on running,
+  and whether anything reads it again.
+~~~~~
+
+Lines 2609–2610 of the version at `9cc48d7`:
+
+~~~~~
+  are set, H3 kept. Replacements are chosen when the design is fixed, before its code is
+  built; Claude proposes them and Viktor accepts or rejects.
+~~~~~
+
+Lines 3016–3018 of the version at `9cc48d7`:
+
+~~~~~
+  Viktor's ruling of 11 November that the reading of 14 November is taken on
+  11 November filed, the reading filed, and `4cdad4e`'s landing recorded: docs only, no
+  engine code. Before it: `4cdad4e` (the session of 10 November, from 02:20: the
+~~~~~
+
+Line 3383 of the version at `9cc48d7`:
+
+~~~~~
+  `pandas_ta`, and changed no other test's code, removing and renaming none; `82b824d`, `6bb82cc`, `e4363d5`, `a60d66b` and `4cdad4e` changed no test; and the
+~~~~~
+
+Lines 3396–3401 of the version at `9cc48d7`:
+
+~~~~~
+- **The push of `4cdad4e`** happened, at 23:53:36 on 10 November (the reflog on his
+  disk, read by this session): its landing was checked from 23:53 on 10 November by the
+  session of that hour, and nothing differed — Viktor's words at this session's
+  opening, that check not read by this session; no deviation (ruling on proposal (b)).
+  GitHub's tip was `4cdad4e` when this session cloned it, at 01:21 on 11 November, by
+  the sandbox's own route. So did `a60d66b`'s, at 13:50:13 on 9 November: GitHub's tip,
+~~~~~
+
+Line 3600 of the version at `9cc48d7`:
+
+~~~~~
+  matched an autocrlf checkout of `4cdad4e`, GitHub's tip, cloned at 01:21 on
+~~~~~
+
+Line 3655 of the version at `9cc48d7`:
+
+~~~~~
+  `7dac328`, `340ee8d`, `82b824d`, `6bb82cc`, `e4363d5`, `a60d66b` and `4cdad4e` and the applied tree of the commit
+~~~~~
+
+Lines 3659–3660 of the version at `9cc48d7`:
+
+~~~~~
+  9 November, `4cdad4e`'s on 10 November and again on 11 November, and the applied
+  tree of the commit that writes this line on 11 November,
+~~~~~
+
+Lines 3679–3680 of the version at `9cc48d7`:
+
+~~~~~
+- **Golden snapshot:** unchanged by the commit that writes this line, which changes
+  docs and no code or test, by `4cdad4e`, which changed
+~~~~~
+
+Line 3746 of the version at `9cc48d7`:
+
+~~~~~
+  autocrlf clone of `4cdad4e` and on the patch applied to another. `4cdad4e` changed
+~~~~~
+
+Lines 4140–4141 of the version at `9cc48d7`:
+
+~~~~~
+- **Engineering Notes:** through Entry #288 (v1.43), which covers `a60d66b`; one
+  commit behind, the commit that writes this line (below). The gap
+~~~~~
+
+Lines 4148–4150 of the version at `9cc48d7`:
+
+~~~~~
+  **One commit that needs an entry is behind:** the commit that writes this line, which
+  files the ruling of 11 November and the reading, and has none until the next
+  regeneration. `bc250fc`, `9db4ae2`, `82b824d` and
+~~~~~
+
+Line 5117 of the version at `9cc48d7`:
+
+~~~~~
+  after the audit.
+~~~~~
+
+Lines 5765–5782 of the version at `9cc48d7`:
+
+~~~~~
+- **`4cdad4e`'s landing**, checked from 23:53 on 10 November by the session of that
+  hour, which made no commit, and recorded by the commit that writes this line, made
+  for its own reason (DECISIONS, the correction of 4 November). Its push is in "Where
+  things stand".
+- **Viktor's ruling of 11 November, "read today"**, filed by the commit that writes
+  this line, with the window's end, Claude's choice (DECISIONS,
+  "Ruling, 11 November 2026 — the reading of 14 November is taken on 11 November …").
+- **The forward measurement's second reading**, the reading of 14 November taken on
+  11 November, filed by the commit that writes this line from the outputs on his disk,
+  no script run again: the count and the seven computations (Open items, the forward
+  measurement). Computations 1(a) and 5 count against the redesign's draft; what each
+  sets in motion was fixed on 2 November and is in the draft's Open item.
+- **The patch-delivery skill's marker** is at `a11ffc4`. The ruling the commit that
+  writes this line files changes when the reading was taken, and no procedure the
+  skill describes; the skill's section 10 still names, among the rulings that bind a
+  session's choice, "no commit that moves `code_hash` before the reading of
+  14 November", which is passed. An update to the skill was proposed to Viktor in this
+  session for that sentence and the marker.
+~~~~~
+
+Line 5784 of the version at `9cc48d7`:
+
+~~~~~
+  from the version at `4cdad4e` are in HISTORY's new entry, checked by
+~~~~~
+
+Lines 5822–5823 of the version at `9cc48d7`:
+
+~~~~~
+  was taken on 11 November, so nothing ruled holds it back now (Claude's reading of the
+  ruling of 19 October, his to correct; Ruled — in force, 11 November).
+~~~~~
+
+Line 5865 of the version at `9cc48d7`:
+
+~~~~~
+  22 September, entry 58). **Design draft, version 8**, Claude's, started 1 November:
+~~~~~
+
+Line 5868 of the version at `9cc48d7`:
+
+~~~~~
+  version 5 at `b874ec1`, version 6 at `82ea40e`, version 7 at `7dac328`, version 8 at `6bb82cc`).
+~~~~~
+
+Lines 5928–5936 of the version at `9cc48d7`:
+
+~~~~~
+  computations"), taken on 11 November, and version 8 does not carry it: its gaps still
+  say "to measure". **Two results count against the draft, 1(a) and 5.** Owed before
+  the draft goes to Viktor, Claude's, each set by the decision of 2 November before the
+  data was read: §2 rewritten, since the draft's direction took the side opposite to
+  today's on 7.7% of the records where both have one, against a line of 2%; H5 fixed
+  in the design and replaced as a held-back defect, since one bin of the volume profile
+  can move 179 of 539 records across 50 or 70, against a line of one record; and the
+  measured figures written into the draft. Viktor's, with the design, now that the
+  reading is in: the tier lines 70 and 50, and F.
+~~~~~
+
+Line 5960 of the version at `9cc48d7`:
+
+~~~~~
+  runs, and how many LONGs fell on the same candle across pairs. It answers question 5
+~~~~~
+
+Lines 6186–6187 of the version at `9cc48d7`:
+
+~~~~~
+    was written at 01:18:57 by his disk's clock, and this session opened at 01:21. An
+    error of the note's or two clocks apart; not resolved.
+~~~~~

@@ -1,9 +1,9 @@
 # Next step — read this first
 
-*11 November 2026, in the session that opened at 01:21. Rewritten by the commit that
-files the forward measurement's second reading, taken on 11 November by Viktor's ruling
-of that day, and records `4cdad4e`'s landing; the lines it removed from the version at
-`4cdad4e` are in HISTORY, which points to that whole version in git.
+*11 November 2026, in the session that opened at 08:55. Rewritten by the commit that
+files Viktor's three rulings of 08:55 on 11 November, writes the redesign draft's
+version 9, and records `9cc48d7`'s landing; the lines it removed from the version at
+`9cc48d7` are in HISTORY, which points to that whole version in git.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
 rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
@@ -34,7 +34,9 @@ bind the choice. Among them was no commit that moves `code_hash` before the read
 14 November: that reading was taken on 11 November, by Viktor's ruling of that day
 (DECISIONS,
 "Ruling, 11 November 2026 — the reading of 14 November is taken on 11 November …"),
-so that bar is passed — Claude's reading of the ruling of 19 October, his to correct.
+so that bar is passed: Claude's reading of the ruling of 19 October at first, and
+Viktor's ruling since 08:55 on 11 November (DECISIONS,
+"Ruling, 11 November 2026 — the bar on `code_hash` is passed …").
 Until 1 November a session asked him what he wanted to do first. A
 landing that went as predicted is never itself a commit owed: the next commit made
 for its own reason records it (DECISIONS, "Correction, 4 November 2026 — a landing
@@ -2363,16 +2365,42 @@ with the window ending at the candle that opened at 16:00 UTC on 10 November, Cl
 choice; their outputs and `RUN.txt` were written to `logs\reading_2026-11-11\`, which
 git ignores, at 01:18:57 and 01:18:58 by his disk's clock. It made no commit.
 
-**This session (11 November, from 01:21)**, configured for Claude Fable 5.2, opened at
+**The session of 11 November, from 01:21**, configured for Claude Fable 5.2, opened at
 `4cdad4e` with Viktor's instruction to file the reading from those files and not to run
-the scripts again. What came first, by the ruling of 1 November: a commit owed, his
-ruling of 01:12 to file, and the reading with it. The commit that writes this line
-files the ruling and the window's end in DECISIONS and the reading in this file (Open
-items, the forward measurement), and records `4cdad4e`'s landing. Docs only: no engine
-code, no test, no tooling; it moves no `code_hash`. The two results that count against
-the redesign's draft, computations 1(a) and 5, were brought to Viktor in chat after it.
+the scripts again. `9cc48d7` filed his ruling of 01:12, the window's end and the
+reading, and recorded `4cdad4e`'s landing. At 08:55, after its push, Viktor ruled three
+things by agreeing to Claude's suggestions (the next paragraph; from his message, not
+witnessed by the session that writes this). That session's account is in this file's
+version at `9cc48d7`.
+
+**This session (11 November, from 08:55)**, configured for Claude Fable 5.2, opened at
+`9cc48d7` with Viktor's message: the three rulings of 08:55 to file, two things also
+agreed, and the draft's version 9 to write and bring to him for the tier lines and F.
+It checked `9cc48d7`'s landing first, by the patch-delivery skill's section 10, and
+nothing differed (Where things stand, the push of `9cc48d7`). What came first, by the
+ruling of 1 November: a commit owed, his rulings to file; then the draft, which the
+reading set and he asked for. The commit that writes this line files the rulings in
+DECISIONS ("Ruling, 11 November 2026 — the bar on `code_hash` is passed …"), writes the
+draft's version 9 — the reading's figures in, §2 rewritten, H5 fixed in the design —
+and records `9cc48d7`'s landing. Docs only: no engine code, no test, no tooling; it
+moves no `code_hash`. For §2 this session counted, on the reading's own records, what
+the 38 opposite records are; that count was made after the data was read, is not one
+of the seven computations, and is in the draft's §2 with that said.
 
 ## Ruled — in force
+
+- **New, 11 November, 08:55 — Viktor's, each by agreeing to Claude's suggestion: the
+  bar on `code_hash` is passed; the scheduled task keeps running, with no third reading
+  of this version; the patch-delivery skill's section 10 follows** (DECISIONS,
+  "Ruling, 11 November 2026 — the bar on `code_hash` is passed …"). (1) No ruling
+  holds back a commit that moves `code_hash` for the reading's sake; the live run
+  before such a commit and every other rule on it stand. (2) The task goes on running;
+  nothing reads this version, `816d4951…`, a third time; it measures the redesign's
+  version from that version's first run, counted as the decision of 17 October sets,
+  its readings not yet dated. (3) The skill's update for section 10 is accepted and
+  its marker is `9cc48d7`. Also agreed: the replacements for H1, H2 and H5 are proposed
+  when the redesign's code exists, which amends point 6 of the decision of 25 October
+  (below); and `RUN.txt`'s "about 01:25" is the note's error.
 
 - **New, 11 November — Viktor's: the reading of 14 November is taken on 11 November**
   (DECISIONS,
@@ -2384,8 +2412,8 @@ the redesign's draft, computations 1(a) and 5, were brought to Viktor in chat af
   computations are made changed, and no threshold. Claude's reading of what follows,
   his to correct: the bar of 19 October, no commit that moves `code_hash` before the
   reading, is passed, and whatever a ruling places "after the reading of 14 November"
-  comes after this one. Not ruled, and his: whether the scheduled task goes on running,
-  and whether anything reads it again.
+  comes after this one. Left his then, and ruled at 08:55 the same day (above): the bar
+  as his ruling, and whether the scheduled task goes on running and is read again.
 
 - **New, 9 November — Viktor's: Amazon's audit sends Nova 2 Lite, through OpenRouter's
   API** (DECISIONS, "Ruling, 9 November 2026 — Amazon's audit sends Nova 2 Lite, through
@@ -2606,8 +2634,10 @@ the redesign's draft, computations 1(a) and 5, were brought to Viktor in chat af
   held-back defects the redesign reaches are replaced or judged again, not protected").
   The redesign is designed on its merits; H1 is replaced, H2 kept only if the design
   keeps its parameter for its own reasons, H5 judged again once entry quality's weights
-  are set, H3 kept. Replacements are chosen when the design is fixed, before its code is
-  built; Claude proposes them and Viktor accepts or rejects.
+  are set, H3 kept. Replacements are proposed when the redesign's code exists (agreed
+  on 11 November, amending "when the design is fixed, before its code is built");
+  Claude proposes them and Viktor accepts or rejects. H5, judged again on the reading,
+  is not minor: fixed in the redesign and replaced (the draft's §8, version 9).
 - **New, 25 October — Claude's, under Viktor's delegation of the same day: the trend
   multiplier is Critical** (DECISIONS, "Decision, 25 October 2026 — the trend multiplier
   is Critical, by F4's precedent"). Entry 52: the same shape as F4's third path. Removed
@@ -3013,9 +3043,12 @@ the redesign's draft, computations 1(a) and 5, were brought to Viktor in chat af
 ## Where things stand, right now
 
 - **Tip:** the commit that writes this line (a commit cannot name its own hash) —
-  Viktor's ruling of 11 November that the reading of 14 November is taken on
-  11 November filed, the reading filed, and `4cdad4e`'s landing recorded: docs only, no
-  engine code. Before it: `4cdad4e` (the session of 10 November, from 02:20: the
+  Viktor's three rulings of 08:55 on 11 November filed, the redesign draft's version 9,
+  and `9cc48d7`'s landing recorded: docs only, no engine code. Before it: `9cc48d7`
+  (the session of 11 November, from 01:21: Viktor's ruling of 11 November that the
+  reading of 14 November is taken on 11 November filed, the reading filed, and
+  `4cdad4e`'s landing recorded: docs only, no engine code), `4cdad4e` (the session of
+  10 November, from 02:20: the
   Engineering Notes regenerated at v1.43, Entries #286 to #288, and `a60d66b`'s
   landing recorded: docs only, no engine code), `a60d66b` (the session of
   9 November, from 12:37: Viktor's ruling of 9 November that Amazon's audit sends
@@ -3380,7 +3413,7 @@ the redesign's draft, computations 1(a) and 5, were brought to Viktor in chat af
   `542085f`, `b874ec1`, `82ea40e`, `9db4ae2` and `7dac328` changed no test; `340ee8d`
   added two tests to `tests/test_measure_draft_gaps.py`, for computation 7, with a
   dated paragraph in that file's docstring, neither taking a fixture or needing
-  `pandas_ta`, and changed no other test's code, removing and renaming none; `82b824d`, `6bb82cc`, `e4363d5`, `a60d66b` and `4cdad4e` changed no test; and the
+  `pandas_ta`, and changed no other test's code, removing and renaming none; `82b824d`, `6bb82cc`, `e4363d5`, `a60d66b`, `4cdad4e` and `9cc48d7` changed no test; and the
   commit that writes this line changes no test.
   (This file at `b990c93` still said
   there that the commit writing the line changed no test, carried from `7b93769`;
@@ -3393,12 +3426,25 @@ the redesign's draft, computations 1(a) and 5, were brought to Viktor in chat af
   to `E:\phase7_engine`". Run the engine and every command from `E:\phase7_engine` (in
   cmd, changing drive needs `cd /d`). A dated record that names the D: paths means the
   same folders before the move; dated records are not edited.
-- **The push of `4cdad4e`** happened, at 23:53:36 on 10 November (the reflog on his
-  disk, read by this session): its landing was checked from 23:53 on 10 November by the
-  session of that hour, and nothing differed — Viktor's words at this session's
-  opening, that check not read by this session; no deviation (ruling on proposal (b)).
-  GitHub's tip was `4cdad4e` when this session cloned it, at 01:21 on 11 November, by
-  the sandbox's own route. So did `a60d66b`'s, at 13:50:13 on 9 November: GitHub's tip,
+- **The push of `9cc48d7`** happened, at 08:54:49 on 11 November, and its landing was
+  checked by this session from 08:56; nothing differed, no deviation (ruling on
+  proposal (b)). GitHub's tip, read with no credentials at 09:07:08 (the probe asked
+  for credentials), was `9cc48d7`; its tree `f3b246c7…` the one its `Verified-Tree:`
+  line names; its message with no CR and the attribution lines last; `python
+  docs/build/check_history_move.py --base 9cc48d7~1` on the tip gave 50 lines in 22
+  runs, its recorded line. Viktor's disk: the three files the commit changed written at
+  08:45:30 and each byte for byte the tip; the index the tip's tree, 303 entries; the
+  loose commit object hashing to `9cc48d7`, GitHub's bytes, with no CR;
+  `.git/COMMIT_EDITMSG` the message; `master` and `origin/master` `9cc48d7`, the
+  reflogs' last lines "commit:" at 08:54:34 and "update by push" at 08:54:49; the
+  pytest cache's `nodeids` written at 08:48:39, after the apply, `lastfailed` `{}`; no
+  patch or message file in the root. So did `4cdad4e`'s, at 23:53:36 on 10 November
+  (the reflog on his disk, read by the session of 01:21 on 11 November): its landing
+  was checked from 23:53 on 10 November by the session of that hour, and nothing
+  differed — Viktor's words at the opening of the session of 01:21, that check not read
+  by it. GitHub's tip was `4cdad4e` when that session cloned it, at 01:21 on
+  11 November, by the sandbox's own route. So did `a60d66b`'s, at 13:50:13 on
+  9 November: GitHub's tip,
   read with no credentials at 14:05:13 on 9 November by the session of 14:03, was
   `a60d66b`, Viktor's disk the tip in every part that check read, and its tree the one
   its `Verified-Tree:` line names. GitHub's tip was still `a60d66b` when the session of
@@ -3597,7 +3643,7 @@ the redesign's draft, computations 1(a) and 5, were brought to Viktor in chat af
   commit that writes this line unless it deviates. Earlier pushes and deviations are
   recorded in this file's previous versions, in HISTORY.
 - **Before this commit**, every file its patch changes was staged off Viktor's disk and
-  matched an autocrlf checkout of `4cdad4e`, GitHub's tip, cloned at 01:21 on
+  matched an autocrlf checkout of `9cc48d7`, GitHub's tip, cloned at 08:56 on
   11 November, byte for byte, before the patch was built; it adds no file. (This file
   at `706e858` and at `4ab59d7` still gave `bc250fc`'s sentence here, against
   `a0ca299`; corrected on 7 November.)
@@ -3652,12 +3698,12 @@ the redesign's draft, computations 1(a) and 5, were brought to Viktor in chat af
   `e8b42b8`, `d6fba83`, `7c23886`, `e939734`, `1b82ed0`, `7ff8128`, `5fe8522`,
   `7b93769`, `b990c93`, `f8805a6`, `0a518fd`, `a0ca299`, `bc250fc`, `706e858`,
   `4ab59d7`, `94b7e96`, `a11ffc4`, `542085f`, `b874ec1`, `82ea40e`, `9db4ae2`,
-  `7dac328`, `340ee8d`, `82b824d`, `6bb82cc`, `e4363d5`, `a60d66b` and `4cdad4e` and the applied tree of the commit
+  `7dac328`, `340ee8d`, `82b824d`, `6bb82cc`, `e4363d5`, `a60d66b`, `4cdad4e` and `9cc48d7` and the applied tree of the commit
   that writes this line give the same (`bc250fc`'s, `706e858`'s, `4ab59d7`'s, `94b7e96`'s, `a11ffc4`'s,
   `542085f`'s, `b874ec1`'s, `82ea40e`'s, `9db4ae2`'s, `7dac328`'s and `340ee8d`'s
   computed on 7 November, `82b824d`'s, `6bb82cc`'s, `e4363d5`'s and `a60d66b`'s on
-  9 November, `4cdad4e`'s on 10 November and again on 11 November, and the applied
-  tree of the commit that writes this line on 11 November,
+  9 November, `4cdad4e`'s on 10 November and again on 11 November, and `9cc48d7`'s
+  and the applied tree of the commit that writes this line on 11 November,
   under Python 3.12.3); on
   6 November it was computed again on
   each of `67f6ec1` and the twenty-four trees `0491b84` to `b8f88d8`, for the Notes'
@@ -3676,8 +3722,8 @@ the redesign's draft, computations 1(a) and 5, were brought to Viktor in chat af
   output, a CPython implementation detail (`core/code_fingerprint.py`, "WHAT IT DOES NOT
   SURVIVE"). **Every `code_hash` claim about this project is computed under Python 3.12**
   (Viktor runs 3.12.10).
-- **Golden snapshot:** unchanged by the commit that writes this line, which changes
-  docs and no code or test, by `4cdad4e`, which changed
+- **Golden snapshot:** unchanged by the commit that writes this line and by `9cc48d7`,
+  each of which changes docs and no code or test, by `4cdad4e`, which changed
   the Notes' build script and documents and no code or test, by `6bb82cc`, `e4363d5`
   and `a60d66b`, which changed docs and no code or test, by
   `82b824d`, which changed the Notes' build script and
@@ -3743,7 +3789,12 @@ the redesign's draft, computations 1(a) and 5, were brought to Viktor in chat af
   15 October 2026 — Part 4's three test shapes", point 5); `README.md` wrote it too
   until `713e084` (entry 50). The commit that writes this line changes no test, and the
   three counts held: from the Linux sandbox, Python 3.12.3, pinned requirements, on an
-  autocrlf clone of `4cdad4e` and on the patch applied to another. `4cdad4e` changed
+  autocrlf clone of `9cc48d7` and on the patch applied to another. `9cc48d7` changed
+  no test, and the three counts held: from the Linux sandbox, on an autocrlf clone of
+  `4cdad4e` and on the patch applied to another; its pytest step ran on Windows after
+  the apply (read off his disk by this session: the cache was written at 08:48:39 on
+  11 November, after its three files were written at 08:45:30; its `lastfailed` is
+  `{}`), and Viktor went on to the commit. `4cdad4e` changed
   no test, and the three counts held: from the Linux sandbox, on an autocrlf clone of
   `a60d66b` and on the patch applied to another; its pytest step ran on Windows after
   the apply (read off his disk by this session: the cache was written at 02:43:39 on
@@ -4137,17 +4188,18 @@ the redesign's draft, computations 1(a) and 5, were brought to Viktor in chat af
   then run on Windows at 09:06 on 12 October: both matched (792; 721 / 0 / 32). One test,
   `test_the_commit_messages_up_to_the_tag_are_round_7s_to_the_byte`, runs `git log` up
   to the tag `round7-sent-2026-09-30`: it needs the tag, which a full clone has.
-- **Engineering Notes:** through Entry #288 (v1.43), which covers `a60d66b`; one
-  commit behind, the commit that writes this line (below). The gap
+- **Engineering Notes:** through Entry #288 (v1.43), which covers `a60d66b`; two
+  commits behind, `9cc48d7` and the commit that writes this line (below). The gap
   left by v1.36 was closed in four regenerations: v1.37 at `f8805a6` covered `e7a94d1`
   to `eb86846`, v1.38 at `0a518fd` `c2b07fb` to `67f6ec1`, v1.39 at `a0ca299` `0491b84`
   to `b8f88d8`, and v1.40 at `bc250fc` `a1c4218` to `0a518fd`. v1.41, at `9db4ae2`,
   covered the seven commits `706e858` to `82ea40e`, v1.42, at `82b824d`, the two
   commits `7dac328` and `340ee8d`, and v1.43, at `4cdad4e`,
   covers the three commits `6bb82cc`, `e4363d5` and `a60d66b`, one entry each.
-  **One commit that needs an entry is behind:** the commit that writes this line, which
-  files the ruling of 11 November and the reading, and has none until the next
-  regeneration. `bc250fc`, `9db4ae2`, `82b824d` and
+  **Two commits that need an entry are behind:** `9cc48d7`, which files the ruling of
+  11 November and the reading, and the commit that writes this line, which files the
+  rulings of 08:55 on 11 November and writes the draft's version 9; neither has one
+  until the next regeneration. `bc250fc`, `9db4ae2`, `82b824d` and
   `4cdad4e` are regenerations and have none (a commit that
   regenerates the Notes cannot cover itself, Entry #144). Every later commit adds one
   until the next regeneration. Batched, by the 15 September rule. v1.43 records the
@@ -5114,7 +5166,10 @@ the work before the audit, entry 1 apart.
   and the clean fixture — hold no flat candle. HVN can move by one bin when a flat
   candle carries a bin's volume. **Held back for Amazon's audit as H5** (DECISIONS,
   "Ruling, 18 October 2026 — the four held-back defects …"): left as it is until
-  after the audit.
+  after the audit. **Since the reading of 14 November, not minor** (computation 5), so
+  by the decision of 25 October it is fixed in the redesign, with its code (the
+  draft's §8, version 9, has the fix and its tests), and replaced as a held-back
+  defect; until that code lands it is left as it is.
 - **`_compute_trade_quality` takes `trend` and `final_action` and reads neither**
   (`models/decision_model.py:872`, found by the same search). Its only use of `trend`
   went at sequence item 11, as the comment inside it says; `final_action` is never
@@ -5762,26 +5817,23 @@ Each code commit is its own commit and updates this file for its own landing.
 
 ## Resolved this session
 
-- **`4cdad4e`'s landing**, checked from 23:53 on 10 November by the session of that
-  hour, which made no commit, and recorded by the commit that writes this line, made
-  for its own reason (DECISIONS, the correction of 4 November). Its push is in "Where
-  things stand".
-- **Viktor's ruling of 11 November, "read today"**, filed by the commit that writes
-  this line, with the window's end, Claude's choice (DECISIONS,
-  "Ruling, 11 November 2026 — the reading of 14 November is taken on 11 November …").
-- **The forward measurement's second reading**, the reading of 14 November taken on
-  11 November, filed by the commit that writes this line from the outputs on his disk,
-  no script run again: the count and the seven computations (Open items, the forward
-  measurement). Computations 1(a) and 5 count against the redesign's draft; what each
-  sets in motion was fixed on 2 November and is in the draft's Open item.
-- **The patch-delivery skill's marker** is at `a11ffc4`. The ruling the commit that
-  writes this line files changes when the reading was taken, and no procedure the
-  skill describes; the skill's section 10 still names, among the rulings that bind a
-  session's choice, "no commit that moves `code_hash` before the reading of
-  14 November", which is passed. An update to the skill was proposed to Viktor in this
-  session for that sentence and the marker.
+- **`9cc48d7`'s landing**, checked by this session from 08:56 on 11 November, nothing
+  differing, and recorded by the commit that writes this line, made for its own reason
+  (DECISIONS, the correction of 4 November). Its push is in "Where things stand".
+- **Viktor's three rulings of 08:55 on 11 November**, each by agreeing to Claude's
+  suggestion, and the two things also agreed, filed by the commit that writes this line
+  (DECISIONS, "Ruling, 11 November 2026 — the bar on `code_hash` is passed …").
+- **`RUN.txt`'s "about 01:25"**, left open by `9cc48d7`: the note's error, by Viktor's
+  statement that the device's and the sandbox's clocks agreed within seconds at 01:45
+  on 11 November (the same entry).
+- **The redesign draft's version 9**, by the commit that writes this line: what the
+  reading set before the draft goes to Viktor is done (Open items, the redesign).
+- **The patch-delivery skill's marker** moves from `a11ffc4` to `9cc48d7`, by his
+  ruling. The skill as loaded in this session already carries the update's sentence
+  on the bar in section 10 and still names `a11ffc4` on its marker line; the edit that
+  moves the line was proposed to him in this session.
 - **This file's rewrite**, by the commit that writes this line. The lines it removed
-  from the version at `4cdad4e` are in HISTORY's new entry, checked by
+  from the version at `9cc48d7` are in HISTORY's new entry, checked by
   `docs/build/check_history_move.py` (the commit message has the result).
 
 ## Open items
@@ -5819,8 +5871,8 @@ Claude critiques it.
   Claude's suggestion.
 - **Entry 57 — `run_tests.py`'s last-run record, after the reading of 14 November**
   (wave 2: it moves `code_hash`). Ruled on 27 October; Claude's to build. The reading
-  was taken on 11 November, so nothing ruled holds it back now (Claude's reading of the
-  ruling of 19 October, his to correct; Ruled — in force, 11 November).
+  was taken on 11 November, so nothing ruled holds it back now (Viktor's ruling of
+  08:55 on 11 November; Ruled — in force).
 - **The engine's indicators — the document of 24 October** (outside the repository,
   "Where the project is"). Version 2's section 6 questions were ruled on 25 October
   (Ruled — in force); the redesign is entry 53, the next item. **The tooling landed**
@@ -5862,10 +5914,11 @@ Claude critiques it.
   31 October 2026 — volume enters the redesign as two gates …"); the floor needs
   `quote_volume`, which the fetcher drops today. Added on 1 November: entry 58's rule,
   that no reasoning sentence rounds a compared value across its threshold (Found after
-  22 September, entry 58). **Design draft, version 8**, Claude's, started 1 November:
+  22 September, entry 58). **Design draft, version 9**, Claude's, started 1 November:
   `docs/redesign_entry53_draft.md` (version 0 filed at `e69d5bb`, version 1 at
   `e8b42b8`, version 2 at `94b7e96`, version 3 at `a11ffc4`, version 4 at `542085f`,
-  version 5 at `b874ec1`, version 6 at `82ea40e`, version 7 at `7dac328`, version 8 at `6bb82cc`).
+  version 5 at `b874ec1`, version 6 at `82ea40e`, version 7 at `7dac328`, version 8 at `6bb82cc`, version 9 by the commit that
+  writes this line).
   Not ruled, but for its direction, its reading of AGGRESSIVE and the structure
   multiplier (all three 7 November) and its exit watch's exhaustion and reversal flags
   (9 November, removed).
@@ -5925,15 +5978,32 @@ Claude critiques it.
   removed, lists every flag it keeps, and corrects version 7: the exit watch's CHOCH
   flag reads the swing sequence, so it is the decision, not the whole design, that
   reads no CHOCH. **The reading is in** (the forward measurement, below, "The seven
-  computations"), taken on 11 November, and version 8 does not carry it: its gaps still
-  say "to measure". **Two results count against the draft, 1(a) and 5.** Owed before
-  the draft goes to Viktor, Claude's, each set by the decision of 2 November before the
-  data was read: §2 rewritten, since the draft's direction took the side opposite to
-  today's on 7.7% of the records where both have one, against a line of 2%; H5 fixed
-  in the design and replaced as a held-back defect, since one bin of the volume profile
-  can move 179 of 539 records across 50 or 70, against a line of one record; and the
-  measured figures written into the draft. Viktor's, with the design, now that the
-  reading is in: the tier lines 70 and 50, and F.
+  computations"), taken on 11 November. **Two results count against the draft, 1(a)
+  and 5**, and what each set, by the decision of 2 November before the data was read,
+  is done in **version 9**, which also writes every measured figure in (its §17) and
+  leaves no gap marked "to measure". **§2 is rewritten:** the draft's direction is not
+  today's minus its leans (opposite sides on 7.7% of the records where both have one,
+  against a line of 2%); it is the slow trend's side, held through a pullback. Counted
+  for it on 11 November, after the data was read, not one of the seven computations
+  and counting for or against nothing: all 38 opposite records close inside the band
+  with EMA20's slope against the draft's side; today's action on them is a LONG on 29
+  (AGGRESSIVE LONG 16), WAIT on 6 and NO-TRADE on 3; the draft trades none, today's
+  confirmation gate failing for its side on all 38; and they are 38 of the 95 records
+  with a side that close inside the band. The ruled direction is not changed and no
+  change is proposed; whether the reading changes his ruling of 7 November is Viktor's.
+  **H5 is fixed in the design** (its §8): a flat candle's volume goes to the bin that
+  holds its price; no golden leaf moves by it, no fixture holding a flat candle; it
+  lands with the redesign's code, and H5 is replaced as a held-back defect, the
+  replacement proposed with H1's and H2's when that code exists (agreed on
+  11 November). What the fix does not remove is the profile's resolution: the HVN is a
+  bin's midpoint, so entry quality is known to about ±2 to ±4 points. **Found writing
+  it in** (its §16.3, point 5): of the 55 records that pass every other gate none
+  reaches 70, so with the lines as proposed the window's 8 trades are all
+  CONSERVATIVE; the reason given, the trigger candle closing away from the band, is
+  argued and not measured. **Brought to Viktor on 11 November, his, first:** the tier
+  lines 70 and 50, and F, 10,000 USDT by the rule of 2 November (its §17.2). His after
+  those: the trigger candle, whether a CHOCH against the side becomes a gate, any ruled
+  value named as tunable, and the design as a whole.
 - **The CHOCH count — filed, and read on 11 November** (draft §12, point 8; DECISIONS,
   "Ruling, 7 November 2026 — the redesign's entry quality has no structure
   multiplier", "What follows"): computation 7 of the reading, added to the decision of
@@ -5957,7 +6027,10 @@ Claude critiques it.
   the decision logs and `logs/phase7_engine.log` staged off his disk: per pair and per
   `code_hash`, the closed 4h candles read, the LONG actions among them (AGGRESSIVE LONG,
   LONG, CONSERVATIVE LONG), the SHORT actions, WAIT and NO-TRADE, degraded runs, failed
-  runs, and how many LONGs fell on the same candle across pairs. It answers question 5
+  runs, and how many LONGs fell on the same candle across pairs. **The task keeps running, and
+  there is no third reading of this version; it measures the redesign's version from
+  that version's first run** (Viktor's ruling of 08:55 on 11 November; Ruled — in
+  force). It answers question 5
   of 28 September as far as running forward can, and bears on 12, 13 and 14. It is
   evidence about the version whose `code_hash` is `816d4951…` until a commit moves it;
   the count of each version starts from zero. Not the paper-trading year (the ruling,
@@ -6183,8 +6256,11 @@ Claude critiques it.
     give these outputs on those logs, which would be running them again; and the logs
     behind `staged_sha256.txt`, which this session did not stage. `RUN.txt` says the
     archives were staged at "about 01:25", which cannot be as written: the file itself
-    was written at 01:18:57 by his disk's clock, and this session opened at 01:21. An
-    error of the note's or two clocks apart; not resolved.
+    was written at 01:18:57 by his disk's clock, and the session that filed the
+    reading opened at 01:21. Resolved at 08:55 on 11 November: the note's error, the
+    device's and the sandbox's clocks having agreed within seconds at 01:45 that day
+    (Viktor's statement; DECISIONS, "Ruling, 11 November 2026 — the bar on `code_hash` is passed …",
+    "Also agreed"). When the archives were staged is not known; it was before 01:18:57.
   - **The seven computations, read on 11 November** — the same run, from `gaps.txt`
     and `gaps.json` (DECISIONS, "Decision, 2 November 2026 — how the reading of
     14 November measures the redesign draft's gaps …", with its amendments of
