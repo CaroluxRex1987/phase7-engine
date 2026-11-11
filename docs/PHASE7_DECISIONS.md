@@ -7799,6 +7799,82 @@ the session that opened at 01:21. No earlier entry is edited (the ruling of
   already was, and between the redesign's landing and the choice only H3 of the four
   is in the code.
 
+## Ruling, 11 November 2026 — the redesign's tier lines are 70 and 50, and its three labels are kept; the liquidity floor F is 10,000 USDT, a starting value on the tunable list
+
+*New in this file on 11 November 2026. Viktor's, at 09:41 on 11 November, each by
+agreeing to Claude's suggestion. Filed by the commit of the session that opened at
+09:41 at `a9b83a9`, docs only. That session witnessed neither the suggestions nor his
+agreement: what was ruled, and what was not answered, is from Viktor's message opening
+it, and from nothing else. What had been put to him is the redesign draft's §17.2,
+version 9, filed at `a9b83a9`. No earlier entry is edited (the ruling of
+20 September).*
+
+**What was ruled.**
+
+1. **The redesign's tier lines stay 70 and 50, and all three labels are kept.** As the
+   draft's §4 has them: LONG / SHORT at entry quality 70 and over; AGGRESSIVE at 70
+   and over with the close inside the band ("Ruling, 7 November 2026 — the redesign's
+   AGGRESSIVE reads the close inside the band") and the risk regime NORMAL or LOW;
+   CONSERVATIVE from 50 to under 70; under 50, WAIT. The three labels are those,
+   Claude's reading of "all three", his to correct. **Whether to collapse them is
+   raised again only if LONG, SHORT and AGGRESSIVE are still empty after the
+   redesign's own first reading.** Until then it is not an open question. When the
+   redesign's version is first read is not set (the entry above, point 2), and is not
+   set here.
+2. **F is 10,000 USDT, as a starting value on the tunable list.** It is the value the
+   rule of 2 November gives ("Decision, 2 November 2026 — how the reading of
+   14 November measures the redesign draft's gaps …", computation 3), read on
+   11 November. The redesign's gate 7 passes when the decision candle's `quote_volume`
+   is at or over it (draft §5). F takes one of the list's at most three places
+   ("Decision, 30 October 2026 — what may be tuned after the paper-trading year …",
+   point 2). Claude's reading, his to correct: a value he rules as tunable needs no
+   second yes or no when the list is named (point 3 of that decision). The other two
+   places are not named here; the draft's §9 proposes the ADX floor and the stop's
+   1.2 for them, each a ruled value and his yes or no.
+
+**Not answered, and open.** Claude's check of F against his slice size. As his message
+states it: a 1,000 USDT slice would be a tenth of a four-hour candle on the thinnest
+AVAXUSDT and LINKUSDT candles. By this session's arithmetic on the reading's figures
+(the draft's §5): 1,000 USDT is 10% of a candle's turnover at F, 13.5% of AVAXUSDT's
+thinnest candle in the window (7,431 USDT, under F, so gate 7 blocks it) and 7.6% of
+LINKUSDT's (13,243 USDT). Not on record: the slice's size in USDT. The ruling of
+28 September sets ten equal slices of 10% and no account size; the 1,000 is his
+message's. Not ruled: whether F is tied to the slice, so that one slice stays under
+some share of the candle it trades in, and what share. F stands at 10,000 USDT
+meanwhile. Viktor's.
+
+**What it weakens.**
+
+- The lines are kept as reasoned, and in the reading's window they gave no trade above
+  CONSERVATIVE: of the 55 records that pass every other gate, none reaches 70 (draft
+  §4; §16.3, point 5). Two of the three labels may be ones the design rarely or never
+  gives, and that question is closed until a reading that has no date. A tier changes
+  no position size since 28 September, so an empty one costs no trade.
+- F rests on 618 records from three and a half weeks of one falling market on ten
+  pairs, counted on `volume × close` and not on `quote_volume`, by a rule whose 5% is
+  a choice. It blocked one record in the window and is under 1% of the median
+  turnover on four pairs: on most pairs it constrains nothing.
+- F is ruled with the check against his slice unanswered. At F, one slice of
+  1,000 USDT is a tenth of the candle it trades in.
+- F takes one of the tunable list's three places before the candidates are weighed
+  together, which the decision of 30 October puts at the point the design is fixed
+  (point 1).
+
+**What follows.**
+
+1. The redesign draft's version 10, filed with this entry, states the lines and F as
+   ruled.
+2. The second pinned decision's seed (draft §10.1) no longer waits on the lines or F.
+   Found writing version 10, Claude's: it waits on the trigger, since the search
+   applies gate 8, and the trigger candle is Viktor's and not ruled.
+3. The pinned fixture's `quote_volume` is proposed in version 10 as `volume × close`
+   (draft §5), Claude's: on `tests/fixtures/ohlcv_clean_4h.csv` every candle is then
+   at or over F, the smallest at 10,650.02. Computed in the Linux sandbox at `a9b83a9`.
+4. Next of his in the draft, in this order: the trigger candle; whether a CHOCH against
+   the side becomes a gate; the ADX floor and the stop's 1.2 as tunable; the design as
+   a whole.
+5. No procedure the patch-delivery skill describes changes.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then

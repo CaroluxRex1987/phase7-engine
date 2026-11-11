@@ -222469,3 +222469,171 @@ Lines 6186–6187 of the version at `9cc48d7`:
     was written at 01:18:57 by his disk's clock, and this session opened at 01:21. An
     error of the note's or two clocks apart; not resolved.
 ~~~~~
+
+## 11 November 2026 — the lines the rewrite of PHASE7_NEXT.md removed from its version at `a9b83a9`
+
+*Moved here on 11 November 2026 by the commit that files Viktor's ruling of 09:41 on
+11 November, writes the redesign draft's version 10, and records `a9b83a9`'s landing,
+under "Ruling, 4 November 2026 — HISTORY keeps what each rewrite of PHASE7_NEXT.md
+removes, not the whole file" (DECISIONS).
+Below the rule, each block is a run of lines of the file as it stood at `a9b83a9` that
+the rewrite deleted or replaced, word for word, labelled with its line numbers in that
+version; "this session" in them is the session that opened at 08:55 on 11 November, and
+"the commit that writes this line" and "this commit" name `a9b83a9`. The whole version:
+`git show a9b83a9:docs/PHASE7_NEXT.md`. Checked by `docs/build/check_history_move.py`.*
+
+---
+
+Lines 3–6 of the version at `a9b83a9`:
+
+~~~~~
+*11 November 2026, in the session that opened at 08:55. Rewritten by the commit that
+files Viktor's three rulings of 08:55 on 11 November, writes the redesign draft's
+version 9, and records `9cc48d7`'s landing; the lines it removed from the version at
+`9cc48d7` are in HISTORY, which points to that whole version in git.
+~~~~~
+
+Line 2376 of the version at `a9b83a9`:
+
+~~~~~
+**This session (11 November, from 08:55)**, configured for Claude Fable 5.2, opened at
+~~~~~
+
+Lines 2379–2388 of the version at `a9b83a9`:
+
+~~~~~
+It checked `9cc48d7`'s landing first, by the patch-delivery skill's section 10, and
+nothing differed (Where things stand, the push of `9cc48d7`). What came first, by the
+ruling of 1 November: a commit owed, his rulings to file; then the draft, which the
+reading set and he asked for. The commit that writes this line files the rulings in
+DECISIONS ("Ruling, 11 November 2026 — the bar on `code_hash` is passed …"), writes the
+draft's version 9 — the reading's figures in, §2 rewritten, H5 fixed in the design —
+and records `9cc48d7`'s landing. Docs only: no engine code, no test, no tooling; it
+moves no `code_hash`. For §2 this session counted, on the reading's own records, what
+the 38 opposite records are; that count was made after the data was read, is not one
+of the seven computations, and is in the draft's §2 with that said.
+~~~~~
+
+Line 2465 of the version at `a9b83a9`:
+
+~~~~~
+  it. The tier lines, 70 and 50, and the rest of the design stay unruled.
+~~~~~
+
+Lines 2476–2477 of the version at `a9b83a9`:
+
+~~~~~
+  stays unruled, the tier lines among it; which reading of AGGRESSIVE they mean was
+  ruled the same evening (above).
+~~~~~
+
+Lines 3046–3047 of the version at `a9b83a9`:
+
+~~~~~
+  Viktor's three rulings of 08:55 on 11 November filed, the redesign draft's version 9,
+  and `9cc48d7`'s landing recorded: docs only, no engine code. Before it: `9cc48d7`
+~~~~~
+
+Lines 3429–3430 of the version at `a9b83a9`:
+
+~~~~~
+- **The push of `9cc48d7`** happened, at 08:54:49 on 11 November, and its landing was
+  checked by this session from 08:56; nothing differed, no deviation (ruling on
+~~~~~
+
+Line 3792 of the version at `a9b83a9`:
+
+~~~~~
+  autocrlf clone of `9cc48d7` and on the patch applied to another. `9cc48d7` changed
+~~~~~
+
+Line 3795 of the version at `a9b83a9`:
+
+~~~~~
+  the apply (read off his disk by this session: the cache was written at 08:48:39 on
+~~~~~
+
+Line 3800 of the version at `a9b83a9`:
+
+~~~~~
+  the apply (read off his disk by this session: the cache was written at 02:43:39 on
+~~~~~
+
+Lines 4191–4192 of the version at `a9b83a9`:
+
+~~~~~
+- **Engineering Notes:** through Entry #288 (v1.43), which covers `a60d66b`; two
+  commits behind, `9cc48d7` and the commit that writes this line (below). The gap
+~~~~~
+
+Lines 4199–4202 of the version at `a9b83a9`:
+
+~~~~~
+  **Two commits that need an entry are behind:** `9cc48d7`, which files the ruling of
+  11 November and the reading, and the commit that writes this line, which files the
+  rulings of 08:55 on 11 November and writes the draft's version 9; neither has one
+  until the next regeneration. `bc250fc`, `9db4ae2`, `82b824d` and
+~~~~~
+
+Line 5820 of the version at `a9b83a9`:
+
+~~~~~
+- **`9cc48d7`'s landing**, checked by this session from 08:56 on 11 November, nothing
+~~~~~
+
+Lines 5823–5834 of the version at `a9b83a9`:
+
+~~~~~
+- **Viktor's three rulings of 08:55 on 11 November**, each by agreeing to Claude's
+  suggestion, and the two things also agreed, filed by the commit that writes this line
+  (DECISIONS, "Ruling, 11 November 2026 — the bar on `code_hash` is passed …").
+- **`RUN.txt`'s "about 01:25"**, left open by `9cc48d7`: the note's error, by Viktor's
+  statement that the device's and the sandbox's clocks agreed within seconds at 01:45
+  on 11 November (the same entry).
+- **The redesign draft's version 9**, by the commit that writes this line: what the
+  reading set before the draft goes to Viktor is done (Open items, the redesign).
+- **The patch-delivery skill's marker** moves from `a11ffc4` to `9cc48d7`, by his
+  ruling. The skill as loaded in this session already carries the update's sentence
+  on the bar in section 10 and still names `a11ffc4` on its marker line; the edit that
+  moves the line was proposed to him in this session.
+~~~~~
+
+Line 5836 of the version at `a9b83a9`:
+
+~~~~~
+  from the version at `9cc48d7` are in HISTORY's new entry, checked by
+~~~~~
+
+Line 5852 of the version at `a9b83a9`:
+
+~~~~~
+  gates …", point 4).
+~~~~~
+
+Line 5917 of the version at `a9b83a9`:
+
+~~~~~
+  22 September, entry 58). **Design draft, version 9**, Claude's, started 1 November:
+~~~~~
+
+Line 5920 of the version at `a9b83a9`:
+
+~~~~~
+  version 5 at `b874ec1`, version 6 at `82ea40e`, version 7 at `7dac328`, version 8 at `6bb82cc`, version 9 by the commit that
+~~~~~
+
+Lines 5923–5924 of the version at `a9b83a9`:
+
+~~~~~
+  multiplier (all three 7 November) and its exit watch's exhaustion and reversal flags
+  (9 November, removed).
+~~~~~
+
+Lines 6003–6006 of the version at `a9b83a9`:
+
+~~~~~
+  argued and not measured. **Brought to Viktor on 11 November, his, first:** the tier
+  lines 70 and 50, and F, 10,000 USDT by the rule of 2 November (its §17.2). His after
+  those: the trigger candle, whether a CHOCH against the side becomes a gate, any ruled
+  value named as tunable, and the design as a whole.
+~~~~~

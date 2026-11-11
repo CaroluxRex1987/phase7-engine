@@ -1,11 +1,22 @@
 # The redesign (entry 53) — design draft
 
-*Draft v9, 11 November 2026, in the session that opened at 08:55 at `9cc48d7`. Version 9
+*Draft v10, 11 November 2026, in the session that opened at 09:41 at `a9b83a9`. Version
+10 states §4's tier lines and §5's F as Viktor ruled them on 11 November: the lines stay
+70 and 50 with all three labels kept, and F is 10,000 USDT, a starting value on the
+tunable list
+(DECISIONS, "Ruling, 11 November 2026 — the redesign's tier lines are 70 and 50 …").
+It records his check of F against his slice as open (§5), proposes the pinned fixture's
+`quote_volume` (§5), finds that the second pinned decision's seed now waits on the
+trigger (§10.1), and brings §0, §9, §12, §16.3 and §17.2 to it. It reads no engine code
+and one fixture, `tests/fixtures/ohlcv_clean_4h.csv` at `a9b83a9`; no engine `.py` file
+changed between `9cc48d7` and `a9b83a9`. It is the version put to Viktor for the trigger
+candle. Version 9, 11 November 2026, was written in the session that opened at 08:55 at
+`9cc48d7`. Version 9
 writes in the reading of 14 November, taken on 11 November (§17, new); rewrites §2's
 account of the direction, which the reading's computation 1(a) counts against; fixes H5
 in the design, which computation 5 finds is not minor (§8); and brings §0, §4, §5, §9,
 §12 and §16 to it. It reads `indicators/volume_profile.py` at `9cc48d7`; no engine `.py`
-file changed between `82b824d` and `9cc48d7`. It is the version put to Viktor, for the
+file changed between `82b824d` and `9cc48d7`. It was the version put to Viktor, for the
 tier lines and F first. Version 8, 9 November 2026, was written in the session that
 opened at 08:24 at `82b824d`. Version 8
 states §2's exit watch as Viktor ruled it on 9 November, its exhaustion and reversal
@@ -64,12 +75,13 @@ of version 0 that were wrong (§15). No `.py` file changed between `e748b0b` and
 made. Claude's draft. It will be put to Viktor after the forward measurement's reading
 of 14 November (DECISIONS, "Ruling, 25 October 2026 — the engine's indicators …",
 point 7). Nothing here is ruled but §2's direction, §4's reading of AGGRESSIVE and §3.3's
-structure multiplier (all three 7 November) and §2's exit watch flags (9 November), and no code is written
+structure multiplier (all three 7 November), §2's exit watch flags (9 November) and
+§4's tier lines and §5's F (both 11 November), and no code is written
 from it until the whole design is. Each
 statement says where it comes from: **read** means read in the code at `e748b0b`
 (version 0), `e69d5bb` (version 1), `4ab59d7` (version 2), `94b7e96` (version 3) or
 `a11ffc4` (version 4) or `542085f` (version 5); version 6 reads none; version 7 reads
-at `9db4ae2`; version 8 at `82b824d`; version 9 at `9cc48d7`;
+at `9db4ae2`; version 8 at `82b824d`; version 9 at `9cc48d7`; version 10 reads none;
 **ruled** names the
 ruling; **proposed** is Claude's suggestion; **to measure** was a number this draft
 did not have yet, and since version 9 each is **measured**, from the reading (§17), or
@@ -81,9 +93,10 @@ something was not checked, the sentence says so.*
 - **Viktor's, as the design's ruling** (25 October, "What follows"): the whole design
   before it is built. Inside it, these are new trading rules or change one of his
   rulings, so they are his even under the delegation of 29 October: the strength floor
-  (§2; ruled on 7 November), the trigger candle (§5), the liquidity floor's value (§5), the tier lines
+  (§2; ruled on 7 November), the trigger candle (§5), the liquidity floor's value (§5; ruled on
+  11 November, 10,000 USDT), the tier lines
   (§4; which reading of AGGRESSIVE they mean ruled on 7 November, the lines themselves
-  not), whether the structure multiplier stays (§3.3; ruled on 7 November, removed),
+  on 11 November, 70 and 50), whether the structure multiplier stays (§3.3; ruled on 7 November, removed),
   whether a CHOCH against the side becomes its own gate (§2; version 7), any ruled
   value named as tunable (§9), and, added in version 1, the exit watch's exhaustion
   and reversal flags, which go with trend health if nothing keeps them (§2; ruled on
@@ -485,7 +498,7 @@ nearly every run:**
   middle (§16.1, point 2). **Version 6:** Viktor ruled on 7 November that this line
   means the close inside the band, between `EMA_20` and `EMA_50`, ends included
   (DECISIONS, "Ruling, 7 November 2026 — the redesign's AGGRESSIVE reads the close
-  inside the band"); the lines themselves, 70 and 50, are still his (§0). Computation
+  inside the band"); the lines themselves, 70 and 50, he ruled on 11 November (below). Computation
   2 counts both readings. The line reads `entry.close_inside_band`, a true-or-false
   field in the entry block, not the STATUS word (§3.1, versions 4 and 6).
 - **CONSERVATIVE:** 50 ≤ quality < 70.
@@ -507,6 +520,13 @@ with the lines).
 slices, so the tier changes no position size; it is a label. Keeping three labels
 moves the fewest tests and panel lines. Collapsing them is a separate question, not
 proposed here.
+**Ruled (version 10).** On 11 November Viktor ruled, by agreeing to Claude's
+suggestion, that the lines stay 70 and 50 and all three labels are kept
+(DECISIONS, "Ruling, 11 November 2026 — the redesign's tier lines are 70 and 50 …").
+Whether to collapse the labels is raised again only if LONG, SHORT and AGGRESSIVE are
+still empty after the redesign's own first reading; when that reading is taken is not
+set. The three labels, as Claude reads his ruling: LONG / SHORT, AGGRESSIVE and
+CONSERVATIVE, as listed above.
 
 **H1 goes.** H1 is the WAIT on WEAK validation with trend health under 40. Its
 inputs go: trend health is removed, and the validation score loses both of its parts
@@ -535,8 +555,14 @@ resumes the trend after the pullback", so the design has to say which candle tha
   of its records under F, counted on `volume × close`, the stand-in the ruling allows.
   Under it: AVAXUSDT on 2 of its 61 records, 3.3% (its smallest turnover 7,431 USDT),
   and no other pair on any; the next thinnest is LINKUSDT, whose smallest is 13,243
-  USDT. The value is Viktor's (§0, §17.2); until he sets it, 10,000 is what the rule
-  gives and nothing more.
+  USDT. **Ruled (version 10):** on 11 November Viktor ruled F = 10,000 USDT, by
+  agreeing to Claude's suggestion, as a starting value on the tunable list (§9;
+  (DECISIONS, "Ruling, 11 November 2026 — the redesign's tier lines are 70 and 50 …")).
+  **Open, his:** Claude's check of F against his slice, which his ruling did not
+  answer. A 1,000 USDT slice is a tenth of a candle's turnover at F; it is 13.5% of
+  AVAXUSDT's thinnest candle in the window, which gate 7 blocks, and 7.6% of
+  LINKUSDT's. The slice's size in USDT is not on record (28 September: ten equal
+  slices of 10%, and no account size); the 1,000 is from his message of 11 November.
 - **`quote_volume` has to reach the frame.** `data/data_fetcher.py` reads it as the
   eighth kline column and drops it (read: `_OHLCV_COLUMNS` keeps five). Keeping it
   changes the fetched frame. That moves the candle archive's `canonical_text`, and so
@@ -558,6 +584,14 @@ resumes the trend after the pullback", so the design has to say which candle tha
   `MANIFEST.json`, so the golden run passes gate 7; §13 assumes it does. The pinned
   candles are synthetic, so the column is too: its rule is proposed once F is known,
   and F and the fixture are checked together. Its predicted moves are in §13.
+  **Proposed (version 10), Claude's:** the fixture's `quote_volume` is
+  `volume × close`, candle by candle, the stand-in the reading used. Computed on
+  `tests/fixtures/ohlcv_clean_4h.csv` at `a9b83a9`, in the Linux sandbox: all 450
+  candles are at or over F, the smallest at 10,650.02 and the decision candle at
+  67,901.65, so the golden run passes gate 7, as §13 assumes. The smallest is 6.5%
+  over F; at 20,000, the next value in the rule's series, a cut ending on it would
+  fail gate 7. The second series (§10.1) gets the same rule and the same check when
+  its seed is chosen.
 
 **The case against, given with it:** the trigger and both volume gates each cut
 trades, and the finish line needs about 100 closed trades of one version. The count
@@ -653,10 +687,13 @@ to the bin below (PHASE7_NEXT.md, "Found after 22 September"; found on 18 Octobe
 ## 9. Candidates for the tunable list (at most three; named when the design is fixed)
 
 The ADX floor (20, a ruled value: his yes or no), the stop's 1.2 (ruled: his yes or
-no), the liquidity floor F (10,000 USDT by the rule of 2 November, if he sets it
-there: §5), and the trigger volume's margin. That is four candidates
+no), the liquidity floor F (10,000 USDT, ruled on 11 November as a starting value on
+the list: §5), and the trigger volume's margin. That is four candidates
 for three places. **Proposed:** ADX floor, stop multiple, F. The margin stays at zero
-and is not tuned.
+and is not tuned. **Version 10:** F's place is ruled, and being ruled as tunable it
+needs no second yes or no when the list is named (Claude's reading of 30 October,
+point 3, his to correct). Two places are left: the ADX floor and the stop multiple
+are proposed for them, each his yes or no.
 
 ## 10. What moves — tests, golden fields, constants
 
@@ -732,6 +769,14 @@ because the golden snapshot's job is to be stable, not representative
 (`make_pinned.py`'s docstring, read), and the first fixture stays the case where the
 gates fail.
 
+**Version 10: the seed waits on the trigger.** F and the tier lines are ruled
+(11 November; §4, §5), so the seed no longer waits on them. It is still not searched:
+the scan applies gate 8, which is §5's proposed trigger, Viktor's and not ruled, and a
+seed found under the proposed trigger would have to be searched again under another.
+The same holds if he rules a CHOCH against the side in as a gate (§2). So the seed is
+searched once the trigger is ruled, with gate 7 no longer taken as passing: F = 10,000
+on the series' `quote_volume`, written by §5's rule.
+
 **The case against:** a second fixture is a second file for the golden tests to pin,
 and the seed search is one more step before the code. The alternative, taking one of
 the three cuts, costs nothing now and loses its trade on the day §11's finding is
@@ -787,7 +832,8 @@ design. It is entry 61 of the list for after the audit (PHASE7_NEXT.md, "Found a
    candle. Done in version 5 as far as it can be before the reading (§10.1): no candle
    of the pinned series is a sound one. Proposed: a second seeded series, its seed
    chosen once F, the tier lines and the reading of AGGRESSIVE are set. Version 6: the
-   reading is ruled (§4), so the seed waits on F and the tier lines.
+   reading is ruled (§4), so the seed waits on F and the tier lines. Version 10: both
+   are ruled (11 November), and it waits on the trigger (§10.1).
 7. Added in version 2, done in version 3: §2, §3.1 and §4 reconciled (§16.1, §16.4),
    by Viktor's ruling of 7 November on the floor; entry quality's formula is
    unchanged. The decision of 2 November's computation 1 was amended in place the same
@@ -807,6 +853,12 @@ design. It is entry 61 of the list for after the audit (PHASE7_NEXT.md, "Found a
    against the side becomes a gate (§2, with computation 7's count), any ruled value
    named as tunable (§9), and the design as a whole. The replacements for H1, H2 and
    H5 come when the code exists (§8).
+10. Added in version 10. The tier lines and F are ruled (11 November; §4, §5).
+    **His, in this order:** the trigger candle (§5), which the second pinned
+    decision's seed now waits on (§10.1); whether a CHOCH against the side becomes a
+    gate (§2, with computation 7's count); the ADX floor and the stop's 1.2 as
+    tunable, a yes or no each (§9); and the design as a whole. **Open beside them,
+    his:** F against his slice (§5).
 
 ## 13. The golden snapshot, field by field (version 1)
 
@@ -1674,7 +1726,10 @@ quality's formula is Claude's.
    distance from the band's middle. That reason is argued from the two definitions,
    not measured: how many of the 92 records at 70 and over pass the trigger was not
    counted. If it holds, LONG, SHORT and AGGRESSIVE are labels the design rarely or
-   never gives, and that goes to Viktor with the tier lines (§17.2).
+   never gives, and that goes to Viktor with the tier lines (§17.2). Version 10: he
+   ruled the lines and the three labels kept on 11 November; collapsing them is raised
+   again only if those tiers are still empty after the redesign's own first reading
+   (§4).
 6. **The design and this section have one author.** Every proposal here is the code's
    author's, and so is the case against it. Amazon's audit, after the design is built,
    is the first reading by anyone else (ruling 8 of 25 October).
@@ -1790,7 +1845,13 @@ would have done, never whether that was right.
 
 ### 17.2 For Viktor: the tier lines and F
 
-Both are his (§0). What he has to rule them on:
+**Ruled on 11 November (version 10):** the lines stay 70 and 50, all three labels are
+kept, and F is 10,000 USDT as a starting value on the tunable list
+(DECISIONS, "Ruling, 11 November 2026 — the redesign's tier lines are 70 and 50 …").
+Not answered, and open: F against his slice (§5). The five points below are what was
+put to him, as version 9 wrote them.
+
+Both were his (§0). What he had to rule them on:
 
 1. **The lines 70 and 50 are set by reasoning, and ruling 4 of 25 October keeps them
    so:** if they move, they are argued again, not fitted to this distribution. By the
