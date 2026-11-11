@@ -7638,6 +7638,102 @@ next reissue carries it.
 **What stays Viktor's.** As in the decision: how the fit is shown if no count is
 possible without the package reaching Amazon, and accepting the audit's result.
 
+## Ruling, 11 November 2026 — the reading of 14 November is taken on 11 November; its window ends at the candle that opened at 16:00 UTC on 10 November
+
+*New in this file on 11 November 2026. The ruling is Viktor's, at 01:12 on 11 November,
+in the session that opened at 00:30 at `4cdad4e`. The window's end is Claude's choice in
+that session, under "Decision, 17 October 2026 — how the forward measurement is counted"
+and point 1 of "Decision, 2 November 2026 — how the reading of 14 November measures the
+redesign draft's gaps …"; his to change. Filed by the commit of the session that opened
+at 01:21 on 11 November, docs only. The session that files it witnessed none of it: the
+ruling's words and time are from Viktor's message opening that session, and the run's
+facts from `RUN.txt`, the run's own note, on his disk. No earlier entry is edited (the
+ruling of 20 September).*
+
+**What was ruled.** "read today". The forward measurement's second reading — set at four
+weeks from the task's first run by point 5 of "Ruling, 17 October 2026 — the forward
+measurement …", and called the reading of 14 November in every entry since — was taken
+on 11 November. His reasons, if he gave any, were given to the session of 00:30 and are
+not in what the filing session read; they are not written here.
+
+**The name stands.** "The reading of 14 November" — in this file, in PHASE7_NEXT.md, in
+the redesign's draft, in `docs/build/measure_draft_gaps.py` and
+`docs/build/count_forward_measurement.py`, and in every dated record — names this
+reading. Nothing is renamed.
+
+**The window's end — Claude's choice.** The window opens, by rule 1 of the decision of
+17 October, at the candle that opened at 08:00 UTC on 17 October. It ends at the candle
+that opened at 16:00 UTC on 10 November, given to both scripts as
+`--last-open "2026-11-10 16:00"`: 147 candles. That is the last candle a scheduled run
+had read before the logs were staged, the population's end as the decision of 2 November
+words it: it closed at 20:00 UTC, and the 22:05 run of 10 November read it, the logs'
+last write when they were staged at about 01:13 on 11 November. The candle that opened
+at 20:00 UTC on 10 November had closed by then, but its scheduled run, at 02:05, was
+still to come. It is left out of the window, not counted as missed: a candle whose run
+has not yet had its turn is not one the machine slept through.
+
+**What it changes, and what it does not.** When the reading was taken, and so where its
+window ends. Nothing in how the count is made (17 October), in the seven computations,
+or in any result that counts against the draft (2 November, amended twice on 7 November):
+each was fixed before any of this data was read for it. By `RUN.txt` the logs were staged
+after the ruling.
+
+**What it weakens.**
+
+- The window is 147 candles, not the 168 of four weeks: 21 candles, three and a half
+  days, fewer than a reading on 14 November would have had.
+- An end chosen while a measurement runs is not blind. The reading of 31 October was
+  known, and the task's records to 7 November had been staged that day to check the
+  count script, though counted only to 31 October (PHASE7_NEXT.md, Open items, "The
+  count itself, filed"). The filing session has no record that anything later was
+  counted before 01:12, and did not witness that session.
+- The scheduled task still runs. Its records from the 02:05 run of 11 November on, on
+  the same `code_hash`, are in no reading.
+- The reading was run in a Linux sandbox under Python 3.13.18, numpy 2.5.3 and pandas
+  3.0.5, not the pinned 3.12 and numpy 2.2.6 under which `count_forward_measurement.py`
+  was checked against the reading of 31 October. Both scripts read recorded values and
+  archived candles and compute medians, percentiles and one volume profile; that the
+  versions make no difference to any figure was not checked.
+
+**What follows — Claude's reading, his to correct.**
+
+1. **The bar on `code_hash` is passed.** "No commit that moves `code_hash` lands before
+   the forward measurement's reading of 14 November" ("Ruling, 19 October 2026 — the
+   list for after the audit, sorted …") is read as waiting on the reading, not on the
+   date. A commit that moves `code_hash` starts a new version for the scheduled task,
+   whose count starts from zero (the ruling of 17 October, "What it weakens").
+2. **Whatever a ruling places "after the reading of 14 November" comes after this one:**
+   the tier lines and F, his; the redesign, F4's fix in it, and entry 57.
+3. **Not ruled, and his:** whether the scheduled task goes on running, and whether
+   anything reads it again.
+4. **Two results count against the redesign's draft**, by the lines set on 2 November:
+   computation 1(a), opposite sides on 38 of 495 records, 7.7% against 2%, and
+   computation 5, 179 of 539 records within one bin's reach of 50 or 70, against one
+   record. What each sets in motion was written then: §2 is rewritten before the draft
+   goes to Viktor, and H5 is fixed in the redesign and replaced. The reading itself is
+   in PHASE7_NEXT.md, Open items, the forward measurement.
+
+**The outputs, and what the filing session did with them.** They are on Viktor's disk
+in `logs\reading_2026-11-11\`, which git ignores, written at 01:18:57 and 01:18:58 on
+11 November by his disk's clock. The reading was filed from them and no script was run
+again, at his instruction; so the filing session read the figures and checked that the
+totals agree with each other, and did not check that the scripts give these outputs on
+those logs. SHA-256, of the files staged off his disk at 01:22:
+
+- `RUN.txt` `1548717f98c4751ea8b0b31a3ef86f42fc725dd7fa60e50f84f09c376b49b59a`
+- `count.json` `9bd3955e8410bddf62874430464d28c9138a24648a10809d1e2d9b8b34ff5506`
+- `count.txt` `22358b4d632ab59199c4008ccd6533b04b00b857af8304e1f1d13515ffdfc6f1`
+- `gaps.json` `30a6c068b3f46a800fcf0d4677bd89429082cb3fc87684e18d5748696be6043c`
+- `gaps.txt` `75b757295c56b04b3dbbae4207cb75bfd724e0c4cd2845d00fa918f31402237e`
+- `staged_sha256.txt` `a80e12183ede32c82cc3fb608bd9cf6538b4f0746db84795a8319a6444169328`,
+  which holds the SHA-256 of the ten decision logs and `logs/phase7_engine.log` as the
+  session of 00:30 staged them. The filing session did not stage those logs, and they
+  have been written since if a scheduled run has come.
+
+One thing in `RUN.txt` cannot be as written: it says the archives were staged at "about
+01:25", and the file itself was written at 01:18:57 by his disk's clock, before a
+session that opened at 01:21. An error of the note's, or two clocks apart; not resolved.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then

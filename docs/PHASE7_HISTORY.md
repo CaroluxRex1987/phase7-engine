@@ -222082,3 +222082,177 @@ Lines 6276–6277 of the version at `a60d66b`:
   only, as `9db4ae2` did; `6bb82cc` and `e4363d5`, docs only, changed no line there; and the commit
   that writes this line, docs only, changes no line there. (This
 ~~~~~
+
+## 11 November 2026 — the lines the rewrite of PHASE7_NEXT.md removed from its version at `4cdad4e`
+
+*Moved here on 11 November 2026 by the commit that files Viktor's ruling of 11 November
+that the reading of 14 November is taken on 11 November, files that reading, and
+records `4cdad4e`'s landing, under "Ruling, 4 November 2026 — HISTORY keeps what each
+rewrite of PHASE7_NEXT.md removes, not the whole file" (DECISIONS).
+Below the rule, each block is a run of lines of the file as it stood at `4cdad4e` that
+the rewrite deleted or replaced, word for word, labelled with its line numbers in that
+version; "this session" in them is the session that opened at 02:20 on 10 November, and
+"the commit that writes this line" and "this commit" name `4cdad4e`. The whole version:
+`git show 4cdad4e:docs/PHASE7_NEXT.md`. Checked by `docs/build/check_history_move.py`.*
+
+---
+
+Lines 3–6 of the version at `4cdad4e`:
+
+~~~~~
+*10 November 2026, in the session that opened at 02:20. Rewritten by the commit that
+regenerates the Engineering Notes at v1.43, Entries #286 to #288, and records
+`a60d66b`'s landing; the lines it removed from the version at `a60d66b` are in HISTORY,
+which points to that whole version in git.
+~~~~~
+
+Lines 33–34 of the version at `4cdad4e`:
+
+~~~~~
+bind the choice, among them no commit that moves `code_hash` before the reading of
+14 November. Until 1 November a session asked him what he wanted to do first. A
+~~~~~
+
+Lines 2335–2340 of the version at `4cdad4e`:
+
+~~~~~
+**This session (10 November, from 02:20)**, configured for Claude Fable 5.2, opened at
+`a60d66b` with that record and did not check the landing again, the tip not having
+moved: GitHub's tip, cloned at 02:21 by the sandbox's own route, not the
+no-credentials read, is `a60d66b`; `master` on Viktor's disk is `a60d66b`, written at
+13:49:59 on 9 November; and the four files this commit changes were, on his disk, byte
+for byte the tip.
+~~~~~
+
+Lines 2342–2348 of the version at `4cdad4e`:
+
+~~~~~
+What came first, by the ruling of 1 November read with the correction of 4 November: no
+commit owed; no work due by a date before the reading of 14 November; Claude's waves 2
+to 5 move `code_hash` and wait on the reading; so Claude's work that the rulings in
+force let land now and that moves no `code_hash`: the Engineering Notes, three commits
+behind, as the session of 14:03 had chosen. The commit that writes this line is v1.43,
+Entries #286 to #288, one for each commit from `6bb82cc` to `a60d66b`, and records
+`a60d66b`'s landing. Docs only: no engine code, no test, no tooling.
+~~~~~
+
+Lines 2978–2979 of the version at `4cdad4e`:
+
+~~~~~
+  the Engineering Notes regenerated at v1.43, Entries #286 to #288, and `a60d66b`'s
+  landing recorded: docs only, no engine code. Before it: `a60d66b` (the session of
+~~~~~
+
+Line 3342 of the version at `4cdad4e`:
+
+~~~~~
+  `pandas_ta`, and changed no other test's code, removing and renaming none; `82b824d`, `6bb82cc`, `e4363d5` and `a60d66b` changed no test; and the
+~~~~~
+
+Lines 3355–3359 of the version at `4cdad4e`:
+
+~~~~~
+- **The push of `a60d66b`** happened, at 13:50:13 on 9 November: GitHub's tip, read
+  with no credentials at 14:05:13 on 9 November by the session of 14:03, was `a60d66b`,
+  Viktor's disk the tip in every part that check read, and its tree the one its
+  `Verified-Tree:` line names; no deviation (ruling on proposal (b)). GitHub's tip was
+  still `a60d66b` when this session cloned it, at 02:21 on 10 November. So did
+~~~~~
+
+Lines 3554–3555 of the version at `4cdad4e`:
+
+~~~~~
+  matched an autocrlf checkout of `a60d66b`, GitHub's tip, cloned at 02:21 on
+  10 November, byte for byte, before the patch was built; it adds no file. (This file
+~~~~~
+
+Line 3609 of the version at `4cdad4e`:
+
+~~~~~
+  `7dac328`, `340ee8d`, `82b824d`, `6bb82cc`, `e4363d5` and `a60d66b` and the applied tree of the commit
+~~~~~
+
+Line 3613 of the version at `4cdad4e`:
+
+~~~~~
+  9 November, and the applied tree of the commit that writes this line on 10 November,
+~~~~~
+
+Line 3698 of the version at `4cdad4e`:
+
+~~~~~
+  autocrlf clone of `a60d66b` and on the patch applied to another. `a60d66b` changed
+~~~~~
+
+Line 4087 of the version at `4cdad4e`:
+
+~~~~~
+- **Engineering Notes:** through Entry #288 (v1.43), which covers `a60d66b`. The gap
+~~~~~
+
+Line 4092 of the version at `4cdad4e`:
+
+~~~~~
+  commits `7dac328` and `340ee8d`, and v1.43, by the commit that writes this line,
+~~~~~
+
+Lines 4094–4095 of the version at `4cdad4e`:
+
+~~~~~
+  **No commit that needs an entry is behind:** `bc250fc`, `9db4ae2`, `82b824d` and the
+  commit that writes this line are regenerations and have none (a commit that
+~~~~~
+
+Line 5709 of the version at `4cdad4e`:
+
+~~~~~
+- **`a60d66b`'s landing**, checked from 14:03 on 9 November by the session of that
+~~~~~
+
+Lines 5713–5717 of the version at `4cdad4e`:
+
+~~~~~
+- **The Engineering Notes, v1.43**, Entries #286 to #288, by the commit that writes
+  this line: no commit that needs an entry is behind.
+- **The patch-delivery skill's marker** is at `a11ffc4`. `a60d66b`'s ruling changes no
+  procedure the skill describes, and the commit that writes this line files no ruling,
+  so the marker stays.
+~~~~~
+
+Line 5719 of the version at `4cdad4e`:
+
+~~~~~
+  from the version at `a60d66b` are in HISTORY's new entry, checked by
+~~~~~
+
+Line 5756 of the version at `4cdad4e`:
+
+~~~~~
+  (wave 2: it moves `code_hash`). Ruled on 27 October; Claude's to build.
+~~~~~
+
+Lines 5860–5861 of the version at `4cdad4e`:
+
+~~~~~
+  reads no CHOCH.
+- **The CHOCH count — filed, read on 14 November** (draft §12, point 8; DECISIONS,
+~~~~~
+
+Line 5869 of the version at `4cdad4e`:
+
+~~~~~
+  against the draft. Then **Viktor's, with the whole design:** whether a CHOCH against
+~~~~~
+
+Lines 5875–5876 of the version at `4cdad4e`:
+
+~~~~~
+  on 31 October (made; below) and 14 November (due)**, two and four weeks from the
+  task's first run, from
+~~~~~
+
+Line 6052 of the version at `4cdad4e`:
+
+~~~~~
+    for the reading. Not yet run on them. Computation 1's direction amended on
+~~~~~

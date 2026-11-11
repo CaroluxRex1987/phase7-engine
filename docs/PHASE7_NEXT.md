@@ -1,9 +1,9 @@
 # Next step — read this first
 
-*10 November 2026, in the session that opened at 02:20. Rewritten by the commit that
-regenerates the Engineering Notes at v1.43, Entries #286 to #288, and records
-`a60d66b`'s landing; the lines it removed from the version at `a60d66b` are in HISTORY,
-which points to that whole version in git.
+*11 November 2026, in the session that opened at 01:21. Rewritten by the commit that
+files the forward measurement's second reading, taken on 11 November by Viktor's ruling
+of that day, and records `4cdad4e`'s landing; the lines it removed from the version at
+`4cdad4e` are in HISTORY, which points to that whole version in git.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
 rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
@@ -30,8 +30,12 @@ queue to clear:** one piece at a time, done properly.
 should be done first and starts it, saying in one line what it is and why it comes
 first; he can redirect it at any point. What is marked his stays his to decide: Claude
 may bring it to him as what comes first, and does not decide it. The rulings in force
-bind the choice, among them no commit that moves `code_hash` before the reading of
-14 November. Until 1 November a session asked him what he wanted to do first. A
+bind the choice. Among them was no commit that moves `code_hash` before the reading of
+14 November: that reading was taken on 11 November, by Viktor's ruling of that day
+(DECISIONS,
+"Ruling, 11 November 2026 — the reading of 14 November is taken on 11 November …"),
+so that bar is passed — Claude's reading of the ruling of 19 October, his to correct.
+Until 1 November a session asked him what he wanted to do first. A
 landing that went as predicted is never itself a commit owed: the next commit made
 for its own reason records it (DECISIONS, "Correction, 4 November 2026 — a landing
 that went as predicted is never itself a commit owed").
@@ -2332,22 +2336,56 @@ message; `master` and `origin/master` `a60d66b`, the reflogs' last lines "commit
 procedure the skill describes, so its marker stayed at `a11ffc4`. It chose the
 Engineering Notes, v1.43, as what came first, and had not started building it.
 
-**This session (10 November, from 02:20)**, configured for Claude Fable 5.2, opened at
-`a60d66b` with that record and did not check the landing again, the tip not having
-moved: GitHub's tip, cloned at 02:21 by the sandbox's own route, not the
-no-credentials read, is `a60d66b`; `master` on Viktor's disk is `a60d66b`, written at
-13:49:59 on 9 November; and the four files this commit changes were, on his disk, byte
-for byte the tip.
+**The session of 10 November, from 02:20**, configured for Claude Fable 5.2, opened at
+`a60d66b` with that record, did not check the landing again, the tip not having moved,
+and built the Engineering Notes at v1.43, Entries #286 to #288: `4cdad4e`, which also
+recorded `a60d66b`'s landing. That session's account is in this file's version at
+`4cdad4e`.
 
-What came first, by the ruling of 1 November read with the correction of 4 November: no
-commit owed; no work due by a date before the reading of 14 November; Claude's waves 2
-to 5 move `code_hash` and wait on the reading; so Claude's work that the rulings in
-force let land now and that moves no `code_hash`: the Engineering Notes, three commits
-behind, as the session of 14:03 had chosen. The commit that writes this line is v1.43,
-Entries #286 to #288, one for each commit from `6bb82cc` to `a60d66b`, and records
-`a60d66b`'s landing. Docs only: no engine code, no test, no tooling.
+**The session of 10 November, from 23:53**, checked `4cdad4e`'s landing, and nothing
+differed. It made no commit. Its check is recorded here from Viktor's words at the
+opening of this session ("landing checked 10 November from 23:53, nothing differed");
+this session did not read that check and did not repeat it. What this session read for
+its own work agrees with it: GitHub's tip, cloned at 01:21 on 11 November by the
+sandbox's own route, not the no-credentials read, is `4cdad4e`; on Viktor's disk the
+reflogs' last lines are "commit:" at 23:53:21 and "update by push" at 23:53:36 on
+10 November, both to `4cdad4e`; and the three files this commit changes were, on his
+disk, byte for byte the tip.
+
+**The session of 11 November, from 00:30**, took the forward measurement's second
+reading. Nothing in this paragraph was witnessed by the session that writes it: it is
+from Viktor's words at this session's opening and from `RUN.txt`, that run's own note,
+on his disk. At 01:12 Viktor ruled "read today": the reading due on 14 November was
+taken on 11 November (DECISIONS,
+"Ruling, 11 November 2026 — the reading of 14 November is taken on 11 November …").
+Both of the reading's scripts ran in that session, on the logs staged off his disk,
+with the window ending at the candle that opened at 16:00 UTC on 10 November, Claude's
+choice; their outputs and `RUN.txt` were written to `logs\reading_2026-11-11\`, which
+git ignores, at 01:18:57 and 01:18:58 by his disk's clock. It made no commit.
+
+**This session (11 November, from 01:21)**, configured for Claude Fable 5.2, opened at
+`4cdad4e` with Viktor's instruction to file the reading from those files and not to run
+the scripts again. What came first, by the ruling of 1 November: a commit owed, his
+ruling of 01:12 to file, and the reading with it. The commit that writes this line
+files the ruling and the window's end in DECISIONS and the reading in this file (Open
+items, the forward measurement), and records `4cdad4e`'s landing. Docs only: no engine
+code, no test, no tooling; it moves no `code_hash`. The two results that count against
+the redesign's draft, computations 1(a) and 5, were brought to Viktor in chat after it.
 
 ## Ruled — in force
+
+- **New, 11 November — Viktor's: the reading of 14 November is taken on 11 November**
+  (DECISIONS,
+  "Ruling, 11 November 2026 — the reading of 14 November is taken on 11 November …").
+  "read today", at 01:12 on 11 November. The name "the reading of 14 November" stands
+  for it everywhere it is written. Its window ends at the candle that opened at 16:00
+  UTC on 10 November, the last a scheduled run had read when the logs were staged: 147
+  candles; Claude's choice, his to change. Nothing in how the count or the seven
+  computations are made changed, and no threshold. Claude's reading of what follows,
+  his to correct: the bar of 19 October, no commit that moves `code_hash` before the
+  reading, is passed, and whatever a ruling places "after the reading of 14 November"
+  comes after this one. Not ruled, and his: whether the scheduled task goes on running,
+  and whether anything reads it again.
 
 - **New, 9 November — Viktor's: Amazon's audit sends Nova 2 Lite, through OpenRouter's
   API** (DECISIONS, "Ruling, 9 November 2026 — Amazon's audit sends Nova 2 Lite, through
@@ -2975,8 +3013,11 @@ Entries #286 to #288, one for each commit from `6bb82cc` to `a60d66b`, and recor
 ## Where things stand, right now
 
 - **Tip:** the commit that writes this line (a commit cannot name its own hash) —
-  the Engineering Notes regenerated at v1.43, Entries #286 to #288, and `a60d66b`'s
-  landing recorded: docs only, no engine code. Before it: `a60d66b` (the session of
+  Viktor's ruling of 11 November that the reading of 14 November is taken on
+  11 November filed, the reading filed, and `4cdad4e`'s landing recorded: docs only, no
+  engine code. Before it: `4cdad4e` (the session of 10 November, from 02:20: the
+  Engineering Notes regenerated at v1.43, Entries #286 to #288, and `a60d66b`'s
+  landing recorded: docs only, no engine code), `a60d66b` (the session of
   9 November, from 12:37: Viktor's ruling of 9 November that Amazon's audit sends
   Nova 2 Lite through OpenRouter's API filed, and `e4363d5`'s landing recorded: docs
   only, no engine code), `e4363d5` (the session of 9 November, from 09:30: Claude's decision of
@@ -3339,7 +3380,7 @@ Entries #286 to #288, one for each commit from `6bb82cc` to `a60d66b`, and recor
   `542085f`, `b874ec1`, `82ea40e`, `9db4ae2` and `7dac328` changed no test; `340ee8d`
   added two tests to `tests/test_measure_draft_gaps.py`, for computation 7, with a
   dated paragraph in that file's docstring, neither taking a fixture or needing
-  `pandas_ta`, and changed no other test's code, removing and renaming none; `82b824d`, `6bb82cc`, `e4363d5` and `a60d66b` changed no test; and the
+  `pandas_ta`, and changed no other test's code, removing and renaming none; `82b824d`, `6bb82cc`, `e4363d5`, `a60d66b` and `4cdad4e` changed no test; and the
   commit that writes this line changes no test.
   (This file at `b990c93` still said
   there that the commit writing the line changed no test, carried from `7b93769`;
@@ -3352,11 +3393,16 @@ Entries #286 to #288, one for each commit from `6bb82cc` to `a60d66b`, and recor
   to `E:\phase7_engine`". Run the engine and every command from `E:\phase7_engine` (in
   cmd, changing drive needs `cd /d`). A dated record that names the D: paths means the
   same folders before the move; dated records are not edited.
-- **The push of `a60d66b`** happened, at 13:50:13 on 9 November: GitHub's tip, read
-  with no credentials at 14:05:13 on 9 November by the session of 14:03, was `a60d66b`,
-  Viktor's disk the tip in every part that check read, and its tree the one its
-  `Verified-Tree:` line names; no deviation (ruling on proposal (b)). GitHub's tip was
-  still `a60d66b` when this session cloned it, at 02:21 on 10 November. So did
+- **The push of `4cdad4e`** happened, at 23:53:36 on 10 November (the reflog on his
+  disk, read by this session): its landing was checked from 23:53 on 10 November by the
+  session of that hour, and nothing differed — Viktor's words at this session's
+  opening, that check not read by this session; no deviation (ruling on proposal (b)).
+  GitHub's tip was `4cdad4e` when this session cloned it, at 01:21 on 11 November, by
+  the sandbox's own route. So did `a60d66b`'s, at 13:50:13 on 9 November: GitHub's tip,
+  read with no credentials at 14:05:13 on 9 November by the session of 14:03, was
+  `a60d66b`, Viktor's disk the tip in every part that check read, and its tree the one
+  its `Verified-Tree:` line names. GitHub's tip was still `a60d66b` when the session of
+  02:20 on 10 November cloned it, at 02:21. So did
   `e4363d5`'s, at 12:36:41 on 9 November: GitHub's tip, read with no credentials at
   12:39:08 on 9 November, was `e4363d5`, Viktor's disk the tip in every part that check
   read, and its tree the one its `Verified-Tree:` line names. So did
@@ -3551,8 +3597,8 @@ Entries #286 to #288, one for each commit from `6bb82cc` to `a60d66b`, and recor
   commit that writes this line unless it deviates. Earlier pushes and deviations are
   recorded in this file's previous versions, in HISTORY.
 - **Before this commit**, every file its patch changes was staged off Viktor's disk and
-  matched an autocrlf checkout of `a60d66b`, GitHub's tip, cloned at 02:21 on
-  10 November, byte for byte, before the patch was built; it adds no file. (This file
+  matched an autocrlf checkout of `4cdad4e`, GitHub's tip, cloned at 01:21 on
+  11 November, byte for byte, before the patch was built; it adds no file. (This file
   at `706e858` and at `4ab59d7` still gave `bc250fc`'s sentence here, against
   `a0ca299`; corrected on 7 November.)
 - **code_hash:** `816d4951bb0322763ec4abc4b9ed8161d5b902372823350e5272f2fb7176e380`,
@@ -3606,11 +3652,12 @@ Entries #286 to #288, one for each commit from `6bb82cc` to `a60d66b`, and recor
   `e8b42b8`, `d6fba83`, `7c23886`, `e939734`, `1b82ed0`, `7ff8128`, `5fe8522`,
   `7b93769`, `b990c93`, `f8805a6`, `0a518fd`, `a0ca299`, `bc250fc`, `706e858`,
   `4ab59d7`, `94b7e96`, `a11ffc4`, `542085f`, `b874ec1`, `82ea40e`, `9db4ae2`,
-  `7dac328`, `340ee8d`, `82b824d`, `6bb82cc`, `e4363d5` and `a60d66b` and the applied tree of the commit
+  `7dac328`, `340ee8d`, `82b824d`, `6bb82cc`, `e4363d5`, `a60d66b` and `4cdad4e` and the applied tree of the commit
   that writes this line give the same (`bc250fc`'s, `706e858`'s, `4ab59d7`'s, `94b7e96`'s, `a11ffc4`'s,
   `542085f`'s, `b874ec1`'s, `82ea40e`'s, `9db4ae2`'s, `7dac328`'s and `340ee8d`'s
   computed on 7 November, `82b824d`'s, `6bb82cc`'s, `e4363d5`'s and `a60d66b`'s on
-  9 November, and the applied tree of the commit that writes this line on 10 November,
+  9 November, `4cdad4e`'s on 10 November and again on 11 November, and the applied
+  tree of the commit that writes this line on 11 November,
   under Python 3.12.3); on
   6 November it was computed again on
   each of `67f6ec1` and the twenty-four trees `0491b84` to `b8f88d8`, for the Notes'
@@ -3630,6 +3677,7 @@ Entries #286 to #288, one for each commit from `6bb82cc` to `a60d66b`, and recor
   SURVIVE"). **Every `code_hash` claim about this project is computed under Python 3.12**
   (Viktor runs 3.12.10).
 - **Golden snapshot:** unchanged by the commit that writes this line, which changes
+  docs and no code or test, by `4cdad4e`, which changed
   the Notes' build script and documents and no code or test, by `6bb82cc`, `e4363d5`
   and `a60d66b`, which changed docs and no code or test, by
   `82b824d`, which changed the Notes' build script and
@@ -3695,7 +3743,12 @@ Entries #286 to #288, one for each commit from `6bb82cc` to `a60d66b`, and recor
   15 October 2026 — Part 4's three test shapes", point 5); `README.md` wrote it too
   until `713e084` (entry 50). The commit that writes this line changes no test, and the
   three counts held: from the Linux sandbox, Python 3.12.3, pinned requirements, on an
-  autocrlf clone of `a60d66b` and on the patch applied to another. `a60d66b` changed
+  autocrlf clone of `4cdad4e` and on the patch applied to another. `4cdad4e` changed
+  no test, and the three counts held: from the Linux sandbox, on an autocrlf clone of
+  `a60d66b` and on the patch applied to another; its pytest step ran on Windows after
+  the apply (read off his disk by this session: the cache was written at 02:43:39 on
+  10 November, after `docs/PHASE7_NEXT.md` and `docs/PHASE7_HISTORY.md` were written at
+  02:40:08; its `lastfailed` is `{}`), and Viktor went on to the commit. `a60d66b` changed
   no test, and the three counts held: from the Linux sandbox, on an autocrlf clone of
   `e4363d5` and on the patch applied to another; its pytest step ran on Windows after
   the apply (by the record of the session of 14:03: the cache on his disk was written
@@ -4084,15 +4137,18 @@ Entries #286 to #288, one for each commit from `6bb82cc` to `a60d66b`, and recor
   then run on Windows at 09:06 on 12 October: both matched (792; 721 / 0 / 32). One test,
   `test_the_commit_messages_up_to_the_tag_are_round_7s_to_the_byte`, runs `git log` up
   to the tag `round7-sent-2026-09-30`: it needs the tag, which a full clone has.
-- **Engineering Notes:** through Entry #288 (v1.43), which covers `a60d66b`. The gap
+- **Engineering Notes:** through Entry #288 (v1.43), which covers `a60d66b`; one
+  commit behind, the commit that writes this line (below). The gap
   left by v1.36 was closed in four regenerations: v1.37 at `f8805a6` covered `e7a94d1`
   to `eb86846`, v1.38 at `0a518fd` `c2b07fb` to `67f6ec1`, v1.39 at `a0ca299` `0491b84`
   to `b8f88d8`, and v1.40 at `bc250fc` `a1c4218` to `0a518fd`. v1.41, at `9db4ae2`,
   covered the seven commits `706e858` to `82ea40e`, v1.42, at `82b824d`, the two
-  commits `7dac328` and `340ee8d`, and v1.43, by the commit that writes this line,
+  commits `7dac328` and `340ee8d`, and v1.43, at `4cdad4e`,
   covers the three commits `6bb82cc`, `e4363d5` and `a60d66b`, one entry each.
-  **No commit that needs an entry is behind:** `bc250fc`, `9db4ae2`, `82b824d` and the
-  commit that writes this line are regenerations and have none (a commit that
+  **One commit that needs an entry is behind:** the commit that writes this line, which
+  files the ruling of 11 November and the reading, and has none until the next
+  regeneration. `bc250fc`, `9db4ae2`, `82b824d` and
+  `4cdad4e` are regenerations and have none (a commit that
   regenerates the Notes cannot cover itself, Entry #144). Every later commit adds one
   until the next regeneration. Batched, by the 15 September rule. v1.43 records the
   ruling that the redesign's exit watch drops its exhaustion and reversal flags,
@@ -5706,17 +5762,26 @@ Each code commit is its own commit and updates this file for its own landing.
 
 ## Resolved this session
 
-- **`a60d66b`'s landing**, checked from 14:03 on 9 November by the session of that
+- **`4cdad4e`'s landing**, checked from 23:53 on 10 November by the session of that
   hour, which made no commit, and recorded by the commit that writes this line, made
   for its own reason (DECISIONS, the correction of 4 November). Its push is in "Where
   things stand".
-- **The Engineering Notes, v1.43**, Entries #286 to #288, by the commit that writes
-  this line: no commit that needs an entry is behind.
-- **The patch-delivery skill's marker** is at `a11ffc4`. `a60d66b`'s ruling changes no
-  procedure the skill describes, and the commit that writes this line files no ruling,
-  so the marker stays.
+- **Viktor's ruling of 11 November, "read today"**, filed by the commit that writes
+  this line, with the window's end, Claude's choice (DECISIONS,
+  "Ruling, 11 November 2026 — the reading of 14 November is taken on 11 November …").
+- **The forward measurement's second reading**, the reading of 14 November taken on
+  11 November, filed by the commit that writes this line from the outputs on his disk,
+  no script run again: the count and the seven computations (Open items, the forward
+  measurement). Computations 1(a) and 5 count against the redesign's draft; what each
+  sets in motion was fixed on 2 November and is in the draft's Open item.
+- **The patch-delivery skill's marker** is at `a11ffc4`. The ruling the commit that
+  writes this line files changes when the reading was taken, and no procedure the
+  skill describes; the skill's section 10 still names, among the rulings that bind a
+  session's choice, "no commit that moves `code_hash` before the reading of
+  14 November", which is passed. An update to the skill was proposed to Viktor in this
+  session for that sentence and the marker.
 - **This file's rewrite**, by the commit that writes this line. The lines it removed
-  from the version at `a60d66b` are in HISTORY's new entry, checked by
+  from the version at `4cdad4e` are in HISTORY's new entry, checked by
   `docs/build/check_history_move.py` (the commit message has the result).
 
 ## Open items
@@ -5753,7 +5818,9 @@ Claude critiques it.
   **Viktor's, only if he wants it:** entry 47's place in the sort, if he changes
   Claude's suggestion.
 - **Entry 57 — `run_tests.py`'s last-run record, after the reading of 14 November**
-  (wave 2: it moves `code_hash`). Ruled on 27 October; Claude's to build.
+  (wave 2: it moves `code_hash`). Ruled on 27 October; Claude's to build. The reading
+  was taken on 11 November, so nothing ruled holds it back now (Claude's reading of the
+  ruling of 19 October, his to correct; Ruled — in force, 11 November).
 - **The engine's indicators — the document of 24 October** (outside the repository,
   "Where the project is"). Version 2's section 6 questions were ruled on 25 October
   (Ruled — in force); the redesign is entry 53, the next item. **The tooling landed**
@@ -5857,8 +5924,17 @@ Claude critiques it.
   §2's exit watch as Viktor ruled it on 9 November, its exhaustion and reversal flags
   removed, lists every flag it keeps, and corrects version 7: the exit watch's CHOCH
   flag reads the swing sequence, so it is the decision, not the whole design, that
-  reads no CHOCH.
-- **The CHOCH count — filed, read on 14 November** (draft §12, point 8; DECISIONS,
+  reads no CHOCH. **The reading is in** (the forward measurement, below, "The seven
+  computations"), taken on 11 November, and version 8 does not carry it: its gaps still
+  say "to measure". **Two results count against the draft, 1(a) and 5.** Owed before
+  the draft goes to Viktor, Claude's, each set by the decision of 2 November before the
+  data was read: §2 rewritten, since the draft's direction took the side opposite to
+  today's on 7.7% of the records where both have one, against a line of 2%; H5 fixed
+  in the design and replaced as a held-back defect, since one bin of the volume profile
+  can move 179 of 539 records across 50 or 70, against a line of one record; and the
+  measured figures written into the draft. Viktor's, with the design, now that the
+  reading is in: the tier lines 70 and 50, and F.
+- **The CHOCH count — filed, and read on 11 November** (draft §12, point 8; DECISIONS,
   "Ruling, 7 November 2026 — the redesign's entry quality has no structure
   multiplier", "What follows"): computation 7 of the reading, added to the decision of
   2 November in place and to `docs/build/measure_draft_gaps.py` with two tests by
@@ -5866,14 +5942,18 @@ Claude critiques it.
   "Amendment, 7 November 2026 — the reading of 14 November counts the CHOCHs against the
   side (computation 7)"). Of the records with a side, those whose `structure.sequence`
   is a CHOCH against it, and how many of them pass every other gate; nothing counts
-  against the draft. Then **Viktor's, with the whole design:** whether a CHOCH against
+  against the draft. **Read:** 4 of the 539 records with a side have a CHOCH against
+  it, 0.7%, all four on LINKUSDT; none passes every other gate — all four are apart,
+  the plan's side not the draft's — and none of the 8 records that pass every gate has
+  one. Then **Viktor's, with the whole design:** whether a CHOCH against
   the side becomes its own gate.
 - **The forward measurement — Claude's to count, under the ruling of 17 October.** Ten
   pairs — AEROUSDT, ETHUSDT, SOLUSDT, XRPUSDT, BNBUSDT, DOGEUSDT, ADAUSDT, LINKUSDT,
   AVAXUSDT, SUIUSDT — every four hours, by one Windows scheduled task on Viktor's
   machine running `pythonw.exe E:\phase7_engine\main.py` with the ten pairs. **Readings
-  on 31 October (made; below) and 14 November (due)**, two and four weeks from the
-  task's first run, from
+  on 31 October and, for the one due on 14 November, on 11 November (both made;
+  below)**, set at two and four weeks from the task's first run, the second moved by
+  Viktor's ruling of 11 November, from
   the decision logs and `logs/phase7_engine.log` staged off his disk: per pair and per
   `code_hash`, the closed 4h candles read, the LONG actions among them (AGGRESSIVE LONG,
   LONG, CONSERVATIVE LONG), the SHORT actions, WAIT and NO-TRADE, degraded runs, failed
@@ -6041,6 +6121,122 @@ Claude critiques it.
     at 12:00 UTC, `code_hash` `816d4951…`. It ran while `1b82ed0`'s `run_tests.py`
     step did, and failed the suite's guard on the real log directory (entry 59); its
     records are the task's own and count as any other.
+  - **The reading of 14 November, taken on 11 November** — by Viktor's ruling of 01:12
+    on 11 November, "read today" (DECISIONS,
+    "Ruling, 11 November 2026 — the reading of 14 November is taken on 11 November …").
+    **Run by the session of 11 November from 00:30, not by the one that files it:**
+    every figure in this point and the next is read from that run's outputs on his
+    disk, `logs\reading_2026-11-11\` — `count.txt`, `count.json`, `gaps.txt`,
+    `gaps.json`, `RUN.txt` and `staged_sha256.txt`, written at 01:18:57 and 01:18:58,
+    git-ignored, their SHA-256 in the DECISIONS entry — and no script was run again, at
+    his instruction. By `RUN.txt`: `docs/build/count_forward_measurement.py` and
+    `docs/build/measure_draft_gaps.py` from an autocrlf clone of `4cdad4e`, each with
+    `--last-open "2026-11-10 16:00"`, on the ten decision logs and
+    `logs/phase7_engine.log` staged off his disk at about 01:13 on 11 November, their
+    last write the 22:05 run of 10 November, and on the 641 archives the records name;
+    Linux sandbox, Python 3.13.18, numpy 2.5.3, pandas 3.0.5 — not the pinned 3.12 and
+    numpy 2.2.6, under which the count script was checked on 7 November (below). The
+    window is the 147 candles that opened from 08:00 UTC on 17 October to 16:00 UTC on
+    10 November, the last a scheduled run had read; the candle that opened at 20:00
+    UTC on 10 November had closed, its 02:05 run still to come, and is left out
+    (Claude's choice, in the same entry).
+    **Read: 63 candles per pair, 630 records**, all ten pairs on each of the 63 and no
+    candle read by only some: logged 5 min 4 s to 6 min 10 s after the close before the
+    clocks went back (220 records), 65 min 5 s to 66 min 9 s after it since (410); 449
+    rows, one forming candle dropped and MEXC's close the open plus one bar on all 630;
+    `code_hash` `816d4951…`. Not counted: 10 records not live, 53 of another
+    `code_hash`, 11 of candles before the window and 3 not the task's run. **Missed: 84
+    per pair, 840 in all, 57% of the window**; one of AEROUSDT's 84, the candle that
+    opened at 08:00 UTC on 1 November, was read by a run that is not the task's.
+    **Refused: 10**, the run at 14:00 on 17 October, its candle read by the 14:05 run.
+    **Failed: none.** The process log: 643 attempts on candles in the window, in 67
+    runs, 63 of them at the task's minute, 64 of ten pairs and 3 of one; 633 successes
+    and the 10 refusals.
+    Actions, of 630: LONG 75 (AGGRESSIVE LONG 30, LONG 22, CONSERVATIVE LONG 23); SHORT
+    251 (AGGRESSIVE SHORT 28, SHORT 79, CONSERVATIVE SHORT 144); WAIT 82; NO-TRADE 222
+    (SIGNAL UNCONFIRMED 205, RISK TOO HIGH 11, DEGRADED INPUT 6). Per pair, of 63 —
+    LONG / SHORT / WAIT / NO-TRADE: AEROUSDT 7 / 7 / 10 / 39, ETHUSDT 10 / 27 / 9 / 17,
+    SOLUSDT 9 / 29 / 7 / 18, XRPUSDT 8 / 20 / 5 / 30, BNBUSDT 12 / 19 / 14 / 18,
+    DOGEUSDT 9 / 31 / 3 / 20, ADAUSDT 6 / 38 / 3 / 16, LINKUSDT 6 / 27 / 9 / 21,
+    AVAXUSDT 3 / 26 / 8 / 26, SUIUSDT 5 / 27 / 14 / 17. **Degraded: 12**, each from one
+    candle among the last 20 of 10.3 to 16.4 times their median volume: the three of
+    DOGEUSDT the reading of 31 October names; BNBUSDT's candles that opened at 00:00,
+    12:00 and 16:00 UTC on 1 November; ADAUSDT's and XRPUSDT's at 12:00 and 16:00 UTC
+    on 1 November; and AVAXUSDT's at 16:00 and 20:00 UTC on 9 November. Six are NO-TRADE
+    (DEGRADED INPUT), four NO-TRADE (SIGNAL UNCONFIRMED) and two WAIT.
+    **LONGs on the same candle across pairs:** the 75 fall on 18 of the 63 candles.
+    The 56 on 14 candles are the reading of 31 October's. The 19 since are on four
+    candles: 1 pair at 12:00 UTC on 1 November, 5 and 7 at 16:00 and 20:00 UTC on
+    4 November, and 6 at 08:00 UTC on 5 November. Actions, not trades.
+    **When the candles were read** — by the hour of the close, the candles all ten
+    pairs read, of the slot's: 00:00 UTC, 8 of 24; 04:00, 7 of 24; 08:00, 9 of 24;
+    12:00, 15 of 25; 16:00, 12 of 25; 20:00, 12 of 25. So the count is still one for
+    the hours the machine ran. The log does not say why a candle was missed; by
+    Viktor's answer of 2 November, the computer was off.
+    **Checked by the session that files it, from the outputs alone:** the totals agree
+    with each other — 63 and 84 make the window's 147; the four actions, and their
+    labels, make 630; each pair's row makes 63; the LONGs' runs make 75 on 18 candles;
+    the six slots make 63; 630 less the 12 degraded is the computations' N — and the
+    figures of the reading of 31 October that this one contains are in it unchanged
+    (the first eight candles in a row of LONGs, 2, 1, 1, 7, 7, 9, 8 and 10; the ten
+    refusals; DOGEUSDT's three degraded records). **Not checked:** that the scripts
+    give these outputs on those logs, which would be running them again; and the logs
+    behind `staged_sha256.txt`, which this session did not stage. `RUN.txt` says the
+    archives were staged at "about 01:25", which cannot be as written: the file itself
+    was written at 01:18:57 by his disk's clock, and this session opened at 01:21. An
+    error of the note's or two clocks apart; not resolved.
+  - **The seven computations, read on 11 November** — the same run, from `gaps.txt`
+    and `gaps.json` (DECISIONS, "Decision, 2 November 2026 — how the reading of
+    14 November measures the redesign draft's gaps …", with its amendments of
+    7 November). N = 618 counted records, the 12 degraded apart. No record is "not
+    measured" in any computation, and no archive failed its checks. **Two results
+    count against the draft: 1(a) and 5.**
+    **1, direction.** The draft's against today's `bias.raw`: BULLISH / BULLISH 16,
+    BULLISH / BEARISH 1, BULLISH / NEUTRAL 1; BEARISH / BULLISH 37, BEARISH / BEARISH
+    441, BEARISH / NEUTRAL 43; NEUTRAL / BULLISH 63, NEUTRAL / BEARISH 8, NEUTRAL /
+    NEUTRAL 8. (a) Opposite sides on 38 of the 495 records where both have one, 7.7%,
+    against a line of 2%: **it counts against §2.** Over the line on every pair, from
+    4.3% (DOGEUSDT, 2 of 47, and XRPUSDT, 2 of 46) to 14.0% (LINKUSDT, 7 of 50). 37 of
+    the 38 are the draft BEARISH where today reads BULLISH. By the decision, the
+    draft's direction is not today's direction minus its leans, and §2 is rewritten
+    before the draft goes to Viktor. (b) NEUTRAL on 42 of the 326 records where
+    today's action names a side, 12.9%, against a line of half: it does not count
+    against. `EMA50_Slope` is exactly zero on none.
+    **2, tiers.** Of the 539 records with a side: 92 at 70 and over (42 of them
+    AGGRESSIVE by the close inside the band; 49 as today reads it), 163 at 50 to under
+    70, and 284 under 50. No class is empty or holds more than 90%: it does not count
+    against §4's lines. Of the 55 that pass every other gate: none, 8 and 47 — reported,
+    not judged.
+    **3, the liquidity floor.** F by the decision's rule: 10,000 USDT. Under it:
+    AVAXUSDT on 3.3% of its 61 records (its smallest turnover 7,431 USDT); no other
+    pair on any. The three shares are the same on every pair, so (a) does not count
+    against; F is under 1% of the median turnover on 4 pairs (ETHUSDT, SOLUSDT,
+    XRPUSDT, BNBUSDT), not nine, so (b) does not either. The value stays Viktor's.
+    **4, the trigger and its volume.** The trigger passes on 277 of the 539 records
+    with a side, 51.4%; its volume on 265, 49.2%. Of the 76 records that pass every
+    other gate, the trigger blocks 52 (68.4%), its volume 16 more once the trigger
+    passed (21.1%), and either 68 (89.5%), against a line of 90%: it does not count
+    against §5, by one record — 69 of 76 would have.
+    **5, H5's reach.** The bin's width against ATR: the pairs' medians run from 0.42
+    (BNBUSDT) to 0.67 (XRPUSDT), the largest 0.80 (SUIUSDT), so one bin moves Q by up
+    to 8 points. 179 of the 539 records with a side have 50 or 70 within that reach of
+    their Q — 107 at 50 and 72 at 70; on every pair, from 7 (BNBUSDT) to 24 (LINKUSDT,
+    XRPUSDT) — against a line of one record: **it counts against H5 being minor.** By
+    the decisions of 25 October and 2 November, H5 is fixed in the redesign and
+    replaced as a held-back defect.
+    **6, the whole ladder.** 563 records have a draft action; 55 are apart, the plan's
+    side not the draft's. The draft's actions: CONSERVATIVE SHORT 8, WAIT 331, NO-TRADE
+    (SIGNAL UNCONFIRMED) 210, NO-TRADE (RISK TOO HIGH) 11, NO-TRADE (MACRO AGAINST) 2,
+    NO-TRADE (THIN MARKET) 1. Its 8 trade actions are 8 entries — ADAUSDT and ETHUSDT 2
+    each, AVAXUSDT, BNBUSDT, LINKUSDT and SUIUSDT 1 each, none on the other four —
+    against today's 326 trade actions and 108 entries on the same records. Projected:
+    311 entries a year on the ten pairs, against a line of 100: it does not count
+    against. The projection rests on 8 entries, every one a CONSERVATIVE SHORT: no
+    LONG and no tier above CONSERVATIVE came out of the window. Blocking alone, of the
+    484 records fully measured: gate 2, §2's direction, 79, the most; gates 3 to 5,
+    today's confirmation gate, 28; gate 8, §5's, 68; gate 9, §3.1's, 47; gates 6 and
+    7, none.
+    **7, the CHOCH count.** In the item above; nothing counts against.
   - **What the reading of 14 November also computes** — for the redesign's draft, from
     the same records (DECISIONS, "Decision, 2 November 2026 — how the reading of
     14 November measures the redesign draft's gaps …"): six computations, each with the
@@ -6049,7 +6245,8 @@ Claude critiques it.
     `docs/build/measure_draft_gaps.py`, added by `1b82ed0` and
     tested on synthetic records only, from the repository:
     `python docs/build/measure_draft_gaps.py logs --json <file>`, on the logs as staged
-    for the reading. Not yet run on them. Computation 1's direction amended on
+    for the reading. Run on them on 11 November (the next two points). Computation 1's
+    direction amended on
     7 November, before the data was read, and the script with it (Ruled — in force);
     computation 7 added the same day, also before (DECISIONS, "Amendment, 7 November
     2026 — the reading of 14 November counts the CHOCHs against the side
