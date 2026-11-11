@@ -222763,3 +222763,191 @@ Lines 6059–6062 of the version at `66b5c50`:
   whether a CHOCH against the side becomes a gate, the ADX floor and the stop's 1.2 as
   tunable, and the design as a whole.
 ~~~~~
+
+## 11 November 2026 — the lines the rewrite of PHASE7_NEXT.md removed from its version at `b26e5c7`
+
+*Moved here on 11 November 2026 by the commit that files Viktor's ruling of 10:34 on
+11 November, writes the redesign draft's version 12, and records `b26e5c7`'s landing,
+under "Ruling, 4 November 2026 — HISTORY keeps what each rewrite of PHASE7_NEXT.md
+removes, not the whole file" (DECISIONS).
+Below the rule, each block is a run of lines of the file as it stood at `b26e5c7` that
+the rewrite deleted or replaced, word for word, labelled with its line numbers in that
+version; "this session" in them is the session that opened at 09:41 on 11 November, not
+the one that writes this entry, which opened at 10:30, and "the commit that writes this
+line" and "this commit" name `b26e5c7`. The whole version:
+`git show b26e5c7:docs/PHASE7_NEXT.md`. Checked by `docs/build/check_history_move.py`.*
+
+---
+
+Lines 3–6 of the version at `b26e5c7`:
+
+~~~~~
+*11 November 2026, in the session that opened at 09:41. Rewritten by the commit that
+files Viktor's ruling of 10:08 on 11 November, writes the redesign draft's
+version 11, and records `66b5c50`'s landing; the lines it removed from the version at
+`66b5c50` are in HISTORY, which points to that whole version in git.
+~~~~~
+
+Line 2384 of the version at `b26e5c7`:
+
+~~~~~
+**This session (11 November, from 09:41)**, configured for Claude Fable 5.2, opened at
+~~~~~
+
+Lines 2396–2397 of the version at `b26e5c7`:
+
+~~~~~
+Claude reads that as agreement to all three, his to correct. The commit that writes
+this line files it
+~~~~~
+
+Lines 2399–2401 of the version at `b26e5c7`:
+
+~~~~~
+writes the draft's version 11, and records `66b5c50`'s landing, checked first and
+nothing differing. Docs only: no engine code, no test, no tooling; it moves no
+`code_hash`.
+~~~~~
+
+Lines 2487–2489 of the version at `b26e5c7`:
+
+~~~~~
+  reads a CHOCH (the exit watch's advisory CHOCH flag stays; corrected on 9 November)
+  until Viktor rules on a gate for it, which comes to him with the whole design
+  and the reading of 14 November's computation 7, the count of CHOCHs against the side,
+~~~~~
+
+Lines 3083–3084 of the version at `b26e5c7`:
+
+~~~~~
+  Viktor's ruling of 10:08 on 11 November filed, the redesign draft's version 11,
+  and `66b5c50`'s landing recorded: docs only, no engine code. Before it: `66b5c50`
+~~~~~
+
+Lines 3472–3473 of the version at `b26e5c7`:
+
+~~~~~
+- **The push of `66b5c50`** happened, at 10:07:03 on 11 November, and its landing was
+  checked by this session from 10:08; nothing differed, no deviation (ruling on
+~~~~~
+
+Line 3486 of the version at `b26e5c7`:
+
+~~~~~
+  checked by this session from 09:43; nothing differed, no deviation (ruling on
+~~~~~
+
+Line 3863 of the version at `b26e5c7`:
+
+~~~~~
+  autocrlf clone of `66b5c50` and on the patch applied to another. `66b5c50` changed
+~~~~~
+
+Line 3866 of the version at `b26e5c7`:
+
+~~~~~
+  the apply (read off his disk by this session: the cache was written at 10:00:09 on
+~~~~~
+
+Lines 4272–4274 of the version at `b26e5c7`:
+
+~~~~~
+- **Engineering Notes:** through Entry #288 (v1.43), which covers `a60d66b`; four
+  commits behind, `9cc48d7`, `a9b83a9`, `66b5c50` and the commit that writes this line
+  (below). The gap
+~~~~~
+
+Line 4281 of the version at `b26e5c7`:
+
+~~~~~
+  **Four commits that need an entry are behind:** `9cc48d7`, which files the ruling of
+~~~~~
+
+Lines 4284–4286 of the version at `b26e5c7`:
+
+~~~~~
+  09:41 on 11 November and writes the draft's version 10, and the commit that writes
+  this line, which files the ruling of 10:08 on 11 November and writes the draft's
+  version 11; none has one until the next regeneration. `bc250fc`, `9db4ae2`, `82b824d` and
+~~~~~
+
+Lines 5904–5906 of the version at `b26e5c7`:
+
+~~~~~
+- **`a9b83a9`'s landing**, checked by this session from 09:43 on 11 November, nothing
+  differing, and recorded by `66b5c50`. Its push is in "Where things stand".
+- **`66b5c50`'s landing**, checked by this session from 10:08 on 11 November, nothing
+~~~~~
+
+Lines 5909–5920 of the version at `b26e5c7`:
+
+~~~~~
+- **Viktor's ruling of 09:41 on 11 November**, by agreeing to Claude's suggestion:
+  the tier lines 70 and 50 with all three labels kept, and F at 10,000 USDT as a
+  starting value on the tunable list; filed by `66b5c50`
+  (DECISIONS, "Ruling, 11 November 2026 — the redesign's tier lines are 70 and 50 …").
+- **The redesign draft's version 10**, by `66b5c50`: the lines
+  and F stated as ruled (Open items, the redesign).
+- **Viktor's ruling of 10:08 on 11 November**, by agreeing to Claude's suggestions:
+  the trigger as drafted, F against his slice ruled when the paper account's size is
+  set, and the count of the 92 not made; filed by the commit that writes this line
+  (DECISIONS, "Ruling, 11 November 2026 — the redesign's trigger is the candle that closes beyond its open and the previous close …").
+- **The redesign draft's version 11**, by the commit that writes this line: the
+  trigger stated as ruled (Open items, the redesign).
+~~~~~
+
+Lines 5922–5923 of the version at `b26e5c7`:
+
+~~~~~
+  `9cc48d7` on its marker line, as ruled at 08:55 on 11 November. The entry filed
+  today changes no procedure it describes, and no update is proposed.
+~~~~~
+
+Line 5925 of the version at `b26e5c7`:
+
+~~~~~
+  from the version at `66b5c50` are in HISTORY's new entry, checked by
+~~~~~
+
+Lines 6014–6015 of the version at `b26e5c7`:
+
+~~~~~
+  flag stays: corrected on 9 November), and whether a CHOCH against the side becomes
+  its own gate is Viktor's, with the whole design. Added to its
+~~~~~
+
+Line 6021 of the version at `b26e5c7`:
+
+~~~~~
+  22 September, entry 58). **Design draft, version 11**, Claude's, started 1 November:
+~~~~~
+
+Line 6024 of the version at `b26e5c7`:
+
+~~~~~
+  version 5 at `b874ec1`, version 6 at `82ea40e`, version 7 at `7dac328`, version 8 at `6bb82cc`, version 9 at `a9b83a9`, version 10 at `66b5c50`, version 11 by the commit that
+~~~~~
+
+Line 6028 of the version at `b26e5c7`:
+
+~~~~~
+  (9 November, removed) and its tier lines, F and trigger (11 November).
+~~~~~
+
+Lines 6117–6122 of the version at `b26e5c7`:
+
+~~~~~
+  **Version 11** states it as ruled. **His next, in this order:** whether a CHOCH
+  against the side becomes a gate, brought to him on 11 November; then the ADX floor
+  and the stop's 1.2 as tunable, and the design as a whole. **Claude's, after the
+  CHOCH question is ruled:** the second pinned decision's seed, searched by the
+  method of the draft's §10.1; a CHOCH gate ruled in after the search would mean a
+  second one.
+~~~~~
+
+Lines 6134–6135 of the version at `b26e5c7`:
+
+~~~~~
+  one. Then **Viktor's, with the whole design:** whether a CHOCH against
+  the side becomes its own gate.
+~~~~~

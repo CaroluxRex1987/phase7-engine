@@ -7943,6 +7943,67 @@ of one falling market.
    whole.
 4. No procedure the patch-delivery skill describes changes.
 
+## Ruling, 11 November 2026 — a CHOCH against the side is not a gate in the redesign
+
+*New in this file on 11 November 2026. Viktor's, at 10:34 on 11 November, by agreeing
+to Claude's suggestion. Filed by the first commit of the session that opened at 10:30
+at `b26e5c7`, docs only. No earlier entry is edited (the ruling of 20 September).*
+
+**What was ruled.** The redesign has no gate for a CHOCH against the side. No gate,
+tier or score of its decision reads the swing sequence (draft §2, §3.3). The exit
+watch keeps its CHOCH flag, which warns on an open position and refuses nothing.
+
+**How it was reached, with what went wrong.** The session of 09:41 put the question to
+him with its suggestion, no gate (from his message opening this session, not witnessed
+by it). That message was the opening the earlier session wrote for him, and it carried
+a blank for his answer, sent unfilled. Claude asked for the answer. At 10:31 he
+answered "Agree." Claude read that as "I agree, no gate" and started work; he stopped
+it and wrote that he wanted Claude's suggestion. Claude misread that twice: first as
+a question about how to go on, then, after he had answered "Go with that, proceed."
+at 10:32 to Claude's stated reading and stopped it again, as a question about how an
+ambiguous answer should be handled. What he was asking for was the suggestion itself,
+gate or no gate. At 10:34 Claude gave it, no gate, and he answered: "then we do no
+gate". That answer is the ruling. Claude's errors, recorded as such: two misreadings
+of a plain question, and work begun on a one-word answer to a message with a blank in
+it.
+
+**Why no gate, as Claude gave it.** The reading's computation 7: 4 of the 539 records
+with a side have a CHOCH against it, all four on LINKUSDT, and none passes every
+other gate (draft §17.1; read in the draft at `b26e5c7`, the reading's scripts not run
+again). The exit watch keeps the flag. A gate set on four records from one falling
+market would be a rule with almost no evidence behind it.
+
+**Corrected before he ruled.** The suggestion as his opening message carried it said
+the structure-regime gate already refuses on disagreement, and Claude repeated that at
+10:32. It is wrong for a CHOCH: that gate compares the regime only and never reads
+the swing sequence (draft §2, read at `9db4ae2`). Claude said so at 10:34, in the
+message he ruled on.
+
+**What it weakens.**
+
+- A LONG on CHOCH BEARISH passes wherever the regime is still BULLISH TREND, and the
+  mirror for a SHORT. Today's engine reads a CHOCH against the side twice, by the
+  bias's ×0.5 discount and the entry score's ×0.90; both are gone from the design and
+  nothing replaces them.
+- It rests on four records from three and a half weeks of one falling market, on one
+  pair. That is too few to show a gate is needed, and too few to show it is not.
+- When it is looked at again is not ruled. Claude's view, given with the suggestion:
+  with the redesign's own first reading, which has no date.
+
+**Proposed in passing, not ruled.** While misreading his question, Claude proposed
+that an opening written for a new chat never carries a blank for a ruling of his, the
+new session asking the question as its first step instead. He did not take it up.
+It changes nothing unless he rules it.
+
+**What follows.**
+
+1. The redesign draft's version 12, filed with this entry, states it as ruled.
+2. The second pinned decision's seed (draft §10.1) is Claude's to search now, and no
+   question of his is left that could make it a second search.
+3. His after that: the ADX floor and the stop's 1.2 as tunable, a yes or no each, and
+   the design as a whole.
+4. No procedure the patch-delivery skill describes changes.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then

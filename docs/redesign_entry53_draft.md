@@ -1,13 +1,18 @@
 # The redesign (entry 53) — design draft
 
-*Draft v11, 11 November 2026, in the session that opened at 09:41 at `a9b83a9`, written
-at `66b5c50`. Version 11 states §5's trigger as Viktor ruled it on 11 November, as
+*Draft v12, 11 November 2026, in the session that opened at 10:30 at `b26e5c7`. Version
+12 states as ruled that a CHOCH against the side is not a gate: Viktor's, on
+11 November
+(DECISIONS, "Ruling, 11 November 2026 — a CHOCH against the side is not a gate in the redesign"),
+and brings §0, §2, §3.3, §10.1, §12 and §16.2 to it. It reads no code; no engine `.py`
+file changed between `66b5c50` and `b26e5c7`. Version 11, 11 November 2026, was
+written in the session that opened at 09:41 at `a9b83a9`, at `66b5c50`. Version 11 states §5's trigger as Viktor ruled it on 11 November, as
 drafted
 (DECISIONS, "Ruling, 11 November 2026 — the redesign's trigger is the candle that closes beyond its open and the previous close …"),
 records that F against his slice is ruled when the paper account's size is set (§5)
 and that the count of the 92 is not made (§16.3), and brings §0, §4, §10.1 and §12 to
 it. It reads no code; no engine `.py` file changed between `a9b83a9` and `66b5c50`.
-It is the version put to Viktor for whether a CHOCH against the side becomes a gate.
+It was the version put to Viktor for whether a CHOCH against the side becomes a gate.
 Version 10, 11 November 2026, was written in the same session, at `a9b83a9`. Version
 10 states §4's tier lines and §5's F as Viktor ruled them on 11 November: the lines stay
 70 and 50 with all three labels kept, and F is 10,000 USDT, a starting value on the
@@ -84,12 +89,12 @@ made. Claude's draft. It will be put to Viktor after the forward measurement's r
 of 14 November (DECISIONS, "Ruling, 25 October 2026 — the engine's indicators …",
 point 7). Nothing here is ruled but §2's direction, §4's reading of AGGRESSIVE and §3.3's
 structure multiplier (all three 7 November), §2's exit watch flags (9 November) and
-§4's tier lines, §5's F and §5's trigger (all three 11 November), and no code is written
+§4's tier lines, §5's F, §5's trigger and that a CHOCH against the side is no gate (all four 11 November), and no code is written
 from it until the whole design is. Each
 statement says where it comes from: **read** means read in the code at `e748b0b`
 (version 0), `e69d5bb` (version 1), `4ab59d7` (version 2), `94b7e96` (version 3) or
 `a11ffc4` (version 4) or `542085f` (version 5); version 6 reads none; version 7 reads
-at `9db4ae2`; version 8 at `82b824d`; version 9 at `9cc48d7`; version 10 reads none, nor does version 11;
+at `9db4ae2`; version 8 at `82b824d`; version 9 at `9cc48d7`; version 10 reads none, nor does version 11 or 12;
 **ruled** names the
 ruling; **proposed** is Claude's suggestion; **to measure** was a number this draft
 did not have yet, and since version 9 each is **measured**, from the reading (§17), or
@@ -105,7 +110,7 @@ something was not checked, the sentence says so.*
   11 November, 10,000 USDT), the tier lines
   (§4; which reading of AGGRESSIVE they mean ruled on 7 November, the lines themselves
   on 11 November, 70 and 50), whether the structure multiplier stays (§3.3; ruled on 7 November, removed),
-  whether a CHOCH against the side becomes its own gate (§2; version 7), any ruled
+  whether a CHOCH against the side becomes its own gate (§2; ruled on 11 November, no gate), any ruled
   value named as tunable (§9), and, added in version 1, the exit watch's exhaustion
   and reversal flags, which go with trend health if nothing keeps them (§2; ruled on
   9 November, both removed).
@@ -273,6 +278,10 @@ it measures with a second number the same thing ADX already gates.
   `82b824d`); version 7 said nothing in the design read one, corrected in version 8. Whether a CHOCH against the side should be its own gate is not proposed
   here; it is Viktor's, put to him with the whole design and the count of §12's
   point 8. **Flagged for Viktor:** this is a path that can reach WAIT and goes away.
+  **Ruled on 11 November (version 12):** no gate
+  (DECISIONS, "Ruling, 11 November 2026 — a CHOCH against the side is not a gate in the redesign").
+  The design's decision reads no CHOCH, and the exit watch's flag is the one place a
+  CHOCH is read.
 - The BTC section calls the same bias function (`core/engine_core.py`, the BTC
   block, read). It takes the new function and stays reference only;
   `btc_context.trend_health` and its score go.
@@ -461,6 +470,9 @@ so with the multiplier gone no part of the design's decision reads a CHOCH (the 
 watch's CHOCH flag does, and refuses nothing: version 8, §2). Recorded as Claude's
 error in the ruling's entry; whether CHOCH becomes its own gate is Viktor's, with the
 count of §12's point 8.
+
+**Version 12:** he ruled on 11 November that it does not
+(DECISIONS, "Ruling, 11 November 2026 — a CHOCH against the side is not a gate in the redesign").
 
 ## 4. The ladder and the gates
 
@@ -802,6 +814,11 @@ design's. The seed is Claude's to search now. One question of Viktor's could sti
 make it a second search, whether a CHOCH against the side becomes a gate (§2), so
 that question is put to him first.
 
+**Version 12.** He ruled it on 11 November: no gate (§2). Nothing of his is left that
+could make the search a second one, and the scan's gates are the design's: gate 8
+the trigger as ruled, gate 7 F = 10,000 on the series' `quote_volume`, written by
+§5's rule. The seed is Claude's to search now; it is not searched in this version.
+
 **The case against:** a second fixture is a second file for the golden tests to pin,
 and the seed search is one more step before the code. The alternative, taking one of
 the three cuts, costs nothing now and loses its trade on the day §11's finding is
@@ -890,6 +907,11 @@ design. It is entry 61 of the list for after the audit (PHASE7_NEXT.md, "Found a
     and the design as a whole. **Claude's, after the first of those:** the second
     pinned decision's seed (§10.1). **His, when the paper account's size is set:** F
     against his slice (§5).
+12. Added in version 12. A CHOCH against the side is not a gate (ruled on
+    11 November; §2). **Claude's, now:** the second pinned decision's seed (§10.1).
+    **His, after it, in this order:** the ADX floor and the stop's 1.2 as tunable, a
+    yes or no each (§9); and the design as a whole. **His, when the paper account's
+    size is set:** F against his slice (§5).
 
 ## 13. The golden snapshot, field by field (version 1)
 
@@ -1707,7 +1729,9 @@ quality's formula is Claude's.
   gate reads the regime only (§2). The exit watch's CHOCH flag stays, and warns without
   refusing (§2, read at `82b824d`). A LONG on CHOCH BEARISH
   passes wherever the regime is BULLISH TREND. How often the two disagree is what §12's
-  point 8 counts; a gate for it is Viktor's, not proposed here.
+  point 8 counts; a gate for it is Viktor's, not proposed here. **Version 12:** he
+  ruled no gate on 11 November (§2), so this weakening is the design's, accepted on
+  the reading's 4 of 539.
 - **The record loses its continuous measures.** `bias.score`, confidence and the
   validation score leave (§2, §4, §7). A reader of the paper-trading year's records sees
   which gates passed and a tier, and no number for how strong a case was; entry
