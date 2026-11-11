@@ -1,6 +1,16 @@
 # The redesign (entry 53) — design draft
 
-*Draft v12, 11 November 2026, in the session that opened at 10:30 at `b26e5c7`. Version
+*Draft v13, 11 November 2026, in the session that opened at 10:30 at `b26e5c7`, written
+at `6df23f4`. Version 13 writes in the second pinned decision's seed, searched by
+§10.1's method: seed 32, a LONG at entry quality 79.8 (§10.1). It states as ruled
+that the ADX floor and the stop's 1.2 may be on the tunable list: Viktor's, on
+11 November
+(DECISIONS, "Ruling, 11 November 2026 — the ADX floor of 20 and the stop's 1.2 may be on the tunable list"),
+and brings §0, §9 and §12 to both. It runs the engine on an autocrlf clone of
+`b26e5c7` and reads `docs/build/make_pinned.py`, `tests/test_golden_path.py` and
+`docs/build/measure_draft_gaps.py` there; no engine `.py` file changed between
+`b26e5c7` and `6df23f4`. It is the version put to Viktor for the design as a whole.
+Version 12, 11 November 2026, was written in the same session, at `b26e5c7`. Version
 12 states as ruled that a CHOCH against the side is not a gate: Viktor's, on
 11 November
 (DECISIONS, "Ruling, 11 November 2026 — a CHOCH against the side is not a gate in the redesign"),
@@ -89,12 +99,12 @@ made. Claude's draft. It will be put to Viktor after the forward measurement's r
 of 14 November (DECISIONS, "Ruling, 25 October 2026 — the engine's indicators …",
 point 7). Nothing here is ruled but §2's direction, §4's reading of AGGRESSIVE and §3.3's
 structure multiplier (all three 7 November), §2's exit watch flags (9 November) and
-§4's tier lines, §5's F, §5's trigger and that a CHOCH against the side is no gate (all four 11 November), and no code is written
+§4's tier lines, §5's F, §5's trigger, that a CHOCH against the side is no gate, and §9's yes for the ADX floor and the stop's 1.2 (all 11 November), and no code is written
 from it until the whole design is. Each
 statement says where it comes from: **read** means read in the code at `e748b0b`
 (version 0), `e69d5bb` (version 1), `4ab59d7` (version 2), `94b7e96` (version 3) or
 `a11ffc4` (version 4) or `542085f` (version 5); version 6 reads none; version 7 reads
-at `9db4ae2`; version 8 at `82b824d`; version 9 at `9cc48d7`; version 10 reads none, nor does version 11 or 12;
+at `9db4ae2`; version 8 at `82b824d`; version 9 at `9cc48d7`; version 10 reads none, nor does version 11 or 12; version 13 reads three scripts at `b26e5c7` (§10.1);
 **ruled** names the
 ruling; **proposed** is Claude's suggestion; **to measure** was a number this draft
 did not have yet, and since version 9 each is **measured**, from the reading (§17), or
@@ -111,7 +121,7 @@ something was not checked, the sentence says so.*
   (§4; which reading of AGGRESSIVE they mean ruled on 7 November, the lines themselves
   on 11 November, 70 and 50), whether the structure multiplier stays (§3.3; ruled on 7 November, removed),
   whether a CHOCH against the side becomes its own gate (§2; ruled on 11 November, no gate), any ruled
-  value named as tunable (§9), and, added in version 1, the exit watch's exhaustion
+  value named as tunable (§9; ruled on 11 November, yes to the ADX floor and the stop's 1.2), and, added in version 1, the exit watch's exhaustion
   and reversal flags, which go with trend health if nothing keeps them (§2; ruled on
   9 November, both removed).
 - **Claude's, proposed here for him to reverse:** entry quality's formula and weights
@@ -725,7 +735,13 @@ for three places. **Proposed:** ADX floor, stop multiple, F. The margin stays at
 and is not tuned. **Version 10:** F's place is ruled, and being ruled as tunable it
 needs no second yes or no when the list is named (Claude's reading of 30 October,
 point 3, his to correct). Two places are left: the ADX floor and the stop multiple
-are proposed for them, each his yes or no.
+are proposed for them, each his yes or no. **Version 13:** he ruled yes to both on
+11 November
+(DECISIONS, "Ruling, 11 November 2026 — the ADX floor of 20 and the stop's 1.2 may be on the tunable list").
+The three places are the ADX floor, the stop's ATR multiple and F; the margin stays
+at zero and is not tuned. The list is named when the design is fixed (30 October,
+point 1). The second pinned decision's ADX is 21.59 (§10.1): a floor tuned above it
+needs a new seed.
 
 ## 10. What moves — tests, golden fields, constants
 
@@ -818,6 +834,53 @@ that question is put to him first.
 could make the search a second one, and the scan's gates are the design's: gate 8
 the trigger as ruled, gate 7 F = 10,000 on the series' `quote_volume`, written by
 §5's rule. The seed is Claude's to search now; it is not searched in this version.
+
+**Version 13: searched. The seed is 32.** Method, stated in the sandbox before the
+search and run as stated. The series is `synth(seed, start_ms=1735689600000,
+step_ms=4h, count=450, start_price=0.5, drift=0.0011, vol=0.0105, vol_base=145000.0)`
+(`docs/build/make_pinned.py`, read at `b26e5c7`; copied into the scan, since importing
+that module writes files). Start, step, count and start price are the first series';
+drift and vol are the first series' mean and standard deviation of close / open − 1
+(0.001105 and 0.010528), rounded; `vol_base` puts synth's mean volume, 1.25 × it, at
+the first series' mean (181,999). Each series went through
+`tests/test_golden_path.py`'s `_run` with its fixture swapped, so the macro and BTC
+series are `_write_pinned_set`'s and the path is the production one. The decision
+candle is the series' last, candle 450, with 449 before it and 75 daily candles. The
+gates are `docs/build/measure_draft_gaps.py`'s `ladder`, the reading's own, with
+`floor=10000` on `volume × close` (§5's rule for the fixture's `quote_volume`), the
+trigger and its volume as that script computes them, and the run not degraded. A
+series whose draft side is not today's risk plan's side ("apart", that script's
+reading 5) does not pass: gate 1 would be read on the other side's plan. Seeds were
+tried from 1 upward and the first that passes is taken; any tier counts. Linux
+sandbox, Python 3.12.3 with the pinned requirements and `pandas_ta`, on an autocrlf
+clone of `b26e5c7`; no engine `.py` file changed between `b26e5c7` and `6df23f4`. The
+scan is a script in the sandbox and is not committed; this paragraph is its method.
+**Its control:** the first fixture, unswapped, gives §13.1's path, gates 8 and 9
+failing with `d` 3.207 and `h` 15.120, and a turnover of 67,901.65.
+
+| seed | decision candle (open, UTC) | side | entry quality | tier | ADX | daily candles |
+|---|------|------|------|------|------|------|
+| 32 | 16 March 2025, 20:00 | LONG | 79.8 (`d` 0.210, `h` 1.456) | LONG | 21.59 | 75 |
+
+It closes at 0.67958339, above its open, 0.67218579, which is the previous close, on
+a volume of 251,664.0112, over the median of the 20 before it. Its turnover is
+171,026.68, and the series' smallest is 38,499.48, so every candle is over F. The
+daily trend is BULLISH and the risk regime NORMAL RISK. The close is not inside the
+band, so the tier is LONG and not AGGRESSIVE. The structure regime is BULLISH TREND;
+the swing sequence is BEARISH SWING SEQUENCE (LH-LL), which no gate reads (§2). Run
+twice, the record's measures are the same. The series' SHA-256, LF form, as pandas
+writes it: `aa85f0ec9ea886ffe510ea37f8d59f2102dea6fa9f8fe9822776744d9b207824`; the
+committed file is written by `make_pinned.py` with the code, and its hash is read
+then.
+
+Seeds 1 to 31, by the first thing that stops each: gates 3 to 5 in 11, gate 2 in 7,
+gate 8 in 5, gate 9 in 4, and 4 apart.
+
+**How thin it is.** Its ADX is 1.59 over the floor of 20, and its entry quality 9.8
+over the line of 70. A change to how ADX is computed, or an ADX floor tuned above
+21.59 (§9), makes it stop being a trade, and the seed is searched again. Not checked:
+the run on Windows, and the run without `pandas_ta`, where the golden tests are
+skipped.
 
 **The case against:** a second fixture is a second file for the golden tests to pin,
 and the seed search is one more step before the code. The alternative, taking one of
@@ -912,6 +975,10 @@ design. It is entry 61 of the list for after the audit (PHASE7_NEXT.md, "Found a
     **His, after it, in this order:** the ADX floor and the stop's 1.2 as tunable, a
     yes or no each (§9); and the design as a whole. **His, when the paper account's
     size is set:** F against his slice (§5).
+13. Added in version 13. The seed is searched: 32 (§10.1). The ADX floor and the
+    stop's 1.2 may be on the tunable list (ruled on 11 November; §9). Nothing of
+    Claude's is left before the code. **His:** the design as a whole. **His, when the
+    paper account's size is set:** F against his slice (§5).
 
 ## 13. The golden snapshot, field by field (version 1)
 

@@ -222951,3 +222951,131 @@ Lines 6134–6135 of the version at `b26e5c7`:
   one. Then **Viktor's, with the whole design:** whether a CHOCH against
   the side becomes its own gate.
 ~~~~~
+
+## 11 November 2026 — the lines the rewrite of PHASE7_NEXT.md removed from its version at `6df23f4`
+
+*Moved here on 11 November 2026 by the commit that files Viktor's ruling of 11:00 on
+11 November, writes the redesign draft's version 13, and records `6df23f4`'s landing,
+under "Ruling, 4 November 2026 — HISTORY keeps what each rewrite of PHASE7_NEXT.md
+removes, not the whole file" (DECISIONS).
+Below the rule, each block is a run of lines of the file as it stood at `6df23f4` that
+the rewrite deleted or replaced, word for word, labelled with its line numbers in that
+version; "this session" in them is the session that opened at 10:30 on 11 November, the
+one that writes this entry too, and "the commit that writes this line" and "this
+commit" name `6df23f4`. The whole version:
+`git show 6df23f4:docs/PHASE7_NEXT.md`. Checked by `docs/build/check_history_move.py`.*
+
+---
+
+Lines 4–6 of the version at `6df23f4`:
+
+~~~~~
+files Viktor's ruling of 10:34 on 11 November, writes the redesign draft's
+version 12, and records `b26e5c7`'s landing; the lines it removed from the version at
+`b26e5c7` are in HISTORY, which points to that whole version in git.
+~~~~~
+
+Lines 2412–2414 of the version at `6df23f4`:
+
+~~~~~
+differed (Where things stand, the push of `b26e5c7`). The commit that writes this line
+files the ruling, with Claude's misreadings recorded in its entry, writes the draft's
+version 12, and records `b26e5c7`'s landing. Docs only: no engine code, no test, no
+~~~~~
+
+Lines 3106–3107 of the version at `6df23f4`:
+
+~~~~~
+  Viktor's ruling of 10:34 on 11 November filed, the redesign draft's version 12,
+  and `b26e5c7`'s landing recorded: docs only, no engine code. Before it: `b26e5c7`
+~~~~~
+
+Line 3498 of the version at `6df23f4`:
+
+~~~~~
+- **The push of `b26e5c7`** happened, at 10:30:03 on 11 November, and its landing was
+~~~~~
+
+Line 3904 of the version at `6df23f4`:
+
+~~~~~
+  autocrlf clone of `b26e5c7` and on the patch applied to another. `b26e5c7` changed
+~~~~~
+
+Lines 4318–4320 of the version at `6df23f4`:
+
+~~~~~
+- **Engineering Notes:** through Entry #288 (v1.43), which covers `a60d66b`; five
+  commits behind, `9cc48d7`, `a9b83a9`, `66b5c50`, `b26e5c7` and the commit that writes
+  this line (below). The gap
+~~~~~
+
+Line 4327 of the version at `6df23f4`:
+
+~~~~~
+  **Five commits that need an entry are behind:** `9cc48d7`, which files the ruling of
+~~~~~
+
+Lines 4331–4333 of the version at `6df23f4`:
+
+~~~~~
+  ruling of 10:08 on 11 November and writes the draft's version 11, and the commit
+  that writes this line, which files the ruling of 10:34 on 11 November and writes the
+  draft's version 12; none has one until the next regeneration. `bc250fc`, `9db4ae2`, `82b824d` and
+~~~~~
+
+Lines 5952–5953 of the version at `6df23f4`:
+
+~~~~~
+  differing, and recorded by the commit that writes this line, made for its own reason
+  (DECISIONS, the correction of 4 November). Its push is in "Where things stand".
+~~~~~
+
+Lines 5955–5956 of the version at `6df23f4`:
+
+~~~~~
+  CHOCH against the side is not a gate in the redesign; filed by the commit that
+  writes this line
+~~~~~
+
+Lines 5960–5961 of the version at `6df23f4`:
+
+~~~~~
+- **The redesign draft's version 12**, by the commit that writes this line: no gate
+  stated as ruled (Open items, the redesign).
+~~~~~
+
+Lines 5963–5964 of the version at `6df23f4`:
+
+~~~~~
+  `9cc48d7` on its marker line. The three entries added since, and the one filed
+  today, change no procedure it describes, and no update is proposed.
+~~~~~
+
+Line 5966 of the version at `6df23f4`:
+
+~~~~~
+  from the version at `b26e5c7` are in HISTORY's new entry, checked by
+~~~~~
+
+Line 6062 of the version at `6df23f4`:
+
+~~~~~
+  22 September, entry 58). **Design draft, version 12**, Claude's, started 1 November:
+~~~~~
+
+Line 6065 of the version at `6df23f4`:
+
+~~~~~
+  version 5 at `b874ec1`, version 6 at `82ea40e`, version 7 at `7dac328`, version 8 at `6bb82cc`, version 9 at `a9b83a9`, version 10 at `66b5c50`, version 11 at `b26e5c7`, version 12 by the commit that
+~~~~~
+
+Lines 6161–6165 of the version at `6df23f4`:
+
+~~~~~
+  in force). **Version 12** states it as ruled. **Claude's, now:** the second pinned
+  decision's seed, searched by the method of the draft's §10.1, with the trigger as
+  ruled and F = 10,000 on the series' `quote_volume`; not searched by the commit that
+  writes this line. **His next, after it, in this order:** the ADX floor and the
+  stop's 1.2 as tunable, a yes or no each, and the design as a whole.
+~~~~~

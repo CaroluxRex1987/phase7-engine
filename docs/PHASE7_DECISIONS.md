@@ -8004,6 +8004,57 @@ It changes nothing unless he rules it.
    the design as a whole.
 4. No procedure the patch-delivery skill describes changes.
 
+## Ruling, 11 November 2026 — the ADX floor of 20 and the stop's 1.2 may be on the tunable list
+
+*New in this file on 11 November 2026. Viktor's, at 11:00 on 11 November, by agreeing
+to Claude's suggestion. In the session that opened at 10:30 at `b26e5c7`, Claude put
+the two to him as a yes or no each, with its suggestion, yes to both, in the message
+that reported the seed search, and again at 11:00 after `6df23f4`'s landing was
+checked; he answered, "Agree". **Claude reads that as yes to both; his to correct.**
+Filed by that session's second commit, docs only. No earlier entry is edited (the
+ruling of 20 September).*
+
+**What was ruled.** The yes or no that the decision of 30 October asks for on any
+ruled value named for tuning (its point 3).
+
+1. **The ADX floor's 20 may be on the tunable list.** What the ruling of 5 October
+   decides stands: a run under the floor makes no trade (its point 4).
+2. **The stop's 1.2 may be on the tunable list.** What the ruling of 5 October decides
+   stands: the stop depends on ATR and the volatility factor alone (its point 1), and
+   the 8% stop limit is not touched (28 September, point 2).
+
+With F, ruled a starting value on the list at 09:41 on 11 November, the three places
+the decision of 30 October allows are taken by the three the draft proposes (§9): the
+ADX floor, the stop's ATR multiple and F. The trigger volume's margin stays at zero
+and is not tuned: Claude's, under the delegation of 29 October, his to reverse. The
+list is named when the design is fixed (30 October, point 1); this ruling gives the
+two ruled values their yes for it.
+
+**Why, as Claude gave it.** Each value was set with no outcome data, and each drives
+what the finish line measures: how many trades there are, and how many reach T1
+before the stop. Both are thresholds whose effect the year's records show directly,
+the kind the decision of 30 October allows.
+
+**What it weakens.**
+
+- Three values fitted to about 100 trades fit some of their noise; the decision of
+  30 October called three "already a lot". The guard is its points 5 and 6: the tuned
+  version is judged on its own fresh 100 trades, and there is one round a year.
+- The 1.2 and the 20 are numbers he ruled on 5 October. After a tuning round they are
+  whatever the year's trades give, without a new ruling on the number itself.
+- A fixture depends on it: the second pinned decision found today (draft §10.1,
+  seed 32) has an ADX of 21.59. An ADX floor tuned above that makes it stop being a
+  trade, and the fixture then needs a new seed.
+- The ruling is one "Agree" to two questions, read by Claude as covering both.
+
+**What follows.**
+
+1. The redesign draft's version 13, filed with this entry, states both as ruled (§9)
+   and writes in the seed.
+2. His next: the design as a whole. Nothing else of his stands before it but F against
+   his slice, which waits for the paper account's size.
+3. No procedure the patch-delivery skill describes changes.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then
