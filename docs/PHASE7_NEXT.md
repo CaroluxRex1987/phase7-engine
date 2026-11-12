@@ -1,10 +1,10 @@
 # Next step — read this first
 
-*11 November 2026, in the session that opened at 10:30. Rewritten by the commit that
-files Viktor's ruling of 11:00 on 11 November, writes the redesign draft's
-version 13 with the second pinned decision's seed, and records `6df23f4`'s landing;
+*12 November 2026, in the session that opened at 07:32. Rewritten by the commit that
+files Viktor's ruling of 07:33 on 12 November, the redesign's design approved as a
+whole, writes the redesign draft's version 14, and records `dac70c1`'s landing;
 the lines it removed from the version at
-`6df23f4` are in HISTORY, which points to that whole version in git.
+`dac70c1` are in HISTORY, which points to that whole version in git.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
 rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
@@ -2401,7 +2401,7 @@ whether a CHOCH against the side becomes a gate, with its suggestion, no gate (f
 his message, not witnessed by the session that writes this). That session's account
 is in this file's version at `b26e5c7`.
 
-**This session (11 November, from 10:30)**, configured for Claude Fable 5.2, opened at
+**The session of 11 November, from 10:30**, configured for Claude Fable 5.2, opened at
 `b26e5c7` with Viktor's message: the landing to check, his answer on the CHOCH gate to
 file with the draft's next version, then the second pinned decision's seed, then the
 ADX floor and the stop's 1.2 as tunable brought to him. The message's place for his
@@ -2419,11 +2419,37 @@ ADX floor and the stop's 1.2 as tunable, a yes or no each, its suggestion yes to
 both, and again at 11:00 after `6df23f4`'s landing was checked, nothing differing; he
 answered "Agree", which Claude reads as yes to both, his to correct
 (DECISIONS, "Ruling, 11 November 2026 — the ADX floor of 20 and the stop's 1.2 may be on the tunable list").
-The commit that writes this line files it, writes the draft's version 13 with the
-seed, and records `6df23f4`'s landing. Docs only: no engine code, no test, no
-tooling; it moves no `code_hash`.
+`dac70c1` filed it, wrote the draft's version 13 with the seed, and recorded
+`6df23f4`'s landing. On 12 November at 07:31 it checked `dac70c1`'s landing, and
+nothing differed (from Viktor's message, not witnessed by the session that writes
+this). That session's account is in this file's version at `dac70c1`.
+
+**This session (12 November, from 07:32)**, configured for Claude Fable 5.2, opened at
+`dac70c1` with Viktor's message: this file's head block to read, then the redesign's
+design as a whole brought to him as a short plain summary of what he is ruling on,
+what it weakens and the case against, with Claude's suggestion, his ruling asked as a
+question and nothing filed before his answer. Claude read the head block and the
+draft's §0, §1, §4, §9, §12, §16 and §17 off his disk, not the draft's other
+sections, said so, and suggested approving the design as drafted. At 07:33 he asked,
+"Suggestion?", which the message before it already held; Claude gave it again, and he
+answered, "Approved."
+(DECISIONS, "Ruling, 12 November 2026 — the redesign's design is approved as a whole, as drafted in version 13").
+It then checked `dac70c1`'s landing itself, by the patch-delivery skill's section 10,
+and nothing differed (Where things stand, the push of `dac70c1`). The commit that
+writes this line files the ruling, writes the draft's version 14, and records
+`dac70c1`'s landing. Docs only: no engine code, no test, no tooling; it moves no
+`code_hash`.
 
 ## Ruled — in force
+
+- **New, 12 November, 07:33 — Viktor's, by agreeing to Claude's suggestion: the
+  redesign's design is approved as a whole, as drafted in version 13**
+  (DECISIONS, "Ruling, 12 November 2026 — the redesign's design is approved as a whole, as drafted in version 13").
+  Code may be written from the draft. It is on the decision path: full scope, and a
+  live run before its commit. The release gate and backtesting stay closed. With the
+  design fixed the tunable list is named, Claude's under the decision of 30 October:
+  the ADX floor, the stop's ATR multiple and F. He ruled on Claude's summary of seven
+  of the draft's eighteen sections; the entry names them and what the ruling weakens.
 
 - **New, 11 November, 11:00 — Viktor's, by agreeing to Claude's suggestion: the ADX
   floor of 20 and the stop's 1.2 may be on the tunable list**
@@ -3121,10 +3147,13 @@ tooling; it moves no `code_hash`.
 ## Where things stand, right now
 
 - **Tip:** the commit that writes this line (a commit cannot name its own hash) —
-  Viktor's ruling of 11:00 on 11 November filed, the redesign draft's version 13
-  with the second pinned decision's seed, and `6df23f4`'s landing recorded: docs
-  only, no engine code. Before it: `6df23f4`
-  (this session: Viktor's ruling of 10:34 on 11 November filed, the redesign draft's
+  Viktor's ruling of 07:33 on 12 November filed, the redesign's design approved as a
+  whole, the redesign draft's version 14, and `dac70c1`'s landing recorded: docs
+  only, no engine code. Before it: `dac70c1`
+  (the session of 11 November, from 10:30: Viktor's ruling of 11:00 on 11 November
+  filed, the redesign draft's version 13 with the second pinned decision's seed, and
+  `6df23f4`'s landing recorded: docs only, no engine code), `6df23f4`
+  (the session of 11 November, from 10:30: Viktor's ruling of 10:34 on 11 November filed, the redesign draft's
   version 12, and `b26e5c7`'s landing recorded: docs only, no engine code), `b26e5c7`
   (the session of 11 November, from 09:41: Viktor's ruling of 10:08 on 11 November
   filed, the redesign draft's version 11, and `66b5c50`'s landing recorded: docs
@@ -3516,8 +3545,23 @@ tooling; it moves no `code_hash`.
   to `E:\phase7_engine`". Run the engine and every command from `E:\phase7_engine` (in
   cmd, changing drive needs `cd /d`). A dated record that names the D: paths means the
   same folders before the move; dated records are not edited.
-- **The push of `6df23f4`** happened, at 10:59:19 on 11 November, and its landing was
-  checked by this session from 10:59; nothing differed, no deviation (ruling on
+- **The push of `dac70c1`** happened, at 11:20:37 on 11 November, and its landing was
+  checked by this session from 07:33 on 12 November; nothing differed, no deviation
+  (ruling on proposal (b)). GitHub's tip, read with no credentials at 07:34:51 (the
+  probe asked for credentials), was `dac70c1`; its tree `17c864e6…` the one its
+  `Verified-Tree:` line names; its message with no CR and the attribution lines last;
+  `python docs/build/check_history_move.py --base dac70c1~1` on the tip gave 33 lines
+  in 16 runs, its recorded line. Viktor's disk: the four files the commit changed
+  written at 11:10:10 and each byte for byte the tip; the index the tip's tree, 303
+  entries; the loose commit object hashing to `dac70c1`, GitHub's bytes, with no CR;
+  `.git/COMMIT_EDITMSG` the message; `master` and `origin/master` `dac70c1`, the
+  reflogs' last lines "commit:" at 11:20:23 and "update by push" at 11:20:37; the
+  pytest cache's `nodeids` written at 11:13:12, after the apply, `lastfailed` `{}`; no
+  patch or message file in the root. Viktor's message opening this session: the
+  session that delivered it had checked the landing at 07:31 on 12 November, nothing
+  differing; that check was not read by this one. So did `6df23f4`'s, at 10:59:19 on
+  11 November, and its landing was
+  checked by the session of 10:30 from 10:59; nothing differed, no deviation (ruling on
   proposal (b)). GitHub's tip, read with no credentials at 11:00:15 (the probe asked
   for credentials), was `6df23f4`; its tree `4b006242…` the one its `Verified-Tree:`
   line names; its message with no CR, the attribution lines last, and the delivered
@@ -3530,7 +3574,7 @@ tooling; it moves no `code_hash`.
   10:59:19; the pytest cache's `nodeids` written at 10:53:16, after the apply,
   `lastfailed` `{}`; no patch or message file in the root. So did `b26e5c7`'s, at
   10:30:03 on 11 November, and its landing was
-  checked by this session from 10:31; nothing differed, no deviation (ruling on
+  checked by the session of 10:30 from 10:31; nothing differed, no deviation (ruling on
   proposal (b)). GitHub's tip, read with no credentials at 10:33:15 (the probe asked
   for credentials), was `b26e5c7`; its tree `92fec4cd…` the one its `Verified-Tree:`
   line names; its message with no CR and the attribution lines last; `python
@@ -3541,9 +3585,9 @@ tooling; it moves no `code_hash`.
   `.git/COMMIT_EDITMSG` the message; `master` and `origin/master` `b26e5c7`, the
   reflogs' last lines "commit:" at 10:29:48 and "update by push" at 10:30:03; the
   pytest cache's `nodeids` written at 10:19:33, after the apply, `lastfailed` `{}`; no
-  patch or message file in the root. Viktor's message opening this session: the
+  patch or message file in the root. Viktor's message opening the session of 10:30: the
   session that delivered it had fetched the tip at 10:30 and found the tree and
-  message as delivered; that check was not read by this one. So did `66b5c50`'s, at
+  message as delivered; that check was not read by that one. So did `66b5c50`'s, at
   10:07:03 on 11 November, and its landing was
   checked by the session of 09:41 from 10:08; nothing differed, no deviation (ruling on
   proposal (b)). GitHub's tip, read with no credentials at 10:08:57 (the probe asked
@@ -3569,9 +3613,9 @@ tooling; it moves no `code_hash`.
   `.git/COMMIT_EDITMSG` the message; `master` and `origin/master` `a9b83a9`, the
   reflogs' last lines "commit:" at 09:39:18 and "update by push" at 09:39:32; the
   pytest cache's `nodeids` written at 09:26:30, after the apply, `lastfailed` `{}`; no
-  patch or message file in the root. Viktor's message opening this session: the
+  patch or message file in the root. Viktor's message opening the session of 09:41: the
   session that delivered it had checked the landing from 09:40, nothing differing;
-  that check was not read by this one. So did `9cc48d7`'s, at 08:54:49 on
+  that check was not read by that one. So did `9cc48d7`'s, at 08:54:49 on
   11 November, and its landing was
   checked by the session of 08:55 from 08:56; nothing differed, no deviation (ruling on
   proposal (b)). GitHub's tip, read with no credentials at 09:07:08 (the probe asked
@@ -3935,15 +3979,20 @@ tooling; it moves no `code_hash`.
   15 October 2026 — Part 4's three test shapes", point 5); `README.md` wrote it too
   until `713e084` (entry 50). The commit that writes this line changes no test, and the
   three counts held: from the Linux sandbox, Python 3.12.3, pinned requirements, on an
-  autocrlf clone of `6df23f4` and on the patch applied to another. `6df23f4` changed
+  autocrlf clone of `dac70c1` and on the patch applied to another. `dac70c1` changed
+  no test, and the three counts held: from the Linux sandbox, on an autocrlf clone of
+  `6df23f4` and on the patch applied to another; its pytest step ran on Windows after
+  the apply (read off his disk by this session: the cache was written at 11:13:12 on
+  11 November, after its four files were written at 11:10:10; its `lastfailed` is
+  `{}`), and Viktor went on to the commit. `6df23f4` changed
   no test, and the three counts held: from the Linux sandbox, on an autocrlf clone of
   `b26e5c7` and on the patch applied to another; its pytest step ran on Windows after
-  the apply (read off his disk by this session: the cache was written at 10:53:16 on
+  the apply (read off his disk by the session of 10:30: the cache was written at 10:53:16 on
   11 November, after its four files were written at 10:50:15; its `lastfailed` is
   `{}`), and Viktor went on to the commit. `b26e5c7` changed
   no test, and the three counts held: from the Linux sandbox, on an autocrlf clone of
   `66b5c50` and on the patch applied to another; its pytest step ran on Windows after
-  the apply (read off his disk by this session: the cache was written at 10:19:33 on
+  the apply (read off his disk by the session of 10:30: the cache was written at 10:19:33 on
   11 November, after its four files were written at 10:16:01; its `lastfailed` is
   `{}`), and Viktor went on to the commit. `66b5c50` changed
   no test, and the three counts held: from the Linux sandbox, on an autocrlf clone of
@@ -3953,7 +4002,7 @@ tooling; it moves no `code_hash`.
   `{}`), and Viktor went on to the commit. `a9b83a9` changed
   no test, and the three counts held: from the Linux sandbox, on an autocrlf clone of
   `9cc48d7` and on the patch applied to another; its pytest step ran on Windows after
-  the apply (read off his disk by this session: the cache was written at 09:26:30 on
+  the apply (read off his disk by the session of 09:41: the cache was written at 09:26:30 on
   11 November, after its four files were written at 09:23:24; its `lastfailed` is
   `{}`), and Viktor went on to the commit. `9cc48d7` changed
   no test, and the three counts held: from the Linux sandbox, on an autocrlf clone of
@@ -4354,23 +4403,24 @@ tooling; it moves no `code_hash`.
   then run on Windows at 09:06 on 12 October: both matched (792; 721 / 0 / 32). One test,
   `test_the_commit_messages_up_to_the_tag_are_round_7s_to_the_byte`, runs `git log` up
   to the tag `round7-sent-2026-09-30`: it needs the tag, which a full clone has.
-- **Engineering Notes:** through Entry #288 (v1.43), which covers `a60d66b`; six
-  commits behind, `9cc48d7`, `a9b83a9`, `66b5c50`, `b26e5c7`, `6df23f4` and the commit
-  that writes this line (below). The gap
+- **Engineering Notes:** through Entry #288 (v1.43), which covers `a60d66b`; seven
+  commits behind, `9cc48d7`, `a9b83a9`, `66b5c50`, `b26e5c7`, `6df23f4`, `dac70c1` and
+  the commit that writes this line (below). The gap
   left by v1.36 was closed in four regenerations: v1.37 at `f8805a6` covered `e7a94d1`
   to `eb86846`, v1.38 at `0a518fd` `c2b07fb` to `67f6ec1`, v1.39 at `a0ca299` `0491b84`
   to `b8f88d8`, and v1.40 at `bc250fc` `a1c4218` to `0a518fd`. v1.41, at `9db4ae2`,
   covered the seven commits `706e858` to `82ea40e`, v1.42, at `82b824d`, the two
   commits `7dac328` and `340ee8d`, and v1.43, at `4cdad4e`,
   covers the three commits `6bb82cc`, `e4363d5` and `a60d66b`, one entry each.
-  **Six commits that need an entry are behind:** `9cc48d7`, which files the ruling of
+  **Seven commits that need an entry are behind:** `9cc48d7`, which files the ruling of
   11 November and the reading, `a9b83a9`, which files the rulings of 08:55 on
   11 November and writes the draft's version 9, `66b5c50`, which files the ruling of
   09:41 on 11 November and writes the draft's version 10, `b26e5c7`, which files the
   ruling of 10:08 on 11 November and writes the draft's version 11, `6df23f4`, which
-  files the ruling of 10:34 on 11 November and writes the draft's version 12, and the
-  commit that writes this line, which files the ruling of 11:00 on 11 November and
-  writes the draft's version 13; none has one until the next regeneration. `bc250fc`, `9db4ae2`, `82b824d` and
+  files the ruling of 10:34 on 11 November and writes the draft's version 12,
+  `dac70c1`, which files the ruling of 11:00 on 11 November and writes the draft's
+  version 13, and the commit that writes this line, which files the ruling of 07:33
+  on 12 November and writes the draft's version 14; none has one until the next regeneration. `bc250fc`, `9db4ae2`, `82b824d` and
   `4cdad4e` are regenerations and have none (a commit that
   regenerates the Notes cannot cover itself, Entry #144). Every later commit adds one
   until the next regeneration. Batched, by the 15 September rule. v1.43 records the
@@ -5988,29 +6038,29 @@ Each code commit is its own commit and updates this file for its own landing.
 
 ## Resolved this session
 
-- **`b26e5c7`'s landing**, checked by this session from 10:31 on 11 November, nothing
-  differing, and recorded by `6df23f4`. Its push is in "Where things stand".
-- **Viktor's ruling of 10:34 on 11 November**, by agreeing to Claude's suggestion: a
-  CHOCH against the side is not a gate in the redesign; filed by `6df23f4`
-  (DECISIONS, "Ruling, 11 November 2026 — a CHOCH against the side is not a gate in the redesign"),
-  with Claude's two misreadings of his question and the corrected sentence about the
-  structure gate recorded in the entry.
-- **The redesign draft's version 12**, by `6df23f4`: no gate stated as ruled.
-- **`6df23f4`'s landing**, checked by this session from 10:59 on 11 November, nothing
+- **`dac70c1`'s landing**, checked by this session from 07:33 on 12 November, nothing
   differing, and recorded by the commit that writes this line, made for its own reason
   (DECISIONS, the correction of 4 November). Its push is in "Where things stand".
-- **The second pinned decision's seed**, Claude's: searched by the draft's §10.1, seed
-  32, written into the draft's version 13 by the commit that writes this line (Open
-  items, the redesign).
-- **Viktor's ruling of 11:00 on 11 November**, by agreeing to Claude's suggestion: the
-  ADX floor of 20 and the stop's 1.2 may be on the tunable list; filed by the commit
-  that writes this line
-  (DECISIONS, "Ruling, 11 November 2026 — the ADX floor of 20 and the stop's 1.2 may be on the tunable list").
+- **The redesign's design as a whole**, brought to Viktor at this session's opening as
+  he asked: a summary of what he rules on, what it weakens and the case against, with
+  Claude's suggestion, from seven of the draft's eighteen sections.
+- **Viktor's ruling of 07:33 on 12 November**, by agreeing to Claude's suggestion: the
+  design is approved as a whole, as drafted in version 13; filed by the commit that
+  writes this line
+  (DECISIONS, "Ruling, 12 November 2026 — the redesign's design is approved as a whole, as drafted in version 13").
+- **The tunable list**, Claude's under the decision of 30 October: named with the
+  design fixed, the ADX floor, the stop's ATR multiple and F (the same entry, "What
+  follows", point 3).
+- **The redesign draft's version 14**, by the commit that writes this line: the
+  design stated as ruled (Open items, the redesign).
+- **Stale wording in this file**, found rewriting it: two records of `a9b83a9`'s
+  landing said "this session" of the session of 09:41 on 11 November, left so by the
+  rewrites at `6df23f4` and `dac70c1`; both now name it.
 - **The patch-delivery skill's marker**: the skill as loaded in this session names
-  `9cc48d7` on its marker line. The entries added since, the two filed today by this
+  `9cc48d7` on its marker line. The entries added since, the one filed by this
   session among them, change no procedure it describes, and no update is proposed.
 - **This file's rewrite**, by the commit that writes this line. The lines it removed
-  from the version at `6df23f4` are in HISTORY's new entry, checked by
+  from the version at `dac70c1` are in HISTORY's new entry, checked by
   `docs/build/check_history_move.py` (the commit message has the result).
 
 ## Open items
@@ -6106,10 +6156,10 @@ Claude critiques it.
   31 October 2026 — volume enters the redesign as two gates …"); the floor needs
   `quote_volume`, which the fetcher drops today. Added on 1 November: entry 58's rule,
   that no reasoning sentence rounds a compared value across its threshold (Found after
-  22 September, entry 58). **Design draft, version 13**, Claude's, started 1 November:
+  22 September, entry 58). **Design draft, version 14**, Claude's, started 1 November:
   `docs/redesign_entry53_draft.md` (version 0 filed at `e69d5bb`, version 1 at
   `e8b42b8`, version 2 at `94b7e96`, version 3 at `a11ffc4`, version 4 at `542085f`,
-  version 5 at `b874ec1`, version 6 at `82ea40e`, version 7 at `7dac328`, version 8 at `6bb82cc`, version 9 at `a9b83a9`, version 10 at `66b5c50`, version 11 at `b26e5c7`, version 12 at `6df23f4`, version 13 by the commit that
+  version 5 at `b874ec1`, version 6 at `82ea40e`, version 7 at `7dac328`, version 8 at `6bb82cc`, version 9 at `a9b83a9`, version 10 at `66b5c50`, version 11 at `b26e5c7`, version 12 at `6df23f4`, version 13 at `dac70c1`, version 14 by the commit that
   writes this line).
   Not ruled, but for its direction, its reading of AGGRESSIVE and the structure
   multiplier (all three 7 November), its exit watch's exhaustion and reversal flags
@@ -6213,8 +6263,12 @@ Claude critiques it.
   over F. Linux sandbox evidence; the fixture file is written with the code. Thin:
   its ADX is 1.59 over the floor. **The ADX floor and the stop's 1.2 as tunable,
   brought to him on 11 November and ruled at 11:00 that day:** yes to both (Ruled —
-  in force). **Version 13** states it. **Nothing of Claude's is left before the
-  code. His next:** the design as a whole.
+  in force). **Version 13** states it. **The design as a whole, brought to him on
+  12 November and ruled at 07:33 that day:** approved, as drafted in version 13
+  (Ruled — in force). **Version 14** states it. **Claude's next: the redesign's
+  code**, on the decision path: full scope, a live run before its commit, and the
+  draft's §14 as the guard, where a test that moves and is not on its list stops the
+  work. **His, when the paper account's size is set:** F against his slice.
 - **The CHOCH count — filed, and read on 11 November** (draft §12, point 8; DECISIONS,
   "Ruling, 7 November 2026 — the redesign's entry quality has no structure
   multiplier", "What follows"): computation 7 of the reading, added to the decision of

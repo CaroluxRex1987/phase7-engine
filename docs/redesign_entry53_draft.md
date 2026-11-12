@@ -1,7 +1,13 @@
 # The redesign (entry 53) — design draft
 
-*Draft v13, 11 November 2026, in the session that opened at 10:30 at `b26e5c7`, written
-at `6df23f4`. Version 13 writes in the second pinned decision's seed, searched by
+*Draft v14, 12 November 2026, in the session that opened at 07:32 at `dac70c1`. Version
+14 states the design as ruled: Viktor approved it as a whole on 12 November, as
+drafted in version 13
+(DECISIONS, "Ruling, 12 November 2026 — the redesign's design is approved as a whole, as drafted in version 13"),
+and brings §0, §9 and §12 to it. It changes no rule of the design and reads no code;
+no engine `.py` file changed between `6df23f4` and `dac70c1`. Version 13, 11 November
+2026, was written in the session that opened at 10:30 at `b26e5c7`, at `6df23f4`.
+Version 13 writes in the second pinned decision's seed, searched by
 §10.1's method: seed 32, a LONG at entry quality 79.8 (§10.1). It states as ruled
 that the ADX floor and the stop's 1.2 may be on the tunable list: Viktor's, on
 11 November
@@ -9,7 +15,7 @@ that the ADX floor and the stop's 1.2 may be on the tunable list: Viktor's, on
 and brings §0, §9 and §12 to both. It runs the engine on an autocrlf clone of
 `b26e5c7` and reads `docs/build/make_pinned.py`, `tests/test_golden_path.py` and
 `docs/build/measure_draft_gaps.py` there; no engine `.py` file changed between
-`b26e5c7` and `6df23f4`. It is the version put to Viktor for the design as a whole.
+`b26e5c7` and `6df23f4`. It was the version put to Viktor for the design as a whole.
 Version 12, 11 November 2026, was written in the same session, at `b26e5c7`. Version
 12 states as ruled that a CHOCH against the side is not a gate: Viktor's, on
 11 November
@@ -100,11 +106,12 @@ of 14 November (DECISIONS, "Ruling, 25 October 2026 — the engine's indicators 
 point 7). Nothing here is ruled but §2's direction, §4's reading of AGGRESSIVE and §3.3's
 structure multiplier (all three 7 November), §2's exit watch flags (9 November) and
 §4's tier lines, §5's F, §5's trigger, that a CHOCH against the side is no gate, and §9's yes for the ADX floor and the stop's 1.2 (all 11 November), and no code is written
-from it until the whole design is. Each
+from it until the whole design is. That is how it stood through version 13. On
+12 November he approved the whole design, and code may be written from this draft. Each
 statement says where it comes from: **read** means read in the code at `e748b0b`
 (version 0), `e69d5bb` (version 1), `4ab59d7` (version 2), `94b7e96` (version 3) or
 `a11ffc4` (version 4) or `542085f` (version 5); version 6 reads none; version 7 reads
-at `9db4ae2`; version 8 at `82b824d`; version 9 at `9cc48d7`; version 10 reads none, nor does version 11 or 12; version 13 reads three scripts at `b26e5c7` (§10.1);
+at `9db4ae2`; version 8 at `82b824d`; version 9 at `9cc48d7`; version 10 reads none, nor does version 11 or 12; version 13 reads three scripts at `b26e5c7` (§10.1); version 14 reads none;
 **ruled** names the
 ruling; **proposed** is Claude's suggestion; **to measure** was a number this draft
 did not have yet, and since version 9 each is **measured**, from the reading (§17), or
@@ -114,7 +121,8 @@ something was not checked, the sentence says so.*
 ## 0. Who decides what
 
 - **Viktor's, as the design's ruling** (25 October, "What follows"): the whole design
-  before it is built. Inside it, these are new trading rules or change one of his
+  before it is built (ruled on 12 November: approved as a whole, as drafted in
+  version 13). Inside it, these are new trading rules or change one of his
   rulings, so they are his even under the delegation of 29 October: the strength floor
   (§2; ruled on 7 November), the trigger candle (§5; ruled on 11 November, as drafted), the liquidity floor's value (§5; ruled on
   11 November, 10,000 USDT), the tier lines
@@ -741,7 +749,9 @@ are proposed for them, each his yes or no. **Version 13:** he ruled yes to both 
 The three places are the ADX floor, the stop's ATR multiple and F; the margin stays
 at zero and is not tuned. The list is named when the design is fixed (30 October,
 point 1). The second pinned decision's ADX is 21.59 (§10.1): a floor tuned above it
-needs a new seed.
+needs a new seed. **Version 14:** the design is fixed, ruled on 12 November, so the
+list is named: the ADX floor, the stop's ATR multiple and F
+(DECISIONS, "Ruling, 12 November 2026 — the redesign's design is approved as a whole, as drafted in version 13", "What follows", point 3).
 
 ## 10. What moves — tests, golden fields, constants
 
@@ -979,6 +989,12 @@ design. It is entry 61 of the list for after the audit (PHASE7_NEXT.md, "Found a
     stop's 1.2 may be on the tunable list (ruled on 11 November; §9). Nothing of
     Claude's is left before the code. **His:** the design as a whole. **His, when the
     paper account's size is set:** F against his slice (§5).
+14. Added in version 14. The design as a whole is approved, as drafted in version 13
+    (ruled on 12 November; §0). **Claude's, now:** the code, with the three tests of
+    §14 marked "to read" and each test's body read when it is rewritten (point 2), the
+    second fixture written from seed 32 (§10.1), and the replacements for H1, H2 and
+    H5 proposed when the code exists (§8). **His, when the paper account's size is
+    set:** F against his slice (§5).
 
 ## 13. The golden snapshot, field by field (version 1)
 

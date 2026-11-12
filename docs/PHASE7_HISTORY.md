@@ -223079,3 +223079,197 @@ Lines 6161–6165 of the version at `6df23f4`:
   writes this line. **His next, after it, in this order:** the ADX floor and the
   stop's 1.2 as tunable, a yes or no each, and the design as a whole.
 ~~~~~
+
+## 12 November 2026 — the lines the rewrite of PHASE7_NEXT.md removed from its version at `dac70c1`
+
+*Moved here on 12 November 2026 by the commit that files Viktor's ruling of 07:33 on
+12 November, the redesign's design approved as a whole, writes the redesign draft's
+version 14, and records `dac70c1`'s landing, under "Ruling, 4 November 2026 — HISTORY
+keeps what each rewrite of PHASE7_NEXT.md removes, not the whole file" (DECISIONS).
+Below the rule, each block is a run of lines of the file as it stood at `dac70c1` that
+the rewrite deleted or replaced, word for word, labelled with its line numbers in that
+version; "this session" in them is the session that opened at 10:30 on 11 November,
+not the one that writes this entry, which opened at 07:32 on 12 November, and "the
+commit that writes this line" and "this commit" name `dac70c1`. In two of the blocks
+"this session" was already stale, and meant the session of 09:41 on 11 November. The
+whole version: `git show dac70c1:docs/PHASE7_NEXT.md`. Checked by
+`docs/build/check_history_move.py`.*
+
+---
+
+Lines 3–5 of the version at `dac70c1`:
+
+~~~~~
+*11 November 2026, in the session that opened at 10:30. Rewritten by the commit that
+files Viktor's ruling of 11:00 on 11 November, writes the redesign draft's
+version 13 with the second pinned decision's seed, and records `6df23f4`'s landing;
+~~~~~
+
+Line 7 of the version at `dac70c1`:
+
+~~~~~
+`6df23f4` are in HISTORY, which points to that whole version in git.
+~~~~~
+
+Line 2404 of the version at `dac70c1`:
+
+~~~~~
+**This session (11 November, from 10:30)**, configured for Claude Fable 5.2, opened at
+~~~~~
+
+Lines 2422–2424 of the version at `dac70c1`:
+
+~~~~~
+The commit that writes this line files it, writes the draft's version 13 with the
+seed, and records `6df23f4`'s landing. Docs only: no engine code, no test, no
+tooling; it moves no `code_hash`.
+~~~~~
+
+Lines 3124–3127 of the version at `dac70c1`:
+
+~~~~~
+  Viktor's ruling of 11:00 on 11 November filed, the redesign draft's version 13
+  with the second pinned decision's seed, and `6df23f4`'s landing recorded: docs
+  only, no engine code. Before it: `6df23f4`
+  (this session: Viktor's ruling of 10:34 on 11 November filed, the redesign draft's
+~~~~~
+
+Lines 3519–3520 of the version at `dac70c1`:
+
+~~~~~
+- **The push of `6df23f4`** happened, at 10:59:19 on 11 November, and its landing was
+  checked by this session from 10:59; nothing differed, no deviation (ruling on
+~~~~~
+
+Line 3533 of the version at `dac70c1`:
+
+~~~~~
+  checked by this session from 10:31; nothing differed, no deviation (ruling on
+~~~~~
+
+Line 3544 of the version at `dac70c1`:
+
+~~~~~
+  patch or message file in the root. Viktor's message opening this session: the
+~~~~~
+
+Line 3546 of the version at `dac70c1`:
+
+~~~~~
+  message as delivered; that check was not read by this one. So did `66b5c50`'s, at
+~~~~~
+
+Line 3572 of the version at `dac70c1`:
+
+~~~~~
+  patch or message file in the root. Viktor's message opening this session: the
+~~~~~
+
+Line 3574 of the version at `dac70c1`:
+
+~~~~~
+  that check was not read by this one. So did `9cc48d7`'s, at 08:54:49 on
+~~~~~
+
+Line 3938 of the version at `dac70c1`:
+
+~~~~~
+  autocrlf clone of `6df23f4` and on the patch applied to another. `6df23f4` changed
+~~~~~
+
+Line 3941 of the version at `dac70c1`:
+
+~~~~~
+  the apply (read off his disk by this session: the cache was written at 10:53:16 on
+~~~~~
+
+Line 3946 of the version at `dac70c1`:
+
+~~~~~
+  the apply (read off his disk by this session: the cache was written at 10:19:33 on
+~~~~~
+
+Line 3956 of the version at `dac70c1`:
+
+~~~~~
+  the apply (read off his disk by this session: the cache was written at 09:26:30 on
+~~~~~
+
+Lines 4357–4359 of the version at `dac70c1`:
+
+~~~~~
+- **Engineering Notes:** through Entry #288 (v1.43), which covers `a60d66b`; six
+  commits behind, `9cc48d7`, `a9b83a9`, `66b5c50`, `b26e5c7`, `6df23f4` and the commit
+  that writes this line (below). The gap
+~~~~~
+
+Line 4366 of the version at `dac70c1`:
+
+~~~~~
+  **Six commits that need an entry are behind:** `9cc48d7`, which files the ruling of
+~~~~~
+
+Lines 4371–4373 of the version at `dac70c1`:
+
+~~~~~
+  files the ruling of 10:34 on 11 November and writes the draft's version 12, and the
+  commit that writes this line, which files the ruling of 11:00 on 11 November and
+  writes the draft's version 13; none has one until the next regeneration. `bc250fc`, `9db4ae2`, `82b824d` and
+~~~~~
+
+Lines 5991–5999 of the version at `dac70c1`:
+
+~~~~~
+- **`b26e5c7`'s landing**, checked by this session from 10:31 on 11 November, nothing
+  differing, and recorded by `6df23f4`. Its push is in "Where things stand".
+- **Viktor's ruling of 10:34 on 11 November**, by agreeing to Claude's suggestion: a
+  CHOCH against the side is not a gate in the redesign; filed by `6df23f4`
+  (DECISIONS, "Ruling, 11 November 2026 — a CHOCH against the side is not a gate in the redesign"),
+  with Claude's two misreadings of his question and the corrected sentence about the
+  structure gate recorded in the entry.
+- **The redesign draft's version 12**, by `6df23f4`: no gate stated as ruled.
+- **`6df23f4`'s landing**, checked by this session from 10:59 on 11 November, nothing
+~~~~~
+
+Lines 6002–6008 of the version at `dac70c1`:
+
+~~~~~
+- **The second pinned decision's seed**, Claude's: searched by the draft's §10.1, seed
+  32, written into the draft's version 13 by the commit that writes this line (Open
+  items, the redesign).
+- **Viktor's ruling of 11:00 on 11 November**, by agreeing to Claude's suggestion: the
+  ADX floor of 20 and the stop's 1.2 may be on the tunable list; filed by the commit
+  that writes this line
+  (DECISIONS, "Ruling, 11 November 2026 — the ADX floor of 20 and the stop's 1.2 may be on the tunable list").
+~~~~~
+
+Line 6010 of the version at `dac70c1`:
+
+~~~~~
+  `9cc48d7` on its marker line. The entries added since, the two filed today by this
+~~~~~
+
+Line 6013 of the version at `dac70c1`:
+
+~~~~~
+  from the version at `6df23f4` are in HISTORY's new entry, checked by
+~~~~~
+
+Line 6109 of the version at `dac70c1`:
+
+~~~~~
+  22 September, entry 58). **Design draft, version 13**, Claude's, started 1 November:
+~~~~~
+
+Line 6112 of the version at `dac70c1`:
+
+~~~~~
+  version 5 at `b874ec1`, version 6 at `82ea40e`, version 7 at `7dac328`, version 8 at `6bb82cc`, version 9 at `a9b83a9`, version 10 at `66b5c50`, version 11 at `b26e5c7`, version 12 at `6df23f4`, version 13 by the commit that
+~~~~~
+
+Lines 6216–6217 of the version at `dac70c1`:
+
+~~~~~
+  in force). **Version 13** states it. **Nothing of Claude's is left before the
+  code. His next:** the design as a whole.
+~~~~~

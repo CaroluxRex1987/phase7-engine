@@ -8055,6 +8055,69 @@ the kind the decision of 30 October allows.
    his slice, which waits for the paper account's size.
 3. No procedure the patch-delivery skill describes changes.
 
+## Ruling, 12 November 2026 — the redesign's design is approved as a whole, as drafted in version 13
+
+*New in this file on 12 November 2026. Viktor's, at 07:33 on 12 November, by agreeing
+to Claude's suggestion. The session that opened at 07:32 at `dac70c1` opened with his
+message: the design as a whole brought to him as a short plain summary of what he is
+ruling on, what it weakens and the case against, with Claude's suggestion, his ruling
+asked as a question and nothing filed before his answer. Claude gave the summary and
+its suggestion, to approve the design as drafted. At 07:33 he asked, "Suggestion?";
+the message before it already held one, and Claude gave it again in three sentences.
+He answered, "Approved." Filed by that session's commit, docs only. No earlier entry
+is edited (the ruling of 20 September).*
+
+**What was ruled.** The ruling that "Ruling, 25 October 2026 — the engine's
+indicators …" keeps for him under "What follows": the redesign's design, before it is
+built. It is approved as `docs/redesign_entry53_draft.md` states it in version 13,
+filed at `dac70c1`: what he ruled piece by piece from 25 October to 11 November, and
+with it what the draft proposes as Claude's (its §0): entry quality's formula and
+weights, the order of the gates, the sentence rule, H5's fix, and that entry quality
+is read on the trigger's candle. Code may be written from the draft.
+
+**What the ruling was made on.** Claude's summary, written in that session from the
+draft's §0, §1, §4, §9, §12, §16 and §17 and from the head block of PHASE7_NEXT.md,
+read off his disk. **Not read in that session before the ruling:** §2, §3, §5 to §8,
+§10, §11 and §13 to §15. The summary said so. It gave what he rules on, eight
+weakenings from §16.2 and the six points of §16.3.
+
+**Why, as Claude gave it.** None of the objections that remain can be settled by more
+drafting: the thin evidence, the top tiers that may stay empty, the untested trigger
+and the gates in series need the redesign's own forward reading and, later,
+backtesting; the size of the change is met in the build by §14's list, where a test
+that moves and is not on it stops the work; and the one author is what Amazon's audit
+answers. Approval allows code and no trade.
+
+**What it weakens.**
+
+- Everything the draft's §16.2 and §16.3 name, accepted as written there and not
+  repeated here. The one Claude put to him in so many words: the only evidence for the
+  design is how often it would trade, 8 entries in the reading, every one a
+  CONSERVATIVE SHORT, and never whether a trade was right.
+- The ruling came within a minute of the summary, on the suggestion of the design's
+  author, without his own position first. The summary, its case against and the
+  suggestion have one author (§16.3, point 6).
+- He ruled on a summary of seven of the draft's eighteen sections, written by a
+  session that had not read the other eleven. What those hold was read by the sessions
+  that wrote them; this ruling's session did not check the summary against them.
+- §14's verdicts, the guard on a change that moves 467 of 874 test functions, were
+  classified from names and docstrings and are approved so; each test's body is read
+  when it is rewritten (§12, point 2).
+
+**What follows.**
+
+1. The redesign is built from the draft: Claude's next. It is on the decision path:
+   full scope, and a live run before its commit (25 October, "What follows").
+2. The release gate and backtesting stay closed.
+3. With the design fixed, the list of the decision of 30 October is named (its
+   point 1): the ADX floor, the stop's ATR multiple and F, each with his yes
+   (11 November). The naming is Claude's, under that decision; his to reverse.
+4. The replacements for H1, H2 and H5 are proposed when the code exists (25 October,
+   the held-back defects, point 6; agreed on 11 November).
+5. Still his: F against his slice, when the paper account's size is set.
+6. The redesign draft's version 14, filed with this entry, states the design as ruled.
+7. No procedure the patch-delivery skill describes changes.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then
