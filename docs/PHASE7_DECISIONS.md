@@ -8118,6 +8118,152 @@ answers. Approval allows code and no trade.
 6. The redesign draft's version 14, filed with this entry, states the design as ruled.
 7. No procedure the patch-delivery skill describes changes.
 
+## Ruling, 13 November 2026 — the redesign's code is built on a `redesign` branch in a second worktree and reaches `master` in one merge
+
+*New in this file on 13 November 2026. Viktor's, at 01:15 on 13 November, by agreeing
+to Claude's suggestion "B". The suggestion and his answer were made in an earlier
+session; the session that files this opened at 01:16 at `a3c863e` with his message
+stating the ruling, and did not read that exchange. With it he asked for the
+procedure to be checked and designed before filing: whether
+`session_handover_check.py` and both hooks run in a worktree, where the scheduled
+task runs from, how the final merge carries `Verified-Tree:`, and how docs commits on
+`master` reach the branch. Filed by that session's commit, docs only. No earlier
+entry is edited (the ruling of 20 September).*
+
+**What was ruled.** The redesign's code is built over five to six sessions on a
+branch named `redesign`, checked out in a second git worktree, and pushed after each
+session. `master` and `E:\phase7_engine` are untouched until one merge brings the
+redesign in.
+
+**The alternatives, as his message gives them.** A loose work-in-progress patch file,
+carried from session to session; or each stage committed straight onto `master`.
+
+**Why — this session's reasons, not the earlier session's, which it did not read.**
+Stages on `master` would put a half-built decision path under the scheduled task,
+which runs `E:\phase7_engine\main.py` every four hours, and would move `code_hash`
+at every stage, so the forward measurement would count several unfinished versions.
+A loose patch file has no history, exists on one disk between sessions (this project
+once went 21 commits without a push, on a machine that had been wiped), and passes
+neither hook until the end. A branch has history, both hooks and a push per session,
+and leaves the running version alone.
+
+**What was checked before filing.** The Linux sandbox, git 2.43.0, Python 3.12.3,
+pinned requirements, an autocrlf clone of `a3c863e` with `core.hooksPath githooks`
+and a second worktree added by `git worktree add`; evidence about Linux unless a line
+says it was read off his disk.
+
+1. *`docs/build/session_handover_check.py`.* Read: it finds the root with
+   `git rev-parse --show-toplevel` from the directory it is run in, runs every check
+   through git from that root, names no folder, and never opens `.git` — which in a
+   worktree is a file, not a directory. Run in the worktree: its six sections, clean,
+   exit 0. It checks the checkout it is run in and not the other one.
+2. *Both hooks.* `core.hooksPath` is in the repository's one config, which every
+   worktree shares (his `.git/config`, read off his disk: `hooksPath = githooks`),
+   and a relative path there is taken from the worktree's own root, so the worktree
+   runs the `githooks/` of its own branch. `commit-msg`, in the worktree: a message
+   naming another tree was stopped, one naming the staged tree went through; the tree
+   it reads is the worktree's own index. `pre-push`, in the worktree: the first push
+   of the branch ran the handover check there and went through; with a loose `.patch`
+   file in the worktree's root it was stopped.
+3. *The suites in a worktree.* 977 passed with `pandas_ta`; 801 passed / 165 skipped
+   without; `run_tests.py` 909 passed / 0 failed / 31 errors; `code_hash`
+   `816d4951…`: each the same as in the clone's own checkout, run beside it.
+4. *The scheduled task.* It runs `pythonw.exe E:\phase7_engine\main.py` by its full
+   path (PHASE7_NEXT.md's record of his `schtasks` query of 17 October; not queried
+   again), and `main.py` changes directory to its own folder before anything else
+   (read, line 29). So for the whole build the task runs `master`'s version and
+   writes to `E:\phase7_engine\logs`, and no `code_hash` moves there before the merge.
+   A run of `main.py` in the worktree writes to the worktree's own `logs\`: the
+   build's live runs stay out of the forward measurement's records.
+5. *The merge and `Verified-Tree:`.* On `master`, `git merge --no-ff --no-commit
+   redesign` staged a tree equal to the branch tip's tree, and `git commit -F` with a
+   message naming that tree passed the hook; `git log --first-parent` then showed
+   `master`'s earlier commits and the one merge. A plain `git merge --no-ff redesign`
+   was stopped by the hook, its message having no such line: the merge cannot be
+   made without naming a tree.
+6. *A commit on `master` reaching the branch.* In the worktree, `git merge --no-ff
+   --no-commit master`, then `git commit -F` with a message naming the staged tree:
+   through the hook, and the later merge into `master` still staged the branch tip's
+   tree. Tested with a change to one file the branch had not touched.
+7. *The branch cannot be checked out in the first folder* while the worktree has
+   it: git refused (`'redesign' is already used by worktree at …`).
+
+**The procedure — Claude's, designed in the session that files this; his to reverse.**
+
+1. The commit that files this entry is `master`'s last before the merge. After its
+   push Viktor creates the worktree, `E:\phase7_redesign`, on a new branch `redesign`
+   from that commit, and pushes the branch.
+2. From then until the merge **every commit goes to `redesign`, in
+   `E:\phase7_redesign`**: code, tests, tooling, and docs — rulings filed in this
+   file, PHASE7_NEXT.md's rewrites, HISTORY's entries, the audit change list, the
+   Engineering Notes. Each by the same patch delivery, the same command list run in
+   that folder, under the same two hooks, pushed with `git push` at the session's
+   end. This is the answer to how docs commits on `master` reach the branch: none is
+   made there, so none has to. Each code commit still updates PHASE7_NEXT.md for its
+   own landing in the same commit, and `check_history_move.py` works as it does
+   today, because both sides of every comparison are on the branch.
+3. In `E:\phase7_engine`: no apply, no commit, no checkout, until the merge. The
+   scheduled task runs from it, and the forward measurement's logs are read from it.
+4. A session opens by reading `E:\phase7_redesign\docs\PHASE7_NEXT.md`.
+   `master`'s copy says so in its first section.
+5. A landing on the branch is checked as the skill's section 10 describes, with the
+   worktree's places: the changed files, the pytest cache and the root in
+   `E:\phase7_redesign`; its index, `COMMIT_EDITMSG` and `HEAD` reflog under
+   `E:\phase7_engine\.git\worktrees\phase7_redesign\`; the refs `redesign` and
+   `origin/redesign`, their reflogs and the loose objects in `E:\phase7_engine\.git`.
+6. A live run before a commit on the decision path is made from the worktree, where
+   the stage can run end to end; which stages can, and how the build is cut into
+   sessions, is the first code session's to say.
+7. **The merge**, a session of its own, after the last stage's landing is checked.
+   The branch's last commit writes PHASE7_NEXT.md as it is to read on `master` and
+   removes its first section. Then, in `E:\phase7_engine`: `git merge --no-ff
+   --no-commit redesign`; `git status --short` against its prediction; the two suites;
+   a live run; `git commit -F` with a message whose `Verified-Tree:` line names the
+   branch tip's tree — a tree already verified, committed and pushed on the branch;
+   the message file deleted; `git push`. Its landing check adds one comparison:
+   `master`'s tree, `redesign`'s tree and the line are one hash. Then the worktree is
+   removed and the branch deleted. If the scheduled task fires between the merge and
+   its commit it runs the new version, and that record is the new version's first.
+8. **The exception.** If a commit has to reach `master` before the merge — a defect
+   in the running version — it is delivered to `E:\phase7_engine` as today and
+   reaches the branch by check 6's sync commit. PHASE7_NEXT.md and HISTORY would then
+   have changed on both sides, and the sync would have to settle them by hand; that
+   commit and its sync are designed together if the case arises.
+
+**What it weakens.**
+
+- For the length of the build `master`, the branch GitHub shows first, and
+  `E:\phase7_engine`'s documents are as old as this commit. A ruling made in that
+  time is in this file on `redesign` only. PHASE7_NEXT.md's first section says so;
+  README.md and this file's own head do not.
+- Two folders hold the repository, and a command run in the wrong one is now
+  possible. What stands against it: git refuses the branch in the first folder; a
+  patch built on the branch and committed in the wrong folder stages another tree
+  than its message names, and the hook stops it. An apply in the wrong folder is not
+  stopped by anything but `git apply --check`, where the trees have come to differ.
+- The pre-push check sees only the folder it runs in: a delivery file left in the
+  other folder does not stop a push.
+- Every check above is Linux evidence. On Windows the setup's steps show the hooks
+  path, the handover check, the suites and the pre-push hook in the worktree; the
+  commit-msg hook is first shown there by the branch's first commit. Both hooks fail
+  closed.
+- The redesign reaches `master` as one merge: `master`'s first-parent history shows
+  one step, and the stages are behind its second parent.
+- He ruled by agreeing to Claude's suggestion, in a session this one did not read;
+  the reasons above are this session's. And point 2 of the procedure — docs and
+  rulings on the branch too, where his question supposed docs commits on `master` —
+  is Claude's choice, filed in the same commit as the ruling, not put to him first.
+
+**What follows.**
+
+1. Viktor's commands: this commit, then the worktree's setup, given with its
+   delivery. The branch's first commit records how the setup went.
+2. Claude's next: the redesign's first code session, on the branch.
+3. The patch-delivery skill changes: a new section 11 carries this procedure, and
+   sections 0, 7 and 10 are followed in the worktree while it exists. The update is
+   proposed in the session that files this.
+4. The Engineering Notes are one more commit behind, stated in PHASE7_NEXT.md.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then

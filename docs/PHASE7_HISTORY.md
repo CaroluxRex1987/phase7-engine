@@ -223273,3 +223273,153 @@ Lines 6216–6217 of the version at `dac70c1`:
   in force). **Version 13** states it. **Nothing of Claude's is left before the
   code. His next:** the design as a whole.
 ~~~~~
+
+## 13 November 2026 — the lines the rewrite of PHASE7_NEXT.md removed from its version at `a3c863e`
+
+*Moved here on 13 November 2026 by the commit that files Viktor's ruling of 01:15 on
+13 November, the redesign's code built on a `redesign` branch in a second worktree,
+and records `a3c863e`'s landing, under "Ruling, 4 November 2026 — HISTORY
+keeps what each rewrite of PHASE7_NEXT.md removes, not the whole file" (DECISIONS).
+Below the rule, each block is a run of lines of the file as it stood at `a3c863e` that
+the rewrite deleted or replaced, word for word, labelled with its line numbers in that
+version; "this session" in them is the session that opened at 07:32 on 12 November,
+not the one that writes this entry, which opened at 01:16 on 13 November, and "the
+commit that writes this line" and "this commit" name `a3c863e`. The
+whole version: `git show a3c863e:docs/PHASE7_NEXT.md`. Checked by
+`docs/build/check_history_move.py`.*
+
+---
+
+Lines 3–5 of the version at `a3c863e`:
+
+~~~~~
+*12 November 2026, in the session that opened at 07:32. Rewritten by the commit that
+files Viktor's ruling of 07:33 on 12 November, the redesign's design approved as a
+whole, writes the redesign draft's version 14, and records `dac70c1`'s landing;
+~~~~~
+
+Line 7 of the version at `a3c863e`:
+
+~~~~~
+`dac70c1` are in HISTORY, which points to that whole version in git.
+~~~~~
+
+Line 2427 of the version at `a3c863e`:
+
+~~~~~
+**This session (12 November, from 07:32)**, configured for Claude Fable 5.2, opened at
+~~~~~
+
+Lines 2438–2441 of the version at `a3c863e`:
+
+~~~~~
+and nothing differed (Where things stand, the push of `dac70c1`). The commit that
+writes this line files the ruling, writes the draft's version 14, and records
+`dac70c1`'s landing. Docs only: no engine code, no test, no tooling; it moves no
+`code_hash`.
+~~~~~
+
+Lines 3150–3152 of the version at `a3c863e`:
+
+~~~~~
+  Viktor's ruling of 07:33 on 12 November filed, the redesign's design approved as a
+  whole, the redesign draft's version 14, and `dac70c1`'s landing recorded: docs
+  only, no engine code. Before it: `dac70c1`
+~~~~~
+
+Lines 3548–3549 of the version at `a3c863e`:
+
+~~~~~
+- **The push of `dac70c1`** happened, at 11:20:37 on 11 November, and its landing was
+  checked by this session from 07:33 on 12 November; nothing differed, no deviation
+~~~~~
+
+Line 3560 of the version at `a3c863e`:
+
+~~~~~
+  patch or message file in the root. Viktor's message opening this session: the
+~~~~~
+
+Line 3562 of the version at `a3c863e`:
+
+~~~~~
+  differing; that check was not read by this one. So did `6df23f4`'s, at 10:59:19 on
+~~~~~
+
+Line 3982 of the version at `a3c863e`:
+
+~~~~~
+  autocrlf clone of `dac70c1` and on the patch applied to another. `dac70c1` changed
+~~~~~
+
+Line 3985 of the version at `a3c863e`:
+
+~~~~~
+  the apply (read off his disk by this session: the cache was written at 11:13:12 on
+~~~~~
+
+Lines 4406–4408 of the version at `a3c863e`:
+
+~~~~~
+- **Engineering Notes:** through Entry #288 (v1.43), which covers `a60d66b`; seven
+  commits behind, `9cc48d7`, `a9b83a9`, `66b5c50`, `b26e5c7`, `6df23f4`, `dac70c1` and
+  the commit that writes this line (below). The gap
+~~~~~
+
+Line 4415 of the version at `a3c863e`:
+
+~~~~~
+  **Seven commits that need an entry are behind:** `9cc48d7`, which files the ruling of
+~~~~~
+
+Lines 4422–4423 of the version at `a3c863e`:
+
+~~~~~
+  version 13, and the commit that writes this line, which files the ruling of 07:33
+  on 12 November and writes the draft's version 14; none has one until the next regeneration. `bc250fc`, `9db4ae2`, `82b824d` and
+~~~~~
+
+Lines 6041–6061 of the version at `a3c863e`:
+
+~~~~~
+- **`dac70c1`'s landing**, checked by this session from 07:33 on 12 November, nothing
+  differing, and recorded by the commit that writes this line, made for its own reason
+  (DECISIONS, the correction of 4 November). Its push is in "Where things stand".
+- **The redesign's design as a whole**, brought to Viktor at this session's opening as
+  he asked: a summary of what he rules on, what it weakens and the case against, with
+  Claude's suggestion, from seven of the draft's eighteen sections.
+- **Viktor's ruling of 07:33 on 12 November**, by agreeing to Claude's suggestion: the
+  design is approved as a whole, as drafted in version 13; filed by the commit that
+  writes this line
+  (DECISIONS, "Ruling, 12 November 2026 — the redesign's design is approved as a whole, as drafted in version 13").
+- **The tunable list**, Claude's under the decision of 30 October: named with the
+  design fixed, the ADX floor, the stop's ATR multiple and F (the same entry, "What
+  follows", point 3).
+- **The redesign draft's version 14**, by the commit that writes this line: the
+  design stated as ruled (Open items, the redesign).
+- **Stale wording in this file**, found rewriting it: two records of `a9b83a9`'s
+  landing said "this session" of the session of 09:41 on 11 November, left so by the
+  rewrites at `6df23f4` and `dac70c1`; both now name it.
+- **The patch-delivery skill's marker**: the skill as loaded in this session names
+  `9cc48d7` on its marker line. The entries added since, the one filed by this
+  session among them, change no procedure it describes, and no update is proposed.
+~~~~~
+
+Line 6063 of the version at `a3c863e`:
+
+~~~~~
+  from the version at `dac70c1` are in HISTORY's new entry, checked by
+~~~~~
+
+Lines 6162–6163 of the version at `a3c863e`:
+
+~~~~~
+  version 5 at `b874ec1`, version 6 at `82ea40e`, version 7 at `7dac328`, version 8 at `6bb82cc`, version 9 at `a9b83a9`, version 10 at `66b5c50`, version 11 at `b26e5c7`, version 12 at `6df23f4`, version 13 at `dac70c1`, version 14 by the commit that
+  writes this line).
+~~~~~
+
+Line 6271 of the version at `a3c863e`:
+
+~~~~~
+  work. **His, when the paper account's size is set:** F against his slice.
+~~~~~

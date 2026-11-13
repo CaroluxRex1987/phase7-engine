@@ -1,10 +1,10 @@
 # Next step — read this first
 
-*12 November 2026, in the session that opened at 07:32. Rewritten by the commit that
-files Viktor's ruling of 07:33 on 12 November, the redesign's design approved as a
-whole, writes the redesign draft's version 14, and records `dac70c1`'s landing;
+*13 November 2026, in the session that opened at 01:16. Rewritten by the commit that
+files Viktor's ruling of 01:15 on 13 November, the redesign's code built on a
+`redesign` branch in a second worktree, and records `a3c863e`'s landing;
 the lines it removed from the version at
-`dac70c1` are in HISTORY, which points to that whole version in git.
+`a3c863e` are in HISTORY, which points to that whole version in git.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
 rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
@@ -18,6 +18,19 @@ edited to follow a move").*
 
 *Each code commit updates this file's own lines for its own landing, in the same
 commit, so the file does not fall behind the tip.*
+
+## WHICH COPY OF THIS FILE — read this before anything else
+
+**The commit that writes this section is `master`'s last before the redesign's merge**
+(DECISIONS, "Ruling, 13 November 2026 — the redesign's code is built on a `redesign` branch in a second worktree and reaches `master` in one merge").
+Every later commit, the ones that file rulings and rewrite this file among them, goes
+to the branch `redesign`, checked out in a second worktree, `E:\phase7_redesign`. So:
+**if `E:\phase7_redesign` exists, the current version of this file is
+`E:\phase7_redesign\docs\PHASE7_NEXT.md`**, and the copy in `E:\phase7_engine`, like
+`master` on GitHub, is as old as its date above. The same holds for
+PHASE7_DECISIONS.md, PHASE7_HISTORY.md and every other file. Nothing is applied,
+committed or checked out in `E:\phase7_engine` until the merge; the scheduled task
+goes on running from it. The merge's last step removes this section.
 
 ## PACE FIRST — read this before the rest of this file
 
@@ -2424,7 +2437,7 @@ answered "Agree", which Claude reads as yes to both, his to correct
 nothing differed (from Viktor's message, not witnessed by the session that writes
 this). That session's account is in this file's version at `dac70c1`.
 
-**This session (12 November, from 07:32)**, configured for Claude Fable 5.2, opened at
+**The session of 12 November, from 07:32**, configured for Claude Fable 5.2, opened at
 `dac70c1` with Viktor's message: this file's head block to read, then the redesign's
 design as a whole brought to him as a short plain summary of what he is ruling on,
 what it weakens and the case against, with Claude's suggestion, his ruling asked as a
@@ -2435,12 +2448,50 @@ sections, said so, and suggested approving the design as drafted. At 07:33 he as
 answered, "Approved."
 (DECISIONS, "Ruling, 12 November 2026 — the redesign's design is approved as a whole, as drafted in version 13").
 It then checked `dac70c1`'s landing itself, by the patch-delivery skill's section 10,
-and nothing differed (Where things stand, the push of `dac70c1`). The commit that
-writes this line files the ruling, writes the draft's version 14, and records
-`dac70c1`'s landing. Docs only: no engine code, no test, no tooling; it moves no
-`code_hash`.
+and nothing differed (Where things stand, the push of `dac70c1`). `a3c863e` filed
+the ruling, wrote the draft's version 14, and recorded `dac70c1`'s landing. Its
+landing was checked on 12 November by two sessions, and nothing differed (from
+Viktor's message, not witnessed by the session that writes this). That session's
+account is in this file's version at `a3c863e`.
+
+**This session (13 November, from 01:16)**, configured for Claude Fable 5.2, opened at
+`a3c863e` with Viktor's message: this file's head block to read; a commit owed, his
+ruling of 01:15 on 13 November, by agreeing to Claude's suggestion "B", that the
+redesign's code is built over five to six sessions on a `redesign` branch in a second
+git worktree, pushed after each session, with `master` and `E:\phase7_engine`
+untouched until one merge; before filing, the procedure checked and designed —
+whether `session_handover_check.py` and both hooks run in a worktree, where the
+scheduled task runs from, how the final merge carries `Verified-Tree:`, and how docs
+commits on `master` reach the branch; then one docs-only patch on `master`, the
+patch-delivery skill's update proposed, and the worktree's setup commands; and a
+budget estimate first. The suggestion and his answer were made in an earlier session,
+whose exchange this one did not read. Claude gave the estimate, he answered "Go", and
+it made the four checks in the Linux sandbox and off his disk, designed the procedure
+and filed both
+(DECISIONS, "Ruling, 13 November 2026 — the redesign's code is built on a `redesign` branch in a second worktree and reaches `master` in one merge").
+It did not check `a3c863e`'s landing by the skill's section 10 a third time; what it
+read of it is in "Where things stand", the push of `a3c863e`. The commit that writes
+this line files the ruling and the procedure and records `a3c863e`'s landing. Docs
+only: no engine code, no test, no tooling; it moves no `code_hash`.
 
 ## Ruled — in force
+
+- **New, 13 November, 01:15 — Viktor's, by agreeing to Claude's suggestion "B": the
+  redesign's code is built on a `redesign` branch in a second worktree and reaches
+  `master` in one merge**
+  (DECISIONS, "Ruling, 13 November 2026 — the redesign's code is built on a `redesign` branch in a second worktree and reaches `master` in one merge").
+  Five to six sessions, pushed after each; `master` and `E:\phase7_engine` untouched
+  until the merge. Not chosen: a loose work-in-progress patch file, or stages straight
+  onto `master`. **The procedure is Claude's, designed in the session that filed it,
+  his to reverse** (the entry, "The procedure"): after the commit that files it,
+  every commit — code, tests, tooling and docs, rulings included — goes to `redesign`
+  in `E:\phase7_redesign`, by the same patch delivery and under the same two hooks,
+  so no commit has to travel from `master` to the branch; the merge is
+  `git merge --no-ff --no-commit redesign` in `E:\phase7_engine`, the suites and a
+  live run on the merged tree, then `git commit -F` with a message whose
+  `Verified-Tree:` line names the branch tip's tree. The scheduled task runs
+  `E:\phase7_engine\main.py`, so it measures today's version until the merge.
+  Checked in a Linux sandbox, git 2.43; Windows is shown by the setup's own steps.
 
 - **New, 12 November, 07:33 — Viktor's, by agreeing to Claude's suggestion: the
   redesign's design is approved as a whole, as drafted in version 13**
@@ -3147,9 +3198,13 @@ writes this line files the ruling, writes the draft's version 14, and records
 ## Where things stand, right now
 
 - **Tip:** the commit that writes this line (a commit cannot name its own hash) —
-  Viktor's ruling of 07:33 on 12 November filed, the redesign's design approved as a
-  whole, the redesign draft's version 14, and `dac70c1`'s landing recorded: docs
-  only, no engine code. Before it: `dac70c1`
+  Viktor's ruling of 01:15 on 13 November filed, the redesign's code built on a
+  `redesign` branch in a second worktree, with the procedure, and `a3c863e`'s landing
+  recorded: docs only, no engine code; `master`'s last commit before the redesign's
+  merge. Before it: `a3c863e`
+  (the session of 12 November, from 07:32: Viktor's ruling of 07:33 on 12 November
+  filed, the redesign's design approved as a whole, the redesign draft's version 14,
+  and `dac70c1`'s landing recorded: docs only, no engine code), `dac70c1`
   (the session of 11 November, from 10:30: Viktor's ruling of 11:00 on 11 November
   filed, the redesign draft's version 13 with the second pinned decision's seed, and
   `6df23f4`'s landing recorded: docs only, no engine code), `6df23f4`
@@ -3545,8 +3600,20 @@ writes this line files the ruling, writes the draft's version 14, and records
   to `E:\phase7_engine`". Run the engine and every command from `E:\phase7_engine` (in
   cmd, changing drive needs `cd /d`). A dated record that names the D: paths means the
   same folders before the move; dated records are not edited.
-- **The push of `dac70c1`** happened, at 11:20:37 on 11 November, and its landing was
-  checked by this session from 07:33 on 12 November; nothing differed, no deviation
+- **The push of `a3c863e`** happened, on 12 November, after its commit at 07:56:07
+  (the push's own time was not read by this session), and its landing was checked on
+  12 November by two sessions, nothing differing (Viktor's message opening this
+  session; neither check was read by this one, and this one did not repeat the
+  skill's section 10). What this session read for its own work agrees: GitHub's
+  `master` was `a3c863e` when the sandbox cloned it at 01:17 on 13 November (through
+  the sandbox's proxy, not the read with no credentials); its tree `050e1902…` the
+  one its `Verified-Tree:` line names; on Viktor's disk `.git/HEAD` names `master`,
+  `refs/heads/master` is `a3c863e`, written at 07:56:07 on 12 November; PHASE7_NEXT.md,
+  PHASE7_DECISIONS.md and PHASE7_HISTORY.md, written at 07:45:14, are byte for byte
+  the tip; the pytest cache's `nodeids` was written at 07:48:42, after the apply,
+  `lastfailed` `{}`; no patch or message file in the root. So did `dac70c1`'s, at
+  11:20:37 on 11 November, and its landing was
+  checked by the session of 12 November from 07:33; nothing differed, no deviation
   (ruling on proposal (b)). GitHub's tip, read with no credentials at 07:34:51 (the
   probe asked for credentials), was `dac70c1`; its tree `17c864e6…` the one its
   `Verified-Tree:` line names; its message with no CR and the attribution lines last;
@@ -3557,9 +3624,10 @@ writes this line files the ruling, writes the draft's version 14, and records
   `.git/COMMIT_EDITMSG` the message; `master` and `origin/master` `dac70c1`, the
   reflogs' last lines "commit:" at 11:20:23 and "update by push" at 11:20:37; the
   pytest cache's `nodeids` written at 11:13:12, after the apply, `lastfailed` `{}`; no
-  patch or message file in the root. Viktor's message opening this session: the
+  patch or message file in the root. Viktor's message opening the session of
+  12 November: the
   session that delivered it had checked the landing at 07:31 on 12 November, nothing
-  differing; that check was not read by this one. So did `6df23f4`'s, at 10:59:19 on
+  differing; that check was not read by that one. So did `6df23f4`'s, at 10:59:19 on
   11 November, and its landing was
   checked by the session of 10:30 from 10:59; nothing differed, no deviation (ruling on
   proposal (b)). GitHub's tip, read with no credentials at 11:00:15 (the probe asked
@@ -3979,10 +4047,16 @@ writes this line files the ruling, writes the draft's version 14, and records
   15 October 2026 — Part 4's three test shapes", point 5); `README.md` wrote it too
   until `713e084` (entry 50). The commit that writes this line changes no test, and the
   three counts held: from the Linux sandbox, Python 3.12.3, pinned requirements, on an
-  autocrlf clone of `dac70c1` and on the patch applied to another. `dac70c1` changed
+  autocrlf clone of `a3c863e`, in a second worktree of that clone, and on the patch
+  applied to another clone. `a3c863e` changed
+  no test, and the three counts held: from the Linux sandbox, on the patch applied to
+  an autocrlf clone of `dac70c1`; its pytest step ran on Windows after
+  the apply (read off his disk by this session: the cache was written at 07:48:42 on
+  12 November, after its files were written at 07:45:14; its `lastfailed` is
+  `{}`), and Viktor went on to the commit. `dac70c1` changed
   no test, and the three counts held: from the Linux sandbox, on an autocrlf clone of
   `6df23f4` and on the patch applied to another; its pytest step ran on Windows after
-  the apply (read off his disk by this session: the cache was written at 11:13:12 on
+  the apply (read off his disk by the session of 12 November: the cache was written at 11:13:12 on
   11 November, after its four files were written at 11:10:10; its `lastfailed` is
   `{}`), and Viktor went on to the commit. `6df23f4` changed
   no test, and the three counts held: from the Linux sandbox, on an autocrlf clone of
@@ -4403,24 +4477,25 @@ writes this line files the ruling, writes the draft's version 14, and records
   then run on Windows at 09:06 on 12 October: both matched (792; 721 / 0 / 32). One test,
   `test_the_commit_messages_up_to_the_tag_are_round_7s_to_the_byte`, runs `git log` up
   to the tag `round7-sent-2026-09-30`: it needs the tag, which a full clone has.
-- **Engineering Notes:** through Entry #288 (v1.43), which covers `a60d66b`; seven
-  commits behind, `9cc48d7`, `a9b83a9`, `66b5c50`, `b26e5c7`, `6df23f4`, `dac70c1` and
-  the commit that writes this line (below). The gap
+- **Engineering Notes:** through Entry #288 (v1.43), which covers `a60d66b`; eight
+  commits behind, `9cc48d7`, `a9b83a9`, `66b5c50`, `b26e5c7`, `6df23f4`, `dac70c1`,
+  `a3c863e` and the commit that writes this line (below). The gap
   left by v1.36 was closed in four regenerations: v1.37 at `f8805a6` covered `e7a94d1`
   to `eb86846`, v1.38 at `0a518fd` `c2b07fb` to `67f6ec1`, v1.39 at `a0ca299` `0491b84`
   to `b8f88d8`, and v1.40 at `bc250fc` `a1c4218` to `0a518fd`. v1.41, at `9db4ae2`,
   covered the seven commits `706e858` to `82ea40e`, v1.42, at `82b824d`, the two
   commits `7dac328` and `340ee8d`, and v1.43, at `4cdad4e`,
   covers the three commits `6bb82cc`, `e4363d5` and `a60d66b`, one entry each.
-  **Seven commits that need an entry are behind:** `9cc48d7`, which files the ruling of
+  **Eight commits that need an entry are behind:** `9cc48d7`, which files the ruling of
   11 November and the reading, `a9b83a9`, which files the rulings of 08:55 on
   11 November and writes the draft's version 9, `66b5c50`, which files the ruling of
   09:41 on 11 November and writes the draft's version 10, `b26e5c7`, which files the
   ruling of 10:08 on 11 November and writes the draft's version 11, `6df23f4`, which
   files the ruling of 10:34 on 11 November and writes the draft's version 12,
   `dac70c1`, which files the ruling of 11:00 on 11 November and writes the draft's
-  version 13, and the commit that writes this line, which files the ruling of 07:33
-  on 12 November and writes the draft's version 14; none has one until the next regeneration. `bc250fc`, `9db4ae2`, `82b824d` and
+  version 13, `a3c863e`, which files the ruling of 07:33
+  on 12 November and writes the draft's version 14, and the commit that writes this
+  line, which files the ruling of 01:15 on 13 November; none has one until the next regeneration. `bc250fc`, `9db4ae2`, `82b824d` and
   `4cdad4e` are regenerations and have none (a commit that
   regenerates the Notes cannot cover itself, Entry #144). Every later commit adds one
   until the next regeneration. Batched, by the 15 September rule. v1.43 records the
@@ -6038,29 +6113,34 @@ Each code commit is its own commit and updates this file for its own landing.
 
 ## Resolved this session
 
-- **`dac70c1`'s landing**, checked by this session from 07:33 on 12 November, nothing
-  differing, and recorded by the commit that writes this line, made for its own reason
-  (DECISIONS, the correction of 4 November). Its push is in "Where things stand".
-- **The redesign's design as a whole**, brought to Viktor at this session's opening as
-  he asked: a summary of what he rules on, what it weakens and the case against, with
-  Claude's suggestion, from seven of the draft's eighteen sections.
-- **Viktor's ruling of 07:33 on 12 November**, by agreeing to Claude's suggestion: the
-  design is approved as a whole, as drafted in version 13; filed by the commit that
-  writes this line
-  (DECISIONS, "Ruling, 12 November 2026 — the redesign's design is approved as a whole, as drafted in version 13").
-- **The tunable list**, Claude's under the decision of 30 October: named with the
-  design fixed, the ADX floor, the stop's ATR multiple and F (the same entry, "What
-  follows", point 3).
-- **The redesign draft's version 14**, by the commit that writes this line: the
-  design stated as ruled (Open items, the redesign).
-- **Stale wording in this file**, found rewriting it: two records of `a9b83a9`'s
-  landing said "this session" of the session of 09:41 on 11 November, left so by the
-  rewrites at `6df23f4` and `dac70c1`; both now name it.
-- **The patch-delivery skill's marker**: the skill as loaded in this session names
-  `9cc48d7` on its marker line. The entries added since, the one filed by this
-  session among them, change no procedure it describes, and no update is proposed.
+- **`a3c863e`'s landing**, checked on 12 November by two sessions, nothing differing
+  (Viktor's message; not read by this session), and recorded by the commit that
+  writes this line, made for its own reason (DECISIONS, the correction of
+  4 November). Its push, and what this session read of it, is in "Where things stand".
+- **Viktor's ruling of 01:15 on 13 November**, by agreeing to Claude's suggestion "B":
+  the redesign's code is built on a `redesign` branch in a second worktree and
+  reaches `master` in one merge; filed by the commit that writes this line
+  (DECISIONS, "Ruling, 13 November 2026 — the redesign's code is built on a `redesign` branch in a second worktree and reaches `master` in one merge").
+- **The four checks he asked for before filing**, and the procedure, Claude's, his to
+  reverse: in the same entry ("What was checked", "The procedure"). In short: the
+  handover check and both hooks run in a worktree unchanged; the scheduled task runs
+  `E:\phase7_engine\main.py` and so stays on `master`'s version; the merge's message
+  names the branch tip's tree; and no docs commit is made on `master` during the
+  build, so none has to reach the branch. Linux sandbox evidence but for what was
+  read off his disk.
+- **The patch-delivery skill**: an update is proposed in this session, a new
+  section 11 for the build on the branch and the marker line moved to `a3c863e`,
+  with the commit that writes this line named as the one that files the ruling
+  section 11 carries.
+- **Found, and not fixed:** three passages of "Where things stand" (which commits
+  changed no test, the `code_hash` computations and the golden snapshot) list
+  commits up to `9cc48d7` and then "the commit that writes this line", so they pass
+  over `a9b83a9`, `66b5c50`, `b26e5c7`, `6df23f4`, `dac70c1`
+  and `a3c863e`, each docs only; one dates "the commit that writes this line" to
+  11 November. Left as found: bringing them current is a read of six commits, a
+  piece of its own (Open items).
 - **This file's rewrite**, by the commit that writes this line. The lines it removed
-  from the version at `dac70c1` are in HISTORY's new entry, checked by
+  from the version at `a3c863e` are in HISTORY's new entry, checked by
   `docs/build/check_history_move.py` (the commit message has the result).
 
 ## Open items
@@ -6070,6 +6150,15 @@ Claude critiques it.
 
 - **Owed to the next commit:** nothing, unless this commit's push deviates from its
   prediction (ruling on proposal (b), 27 September).
+- **The worktree's setup — Viktor's commands, after this commit's push.** Given with
+  this commit's delivery: `git worktree add E:\phase7_redesign -b redesign` from
+  `E:\phase7_engine`, then, in the new folder, the hooks path read, the handover
+  check, the two suites and `git push -u origin redesign`, which runs the pre-push
+  hook there. They are the Windows evidence for what the sandbox showed on Linux. The
+  first commit on the branch records how they went.
+- **Claude's, found 13 November, not fixed:** three lists in "Where things stand" stop
+  at `9cc48d7` (Resolved this session). To bring current on the branch, with a
+  commit made for another reason.
 - **Viktor's call, when the paper account's size is set — F against his slice**
   (its time ruled at 10:08 on 11 November:
   (DECISIONS, "Ruling, 11 November 2026 — the redesign's trigger is the candle that closes beyond its open and the previous close …")).
@@ -6159,8 +6248,7 @@ Claude critiques it.
   22 September, entry 58). **Design draft, version 14**, Claude's, started 1 November:
   `docs/redesign_entry53_draft.md` (version 0 filed at `e69d5bb`, version 1 at
   `e8b42b8`, version 2 at `94b7e96`, version 3 at `a11ffc4`, version 4 at `542085f`,
-  version 5 at `b874ec1`, version 6 at `82ea40e`, version 7 at `7dac328`, version 8 at `6bb82cc`, version 9 at `a9b83a9`, version 10 at `66b5c50`, version 11 at `b26e5c7`, version 12 at `6df23f4`, version 13 at `dac70c1`, version 14 by the commit that
-  writes this line).
+  version 5 at `b874ec1`, version 6 at `82ea40e`, version 7 at `7dac328`, version 8 at `6bb82cc`, version 9 at `a9b83a9`, version 10 at `66b5c50`, version 11 at `b26e5c7`, version 12 at `6df23f4`, version 13 at `dac70c1`, version 14 at `a3c863e`).
   Not ruled, but for its direction, its reading of AGGRESSIVE and the structure
   multiplier (all three 7 November), its exit watch's exhaustion and reversal flags
   (9 November, removed) and its tier lines, F, trigger and that a CHOCH against the
@@ -6268,7 +6356,10 @@ Claude critiques it.
   (Ruled — in force). **Version 14** states it. **Claude's next: the redesign's
   code**, on the decision path: full scope, a live run before its commit, and the
   draft's §14 as the guard, where a test that moves and is not on its list stops the
-  work. **His, when the paper account's size is set:** F against his slice.
+  work. **Where it is built, ruled at 01:15 on 13 November:** on the branch
+  `redesign` in the worktree `E:\phase7_redesign`, over five to six sessions, pushed
+  after each, and merged into `master` once (Ruled — in force); how the build is cut
+  into those sessions is the first code session's to say. **His, when the paper account's size is set:** F against his slice.
 - **The CHOCH count — filed, and read on 11 November** (draft §12, point 8; DECISIONS,
   "Ruling, 7 November 2026 — the redesign's entry quality has no structure
   multiplier", "What follows"): computation 7 of the reading, added to the decision of
