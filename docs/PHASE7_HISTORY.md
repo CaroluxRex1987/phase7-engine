@@ -223423,3 +223423,106 @@ Line 6271 of the version at `a3c863e`:
 ~~~~~
   work. **His, when the paper account's size is set:** F against his slice.
 ~~~~~
+
+## 14 November 2026 — the lines the rewrite of PHASE7_NEXT.md removed from its version at `696af24`
+
+*Moved here on 14 November 2026 by stage 1 of the redesign's build, the first commit
+on the branch `redesign`, under "Ruling, 4 November 2026 — HISTORY
+keeps what each rewrite of PHASE7_NEXT.md removes, not the whole file" (DECISIONS).
+Below the rule, each block is a run of lines of the file as it stood at `696af24` that
+the rewrite deleted or replaced, word for word, labelled with its line numbers in that
+version; "this session" in them is the session that opened at 01:16 on 13 November,
+not the one that writes this entry, which opened at 07:04 on 14 November, and "the
+commit that writes this line" and "this commit" name `696af24`. The
+whole version: `git show 696af24:docs/PHASE7_NEXT.md`. Checked by
+`docs/build/check_history_move.py`.*
+
+---
+
+Lines 3–5 of the version at `696af24`:
+
+~~~~~
+*13 November 2026, in the session that opened at 01:16. Rewritten by the commit that
+files Viktor's ruling of 01:15 on 13 November, the redesign's code built on a
+`redesign` branch in a second worktree, and records `a3c863e`'s landing;
+~~~~~
+
+Line 7 of the version at `696af24`:
+
+~~~~~
+`a3c863e` are in HISTORY, which points to that whole version in git.
+~~~~~
+
+Line 3983 of the version at `696af24`:
+
+~~~~~
+- **Golden snapshot:** unchanged by the commit that writes this line and by `9cc48d7`,
+~~~~~
+
+Lines 4042–4043 of the version at `696af24`:
+
+~~~~~
+- **Test suite** — **977 passed / 0 failed, no warnings line** with `pandas_ta`;
+  **801 passed / 165 skipped** without it; `run_tests.py` **909 passed / 0 failed /
+~~~~~
+
+Lines 4048–4049 of the version at `696af24`:
+
+~~~~~
+  until `713e084` (entry 50). The commit that writes this line changes no test, and the
+  three counts held: from the Linux sandbox, Python 3.12.3, pinned requirements, on an
+~~~~~
+
+Line 4480 of the version at `696af24`:
+
+~~~~~
+- **Engineering Notes:** through Entry #288 (v1.43), which covers `a60d66b`; eight
+~~~~~
+
+Line 4482 of the version at `696af24`:
+
+~~~~~
+  `a3c863e` and the commit that writes this line (below). The gap
+~~~~~
+
+Line 4489 of the version at `696af24`:
+
+~~~~~
+  **Eight commits that need an entry are behind:** `9cc48d7`, which files the ruling of
+~~~~~
+
+Lines 4497–4498 of the version at `696af24`:
+
+~~~~~
+  on 12 November and writes the draft's version 14, and the commit that writes this
+  line, which files the ruling of 01:15 on 13 November; none has one until the next regeneration. `bc250fc`, `9db4ae2`, `82b824d` and
+~~~~~
+
+Line 5468 of the version at `696af24`:
+
+~~~~~
+  defect; until that code lands it is left as it is.
+~~~~~
+
+Line 5735 of the version at `696af24`:
+
+~~~~~
+  health. Entry 58; not in the sort. Claude's suggestion, his to change: a label fix,
+~~~~~
+
+Lines 6153–6158 of the version at `696af24`:
+
+~~~~~
+- **The worktree's setup — Viktor's commands, after this commit's push.** Given with
+  this commit's delivery: `git worktree add E:\phase7_redesign -b redesign` from
+  `E:\phase7_engine`, then, in the new folder, the hooks path read, the handover
+  check, the two suites and `git push -u origin redesign`, which runs the pre-push
+  hook there. They are the Windows evidence for what the sandbox showed on Linux. The
+  first commit on the branch records how they went.
+~~~~~
+
+Line 6246 of the version at `696af24`:
+
+~~~~~
+  `quote_volume`, which the fetcher drops today. Added on 1 November: entry 58's rule,
+~~~~~

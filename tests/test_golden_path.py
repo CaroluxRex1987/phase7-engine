@@ -177,14 +177,23 @@ def _write_pinned_set(directory):
     ohlcv_clean_4h.csv and all three move together. The derivations are pure
     functions of it, so the set is byte-identical on every machine.
 
-    TESTUSDT_4h   the fixture verbatim — the series under analysis
+    TESTUSDT_4h   the fixture, with quote_volume added — the series under
+                  analysis. Until stage 1 of the redesign (14 November 2026)
+                  it was the fixture verbatim. quote_volume is volume x close,
+                  to four decimals: docs/build/make_pinned.py's rule for the
+                  committed pinned set, so this series is byte for byte that
+                  set's AEROUSDT_4h.csv in pandas' writing of it. The macro
+                  and BTC series below do not carry the column.
     TESTUSDT_1d   a real daily aggregate of it, for the macro-confluence read
     BTCUSDT_4h    a distinct but plausible series, for BTC context
     """
     import pandas as pd
 
     base = pd.read_csv(fixture("ohlcv_clean_4h.csv"))
-    base.to_csv(os.path.join(directory, f"{SYMBOL}_{TIMEFRAME}.csv"), index=False)
+    struct = base.copy()
+    struct["quote_volume"] = [round(float(v) * float(c), 4)
+                              for v, c in zip(base["volume"], base["close"])]
+    struct.to_csv(os.path.join(directory, f"{SYMBOL}_{TIMEFRAME}.csv"), index=False)
 
     # --- macro: six 4h candles make one day ---
     #

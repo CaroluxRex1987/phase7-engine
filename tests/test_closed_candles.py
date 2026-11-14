@@ -104,8 +104,10 @@ def test_the_forming_candle_is_dropped_and_its_close_is_not_the_decision_close()
     assert candles["basis"] == "live"
     assert candles["forming_candles_dropped"] == 1
     assert candles["live_price"] == float(FORMING_CLOSE)
-    assert list(out.columns) == ["open", "high", "low", "close", "volume"], (
-        "close_time must not leave the fetcher"
+    assert list(out.columns) == ["open", "high", "low", "close", "volume",
+                                 "quote_volume"], (
+        "close_time must not leave the fetcher; quote_volume does, since "
+        "stage 1 of the redesign"
     )
 
 

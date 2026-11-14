@@ -1,10 +1,11 @@
 # Next step — read this first
 
-*13 November 2026, in the session that opened at 01:16. Rewritten by the commit that
-files Viktor's ruling of 01:15 on 13 November, the redesign's code built on a
-`redesign` branch in a second worktree, and records `a3c863e`'s landing;
+*14 November 2026, in the session that opened at 07:04, on the branch `redesign`.
+Rewritten by stage 1 of the redesign's build, the branch's first commit, which also
+files the cut of that build into six stages and records `696af24`'s landing and the
+worktree's setup;
 the lines it removed from the version at
-`a3c863e` are in HISTORY, which points to that whole version in git.
+`696af24` are in HISTORY, which points to that whole version in git.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
 rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
@@ -31,6 +32,58 @@ to the branch `redesign`, checked out in a second worktree, `E:\phase7_redesign`
 PHASE7_DECISIONS.md, PHASE7_HISTORY.md and every other file. Nothing is applied,
 committed or checked out in `E:\phase7_engine` until the merge; the scheduled task
 goes on running from it. The merge's last step removes this section.
+
+## THE REDESIGN'S BUILD — where it stands
+
+**Six stages on `redesign`, then the merge** (DECISIONS, "Decision, 14 November 2026 —
+the redesign's code is cut into six stages; what stage 1 is"; Claude's, Viktor's to
+reverse). Every stage leaves the engine running and the three suites green, with a
+live run from `E:\phase7_redesign` before its commit; each golden leaf moves once, to
+its final value, but for `run_hash` and the archive path, which are digests and move
+with what they hash.
+
+1. **Inputs — landed by the commit that writes this section.** `quote_volume` is
+   kept by the fetch, checked by validation when a frame carries it, and so is in the
+   input hash, the archive and the record's decision-bar row; the committed pinned
+   set's `AEROUSDT_4h.csv` and the golden test's own set carry it as volume × close.
+   H5's flat-candle fix is in. Entry 58's print helper, `core/threshold_text.py`, is
+   in and nothing calls it. No decision reads any of it: the action is unchanged.
+   Its live run is recorded in its commit message.
+2. **Direction** — EMA50's slope plus the EMAs' order. **Next.**
+3. **Gates 6 to 8** — macro on LONG, the liquidity floor, the trigger and its volume.
+4. **Entry quality** D + H, the tiers 70 and 50, gate 9, the second pinned decision.
+5. **Removals** — trend health, confidence and EV, validation, the exit watch's two
+   flags.
+6. **Reconciliation** against the draft's sections 13 and 14; replacements for H1, H2
+   and H5 proposed.
+
+**Left for a later stage on purpose, by stage 1:**
+
+- An absent `quote_volume` means nothing yet. The draft's §5 makes it a missing input
+  (the run degraded, gate 7 recording "not measured"); that arrives with gate 7, in
+  stage 3. `tests/test_quote_volume_reaches_the_frame.py::test_a_frame_without_quote_volume_is_still_a_frame_until_stage_3`
+  holds today's behaviour and is moved then.
+- No sentence prints through the helper yet.
+  `tests/test_compared_value_text.py::test_no_engine_module_calls_the_helper_yet`
+  holds that and is removed by the stage that first uses it.
+- F, 10,000 USDT, is not a constant yet, so no test sets the fixture against it. By
+  computation at stage 1 (Linux sandbox), the fixture's smallest `quote_volume` is
+  10,650.0211 and the decision candle's 67,901.6508, the draft's figures.
+- H5's replacement as a held-back defect: stage 6, with H1's and H2's.
+
+**The draft's error found at stage 1:** §5 has the golden run's `quote_volume` come
+from `docs/build/make_pinned.py`; the golden test derives its series from
+`tests/fixtures/ohlcv_clean_4h.csv` and never reads that script's output. Stage 1
+adds the column in both places by one rule. Recorded in the DECISIONS entry; the
+draft is reconciled at stage 6.
+
+**`696af24`'s landing and the worktree's setup.** Viktor's opening message of
+14 November: both "were checked on 13 November at 02:53 and hold: do not check them
+again, record them in stage 1's commit." Recorded here on that statement; this
+session read neither again. What it did read: `origin/redesign` and `origin/master`
+were both `696af24` when it cloned, at about 07:05 on 14 November, and the two files
+it staged from `E:\phase7_redesign\docs` before any change were byte for byte the
+branch's.
 
 ## PACE FIRST — read this before the rest of this file
 
@@ -3980,7 +4033,18 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
   output, a CPython implementation detail (`core/code_fingerprint.py`, "WHAT IT DOES NOT
   SURVIVE"). **Every `code_hash` claim about this project is computed under Python 3.12**
   (Viktor runs 3.12.10).
-- **Golden snapshot:** unchanged by the commit that writes this line and by `9cc48d7`,
+- **Golden snapshot:** **re-baselined by the commit that writes this line, stage 1 of
+  the redesign's build, with `PHASE7_UPDATE_SNAPSHOT=1`: 7 leaves move and 1 is new,
+  as predicted before the run.** Moved: `lineage.inputs.struct.columns` (gains
+  `quote_volume`), `lineage.inputs.struct.sha256` and `provenance.input_hashes.struct`
+  (`208ab83f…` → `1c7082f0…`), `lineage.run_hash` and `provenance.run_hash`
+  (`40dcdc72…` → `5eb672e1…`), `lineage.archive.path` and `provenance.archive_path`
+  (the same sixteen digits). New: `lineage.indicators_at_decision_bar.quote_volume`,
+  67901.6508. 228 leaves, from 227; no decision field moves, and `exit.action` is
+  still CONSERVATIVE LONG. These are the draft's §13 moves for the column, all of
+  them, and its new field. Linux sandbox; the Windows run is his pytest step. What
+  follows is the record up to `696af24`, whose `run_hash` was `40dcdc72…`.
+  Unchanged by `696af24` and by `9cc48d7`,
   each of which changes docs and no code or test, by `4cdad4e`, which changed
   the Notes' build script and documents and no code or test, by `6bb82cc`, `e4363d5`
   and `a60d66b`, which changed docs and no code or test, by
@@ -4039,14 +4103,23 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
   `22a9a35`, 4 leaves (the confirmation reason, `volume_sentiment` twice and
   `validation_note`'s volume half: VOLUME DIVERGENCE → FADING VOLUME); before that at
   `6469a67`, 8 leaves.
-- **Test suite** — **977 passed / 0 failed, no warnings line** with `pandas_ta`;
-  **801 passed / 165 skipped** without it; `run_tests.py` **909 passed / 0 failed /
+- **Test suite** — **1009 passed / 0 failed, no warnings line** with `pandas_ta`;
+  **833 passed / 165 skipped** without it; `run_tests.py` **941 passed / 0 failed /
   31 errors**, all 31 fixture-collection `TypeError`s: the 32 of `e88e0dd` less
   `test_no_module_defaults_a_missing_risk_verdict_to_a_pass`. This is meant to be the
   one place the watched error count is written as a number (DECISIONS, "Ruling,
   15 October 2026 — Part 4's three test shapes", point 5); `README.md` wrote it too
-  until `713e084` (entry 50). The commit that writes this line changes no test, and the
-  three counts held: from the Linux sandbox, Python 3.12.3, pinned requirements, on an
+  until `713e084` (entry 50). The commit that writes this line, stage 1 of the
+  redesign's build, adds 32 tests in three new files, none taking a fixture, so each
+  count rises by 32 and the errors stay 31; it changes five existing test files
+  (three assertions on the frame's columns, two set-ups that write pinned files) and
+  `tests/conftest.py`'s list of modules, and removes no test. From the Linux sandbox, Python 3.12.3,
+  pinned requirements, on the patch applied to an autocrlf clone of `696af24`
+  checked out at `redesign`; before the change that clone gave 977, 801 / 165 and
+  909 / 0 / 31. Of the 32, on the code before it: 13 fail by assertion, the 9 of
+  `test_compared_value_text.py` cannot be collected (the module is new, which proves
+  only that), and 10 pass. `696af24` changed no test, and the three counts held: from
+  the Linux sandbox, Python 3.12.3, pinned requirements, on an
   autocrlf clone of `a3c863e`, in a second worktree of that clone, and on the patch
   applied to another clone. `a3c863e` changed
   no test, and the three counts held: from the Linux sandbox, on the patch applied to
@@ -4477,16 +4550,17 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
   then run on Windows at 09:06 on 12 October: both matched (792; 721 / 0 / 32). One test,
   `test_the_commit_messages_up_to_the_tag_are_round_7s_to_the_byte`, runs `git log` up
   to the tag `round7-sent-2026-09-30`: it needs the tag, which a full clone has.
-- **Engineering Notes:** through Entry #288 (v1.43), which covers `a60d66b`; eight
+- **Engineering Notes:** through Entry #288 (v1.43), which covers `a60d66b`; nine
   commits behind, `9cc48d7`, `a9b83a9`, `66b5c50`, `b26e5c7`, `6df23f4`, `dac70c1`,
-  `a3c863e` and the commit that writes this line (below). The gap
+  `a3c863e`, `696af24` and the commit that writes this line, the first to change
+  code among them (below). The gap
   left by v1.36 was closed in four regenerations: v1.37 at `f8805a6` covered `e7a94d1`
   to `eb86846`, v1.38 at `0a518fd` `c2b07fb` to `67f6ec1`, v1.39 at `a0ca299` `0491b84`
   to `b8f88d8`, and v1.40 at `bc250fc` `a1c4218` to `0a518fd`. v1.41, at `9db4ae2`,
   covered the seven commits `706e858` to `82ea40e`, v1.42, at `82b824d`, the two
   commits `7dac328` and `340ee8d`, and v1.43, at `4cdad4e`,
   covers the three commits `6bb82cc`, `e4363d5` and `a60d66b`, one entry each.
-  **Eight commits that need an entry are behind:** `9cc48d7`, which files the ruling of
+  **Nine commits that need an entry are behind:** `9cc48d7`, which files the ruling of
   11 November and the reading, `a9b83a9`, which files the rulings of 08:55 on
   11 November and writes the draft's version 9, `66b5c50`, which files the ruling of
   09:41 on 11 November and writes the draft's version 10, `b26e5c7`, which files the
@@ -4494,8 +4568,9 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
   files the ruling of 10:34 on 11 November and writes the draft's version 12,
   `dac70c1`, which files the ruling of 11:00 on 11 November and writes the draft's
   version 13, `a3c863e`, which files the ruling of 07:33
-  on 12 November and writes the draft's version 14, and the commit that writes this
-  line, which files the ruling of 01:15 on 13 November; none has one until the next regeneration. `bc250fc`, `9db4ae2`, `82b824d` and
+  on 12 November and writes the draft's version 14, `696af24`, which files the ruling
+  of 01:15 on 13 November, and the commit that writes this
+  line, stage 1 of the redesign's build; none has one until the next regeneration. `bc250fc`, `9db4ae2`, `82b824d` and
   `4cdad4e` are regenerations and have none (a commit that
   regenerates the Notes cannot cover itself, Entry #144). Every later commit adds one
   until the next regeneration. Batched, by the 15 September rule. v1.43 records the
@@ -5465,7 +5540,10 @@ the work before the audit, entry 1 apart.
   after the audit. **Since the reading of 14 November, not minor** (computation 5), so
   by the decision of 25 October it is fixed in the redesign, with its code (the
   draft's §8, version 9, has the fix and its tests), and replaced as a held-back
-  defect; until that code lands it is left as it is.
+  defect. **Fixed by stage 1 of the redesign's build, 14 November:** a flat candle
+  goes to the bin that holds its price (`tests/test_flat_candle_goes_to_its_bin.py`,
+  whose 4.2 test fails on the code before it). Its replacement as a held-back defect
+  is proposed at stage 6.
 - **`_compute_trade_quality` takes `trend` and `final_action` and reads neither**
   (`models/decision_model.py:872`, found by the same search). Its only use of `trend`
   went at sequence item 11, as the comment inside it says; `final_action` is never
@@ -5732,7 +5810,10 @@ the work before the audit, entry 1 apart.
   All three of the day's AEROUSDT hand runs, at 15:54, 15:55 and 16:09, read the same
   candle and printed the same sentence. Not fixed now: the fix moves `code_hash`, which
   no commit may move before the reading of 14 November, and entry 53 removes trend
-  health. Entry 58; not in the sort. Claude's suggestion, his to change: a label fix,
+  health. **Since stage 1 of the redesign's build, 14 November, the rule's helper
+  exists** (`core/threshold_text.py`, `compared_value_text`) **and no sentence prints
+  through it yet**: the sentences above still round as described, until stages 3 to 5
+  rewrite or remove them. Entry 58; not in the sort. Claude's suggestion, his to change: a label fix,
   Claude's, XS, within entry 53, whose design carries the rule that no reasoning
   sentence rounds a compared value across its threshold.
 - **The suite's guard on the real log directory cannot tell the scheduled task's write
@@ -6150,12 +6231,11 @@ Claude critiques it.
 
 - **Owed to the next commit:** nothing, unless this commit's push deviates from its
   prediction (ruling on proposal (b), 27 September).
-- **The worktree's setup — Viktor's commands, after this commit's push.** Given with
-  this commit's delivery: `git worktree add E:\phase7_redesign -b redesign` from
-  `E:\phase7_engine`, then, in the new folder, the hooks path read, the handover
-  check, the two suites and `git push -u origin redesign`, which runs the pre-push
-  hook there. They are the Windows evidence for what the sandbox showed on Linux. The
-  first commit on the branch records how they went.
+- **Claude's, next: stage 2 of the redesign's build, direction** (THE REDESIGN'S
+  BUILD, above).
+- **The worktree's setup: done.** Viktor ran it after `696af24`'s push; his message of
+  14 November has it checked on 13 November at 02:53 and holding (THE REDESIGN'S
+  BUILD, above, with what this session did and did not read).
 - **Claude's, found 13 November, not fixed:** three lists in "Where things stand" stop
   at `9cc48d7` (Resolved this session). To bring current on the branch, with a
   commit made for another reason.
@@ -6243,7 +6323,8 @@ Claude critiques it.
   scope on 31 October: the two volume gates, a liquidity floor and volume confirming
   the trigger, their design put to Viktor with the rest (DECISIONS, "Ruling,
   31 October 2026 — volume enters the redesign as two gates …"); the floor needs
-  `quote_volume`, which the fetcher drops today. Added on 1 November: entry 58's rule,
+  `quote_volume`, which the fetcher dropped until stage 1 of the build, 14 November,
+  and keeps since. Added on 1 November: entry 58's rule,
   that no reasoning sentence rounds a compared value across its threshold (Found after
   22 September, entry 58). **Design draft, version 14**, Claude's, started 1 November:
   `docs/redesign_entry53_draft.md` (version 0 filed at `e69d5bb`, version 1 at

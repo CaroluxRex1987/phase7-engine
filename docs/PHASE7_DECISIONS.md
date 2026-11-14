@@ -8264,6 +8264,72 @@ says it was read off his disk.
    proposed in the session that files this.
 4. The Engineering Notes are one more commit behind, stated in PHASE7_NEXT.md.
 
+## Decision, 14 November 2026 — the redesign's code is cut into six stages; what stage 1 is
+
+*New in this file on 14 November 2026. Claude's, under Viktor's "you are the engineer
+and the brain of this project" of 29 October, his to reverse. The cut was made in an
+earlier session; the session that files this opened at 07:04 on 14 November at
+`696af24`, on the branch `redesign`, with his message stating the cut and its rules,
+and did not read that exchange. Filed by stage 1's commit, the branch's first. No
+earlier entry is edited (the ruling of 20 September).*
+
+**The cut.** The design approved on 12 November (`docs/redesign_entry53_draft.md`,
+version 14) is built in six commits on `redesign`, then merged in a session of its own
+(the ruling of 13 November):
+
+1. **Inputs.** `quote_volume` through the fetch, validation, the lineage and the pinned
+   fixtures; H5's flat-candle fix; entry 58's print helper, not yet used. The action
+   is unchanged.
+2. **Direction.** EMA50's slope plus the EMAs' order.
+3. **Gates 6 to 8.** Macro on LONG, the liquidity floor, the trigger and its volume.
+4. **Entry quality** D + H, the tiers 70 and 50, gate 9, and the second pinned
+   decision.
+5. **Removals.** Trend health, confidence and EV, validation, the exit watch's two
+   flags.
+6. **Reconciliation** against the draft's sections 13 and 14, and the replacements for
+   H1, H2 and H5 proposed.
+
+**Its rules.** Every stage leaves the engine running and the three suites green, with
+a live run from the worktree before its commit. Each golden leaf moves once, to its
+final value.
+
+**Two readings of those rules, made at stage 1, Claude's, his to reverse.**
+
+1. *"Each golden leaf moves once" cannot hold for four leaves.* Read in
+   `core/lineage.py`, `run_hash`: `lineage.run_hash` and `provenance.run_hash` are a
+   digest of the input hashes and the fingerprinted configuration and constants, and
+   `lineage.archive.path` and `provenance.archive_path` carry its first sixteen digits.
+   Stage 1 moves the struct input hash; stages 2 to 5 add and remove fingerprinted
+   constants. So those four move at every stage that moves either. The rule is kept
+   for every leaf that carries a value of its own; the four are predicted at each
+   stage and named in its commit.
+2. *An absent `quote_volume` means nothing until stage 3.* The draft's section 5 has
+   it a missing input: the run degraded, gate 7 recording "not measured". Gate 7 is
+   what reads the column, and it arrives in stage 3. Made in stage 1, that rule would
+   degrade every run on a five-column frame and move its action, against the stage's
+   own rule. So in stage 1 the column is carried and checked when a frame has it, and
+   a frame without it is a frame as before. A test holds that, so that stage 3 moves
+   it on purpose.
+
+**An error in the draft, found at stage 1.** Section 5 (version 1 on) says the pinned
+fixture gains `quote_volume`, "written by `docs/build/make_pinned.py` with
+`MANIFEST.json`, so the golden run passes gate 7". The golden run does not read that
+fixture: `tests/test_golden_path.py` derives its three series from
+`tests/fixtures/ohlcv_clean_4h.csv` (read, `_write_pinned_set`). Written from the
+draft alone, the golden record would have gained no column, and section 13's seven
+moved leaves would not have moved. Stage 1 adds the column in both places, by one
+rule, volume × close to four decimals, with a test that the committed
+`AEROUSDT_4h.csv` is the clean fixture plus that column. `ohlcv_clean_4h.csv` keeps
+its five columns: six test files read it as clean OHLCV, and the golden test's
+BTC series is a copy of it, which section 13 has unchanged. The draft is not edited
+here; stage 6 reconciles it.
+
+**What it weakens.** Between stage 1 and stage 3 the record carries a column nothing
+decides on, and a live run whose reply has a `quote_volume` that is not a number, or
+is negative, now fails its fetch where it ran before. That is the treatment `volume`
+gets, and the draft's ("`data/validation.py` checks `quote_volume` as it checks
+`volume`"); how often MEXC sends such a cell was not measured.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then

@@ -156,20 +156,28 @@ def compute_volume_profile(df: pd.DataFrame, num_bins: int = 50):
 
                 if candle_range <= min_range:
                     try:
+                        # REDESIGN, STAGE 1, 14 November 2026 (found
+                        # 18 October; draft section 8). A flat candle's volume
+                        # goes to the bin that HOLDS its price: the interval
+                        # (left, right] the price lies in, and the first bin
+                        # for a price on the range's lowest edge, which no
+                        # right-closed bin holds.
+                        #
+                        # This branch used to search for the bin whose nearest
+                        # edge was closest to the price. Neighbouring bins
+                        # share an edge, so for a price in the lower half of a
+                        # bin the two distances tied and the strict `<` gave
+                        # the volume to the bin BELOW the one the price was
+                        # in. For a price that is not on an edge, the bin
+                        # chosen here is where the proportional branch below
+                        # puts a candle as its range shrinks to that price,
+                        # so the two branches agree where they meet.
                         mid_price = (high + low) * 0.5
-                        closest_bin = None
-                        min_distance = float('inf')
-                        for interval in bins:
-                            try:
-                                distance = min(abs(mid_price - interval.left), abs(mid_price - interval.right))
-                                if distance < min_distance:
-                                    min_distance = distance
-                                    closest_bin = interval
-                            except Exception:
-                                continue
-                        if closest_bin is not None:
-                            profile.loc[closest_bin] += volume
-                            processed_candles += 1
+                        position = int(np.searchsorted(edges, mid_price,
+                                                       side="left")) - 1
+                        position = min(max(position, 0), len(bins) - 1)
+                        profile.iloc[position] += volume
+                        processed_candles += 1
                     except Exception as e:
                         logger.warning(f"Failed to process doji candle: {e}")
                         skipped_candles += 1

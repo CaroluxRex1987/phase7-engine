@@ -148,6 +148,7 @@ ENGINE_MODULES = [
     "core.engine_core",
     "core.lineage",
     "core.panel_render",
+    "core.threshold_text",
     "data.data_fetcher",
     "data.validation",
     "indicators.indicators",

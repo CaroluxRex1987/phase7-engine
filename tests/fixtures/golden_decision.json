@@ -72,7 +72,7 @@
   },
   "lineage": {
     "archive": {
-      "path": "logs/pinned/archive/testusdt_4h_40dcdc72d284c7cb.json.gz",
+      "path": "logs/pinned/archive/testusdt_4h_5eb672e16fb804f5.json.gz",
       "pruned_this_run": 0,
       "retention_days": 90
     },
@@ -145,6 +145,7 @@
       "high": 0.80942185,
       "low": 0.79981214,
       "open": 0.80634644,
+      "quote_volume": 67901.6508,
       "volume": 84693.7281
     },
     "inputs": {
@@ -180,12 +181,13 @@
           "high",
           "low",
           "open",
+          "quote_volume",
           "volume"
         ],
         "first_candle": "2025-01-01 00:00:00",
         "last_candle": "2025-03-16 20:00:00",
         "rows": 450,
-        "sha256": "208ab83f53ef37c16554877577f2ee5ce65f018d33b6d2bc5111d0668f9a8c4c"
+        "sha256": "1c7082f07d54d43725f6a2c208f88848f62db2a4829a055906fbf82ed29b20a4"
       }
     },
     "risk_inputs": {
@@ -195,11 +197,11 @@
       "risk_regime": "NORMAL RISK",
       "volatility_state": "MEDIUM VOLATILITY"
     },
-    "run_hash": "40dcdc72d284c7cbcec761a4cdb709e77b144ff6a57c3ba71499ed508685bec1"
+    "run_hash": "5eb672e16fb804f518c63df535476aae96806ebb2de640b7436d2a44ce4d0aec"
   },
   "macro_bias": "BULLISH",
   "provenance": {
-    "archive_path": "logs/pinned/archive/testusdt_4h_40dcdc72d284c7cb.json.gz",
+    "archive_path": "logs/pinned/archive/testusdt_4h_5eb672e16fb804f5.json.gz",
     "canonical_format": 1,
     "decision_candles": {
       "btc": {
@@ -241,7 +243,7 @@
     "input_hashes": {
       "btc": "45aa632acf021dc68b6a995ff92ab0b6961c4691dfab8a5db31594e9e1dc6efc",
       "macro": "c771c1af577f6f3f9a098ab5ba71abd0f4588002251001851571e0523279ac4d",
-      "struct": "208ab83f53ef37c16554877577f2ee5ce65f018d33b6d2bc5111d0668f9a8c4c"
+      "struct": "1c7082f07d54d43725f6a2c208f88848f62db2a4829a055906fbf82ed29b20a4"
     },
     "last_candle": "2025-03-16 20:00:00",
     "module_constants": {
@@ -301,7 +303,7 @@
     },
     "prior_state": {},
     "row_count": 450,
-    "run_hash": "40dcdc72d284c7cbcec761a4cdb709e77b144ff6a57c3ba71499ed508685bec1",
+    "run_hash": "5eb672e16fb804f518c63df535476aae96806ebb2de640b7436d2a44ce4d0aec",
     "source": "pinned"
   },
   "risk": {

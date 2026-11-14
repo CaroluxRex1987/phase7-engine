@@ -13,6 +13,17 @@ PINNED_ENV_VAR = "PHASE7_PINNED_DATA"
 # Columns a pinned CSV must provide, in the shape fetch_ohlc() produces.
 _OHLCV_COLUMNS = ["open", "high", "low", "close", "volume"]
 
+# REDESIGN, STAGE 1, 14 November 2026 (draft section 5). The candle's turnover
+# in the quote asset (USDT), MEXC's eighth kline field. fetch_ohlc() read it
+# and dropped it until this stage; it is kept now because the liquidity floor
+# (gate 7, stage 3) is measured on it. Nothing reads it for a decision yet.
+#
+# A live frame always carries it. A pinned file carries it or does not: the
+# column is kept when the file has it and is not computed when it does not
+# (volume x close would be a stand-in presented as the exchange's own number).
+# What an absent quote_volume means for a run is gate 7's to say, in stage 3.
+QUOTE_VOLUME_COLUMN = validation.QUOTE_VOLUME
+
 # FINDING 27, 21 September 2026. How much of the exchange's own reply an error
 # message carries. Enough for MEXC's {"code": ..., "msg": ...} and for most
 # plain-text error pages; bounded so an HTML error page cannot flood the panel.
@@ -238,7 +249,12 @@ class DataFetcher:
                 f"{', '.join(missing)}"
             )}
 
-        df = df[_OHLCV_COLUMNS].astype(float)
+        # quote_volume travels with the frame when the file carries it. See
+        # QUOTE_VOLUME_COLUMN.
+        kept = list(_OHLCV_COLUMNS)
+        if QUOTE_VOLUME_COLUMN in df.columns:
+            kept.append(QUOTE_VOLUME_COLUMN)
+        df = df[kept].astype(float)
 
         # The API returns the most recent `limit` candles, so the pinned source
         # takes the tail to match. A pinned file shorter than `limit` is not an
@@ -432,9 +448,10 @@ class DataFetcher:
 
             # Keep OHLCV, and -- FINDING 16 -- close_time, which this line
             # used to throw away. It is read below and dropped before the
-            # frame is returned.
+            # frame is returned. quote_volume is kept too, since stage 1 of
+            # the redesign: see QUOTE_VOLUME_COLUMN.
             df = df[["timestamp", "open", "high", "low", "close", "volume",
-                     "close_time"]]
+                     "close_time", QUOTE_VOLUME_COLUMN]]
 
             # Convert types
             df["timestamp"] = pd.to_datetime(df["timestamp"], unit="ms")
@@ -445,6 +462,7 @@ class DataFetcher:
             df["low"] = df["low"].astype(float)
             df["close"] = df["close"].astype(float)
             df["volume"] = df["volume"].astype(float)
+            df[QUOTE_VOLUME_COLUMN] = df[QUOTE_VOLUME_COLUMN].astype(float)
 
             df.set_index("timestamp", inplace=True)
 
@@ -499,7 +517,7 @@ class DataFetcher:
                            if len(dropped) else None),
             "exchange_close_time": exchange_close,
         }
-        df = closed[["open", "high", "low", "close", "volume"]].copy()
+        df = closed[_OHLCV_COLUMNS + [QUOTE_VOLUME_COLUMN]].copy()
 
         # SEQUENCE ITEM 8: live data is validated too, and this is the one
         # path that DOES claim to be current — so it is the one that passes a

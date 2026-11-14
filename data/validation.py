@@ -125,6 +125,14 @@ import pandas as pd
 
 OHLCV = ["open", "high", "low", "close", "volume"]
 
+# REDESIGN, STAGE 1, 14 November 2026 (draft section 5). The candle's turnover
+# in the quote asset. Not one of the required columns: a frame without it is
+# still a frame (a pinned file may not carry it), and what its absence means
+# for a run is the liquidity gate's to say. A frame that DOES carry it has it
+# checked exactly as `volume` is -- a number, finite, not negative, and not
+# zero on every candle.
+QUOTE_VOLUME = "quote_volume"
+
 # FINDING 16, 26 September 2026. How long after a candle's close it is still
 # treated as not yet final. The grace is for exchange delay: in the first
 # seconds after a boundary the exchange may still be filling the candle that
@@ -274,7 +282,8 @@ def validate_ohlcv(df, timeframe=None, now=None):
         return f"malformed data: missing required columns {', '.join(missing)}"
 
     # --- values must be numbers, and real ones ---------------------------
-    for col in OHLCV:
+    checked = OHLCV + ([QUOTE_VOLUME] if QUOTE_VOLUME in df.columns else [])
+    for col in checked:
         series = pd.to_numeric(df[col], errors="coerce")
 
         n_nan = int(series.isna().sum())
@@ -311,6 +320,19 @@ def validate_ohlcv(df, timeframe=None, now=None):
                 "measurement in this series. VWMA and every volume-weighted "
                 "read downstream would be computed from an absence, not a "
                 "quiet market.")
+
+    # quote_volume, when the frame carries it: the same two checks, for the
+    # same reasons. It has passed the NaN/Inf loop above.
+    if QUOTE_VOLUME in df.columns:
+        quote_volume = pd.to_numeric(df[QUOTE_VOLUME], errors="coerce")
+        if (quote_volume < 0).any():
+            return (f"negative quote_volume; lowest is "
+                    f"{float(quote_volume.min())}")
+        if len(quote_volume) and (quote_volume == 0).all():
+            return ("all quote_volume values are zero; there is no genuine "
+                    "turnover measurement in this series. A liquidity floor "
+                    "read from it would be measured on an absence, not a "
+                    "thin market.")
 
     # --- candles must be internally possible -----------------------------
     #
