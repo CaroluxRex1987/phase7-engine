@@ -52,38 +52,23 @@ def asset_name(symbol: Any) -> str:
     return asset
 
 
-# 5 SEPTEMBER 2026 -- VIKTOR'S RULING, and the mechanism chosen for it.
+# 5 SEPTEMBER 2026 -- VIKTOR'S RULING: a lean is not a case. A directional
+# action must require more than a label that leans.
 #
-# HIS RULING: a directional action must require a minimum bias strength.
-# _determine_final_action read only the raw_bias STRING, so a bias_score of 21
-# -- barely past bias_engine's RAW_BIAS_THRESHOLD of 20 -- could return
-# AGGRESSIVE LONG, printed directly above CONFIDENCE 21/100.
+# From that day until 14 November 2026 the mechanism was a constant here,
+# MIN_ACTION_BIAS = 30: bias.raw came from the weighted sum past +/-20
+# (bias_engine's RAW_BIAS_THRESHOLD), and a side was acted on only at a sum
+# of 30 or more. Its comment, and the reasons for two thresholds, are in git
+# at 6038283.
 #
-# THE MECHANISM. A separate constant rather than raising RAW_BIAS_THRESHOLD to
-# 30, because the two answer different questions and both are needed:
-#
-#   RAW_BIAS_THRESHOLD (20)  does the blend lean far enough to CALL a side?
-#                            It sets the label, and risk_model builds the plan
-#                            shape from the sign either way.
-#   MIN_ACTION_BIAS    (30)  is that lean strong enough to ACT on?
-#
-# Raising the first to 30 would have collapsed both into one number and lost
-# the distinction between leaning bullish and being bullish enough to trade.
-# The risk of two thresholds is the item-14 defect -- a constant nothing reads
-# -- so tests/test_minimum_bias_strength.py holds both to being live, and this
-# one is fingerprinted in core/decision_log.py so a change to it changes
-# run_hash.
-#
-# 30 matches bias_engine's CONFIRMED threshold, where the state machine
-# already draws the line between a lean and a conviction. Viktor named that
-# value; making it a separate constant is Claude's call.
-# FINDING 18, 27 September 2026: the state machine is now bias_label
-# (models/bias_engine.py), a function of the current score -- it never had
-# memory. Its 30 is a literal there, for the reason its comment gives; the
-# label needs > 30 and this constant acts at >= 30, so at exactly 30.0 a run
-# can take a side while the panel's BIAS line reads BULLISH or BEARISH, not
-# CONFIRMED. Recorded, not changed.
-MIN_ACTION_BIAS = 30.0
+# THE REDESIGN'S STAGE 2, 14 November 2026. The direction is no longer a sum
+# (Viktor's ruling of 7 November 2026): it is BULLISH or BEARISH only when
+# EMA50's slope and the order of EMA_20 and EMA_50 agree, and NEUTRAL
+# otherwise (models/bias_engine.py, direction_from_emas). That agreement is
+# the floor. So the constant is gone, with its line in
+# core/decision_log.py's FINGERPRINTED_MODULES, and the lean is the NEUTRAL
+# direction: _determine_final_action answers WAIT for it with a sentence of
+# its own, where the constant's sentence stood.
 
 
 class DecisionModel:
@@ -473,6 +458,8 @@ class DecisionModel:
     # 9 October 2026) -- see core/decision_log.py's FINGERPRINTED_MODULES
     # entry for this class.
     #
+    # (Dated: MIN_ACTION_BIAS left this file at the redesign's stage 2,
+    # 14 November 2026. See the note where it stood.)
     # RAW_BIAS_THRESHOLD (models/bias_engine.py) and MIN_ACTION_BIAS above
     # were mentioned in the same audit finding, alongside these three, but
     # neither needed this fix: both are already named module-level
@@ -613,8 +600,10 @@ class DecisionModel:
 
             raw_bias = str(bias.get("raw", "NEUTRAL"))
 
-            # 5 SEPTEMBER 2026: the magnitude, not only the label.
-            bias_strength = abs(_safe_float(bias.get("score"), 0.0))
+            # 5 SEPTEMBER 2026: the magnitude was read here, not only the
+            # label (bias_strength, |bias.score|), for the floor below.
+            # Stage 2 of the redesign, 14 November 2026: the floor reads the
+            # label alone again, because the label now carries it.
 
             # 5 SEPTEMBER 2026 -- VIKTOR'S RULING. trend_health is an UNSIGNED
             # magnitude: a strong DOWNtrend also scores 90. The reason strings
@@ -682,10 +671,24 @@ class DecisionModel:
                 return "WAIT"
 
             # VIKTOR'S RULING, 5 September 2026: a lean is not a case.
-            if raw_bias in ("BULLISH", "BEARISH") and bias_strength < MIN_ACTION_BIAS:
+            #
+            # THE REDESIGN'S STAGE 2, 14 November 2026 (the draft's gate 2).
+            # This compared |bias.score| with MIN_ACTION_BIAS and sent a
+            # BULLISH or BEARISH label under 30 to WAIT. The lean is now the
+            # NEUTRAL direction itself, so the floor is the label. A NEUTRAL
+            # bias reached WAIT before this stage too, by falling through
+            # both branches below to the last sentence of this function,
+            # which named trend strength and entry quality and not the
+            # reason. The sentence says what BULLISH and BEARISH require and
+            # that this candle is neither, so that it is also true of a
+            # direction that could not be measured, which arrives here as
+            # NEUTRAL beside a degradation that names what was missing.
+            if raw_bias not in ("BULLISH", "BEARISH"):
                 reasons.append(
-                    f"Bias leans {raw_bias.lower()} but only at {bias_strength:.0f}/100, "
-                    f"below the {MIN_ACTION_BIAS:.0f} needed to act on a direction — WAIT."
+                    "The direction is NEUTRAL: it is bullish only when EMA50 "
+                    "is rising and EMA20 is above it, and bearish only when "
+                    "EMA50 is falling and EMA20 is below it. This candle is "
+                    "neither, so there is no side to act on — WAIT."
                 )
                 return "WAIT"
 

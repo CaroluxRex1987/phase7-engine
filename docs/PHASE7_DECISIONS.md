@@ -8330,6 +8330,111 @@ is negative, now fails its fetch where it ran before. That is the treatment `vol
 gets, and the draft's ("`data/validation.py` checks `quote_volume` as it checks
 `volume`"); how often MEXC sends such a cell was not measured.
 
+## Decision, 14 November 2026 — stage 2 of the redesign's build: what it is, six readings made building it, and three more errors in the draft
+
+*New in this file on 14 November 2026. Claude's, under Viktor's "you are the engineer
+and the brain of this project" of 29 October, his to reverse, each one. Made in the
+session that opened at 08:05 on 14 November at `6038283`, on the branch `redesign`,
+and filed by stage 2's commit. No earlier entry is edited (the ruling of
+20 September), and the draft is not edited here: stage 6 reconciles it.*
+
+**What stage 2 is.** The direction is EMA50's slope and the order of `EMA_20` and
+`EMA_50` (the ruling of 7 November): `models/bias_engine.py`, `direction_from_emas`.
+`bias.raw` comes from it, for the asset and for BTC. `bias.detailed` is the same word,
+and `bias_label` is gone. The risk plan takes a side, not a score. The floor is the
+NEUTRAL direction, with a sentence of its own, and `MIN_ACTION_BIAS` is gone from the
+code and the fingerprint. The state file's key is `raw_bias`. The record gains
+`lineage.direction` and `lineage.risk_inputs.side`, and loses
+`lineage.risk_inputs.bias_score`.
+
+**The readings.**
+
+1. *The weighted sum stays until stage 5.* The draft's section 2 removes
+   `calculate_dynamic_bias`, `bias.score`, `lineage.bias_components`, the six weights
+   and `RAW_BIAS_THRESHOLD` with the direction. Confidence is the size of that score
+   (`models/decision_model.py`, `_compute_confidence`, read), and the cut puts
+   confidence in stage 5. Removed now, `risk.confidence_score` and the sentences built
+   on it would move in stage 2 and leave in stage 5, against "each golden leaf moves
+   once". So the sum is still computed for the asset, recorded as before, and read by
+   confidence alone; the label it returns is discarded by its one caller, and it is
+   no longer computed for BTC, whose score nothing recorded. Stage 5 removes it whole.
+   *What that leaves for three commits on a branch the scheduled task does not run:*
+   a record whose `bias.score` and `bias_components` explain no direction, and a run
+   that can print a trade above a confidence of 21, the picture the ruling of
+   5 September was made against.
+2. *Under NEUTRAL the plan is drawn as a long's.* The draft has the stop take the side
+   and refuse anything that is not LONG or SHORT, and does not say which side a
+   NEUTRAL run's plan has. It must have one: the ruling of 27 September (finding 5),
+   point 2, keeps the plan computed under NEUTRAL, because the risk check needs a
+   stop. Until now it was the sum's sign, zero as a long. The stand-in is fixed, LONG
+   (`plan_side`): it claims nothing about the market, where a lean taken from half of
+   a rule whose two halves disagree would. The risk check reads only the stop's
+   distance, the same on either side (a test holds it), and the panel prints no plan
+   under NEUTRAL. Entry quality is scored for the same side.
+3. *A direction that could not be measured is not NEUTRAL in the record.* When
+   `EMA50_Slope`, `EMA_20` or `EMA_50` is absent or not a number at the decision
+   candle, the run is degraded with the column named, so no trade can follow;
+   `lineage.direction.result` is null; and `bias.raw` carries NEUTRAL, the draft
+   keeping its three values. That is the shape the macro block uses for a daily trend
+   it could not read. For BTC the block raises, and its handler reports BTC
+   unavailable for the run.
+4. *The read B9 added is removed* (DECISIONS, "Ruling, 15 October 2026 — B9:
+   Bitcoin's SuperTrend is read directly"). That ruling made a failed BTC SuperTrend
+   take the BTC section, because the weighted sum scored the failure as a neutral
+   factor of BTC BIAS. BTC's label no longer reads the SuperTrend, so the read would
+   make the section unavailable over an indicator its one printed reading does not
+   use. Removed with its reader; the ruling's shape is kept on what the label reads
+   now (point 3). The asset's own SuperTrend read is unchanged while the sum reads it.
+   **This changes what a ruling of Viktor's does, on Claude's reading of what the
+   ruling of 7 November makes of it; his to reverse.**
+5. *`lineage.direction` records three words, not four true-or-false fields.* The
+   draft's section 13.3 has `ema20_rising`, `ema50_rising`, `ema20_above_ema50` and
+   `result`. `ema20_rising` is version 1's rule; `EMA20_Slope` is not read since
+   version 3. And "not rising" is falling or flat, of which only falling can be
+   BEARISH, so two true-or-false fields do not give the result. Recorded:
+   `ema50_slope` (RISING, FALLING, FLAT), `ema20_vs_ema50` (ABOVE, BELOW, EQUAL), each
+   null when not measured, and `result`.
+6. *Two printed sentences.* The panel's PLAN line under NEUTRAL keeps the wording
+   ruled on 27 September and loses "(score X, inside ±20)": the sum is no longer why
+   the bias is NEUTRAL. The ladder's sentence for NEUTRAL, the draft's gate 2, says
+   what BULLISH and BEARISH require and that this candle is neither, so that it is
+   also true beside a degradation.
+
+**Three errors in the draft, found at stage 2.**
+
+- *Section 2 and section 13.2 have BTC's reference line flip on the golden run*,
+  `btc_context.raw` from BEARISH to BULLISH, "computed in the sandbox from
+  `tests/fixtures/pinned/BTCUSDT_4h.csv`". The golden run does not read that file:
+  its BTC series is `ohlcv_clean_4h.csv` reversed and multiplied by 137,000 (read,
+  `tests/test_golden_path.py`, `_write_pinned_set`). On that series EMA50 falls
+  0.1910% a candle and EMA20, 69,546.64, is under EMA50, 72,430.70 (computed with
+  pandas, Linux sandbox): BEARISH, as today. So `btc_context.raw` does not move, and
+  `btc_context.detailed` moves to BEARISH, not BULLISH. The draft's figures are right
+  for the committed pinned set, where the rule does give BULLISH, and a new test
+  holds that. This is stage 1's error again: a figure computed from the committed
+  pinned set and said of the golden run.
+- *Section 13.3's `lineage.direction`*: reading 5.
+- *Section 14 misses or misclassifies six tests and one helper that stage 2 moves.*
+  Not listed:
+  `tests/test_b9_btc_supertrend_is_read_directly.py` (reading 4; two tests turned
+  round, two added). Listed as holding, and rewritten because their calls pass
+  `bias_score`: `test_regime_from_volatility_alone.py`'s
+  `test_the_regime_names_the_volatility_the_panel_prints`,
+  `test_stop_is_atr_only.py`'s
+  `test_on_the_engine_path_the_stop_is_the_atr_stop_not_the_hvn`, and the helper of
+  `test_risk_fingerprint.py`. Listed as going, and kept in a new form:
+  `test_stop_ignores_conviction.py`'s two sweeps of the score, which now hold that
+  the stop's distance and the risk verdict are the same on both sides, what reading 2
+  rests on. Section 14 says its tests "were not read line by line"; these are what
+  that cost at stage 2.
+
+**What it weakens.** Reading 1's two costs. A NEUTRAL record's stop and targets are a
+long's whatever the market did, and say so only by `lineage.direction.result` beside
+them. A failed BTC SuperTrend is again a failure the decision object does not show
+(a log line only), as before 15 October, though no printed reading depends on it now.
+And the first run after the merge compares no bias with the run before it: a real
+flip across that one run is not reported.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then

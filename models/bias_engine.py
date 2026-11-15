@@ -528,77 +528,132 @@ def calculate_dynamic_regime(df):
 
 
 # ============================================================
-# BIAS LABEL (was BiasStateMachine until finding 18)
+# DIRECTION (the redesign's stage 2, 14 November 2026)
 # ============================================================
 #
-# FINDING 18, 27 September 2026 -- Viktor's ruling, by agreeing to Claude's
-# suggestion (docs/PHASE7_DECISIONS.md, "Ruling, 27 September 2026 -- the
-# bias label is a function of the score (finding 18)").
+# Viktor's ruling of 7 November 2026 (docs/PHASE7_DECISIONS.md, "Ruling,
+# 7 November 2026 -- the redesign's direction is EMA50's slope and the EMAs'
+# order ..."), built as stage 2 of the redesign's six (DECISIONS, "Decision,
+# 14 November 2026 -- the redesign's code is cut into six stages ..."):
 #
-# This was a class, BiasStateMachine, with a `state` attribute and a
-# transition() method, and the record called what it produced a "persistence
-# requirement". It had none. transition() never read its previous state:
-# every branch assigned self.state from the current raw_bias and bias_score
-# alone. And engine_core built a fresh instance per process, which on this
-# engine is one run, so it started at NEUTRAL every time in any case. What it
-# returned was a label for how far the score leans, nothing more. On Viktor's
-# decision log (42 records, 6-27 September) every recorded bias.detailed is
-# exactly what the current score gives.
+#   BULLISH   EMA50_Slope > 0 and EMA_20 > EMA_50
+#   BEARISH   EMA50_Slope < 0 and EMA_20 < EMA_50
+#   NEUTRAL   anything else: the two disagree, the slope is exactly zero or
+#             the averages are equal. A lean, and no side.
 #
-# The ruling keeps the behaviour and makes the code say what it does: the
-# same labels, word for word, from a plain function with no state. Nothing
-# that decides reads the label -- decision_model chooses on raw_bias and
-# acts only at |bias_score| >= MIN_ACTION_BIAS (30). The label is read by the
-# panel (BIAS, BTC BIAS), by the wording of the BTC sentence in
-# decision_model, and by exit_model's "Bias state changed" flag, which
-# compares against the label persisted by the previous run -- the one piece
-# of cross-run memory here, and it lives in engine_core's state file, not in
-# this function.
+# EMA20_Slope is not read. No threshold: the agreement of the two is the
+# floor that MIN_ACTION_BIAS (30, models/decision_model.py) was until this
+# stage, so the rule adds no number to the fingerprint.
 #
-# A side that must hold for N closed candles before a trade is allowed was
-# not chosen; it is on the list for after the audit (PHASE7_NEXT.md). If it
-# is ever built, it should be computed from the closed candles in the run's
-# own input, which the input hash pins, not from a state file, which would
-# be an input the record cannot reproduce.
+# WHAT THIS REPLACES, AND WHAT IT DOES NOT YET. Until this stage bias.raw
+# was the weighted sum above against RAW_BIAS_THRESHOLD, the plan's side was
+# the sum's sign, and bias.detailed was bias_label(raw, score): the same
+# label with CONFIRMED past +/-30 (BiasStateMachine until finding 18,
+# 27 September 2026). All three now come from this function: detailed is the
+# raw label, and bias_label is gone. calculate_dynamic_bias is NOT gone. It
+# is still called for the asset, and its score is still recorded as
+# bias.score with lineage.bias_components, because confidence is that
+# score's size (models/decision_model.py, _compute_confidence) and
+# confidence leaves in stage 5. From this stage the sum decides no
+# direction, no side and no label: the raw label it returns is discarded by
+# its one caller. Stage 5 removes the function, its weights and
+# RAW_BIAS_THRESHOLD together.
 #
-# The two thresholds:
-#   RAW_BIAS_THRESHOLD (20)  read, not written in. It was a literal 20 here,
-#                            the same value, so no label changes; a change to
-#                            the constant now moves the NEUTRAL band with the
-#                            raw bias it describes.
-#   30                       left as a literal, deliberately. Naming it would
-#                            put it in FINGERPRINTED_MODULES
-#                            (tests/test_fingerprint_names_every_constant.py),
-#                            which moves run_hash and the golden snapshot for
-#                            a number that decides nothing; code_hash covers
-#                            it. It is the value of MIN_ACTION_BIAS in
-#                            decision_model, which cannot be imported here
-#                            (decision_model imports this module). One edge,
-#                            recorded: the label needs > 30 and the ladder acts
-#                            at >= 30, so at exactly 30.0 a run can take a side
-#                            while the panel prints BULLISH or BEARISH, not
-#                            CONFIRMED.
+# The same rule is in docs/build/measure_draft_gaps.py, draft_direction,
+# which counted it on the reading of 11 November before any of this was
+# built; tests/test_direction_is_the_slow_trends_side.py holds the two to
+# one answer over a grid.
 
-def bias_label(raw_bias, bias_score):
+def _finite_or_none(value):
     """
-    The panel's label for how far bias_score leans. No state: the same
-    raw_bias and bias_score always give the same label.
-
-    NEUTRAL                inside +/-RAW_BIAS_THRESHOLD (and at exactly +/-20,
-                           where raw_bias is NEUTRAL)
-    BULLISH / BEARISH      past +/-20, up to and including +/-30
-    ... CONFIRMED          past +/-30
-
-    Inputs the engine never produces -- a raw_bias that disagrees with the
-    score, a raw_bias outside the three -- give exactly what
-    BiasStateMachine.transition() gave them (tests/test_bias_label.py).
+    A finite float, or None for anything that is not one. True, False and
+    text are not numbers here, though float() would take them.
     """
-    bias_score = bias_score if bias_score is not None else 0.0
+    if value is None or isinstance(value, (bool, str, bytes)):
+        return None
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return None
+    return number if np.isfinite(number) else None
 
-    if raw_bias == "BULLISH" and bias_score > 30:
-        return "BULLISH CONFIRMED"
-    if raw_bias == "BEARISH" and bias_score < -30:
-        return "BEARISH CONFIRMED"
-    if abs(bias_score) < RAW_BIAS_THRESHOLD:
-        return "NEUTRAL"
-    return raw_bias
+
+def direction_from_emas(ema50_slope, ema_20, ema_50, components=None):
+    """
+    The direction, from the decision candle's EMA50_Slope, EMA_20 and EMA_50.
+
+    Returns "BULLISH", "BEARISH" or "NEUTRAL", or None when one of the three
+    is not a finite number. None is "not measured", which is not NEUTRAL:
+    the caller records it as a degradation and does not read it as the
+    averages disagreeing.
+
+    `components`, when a dict is passed, is filled with what was compared,
+    as calculate_dynamic_bias fills its own (audit finding 7: the record is
+    the comparison that ran, not a second computation of it):
+
+        ema50_slope      "RISING", "FALLING" or "FLAT"; None if not measured
+        ema20_vs_ema50   "ABOVE", "BELOW" or "EQUAL"; None if not measured
+        result           what is returned
+
+    Words and not true-or-false, because a slope that is not rising is
+    either falling or flat, and only one of those can be BEARISH. The four
+    numbers compared are in lineage.indicators_at_decision_bar and are not
+    copied.
+    """
+    slope = _finite_or_none(ema50_slope)
+    fast = _finite_or_none(ema_20)
+    slow = _finite_or_none(ema_50)
+
+    if slope is None:
+        slope_word = None
+    elif slope > 0:
+        slope_word = "RISING"
+    elif slope < 0:
+        slope_word = "FALLING"
+    else:
+        slope_word = "FLAT"
+
+    if fast is None or slow is None:
+        order_word = None
+    elif fast > slow:
+        order_word = "ABOVE"
+    elif fast < slow:
+        order_word = "BELOW"
+    else:
+        order_word = "EQUAL"
+
+    if slope_word is None or order_word is None:
+        result = None
+    elif slope_word == "RISING" and order_word == "ABOVE":
+        result = "BULLISH"
+    elif slope_word == "FALLING" and order_word == "BELOW":
+        result = "BEARISH"
+    else:
+        result = "NEUTRAL"
+
+    if components is not None:
+        components["ema50_slope"] = slope_word
+        components["ema20_vs_ema50"] = order_word
+        components["result"] = result
+
+    return result
+
+
+def plan_side(direction):
+    """
+    The side the risk plan is drawn on: LONG under BULLISH, SHORT under
+    BEARISH, and LONG under anything else.
+
+    The last is a stand-in, not a side. A NEUTRAL run takes no trade and
+    the panel prints no plan for it, but the engine still computes one,
+    because the risk check needs a stop (Viktor's ruling of 27 September
+    2026, finding 5, point 2), and a stop needs a side to be drawn on. The
+    check reads only the stop's distance from price, which is the same on
+    either side. Until this stage the stand-in was the sign of the weighted
+    sum, with zero drawn as a long; the sum no longer says anything about
+    direction, so the stand-in is fixed. Claude's choice at stage 2, Viktor's
+    to reverse.
+    """
+    if direction == "BEARISH":
+        return "SHORT"
+    return "LONG"

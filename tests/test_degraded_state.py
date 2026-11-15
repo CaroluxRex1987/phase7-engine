@@ -374,7 +374,10 @@ def test_a_failed_risk_calculation_does_not_invent_levels():
         model.calculate_stop_targets(
             current_price=100.0,
             atr_val=None,
-            bias_score=-70.0,                    # a SHORT
+            # Stage 2 of the redesign, 14 November 2026: bias_score=-70.0
+            # stood here. Left in, it raises TypeError at the call and the
+            # assertion on "risk plan" below fails, as fix 1's note says.
+            side="SHORT",
         )
     except Exception as e:
         raised = e

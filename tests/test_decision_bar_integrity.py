@@ -534,10 +534,13 @@ def test_calculate_stop_targets_rejects_a_non_finite_atr():
     # call would have raised TypeError before reaching the NaN guard, and
     # Exception would have accepted it -- a pass with the guard deleted. The
     # keyword is gone, and the assertion now names the error the guard raises.
+    # THE REDESIGN'S STAGE 2, 14 November 2026: the same happened again.
+    # bias_score=60.0 stood in both calls below, the parameter became `side`,
+    # and this assertion failed on the TypeError rather than accept it.
     model = RiskModel()
     with pytest.raises(ValueError, match="Non-finite price or ATR"):
         model.calculate_stop_targets(current_price=100.0,
-                                     atr_val=float("nan"), bias_score=60.0)
+                                     atr_val=float("nan"), side="LONG")
 
 
 # test_a_structural_level_no_longer_masks_a_missing_atr stood here: the
@@ -556,7 +559,7 @@ def test_valid_inputs_still_produce_levels():
     # FIX 1, 5 October 2026: trend_health=80.0 stood first here; the
     # parameter is gone.
     stop, t1, t2, t3 = RiskModel().calculate_stop_targets(
-        current_price=100.0, atr_val=2.0, bias_score=60.0)
+        current_price=100.0, atr_val=2.0, side="LONG")
 
     for value in (stop, t1, t2, t3):
         assert np.isfinite(value), (stop, t1, t2, t3)

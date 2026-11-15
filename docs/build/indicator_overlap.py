@@ -55,6 +55,18 @@ refuses another timeframe in config rather than guess its bar length.
 This is documentation tooling. It lives under docs/, which the code fingerprint
 does not read, and it changes nothing the engine decides.
 
+THE REDESIGN'S STAGE 2, 14 November 2026. The tool follows the engine's
+decision path, and from this stage that path takes its direction from EMA50's
+slope and the order of EMA_20 and EMA_50 (models/bias_engine.py,
+direction_from_emas), not from the weighted sum. bar_row does the same, so
+that its baseline is still the decision the engine makes. The consequence for
+question 2 above: a variant that removes a factor of the sum now moves the
+bias score, and through it confidence, and no action, because no action
+reads the sum. The figures quoted above are the engine of 24 October's and
+are not reproduced by this version; `git show 6038283:docs/build/indicator_overlap.py`
+is the tool that gave them. The variants and the weights go with the sum in
+stage 5 (the redesign draft's section 14).
+
     python docs/build/indicator_overlap.py logs/archive
     python docs/build/indicator_overlap.py logs/archive --logs logs --csv rows.csv
 """
@@ -201,13 +213,18 @@ def bar_row(frame_ind, daily_ind, t, variants=VARIANTS):
     for name, (zero, set_to, entry_mode) in variants.items():
         components = {}
         with bias_weights(zero, set_to):
-            raw, score = bias_engine.calculate_dynamic_bias(components=components, **kw)
-        side = "LONG" if raw == "BULLISH" else "SHORT" if raw == "BEARISH" else ("LONG" if score >= 0 else "SHORT")
+            _, score = bias_engine.calculate_dynamic_bias(components=components, **kw)
+        # The redesign's stage 2, 14 November 2026: the engine's direction is
+        # EMA50's slope and the EMAs' order, and the plan's side follows it;
+        # the weighted sum gives only the score (see the module docstring).
+        raw = bias_engine.direction_from_emas(
+            dfs["EMA50_Slope"].iloc[-1], dfs["EMA_20"].iloc[-1], dfs["EMA_50"].iloc[-1]) or "NEUTRAL"
+        side = bias_engine.plan_side(raw)
         eq = calculate_entry_quality(dfs, lo, hi, macro_bias=macro, trade_direction=side,
                                      trend_direction=tr["trend_direction"], structure_sequence=s["sequence"])
         entry_score = _entry_score(eq, entry_mode)
         stop, t1, t2, t3 = risk_model.calculate_stop_targets(current_price=price, atr_val=atr,
-                                                            bias_score=score, volatility_state=volatility)
+                                                            side=side, volatility_state=volatility)
         valid, reason, regime = risk_model.validate_risk_parameters(current_price=price, atr_stop=stop,
                                                                     volatility_state=volatility)
         validation = 50.0 + macro_agreement(macro, raw)[0] + volume_agreement(s["volume_sentiment"], raw)[0]

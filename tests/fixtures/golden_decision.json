@@ -1,6 +1,6 @@
 {
   "bias": {
-    "detailed": "BULLISH CONFIRMED",
+    "detailed": "BULLISH",
     "raw": "BULLISH",
     "regime": "BULLISH TREND",
     "score": 77.09945429,
@@ -13,7 +13,7 @@
     "correlation": -0.0426301,
     "correlation_label": "WEAK / NO CLEAR RELATIONSHIP",
     "degraded_inputs": [],
-    "detailed": "BEARISH CONFIRMED",
+    "detailed": "BEARISH",
     "n_observations": 30,
     "raw": "BEARISH",
     "regime": "BEARISH TREND",
@@ -72,7 +72,7 @@
   },
   "lineage": {
     "archive": {
-      "path": "logs/pinned/archive/testusdt_4h_5eb672e16fb804f5.json.gz",
+      "path": "logs/pinned/archive/testusdt_4h_3d2e7758309b1d1c.json.gz",
       "pruned_this_run": 0,
       "retention_days": 90
     },
@@ -125,6 +125,11 @@
       "trend_direction": 1,
       "trend_sequence": "BOS BULLISH (TREND CONTINUATION)",
       "weighted_sum": 77.09945429
+    },
+    "direction": {
+      "ema20_vs_ema50": "ABOVE",
+      "ema50_slope": "RISING",
+      "result": "BULLISH"
     },
     "format": 1,
     "indicators_at_decision_bar": {
@@ -192,16 +197,16 @@
     },
     "risk_inputs": {
       "atr": 0.01055373,
-      "bias_score": 77.09945429,
       "current_price": 0.80173175,
       "risk_regime": "NORMAL RISK",
+      "side": "LONG",
       "volatility_state": "MEDIUM VOLATILITY"
     },
-    "run_hash": "5eb672e16fb804f518c63df535476aae96806ebb2de640b7436d2a44ce4d0aec"
+    "run_hash": "3d2e7758309b1d1c7d8e7eb8c0cf20d26aa7fc0e5aefb6def485e8ae1f5d82ee"
   },
   "macro_bias": "BULLISH",
   "provenance": {
-    "archive_path": "logs/pinned/archive/testusdt_4h_5eb672e16fb804f5.json.gz",
+    "archive_path": "logs/pinned/archive/testusdt_4h_3d2e7758309b1d1c.json.gz",
     "canonical_format": 1,
     "decision_candles": {
       "btc": {
@@ -268,8 +273,7 @@
         "DecisionModel.AVG_REWARD_R": 2.0,
         "DecisionModel.CONSERVATIVE_TREND_HEALTH_MIN": 50.0,
         "DecisionModel.DEGRADED_CONFIDENCE_CEILING": 50.0,
-        "DecisionModel.EV_BREAKEVEN_BAND_R": 0.3,
-        "MIN_ACTION_BIAS": 30.0
+        "DecisionModel.EV_BREAKEVEN_BAND_R": 0.3
       },
       "models.entry_model": {
         "ATR_DISTANCE_MAX_POINTS": 25.0,
@@ -303,7 +307,7 @@
     },
     "prior_state": {},
     "row_count": 450,
-    "run_hash": "5eb672e16fb804f518c63df535476aae96806ebb2de640b7436d2a44ce4d0aec",
+    "run_hash": "3d2e7758309b1d1c7d8e7eb8c0cf20d26aa7fc0e5aefb6def485e8ae1f5d82ee",
     "source": "pinned"
   },
   "risk": {

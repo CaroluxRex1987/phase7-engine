@@ -353,6 +353,17 @@ class LineageBlock(TypedDict):
     sign of bias_score picks: price, atr, volatility_state and bias_score,
     all four recorded here.
 
+    THE REDESIGN'S STAGE 2, 14 November 2026. `direction` is new: what the
+    direction compared -- EMA50's slope and the order of EMA_20 and EMA_50,
+    each as a word, and the result (models/bias_engine.py,
+    direction_from_emas). The numbers themselves are in
+    indicators_at_decision_bar. `risk_inputs` records `side` where it recorded
+    bias_score: the side is passed to the stop now, not read off a sign.
+    `bias_components` is still the weighted sum's breakdown, and from this
+    stage it explains bias.score alone, which confidence reads; the sum
+    decides no direction. It leaves with the sum in stage 5, and the chain
+    drawn above is redrawn then.
+
     A note on what `archive.path` means when it is None. It means nothing was
     written for this run -- not that the path is unknown. The alternative, a
     record naming the file that WOULD have been used, is the exact defect
@@ -363,6 +374,7 @@ class LineageBlock(TypedDict):
     run_hash: str
     inputs: Dict[str, Any]
     indicators_at_decision_bar: Dict[str, Any]
+    direction: Dict[str, Any]
     bias_components: Dict[str, Any]
     risk_inputs: Dict[str, Any]
     archive: Dict[str, Any]

@@ -42,6 +42,29 @@ sign either way, so the label still has work to do below 30.
 
 The risk of two thresholds is sequence item 14's finding: a constant nothing
 reads. Both are held live below.
+
+THE REDESIGN'S STAGE 2, 14 November 2026 -- RULING 2's MECHANISM IS REPLACED
+
+Viktor's ruling of 7 November 2026: the direction is EMA50's slope and the
+order of EMA_20 and EMA_50, and their agreement is the floor. BULLISH and
+BEARISH are no longer a sum past 20, so "a lean" is no longer a label under
+30: it is the NEUTRAL direction, the two disagreeing. MIN_ACTION_BIAS is
+gone from the code and from the fingerprint, and "both thresholds" above is
+the dated account. Ruling 2 itself stands -- a lean is not a case -- and its
+six tests became four:
+
+  - a NEUTRAL direction authorises no side, whatever the weighted sum says,
+    and says why in a sentence of its own (was: a score of 21 waits);
+  - the floor is the same on the short side, at the rule itself (was: a
+    score of -21 waits);
+  - a direction acts whatever the sum's size (was: a score past 30 still
+    acts). This one's expectation is turned round on purpose, and its
+    docstring says what that leaves until stage 5;
+  - the constant is gone from the module and the fingerprint (was: it is
+    fingerprinted).
+
+"A lean at the threshold still waits" and "both thresholds are live and
+distinct" went with the threshold. Ruling 1's four tests are unchanged.
 """
 
 import os
@@ -51,8 +74,11 @@ import pytest
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from models.decision_model import DecisionModel, MIN_ACTION_BIAS
-from models.bias_engine import RAW_BIAS_THRESHOLD
+from models.decision_model import DecisionModel
+from models.bias_engine import direction_from_emas
+
+NEUTRAL_SENTENCE = "The direction is NEUTRAL"
+SUMS = (-100.0, -60.0, -30.01, -21.0, 0.0, 21.0, 30.01, 60.0, 100.0)
 
 
 def _decide(score, raw="BULLISH", health=90.0, sign=1, entry=80.0,
@@ -76,62 +102,77 @@ def _decide(score, raw="BULLISH", health=90.0, sign=1, entry=80.0,
 # Ruling 2 -- the floor
 # ======================================================================
 
-def test_a_weak_lean_does_not_authorise_a_direction():
+def test_a_neutral_direction_does_not_authorise_a_side():
     """
-    The case that prompted the ruling: score 21, everything else strong.
+    The case that prompted the ruling was a score of 21 with everything else
+    strong. The lean is the NEUTRAL direction now: everything else strong,
+    and the weighted sum anywhere at all, 100 included.
     """
-    action, reasons = _decide(score=21.0)
-
-    assert action == "WAIT", (
-        f"bias_score 21 returned {action!r}. That is a directional action on a "
-        f"lean barely past the labelling threshold, printed above CONFIDENCE 21."
-    )
-    assert any("below the" in r and "act on a direction" in r for r in reasons), reasons
+    for score in SUMS:
+        action, reasons = _decide(score=score, raw="NEUTRAL")
+        assert action == "WAIT", (
+            f"a NEUTRAL direction with a weighted sum of {score} returned "
+            f"{action!r}. The sum does not decide the direction; a lean is "
+            f"not a case.")
+        assert any(NEUTRAL_SENTENCE in r and "no side to act on" in r
+                   for r in reasons), reasons
+        assert not any("below the" in r for r in reasons), (
+            "the threshold's sentence is back", reasons)
 
 
 def test_the_same_floor_applies_to_the_short_side():
-    action, _ = _decide(score=-21.0, raw="BEARISH", sign=-1)
+    """
+    At the rule itself, since the ladder only sees the label. The slow
+    average rising with the fast one under it is no long; the slow average
+    falling with the fast one over it is no short.
+    """
+    assert direction_from_emas(0.1, 99.0, 100.0) == "NEUTRAL"
+    assert direction_from_emas(-0.1, 101.0, 100.0) == "NEUTRAL"
+    assert direction_from_emas(0.1, 101.0, 100.0) == "BULLISH"
+    assert direction_from_emas(-0.1, 99.0, 100.0) == "BEARISH"
+
+    action, _ = _decide(score=-60.0, raw="NEUTRAL", sign=-1)
     assert action == "WAIT"
 
 
-def test_a_lean_at_the_threshold_still_waits():
-    action, _ = _decide(score=MIN_ACTION_BIAS - 0.01)
-    assert action == "WAIT"
-
-
-def test_a_conviction_past_the_threshold_still_acts():
-    action, _ = _decide(score=MIN_ACTION_BIAS + 0.01)
-    assert action != "WAIT", (
-        "the floor is blocking scores it should let through -- it is a "
-        "minimum, not a new gate"
-    )
-    assert "LONG" in action
-
-
-def test_both_thresholds_are_live_and_distinct():
+def test_a_direction_acts_whatever_the_weighted_sum_says():
     """
-    Sequence item 14's finding, applied before it can repeat: a fingerprinted
-    constant that nothing reads makes the record name a knob that changes
-    nothing.
+    TURNED ROUND at stage 2, on purpose. Until then a BULLISH label with a
+    sum under 30 was a lean and waited, and this test held that a sum past
+    30 still acted. A BULLISH direction is now EMA50 rising with EMA20 above
+    it, which is the whole floor (Viktor's ruling of 7 November 2026), so
+    the sum's size gates nothing: 21, 0 and a sum pointing the other way all
+    act as 60 does.
+
+    What that leaves until stage 5: confidence is still the sum's size, so a
+    run can print AGGRESSIVE LONG above CONFIDENCE 21/100, the picture the
+    ruling of 5 September was made against. Confidence leaves in stage 5;
+    it is not given a new meaning for three commits on a branch the
+    scheduled task does not run.
     """
-    assert MIN_ACTION_BIAS > RAW_BIAS_THRESHOLD, (
-        "MIN_ACTION_BIAS no longer sits above RAW_BIAS_THRESHOLD, so it can "
-        "never fire and the second threshold is dead"
-    )
-    below, _ = _decide(score=(RAW_BIAS_THRESHOLD + MIN_ACTION_BIAS) / 2)
-    above, _ = _decide(score=MIN_ACTION_BIAS + 5)
-    assert below == "WAIT" and above != "WAIT", (
-        f"a score between the two thresholds gave {below!r} and one above gave "
-        f"{above!r}; the two constants are not doing different work"
-    )
+    wanted = _decide(score=60.0)[0]
+    assert "LONG" in wanted, wanted
+    for score in SUMS:
+        action, reasons = _decide(score=score)
+        assert action == wanted, (score, action, reasons)
+        short, _ = _decide(score=score, raw="BEARISH", sign=-1)
+        assert "SHORT" in short, (score, short)
 
 
-def test_the_constant_is_fingerprinted():
+def test_the_constant_is_gone_from_the_code_and_the_fingerprint():
+    """
+    Was test_the_constant_is_fingerprinted. A constant that stayed in the
+    fingerprint after nothing read it is sequence item 14's finding; one
+    that stayed in the module would be read by the fingerprint scan
+    (tests/test_fingerprint_names_every_constant.py) and fail it.
+    """
     from core.decision_log import FINGERPRINTED_MODULES, module_snapshot
+    import models.decision_model as dm
 
+    assert not hasattr(dm, "MIN_ACTION_BIAS")
     assert "models.decision_model" in FINGERPRINTED_MODULES
-    assert "MIN_ACTION_BIAS" in FINGERPRINTED_MODULES["models.decision_model"]
-    assert module_snapshot()["models.decision_model"]["MIN_ACTION_BIAS"] == MIN_ACTION_BIAS
+    assert "MIN_ACTION_BIAS" not in FINGERPRINTED_MODULES["models.decision_model"]
+    assert "MIN_ACTION_BIAS" not in module_snapshot()["models.decision_model"]
 
 
 # ======================================================================

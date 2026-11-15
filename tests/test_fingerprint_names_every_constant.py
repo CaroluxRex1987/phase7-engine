@@ -105,8 +105,14 @@ def test_the_scan_sees_class_constants_and_skips_sentinels():
     from models import btc_context, decision_model
 
     found = _named_constants(decision_model)
-    assert "MIN_ACTION_BIAS" in found
+    # THE REDESIGN'S STAGE 2, 14 November 2026: "MIN_ACTION_BIAS" was
+    # asserted found here, the module's one module-level knob. It left the
+    # code with the weighted sum's floor. The module-level half of this
+    # control now reads models.risk_model, below.
+    assert "MIN_ACTION_BIAS" not in found
     assert "DecisionModel.DEGRADED_CONFIDENCE_CEILING" in found
     assert "DecisionModel.SIGNAL_UNCONFIRMED" not in found   # a label
     assert "NOT_MEASURED" not in _named_constants(btc_context)  # NaN sentinel
     assert "CORRELATION_WINDOW" in _named_constants(btc_context)
+    from models import risk_model
+    assert "ATR_STOP_MULT" in _named_constants(risk_model)

@@ -54,7 +54,7 @@ PRICE = 100.0
 ATR = 2.0
 
 
-def _expected_stop(price, atr, bias_score, volatility_state):
+def _expected_stop(price, atr, side, volatility_state):
     """
     The ATR stop, written out from the module's own constants.
 
@@ -62,6 +62,8 @@ def _expected_stop(price, atr, bias_score, volatility_state):
     carried (1 + trend_health / TREND_FACTOR_DIVISOR) and
     (1 - |bias_score| / BIAS_FACTOR_DIVISOR). Both factors and both constants
     are gone; bias_score only picks the side.
+    THE REDESIGN'S STAGE 2, 14 November 2026: and it no longer does that.
+    The side is passed, "LONG" or "SHORT", here as to the function.
     """
     from models import risk_model as rm
 
@@ -69,7 +71,8 @@ def _expected_stop(price, atr, bias_score, volatility_state):
            "LOW VOLATILITY": rm.VOL_MULT_LOW,
            "EXTREME VOLATILITY": rm.VOL_MULT_EXTREME}.get(volatility_state, 1.0)
     mult = rm.ATR_STOP_MULT * vol
-    return price - atr * mult if bias_score >= 0 else price + atr * mult
+    assert side in ("LONG", "SHORT"), side
+    return price - atr * mult if side == "LONG" else price + atr * mult
 
 
 def _engine_core_tree():
@@ -91,7 +94,7 @@ def test_a_structural_level_is_no_longer_accepted():
     try:
         RiskModel().calculate_stop_targets(
             current_price=PRICE, atr_val=ATR,
-            structural_level=90.0, bias_score=40.0)
+            structural_level=90.0, side="LONG")
     except TypeError as exc:
         assert "structural_level" in str(exc), exc
     else:
@@ -110,21 +113,22 @@ def test_the_stop_is_exactly_the_atr_stop():
 
     # FIX 1, 5 October 2026: a trend-health axis (0, 50, 100) stood here; trend
     # health no longer reaches the stop and is no longer a parameter.
-    scores = [-100.0, -60.0, -0.1, 0.0, 40.0, 100.0]
+    # Stage 2, 14 November 2026: six bias scores stood here, three a side;
+    # the side is passed, so the axis is the two sides.
     vols = ["LOW VOLATILITY", "NORMAL", "HIGH VOLATILITY", "EXTREME VOLATILITY"]
-    for score, vol in itertools.product(scores, vols):
+    for plan_side, vol in itertools.product(("LONG", "SHORT"), vols):
         stop, t1, t2, t3 = rm.RiskModel().calculate_stop_targets(
             current_price=PRICE, atr_val=ATR,
-            bias_score=score, volatility_state=vol)
-        want = _expected_stop(PRICE, ATR, score, vol)
+            side=plan_side, volatility_state=vol)
+        want = _expected_stop(PRICE, ATR, plan_side, vol)
         assert math.isclose(stop, want, rel_tol=0, abs_tol=1e-12), (
-            score, vol, stop, want)
+            plan_side, vol, stop, want)
         distance = abs(PRICE - stop)
-        side = 1.0 if score >= 0 else -1.0
+        side = 1.0 if plan_side == "LONG" else -1.0
         for target, mult in zip((t1, t2, t3), (rm.TARGET1_MULT, rm.TARGET2_MULT,
                                                rm.TARGET3_MULT)):
             assert math.isclose(target, PRICE + side * distance * mult,
-                                rel_tol=0, abs_tol=1e-12), (score, target, mult)
+                                rel_tol=0, abs_tol=1e-12), (plan_side, target, mult)
 
 
 # ============================================================
@@ -185,10 +189,12 @@ def test_on_the_engine_path_the_stop_is_the_atr_stop_not_the_hvn():
     decision = _run_pinned()
     inputs = decision["lineage"]["risk_inputs"]
     price = float(inputs["current_price"])
-    score = float(inputs["bias_score"])
+    # Stage 2, 14 November 2026: inputs["bias_score"] was read here, for its
+    # sign; the record holds the side.
+    plan_side = inputs["side"]
     # FIX 1, 5 October 2026: decision["trend"]["trend_health"] was read here,
     # because it fed the stop; it no longer does.
-    want = _expected_stop(price, float(inputs["atr"]), score,
+    want = _expected_stop(price, float(inputs["atr"]), plan_side,
                           inputs["volatility_state"])
     stop = float(decision["risk"]["atr_stop"])
     assert math.isclose(stop, want, rel_tol=0, abs_tol=1e-12), (stop, want)
@@ -197,7 +203,7 @@ def test_on_the_engine_path_the_stop_is_the_atr_stop_not_the_hvn():
     # rule finding 6 removed would have moved the stop out to it.
     hvn = float(decision["structure"]["hvn"])
     assert math.isfinite(hvn), hvn
-    beyond = hvn < want if score >= 0 else hvn > want
+    beyond = hvn < want if plan_side == "LONG" else hvn > want
     assert beyond, (
         f"the fixture's HVN {hvn} does not lie beyond the ATR stop {want}; "
         f"this test no longer shows the old pull is gone")

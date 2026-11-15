@@ -270,14 +270,23 @@ class RiskModel:
         *,
         current_price: float,
         atr_val: float,
-        bias_score: float,
+        side: str,
         volatility_state: str = "NORMAL"
     ) -> Tuple[float, float, float, float]:
         """
-        Compute volatility-adjusted ATR stop + tiered targets. The plan points
-        LONG when bias_score >= 0 and SHORT when it is negative -- on every run,
-        including one whose bias is NEUTRAL, so targets never collapse to
-        current price.
+        Compute volatility-adjusted ATR stop + tiered targets, on the side it
+        is given: "LONG" or "SHORT", and anything else is refused.
+
+        THE REDESIGN'S STAGE 2, 14 November 2026. The third parameter used to
+        be `bias_score`, and the plan pointed LONG when it was >= 0 and SHORT
+        when it was negative. The direction is no longer a score (Viktor's
+        ruling of 7 November 2026; models/bias_engine.py,
+        direction_from_emas), so there is no sign to read, and the caller
+        passes the side. Which side a NEUTRAL run's plan is drawn on is the
+        caller's too (models/bias_engine.py, plan_side); this function no
+        longer has an answer for it, and passing `bias_score` raises
+        TypeError. The paragraphs below are the dated record of how the
+        parameter got here and say bias_score where the code now says side.
 
         21 SEPTEMBER 2026, work order C. The first parameter used to be
         `detailed_bias`, and the direction was chosen by a branch that tested
@@ -335,7 +344,7 @@ class RiskModel:
         Args:
             current_price: Current market price
             atr_val: Average True Range value
-            bias_score: Bias score; its sign picks the side (>= 0 is LONG)
+            side: "LONG" or "SHORT", the side the plan is drawn on
             volatility_state: Current volatility regime
 
         Returns:
@@ -368,22 +377,23 @@ class RiskModel:
                     f"atr={atr_val}) -- no stop or targets can be computed from "
                     f"a value that is not a number."
                 )
-            # 21 SEPTEMBER 2026, work order C: bias_score picks the plan's
-            # direction below, and `NaN >= 0` is False -- a NaN score would
-            # have produced a SHORT plan, a direction chosen by a missing
-            # number. Unreachable today (bias_engine returns a finite, clipped
-            # score); refused here so it stays that way.
-            if not np.isfinite(bias_score):
+            # 21 SEPTEMBER 2026, work order C: a NaN bias_score was refused
+            # here, because `NaN >= 0` is False and a missing number would
+            # have chosen a SHORT. Stage 2, 14 November 2026: the same
+            # refusal for the side. The branch below used to be LONG or
+            # else, so any other word -- a direction label, None, a typo --
+            # would have been drawn as a short without a word.
+            if side not in ("LONG", "SHORT"):
                 raise ValueError(
-                    f"Non-finite bias_score ({bias_score}) -- the plan's "
-                    f"direction is the sign of this number, and a number that "
-                    f"is not one has no sign."
+                    f"The plan's side is {side!r}, which is neither LONG nor "
+                    f"SHORT -- a stop has to be drawn on one side of price, "
+                    f"and nothing here chooses one."
                 )
             if current_price <= 0 or atr_val <= 0:
                 logger.error(f"Invalid price inputs: price={current_price}, atr={atr_val}")
                 raise ValueError("Invalid price or ATR values")
 
-            plan_direction = "LONG" if bias_score >= 0 else "SHORT"
+            plan_direction = side
 
             # Volatility-adjusted modifier
             vol_multiplier = 1.0

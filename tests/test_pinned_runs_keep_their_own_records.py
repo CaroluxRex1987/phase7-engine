@@ -296,8 +296,10 @@ def test_exit_watch_compares_a_run_only_with_the_last_run_from_its_own_source():
         log_dir = os.path.join(work, "logs") + os.sep
         charts = os.path.join(work, "charts")
         pinned = decision_log.records_dir(log_dir, False)
-        live_prior = {"supertrend_direction": -1.0, "detailed_bias": "BEARISH CONFIRMED"}
-        pinned_prior = {"supertrend_direction": 1.0, "detailed_bias": "NEUTRAL"}
+        # Stage 2 of the redesign, 14 November 2026: the state's bias key is
+        # "raw_bias"; it was "detailed_bias", with bias_label's words.
+        live_prior = {"supertrend_direction": -1.0, "raw_bias": "BEARISH"}
+        pinned_prior = {"supertrend_direction": 1.0, "raw_bias": "NEUTRAL"}
         os.makedirs(pinned)
         with open(os.path.join(log_dir, STATE_FILE), "w") as fh:
             json.dump(live_prior, fh)

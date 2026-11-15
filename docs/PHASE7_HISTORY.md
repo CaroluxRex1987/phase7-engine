@@ -223526,3 +223526,138 @@ Line 6246 of the version at `696af24`:
 ~~~~~
   `quote_volume`, which the fetcher drops today. Added on 1 November: entry 58's rule,
 ~~~~~
+
+## 14 November 2026 — the lines the rewrite of PHASE7_NEXT.md removed from its version at `6038283`
+
+*Moved here on 14 November 2026 by stage 2 of the redesign's build, the second commit
+on the branch `redesign`, under "Ruling, 4 November 2026 — HISTORY
+keeps what each rewrite of PHASE7_NEXT.md removes, not the whole file" (DECISIONS).
+Below the rule, each block is a run of lines of the file as it stood at `6038283` that
+the rewrite deleted or replaced, word for word, labelled with its line numbers in that
+version; "this session" in them is the session that opened at 07:04 on 14 November,
+not the one that writes this entry, which opened at 08:05 the same day, and "the
+commit that writes this line", "the commit that writes this section" and "this
+commit" name `6038283`. The
+whole version: `git show 6038283:docs/PHASE7_NEXT.md`. Checked by
+`docs/build/check_history_move.py`.*
+
+---
+
+Lines 3–6 of the version at `6038283`:
+
+~~~~~
+*14 November 2026, in the session that opened at 07:04, on the branch `redesign`.
+Rewritten by stage 1 of the redesign's build, the branch's first commit, which also
+files the cut of that build into six stages and records `696af24`'s landing and the
+worktree's setup;
+~~~~~
+
+Line 8 of the version at `6038283`:
+
+~~~~~
+`696af24` are in HISTORY, which points to that whole version in git.
+~~~~~
+
+Line 45 of the version at `6038283`:
+
+~~~~~
+1. **Inputs — landed by the commit that writes this section.** `quote_volume` is
+~~~~~
+
+Lines 50–52 of the version at `6038283`:
+
+~~~~~
+   in and nothing calls it. No decision reads any of it: the action is unchanged.
+   Its live run is recorded in its commit message.
+2. **Direction** — EMA50's slope plus the EMAs' order. **Next.**
+~~~~~
+
+Line 56 of the version at `6038283`:
+
+~~~~~
+   flags.
+~~~~~
+
+Lines 74–78 of the version at `6038283`:
+
+~~~~~
+**The draft's error found at stage 1:** §5 has the golden run's `quote_volume` come
+from `docs/build/make_pinned.py`; the golden test derives its series from
+`tests/fixtures/ohlcv_clean_4h.csv` and never reads that script's output. Stage 1
+adds the column in both places by one rule. Recorded in the DECISIONS entry; the
+draft is reconciled at stage 6.
+~~~~~
+
+Lines 80–86 of the version at `6038283`:
+
+~~~~~
+**`696af24`'s landing and the worktree's setup.** Viktor's opening message of
+14 November: both "were checked on 13 November at 02:53 and hold: do not check them
+again, record them in stage 1's commit." Recorded here on that statement; this
+session read neither again. What it did read: `origin/redesign` and `origin/master`
+were both `696af24` when it cloned, at about 07:05 on 14 November, and the two files
+it staged from `E:\phase7_redesign\docs` before any change were byte for byte the
+branch's.
+~~~~~
+
+Line 3961 of the version at `6038283`:
+
+~~~~~
+- **code_hash:** `816d4951bb0322763ec4abc4b9ed8161d5b902372823350e5272f2fb7176e380`,
+~~~~~
+
+Lines 4036–4038 of the version at `6038283`:
+
+~~~~~
+- **Golden snapshot:** **re-baselined by the commit that writes this line, stage 1 of
+  the redesign's build, with `PHASE7_UPDATE_SNAPSHOT=1`: 7 leaves move and 1 is new,
+  as predicted before the run.** Moved: `lineage.inputs.struct.columns` (gains
+~~~~~
+
+Lines 4106–4107 of the version at `6038283`:
+
+~~~~~
+- **Test suite** — **1009 passed / 0 failed, no warnings line** with `pandas_ta`;
+  **833 passed / 165 skipped** without it; `run_tests.py` **941 passed / 0 failed /
+~~~~~
+
+Lines 4112–4114 of the version at `6038283`:
+
+~~~~~
+  until `713e084` (entry 50). The commit that writes this line, stage 1 of the
+  redesign's build, adds 32 tests in three new files, none taking a fixture, so each
+  count rises by 32 and the errors stay 31; it changes five existing test files
+~~~~~
+
+Line 4553 of the version at `6038283`:
+
+~~~~~
+- **Engineering Notes:** through Entry #288 (v1.43), which covers `a60d66b`; nine
+~~~~~
+
+Lines 4555–4556 of the version at `6038283`:
+
+~~~~~
+  `a3c863e`, `696af24` and the commit that writes this line, the first to change
+  code among them (below). The gap
+~~~~~
+
+Line 4563 of the version at `6038283`:
+
+~~~~~
+  **Nine commits that need an entry are behind:** `9cc48d7`, which files the ruling of
+~~~~~
+
+Lines 4572–4573 of the version at `6038283`:
+
+~~~~~
+  of 01:15 on 13 November, and the commit that writes this
+  line, stage 1 of the redesign's build; none has one until the next regeneration. `bc250fc`, `9db4ae2`, `82b824d` and
+~~~~~
+
+Lines 6234–6235 of the version at `6038283`:
+
+~~~~~
+- **Claude's, next: stage 2 of the redesign's build, direction** (THE REDESIGN'S
+  BUILD, above).
+~~~~~

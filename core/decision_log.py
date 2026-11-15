@@ -235,8 +235,11 @@ FINGERPRINTED_MODULES = {
     # more of the same shape as DEGRADED_CONFIDENCE_CEILING/BTC_ADJUSTMENT_CAP
     # above -- the AGGRESSIVE-eligibility and CONSERVATIVE trend-health bands,
     # promoted from bare literals inside _determine_final_action.
+    # THE REDESIGN'S STAGE 2, 14 November 2026: "MIN_ACTION_BIAS" was this
+    # entry's first name and left with the constant (models/decision_model.py,
+    # where it stood), which moves run_hash. The paragraphs above and below
+    # that name it are the dated record.
     "models.decision_model": [
-        "MIN_ACTION_BIAS",
         "DecisionModel.DEGRADED_CONFIDENCE_CEILING",
         # N5, 9 October 2026: "DecisionModel.BTC_ADJUSTMENT_CAP" stood here,
         # and "DecisionModel.BTC_STRESS_PENALTY" below. The BTC-adjusted

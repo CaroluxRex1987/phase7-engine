@@ -16,7 +16,8 @@ from indicators.trend_health import compute_trend_health
 from models.bias_engine import (
     calculate_dynamic_bias,
     calculate_dynamic_regime,
-    bias_label,
+    direction_from_emas,
+    plan_side,
 )
 from models.risk_model import RiskModel
 from models.entry_model import generate_entry_signals, calculate_entry_quality
@@ -213,8 +214,11 @@ class Phase7Engine:
         # self.btc_bias_state_machine were built here, the second "tracked
         # independently ... with their own history of confirmations". Neither
         # kept a history: transition() never read its previous state, and an
-        # instance lived one run. Both labels now come from
-        # models.bias_engine.bias_label, which has no state. See its comment.
+        # instance lived one run. Both labels then came from
+        # models.bias_engine.bias_label, which had no state.
+        # THE REDESIGN'S STAGE 2, 14 November 2026: bias_label is gone too.
+        # Each label is the direction itself (models/bias_engine.py,
+        # direction_from_emas).
         self.risk_model = RiskModel()
         # SEQUENCE ITEM 6: _indicator_cache, _structure_cache and
         # _max_cache_size lived here. See the run() docstring for why they went.
@@ -350,6 +354,25 @@ class Phase7Engine:
             # field is the exact defect Observation 5 named in the panel.
             out[str(name)] = as_float if math.isfinite(as_float) else None
         return out
+
+    @staticmethod
+    def _decision_bar_value(df, column) -> Optional[float]:
+        """
+        One column's value at the decision bar, as a finite float; None when
+        the column is absent or the cell is not a finite number.
+
+        For a reader that must tell "not measured" from a reading, and names
+        the column when it is not (the direction, stage 2 of the redesign).
+        A failed indicator leaves no column (indicators/indicators.py), so
+        absent and not-a-number are the same answer here.
+        """
+        if df is None or len(df) == 0 or column not in df.columns:
+            return None
+        try:
+            value = float(df[column].iloc[-1])
+        except (TypeError, ValueError):
+            return None
+        return value if math.isfinite(value) else None
 
     @staticmethod
     def _frame_summary(df, digest) -> Dict[str, Any]:
@@ -801,8 +824,15 @@ class Phase7Engine:
             # AUDIT FINDING 7: the blend fills this in as it runs, so what is
             # recorded is the arithmetic that produced bias_score rather than
             # a second computation of it. See bias_engine.calculate_dynamic_bias.
+            #
+            # THE REDESIGN'S STAGE 2, 14 November 2026. The label this call
+            # returns with the score is discarded: the direction is read
+            # below, from EMA50's slope and the EMAs' order. The score is
+            # kept because confidence is its size, until stage 5 removes
+            # confidence and this call with it (models/bias_engine.py, the
+            # DIRECTION section).
             bias_components: Dict[str, Any] = {}
-            raw_bias, bias_score = calculate_dynamic_bias(
+            _, bias_score = calculate_dynamic_bias(
                 trend_sequence=trend_sequence,
                 trend_health=trend["trend_health"],
                 trend_exhaustion=trend["trend_exhaustion"],
@@ -825,12 +855,56 @@ class Phase7Engine:
                 components=bias_components,
             )
 
+            # THE DIRECTION -- Viktor's ruling of 7 November 2026: EMA50's
+            # slope and the order of EMA_20 and EMA_50, read off the decision
+            # candle. The three are read through one helper that answers None
+            # for a column that is absent or a cell that is not a number, and
+            # direction_from_emas answers None for a direction it could not
+            # measure. That is not NEUTRAL, which is a measurement (the two
+            # disagree). The run is degraded with the columns named, so no
+            # trade can follow, and bias.raw carries NEUTRAL because there is
+            # no side -- the shape the macro block above uses for a daily
+            # trend it could not read. lineage.direction keeps the
+            # difference: its result is null on such a run.
+            direction_components: Dict[str, Any] = {}
+            direction_inputs = {
+                column: self._decision_bar_value(df_struct, column)
+                for column in ("EMA50_Slope", "EMA_20", "EMA_50")
+            }
+            measured_direction = direction_from_emas(
+                direction_inputs["EMA50_Slope"],
+                direction_inputs["EMA_20"],
+                direction_inputs["EMA_50"],
+                components=direction_components,
+            )
+            if measured_direction is None:
+                not_measured = [column for column, value in direction_inputs.items()
+                                if value is None]
+                degradation.append(
+                    f"direction ({'/'.join(not_measured)} not measured) -- "
+                    f"reported as NEUTRAL because no side could be read, not "
+                    f"because EMA50's slope and the EMAs' order disagree"
+                )
+                raw_bias = "NEUTRAL"
+            else:
+                raw_bias = measured_direction
+            # The side the risk plan and entry quality are computed for. Under
+            # NEUTRAL it is a stand-in: see plan_side.
+            side = plan_side(raw_bias)
+
             dynamic_regime, volatility_mode = calculate_dynamic_regime(df_struct)
-            detailed_bias = bias_label(raw_bias, bias_score)
+            # Until stage 2 this was bias_label(raw_bias, bias_score): the raw
+            # label, with CONFIRMED past a score of 30. There is no score
+            # behind the direction now, so the label is the direction. The key
+            # stays: the panel's BIAS line and the contract read it.
+            detailed_bias = raw_bias
 
             bias = {
                 "raw": raw_bias,
                 "detailed": detailed_bias,
+                # Stage 2: the weighted sum, which no longer decides the
+                # direction. Confidence reads it; it goes with confidence in
+                # stage 5.
                 "score": bias_score,
                 "regime": dynamic_regime,
                 "volatility": volatility_mode,
@@ -933,51 +1007,48 @@ class Phase7Engine:
                         # either. Since B9 a failed BTC SuperTrend makes the
                         # section unavailable, so it is not one of them.
                         # Comment only; what is recorded is unchanged.
+                        # (Stage 2 of the redesign, 14 November 2026: a
+                        # failed BTC SuperTrend is one of them again. See
+                        # the note below.)
                         btc_degraded_inputs = list(btc_trend.get("degraded_inputs", []) or [])
 
-                        # B9, 15 OCTOBER 2026 (Viktor's ruling that day, by
-                        # agreeing to Claude's suggestion). This read 0.0 when
-                        # the column was missing -- and it is missing exactly
-                        # when BTC's SuperTrend failed, since a failed
-                        # indicator leaves no column (indicators.py). The
-                        # failure reached only the log line above, and
-                        # bias_engine scores 0.0 as a neutral SuperTrend, so
-                        # the panel's BTC BIAS printed a reading one factor
-                        # short as if it were complete. Read directly, the
-                        # 13 October shape: a missing column raises here, and
-                        # this block's handler reports BTC unavailable for the
-                        # run, as it does for any BTC failure. The asset's own
-                        # read in section 5 keeps its 0.0 by the same ruling:
-                        # there a failure is a recorded degradation and no
-                        # trade can follow from it (on the list for after the
-                        # audit, PHASE7_NEXT.md).
-                        btc_supertrend_direction = float(df_btc_struct["ST_Direction"].iloc[-1])
-                        btc_raw_bias, btc_bias_score = calculate_dynamic_bias(
-                            # 13 OCTOBER 2026, the fallback sweep: sequence,
-                            # reversal_strength, regime and volume_sentiment
-                            # were read here with NONE, 0, NEUTRAL STRUCTURE and
-                            # NEUTRAL VOLUME -- the defaults the 2 September note
-                            # removed from the asset's own call. calculate_structure
-                            # and compute_trend_health write all four on every
-                            # return, so read directly; a missing one raises inside
-                            # this block's handler, which reports BTC unavailable.
-                            trend_sequence=btc_structure_obj["sequence"],
-                            trend_health=btc_trend["trend_health"],
-                            trend_exhaustion=btc_trend["trend_exhaustion"],
-                            reversal_direction=btc_trend.get("reversal_direction"),
-                            reversal_strength=btc_trend["reversal_strength"],
-                            continuation_strength=btc_trend.get("continuation_strength"),
-                            trend_direction_sign=btc_trend["trend_direction_sign"],
-                            structure_regime=btc_structure_obj["regime"],
-                            volume_sentiment=btc_structure_obj["volume_sentiment"],
-                            supertrend_direction=btc_supertrend_direction,
-                            # V1: BTC's own macro-timeframe confluence isn't fetched
-                            # separately yet (a third API call for diminishing
-                            # returns at this stage) -- straightforward to add later.
-                            macro_bias="NEUTRAL",
+                        # THE REDESIGN'S STAGE 2, 14 November 2026. BTC's
+                        # direction is the asset's rule on BTC's own candles
+                        # (models/bias_engine.py, direction_from_emas), and
+                        # stays reference only. Until this stage the weighted
+                        # sum was computed here a second time, for its label
+                        # alone: BTC's score was recorded nowhere (N5,
+                        # 9 October).
+                        #
+                        # B9, 15 OCTOBER 2026, and what becomes of it. BTC's
+                        # SuperTrend was read here directly, so that a failed
+                        # one made the section unavailable where it had been
+                        # scored as a neutral factor of that sum (Viktor's
+                        # ruling of that day). The sum is no longer computed
+                        # for BTC, so nothing reads BTC's SuperTrend and it
+                        # cannot be read as anything; the read is gone with
+                        # its reader. The ruling's shape is kept for what the
+                        # label reads now: the three columns are read by
+                        # subscript, so a missing one raises here, and a
+                        # direction that could not be measured raises below.
+                        # Either way this block's handler reports BTC
+                        # unavailable for the run, and no BTC BIAS is printed
+                        # from a reading that was not made. The asset's own
+                        # SuperTrend read in section 5 is unchanged: the sum
+                        # still reads it there, until stage 5.
+                        btc_raw_bias = direction_from_emas(
+                            df_btc_struct["EMA50_Slope"].iloc[-1],
+                            df_btc_struct["EMA_20"].iloc[-1],
+                            df_btc_struct["EMA_50"].iloc[-1],
                         )
+                        if btc_raw_bias is None:
+                            raise ValueError(
+                                "BTC's direction could not be measured: "
+                                "EMA50_Slope, EMA_20 or EMA_50 is not a "
+                                "finite number on its decision candle"
+                            )
                         btc_dynamic_regime, btc_volatility_mode = calculate_dynamic_regime(df_btc_struct)
-                        btc_detailed_bias = bias_label(btc_raw_bias, btc_bias_score)
+                        btc_detailed_bias = btc_raw_bias
 
                         # ROUND 6 (Meta Muse Spark 1.3), F1: window=30 was a
                         # bare literal here restating compute_correlation_beta's
@@ -996,8 +1067,10 @@ class Phase7Engine:
                             # stood here. Its only reader was the BTC-adjusted
                             # confidence, gone by Viktor's ruling of 5 October
                             # (point 7); the router never copied it into the
-                            # decision object. btc_detailed_bias above still
-                            # comes from it.
+                            # decision object. btc_detailed_bias above came
+                            # from it until the redesign's stage 2, when the
+                            # label became the direction and BTC's score
+                            # stopped being computed.
                             "regime": btc_dynamic_regime,
                             "volatility": btc_volatility_mode,
                             "trend_health": float(btc_trend["trend_health"]),
@@ -1120,12 +1193,13 @@ class Phase7Engine:
             # that can score a direction against the engine's own bias is the
             # identical defect wearing a different name. long_signal/short_signal
             # are unchanged in `entry` below; they no longer choose this direction.
-            if raw_bias == "BULLISH":
-                eq_trade_direction = "LONG"
-            elif raw_bias == "BEARISH":
-                eq_trade_direction = "SHORT"
-            else:
-                eq_trade_direction = "LONG" if bias_score >= 0 else "SHORT"
+            #
+            # THE REDESIGN'S STAGE 2, 14 November 2026: under a NEUTRAL bias
+            # this read the sign of bias_score, as the risk plan did. Both
+            # now take the one `side` computed in section 5 (plan_side), so
+            # entry quality and the plan cannot be scored for different
+            # sides.
+            eq_trade_direction = side
             eq_metrics = calculate_entry_quality(
                 df_struct,
                 entry_zone_lower,
@@ -1239,10 +1313,12 @@ class Phase7Engine:
             # Item 14. The stop is ATR x 1.2 x the volatility factor:
             # trend_health is no longer passed, and bias_score only picks the
             # side.
+            # THE REDESIGN'S STAGE 2, 14 November 2026: bias_score no longer
+            # picks it. The side is passed, from the direction (section 5).
             atr_stop, t1, t2, t3 = self.risk_model.calculate_stop_targets(
                 current_price=current_price,
                 atr_val=atr_val,
-                bias_score=bias_score,
+                side=side,
                 volatility_state=volatility_mode,
             )
 
@@ -1405,9 +1481,18 @@ class Phase7Engine:
 
             # Persist this run's state so the NEXT run can detect a
             # SuperTrend flip / bias flip against it.
+            #
+            # THE REDESIGN'S STAGE 2, 14 November 2026: the bias is saved
+            # under "raw_bias", and was saved under "detailed_bias". The old
+            # key held bias_label's words (BULLISH CONFIRMED ...). Compared
+            # with the direction, a state file written before this stage
+            # would report "Bias state changed from BULLISH CONFIRMED to
+            # BULLISH" on a pair whose direction did not change. Under a new
+            # key an old file has nothing to compare, and the first run
+            # reports no flip (models/exit_model.py reads the same key).
             self._save_state(
                 symbol, timeframe,
-                {"supertrend_direction": supertrend_direction, "detailed_bias": detailed_bias},
+                {"supertrend_direction": supertrend_direction, "raw_bias": raw_bias},
                 records_dir,
             )
 
@@ -1579,6 +1664,12 @@ class Phase7Engine:
                     "btc": self._frame_summary(raw_btc, input_hashes["btc"]),
                 },
                 "indicators_at_decision_bar": self._decision_bar_row(df_struct),
+                # THE REDESIGN'S STAGE 2, 14 November 2026: what the
+                # direction compared, filled by direction_from_emas as it ran.
+                # bias_components, below, is the weighted sum's breakdown; it
+                # explains bias.score and, from this stage, no direction. It
+                # leaves with the sum in stage 5.
+                "direction": direction_components,
                 "bias_components": bias_components,
                 "risk_inputs": {
                     "current_price": current_price,
@@ -1588,7 +1679,12 @@ class Phase7Engine:
                     # for detailed_bias below -- it no longer feeds the stop or
                     # the targets. The HVN is still recorded under
                     # structure.hvn and indicators_at_decision_bar.HVN.
-                    "bias_score": bias_score,
+                    # THE REDESIGN'S STAGE 2, 14 November 2026: bias_score
+                    # stood here, because its sign picked the plan's side. The
+                    # side is passed now and is what is recorded; the
+                    # paragraphs below are dated and say "the sign of
+                    # bias_score" where the code now says side.
+                    "side": side,
                     # 21 SEPTEMBER 2026, work order C: detailed_bias stood here
                     # and no longer does, for the reason given for trend_health
                     # below -- it never fed the stop or the targets (see

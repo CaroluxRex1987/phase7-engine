@@ -49,7 +49,8 @@ V3, AND WHY EACH PART OF IT
 
 2. IT CONTROLS THE C3 STATE FILE
 
-   engine_core persists {supertrend_direction, detailed_bias} to
+   engine_core persists {supertrend_direction, detailed_bias} (since the
+   redesign's stage 2, 14 November 2026: {supertrend_direction, raw_bias}) to
    Logs/phase7_state_{symbol}_{timeframe}.json after every run, and the next run
    compares against it to produce two of the Exit Watch flags. exit_watch is IN
    the decision object, so the snapshot was a function of run history as well as
@@ -566,20 +567,59 @@ def test_a_bias_flip_against_prior_state_is_reported():
     if not _engine_available():
         pytest.skip("pandas_ta not installed")
 
-    actual_bias = _run().get("bias", {}).get("detailed", "")
-    assert actual_bias, "the run produced no detailed bias to compare against"
+    # THE REDESIGN'S STAGE 2, 14 November 2026: the state's key is
+    # "raw_bias" and what is compared is bias.raw. It was "detailed_bias" and
+    # bias.detailed, with a prior of BEARISH CONFIRMED or BULLISH CONFIRMED,
+    # words no run produces any more.
+    actual_bias = _run().get("bias", {}).get("raw", "")
+    assert actual_bias in ("BULLISH", "BEARISH", "NEUTRAL"), (
+        f"the run produced no direction to compare against: {actual_bias!r}")
 
     # A prior state that cannot match whatever the run produces.
-    prior = "BEARISH CONFIRMED" if "BULL" in actual_bias.upper() else "BULLISH CONFIRMED"
-    flags = " ".join(_run(seed={"detailed_bias": prior}).get("exit_watch", []))
+    prior = "BEARISH" if actual_bias == "BULLISH" else "BULLISH"
+    flags = " ".join(_run(seed={"raw_bias": prior}).get("exit_watch", []))
 
-    assert prior in flags and "Bias state changed" in flags, (
+    assert (f"Bias state changed from {prior} to {actual_bias}" in flags), (
         f"seeded a prior bias of {prior!r} and ran to {actual_bias!r}, but no "
         f"bias-flip flag was raised.\nExit Watch said: {flags or '(nothing)'}\n"
         "Either the state file is not being read, or the comparison is broken. "
         "Both fail silently in normal use, because 'no flag' is also what "
         "agreement looks like."
     )
+
+
+def test_a_state_file_from_before_stage_2_reports_no_bias_flip():
+    """
+    The redesign's stage 2, 14 November 2026. Until then the state held
+    bias_label's words under "detailed_bias". Compared with the direction,
+    the first run after the change would have reported "Bias state changed
+    from BULLISH CONFIRMED to BULLISH" on a pair whose direction had not
+    changed, once on every pair. The state is saved under "raw_bias", so an
+    old file has nothing to compare, and the first run reports no flip.
+
+    Both halves: an old file whose label agrees in direction, and one whose
+    label does not. Neither is compared. The second is a flip the first run
+    after the change does not report; that is the price of not reporting
+    the false one, and the next run compares like with like.
+    """
+    if not _engine_available():
+        pytest.skip("pandas_ta not installed")
+
+    actual_bias = _run().get("bias", {}).get("raw", "")
+    assert actual_bias == "BULLISH", actual_bias
+    for old_label in ("BULLISH CONFIRMED", "BEARISH CONFIRMED", "NEUTRAL"):
+        flags = " ".join(_run(seed={"detailed_bias": old_label}).get("exit_watch", []))
+        assert "Bias state changed" not in flags, (old_label, flags)
+
+    # And the run saves the new key, so that the next one has it.
+    _run()
+    try:
+        with open(_state_path()) as fh:
+            saved = json.load(fh)
+    finally:
+        _clear_state()
+    assert saved.get("raw_bias") == "BULLISH", saved
+    assert "detailed_bias" not in saved, saved
     _clear_state()
 
 

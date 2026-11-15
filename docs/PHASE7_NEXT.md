@@ -1,11 +1,10 @@
 # Next step — read this first
 
-*14 November 2026, in the session that opened at 07:04, on the branch `redesign`.
-Rewritten by stage 1 of the redesign's build, the branch's first commit, which also
-files the cut of that build into six stages and records `696af24`'s landing and the
-worktree's setup;
+*14 November 2026, in the session that opened at 08:05, on the branch `redesign`.
+Rewritten by stage 2 of the redesign's build, the branch's second commit, which also
+files the readings made building it and records `6038283`'s landing;
 the lines it removed from the version at
-`696af24` are in HISTORY, which points to that whole version in git.
+`6038283` are in HISTORY, which points to that whole version in git.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
 rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
@@ -42,20 +41,52 @@ live run from `E:\phase7_redesign` before its commit; each golden leaf moves onc
 its final value, but for `run_hash` and the archive path, which are digests and move
 with what they hash.
 
-1. **Inputs — landed by the commit that writes this section.** `quote_volume` is
+1. **Inputs — landed, `6038283`.** `quote_volume` is
    kept by the fetch, checked by validation when a frame carries it, and so is in the
    input hash, the archive and the record's decision-bar row; the committed pinned
    set's `AEROUSDT_4h.csv` and the golden test's own set carry it as volume × close.
    H5's flat-candle fix is in. Entry 58's print helper, `core/threshold_text.py`, is
-   in and nothing calls it. No decision reads any of it: the action is unchanged.
-   Its live run is recorded in its commit message.
-2. **Direction** — EMA50's slope plus the EMAs' order. **Next.**
+   in and nothing calls it. No decision reads any of it.
+2. **Direction — landed by the commit that writes this section** (DECISIONS,
+   "Decision, 14 November 2026 — stage 2 of the redesign's build: what it is, six
+   readings made building it, and three more errors in the draft"). `bias.raw` is
+   EMA50's slope and the order of `EMA_20` and `EMA_50` (`models/bias_engine.py`,
+   `direction_from_emas`), for the asset and for BTC; `bias.detailed` is the same
+   word and `bias_label` is gone; the risk plan takes a side, not a score; the floor
+   is the NEUTRAL direction, with its own sentence, and `MIN_ACTION_BIAS` is gone;
+   the state file's key is `raw_bias`; the record gains `lineage.direction` and
+   `lineage.risk_inputs.side`. Its live run is recorded in its commit message.
 3. **Gates 6 to 8** — macro on LONG, the liquidity floor, the trigger and its volume.
+   **Next.**
 4. **Entry quality** D + H, the tiers 70 and 50, gate 9, the second pinned decision.
 5. **Removals** — trend health, confidence and EV, validation, the exit watch's two
-   flags.
+   flags, **and the weighted sum** (below).
 6. **Reconciliation** against the draft's sections 13 and 14; replacements for H1, H2
    and H5 proposed.
+
+**The branch's `code_hash`:** `43d15cbb…` since stage 2, `a3d499df…` at stage 1,
+`816d4951…` on `master`, which the scheduled task runs. Computed in the Linux
+sandbox on both trees at each stage; stage 1's is also on its live record.
+
+**Left for a later stage on purpose, by stage 2** (the entry's reading 1):
+
+- **The weighted sum is still computed, and decides nothing.**
+  `calculate_dynamic_bias`, its six weights, `RAW_BIAS_THRESHOLD`, `bias.score` and
+  `lineage.bias_components` stay until stage 5, because confidence is the score's
+  size and confidence leaves there; removed now, `risk.confidence_score` and its
+  sentences would move twice. The label the sum returns is discarded, and it is no
+  longer computed for BTC. **Until stage 5 a run on this branch can print a trade
+  above a low confidence**, and its `bias.score` explains no direction.
+- `docs/build/indicator_overlap.py` follows the engine's path, so its variants of the
+  sum's weights now move the score and no action; it goes, or is rebuilt, with the
+  sum in stage 5.
+- Six test files still build decisions by hand with the label `BULLISH CONFIRMED` or
+  `BEARISH CONFIRMED`, which the engine no longer writes
+  (`test_an_absent_value_is_not_a_reading.py`, `test_btc_correlation_alignment.py`,
+  `test_btc_is_reference_only.py`, `test_direction_source.py`,
+  `test_each_reading_is_printed_once.py`, `test_router_btc_seam.py`). Each passes:
+  the panel and the ladder print or ignore the word. The draft's section 14 has each
+  rewritten or held in a later stage.
 
 **Left for a later stage on purpose, by stage 1:**
 
@@ -71,19 +102,50 @@ with what they hash.
   10,650.0211 and the decision candle's 67,901.6508, the draft's figures.
 - H5's replacement as a held-back defect: stage 6, with H1's and H2's.
 
-**The draft's error found at stage 1:** §5 has the golden run's `quote_volume` come
-from `docs/build/make_pinned.py`; the golden test derives its series from
-`tests/fixtures/ohlcv_clean_4h.csv` and never reads that script's output. Stage 1
-adds the column in both places by one rule. Recorded in the DECISIONS entry; the
-draft is reconciled at stage 6.
+**Stage 2's readings that are Viktor's to reverse** (all six are; these three change
+something he ruled or would see):
 
-**`696af24`'s landing and the worktree's setup.** Viktor's opening message of
-14 November: both "were checked on 13 November at 02:53 and hold: do not check them
-again, record them in stage 1's commit." Recorded here on that statement; this
-session read neither again. What it did read: `origin/redesign` and `origin/master`
-were both `696af24` when it cloned, at about 07:05 on 14 November, and the two files
-it staged from `E:\phase7_redesign\docs` before any change were byte for byte the
-branch's.
+- **B9's read is removed** (his ruling of 15 October). BTC's label no longer reads
+  BTC's SuperTrend, so a failed one no longer takes the BTC section; a BTC direction
+  that could not be measured does.
+- **Under NEUTRAL the plan is drawn as a long's**, a fixed stand-in where the sum's
+  sign was. The risk check reads only the stop's distance; the panel prints no plan.
+- **The PLAN line under NEUTRAL** keeps the wording he ruled on 27 September and
+  loses "(score X, inside ±20)".
+
+**The draft's errors found so far; the draft is not edited until stage 6:**
+
+- *Stage 1.* §5 has the golden run's `quote_volume` come from
+  `docs/build/make_pinned.py`; the golden test derives its series from
+  `tests/fixtures/ohlcv_clean_4h.csv` and never reads that script's output. Stage 1
+  added the column in both places by one rule.
+- *Stage 2, the same error again.* §2 and §13.2 have `btc_context.raw` flip from
+  BEARISH to BULLISH on the golden run, computed from the committed
+  `BTCUSDT_4h.csv`. The golden run's BTC series is the clean fixture reversed, and on
+  it the rule gives BEARISH: `btc_context.raw` does not move, and
+  `btc_context.detailed` moves to BEARISH. **Before stage 3, every figure the draft
+  gives for the golden run is to be recomputed from the golden test's own three
+  series, not taken from §13.**
+- *Stage 2.* §13.3's `lineage.direction` has a field for EMA20's slope, which the
+  ruled rule does not read, and true-or-false fields that cannot tell falling from
+  flat; three words are recorded instead.
+- *Stage 2.* §14 misses `tests/test_b9_btc_supertrend_is_read_directly.py` and
+  misclassifies four tests and one helper in four files; listed in the entry.
+
+**`6038283`'s landing.** Viktor's opening message of 14 November: stage 1 landed as
+`6038283` (tree `f3bec8f9…`), pushed at about 08:04, and its landing "was checked at
+08:05 against GitHub and the 22 files on disk and holds, except the worktree's index,
+COMMIT_EDITMSG and refs under `E:\phase7_engine\.git`, which were not read: check
+those". Read by this session at 08:06 to 08:07, off his disk and from GitHub, and
+they hold: the worktree's index is the commit's tree, entry for entry (307);
+`COMMIT_EDITMSG` is the commit's message byte for byte, with no CR; the loose commit
+object hashes to its name and is GitHub's; `refs\heads\redesign` and
+`refs\remotes\origin\redesign` are `6038283`, written at 08:04:31 and 08:04:46, their
+reflogs ending in the commit and "update by push"; the commit's tree is the one its
+`Verified-Tree:` line names; GitHub's `redesign` was `6038283` at 08:06:58; and
+`master` has not moved, `696af24` on his disk (written 13 November, 02:44) and on
+GitHub. The 22 files and the earlier read of GitHub are recorded on his statement;
+this session read neither again.
 
 ## PACE FIRST — read this before the rest of this file
 
@@ -3958,7 +4020,11 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
   11 November, byte for byte, before the patch was built; it adds no file. (This file
   at `706e858` and at `4ab59d7` still gave `bc250fc`'s sentence here, against
   `a0ca299`; corrected on 7 November.)
-- **code_hash:** `816d4951bb0322763ec4abc4b9ed8161d5b902372823350e5272f2fb7176e380`,
+- **code_hash:** **on this branch `43d15cbb…` since stage 2 of the redesign's build
+  and `a3d499df…` at stage 1** (THE REDESIGN'S BUILD, above; stage 1 moved it and
+  left this line saying `816d4951…`, found at stage 2). What follows is the record
+  of `master`'s, which the scheduled task runs:
+  `816d4951bb0322763ec4abc4b9ed8161d5b902372823350e5272f2fb7176e380`,
   set by `0491b84` from `bc1b9c2c…` — `main.py` alone — and confirmed on Windows: its
   eleven hand-run records and the ten of each of the first two scheduled runs carry it.
   Unchanged by `a235783`, `8d5d64a`, `a48d9e5`, `fbd7877`, `8311167`, `d2dddf7`,
@@ -4033,9 +4099,23 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
   output, a CPython implementation detail (`core/code_fingerprint.py`, "WHAT IT DOES NOT
   SURVIVE"). **Every `code_hash` claim about this project is computed under Python 3.12**
   (Viktor runs 3.12.10).
-- **Golden snapshot:** **re-baselined by the commit that writes this line, stage 1 of
-  the redesign's build, with `PHASE7_UPDATE_SNAPSHOT=1`: 7 leaves move and 1 is new,
-  as predicted before the run.** Moved: `lineage.inputs.struct.columns` (gains
+- **Golden snapshot:** **re-baselined by the commit that writes this line, stage 2 of
+  the redesign's build, with `PHASE7_UPDATE_SNAPSHOT=1`: 6 leaves move, 4 are new and
+  2 are removed, 230 leaves from 228; `exit.action` is still CONSERVATIVE LONG, and
+  `explanation` does not move.** Moved: `bias.detailed` (BULLISH CONFIRMED → BULLISH),
+  `btc_context.detailed` (BEARISH CONFIRMED → BEARISH), `lineage.run_hash` and
+  `provenance.run_hash` (`5eb672e1…` → `3d2e7758…`), `lineage.archive.path` and
+  `provenance.archive_path` (the same sixteen digits). New:
+  `lineage.direction.ema50_slope` (RISING), `.ema20_vs_ema50` (ABOVE) and `.result`
+  (BULLISH), and `lineage.risk_inputs.side` (LONG). Removed:
+  `lineage.risk_inputs.bias_score` and
+  `provenance.module_constants.models.decision_model.MIN_ACTION_BIAS`. **One line of
+  the prediction made before the run did not hold:** it had `btc_context.raw` move
+  to BULLISH and `btc_context.detailed` with it, from the draft's §13.2; the raw
+  label did not move and the detailed one moved to BEARISH. The work stopped there
+  until the cause was read: the draft's error, not the code's (THE REDESIGN'S BUILD,
+  above). Every other line held. Linux sandbox; the Windows run is his pytest step.
+  **Before it, re-baselined by `6038283`, stage 1, 7 leaves moved and 1 new.** Moved: `lineage.inputs.struct.columns` (gains
   `quote_volume`), `lineage.inputs.struct.sha256` and `provenance.input_hashes.struct`
   (`208ab83f…` → `1c7082f0…`), `lineage.run_hash` and `provenance.run_hash`
   (`40dcdc72…` → `5eb672e1…`), `lineage.archive.path` and `provenance.archive_path`
@@ -4103,15 +4183,25 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
   `22a9a35`, 4 leaves (the confirmation reason, `volume_sentiment` twice and
   `validation_note`'s volume half: VOLUME DIVERGENCE → FADING VOLUME); before that at
   `6469a67`, 8 leaves.
-- **Test suite** — **1009 passed / 0 failed, no warnings line** with `pandas_ta`;
-  **833 passed / 165 skipped** without it; `run_tests.py` **941 passed / 0 failed /
+- **Test suite** — **1018 passed / 0 failed, no warnings line** with `pandas_ta`;
+  **833 passed / 174 skipped** without it; `run_tests.py` **950 passed / 0 failed /
   31 errors**, all 31 fixture-collection `TypeError`s: the 32 of `e88e0dd` less
   `test_no_module_defaults_a_missing_risk_verdict_to_a_pass`. This is meant to be the
   one place the watched error count is written as a number (DECISIONS, "Ruling,
   15 October 2026 — Part 4's three test shapes", point 5); `README.md` wrote it too
-  until `713e084` (entry 50). The commit that writes this line, stage 1 of the
-  redesign's build, adds 32 tests in three new files, none taking a fixture, so each
-  count rises by 32 and the errors stay 31; it changes five existing test files
+  until `713e084` (entry 50). The commit that writes this line, stage 2 of the
+  redesign's build, takes the suite from 1009 to 1018, from 833 / 165 to 833 / 174,
+  and from 941 / 0 / 31 to 950 / 0 / 31: 12 tests in one new file,
+  `tests/test_direction_is_the_slow_trends_side.py`, 5 more in three files
+  (`test_plan_direction_and_side.py` 2, `test_b9_btc_supertrend_is_read_directly.py`
+  2, `test_golden_path.py` 1) and 8 fewer in three (`test_bias_label.py` 4,
+  `test_minimum_bias_strength.py` 2, `test_neutral_bias_prints_no_plan.py` 2), none
+  taking a fixture, so the errors stay 31. Without `pandas_ta` as many pass as
+  before and nine more skip. Fifteen existing test files change and one is new. From the Linux
+  sandbox, Python 3.12.3, pinned requirements, on the patch applied to an autocrlf
+  clone of `6038283` at `redesign`. `6038283`, stage 1 of the
+  redesign's build, added 32 tests in three new files, none taking a fixture, so each
+  count rose by 32 and the errors stayed 31; it changed five existing test files
   (three assertions on the frame's columns, two set-ups that write pinned files) and
   `tests/conftest.py`'s list of modules, and removes no test. From the Linux sandbox, Python 3.12.3,
   pinned requirements, on the patch applied to an autocrlf clone of `696af24`
@@ -4550,17 +4640,17 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
   then run on Windows at 09:06 on 12 October: both matched (792; 721 / 0 / 32). One test,
   `test_the_commit_messages_up_to_the_tag_are_round_7s_to_the_byte`, runs `git log` up
   to the tag `round7-sent-2026-09-30`: it needs the tag, which a full clone has.
-- **Engineering Notes:** through Entry #288 (v1.43), which covers `a60d66b`; nine
+- **Engineering Notes:** through Entry #288 (v1.43), which covers `a60d66b`; ten
   commits behind, `9cc48d7`, `a9b83a9`, `66b5c50`, `b26e5c7`, `6df23f4`, `dac70c1`,
-  `a3c863e`, `696af24` and the commit that writes this line, the first to change
-  code among them (below). The gap
+  `a3c863e`, `696af24`, `6038283`, the first to change code among them, and the
+  commit that writes this line (below). The gap
   left by v1.36 was closed in four regenerations: v1.37 at `f8805a6` covered `e7a94d1`
   to `eb86846`, v1.38 at `0a518fd` `c2b07fb` to `67f6ec1`, v1.39 at `a0ca299` `0491b84`
   to `b8f88d8`, and v1.40 at `bc250fc` `a1c4218` to `0a518fd`. v1.41, at `9db4ae2`,
   covered the seven commits `706e858` to `82ea40e`, v1.42, at `82b824d`, the two
   commits `7dac328` and `340ee8d`, and v1.43, at `4cdad4e`,
   covers the three commits `6bb82cc`, `e4363d5` and `a60d66b`, one entry each.
-  **Nine commits that need an entry are behind:** `9cc48d7`, which files the ruling of
+  **Ten commits that need an entry are behind:** `9cc48d7`, which files the ruling of
   11 November and the reading, `a9b83a9`, which files the rulings of 08:55 on
   11 November and writes the draft's version 9, `66b5c50`, which files the ruling of
   09:41 on 11 November and writes the draft's version 10, `b26e5c7`, which files the
@@ -4569,8 +4659,9 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
   `dac70c1`, which files the ruling of 11:00 on 11 November and writes the draft's
   version 13, `a3c863e`, which files the ruling of 07:33
   on 12 November and writes the draft's version 14, `696af24`, which files the ruling
-  of 01:15 on 13 November, and the commit that writes this
-  line, stage 1 of the redesign's build; none has one until the next regeneration. `bc250fc`, `9db4ae2`, `82b824d` and
+  of 01:15 on 13 November, `6038283`, stage 1 of the redesign's build, and the
+  commit that writes this
+  line, stage 2 of it; none has one until the next regeneration. `bc250fc`, `9db4ae2`, `82b824d` and
   `4cdad4e` are regenerations and have none (a commit that
   regenerates the Notes cannot cover itself, Entry #144). Every later commit adds one
   until the next regeneration. Batched, by the 15 September rule. v1.43 records the
@@ -6231,8 +6322,12 @@ Claude critiques it.
 
 - **Owed to the next commit:** nothing, unless this commit's push deviates from its
   prediction (ruling on proposal (b), 27 September).
-- **Claude's, next: stage 2 of the redesign's build, direction** (THE REDESIGN'S
-  BUILD, above).
+- **Claude's, next: stage 3 of the redesign's build, gates 6 to 8** (THE REDESIGN'S
+  BUILD, above), after recomputing the draft's figures for the golden run from the
+  golden test's own series.
+- **Viktor's, when he reads it: stage 2's three readings that change something he
+  ruled or would see** (THE REDESIGN'S BUILD, above). None waits for him; each is his
+  to reverse, and a reversal is cheapest before stage 3.
 - **The worktree's setup: done.** Viktor ran it after `696af24`'s push; his message of
   14 November has it checked on 13 November at 02:53 and holding (THE REDESIGN'S
   BUILD, above, with what this session did and did not read).

@@ -84,7 +84,6 @@ def build_exit_watch(
 
     try:
         raw_bias = str(bias.get("raw", "NEUTRAL"))
-        detailed_bias = str(bias.get("detailed", "NEUTRAL"))
         sequence = str(structure.get("sequence", "NONE"))
         # SWEEP ITEM 7, 8 September 2026. `or 0.0` invented a real price of
         # zero when the level was missing/None. NaN means not located; the
@@ -190,9 +189,15 @@ def build_exit_watch(
                 pass
 
         # --- Bias state flip since the last run (needs prior_state) ---
-        prior_bias = prior_state.get("detailed_bias")
-        if prior_bias and str(prior_bias) != detailed_bias:
-            flags.append(f"Bias state changed from {prior_bias} to {detailed_bias} since the last run.")
+        # THE REDESIGN'S STAGE 2, 14 November 2026: the state's key is
+        # "raw_bias", and what is compared is bias.raw. It was
+        # "detailed_bias" and bias.detailed, bias_label's words. A state
+        # file from before this stage has no "raw_bias", so the first run
+        # after it compares nothing and reports no flip (core/engine_core.py,
+        # where the state is saved).
+        prior_bias = prior_state.get("raw_bias")
+        if prior_bias and str(prior_bias) != raw_bias:
+            flags.append(f"Bias state changed from {prior_bias} to {raw_bias} since the last run.")
 
         # --- Always-on informational note (not a warning) ---
         if target_t1 and float(target_t1) > 0:

@@ -821,19 +821,20 @@ def render_panel(decision):
         )
 
         # FINDING 5: under a NEUTRAL bias one PLAN line replaces the stop,
-        # the three targets and their R:R. The threshold is read from
-        # bias_engine, so the line moves with the constant.
+        # the three targets and their R:R.
+        #
+        # THE REDESIGN'S STAGE 2, 14 November 2026. The line read "the bias
+        # is NEUTRAL (score X, inside +/-20)", the wording Viktor ruled on
+        # 27 September, with the score and the threshold read from the
+        # weighted sum. NEUTRAL no longer comes from that sum (his ruling of
+        # 7 November: EMA50's slope and the EMAs' order), so printing the
+        # sum beside it would give a reason that is not the reason. The
+        # line keeps the ruling's sentence and drops the parenthesis; the
+        # reason is in Decision Reasoning, in decision_model's own sentence.
         if plan_withheld:
-            from models.bias_engine import RAW_BIAS_THRESHOLD
-            neutral_score = safe_float(bias.get("score"), float("nan"))
-            if math.isfinite(neutral_score):
-                score_text = (f"score {neutral_score:+.1f}, inside "
-                              f"\u00b1{RAW_BIAS_THRESHOLD:.0f}")
-            else:
-                score_text = "score not computed"
             plan_lines = (
-                f"PLAN          : none -- the bias is NEUTRAL ({score_text}), "
-                f"so there is no direction to measure a stop from\n"
+                "PLAN          : none -- the bias is NEUTRAL, "
+                "so there is no direction to measure a stop from\n"
             )
         else:
             plan_lines = f"{stop_loss_line}{target_lines}"

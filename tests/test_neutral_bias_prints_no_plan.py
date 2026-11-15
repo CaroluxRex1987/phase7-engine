@@ -36,6 +36,19 @@ WHAT THESE TESTS HOLD
    and BEARISH.
 
 All fixture-free, so run_tests.py runs them too.
+
+THE REDESIGN'S STAGE 2, 14 November 2026. NEUTRAL no longer comes from the
+weighted sum (Viktor's ruling of 7 November 2026: the direction is EMA50's
+slope and the EMAs' order; NEUTRAL is the two disagreeing). So the PLAN line
+keeps the ruling's sentence and loses "(score X, inside +/-20)", which would
+now give a reason that is not the reason; point 1 above reads "naming the
+bias" and no more, and point 4 is held by the line not reading the score at
+all. Of the four tests on that parenthesis one is rewritten and three become
+one, which holds what they held that is still true: whatever the sum says,
+zero and not-computed included, the line is the same and no long is
+printed. The grid in point 7 still passes a score with every bias; nothing
+in the ladder reads it now, and it stays in the grid until stage 5 removes
+the score.
 """
 
 import copy
@@ -97,21 +110,27 @@ def test_a_neutral_bias_prints_one_line_saying_why():
     assert len(plan) == 1, plan
     line = plan[0]
     assert "the bias is NEUTRAL" in line, line
-    assert "score +7.2" in line, line          # 7.25 to one decimal
-    assert f"inside ±{RAW_BIAS_THRESHOLD:.0f}" in line, line
     assert "no direction to measure a stop from" in line, line
+    # Stage 2: the weighted sum is not the reason, so it is not printed as it.
+    assert "score" not in line and "±" not in line and "7.2" not in line, line
 
 
-def test_the_plan_line_prints_a_negative_score_with_its_sign():
-    line = _lines(render_panel(_decision(score=-17.8)), "PLAN")[0]
-    assert "score -17.8" in line, line
-
-
-def test_a_score_of_exactly_zero_prints_no_long():
-    """The finding's sharpest case: 0 printed a long-shaped plan."""
-    panel = render_panel(_decision(score=0.0))
-    assert _lines(panel, "STOP LOSS") == []
-    assert "score +0.0" in _lines(panel, "PLAN")[0]
+def test_the_plan_line_does_not_read_the_weighted_sum():
+    """
+    Until stage 2 three tests stood here, on the score in the line: a
+    negative one printed with its sign, exactly 0 printed and no long drawn
+    (the finding's sharpest case), and a score not computed said so, not
+    "nan". The line no longer reads the score, so all three are one: the
+    same line, and no stop, whatever the sum is.
+    """
+    want = _lines(render_panel(_decision(score=7.25)), "PLAN")
+    for score in (-17.8, 0.0, 100.0, NAN, None):
+        panel = render_panel(_decision(score=score))
+        assert _lines(panel, "PLAN") == want, (score, _lines(panel, "PLAN"))
+        assert _lines(panel, "STOP LOSS") == [], score
+        assert "nan" not in want[0].lower(), want
+    no_score = render_panel(_decision(bias={"raw": "NEUTRAL", "detailed": "NEUTRAL"}))
+    assert _lines(no_score, "PLAN") == want, _lines(no_score, "PLAN")
 
 
 def test_the_decision_close_is_printed_but_not_called_the_plans_entry():
@@ -133,12 +152,6 @@ def test_the_target_1_note_is_not_printed_but_other_flags_are():
 def test_with_only_the_target_1_note_exit_watch_says_nothing_is_active():
     section = _exit_watch_section(render_panel(_decision(exit_watch=[T1_NOTE])))
     assert "No exit-watch flags are active right now." in section, section
-
-
-def test_a_neutral_score_not_computed_says_so():
-    line = _lines(render_panel(_decision(score=NAN)), "PLAN")[0]
-    assert "score not computed" in line, line
-    assert "nan" not in line.lower(), line
 
 
 def test_on_a_real_decision_object_the_real_target_1_note_is_withheld():
