@@ -409,11 +409,35 @@ def test_an_absent_exhaustion_flag_is_refused_not_recorded_as_false():
     assert out["lineage"] == LINEAGE
 
 
-def test_an_absent_entry_number_is_recorded_as_nan_not_zero():
+def test_an_absent_entry_number_is_not_recorded_as_zero():
+    """
+    THE REDESIGN'S STAGE 4, 15 November 2026. This was
+    test_an_absent_entry_number_is_recorded_as_nan_not_zero, over `score`,
+    `ema_pos_pts`, `base_score`, `macro_multiplier`, `combined_multiplier`
+    and `score_ceiling`: the router sent each through _finite_or_nan, so an
+    absent one arrived as NaN rather than as the 0.0, 1.0 and 100.0 the
+    fallback sweep of 13 October removed.
+
+    Four of the six left the record with the five parts and the three
+    multipliers. The two numbers that remain -- entry quality and its parts
+    -- are None when not measured rather than NaN, because the engine itself
+    now has a spelling for "not computed" and the router passes it through
+    (_optional_number) instead of translating it into a second spelling. So
+    the name of the test loses the "as nan", and what it holds is unchanged:
+    neither spelling is a number, and neither is zero.
+    """
     out = _build()
-    for key in ("score", "ema_pos_pts", "base_score", "macro_multiplier",
-                "combined_multiplier", "score_ceiling"):
-        assert math.isnan(out["entry"][key]), (key, out["entry"][key])
+    for key in ("score", "distance_atr", "distance_pts", "hvn_distance_atr",
+                "hvn_pts"):
+        assert out["entry"][key] is None, (key, out["entry"][key])
+    assert out["entry"]["close_inside_band"] is None
+    # distance_from_zone keeps the NaN spelling it has had since round 6's
+    # F3: it is a measurement the engine writes as NaN when the band was
+    # not located, not a value the engine calls None.
+    assert math.isnan(out["entry"]["distance_from_zone"])
+    assert out["risk"]["trade_quality_proposed"] is None, (
+        "trade quality is entry quality on an undegraded run, so it is "
+        "absent exactly when that is")
     for key in ("ev_r", "assumed_win_rate", "avg_reward_r"):
         assert math.isfinite(out["risk"][key]), (
             f"{key} comes from the decision model, which always supplies it")
@@ -421,11 +445,16 @@ def test_an_absent_entry_number_is_recorded_as_nan_not_zero():
 
 
 def test_negative_control_a_present_entry_number_survives():
-    entry = dict(ENTRY, score=42.5, macro_multiplier=1.1, score_ceiling=100.0)
+    entry = dict(ENTRY, score=42.5, distance_atr=1.5, distance_pts=40.0,
+                 hvn_distance_atr=0.5, hvn_pts=15.0, close_inside_band=True)
     out = _build(entry=entry)
     assert out["entry"]["score"] == 42.5
-    assert out["entry"]["macro_multiplier"] == 1.1
-    assert out["entry"]["score_ceiling"] == 100.0
+    assert out["entry"]["distance_atr"] == 1.5
+    assert out["entry"]["distance_pts"] == 40.0
+    assert out["entry"]["hvn_distance_atr"] == 0.5
+    assert out["entry"]["hvn_pts"] == 15.0
+    assert out["entry"]["close_inside_band"] is True
+    assert out["risk"]["trade_quality_proposed"] == 42.5
 
 
 BTC = {"available": True, "raw": "BEARISH", "detailed": "BEARISH", "regime": "BEARISH TREND",

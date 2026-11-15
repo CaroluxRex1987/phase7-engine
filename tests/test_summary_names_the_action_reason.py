@@ -49,7 +49,11 @@ def _evaluate(risk_valid=True, degradation=None, targets=(1.1, 1.2, 1.3),
         # Work order F, 21 September 2026: a complete, confirmed long
         # signal, so the confirmation gate passes and these tests keep
         # testing the summary rather than the gate's fail-safe refusal.
-        entry={"score": entry_score, "entry_status": "ACTIVE ENTRY ZONE",
+        # The redesign's stage 4, 15 November 2026: AGGRESSIVE reads
+        # close_inside_band, not the STATUS word "ACTIVE ENTRY ZONE" this
+        # record carried (Viktor's ruling of 7 November).
+        entry={"score": entry_score, "close_inside_band": True,
+               "entry_status": "INSIDE THE BAND",
                "long_signal": True, "short_signal": False,
                "long_signal_blockers": [],
                "short_signal_blockers": ["structure is BULLISH TREND, not BEARISH TREND"],
@@ -128,7 +132,14 @@ def test_a_normal_long_is_summarised_by_the_reason_it_is_a_long():
     assert "LONG" in decision["final_action"], decision["final_action"]
     summary = decision["explanation"]["summary"]
     assert "Expected value" not in summary, summary
-    assert "Bias is bullish" in summary, summary
+    # Stage 4, 15 November 2026: the summary named the ladder's sentence,
+    # which opened "Bias is bullish, trend strength ... — AGGRESSIVE LONG."
+    # The stage that sets the action is gate 9, which chooses the tier, so
+    # the summary is gate 9's sentence -- and that is the point of this
+    # file: the summary names the reason belonging to whichever stage last
+    # set the action, not the first or the last reason in the list.
+    assert "passed every gate with entry quality" in summary, summary
+    assert decision["final_action"] in summary, summary
 
 
 # ======================================================================

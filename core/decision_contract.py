@@ -154,29 +154,43 @@ class EntryBlock(TypedDict):
     trigger: Any                  # bool, or None: not measured, or no side
     trigger_volume: Any           # float, or None when not measured
     trigger_volume_median: Any    # float, or None when not measured
-    score: float
+    # THE REDESIGN'S STAGE 4, 15 November 2026: entry quality is D + H.
+    # `score` is D + H out of 100, and each of the four numbers below is
+    # the part or the distance it was computed from; `close_inside_band` is
+    # the close's position between EMA_20 and EMA_50 with the ends included,
+    # and it is what the AGGRESSIVE tier reads (Viktor's ruling of
+    # 7 November 2026). Each is None when it was not measured, and when the
+    # score is None entry quality was not computed at all: the run is
+    # degraded with the missing input named, and gate 9 reads it as a WAIT.
+    # `score` was `float` until this stage, when nothing could stop the
+    # engine computing one.
+    #
+    # `entry_status` now carries the close's POSITION -- INSIDE THE BAND,
+    # ABOVE THE BAND, BELOW THE BAND, with ZONE NOT AVAILABLE and NO DATA
+    # unchanged. ACTIVE ENTRY ZONE, NEAR ZONE, APPROACHING ZONE, AWAY FROM
+    # ZONE and ZONE HAS NO WIDTH go with the band widths of 1, 2 and 3.5
+    # that set them. The field is no longer read by anything that decides.
+    score: Any                    # float 0-100, or None when not measured
+    distance_atr: Any             # float, or None when not measured
+    distance_pts: Any             # float 0-80, or None when not measured
+    hvn_distance_atr: Any         # float, or None when not measured
+    hvn_pts: Any                  # float 0-20, or None when not measured
+    close_inside_band: Any        # bool, or None when the band is absent
     # From the band's midpoint, as a percentage of the close (round 8, F5).
+    # NaN, not None, when the band could not be located: the spelling this
+    # field has had since round 6's F3, unchanged by this stage.
     distance_from_zone: float
     entry_status: str
-    ema_pos_pts: float
-    atr_dist_pts: float
-    vwma_pts: float
-    rsi_pts: float
-    struct_pts: float
-    # 5 September 2026: how the five sub-scores above become `score`. They sum
-    # to base_score (out of component_max_points, which is 102 and not 100),
-    # that is multiplied by combined_multiplier to give scaled_score, and the
-    # result is clipped to score_ceiling. Without these the panel printed five
-    # numbers and a total they did not add up to.
-    base_score: float
-    component_max_points: float
-    macro_multiplier: float
-    trend_multiplier: float
-    structure_multiplier: float
-    combined_multiplier: float
-    scaled_score: float
-    score_ceiling: float
-    score_clipped: bool
+
+    # 5 SEPTEMBER 2026's reconciliation stood here: ema_pos_pts,
+    # atr_dist_pts, vwma_pts, rsi_pts, struct_pts, base_score,
+    # component_max_points, macro_multiplier, trend_multiplier,
+    # structure_multiplier, combined_multiplier, scaled_score, score_ceiling
+    # and score_clipped -- how the five sub-scores became `score`. Declared
+    # because the panel printed five numbers and a total they did not add up
+    # to. The five parts and the three multipliers leave with the redesign's
+    # stage 4 (the draft's sections 3.2 and 3.3, the second by Viktor's
+    # ruling of 7 November 2026), and D + H is its own reconciliation.
 
 
 class RiskBlock(TypedDict):
@@ -201,7 +215,11 @@ class RiskBlock(TypedDict):
     # `risk_score` and `signal_strength` both held bias_score and were removed
     # at sequence item 13. bias.score is that number's one home.
     confidence_score: float
-    trade_quality_proposed: float
+    # Stage 4, 15 November 2026: this is `entry.score` on an undegraded
+    # run, and it is capped rather than computed again on a degraded one, so
+    # it is None exactly when entry quality was not measured. `float` until
+    # this stage.
+    trade_quality_proposed: Any   # float, or None when not measured
     validation_state: str
     validation_score: float
     validation_note: str

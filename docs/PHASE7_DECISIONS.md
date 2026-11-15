@@ -8570,6 +8570,213 @@ label of a refusal is now a field the signal writes and the decision model reads
 a wrong label there is a wrong action, which is why the model accepts three and
 fails safe on the rest.
 
+## Decision, 15 November 2026 — stage 4 of the redesign's build: entry quality D + H, the tiers, gate 9 and the second pinned decision; ten readings made building them, and a fourth figure the draft gives of the golden run that is not the golden run's
+
+*New in this file on 15 November 2026. Claude's, under Viktor's "you are the
+engineer and the brain of this project" of 29 October, his to reverse, each one.
+Made in the session that opened at 11:28 on 15 November at `5e7e429`, on the
+branch `redesign`, and filed by stage 4's commit. No earlier entry is edited (the
+ruling of 20 September), and the draft is not edited here: stage 6 reconciles it.*
+
+**What stage 4 is.** Entry quality is **D + H**, from 0 to 100, with no
+multiplier and no clip (the draft's section 3.1; the structure multiplier ruled
+out on 7 November). D is the close's distance from the midpoint of the EMA band
+counted in ATRs, `80 × max(0, 1 − d / 3)`; H is its distance from the HVN in the
+same unit, `20 × max(0, 1 − h / 2)`. The five parts, the three multipliers, the
+clip and the eleven constants behind them are gone, and with them the whole
+reconciliation block of 5 September 2026. STATUS is the close's position against
+the band — INSIDE THE BAND, ABOVE THE BAND, BELOW THE BAND — printed from
+`entry.close_inside_band`, which is also what the AGGRESSIVE tier reads
+(Viktor's ruling of 7 November). The tiers come from entry quality alone (ruling
+4, 25 October): at or above 70 an upper tier, and AGGRESSIVE with the close
+inside the band and a NORMAL or LOW risk regime; at or above 50 CONSERVATIVE;
+under 50 a WAIT, at **gate 9**, which is the ladder's last. A second pinned
+decision is committed, `tests/fixtures/ohlcv_trade_4h.csv` from seed 32, so the
+golden snapshot still covers a trade's plan.
+
+**The golden run's figures, recomputed first.** Before any code, from the golden
+test's own three series (`tests/test_golden_path.py`, `_write_pinned_set`), run
+through the production path in the Linux sandbox: `d` 3.20703073 ATR, `h`
+15.12021411 ATR, D 0, H 0, entry quality 0, the close not inside the band. **The
+draft's section 13.1 is right and its section 13.3 is not.** §13.1 gives `d`
+3.2070 and `h` 15.1202, which hold at four decimals, and entry quality 0, which
+holds. §13.3 gives `distance_atr` 3.20703059 and `hvn_distance_atr` 15.12021342:
+both were computed from the golden snapshot's `indicators_at_decision_bar`, which
+`_strip` has already rounded to eight decimals, and then rounded again. The
+engine computes them from the full-precision values, so the leaves are
+3.20703073 and 15.12021411. **This is the fourth figure the draft gives of the
+golden run that is not the golden run's** — stage 1's came from
+`make_pinned.py`'s output, stage 2's from the committed `BTCUSDT_4h.csv`, stage
+3's figures were right, and this one from a rounded intermediate. The rule that
+caught all four stands: before each stage, every figure the draft gives for the
+golden run is recomputed from the golden test's own three series.
+
+**The readings.**
+
+1. *Gate 9 is a gate of its own, and it runs last.* The draft's ladder is 0, 1,
+   2, 3–5, 6, 7, 8, 9 and takes the label of the first gate, in order, that
+   fails; the reading of 11 November counted with that order
+   (`docs/build/measure_draft_gaps.py`, `ladder`, which computes the tier only
+   once every gate has passed). Put inside `_determine_final_action`, where the
+   old ladder chose its tier, a quality under 50 would return WAIT before the
+   signal gate ran, and a low quality beside a failed ADX would be gate 9's
+   refusal rather than the ADX's. So `_apply_quality_gate` is a method of its
+   own, called after `_apply_trigger_gate`, and `_determine_final_action`
+   answers gates 0 to 2 and returns **the bare side**, naming no tier.
+2. *No sentence written before gate 9 names a tier.* That follows from reading 1
+   and is what stage 3 filed as owed here (its reading 8: a refusal by gate 6 or
+   7 still read "This would have been CONSERVATIVE LONG"). The two refusal
+   sentences of gates 3 to 7 now open "No earlier gate refused the long, but …",
+   the wording stage 3 gave gate 8 for the same reason. `explanation.reasons`
+   moves again, as stage 3's reading 1 said it would.
+3. *H1's branch is removed here, not in stage 5.* `validation_state == "WEAK"
+   and trend_health < 40` is the held-back defect H1 (25 October, point 2). The
+   draft's section 4 removes it with the ladder; both its inputs leave in stage
+   5. Left for one stage it would let a run WAIT, before gate 2, for a reason no
+   gate in the design names — so the ladder this stage leaves behind would not be
+   the ladder the reading counted with. Removed with the ladder.
+   `validation_score`, `validation_state` and `validation_note` stay in the
+   record and on the panel until stage 5; nothing in the decision reads them now.
+   On the golden run the branch does not fire (`validation_state` WEAK, trend
+   health 95.35), so no leaf moves by this.
+4. *An entry quality that was not measured is None, in one spelling.* A part
+   whose input is missing is not measured, entry quality is not computed, and
+   `entry.score` is None — not NaN, and not the 0.0 the old `default_response`
+   gave, because zero is a real reading and the golden run's is exactly that.
+   `risk.trade_quality_proposed` is `entry.score` on an undegraded run, so it
+   carries the same None; both declarations widen to `Any`, the router passes
+   them through `_optional_number` instead of `_finite_or_nan`, and three
+   readers change: gate 9 answers WAIT with a sentence of its own,
+   `_compute_trade_quality` reports no quality rather than "0/100 — a weak
+   entry", and `_apply_degradation` caps a measured value and leaves an
+   unmeasured one alone (`min(None, 50.0)` raised). `distance_from_zone` keeps
+   the NaN spelling it has had since round 8's F5.
+5. *`core/threshold_text.py` takes several lines.* Gate 9's CONSERVATIVE
+   sentence names two — the 50 it is at or above and the 70 it is under — and
+   one line is not enough: 69.999 printed against 50 alone comes out "70", and
+   the sentence then says it is under the 70. The text is now on the value's own
+   side of every line named, and the fallback rounds away from the nearest line.
+   With one line that is the old rule to the digit; checked by an equivalence
+   run over 4,543 value/line pairs in the sandbox, with no difference, so no
+   sentence written before this stage moves. The edge stage 3 filed — a value
+   equal to a line needing more than two decimals prints above it — is unchanged
+   and cannot fire at 70 or 50, which have no decimals; a test holds that.
+6. *The summary names gate 9's sentence whenever gate 9 ran.* `evaluate()`
+   recorded a stage as having set the action only when the action's string
+   changed. Gate 9 can choose the plain side it was handed, so on the second
+   pinned decision — a LONG — the summary named gate 2's sentence instead of the
+   one saying why this is a LONG and not a CONSERVATIVE LONG. **Found by running
+   the second pinned decision before this commit, not by review.** Gate 9 is the
+   only stage that chooses a tier, so when it runs it is by definition the stage
+   that set the action.
+7. *Entry quality has no side, and `_determine_final_action` has no trend.* d
+   and h are absolute distances, so the same close scores the same whichever way
+   the direction points: `macro_bias`, `trade_direction`, `trend_direction` and
+   `structure_sequence` leave the call with the three multipliers, and stage 2's
+   note that entry quality is scored for the plan's side has nothing left to
+   apply to. With trend health out of the tier nothing in
+   `_determine_final_action` reads the trend block either, so the parameter goes
+   rather than standing unread.
+8. *The panel prints what the score is made of.* ENTRY QUALITY, then D and H
+   each with the distance in ATRs it was computed from, then the two tier lines
+   — because Decision Reasoning names them, which is why stage 3 added TURNOVER,
+   TRIGGER and TRIGGER VOLUME. The reconciliation block of 5 September goes with
+   the parts it explained. The words NEAR ZONE, APPROACHING ZONE, AWAY FROM ZONE
+   and ZONE HAS NO WIDTH go with the band widths of 1, 2 and 3.5 that set them,
+   which no ruling did; ZONE NOT AVAILABLE and NO DATA stay.
+9. *The two tier lines are read from their constants everywhere.*
+   `_compute_trade_quality` compared a bare 70 and a bare 50 — the same two
+   lines written a second time — and reads the constants now; the values do not
+   change, so no run's phrase does. A test reads the parse tree and refuses any
+   comparison in the module against a bare 70 or 50.
+10. *The second pinned decision, and what it costs.* Seed 32's series is
+    committed as a base fixture beside `ohlcv_clean_4h.csv`, written by
+    `docs/build/make_pinned.py` from the parameters the draft's section 10.1
+    recorded, and its content hash is the one that section recorded when the
+    seed was searched — reproduced here byte for byte in content before any of
+    this stage's code existed. The golden harness derives its three series from
+    either base fixture, and a second snapshot pins the trade: LONG, entry
+    quality 79.82563809 (`d` 0.21044825, `h` 1.45624086), ADX 21.5928225, the
+    close above the band so the tier is LONG and not AGGRESSIVE — every figure
+    section 10.1 gives, on the engine rather than on the measuring script. A
+    test holds that it still reaches a trade, against the engine and not against
+    its own snapshot, because a re-baseline would otherwise bake in the loss of
+    the only trade the golden tests cover. `docs/build/indicator_overlap.py`
+    loses its three entry-quality variants with the record fields they read, and
+    its row carries D, H and their distances; the tool still goes or is rebuilt
+    with the weighted sum in stage 5.
+
+**The draft, against what was built.**
+
+- *Right:* §3.1's two parts, their coefficients and their zero points; §4's
+  three tiers and the two lines; §13.1's figures at four decimals and entry
+  quality 0; §13.2's `entry.score`, `exit.action`, `explanation.summary` and
+  `explanation.reasons`, and `entry.entry_status` moving to ABOVE THE BAND under
+  version 6's branch (a); §13.3's five new entry fields by name, and
+  `close_inside_band` false; §10.1's seed, its hash and every figure it gives of
+  the decision it found.
+- *§13.3's two eight-decimal figures:* above.
+- *§13.2's counts were version 1's and were never re-made.* Measured on the
+  re-baselined snapshot: 239 leaves before, 222 after — 28 removed, 11 added, 8
+  moved. `exit.action` and `explanation.summary` did **not** move, which is what
+  stage 3's reading 1 ruled of them.
+- *§14 misclassifies four tests of this stage and misses one scanner.* Listed as
+  G and rewritten, because the property is D's own and not the component's:
+  `test_entry_zone_is_measured.py::test_an_absent_zone_also_stops_the_atr_distance_being_scored`
+  and `::test_a_zone_with_no_width_is_not_given_one` (a close has a position
+  against two coincident averages, so the case survives the branch). Listed as R
+  and holding unchanged: `::test_only_one_bound_is_still_no_zone` and
+  `::test_bounds_given_the_wrong_way_round_are_still_swapped`. Not listed at all:
+  `test_b10_outputs_agree_with_finding_4_and_the_action.py`'s
+  `_actions_decision_model_writes`, which reads string literals from the parse
+  tree — gate 9 builds its tier from the side, so the four tier actions are
+  f-strings and a scan for literals stopped seeing them, which is exactly the
+  failure that test exists to prevent. It reads an f-string's literal parts as a
+  template now. §14 also predates `tests/test_gates_6_to_8.py`, stage 3's own
+  file, whose eight moved tests are the AGGRESSIVE record and the refusal
+  sentences of readings 1 and 2.
+- *§14's "its tests were not read line by line" cost one restore.* Removing
+  `test_decision_reasoning_says_trend_strength_was_not_computed` by its
+  following definition took four unrelated tests of
+  `test_panel_prints_only_what_was_computed.py` with it — the BTC section's and
+  the asset name's. Caught by counting the collected tests per file against the
+  base tree before anything was delivered, not by a failing test: all four
+  passed where they were. Restored word for word.
+
+**What it weakens.**
+
+- **The ladder's own WAIT is gone, and with it a case
+  `tests/test_gates_6_to_8.py` used to cover.** Gate 2's is the only WAIT before
+  gate 8 now, so "a WAIT decided before gate 8" has exactly one cause instead of
+  two. A low quality waits at gate 9, after gate 8, which is the ruled order.
+- **A run can still print a trade above a low confidence,** and `bias.score` and
+  `bias_components` still explain no direction: stage 2's reading 1, unchanged
+  for one more stage.
+- **Trend health, confidence, EV and validation are still computed, recorded and
+  printed, and nothing in the decision reads any of them.** Four numbers an
+  operator sees on the panel that no gate now consults. They leave in stage 5;
+  until then the panel shows more than the decision uses, which is the opposite
+  of the fault this project usually has.
+- **The HVN is a bin's midpoint, so `h` is known only to half a bin either way**
+  and entry quality to about ±2 to ±4 points by the widths computation 5
+  measured; a third of the records with a side sit within one whole bin of a
+  tier line. That is a property of the HVN part, recorded in the draft's §16.2
+  and put to Viktor with the tier lines; H5's fix removes the known defect that
+  puts volume in the wrong bin, and it is proposed in stage 6, not here.
+- **The second pinned decision is thin by construction.** Its ADX is 1.59 over
+  the floor and its entry quality 9.83 over the line, so a change to how ADX is
+  computed, or an ADX floor tuned above 21.59, stops it being a trade and the
+  seed is searched again. A series searched for because it passes is chosen by
+  construction; the golden snapshot's job is to be stable, not representative,
+  and the first fixture stays the case where the gates refuse.
+- **Trades:** nothing in this stage makes a refused run trade, and gate 9 refuses
+  more. In the reading of 11 November, of the 55 records that passed every other
+  gate, none scored 70 or over, 8 scored between the lines and 47 under 50 — so
+  on that window the lines give eight CONSERVATIVE trades and no upper tier at
+  all. Viktor was given that count with the lines and ruled them on 11 November;
+  whether to collapse the labels is raised again only if the upper tiers are
+  still empty after the redesign's own first reading.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then

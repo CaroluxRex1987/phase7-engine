@@ -86,8 +86,17 @@ def _signals(adx, structure="BULLISH TREND"):
 
 
 def _evaluate(signals, degradation=None):
-    """An AGGRESSIVE LONG on the ladder; the gate decides the rest."""
-    entry = {"score": 80.0, "entry_status": "ACTIVE ENTRY ZONE", **TRIGGERED,
+    """
+    An AGGRESSIVE LONG when every gate passes; the signal gate decides the
+    rest.
+
+    Stage 4, 15 November 2026: the tier is gate 9's, and AGGRESSIVE reads
+    entry.close_inside_band rather than the STATUS word "ACTIVE ENTRY ZONE"
+    this record carried (Viktor's ruling of 7 November). The quality of 80
+    is over the upper tiers' line of 70.
+    """
+    entry = {"score": 80.0, "close_inside_band": True,
+             "entry_status": "INSIDE THE BAND", **TRIGGERED,
              **signals}
     return DecisionModel().evaluate(
         bias={"raw": "BULLISH", "score": 78.0},
@@ -229,7 +238,9 @@ def test_engine_core_hands_the_gate_adx_and_not_the_flag():
 def test_a_low_adx_refuses_a_trade_the_ladder_chose_and_says_why():
     out = _evaluate(_signals(15.0))
     assert out["final_action"] == UNCONFIRMED, out["explanation"]
-    reason = ("This would have been AGGRESSIVE LONG, but the bullish bias lacked "
+    # Stage 4: the refusal names no tier -- the tier is derived at gate 9,
+    # after this gate.
+    reason = ("No earlier gate refused the long, but the bullish bias lacks "
               f"structural confirmation (ADX is 15.0, {LOW}), so no trade is taken.")
     assert reason in out["explanation"]["reasons"]
     assert out["explanation"]["summary"] == f"{UNCONFIRMED} — {reason}"

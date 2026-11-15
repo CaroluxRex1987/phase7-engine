@@ -119,6 +119,19 @@ from conftest import fixture, REPO_ROOT
 SNAPSHOT = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                         "fixtures", "golden_decision.json")
 
+# THE SECOND PINNED DECISION (the redesign's stage 4, 15 November 2026; the
+# draft's section 10.1). The first fixture became a WAIT at gate 8 in stage
+# 3 and its entry quality is 0 in stage 4, so the snapshot above no longer
+# covers a trade's plan -- the stop, the three targets, the R:R, the order
+# the panel prints. It stays as the case where the gates REFUSE, and a
+# second base series whose last candle passes every gate is pinned beside
+# it, with a snapshot of its own. The seed, the search and how thin the
+# trade is are recorded in docs/build/make_pinned.py, which writes the file.
+BASE_4H = "ohlcv_clean_4h.csv"
+TRADE_4H = "ohlcv_trade_4h.csv"
+TRADE_SNAPSHOT = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                              "fixtures", "golden_trade_decision.json")
+
 # TESTUSDT, not AEROUSDT, on purpose: it is what makes
 # test_explanation_does_not_name_a_hardcoded_symbol meaningful. Running the
 # golden path on AERO would let the hardcoded string pass unnoticed.
@@ -169,10 +182,17 @@ def _strip(obj):
 # The pinned set
 # ============================================================
 
-def _write_pinned_set(directory):
+def _write_pinned_set(directory, base_name=BASE_4H):
     """
-    Derive three series from the one committed fixture and write them where the
-    real pinned loader will find them.
+    Derive three series from one committed base fixture and write them where
+    the real pinned loader will find them.
+
+    `base_name` is the fixture to derive from: BASE_4H, whose decision candle
+    the gates refuse, or TRADE_4H, whose decision candle passes every one of
+    them (stage 4 of the redesign, 15 November 2026). The derivations below
+    are the same for both, so the two runs differ only by their base series
+    -- which is what makes the second decision a second reading of the same
+    production path and not a second path.
 
     Derived rather than committed so there is a single source of truth: change
     ohlcv_clean_4h.csv and all three move together. The derivations are pure
@@ -190,7 +210,7 @@ def _write_pinned_set(directory):
     """
     import pandas as pd
 
-    base = pd.read_csv(fixture("ohlcv_clean_4h.csv"))
+    base = pd.read_csv(fixture(base_name))
     struct = base.copy()
     struct["quote_volume"] = [round(float(v) * float(c), 4)
                               for v, c in zip(base["volume"], base["close"])]
@@ -305,12 +325,14 @@ def _seed_state(**values):
         json.dump(values, f)
 
 
-def _run(seed=None):
+def _run(seed=None, base_name=BASE_4H):
     """
     One engine run through the production path, on pinned data, with the
     network unreachable and the C3 state under the test's control.
 
     seed=None deletes the state file (no prior run). A dict seeds it.
+    `base_name` picks which committed base series the three are derived
+    from (stage 4 of the redesign).
     """
     from data.data_fetcher import DataFetcher, data_fetcher
     from models.signal_router import SignalRouter
@@ -323,7 +345,7 @@ def _run(seed=None):
     tmp = tempfile.mkdtemp(prefix="phase7_golden_")
     original_url = data_fetcher.base_url
     try:
-        _write_pinned_set(tmp)
+        _write_pinned_set(tmp, base_name)
         data_fetcher.base_url = UNREACHABLE
         DataFetcher.set_pinned_source(tmp)
         with _golden_workspace():
@@ -380,6 +402,117 @@ def test_decision_object_matches_snapshot():
             + "\n\nIf the change was intended, re-baseline with "
               "PHASE7_UPDATE_SNAPSHOT=1 and say so in the commit message."
         )
+
+
+def test_the_trade_decision_matches_its_snapshot():
+    """
+    THE SECOND PINNED DECISION (the redesign's stage 4, 15 November 2026;
+    the draft's section 10.1). The same baseline comparison as above, on the
+    base series whose decision candle passes every gate -- so the golden
+    snapshot still pins a trade's plan now that the first fixture is a WAIT
+    at gate 8.
+
+    Both are needed and neither replaces the other. The first pins what the
+    engine does when the gates REFUSE: the labels, the sentences, the fields
+    a refused run still records. This one pins what it does when they pass:
+    the tier, the stop, the three targets, the R:R, the order the panel
+    prints, and the trigger and quality figures a trade carries.
+    """
+    if not _engine_available():
+        pytest.skip("pandas_ta not installed")
+
+    raw = _run(base_name=TRADE_4H)
+    assert "error" not in raw, (
+        f"the engine reported an error on the trade fixture: {raw.get('error')}\n"
+        "A baseline cannot be captured from a failed run."
+    )
+    decision = _strip(raw)
+
+    if os.environ.get("PHASE7_UPDATE_SNAPSHOT"):
+        os.makedirs(os.path.dirname(TRADE_SNAPSHOT), exist_ok=True)
+        with open(TRADE_SNAPSHOT, "w") as f:
+            json.dump(decision, f, indent=2, sort_keys=True, default=str)
+        print(f"snapshot written: {TRADE_SNAPSHOT}")
+        return
+
+    assert os.path.exists(TRADE_SNAPSHOT), (
+        "no baseline snapshot exists yet for the trade fixture. Create one with:\n"
+        "    set PHASE7_UPDATE_SNAPSHOT=1\n"
+        "    python run_tests.py golden\n"
+        "then commit tests/fixtures/golden_trade_decision.json"
+    )
+
+    with open(TRADE_SNAPSHOT) as f:
+        expected = json.load(f)
+
+    actual = json.loads(json.dumps(decision, sort_keys=True, default=str))
+
+    if actual != expected:
+        diffs = []
+        for key in sorted(set(expected) | set(actual)):
+            a, b = expected.get(key, "<missing>"), actual.get(key, "<missing>")
+            if a != b:
+                diffs.append(f"  {key}:\n    was: {a}\n    now: {b}")
+        raise AssertionError(
+            "the engine's decision changed on identical input:\n"
+            + "\n".join(diffs)
+            + "\n\nIf the change was intended, re-baseline with "
+              "PHASE7_UPDATE_SNAPSHOT=1 and say so in the commit message."
+        )
+
+
+def test_the_second_pinned_decision_actually_reaches_a_trade():
+    """
+    The whole point of the second fixture, asserted against the engine
+    rather than against its own snapshot.
+
+    A snapshot records whatever the engine does, defects included -- that is
+    what a baseline is. So "the snapshot matches" cannot be read as "this
+    fixture still covers a trade": a change that turned the trade into a
+    WAIT and was then re-baselined would leave this file silent about the
+    coverage it exists to give. The reading of 11 November found 68 of 76
+    otherwise-passing records blocked by the trigger alone, so a fixture
+    that reaches a trade at all is not easy to come by and its loss is
+    exactly what has to be noticed.
+
+    Asserted: a side, every gate passed, a plan on the correct side of the
+    close, and the tier the lines give.
+    """
+    if not _engine_available():
+        pytest.skip("pandas_ta not installed")
+
+    raw = _run(base_name=TRADE_4H)
+    assert "error" not in raw, raw.get("error")
+
+    entry, risk = raw["entry"], raw["risk"]
+    assert raw["exit"]["action"] == "LONG", (
+        f"the second pinned decision is no longer a LONG: "
+        f"{raw['exit']['action']}. The seed has to be searched again "
+        f"(docs/build/make_pinned.py), not re-baselined."
+    )
+    assert raw["bias"]["raw"] == "BULLISH"
+    assert raw["degradation"]["degraded"] is False
+    assert risk["risk_valid"] is True
+    assert entry["long_signal"] is True, entry["long_signal_blockers"]
+    assert entry["long_signal_refusal"] is None
+    assert entry["quote_volume"] > entry["liquidity_floor"]
+    assert entry["trigger"] is True
+    assert entry["trigger_volume"] > entry["trigger_volume_median"]
+
+    from models.decision_model import DecisionModel
+    assert entry["score"] >= DecisionModel.UPPER_TIER_ENTRY_QUALITY_MIN, (
+        f"entry quality {entry['score']} is under the upper tiers' line; "
+        f"the tier this fixture pins would change")
+    # LONG and not AGGRESSIVE because the close is outside the band, which
+    # is what section 10.1 recorded of this seed. Both halves are asserted:
+    # the regime does allow AGGRESSIVE, so the band is the only reason.
+    assert entry["close_inside_band"] is False
+    assert risk["risk_regime"] in ("NORMAL RISK", "LOW RISK")
+
+    # The plan is a long's, measured from the decision close (finding 4).
+    close = raw["exit"]["current_price"]
+    assert risk["atr_stop"] < close
+    assert all(t > close for t in risk["targets"])
 
 
 def test_the_snapshot_covers_every_top_level_field():

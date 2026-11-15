@@ -155,40 +155,18 @@ def test_a_real_zero_is_still_printed_as_zero():
     assert _line(panel, "CONFIDENCE (decision)").endswith("0.00/100")
 
 
-def test_decision_reasoning_says_trend_strength_was_not_computed():
-    from models.decision_model import DecisionModel
+# THE REDESIGN'S STAGE 4, 15 November 2026:
+# test_decision_reasoning_says_trend_strength_was_not_computed stood here.
+# Work order B wrote it on 21 September because trend_health is NaN when it
+# was not measured and ":.0f" printed that as "trend strength nan/100" in
+# Decision Reasoning; the fix printed "not computed" instead. The ladder
+# does not quote trend strength at all now -- the tier comes from entry
+# quality (ruling 4, 25 October 2026), and trend_note went with it -- so
+# there is no sentence left for a NaN to reach. The panel's own TREND line
+# still prints the number through _score_text, which is what
+# test_absent_scores_print_as_absent_not_as_zero below holds, over
+# trend_health among the rest.
 
-    # THE REDESIGN'S STAGE 2, 14 November 2026: the bias here was NEUTRAL
-    # with a score of 5, which reached the ladder's last sentence, the one
-    # that names trend strength. A NEUTRAL direction now has a sentence of
-    # its own that does not (the draft's gate 2), so the bias is BULLISH: a
-    # trend strength that was not computed passes neither tier's test and
-    # reaches the same last sentence, and a measured 62 is a CONSERVATIVE
-    # LONG, whose sentence names it too.
-    def reasons_for(trend_health, want_action):
-        reasons = []
-        action = DecisionModel()._determine_final_action(
-            bias={"raw": "BULLISH", "score": 45.0},
-            trend={"trend_health": trend_health, "trend_direction_sign": 1},
-            entry={"score": 40.0, "entry_status": "AWAY FROM ZONE"},
-            risk={"risk_valid": True, "risk_regime": "NORMAL RISK",
-                  "validation_state": "NEUTRAL"},
-            # Work order G, 27 September 2026: no macro_bias parameter.
-            reasons=reasons,
-        )
-        assert action == want_action, action
-        return " ".join(reasons)
-
-    unmeasured = reasons_for(NAN, "WAIT")
-    assert "trend strength not computed (up)" in unmeasured, unmeasured
-    assert not re.search(r"\bnan\b", unmeasured, re.I), unmeasured
-
-    # Negative control: a measured value is still printed as a number.
-    measured = reasons_for(62.0, "CONSERVATIVE LONG")
-    assert "trend strength 62/100 (up)" in measured, measured
-
-
-# --- 1: the asset's name ---------------------------------------------------
 
 def test_the_btc_section_names_the_asset_the_run_was_made_on():
     unavailable = _render({"symbol": "SOLUSDT", "timeframe": "4h"})

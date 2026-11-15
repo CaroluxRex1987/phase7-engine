@@ -23,21 +23,14 @@ takes macro_bias and records it in the decision object. Everything after
 `risk` in evaluate() is keyword-only, so a caller still passing macro in
 fifth place fails loudly instead of the string landing in btc_context.
 
-THE SENTENCE -- Viktor's ruling, 27 September 2026, by agreeing to Claude's
-suggestion
-
-The CONSERVATIVE reason read "...but the entry quality (N/100) isn't strong
-enough" in every case, including a strong entry held back by trend strength.
-It now names what fell short.
-
 WHAT THESE TESTS HOLD
 
 The behavioural tests go through SignalRouter._build_decision_object, the one
 place the engine still receives a macro reading. That path exists before and
 after the change, so against the pre-G code these fail by assertion (WAIT
-where CONSERVATIVE is expected; the old sentence), not by a TypeError. The
-router returns an error record with no "exit" when assembly fails, so every
-exact-action assertion here raises on a failed build rather than passing.
+where CONSERVATIVE is expected), not by a TypeError. The router returns an
+error record with no "exit" when assembly fails, so every exact-action
+assertion here raises on a failed build rather than passing.
 
 THE REDESIGN'S STAGE 3, 15 November 2026 -- macro is a gate on LONG
 
@@ -47,15 +40,26 @@ not a second count of it. It sits with the confirmation signal
 (models/entry_model.py, gate 6), and the decision model still takes no macro
 parameter. So test_a_conservative_long_does_not_depend_on_macro, which held
 G's removal for the long side, is TURNED ROUND (the draft's section 14, one
-of its two X): it is now
-test_a_conservative_long_is_refused_under_a_bearish_daily_trend_and_no_other.
-That is the ruling's consequence, not a new rule. The short side's test
-holds as it was: SHORT is not gated by macro.
+of its two X). That is the ruling's consequence, not a new rule. The short
+side's test holds as it was: SHORT is not gated by macro.
 
-The signal record these tests give the router is now the engine's own,
-generate_entry_signals called with the macro reading the router is given, a
-turnover over the floor and, beside it, a trigger that holds -- so that
-macro is the one thing each test moves.
+THE REDESIGN'S STAGE 4, 15 November 2026 -- the tier comes from entry quality
+
+Three of this file's tests held the CONSERVATIVE SENTENCE naming which of
+two lines a setup fell short of -- trend health's 75 or entry quality's 70
+-- written on 21 September because the sentence had blamed the wrong one.
+There is one line to name now, so there is no attribution to get wrong:
+test_trend_short_is_named_and_entry_is_not_blamed, test_both_short_are_named
+and test_the_sentence_names_the_bias_side_and_the_trend_direction GO with
+_conservative_reason's two-line sentence, and
+test_entry_short_is_named_and_trend_is_not_blamed is rewritten as
+test_the_conservative_sentence_names_the_two_quality_lines. The tier the
+runs below reach is set by the entry quality they are given, not by the
+trend health, which the ladder no longer reads.
+
+What this file still holds, and the reason it is worth keeping: macro's
+ONLY effect on a tier is gate 6, on the long side. Every test below moves
+macro and nothing else.
 
 No fixtures and no pytest import: run_tests.py calls each test with no
 arguments.
@@ -72,8 +76,8 @@ from models.entry_model import generate_entry_signals
 from models.signal_router import SignalRouter
 
 MACROS = ("BULLISH", "BEARISH", "NEUTRAL")
-TREND_MIN = DecisionModel.AGGRESSIVE_TREND_HEALTH_MIN
-ENTRY_MIN = DecisionModel.AGGRESSIVE_ENTRY_SCORE_MIN
+UPPER_MIN = DecisionModel.UPPER_TIER_ENTRY_QUALITY_MIN
+CONSERVATIVE_MIN = DecisionModel.CONSERVATIVE_ENTRY_QUALITY_MIN
 
 
 def _confirmed(side, macro="NEUTRAL"):
@@ -82,7 +86,7 @@ def _confirmed(side, macro="NEUTRAL"):
     the engine computes it: structure agreeing with the side, a trending
     ADX, no divergence, a turnover over the floor -- and a trigger that
     holds. Under any macro but a bearish one on the long side, every gate
-    passes.
+    up to 8 passes.
     """
     structure = "BULLISH TREND" if side == "long" else "BEARISH TREND"
     record = generate_entry_signals(
@@ -94,18 +98,25 @@ def _confirmed(side, macro="NEUTRAL"):
 
 
 # 13 OCTOBER 2026, the fallback sweep (DECISIONS, "Ruling, 13 October 2026
-# -- the fallback sweep"): the router reads these five directly now, where
-# it used to default each to False when absent. They are supplied here with
+# -- the fallback sweep"): the router reads these directly now, where it
+# used to default each to False when absent. They are supplied here with
 # exactly those values, so the record these tests read is the one they read
 # before. False beside an absent blocker list is still "not computed" to the
-# decision model's signal gate, as an absent signal was.
+# decision model's signal gate, as an absent signal was. score_clipped left
+# the list with the redesign's stage 4.
 ROUTER_READS_TREND = {"trend_exhaustion": False, "momentum_divergence": False}
-ROUTER_READS_ENTRY = {"long_signal": False, "short_signal": False,
-                      "score_clipped": False}
+ROUTER_READS_ENTRY = {"long_signal": False, "short_signal": False}
 
 
-def _route(side, macro, health=60.0, entry_score=40.0, score=60.0):
-    """One run through the router. side is "long" or "short"."""
+def _route(side, macro, health=60.0, entry_score=60.0, score=60.0,
+           inside=False):
+    """
+    One run through the router. side is "long" or "short".
+
+    `entry_score` is what sets the tier from stage 4 on: 60 is between the
+    two lines, so the default reaches CONSERVATIVE. `health` is still passed
+    because the router records it and the panel prints it; no gate reads it.
+    """
     long_side = side == "long"
     out = SignalRouter(engine_core=object())._build_decision_object(
         symbol="TESTUSDT", timeframe="4h",
@@ -116,7 +127,9 @@ def _route(side, macro, health=60.0, entry_score=40.0, score=60.0):
                "momentum_divergence": False},
         structure={},
         entry={**ROUTER_READS_ENTRY, "score": entry_score,
-               "entry_status": "APPROACHING ZONE", **_confirmed(side, macro)},
+               "close_inside_band": inside,
+               "entry_status": "INSIDE THE BAND" if inside else "ABOVE THE BAND",
+               **_confirmed(side, macro)},
         risk={"risk_valid": True, "risk_reason": "OK",
               "risk_regime": "NORMAL RISK", "validation_state": "NEUTRAL",
               "targets": [1.1, 1.2, 1.3] if long_side else [0.9, 0.8, 0.7]},
@@ -126,10 +139,10 @@ def _route(side, macro, health=60.0, entry_score=40.0, score=60.0):
     return out
 
 
-def _conservative_reason(out):
+def _tier_reason(out):
+    """The one sentence gate 9 wrote, whichever tier it chose."""
     reasons = [r for r in out["explanation"]["reasons"]
-               if r.endswith("— CONSERVATIVE LONG.")
-               or r.endswith("— CONSERVATIVE SHORT.")]
+               if r.endswith(" LONG.") or r.endswith(" SHORT.")]
     assert len(reasons) == 1, out["explanation"]["reasons"]
     return reasons[0]
 
@@ -150,8 +163,11 @@ def test_a_conservative_long_is_refused_under_a_bearish_daily_trend_and_no_other
     out = _route("long", "BEARISH")
     assert out["exit"]["action"] == "NO-TRADE (MACRO AGAINST)", (
         out["exit"]["action"], out["explanation"]["reasons"])
+    # Stage 4: the refusal names no tier. It read "This would have been
+    # CONSERVATIVE LONG, but ..." until the tier moved to gate 9, after
+    # this gate, where there is no tier yet to name.
     assert out["explanation"]["summary"] == (
-        "NO-TRADE (MACRO AGAINST) — This would have been CONSERVATIVE LONG, "
+        "NO-TRADE (MACRO AGAINST) — No earlier gate refused the long, "
         "but the daily trend is BEARISH, and no long is taken while the "
         "daily trend is bearish, so no trade is taken."), out["explanation"]
 
@@ -174,13 +190,19 @@ def test_negative_control_below_the_conservative_line_still_waits():
     """
     Without this, the two tests above would pass on a ladder that returned
     CONSERVATIVE for everything.
+
+    Stage 4: the line is entry quality's, not trend health's. The trend
+    health is left at its default, which is well above the 50 the old line
+    used, so a run that waits here waits on the quality.
     """
-    below = DecisionModel.CONSERVATIVE_TREND_HEALTH_MIN - 1.0
+    below = CONSERVATIVE_MIN - 1.0
     for side in ("long", "short"):
         for macro in MACROS:
-            out = _route(side, macro, health=below)
-            assert out["exit"]["action"] == "WAIT", (
-                f"{side}, macro {macro}, trend health {below}: "
+            out = _route(side, macro, entry_score=below)
+            expected = ("NO-TRADE (MACRO AGAINST)"
+                        if side == "long" and macro == "BEARISH" else "WAIT")
+            assert out["exit"]["action"] == expected, (
+                f"{side}, macro {macro}, entry quality {below}: "
                 f"{out['exit']['action']}")
 
 
@@ -203,7 +225,8 @@ def test_a_fifth_positional_argument_is_refused():
         DecisionModel().evaluate(
             {"raw": "BULLISH", "score": 60.0},
             {"trend_health": 60.0, "trend_direction_sign": 1},
-            {"score": 40.0, "entry_status": "APPROACHING ZONE", **_confirmed("long")},
+            {"score": 60.0, "close_inside_band": False,
+             "entry_status": "ABOVE THE BAND", **_confirmed("long")},
             {"risk_valid": True, "risk_regime": "NORMAL RISK",
              "validation_state": "NEUTRAL", "targets": [1.1, 1.2, 1.3]},
             "BULLISH",
@@ -213,30 +236,24 @@ def test_a_fifth_positional_argument_is_refused():
     raise AssertionError("evaluate() accepted a fifth positional argument")
 
 
-# --- the sentence names what fell short ---------------------------------------
+# --- the sentence names the line, and makes no claim about macro ------------
 
-def test_trend_short_is_named_and_entry_is_not_blamed():
-    """The false case: entry 80 passed its line, trend 60 did not."""
-    out = _route("long", "BULLISH", health=60.0, entry_score=80.0)
-    reason = _conservative_reason(out)
-    assert f"below the {TREND_MIN:.0f} the LONG tier needs" in reason, reason
-    assert "entry quality 80/100" in reason, reason
-    assert "is below" not in reason and "isn't strong" not in reason, reason
-
-
-def test_entry_short_is_named_and_trend_is_not_blamed():
-    out = _route("long", "BULLISH", health=95.0, entry_score=45.0)
-    reason = _conservative_reason(out)
-    assert (f"the entry quality (45/100) is below the {ENTRY_MIN:.0f} "
-            f"the LONG tier needs") in reason, reason
-    assert f"below the {TREND_MIN:.0f}" not in reason, reason
-
-
-def test_both_short_are_named():
-    out = _route("short", "BEARISH", health=60.0, entry_score=40.0)
-    reason = _conservative_reason(out)
-    assert f"below the {TREND_MIN:.0f} the SHORT tier needs" in reason, reason
-    assert f"entry quality (40/100) is below its {ENTRY_MIN:.0f}" in reason, reason
+def test_the_conservative_sentence_names_the_two_quality_lines():
+    """
+    Rewritten at stage 4 from test_entry_short_is_named_and_trend_is_not_blamed.
+    The sentence named which of trend health's 75 and entry quality's 70 a
+    setup fell short of; there is one line now, and the CONSERVATIVE
+    sentence names both of entry quality's -- the one it passed and the one
+    it is under -- and no trend health.
+    """
+    out = _route("long", "BULLISH", entry_score=60.0)
+    reason = _tier_reason(out)
+    assert reason == (
+        "The bullish bias passed every gate with entry quality 60 of 100 — "
+        f"at or above the {CONSERVATIVE_MIN:g} a CONSERVATIVE trade needs, "
+        f"and under the {UPPER_MIN:g} the upper tiers need — "
+        "CONSERVATIVE LONG."), reason
+    assert "trend" not in reason.lower(), reason
 
 
 def test_the_sentence_makes_no_claim_about_macro():
@@ -246,16 +263,10 @@ def test_the_sentence_makes_no_claim_about_macro():
     """
     for side in ("long", "short"):
         for macro in MACROS:
-            # Under a bearish daily trend the long is refused by gate 6
-            # (stage 3 of the redesign); the ladder's sentence is still
-            # written first, and is the one read here.
-            reason = _conservative_reason(_route(side, macro))
+            if side == "long" and macro == "BEARISH":
+                # Refused by gate 6 before gate 9: there is no tier
+                # sentence to read.
+                continue
+            reason = _tier_reason(_route(side, macro))
             assert "macro" not in reason.lower(), reason
             assert "daily trend" not in reason.lower(), reason
-
-
-def test_the_sentence_names_the_bias_side_and_the_trend_direction():
-    long_reason = _conservative_reason(_route("long", "NEUTRAL"))
-    short_reason = _conservative_reason(_route("short", "NEUTRAL"))
-    assert long_reason.startswith("Bias is bullish, trend strength 60/100 (up)"), long_reason
-    assert short_reason.startswith("Bias is bearish, trend strength 60/100 (down)"), short_reason

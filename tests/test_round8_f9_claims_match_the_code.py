@@ -152,41 +152,16 @@ def test_trend_health_without_its_slopes_reports_unavailable():
     _assert_unavailable(compute_trend_health(frame), "no EMA slope columns")
 
 
-def test_unavailable_trend_direction_moves_no_entry_score():
-    """
-    The ruling rested on this: entry_model's trend multiplier is 1.0 for
-    every label but BULLISH and BEARISH, so UNAVAILABLE scores exactly as
-    NEUTRAL did. BULLISH must score differently on the same input, or the
-    equality would prove nothing (the negative control inside the test).
-    """
-    if not _pandas_ta_available():
-        pytest.skip("the indicator frame needs pandas_ta")
-    import indicators.indicators as ind
-    from models.entry_model import calculate_entry_quality
-
-    path = os.path.join(REPO_ROOT, "tests", "fixtures", "ohlcv_clean_4h.csv")
-    frame, _failures = ind.add_technical_indicators(pd.read_csv(path))
-    price = float(frame["close"].iloc[-1])
-
-    def score(direction, label):
-        return calculate_entry_quality(
-            frame, price * 0.98, price, trade_direction=direction,
-            trend_direction=label)
-
-    for direction, aligned in (("LONG", "BULLISH"), ("SHORT", "BEARISH")):
-        neutral = score(direction, "NEUTRAL")
-        unavailable = score(direction, "UNAVAILABLE")
-        assert json.dumps(neutral, sort_keys=True, default=str) == \
-            json.dumps(unavailable, sort_keys=True, default=str), direction
-        assert score(direction, aligned)["trend_multiplier"] != \
-            neutral["trend_multiplier"], (
-            f"{aligned} did not move a {direction} score, so the comparison "
-            f"above could not have failed")
-
-
-# ======================================================================
-# F9(3) -- a failed volume read is not a neutral one
-# ======================================================================
+# THE REDESIGN'S STAGE 4, 15 November 2026:
+# test_unavailable_trend_direction_moves_no_entry_score stood here. It held
+# that a trend direction of "UNAVAILABLE" scored a run exactly as "NEUTRAL"
+# did -- that an unmeasured direction was not penalised through the entry
+# score's trend multiplier -- with its own control that an AGREEING
+# direction did move the multiplier, so the comparison could have failed.
+# There is no trend multiplier: entry quality is D + H, with no multiplier
+# at all (the draft's section 3.3, Viktor's ruling of 7 November 2026). The
+# claim F9 made cannot be restated about the new score, because the input
+# it was about does not reach it.
 
 def test_a_failed_volume_read_is_not_reported_as_neutral():
     if not _pandas_ta_available():

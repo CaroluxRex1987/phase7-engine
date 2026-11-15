@@ -44,10 +44,17 @@ from models.decision_model import DecisionModel
 from models.risk_model import RiskModel
 
 
-# A trend_health/entry_score/entry_status combination that clears every
-# AGGRESSIVE threshold decision_model.py checks, so the only thing left to
-# vary in the tests below is the risk regime.
-HIGH_CONVICTION_TREND_HEALTH = 80.0
+# An entry quality and band position that clear every AGGRESSIVE condition
+# decision_model.py checks, so the only thing left to vary in the tests
+# below is the risk regime.
+#
+# THE REDESIGN'S STAGE 4, 15 November 2026: HIGH_CONVICTION_TREND_HEALTH =
+# 80.0 stood beside the score below, because AGGRESSIVE needed trend health
+# over 75 as well. The tier comes from entry quality alone now (ruling 4,
+# 25 October 2026), so there is no second conviction number to set, and the
+# constant is gone rather than left standing unread. 75 is over the upper
+# tiers' line of 70; the close inside the band is the other condition, and
+# the risk regime is the third -- which is this file's subject.
 HIGH_CONVICTION_ENTRY_SCORE = 75.0
 
 # 5 SEPTEMBER 2026: these fixtures never supplied a bias SCORE, only the
@@ -64,30 +71,46 @@ HIGH_CONVICTION_BIAS_SCORE = 60.0
 
 def _final_action(raw_bias, risk_regime, risk_valid=True,
                    long_signal=False, short_signal=False):
+    """
+    THE REDESIGN'S STAGE 4, 15 November 2026: this called
+    _determine_final_action alone, which chose the tier and so applied the
+    regime gate on AGGRESSIVE. The tier is gate 9's now
+    (_apply_quality_gate), which runs after the ladder, so the helper runs
+    both -- the two stages that between them decide the action and its
+    tier.
+
+    Gates 3 to 8 are skipped on purpose, as they were before: this file is
+    about the risk regime gating AGGRESSIVE, and the signal and trigger
+    gates would refuse these hand-built records for reasons of their own.
+    The regime gate itself is unchanged -- item 14's finding 5 -- and it is
+    read where the tier is chosen, which is the point of moving it.
+    """
     reasons = []
-    action = DecisionModel()._determine_final_action(
+    model = DecisionModel()
+    entry = {
+        "score": HIGH_CONVICTION_ENTRY_SCORE,
+        # AGGRESSIVE reads this field, not the STATUS word (Viktor's ruling
+        # of 7 November 2026). It said "ACTIVE ENTRY ZONE" until stage 4.
+        "close_inside_band": True,
+        "entry_status": "INSIDE THE BAND",
+        "long_signal": long_signal,
+        "short_signal": short_signal,
+    }
+    risk = {
+        "risk_valid": risk_valid,
+        "risk_reason": "OK",
+        "validation_state": "NEUTRAL",
+        "risk_regime": risk_regime,
+    }
+    action = model._determine_final_action(
         bias={"raw": raw_bias, "score": HIGH_CONVICTION_BIAS_SCORE},
-        trend={
-            "trend_health": HIGH_CONVICTION_TREND_HEALTH,
-            "trend_direction_sign": 1 if raw_bias == "BULLISH" else -1,
-            "momentum_divergence": False,
-        },
-        entry={
-            "score": HIGH_CONVICTION_ENTRY_SCORE,
-            "entry_status": "ACTIVE ENTRY ZONE",
-            "long_signal": long_signal,
-            "short_signal": short_signal,
-        },
-        risk={
-            "risk_valid": risk_valid,
-            "risk_reason": "OK",
-            "validation_state": "NEUTRAL",
-            "risk_regime": risk_regime,
-        },
+        entry=entry,
+        risk=risk,
         # Work order G, 27 September 2026: the ladder no longer takes
         # macro_bias; this helper's parameter for it is gone.
         reasons=reasons,
     )
+    action = model._apply_quality_gate(action, entry, risk, reasons)
     return action, reasons
 
 

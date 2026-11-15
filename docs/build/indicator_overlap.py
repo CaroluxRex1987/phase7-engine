@@ -111,9 +111,24 @@ VARIANTS = {
     "all four removed, cutoffs unchanged": (FOUR, {}, "as is"),
     "all four removed, rescaled to 100": (FOUR, {"WEIGHT_TREND_HEALTH": 0.75,
                                                   "WEIGHT_MACRO_BIAS": 0.25}, "as is"),
-    "entry: no trend multiplier": ((), {}, "no trend multiplier"),
-    "entry: no macro multiplier": ((), {}, "no macro multiplier"),
-    "entry: EMA zone + ATR + VWMA as one": ((), {}, "one distance"),
+    # THE REDESIGN'S STAGE 4, 15 November 2026: three entry-quality
+    # variants stood here --
+    #
+    #     "entry: no trend multiplier"
+    #     "entry: no macro multiplier"
+    #     "entry: EMA zone + ATR + VWMA as one"
+    #
+    # the first two removing one of the confluence multipliers, the third
+    # collapsing the three distance parts into one. Entry quality is D + H
+    # now, with no multipliers and one distance, so each variant asks a
+    # question the engine has already answered: the first two by removing
+    # the multipliers, the third by being the design. Their inputs
+    # (base_score, the three multipliers, ema_pos_pts, rsi_pts, struct_pts,
+    # combined_multiplier) are gone from the record with them.
+    #
+    # What is left is the bias-weight variants, which go with the weighted
+    # sum in stage 5 -- this whole tool goes or is rebuilt there (DECISIONS,
+    # "Decision, 14 November 2026 -- stage 2 ...", reading 1).
 }
 
 
@@ -158,18 +173,24 @@ def macro_at(daily_ind, bar_open):
     return "BULLISH" if close > ema else "BEARISH" if close < ema else "NEUTRAL"
 
 
+def _nan(value):
+    """A number for the CSV, or nan when the engine measured none."""
+    return math.nan if value is None else float(value)
+
+
 def _entry_score(eq, mode):
-    if mode == "no trend multiplier":
-        score = eq["base_score"] * eq["macro_multiplier"] * eq["structure_multiplier"]
-    elif mode == "no macro multiplier":
-        score = eq["base_score"] * eq["trend_multiplier"] * eq["structure_multiplier"]
-    elif mode == "one distance":
-        # EMA zone (30) carries the 75 points of the three distance parts.
-        base = (eq["ema_pos_pts"] * 75.0 / 30.0) + eq["rsi_pts"] + eq["struct_pts"]
-        score = base * eq["combined_multiplier"]
-    else:
-        return eq["score"]
-    return float(min(100.0, max(0.0, score)))
+    """
+    THE REDESIGN'S STAGE 4, 15 November 2026: the three entry-quality modes
+    this function computed are gone with their variants (see VARIANTS
+    above), and so are the record fields they read. Every variant left asks
+    for the quality as the engine computed it.
+
+    `mode` is kept as a parameter, and checked rather than ignored, so that
+    a variant added with a mode this function cannot compute fails here
+    instead of quietly being scored as the baseline.
+    """
+    assert mode == "as is", f"no entry-quality mode is computed here: {mode!r}"
+    return eq["score"]
 
 
 def bar_row(frame_ind, daily_ind, t, variants=VARIANTS):
@@ -235,8 +256,11 @@ def bar_row(frame_ind, daily_ind, t, variants=VARIANTS):
             previous_close=float(dfs["close"].iloc[-2]) if len(dfs) > 1 else None,
             volume=float(dfs["volume"].iloc[-1]),
             previous_volumes=[float(v) for v in dfs["volume"].iloc[-(lookback + 1):-1]])
-        eq = calculate_entry_quality(dfs, lo, hi, macro_bias=macro, trade_direction=side,
-                                     trend_direction=tr["trend_direction"], structure_sequence=s["sequence"])
+        # Stage 4: entry quality is D + H and takes the frame and the band
+        # alone. macro_bias, trade_direction, trend_direction and
+        # structure_sequence were the three confluence multipliers' inputs,
+        # and the multipliers are gone.
+        eq = calculate_entry_quality(dfs, lo, hi)
         entry_score = _entry_score(eq, entry_mode)
         stop, t1, t2, t3 = risk_model.calculate_stop_targets(current_price=price, atr_val=atr,
                                                             side=side, volatility_state=volatility)
@@ -249,6 +273,8 @@ def bar_row(frame_ind, daily_ind, t, variants=VARIANTS):
             bias={"raw": raw, "score": score},
             trend={"trend_health": tr["trend_health"], "trend_direction_sign": tr["trend_direction_sign"]},
             entry={"score": entry_score, "entry_status": eq["entry_status"],
+                   # Stage 4: what the AGGRESSIVE tier reads.
+                   "close_inside_band": eq["close_inside_band"],
                    **signals,
                    **{k: trigger[k] for k in ("trigger", "trigger_volume", "trigger_volume_median")}},
             risk={"risk_valid": valid, "risk_reason": reason, "risk_regime": regime,
@@ -266,12 +292,22 @@ def bar_row(frame_ind, daily_ind, t, variants=VARIANTS):
                 "macro sign": factors["macro_bias"]["signed"],
                 "continuation": factors["reversal_continuation"]["signed"],
                 "trend health": float(tr["trend_health"]), "ADX": float(tr["adx"]) if tr["adx"] is not None else math.nan,
-                "slope %": slope, "raw bias": raw, "entry score": float(eq["score"]),
-                "EMA zone pts": eq["ema_pos_pts"], "ATR distance pts": eq["atr_dist_pts"],
-                "VWMA pts": eq["vwma_pts"], "RSI pts": eq["rsi_pts"], "HVN pts": eq["struct_pts"],
+                "slope %": slope, "raw bias": raw,
+                # Stage 4, 15 November 2026: entry quality is D + H, so the
+                # five sub-scores and the multiplier this row carried --
+                # "EMA zone pts", "ATR distance pts", "VWMA pts", "RSI pts",
+                # "HVN pts" and "multiplier" -- are the two parts and their
+                # distances. Each is None when that part was not measured,
+                # and so is the score; nan is written here rather than None
+                # because the row goes into a CSV.
+                "entry score": _nan(eq["score"]),
+                "D pts": _nan(eq["distance_pts"]),
+                "d ATR": _nan(eq["distance_atr"]),
+                "H pts": _nan(eq["hvn_pts"]),
+                "h ATR": _nan(eq["hvn_distance_atr"]),
+                "close inside band": eq["close_inside_band"],
                 "band distance %": eq["distance_from_zone"],
                 "VWMA distance %": abs(price - vwma) / price * 100.0,
-                "multiplier": eq["combined_multiplier"],
             })
     return row
 

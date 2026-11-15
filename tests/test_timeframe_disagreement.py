@@ -389,12 +389,42 @@ def test_the_engine_still_reaches_a_side_when_the_timeframes_agree():
     # an exact string tolerates AGGRESSIVE LONG / LONG / CONSERVATIVE LONG,
     # whichever the risk regime picks, while still failing outright on WAIT
     # or any NO-TRADE variant.
-    assert "LONG" in decision["exit"]["action"], (
-        f"bias and macro agree BULLISH, but exit.action came back "
-        f"{decision['exit']['action']!r} -- not a LONG decision of any kind. "
-        "An uninterrupted rally with agreeing timeframes must reach a side."
-    )
-    assert decision["entry"]["trigger"] is True, decision["entry"]
+    #
+    # THE REDESIGN'S STAGE 4, 15 November 2026: a side also needs entry
+    # quality at or over the CONSERVATIVE line (gate 9). On an uninterrupted
+    # rally the close runs AWAY from the band, so D is small and this cut
+    # scores under the line: gate 9 waits, and the control's claim -- that
+    # the engine must be willing to be bullish about this -- can no longer
+    # be read off exit.action alone. What it can be read off is how far the
+    # run got: every gate up to and including 8 passed, which is what the
+    # assertions below check one by one, and the one that stopped it is
+    # gate 9, on a quality the rally's own geometry explains.
+    entry = decision["entry"]
+    assert entry["long_signal"] is True, entry["long_signal_blockers"]
+    assert entry["long_signal_refusal"] is None
+    assert entry["trigger"] is True, entry
+    assert entry["trigger_volume"] > entry["trigger_volume_median"], entry
+    assert entry["quote_volume"] > entry["liquidity_floor"], entry
+    assert decision["risk"]["risk_valid"] is True
+
+    from models.decision_model import DecisionModel
+    quality = entry["score"]
+    assert quality is not None, entry
+    if quality >= DecisionModel.CONSERVATIVE_ENTRY_QUALITY_MIN:
+        assert "LONG" in decision["exit"]["action"], (
+            f"bias and macro agree BULLISH, entry quality is {quality} and "
+            f"every gate passed, but exit.action came back "
+            f"{decision['exit']['action']!r} -- not a LONG decision of any "
+            f"kind.")
+    else:
+        assert decision["exit"]["action"] == "WAIT", decision["exit"]
+        assert "not at a pullback to the average" in \
+            decision["explanation"]["summary"], decision["explanation"]
+        assert entry["close_inside_band"] is False, (
+            "the close is inside the band and entry quality is still under "
+            "the line -- the explanation above for why this rally waits does "
+            "not hold, and this control needs re-reading rather than this "
+            "branch")
 
     # The same rally cut on a candle with no volume behind it: every gate
     # before the trigger passes, the candle closes beyond its open and the

@@ -70,6 +70,9 @@ HVN_NOTE = ("Price is close to a high-volume node ($0.8010) -- a level where "
 
 SIDES = {"LONG", "SHORT", "AGGRESSIVE LONG", "AGGRESSIVE SHORT",
          "CONSERVATIVE LONG", "CONSERVATIVE SHORT"}
+# The two words a tier's f-string can be completed with (stage 4; see
+# _actions_decision_model_writes).
+SIDE_WORDS = {"LONG", "SHORT"}
 ACTION_SHAPE = re.compile(
     r"^(WAIT|NO-TRADE( \([A-Z ]+\))?|((AGGRESSIVE|CONSERVATIVE) )?(LONG|SHORT))$")
 
@@ -89,9 +92,28 @@ def _actions_decision_model_writes():
     for name in ("decision_model.py", "entry_model.py"):
         with open(os.path.join(REPO, "models", name), encoding="utf-8") as fh:
             tree = ast.parse(fh.read())
-        found |= {node.value for node in ast.walk(tree)
-                  if isinstance(node, ast.Constant) and isinstance(node.value, str)
-                  and ACTION_SHAPE.match(node.value)}
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Constant) and isinstance(node.value, str):
+                if ACTION_SHAPE.match(node.value):
+                    found.add(node.value)
+            elif isinstance(node, ast.JoinedStr):
+                # THE REDESIGN'S STAGE 4, 15 November 2026. Gate 9 builds
+                # its tier from the side it was given -- f"AGGRESSIVE
+                # {side}", f"CONSERVATIVE {side}" -- so the four tier
+                # actions are no longer string literals and a scan for
+                # literals alone stopped seeing them. That is exactly the
+                # failure this test exists to prevent: an action the module
+                # can write that nothing has looked at. The f-string's
+                # literal parts are read as a template and the side filled
+                # in, so the scan sees what the module can actually return.
+                template = "".join(
+                    part.value if isinstance(part, ast.Constant)
+                    and isinstance(part.value, str) else "{}"
+                    for part in node.values)
+                for side in sorted(SIDE_WORDS):
+                    candidate = template.replace("{}", side)
+                    if ACTION_SHAPE.match(candidate):
+                        found.add(candidate)
     return found
 
 

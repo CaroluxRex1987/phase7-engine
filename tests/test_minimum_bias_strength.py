@@ -64,7 +64,30 @@ six tests became four:
     fingerprinted).
 
 "A lean at the threshold still waits" and "both thresholds are live and
-distinct" went with the threshold. Ruling 1's four tests are unchanged.
+distinct" went with the threshold.
+
+THE REDESIGN'S STAGE 4, 15 November 2026 -- RULING 1'S SENTENCES
+
+Ruling 1's tests held that no reason string may quote trend health without
+saying which way the trend points: "trend strength 90/100 (up)", never
+"strong trend health (90/100)" offered as support for a direction the
+magnitude cannot speak to. The ladder does not quote trend health at all
+now -- the tier comes from entry quality (ruling 4, 25 October 2026), and
+trend_note went with it -- so:
+
+  - test_a_bearish_trend_under_a_bullish_bias_is_visible_in_the_sentence and
+    test_a_flat_trend_says_flat GO. There is no sentence left for the
+    disagreement to be invisible in, and nothing to say "(flat)" about.
+  - test_the_reason_names_the_trend_direction_not_just_its_size is REPLACED
+    by test_the_ladder_quotes_no_trend_health_at_all, which holds the
+    stronger thing the change makes true.
+  - test_every_directional_reason_carries_the_direction keeps its sweep,
+    over the new sentences, and no longer passes vacuously: it asserts that
+    none of them quotes trend health, rather than only checking the ones
+    that do.
+
+Ruling 2's tests are unchanged in what they hold; their helper runs gate 9
+as well as the ladder, since the tier is gate 9's.
 """
 
 import os
@@ -81,20 +104,32 @@ NEUTRAL_SENTENCE = "The direction is NEUTRAL"
 SUMS = (-100.0, -60.0, -30.01, -21.0, 0.0, 21.0, 30.01, 60.0, 100.0)
 
 
-def _decide(score, raw="BULLISH", health=90.0, sign=1, entry=80.0,
-            status="ACTIVE ENTRY ZONE"):
+def _decide(score, raw="BULLISH", entry=80.0, inside=True):
+    """
+    The ladder and gate 9 -- the two stages that between them decide the
+    action and its tier.
+
+    Stage 4, 15 November 2026: the `health` and `sign` parameters built the
+    trend block, which _determine_final_action no longer takes, and
+    `status` was the STATUS word the AGGRESSIVE tier used to read. `inside`
+    is the field it reads instead (Viktor's ruling of 7 November).
+    """
     reasons = []
-    action = DecisionModel()._determine_final_action(
+    model = DecisionModel()
+    entry_block = {
+        "score": entry, "close_inside_band": inside,
+        "entry_status": "INSIDE THE BAND" if inside else "ABOVE THE BAND"}
+    risk = {"risk_valid": True, "risk_regime": "NORMAL RISK",
+            "validation_state": "NEUTRAL"}
+    action = model._determine_final_action(
         bias={"raw": raw, "score": score},
-        trend={"trend_health": health, "trend_direction_sign": sign,
-               "momentum_divergence": False},
-        entry={"score": entry, "entry_status": status},
-        risk={"risk_valid": True, "risk_regime": "NORMAL RISK",
-              "validation_state": "NEUTRAL"},
+        entry=entry_block,
+        risk=risk,
         # Work order G, 27 September 2026: the ladder no longer takes
         # macro_bias, and this helper's `macro` parameter is gone with it.
         reasons=reasons,
     )
+    action = model._apply_quality_gate(action, entry_block, risk, reasons)
     return action, reasons
 
 
@@ -131,7 +166,7 @@ def test_the_same_floor_applies_to_the_short_side():
     assert direction_from_emas(0.1, 101.0, 100.0) == "BULLISH"
     assert direction_from_emas(-0.1, 99.0, 100.0) == "BEARISH"
 
-    action, _ = _decide(score=-60.0, raw="NEUTRAL", sign=-1)
+    action, _ = _decide(score=-60.0, raw="NEUTRAL")
     assert action == "WAIT"
 
 
@@ -155,7 +190,7 @@ def test_a_direction_acts_whatever_the_weighted_sum_says():
     for score in SUMS:
         action, reasons = _decide(score=score)
         assert action == wanted, (score, action, reasons)
-        short, _ = _decide(score=score, raw="BEARISH", sign=-1)
+        short, _ = _decide(score=score, raw="BEARISH")
         assert "SHORT" in short, (score, short)
 
 
@@ -179,51 +214,63 @@ def test_the_constant_is_gone_from_the_code_and_the_fingerprint():
 # Ruling 1 -- the reason strings
 # ======================================================================
 
-def test_the_reason_names_the_trend_direction_not_just_its_size():
-    _, reasons = _decide(score=60.0, health=90.0, sign=1)
-    text = " ".join(reasons)
-
-    assert "trend strength 90/100 (up)" in text, text
-    assert "strong trend health" not in text, (
-        "the old wording is back: a direction-blind magnitude offered as "
-        "support for a direction"
-    )
-
-
-def test_a_bearish_trend_under_a_bullish_bias_is_visible_in_the_sentence():
+def test_the_ladder_quotes_no_trend_health_at_all():
     """
-    The point of the ruling. trend_health 90 on a DOWNtrend must not read as
-    support for a long -- the reader has to be able to see the disagreement.
+    Replaces test_the_reason_names_the_trend_direction_not_just_its_size at
+    stage 4 (see the module docstring).
+
+    Ruling 1's defect was a direction-blind magnitude offered as support for
+    a direction: "Bias is bullish with strong trend health (90/100)", the
+    same 90 whichever way the trend ran. The fix was to name the direction
+    beside the magnitude. The magnitude is not quoted here any more, which
+    is the stronger answer, and this holds it -- so that re-adding the
+    sentence fails here rather than quietly bringing the old wording's
+    hazard back with it.
+
+    The number is still measured, recorded and printed on the TREND line
+    until stage 5. What may not happen is the ladder or the tier reasoning
+    for it.
     """
-    _, reasons = _decide(score=60.0, health=90.0, sign=-1)
-    text = " ".join(reasons)
-
-    assert "(down)" in text, (
-        f"a bearish trend under a bullish bias produced: {text!r}. The "
-        f"direction is invisible, which is the defect."
-    )
-    assert "(up)" not in text
-
-
-def test_a_flat_trend_says_flat():
-    _, reasons = _decide(score=60.0, health=40.0, sign=0)
-    assert "(flat)" in " ".join(reasons)
+    for raw, entry, inside in (("BULLISH", 80.0, True), ("BULLISH", 60.0, False),
+                               ("BEARISH", 80.0, True), ("BEARISH", 40.0, False),
+                               ("NEUTRAL", 80.0, True)):
+        _, reasons = _decide(score=60.0, raw=raw, entry=entry, inside=inside)
+        text = " ".join(reasons)
+        for gone in ("trend strength", "trend health", "(up)", "(down)",
+                     "(flat)", "strong trend"):
+            assert gone not in text.lower().replace("trend health,", ""), (
+                f"{raw}/{entry}: the ladder quotes {gone!r} again: {text!r}")
 
 
 def test_every_directional_reason_carries_the_direction():
     """
     Sweep. No reason string may quote trend health without saying which way
-    the trend points.
+    the trend points -- and since stage 4 none of them quotes it at all, so
+    the sweep asserts that instead of only checking the ones that do.
+
+    It was conditional on "trend strength" appearing in the text. That
+    condition is now never true, which would make this test pass whatever
+    the sentences said. A test that can only pass is not a test; this is
+    the same lesson as the vacuous assertion of 3 September.
     """
-    for score, raw, sign in ((60.0, "BULLISH", 1),
-                             (-60.0, "BEARISH", -1),
-                             (60.0, "BULLISH", -1),
-                             (-60.0, "BEARISH", 1)):
-        for entry, status in ((80.0, "ACTIVE ENTRY ZONE"), (40.0, "APPROACHING ZONE")):
-            _, reasons = _decide(score=score, raw=raw, sign=sign,
-                                 entry=entry, status=status)
-            text = " ".join(reasons)
-            if "trend strength" in text:
-                assert ("(up)" in text or "(down)" in text or "(flat)" in text), (
-                    f"score={score} sign={sign} entry={entry}: {text!r}"
-                )
+    seen = set()
+    for raw in ("BULLISH", "BEARISH"):
+        for score in SUMS:
+            for entry, inside in ((80.0, True), (80.0, False), (60.0, False),
+                                  (40.0, False)):
+                action, reasons = _decide(score=score, raw=raw, entry=entry,
+                                          inside=inside)
+                seen.add(action)
+                text = " ".join(reasons)
+                assert "trend strength" not in text, (raw, entry, text)
+                side = "LONG" if raw == "BULLISH" else "SHORT"
+                # Every sentence that names a tier names its side with it,
+                # so a reader can never be shown a tier without one.
+                for reason in reasons:
+                    if "CONSERVATIVE" in reason or "AGGRESSIVE" in reason:
+                        assert side in reason, (raw, reason)
+    # The sweep actually visited every tier and the quality gate's WAIT,
+    # rather than one of them many times.
+    assert seen == {"AGGRESSIVE LONG", "LONG", "CONSERVATIVE LONG",
+                    "AGGRESSIVE SHORT", "SHORT", "CONSERVATIVE SHORT",
+                    "WAIT"}, sorted(seen)

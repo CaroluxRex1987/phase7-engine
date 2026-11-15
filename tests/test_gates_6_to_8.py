@@ -89,7 +89,15 @@ def _evaluate(raw="BULLISH", signals=None, trigger=TRIGGERED, risk_valid=True,
     long_plan = raw != "BEARISH"
     if signals is None:
         signals = _signals("BULLISH TREND" if long_plan else "BEARISH TREND")
-    entry = {"score": entry_score, "entry_status": "ACTIVE ENTRY ZONE",
+    # Stage 4, 15 November 2026: AGGRESSIVE reads entry.close_inside_band,
+    # not the STATUS word (Viktor's ruling of 7 November). This record said
+    # "ACTIVE ENTRY ZONE", which is how the tier used to be reached; the
+    # field is what reaches it now, and the word beside it is the one the
+    # field prints as. entry_score of 80 is over the upper tiers' line of
+    # 70, so every run below is an AGGRESSIVE trade unless a gate says
+    # otherwise -- which is what this helper is for.
+    entry = {"score": entry_score, "close_inside_band": True,
+             "entry_status": "INSIDE THE BAND",
              **signals, **(trigger or {})}
     return DecisionModel().evaluate(
         bias={"raw": raw, "score": 78.0 if long_plan else -78.0},
@@ -290,11 +298,15 @@ def test_the_control_every_gate_passing_is_a_trade_on_both_sides():
 def test_a_long_under_a_bearish_daily_trend_is_macro_against_and_says_why():
     out = _evaluate(signals=_signals(macro="BEARISH"))
     assert out["final_action"] == MACRO_AGAINST
-    reason = (f"This would have been AGGRESSIVE LONG, but {MACRO_REASON}, so no "
+    # Stage 4: it read "This would have been AGGRESSIVE LONG, but ...".
+    # The tier is derived at gate 9, after this gate, so there is no tier
+    # here to name -- the wording follows gate 8's, which stage 3 wrote for
+    # the same reason.
+    reason = (f"No earlier gate refused the long, but {MACRO_REASON}, so no "
               f"trade is taken.")
     assert reason in out["explanation"]["reasons"]
     assert out["explanation"]["summary"] == f"{MACRO_AGAINST} — {reason}"
-    assert not any("lacked structural confirmation" in r
+    assert not any("structural confirmation" in r
                    for r in out["explanation"]["reasons"]), (
         "structure, ADX and divergence all passed; the sentence must not "
         "say the bias lacked structural confirmation")
@@ -308,12 +320,14 @@ def test_a_short_under_any_daily_trend_is_not_gated_by_it():
 
 
 def test_a_thin_market_refuses_both_sides_and_says_why():
-    for raw, structure, action in (("BULLISH", "BULLISH TREND", "AGGRESSIVE LONG"),
-                                   ("BEARISH", "BEARISH TREND", "AGGRESSIVE SHORT")):
+    for raw, structure, side in (("BULLISH", "BULLISH TREND", "long"),
+                                 ("BEARISH", "BEARISH TREND", "short")):
         out = _evaluate(raw=raw, signals=_signals(structure=structure, quote_volume=7431.0))
         assert out["final_action"] == THIN_MARKET, (raw, out["explanation"])
-        reason = (f"This would have been {action}, but the decision candle's "
-                  f"turnover was 7431 {UNDER_FLOOR}, so no trade is taken.")
+        # Stage 4: the sentence named the tier the old ladder had chosen.
+        reason = (f"No earlier gate refused the {side}, but the decision "
+                  f"candle's turnover was 7431 {UNDER_FLOOR}, so no trade "
+                  f"is taken.")
         assert out["explanation"]["summary"] == f"{THIN_MARKET} — {reason}"
 
 
@@ -322,7 +336,10 @@ def test_structure_failing_too_keeps_the_signal_label_and_lists_gate_6_and_7():
                                      quote_volume=7431.0))
     assert out["final_action"] == UNCONFIRMED
     summary = out["explanation"]["summary"]
-    assert "lacked structural confirmation (structure is BEARISH TREND, not BULLISH TREND; " in summary
+    assert summary.startswith(
+        f"{UNCONFIRMED} — No earlier gate refused the long, but the bullish "
+        f"bias lacks structural confirmation (structure is BEARISH TREND, "
+        f"not BULLISH TREND; "), summary
     assert MACRO_REASON in summary and UNDER_FLOOR in summary, summary
 
 
@@ -603,10 +620,18 @@ def test_gate_8_is_silent_when_no_side_reached_it():
     assert neutral["explanation"]["summary"].startswith("WAIT — The direction is NEUTRAL")
     assert not any("trigger" in r or "resumption" in r
                    for r in neutral["explanation"]["reasons"])
-    # The ladder's own WAIT (trend strength under the CONSERVATIVE line).
-    weak = _evaluate(health=45.0, trigger=_trig(False))
+    # Stage 4: the ladder's other WAIT -- trend strength under the
+    # CONSERVATIVE line -- is gone, because the tier no longer reads trend
+    # health at all. Gate 2's is the only WAIT before gate 8 now. A low
+    # entry quality waits at gate 9, which runs AFTER gate 8, so there gate
+    # 8 does run and does say it passed; what must not happen is the
+    # quality's WAIT being attributed to the trigger.
+    weak = _evaluate(entry_score=45.0)
     assert weak["final_action"] == "WAIT"
-    assert not any("resumption" in r for r in weak["explanation"]["reasons"])
+    assert "not at a pullback to the average" in weak["explanation"]["summary"], (
+        weak["explanation"]["summary"])
+    assert not any("no resumption candle yet" in r
+                   for r in weak["explanation"]["reasons"])
 
 
 def test_a_degraded_run_with_no_resumption_candle_stays_a_wait():

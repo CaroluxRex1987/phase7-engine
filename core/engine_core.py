@@ -1259,50 +1259,41 @@ class Phase7Engine:
                 degradation.append(
                     f"entry zone ({'/'.join(missing)} unavailable)")
 
-            # A6-adjacent FIX: calculate_entry_quality() accepts macro_bias and
-            # trade_direction to apply its macro-confluence multiplier, but neither
-            # was ever passed, so that multiplier silently defaulted to neutral/LONG
-            # every call. Now derives trade_direction from whichever signal (if any)
-            # is active and passes the real macro_bias through.
+            # THE REDESIGN'S STAGE 4, 15 November 2026: entry quality is
+            # D + H, and it takes the frame and the band and nothing else
+            # (models/entry_model.py, calculate_entry_quality).
             #
-            # Roadmap Layer 5: also passes trend_direction (trend_health.py) and
-            # structure_sequence (structure.py's B2 sequence, already computed
-            # above as trend_sequence) through, so entry quality's own multipliers
-            # can factor in whether the granular trend/structure context actually
-            # supports this specific trade direction.
+            # What this call passed until this stage, and why none of it is
+            # passed now. macro_bias and trade_direction were the macro
+            # confluence multiplier's inputs; trend_direction and
+            # structure_sequence were the trend and structure multipliers'.
+            # All three multipliers are gone -- the first two with the
+            # factors they counted a second time, the third by Viktor's
+            # ruling of 7 November 2026 -- so there is nothing left for any
+            # of the four to move. The dated record of why each was passed
+            # in the first place (the A6-adjacent fix, roadmap layer 5, F2
+            # of round 5 on 12 September, the fallback sweep of 13 October,
+            # and stage 2's `side`) is in docs/PHASE7_HISTORY.md and in the
+            # commits that made them.
             #
-            # F2 FIX, 12 September 2026, GPT-6 Astra round 5: this was
-            # `"SHORT" if short_signal else "LONG"` -- short_signal is False for
-            # reasons that have nothing to do with direction (a reversal warning,
-            # macro disagreement, a structure/trend-health gate miss), so a fully
-            # BEARISH CONFIRMED setup could still be scored as a LONG entry, and
-            # decision_model.py's BEARISH branch used that wrong-direction score
-            # without ever checking short_signal itself. decision_model.py picks
-            # the final action from raw_bias alone (VIKTOR'S RULING, 2 September:
-            # bias is the sole direction source) -- entry quality's direction now
-            # follows the same source, for the same reason: an entry-zone signal
-            # that can score a direction against the engine's own bias is the
-            # identical defect wearing a different name. long_signal/short_signal
-            # are unchanged in `entry` below; they no longer choose this direction.
-            #
-            # THE REDESIGN'S STAGE 2, 14 November 2026: under a NEUTRAL bias
-            # this read the sign of bias_score, as the risk plan did. Both
-            # now take the one `side` computed in section 5 (plan_side), so
-            # entry quality and the plan cannot be scored for different
-            # sides.
-            eq_trade_direction = side
+            # Entry quality has no side. d and h are absolute distances, so
+            # the same close scores the same whichever way the direction
+            # points; `side` is not passed, and stage 2's note that "entry
+            # quality is scored for the same side" as the plan has nothing
+            # left to apply to.
             eq_metrics = calculate_entry_quality(
                 df_struct,
                 entry_zone_lower,
                 entry_zone_upper,
-                macro_bias=macro_bias,
-                trade_direction=eq_trade_direction,
-                # 13 OCTOBER 2026, the fallback sweep: was .get(..., "NEUTRAL"),
-                # a direction nobody measured, into the entry score.
-                # compute_trend_health writes it on all four returns.
-                trend_direction=trend["trend_direction"],
-                structure_sequence=trend_sequence,
             )
+            # A part of entry quality that could not be read is a missing
+            # input, named here so the run reports itself degraded -- which
+            # is what stops it authorising a trade -- and gate 9 reads the
+            # absent score as a WAIT with a sentence of its own. The band's
+            # own absence is named above, where it is computed and where
+            # which of EMA_20 / EMA_50 was missing is known, so
+            # calculate_entry_quality does not name it a second time.
+            degradation.extend(eq_metrics["not_measured"])
 
             entry = {
                 "zone_lower": entry_zone_lower,
@@ -1321,28 +1312,26 @@ class Phase7Engine:
                 "trigger_volume": trigger_reading["trigger_volume"],
                 "trigger_volume_median": trigger_reading["trigger_volume_median"],
                 "score": eq_metrics["score"],
-                "ema_pos_pts": eq_metrics["ema_pos_pts"],
-                "atr_dist_pts": eq_metrics["atr_dist_pts"],
-                "vwma_pts": eq_metrics["vwma_pts"],
-                "rsi_pts": eq_metrics["rsi_pts"],
-                "struct_pts": eq_metrics["struct_pts"],
+                # Stage 4: D and H, each with the distance it is computed
+                # from, in ATRs. The five sub-scores and the whole
+                # reconciliation block that stood here -- ema_pos_pts,
+                # atr_dist_pts, vwma_pts, rsi_pts, struct_pts, base_score,
+                # component_max_points, the three multipliers, their
+                # product, scaled_score, score_ceiling and score_clipped --
+                # went with the parts and the multipliers they explained.
+                # They were added on 5 September 2026 because the panel
+                # printed five numbers and a total they did not add up to;
+                # D + H needs no reconciliation, since the two parts and
+                # the total are the whole of the arithmetic.
+                "distance_atr": eq_metrics["distance_atr"],
+                "distance_pts": eq_metrics["distance_pts"],
+                "hvn_distance_atr": eq_metrics["hvn_distance_atr"],
+                "hvn_pts": eq_metrics["hvn_pts"],
+                # The fact the AGGRESSIVE tier reads, and the fact STATUS is
+                # printed from (Viktor's ruling of 7 November 2026).
+                "close_inside_band": eq_metrics["close_inside_band"],
                 "entry_status": eq_metrics["entry_status"],
                 "distance_from_zone": eq_metrics["distance_from_zone"],
-
-                # 5 September 2026: the reconciliation between the five
-                # sub-scores and the printed total. Every one of these was a
-                # local variable inside calculate_entry_quality that vanished
-                # when it returned, so neither the panel nor the decision log
-                # could explain why 10+5+10+10+4 was printed under 45.18.
-                "base_score": eq_metrics["base_score"],
-                "component_max_points": eq_metrics["component_max_points"],
-                "macro_multiplier": eq_metrics["macro_multiplier"],
-                "trend_multiplier": eq_metrics["trend_multiplier"],
-                "structure_multiplier": eq_metrics["structure_multiplier"],
-                "combined_multiplier": eq_metrics["combined_multiplier"],
-                "scaled_score": eq_metrics["scaled_score"],
-                "score_ceiling": eq_metrics["score_ceiling"],
-                "score_clipped": eq_metrics["score_clipped"],
             }
 
             # 8. RISK MODEL & VALIDATION ENGINE

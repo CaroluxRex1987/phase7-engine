@@ -40,11 +40,24 @@ reading the panel did.
 
 WHAT REPLACED IT
 
-No zone means NaN, the run records the missing input, and the two components
-that depend on the zone fall to their neutral value — this file's own policy
-since Finding 3, on the grounds that lowering conviction is the degraded-run
-flag's job. Scoring the absence as well would make a degraded run look like a
-bad setup rather than an unmeasured one.
+No zone means NaN, and the run records the missing input.
+
+THE REDESIGN'S STAGE 4, 15 November 2026
+
+The policy this file held changed, and the finding it was written for did
+not. Until this stage a missing zone left its two components -- the 30-point
+EMA position and the 25-point ATR distance -- at ZONE_POINTS_NOT_MEASURED
+and ATR_POINTS_NOT_MEASURED, 15 of 30 and 15 of 25, on this file's own
+reasoning since Finding 3: lowering conviction is the degraded flag's job,
+and scoring an absence twice makes a degraded run look like a bad setup.
+Entry quality is D + H now, and a part whose input is missing is NOT
+MEASURED: entry quality is not computed at all, the score is None, and gate
+9 reads that as a WAIT with a sentence of its own. So the two constants go
+with the two components, and the assertions that read them read None
+instead. The fabrications the finding named are still refused, which is what
+this file is for, and the status words have changed with STATUS itself (it
+is the close's position against the band now, not its distance in band
+widths).
 """
 
 import math
@@ -60,7 +73,14 @@ PINNED_DIR = os.path.join(REPO_ROOT, "tests", "fixtures", "pinned")
 UNREACHABLE = "http://127.0.0.1:9"
 
 
-def _frame(close=1.2345, ema20=None, ema50=None, atr=0.01, rows=60, **cols):
+def _frame(close=1.2345, ema20=None, ema50=None, atr=0.01, hvn=None,
+           rows=60, **cols):
+    """
+    Stage 4: `hvn` is new. Entry quality is D + H, so a frame with no HVN
+    column leaves H not measured and the whole score None -- which is right,
+    and is not what most of the tests below are about. The ones that want a
+    score pass one.
+    """
     data = {"close": [close] * rows}
     if ema20 is not None:
         data["EMA_20"] = [ema20] * rows
@@ -68,6 +88,8 @@ def _frame(close=1.2345, ema20=None, ema50=None, atr=0.01, rows=60, **cols):
         data["EMA_50"] = [ema50] * rows
     if atr is not None:
         data["ATR"] = [atr] * rows
+    if hvn is not None:
+        data["HVN"] = [hvn] * rows
     data.update({k: [v] * rows for k, v in cols.items()})
     return pd.DataFrame(data)
 
@@ -80,17 +102,10 @@ def test_an_absent_zone_is_not_invented_from_the_price():
     """
     The finding itself. NaN bounds must not become close*0.99 / close*1.01.
     """
-    import models.entry_model as em
     from models.entry_model import calculate_entry_quality
 
-    # getattr with the documented default, so this test fails on the
-    # BEHAVIOUR against pre-fix code rather than on an ImportError for a
-    # constant that did not exist yet. test_the_not_measured_policy_is_named
-    # below is what guards the constant itself.
-    neutral = getattr(em, "ZONE_POINTS_NOT_MEASURED", 15.0)
-
     close = 1.2345
-    out = calculate_entry_quality(_frame(close=close),
+    out = calculate_entry_quality(_frame(close=close, hvn=close),
                                   float("nan"), float("nan"))
 
     assert out["entry_status"] == "ZONE NOT AVAILABLE", (
@@ -98,33 +113,59 @@ def test_an_absent_zone_is_not_invented_from_the_price():
         f"one percent either side of {close} and then reported which part of "
         f"it price was in."
     )
-    assert out["ema_pos_pts"] == int(neutral), (
-        f"scored {out['ema_pos_pts']} of 30 for a zone that was never "
-        f"located. The fabricated band scored 5, 10, 20 or 30 depending on "
-        f"where price happened to sit inside a constant."
+    # Stage 4: this read `ema_pos_pts == 15` -- the midpoint of the
+    # 30-point component. There is no such component and no such midpoint:
+    # the distance part is NOT MEASURED, and with it the whole quality.
+    assert out["distance_pts"] is None, (
+        f"scored {out['distance_pts']} of 80 for a band that was never "
+        f"located. The fabricated band scored 5, 10, 20 or 30 of 30 "
+        f"depending on where price happened to sit inside a constant."
     )
+    assert out["distance_atr"] is None
+    assert out["score"] is None, (
+        f"entry quality is {out['score']} with no band to measure the "
+        f"close's distance from")
+    assert out["close_inside_band"] is None, (
+        "a close has no position against a band nobody located")
     assert math.isnan(out["distance_from_zone"]), (
         f"reported a distance of {out['distance_from_zone']} from a zone that "
         f"does not exist"
     )
+    # The band's absence is core/engine_core.py's to name -- it computes the
+    # band and can say which EMA was missing -- so this function does not
+    # name it a second time.
+    assert not any("band" in m.lower() or "zone" in m.lower()
+                   for m in out["not_measured"]), out["not_measured"]
 
 
-def test_an_absent_zone_also_stops_the_atr_distance_being_scored():
+def test_an_absent_zone_leaves_the_distance_part_not_measured_even_with_an_atr():
     """
-    The consequence that is easy to miss: the ATR component divides the
-    distance TO THE ZONE by ATR. No zone, no distance, nothing to divide.
+    The consequence that is easy to miss: D divides the distance TO THE BAND
+    by ATR. No band, no distance to divide, however good the ATR is.
+
+    Stage 4 renamed this from
+    test_an_absent_zone_also_stops_the_atr_distance_being_scored, which held
+    the same property of the 25-point ATR-distance component. The draft's
+    section 14 classified it G, as going with that component; the property
+    it tests is D's own and stays. Recorded as one of section 14's
+    misclassifications for this stage.
     """
-    import models.entry_model as em
     from models.entry_model import calculate_entry_quality
 
-    neutral = getattr(em, "ATR_POINTS_NOT_MEASURED", 15.0)
+    out = calculate_entry_quality(_frame(atr=0.01, hvn=1.2345),
+                                  float("nan"), float("nan"))
 
-    out = calculate_entry_quality(_frame(atr=0.01), float("nan"), float("nan"))
-
-    assert out["atr_dist_pts"] == int(round(neutral)), (
-        f"atr_dist_pts is {out['atr_dist_pts']} on a run with no zone. ATR "
-        f"was present, but the distance it scales is a distance to the zone."
+    assert out["distance_pts"] is None, (
+        f"distance_pts is {out['distance_pts']} on a run with no band. ATR "
+        f"was present, but the distance it scales is a distance to the band."
     )
+    # H is measurable here -- it needs the HVN and the ATR, not the band --
+    # and it is still measured. The absence is confined to the part that
+    # needed the missing input.
+    assert out["hvn_pts"] is not None
+    assert out["score"] is None, (
+        "one part not measured leaves the quality not computed, not the "
+        "other part's points reported as the total")
 
 
 def test_only_one_bound_is_still_no_zone():
@@ -152,76 +193,135 @@ def test_a_price_that_could_not_be_read_is_not_one_dollar():
         f"zone of 0.99-1.01 read as ACTIVE ENTRY ZONE — a perfect entry, "
         f"scored against a price nobody read."
     )
-    assert out["score"] == 0.0
+    # Stage 4: this read `score == 0.0`, the default_response's value. A
+    # quality of zero is a real reading -- the golden run's is exactly that
+    # -- so it cannot also mean "no price was read". None does.
+    assert out["score"] is None
+    assert out["distance_atr"] is None and out["hvn_distance_atr"] is None
+    assert out["close_inside_band"] is None
+    assert any("close" in m for m in out["not_measured"]), out["not_measured"]
     assert math.isnan(out["distance_from_zone"])
 
 
-def test_a_zone_with_no_width_is_not_given_one():
+def test_two_coincident_averages_are_still_a_band_with_a_position():
     """
-    zone_width = close * 0.01 silently re-scaled all three bands, which are
-    multiples of that width.
+    zone_width = close * 0.01 silently re-scaled all three bands, which were
+    multiples of that width. That is the finding, and it is still refused.
+
+    Stage 4 renamed this from test_a_zone_with_no_width_is_not_given_one and
+    turned its status assertion round. ZONE HAS NO WIDTH existed because the
+    three bands were multiples of the width and there was none to multiply.
+    STATUS is a position now, and a close has a position against two
+    coincident averages exactly as it has against two separated ones: on
+    them, above them or below them. So the word goes, and the position is
+    asserted instead. The draft's section 14 classified this G under branch
+    (a); the property survives the branch, so it is an R. Recorded as one of
+    section 14's misclassifications for this stage.
     """
-    import models.entry_model as em
     from models.entry_model import calculate_entry_quality
 
-    neutral = getattr(em, "ZONE_POINTS_NOT_MEASURED", 15.0)
+    on_it = calculate_entry_quality(_frame(close=1.2345, hvn=1.2345, atr=0.1),
+                                    1.2345, 1.2345)
+    assert on_it["entry_status"] == "INSIDE THE BAND", on_it["entry_status"]
+    assert on_it["close_inside_band"] is True
+    # The close is ON the band, so its distance from the midpoint is zero
+    # and D is full -- which is the width-independent answer. The old code
+    # would have banded it against a fabricated width of close * 0.01.
+    assert on_it["distance_atr"] == 0.0
+    assert on_it["distance_pts"] == 80.0
 
-    out = calculate_entry_quality(_frame(close=1.2345), 1.2345, 1.2345)
+    above = calculate_entry_quality(_frame(close=1.3, hvn=1.3, atr=0.1),
+                                    1.2, 1.2)
+    assert above["entry_status"] == "ABOVE THE BAND", above["entry_status"]
+    assert above["close_inside_band"] is False
 
-    assert out["entry_status"] == "ZONE HAS NO WIDTH", (
-        f"status is {out['entry_status']!r} for two coincident EMAs"
-    )
-    assert out["ema_pos_pts"] == int(neutral)
-    assert math.isfinite(out["distance_from_zone"]), (
-        "distance_from_zone is a real measurement even when the zone has no "
-        "width — it should still be reported"
-    )
+    below = calculate_entry_quality(_frame(close=1.1, hvn=1.1, atr=0.1),
+                                    1.2, 1.2)
+    assert below["entry_status"] == "BELOW THE BAND", below["entry_status"]
+    assert below["close_inside_band"] is False
+
+    for out in (on_it, above, below):
+        assert math.isfinite(out["distance_from_zone"]), (
+            "distance_from_zone is a real measurement even when the two "
+            "averages coincide — it should still be reported"
+        )
 
 
-def test_the_not_measured_policy_is_named():
-    """
-    The two constants exist and are the midpoints they claim to be.
-
-    Separated from the behavioural tests above deliberately: this one CAN
-    only fail with an ImportError against pre-fix code, which proves a name
-    is new and nothing about whether the defect was real. Keeping it apart
-    stops it inflating the negative-control count.
-    """
-    from models.entry_model import (ATR_POINTS_NOT_MEASURED,
-                                    ZONE_POINTS_NOT_MEASURED)
-
-    assert ZONE_POINTS_NOT_MEASURED == 15.0    # of 30
-    assert ATR_POINTS_NOT_MEASURED == 15.0     # of 25
+# Stage 4, 15 November 2026: test_the_not_measured_policy_is_named stood
+# here, holding that ZONE_POINTS_NOT_MEASURED and ATR_POINTS_NOT_MEASURED
+# were both 15.0, the midpoints of their components. Both constants are
+# gone: a part whose input is missing is not measured rather than given a
+# neutral value, so there is no policy number left to name. The policy
+# itself is held by the two tests above, which assert None.
 
 
 # ============================================================
 # The measured case is untouched
 # ============================================================
 
-@pytest.mark.parametrize("close,expected_status,expected_pts", [
-    (1.10, "ACTIVE ENTRY ZONE", 30),      # dist 0.10 <= width 0.20
-    (1.30, "NEAR ZONE", 20),              # dist 0.30 <= 2.0 x width = 0.40
-    (1.60, "APPROACHING ZONE", 10),       # dist 0.60 <= 3.5 x width = 0.70
-    (2.00, "AWAY FROM ZONE", 5),          # dist 1.00 >  0.70
+# Zone 0.9 - 1.1 with ATR 0.1 and the HVN at the midpoint, so every number
+# below is a whole or a half ATR and can be checked by hand -- which is the
+# reason D and H are straight lines rather than the old exp(-0.5 x ratio)
+# decay (the draft's section 3.1).
+#
+#   d = |close - 1.0| / 0.1          D = 80 x max(0, 1 - d / 3)
+#   h = |close - 1.0| / 0.1          H = 20 x max(0, 1 - h / 2)
+@pytest.mark.parametrize("close,status,d,D,h,H", [
+    (1.00, "INSIDE THE BAND", 0.0, 80.0, 0.0, 20.0),
+    (1.10, "INSIDE THE BAND", 1.0, 80.0 * 2 / 3, 1.0, 10.0),
+    (1.15, "ABOVE THE BAND", 1.5, 40.0, 1.5, 5.0),
+    (0.85, "BELOW THE BAND", 1.5, 40.0, 1.5, 5.0),
+    (1.40, "ABOVE THE BAND", 4.0, 0.0, 4.0, 0.0),
 ])
-def test_a_real_zone_still_scores_exactly_as_before(close, expected_status, expected_pts):
+def test_a_real_zone_still_scores_and_the_lines_have_not_moved(
+        close, status, d, D, h, H):
     """
     Negative control. The NOT-MEASURED branches must not swallow real
-    readings, and the bands must not have moved.
+    readings, and the two straight lines must not have moved.
 
-    Zone 0.9 - 1.1: mid 1.0, width 0.2, so the band edges sit at a distance
-    of 0.2, 0.4 and 0.7 from the mid. The first draft of this test put 1.13
-    in the NEAR band -- 0.13 from the mid, which is ACTIVE. The test was
-    wrong and reported the code as wrong.
+    Stage 4 rewrote this from test_a_real_zone_still_scores_exactly_as_before,
+    whose four cases were the EMA-position component's bands -- ACTIVE ENTRY
+    ZONE at 30 of 30 within one band width of the midpoint, then NEAR at 20,
+    APPROACHING at 10 and AWAY at 5 at two and three and a half widths. The
+    component, the words and the widths are all gone (no ruling set the 1, 2
+    and 3.5), so there is nothing left of the old expectations to keep. The
+    cases below are the new lines at their ends and in between, including
+    both ends of the band, where the close counts as inside it.
     """
     from models.entry_model import calculate_entry_quality
 
-    out = calculate_entry_quality(_frame(close=close), 0.9, 1.1)
+    out = calculate_entry_quality(
+        _frame(close=close, atr=0.1, hvn=1.0), 0.9, 1.1)
 
-    assert out["entry_status"] == expected_status
-    assert out["ema_pos_pts"] == expected_pts
+    assert out["entry_status"] == status
+    assert out["close_inside_band"] is (status == "INSIDE THE BAND")
+    assert out["distance_atr"] == pytest.approx(d)
+    assert out["distance_pts"] == pytest.approx(D)
+    assert out["hvn_distance_atr"] == pytest.approx(h)
+    assert out["hvn_pts"] == pytest.approx(H)
+    assert out["score"] == pytest.approx(D + H)
+    assert out["not_measured"] == []
+    # Unchanged by this stage: the same distance as a percentage of the
+    # close, under the same key and the same definition (round 8, F5).
     assert out["distance_from_zone"] == pytest.approx(
         abs(close - 1.0) / close * 100.0)
+
+
+def test_neither_part_goes_negative_past_the_end_of_its_line():
+    """
+    max(0, ...) in both parts, held at a distance far past where each line
+    reaches zero. Without this, a straight line would keep falling and a
+    close far from everything would score below nothing.
+    """
+    from models.entry_model import calculate_entry_quality
+
+    out = calculate_entry_quality(
+        _frame(close=10.0, atr=0.1, hvn=1.0), 0.9, 1.1)
+
+    assert out["distance_atr"] == pytest.approx(90.0)
+    assert out["distance_pts"] == 0.0
+    assert out["hvn_pts"] == 0.0
+    assert out["score"] == 0.0
 
 
 def test_bounds_given_the_wrong_way_round_are_still_swapped():

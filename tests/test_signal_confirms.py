@@ -67,15 +67,24 @@ def _signals(structure="BULLISH TREND", adx=30.0,
 
 
 def _evaluate(raw="BULLISH", score=78.0, health=90.0, entry_score=80.0,
-              status="ACTIVE ENTRY ZONE", risk_valid=True,
+              inside=True, risk_valid=True,
               signals=None, degradation=None, trend_divergence=False):
     """
-    A full DecisionModel.evaluate() -- the ladder AND the gate after it.
+    A full DecisionModel.evaluate() -- the ladder AND the gates after it.
     `trend_divergence` sets the trend block's own momentum_divergence flag,
     so a divergence test shows the same fact to the ladder and to the gate,
     as the engine does.
+
+    Stage 4, 15 November 2026: the `status` parameter was the STATUS word,
+    "ACTIVE ENTRY ZONE", which is how the AGGRESSIVE tier used to be
+    reached. AGGRESSIVE reads entry.close_inside_band now (Viktor's ruling
+    of 7 November), so the parameter is the field, and the word beside it is
+    the one the field prints as. With entry_score at 80, over the upper
+    tiers' line of 70, the default is still an AGGRESSIVE trade.
     """
-    entry = {"score": entry_score, "entry_status": status, **TRIGGERED}
+    entry = {"score": entry_score, "close_inside_band": inside,
+             "entry_status": "INSIDE THE BAND" if inside else "ABOVE THE BAND",
+             **TRIGGERED}
     if signals is not None:
         entry.update(signals)
     long_plan = raw != "BEARISH"
@@ -203,7 +212,10 @@ def test_a_confirmed_short_is_still_taken():
 def test_an_unconfirmed_long_becomes_no_trade_and_says_why():
     out = _evaluate(signals=_signals(structure="BEARISH TREND"))
     assert out["final_action"] == UNCONFIRMED
-    reason = ("This would have been AGGRESSIVE LONG, but the bullish bias lacked "
+    # Stage 4: it read "This would have been AGGRESSIVE LONG, but the
+    # bullish bias lacked ...". The tier is derived at gate 9, after this
+    # gate, so there is no tier here to name.
+    reason = ("No earlier gate refused the long, but the bullish bias lacks "
               "structural confirmation (structure is BEARISH TREND, not BULLISH "
               "TREND), so no trade is taken.")
     assert reason in out["explanation"]["reasons"]
@@ -214,13 +226,17 @@ def test_an_unconfirmed_long_becomes_no_trade_and_says_why():
 def test_a_counter_divergence_now_blocks_a_conservative_trade():
     """
     Before work order F the CONSERVATIVE branch had no divergence check at
-    all. Trend health 60 and entry 40 is CONSERVATIVE LONG on the ladder (it
-    also needed an agreeing macro until work order G); a bearish divergence
-    now refuses it.
+    all. A bearish divergence refuses the tier now, whatever it is.
+
+    Stage 4, 15 November 2026: the CONSERVATIVE case was trend health 60
+    with entry quality 40 -- trend health's own 50-to-75 band, with entry
+    quality under the upper tiers' line. The tier comes from entry quality
+    alone now, so the CONSERVATIVE case is an entry quality between the two
+    lines; 40 is under the lower one and would wait at gate 9.
     """
-    clean = _evaluate(health=60.0, entry_score=40.0, signals=_signals())
+    clean = _evaluate(entry_score=60.0, signals=_signals())
     assert clean["final_action"] == "CONSERVATIVE LONG", clean["explanation"]
-    diverged = _evaluate(health=60.0, entry_score=40.0, trend_divergence=True,
+    diverged = _evaluate(entry_score=60.0, trend_divergence=True,
                          signals=_signals(divergence=True, divergence_direction="BEARISH"))
     assert diverged["final_action"] == UNCONFIRMED
 
@@ -247,19 +263,30 @@ def test_the_ladder_no_longer_reads_divergence_at_all():
     """
     One rule, in one place. _determine_final_action alone -- no gate --
     returns the same action with and without a divergence flag in the trend.
+
+    Stage 4, 15 November 2026: `trend` is no longer a parameter of that
+    function, because nothing in it reads the trend block -- the tier comes
+    from entry quality, at gate 9, after this. So the divergence flag the
+    old call varied cannot reach it at all, which is this test's property
+    held more strongly than it was: the flag is not merely unread, it
+    cannot be passed. The action the function returns is the bare side now;
+    the tier is gate 9's.
     """
+    import inspect as _inspect
     dm = DecisionModel()
-    actions = []
-    for divergence in (False, True):
-        actions.append(dm._determine_final_action(
-            bias={"raw": "BULLISH", "score": 78.0},
-            trend={"trend_health": 90.0, "trend_direction_sign": 1,
-                   "momentum_divergence": divergence},
-            entry={"score": 80.0, "entry_status": "ACTIVE ENTRY ZONE"},
-            risk={"risk_valid": True, "risk_regime": "NORMAL RISK",
-                  "validation_state": "NEUTRAL"},
-            reasons=[]))
-    assert actions == ["AGGRESSIVE LONG", "AGGRESSIVE LONG"], actions
+    params = _inspect.signature(dm._determine_final_action).parameters
+    assert "trend" not in params, (
+        f"_determine_final_action takes the trend block again: {list(params)}. "
+        f"Divergence, trend health and momentum all live in it, and the "
+        f"ladder reads none of them.")
+    action = dm._determine_final_action(
+        bias={"raw": "BULLISH", "score": 78.0},
+        entry={"score": 80.0, "close_inside_band": True,
+               "entry_status": "INSIDE THE BAND"},
+        risk={"risk_valid": True, "risk_regime": "NORMAL RISK",
+              "validation_state": "NEUTRAL"},
+        reasons=[])
+    assert action == "LONG", action
 
 
 def test_an_opposing_macro_blocks_a_long_and_not_a_short():
@@ -278,8 +305,8 @@ def test_an_opposing_macro_blocks_a_long_and_not_a_short():
     from models.signal_router import SignalRouter
 
     def routed(raw, structure, macro, targets):
-        entry = {"score": 80.0, "entry_status": "ACTIVE ENTRY ZONE",
-                 "score_clipped": False, **TRIGGERED,
+        entry = {"score": 80.0, "close_inside_band": True,
+                 "entry_status": "INSIDE THE BAND", **TRIGGERED,
                  **_signals(structure=structure, macro=macro)}
         sign = 1 if raw == "BULLISH" else -1
         return SignalRouter(engine_core=object())._build_decision_object(

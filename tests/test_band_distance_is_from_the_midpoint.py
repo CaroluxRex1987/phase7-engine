@@ -63,14 +63,20 @@ def _line(panel, prefix):
 
 def test_inside_the_band_the_line_names_the_midpoint():
     entry = _entry(0.8082, 0.7795, 0.8142)
-    assert entry["entry_status"] == "ACTIVE ENTRY ZONE", entry
+    # Stage 4, 15 November 2026: STATUS is the close's POSITION against the
+    # band. This close is between the two averages, so it reads INSIDE THE
+    # BAND where it read ACTIVE ENTRY ZONE -- a distance within one band
+    # width of the midpoint, which is a different claim and had the same
+    # word. The distance line, which is what this file is about, is
+    # unchanged: the same number, the same key, the same label.
+    assert entry["entry_status"] == "INSIDE THE BAND", entry
 
     panel = _panel(entry)
 
     distance = _line(panel, "BAND DISTANCE")
     assert "1.40% from the band's midpoint" in distance, distance
     assert "away from the band" not in panel, distance
-    assert "ACTIVE ENTRY ZONE" in _line(panel, "STATUS"), panel
+    assert "INSIDE THE BAND" in _line(panel, "STATUS"), panel
 
 
 def test_outside_the_band_the_number_is_the_midpoint_distance():

@@ -223828,3 +223828,154 @@ Lines 6325–6330 of the version at `c012e5b`:
   ruled or would see** (THE REDESIGN'S BUILD, above). None waits for him; each is his
   to reverse, and a reversal is cheapest before stage 3.
 ~~~~~
+
+## 15 November 2026 — the lines the rewrite of PHASE7_NEXT.md removed from its version at `5e7e429`
+
+*Moved here on 15 November 2026 by stage 4 of the redesign's build, the fourth commit
+on the branch `redesign`, under "Ruling, 4 November 2026 — HISTORY
+keeps what each rewrite of PHASE7_NEXT.md removes, not the whole file" (DECISIONS).
+Below the rule, each block is a run of lines of the file as it stood at `5e7e429` that
+the rewrite deleted or replaced, word for word, labelled with its line numbers in that
+version; "this session" in them is the session that opened at 07:17 on 15 November,
+not the one that writes this entry, which opened at 11:28 on 15 November, and "the
+commit that writes this line", "the commit that writes this section" and "this
+commit" name `5e7e429`. The
+whole version: `git show 5e7e429:docs/PHASE7_NEXT.md`. Checked by
+`docs/build/check_history_move.py`.*
+
+---
+Lines 3–5 of the version at `5e7e429`:
+
+~~~~~
+*15 November 2026, in the session that opened at 07:17, on the branch `redesign`.
+Rewritten by stage 3 of the redesign's build, the branch's third commit, which also
+files the readings made building it and records `c012e5b`'s landing;
+~~~~~
+
+Line 7 of the version at `5e7e429`:
+
+~~~~~
+`c012e5b` are in HISTORY, which points to that whole version in git.
+~~~~~
+
+Line 59 of the version at `5e7e429`:
+
+~~~~~
+3. **Gates 6 to 8 — landed by the commit that writes this section** (DECISIONS,
+~~~~~
+
+Lines 63–76 of the version at `5e7e429`:
+
+~~~~~
+   `quote_volume` at least `LIQUIDITY_FLOOR_USDT`, 10,000 (gate 7), are blockers on
+   the confirmation signal's list, each with a label of its own, NO-TRADE (MACRO
+   AGAINST) and NO-TRADE (THIN MARKET); the label a refused side takes is the first
+   gate's, in order, that it does not pass, recorded as `entry.long_signal_refusal`
+   and `entry.short_signal_refusal`. Gate 8 follows the signal: the decision candle
+   closes beyond its open and the previous close, on a volume strictly above the
+   median of the `TRIGGER_VOLUME_LOOKBACK`, 20, candles before it, or the action is
+   WAIT; `entry.trigger`, `.trigger_volume`, `.trigger_volume_median`,
+   `.quote_volume` and `.liquidity_floor` record what was read. A frame without
+   `quote_volume` is now a degraded run. The panel prints TURNOVER, TRIGGER and
+   TRIGGER VOLUME under STATUS. **The golden decision is a WAIT at gate 8.** Its
+   live run is recorded in its commit message.
+4. **Entry quality** D + H, the tiers 70 and 50, gate 9, the second pinned decision.
+   **Next.**
+~~~~~
+
+Line 78 of the version at `5e7e429`:
+
+~~~~~
+   flags, **and the weighted sum** (below).
+~~~~~
+
+Lines 82–85 of the version at `5e7e429`:
+
+~~~~~
+**The branch's `code_hash`:** `b8afef79…` since stage 3, `43d15cbb…` at stage 2,
+`a3d499df…` at stage 1, `816d4951…` on `master`, which the scheduled task runs.
+Computed in the Linux sandbox on both trees at each stage; stage 1's and stage 2's
+are also on their live records.
+~~~~~
+
+Lines 89–98 of the version at `5e7e429`:
+
+~~~~~
+- **The ladder's tiers are still trend health's.** Gate 8 runs on a trade the old
+  ladder chose, and a refusal by gate 6 or 7 still reads "This would have been
+  CONSERVATIVE LONG", a tier stage 4 redefines. `explanation.reasons` therefore
+  moves again in stages 4 and 5; gate 8's sentence, the summary it gives and the
+  golden action do not.
+- **Entry 58's helper has an edge, found and not fixed:** a value equal to a line
+  that needs more than two decimals prints above it (100.123456 against itself
+  prints "100.13"). No constant line in the engine has decimals. Gate 8's median is
+  a line the data gives; there the equal case is printed exactly, and a test holds
+  it. For stage 4, which prints entry quality against 70 and 50 through the helper.
+~~~~~
+
+Line 100 of the version at `5e7e429`:
+
+~~~~~
+  constant in six files; stage 4 does the same for entry quality's inputs.
+~~~~~
+
+Lines 167–168 of the version at `5e7e429`:
+
+~~~~~
+  series, not taken from §13;** done before stage 3 (below), and owed before
+  stage 4 for §13.1's gate 9 (`d` 3.2070 ATR, `h` 15.1202 ATR, entry quality 0).
+~~~~~
+
+Lines 180–188 of the version at `5e7e429`:
+
+~~~~~
+**`c012e5b`'s landing.** Viktor's opening message of 15 November, sent at 07:17:
+stage 2 landed as `c012e5b` (tree `92e611f1…`), pushed on 15 November at 06:21:05,
+and its landing "was checked at 06:21:48 against GitHub and the disk and holds: tip,
+parent 6038283, tree against Verified-Tree, message, COMMIT_EDITMSG, index (308
+entries), the 31 files, the root clean, master still 696af24". Recorded on his
+statement. Of it this session read from GitHub, by its clone of 07:17: `redesign`'s
+tip is `c012e5b`, its parent `6038283`, its tree
+`92e611f15fe7304574762b9b353a8af4d29136a5`, the one its `Verified-Tree:` line names,
+and `master` is `696af24`. His disk was not read again for it.
+~~~~~
+
+Lines 4243–4244 of the version at `5e7e429`:
+
+~~~~~
+- **Test suite** — **1058 passed / 0 failed, no warnings line** with `pandas_ta`;
+  **869 passed / 178 skipped** without it; `run_tests.py` **990 passed / 0 failed /
+~~~~~
+
+Lines 4249–4258 of the version at `5e7e429`:
+
+~~~~~
+  until `713e084` (entry 50). The commit that writes this line, stage 3 of the
+  redesign's build, takes the suite from 1018 to 1058, from 833 / 174 to 869 / 178,
+  and from 950 / 0 / 31 to 990 / 0 / 31: 40 tests in one new file,
+  `tests/test_gates_6_to_8.py`, none taking a fixture, so the errors stay 31; four
+  of them run the engine and skip without `pandas_ta`. No test is removed: five
+  are renamed, the draft's two X, turned round; the one stage 1 left to be moved;
+  the one that held "no module calls the helper yet", which now holds which three
+  do; and the golden note test, whose copy is turned the other way. Thirteen existing test files change and one is new. From
+  the Linux sandbox, Python 3.12.3, pinned requirements, on the patch applied to an
+  autocrlf clone of `c012e5b` at `redesign`. `c012e5b`, stage 2 of the
+~~~~~
+
+Line 6381 of the version at `5e7e429`:
+
+~~~~~
+  from the version at `a3c863e` are in HISTORY's new entry, checked by
+~~~~~
+
+Lines 6391–6397 of the version at `5e7e429`:
+
+~~~~~
+- **Claude's, next: stage 4 of the redesign's build, entry quality D + H, the tiers
+  70 and 50, gate 9 and the second pinned decision** (THE REDESIGN'S BUILD, above),
+  after recomputing the draft's figures for the golden run's gate 9 from the golden
+  test's own series.
+- **Viktor's, when he reads it: stage 2's three readings and stage 3's four that
+  change something he ruled or would see** (THE REDESIGN'S BUILD, above). None waits
+  for him; each is his to reverse, and a reversal is cheapest before stage 4.
+~~~~~

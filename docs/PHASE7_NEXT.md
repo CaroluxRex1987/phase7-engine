@@ -1,10 +1,10 @@
 # Next step — read this first
 
-*15 November 2026, in the session that opened at 07:17, on the branch `redesign`.
-Rewritten by stage 3 of the redesign's build, the branch's third commit, which also
-files the readings made building it and records `c012e5b`'s landing;
+*15 November 2026, in the session that opened at 11:28, on the branch `redesign`.
+Rewritten by stage 4 of the redesign's build, the branch's fourth commit, which also
+files the readings made building it and records `5e7e429`'s landing;
 the lines it removed from the version at
-`c012e5b` are in HISTORY, which points to that whole version in git.
+`5e7e429` are in HISTORY, which points to that whole version in git.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
 rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
@@ -56,48 +56,82 @@ with what they hash.
    is the NEUTRAL direction, with its own sentence, and `MIN_ACTION_BIAS` is gone;
    the state file's key is `raw_bias`; the record gains `lineage.direction` and
    `lineage.risk_inputs.side`. Its live run is recorded in its commit message.
-3. **Gates 6 to 8 — landed by the commit that writes this section** (DECISIONS,
+3. **Gates 6 to 8 — landed, `5e7e429`** (DECISIONS,
    "Decision, 15 November 2026 — stage 3 of the redesign's build: gates 6 to 8,
    eight readings made building them, and what the draft got right and wrong").
    No LONG while the daily trend is BEARISH (gate 6) and the decision candle's
-   `quote_volume` at least `LIQUIDITY_FLOOR_USDT`, 10,000 (gate 7), are blockers on
-   the confirmation signal's list, each with a label of its own, NO-TRADE (MACRO
-   AGAINST) and NO-TRADE (THIN MARKET); the label a refused side takes is the first
-   gate's, in order, that it does not pass, recorded as `entry.long_signal_refusal`
-   and `entry.short_signal_refusal`. Gate 8 follows the signal: the decision candle
-   closes beyond its open and the previous close, on a volume strictly above the
-   median of the `TRIGGER_VOLUME_LOOKBACK`, 20, candles before it, or the action is
-   WAIT; `entry.trigger`, `.trigger_volume`, `.trigger_volume_median`,
-   `.quote_volume` and `.liquidity_floor` record what was read. A frame without
-   `quote_volume` is now a degraded run. The panel prints TURNOVER, TRIGGER and
-   TRIGGER VOLUME under STATUS. **The golden decision is a WAIT at gate 8.** Its
-   live run is recorded in its commit message.
-4. **Entry quality** D + H, the tiers 70 and 50, gate 9, the second pinned decision.
-   **Next.**
+   `quote_volume` at least `LIQUIDITY_FLOOR_USDT`, 10,000 (gate 7), are blockers
+   on the confirmation signal's list, each with a label of its own, NO-TRADE
+   (MACRO AGAINST) and NO-TRADE (THIN MARKET); the label a refused side takes is
+   the first gate's, in order, that it does not pass, recorded as
+   `entry.long_signal_refusal` and `entry.short_signal_refusal`. Gate 8 follows
+   the signal: the decision candle closes beyond its open and the previous
+   close, on a volume strictly above the median of the
+   `TRIGGER_VOLUME_LOOKBACK`, 20, candles before it, or the action is WAIT. A
+   frame without `quote_volume` is a degraded run. The panel prints TURNOVER,
+   TRIGGER and TRIGGER VOLUME under STATUS. **The golden decision is a WAIT at
+   gate 8.** Its live run is recorded in its commit message.
+4. **Entry quality, the tiers and gate 9 — landed by the commit that writes this
+   section** (DECISIONS, "Decision, 15 November 2026 — stage 4 of the redesign's
+   build: entry quality D + H, the tiers, gate 9 and the second pinned decision
+   …"). Entry quality is **D + H**: `80 × max(0, 1 − d / 3)` for the close's
+   distance from the EMA band's midpoint in ATRs, plus `20 × max(0, 1 − h / 2)`
+   for its distance from the HVN, with no multiplier and no clip. A part whose
+   input is missing is NOT MEASURED — the score is None, the run is degraded with
+   the input named, and gate 9 answers WAIT — never a neutral value. STATUS is
+   the close's position against the band (INSIDE / ABOVE / BELOW THE BAND),
+   printed from `entry.close_inside_band`, which is what AGGRESSIVE reads.
+   **Gate 9 is the ladder's last gate**, after gate 8, and the only place a tier
+   is chosen: at or above 70 an upper tier, AGGRESSIVE with the close inside the
+   band and a NORMAL or LOW regime; at or above 50 CONSERVATIVE; under 50 a WAIT.
+   `_determine_final_action` answers gates 0 to 2 and returns the bare side, so
+   no sentence before gate 9 names a tier. H1's branch is gone. The second
+   pinned decision is committed: `tests/fixtures/ohlcv_trade_4h.csv`, seed 32,
+   with a snapshot of its own that pins a LONG. **The golden decision is
+   unchanged — still a WAIT at gate 8.** Its live run is recorded in its commit
+   message.
 5. **Removals** — trend health, confidence and EV, validation, the exit watch's two
-   flags, **and the weighted sum** (below).
+   flags, **and the weighted sum** (below). **Next.**
 6. **Reconciliation** against the draft's sections 13 and 14; replacements for H1, H2
    and H5 proposed.
 
-**The branch's `code_hash`:** `b8afef79…` since stage 3, `43d15cbb…` at stage 2,
-`a3d499df…` at stage 1, `816d4951…` on `master`, which the scheduled task runs.
-Computed in the Linux sandbox on both trees at each stage; stage 1's and stage 2's
-are also on their live records.
+**The branch's `code_hash`:** `322cdf66…` since stage 4, `b8afef79…` at stage 3,
+`43d15cbb…` at stage 2, `a3d499df…` at stage 1, `816d4951…` on `master`, which the
+scheduled task runs. Computed in the Linux sandbox on both trees at each stage;
+stage 1's, stage 2's and stage 3's are also on their live records.
+
+**Left for a later stage on purpose, by stage 4** (the entry's readings 3, 5
+and 10, and what it weakens):
+
+- **Trend health, confidence, EV and validation are still computed, recorded and
+  printed, and nothing in the decision reads any of them.** Four numbers on the
+  panel that no gate consults. They leave in stage 5. `validation_score`,
+  `validation_state` and `validation_note` are among them: H1's branch, which
+  read two of them, is gone with the ladder, but the fields stay.
+- **Entry 58's helper still has its edge, found by stage 3 and not fixed:** a
+  value equal to a line that needs more than two decimals prints above it. It
+  cannot fire at gate 9's two lines, 70 and 50, which have no decimals, and a
+  test holds that. No constant line in the engine has decimals.
+- **`docs/build/indicator_overlap.py` lost its three entry-quality variants**
+  with the record fields they read, and its row carries D, H and their
+  distances. The tool still follows the engine's path, so it goes or is rebuilt
+  with the weighted sum in stage 5.
+- **The HVN is a bin's midpoint,** so `h` is known only to half a bin either way
+  and entry quality to about ±2 to ±4 points. H5's fix removes the known defect
+  that puts volume in the wrong bin and is proposed in stage 6, with H1's and
+  H2's.
 
 **Left for a later stage on purpose, by stage 3** (the entry's readings 1, 6 and 8):
 
-- **The ladder's tiers are still trend health's.** Gate 8 runs on a trade the old
-  ladder chose, and a refusal by gate 6 or 7 still reads "This would have been
-  CONSERVATIVE LONG", a tier stage 4 redefines. `explanation.reasons` therefore
-  moves again in stages 4 and 5; gate 8's sentence, the summary it gives and the
-  golden action do not.
-- **Entry 58's helper has an edge, found and not fixed:** a value equal to a line
-  that needs more than two decimals prints above it (100.123456 against itself
-  prints "100.13"). No constant line in the engine has decimals. Gate 8's median is
-  a line the data gives; there the equal case is printed exactly, and a test holds
-  it. For stage 4, which prints entry quality against 70 and 50 through the helper.
+- **The ladder's tiers were trend health's.** Closed by stage 4: they are entry
+  quality's, at gate 9, and `explanation.reasons` moved there as this entry said
+  it would. Gate 8's sentence, the summary it gives and the golden action did
+  not move, which is what its reading 1 ruled of them.
+- **Entry 58's helper has an edge, found and not fixed:** carried above, by
+  stage 4, which prints entry quality against 70 and 50 through the helper.
 - Hand-built test records that reach a trade carry a trigger that holds, by a
-  constant in six files; stage 4 does the same for entry quality's inputs.
+  constant in six files; stage 4 did the same for entry quality's inputs, by
+  giving each such record a quality and a `close_inside_band`.
 
 **Left for a later stage on purpose, by stage 2** (the entry's reading 1):
 
@@ -128,6 +162,22 @@ are also on their live records.
   three engine modules print through the helper, and the test that held "none
   yet" now holds that list; and F is a constant, with a test that the golden
   series' smallest `quote_volume`, 10,650.0211, is at or over it.
+
+**Stage 4's readings that are Viktor's to reverse** (all ten are; these five
+change what a run prints or does beyond the rulings' own words):
+
+- **Gate 9 is a gate of its own and runs last**, after gate 8, so a low quality
+  beside an earlier failure is that gate's refusal and not gate 9's; and the
+  tier is derived only once every earlier gate has passed.
+- **No sentence written before gate 9 names a tier.** The refusals of gates 3 to
+  7 read "No earlier gate refused the long, but …", as gate 8's does.
+- **H1's branch is removed here rather than in stage 5**, with the ladder it
+  belongs to; its three fields stay in the record until stage 5.
+- **An entry quality that was not measured is None, in one spelling**, in the
+  entry block, in `risk.trade_quality_proposed` and in the contract — not NaN
+  and not zero, because zero is a real reading.
+- **The summary of a plain LONG or SHORT names gate 9's sentence**, not gate
+  2's. Found by running the second pinned decision before this commit.
 
 **Stage 3's readings that are Viktor's to reverse** (all eight are; these four
 change what a run prints or does beyond the rulings' own words):
@@ -164,8 +214,8 @@ something he ruled or would see):
   it the rule gives BEARISH: `btc_context.raw` does not move, and
   `btc_context.detailed` moves to BEARISH. **Before each stage, every figure the
   draft gives for the golden run is recomputed from the golden test's own three
-  series, not taken from §13;** done before stage 3 (below), and owed before
-  stage 4 for §13.1's gate 9 (`d` 3.2070 ATR, `h` 15.1202 ATR, entry quality 0).
+  series, not taken from §13;** done before stage 3 and before stage 4 (below),
+  and owed before stage 5.
 - *Stage 2.* §13.3's `lineage.direction` has a field for EMA20's slope, which the
   ruled rule does not read, and true-or-false fields that cannot tell falling from
   flat; three words are recorded instead.
@@ -176,16 +226,31 @@ something he ruled or would see):
   committed pinned one. §14 misclassifies or misses six tests and one set-up, and
   lists one as rewritten that holds; listed in stage 3's entry. §13.3 has no field
   for the label of a refused side.
+- *Stage 4.* §13.3's `distance_atr` 3.20703059 and `hvn_distance_atr`
+  15.12021342 were computed from the golden snapshot's own
+  `indicators_at_decision_bar`, which `_strip` has already rounded to eight
+  decimals, and then rounded again. The engine computes both from the
+  full-precision values: 3.20703073 and 15.12021411. §13.1's four-decimal
+  figures and entry quality 0 are right. **The fourth figure the draft gives of
+  the golden run that is not the golden run's.** §14 misclassifies four tests
+  and misses one scanner, listed in stage 4's entry; its own caveat that the
+  tests "were not read line by line" cost one restore, also listed there.
 
-**`c012e5b`'s landing.** Viktor's opening message of 15 November, sent at 07:17:
-stage 2 landed as `c012e5b` (tree `92e611f1…`), pushed on 15 November at 06:21:05,
-and its landing "was checked at 06:21:48 against GitHub and the disk and holds: tip,
-parent 6038283, tree against Verified-Tree, message, COMMIT_EDITMSG, index (308
-entries), the 31 files, the root clean, master still 696af24". Recorded on his
-statement. Of it this session read from GitHub, by its clone of 07:17: `redesign`'s
-tip is `c012e5b`, its parent `6038283`, its tree
-`92e611f15fe7304574762b9b353a8af4d29136a5`, the one its `Verified-Tree:` line names,
-and `master` is `696af24`. His disk was not read again for it.
+**`5e7e429`'s landing.** Viktor's opening message of 15 November, sent at 11:28:
+stage 3 landed as `5e7e429` (tree `3d173f87…`), pushed on 15 November at
+08:56:33, and its landing "was checked at 11:24 against GitHub and the disk and
+holds: tip, parent `c012e5b`, tree against Verified-Tree, message, COMMIT_EDITMSG
+less its CRs, index (309 entries), the 28 files, the root clean, master still
+`696af24`". New at that check, on his statement: a `git gc` ran during the
+commit, so no loose objects are left on his disk and the commit object was read
+out of the single pack, where it hashes to its name and equals GitHub's — a
+landing check reads the pack now. Also on his statement: **stage 3 was built by a
+Claude Fable 5.2 session and its landing checked by a Claude Opus 5 one, the
+model having changed mid-session.** Recorded on his statement. Of it this session
+read from GitHub, by its clone of 11:28: `redesign`'s tip is `5e7e429`, its
+parent `c012e5b`, its tree `3d173f87c4cead90cac89390b53e6b99569b3f0f`, the one
+its `Verified-Tree:` line names, and `master` is `696af24`. His disk was not read
+again for it.
 
 ## PACE FIRST — read this before the rest of this file
 
@@ -4240,22 +4305,34 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
   `22a9a35`, 4 leaves (the confirmation reason, `volume_sentiment` twice and
   `validation_note`'s volume half: VOLUME DIVERGENCE → FADING VOLUME); before that at
   `6469a67`, 8 leaves.
-- **Test suite** — **1058 passed / 0 failed, no warnings line** with `pandas_ta`;
-  **869 passed / 178 skipped** without it; `run_tests.py` **990 passed / 0 failed /
+- **Test suite** — **1061 passed / 0 failed, no warnings line** with `pandas_ta`;
+  **873 passed / 177 skipped** without it; `run_tests.py` **992 passed / 0 failed /
   31 errors**, all 31 fixture-collection `TypeError`s: the 32 of `e88e0dd` less
   `test_no_module_defaults_a_missing_risk_verdict_to_a_pass`. This is meant to be the
   one place the watched error count is written as a number (DECISIONS, "Ruling,
   15 October 2026 — Part 4's three test shapes", point 5); `README.md` wrote it too
-  until `713e084` (entry 50). The commit that writes this line, stage 3 of the
-  redesign's build, takes the suite from 1018 to 1058, from 833 / 174 to 869 / 178,
-  and from 950 / 0 / 31 to 990 / 0 / 31: 40 tests in one new file,
-  `tests/test_gates_6_to_8.py`, none taking a fixture, so the errors stay 31; four
-  of them run the engine and skip without `pandas_ta`. No test is removed: five
-  are renamed, the draft's two X, turned round; the one stage 1 left to be moved;
-  the one that held "no module calls the helper yet", which now holds which three
-  do; and the golden note test, whose copy is turned the other way. Thirteen existing test files change and one is new. From
-  the Linux sandbox, Python 3.12.3, pinned requirements, on the patch applied to an
-  autocrlf clone of `c012e5b` at `redesign`. `c012e5b`, stage 2 of the
+  until `713e084` (entry 50). The commit that writes this line, stage 4 of the
+  redesign's build, takes the suite from 1058 to 1061, from 869 / 178 to 873 / 177,
+  and from 990 / 0 / 31 to 992 / 0 / 31: 19 tests in two new files,
+  `tests/test_tier_lines.py` (14) and `tests/test_second_pinned_decision.py` (5),
+  and 2 in `tests/test_golden_path.py`, against 12 removed with
+  `tests/test_entry_score_reconciles.py`, which goes whole, and 6 removed from five
+  files — the RSI part's, the two not-measured constants', the ladder's
+  trend-strength sentence, F9's trend multiplier and two of ruling 1's three
+  sentence tests. None of the new tests takes a fixture, so the errors stay 31;
+  three of them run the engine and skip without `pandas_ta`. Nine tests are
+  renamed where what they hold survived the change and their name did not.
+  **The per-file collected count was compared against the base tree before
+  delivery, and caught a real mistake:** removing one test of
+  `test_panel_prints_only_what_was_computed.py` by its following definition took
+  four unrelated tests with it, all of which passed where they were, so no failing
+  test could have shown it. Restored word for word. Twenty existing test files
+  change, two are new and one is deleted. From the Linux sandbox, Python 3.12.3,
+  pinned requirements, on the patch applied to an autocrlf clone of `5e7e429` at
+  `redesign`. `5e7e429`, stage 3 of the redesign's build, took the suite from 1018
+  to 1058, from 833 / 174 to 869 / 178, and from 950 / 0 / 31 to 990 / 0 / 31: 40
+  tests in one new file, `tests/test_gates_6_to_8.py`, none taking a fixture; four
+  of them run the engine and skip without `pandas_ta`. `c012e5b`, stage 2 of the
   redesign's build, took the suite from 1009 to 1018, from 833 / 165 to 833 / 174,
   and from 941 / 0 / 31 to 950 / 0 / 31: 12 tests in one new file,
   `tests/test_direction_is_the_slow_trends_side.py`, 5 more in three files
@@ -6378,7 +6455,7 @@ Each code commit is its own commit and updates this file for its own landing.
   11 November. Left as found: bringing them current is a read of six commits, a
   piece of its own (Open items).
 - **This file's rewrite**, by the commit that writes this line. The lines it removed
-  from the version at `a3c863e` are in HISTORY's new entry, checked by
+  from the version at `5e7e429` are in HISTORY's new entry, checked by
   `docs/build/check_history_move.py` (the commit message has the result).
 
 ## Open items
@@ -6388,13 +6465,18 @@ Claude critiques it.
 
 - **Owed to the next commit:** nothing, unless this commit's push deviates from its
   prediction (ruling on proposal (b), 27 September).
-- **Claude's, next: stage 4 of the redesign's build, entry quality D + H, the tiers
-  70 and 50, gate 9 and the second pinned decision** (THE REDESIGN'S BUILD, above),
-  after recomputing the draft's figures for the golden run's gate 9 from the golden
-  test's own series.
-- **Viktor's, when he reads it: stage 2's three readings and stage 3's four that
-  change something he ruled or would see** (THE REDESIGN'S BUILD, above). None waits
-  for him; each is his to reverse, and a reversal is cheapest before stage 4.
+- **Claude's, next: stage 5 of the redesign's build, the removals** — trend health,
+  confidence and EV, validation, the exit watch's two flags, and the weighted sum
+  (THE REDESIGN'S BUILD, above), after recomputing the draft's figures for the
+  golden run from the golden test's own series, as each stage has. Four numbers
+  the panel prints that no gate now reads leave there, and
+  `docs/build/indicator_overlap.py` goes or is rebuilt with the sum.
+- **Viktor's, when he reads it: stage 2's three readings, stage 3's four and stage
+  4's five that change something he ruled or would see** (THE REDESIGN'S BUILD,
+  above). None waits for him; each is his to reverse, and a reversal is cheapest
+  before the merge, and cheaper still before stage 5 for anything stage 5 builds
+  on — gate 9's place last in the ladder above all, since stage 5 removes the
+  sentences around it.
 - **The worktree's setup: done.** Viktor ran it after `696af24`'s push; his message of
   14 November has it checked on 13 November at 02:53 and holding (THE REDESIGN'S
   BUILD, above, with what this session did and did not read).

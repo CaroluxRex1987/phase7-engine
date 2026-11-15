@@ -40,6 +40,14 @@ from datetime import datetime, timezone
 
 OUT = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "tests", "fixtures", "pinned")
 SOURCE_4H = os.path.join(os.path.dirname(OUT), "ohlcv_clean_4h.csv")
+# THE SECOND PINNED DECISION (the redesign's stage 4, 15 November 2026; the
+# draft's section 10.1). A base series beside ohlcv_clean_4h.csv whose last
+# candle passes every gate of the redesign's ladder, so the golden snapshot
+# still covers a trade's plan once the first fixture becomes a WAIT at gate
+# 8. Written here, not in tests/fixtures/pinned: like ohlcv_clean_4h.csv it
+# is a base series the golden harness derives its three from, and it is not
+# part of the pinned dataset the manifest below covers.
+TRADE_4H = os.path.join(os.path.dirname(OUT), "ohlcv_trade_4h.csv")
 
 FOUR_HOURS_MS = 4 * 60 * 60 * 1000
 ONE_DAY_MS = 24 * 60 * 60 * 1000
@@ -135,6 +143,44 @@ def sha256(path):
 
 
 os.makedirs(OUT, exist_ok=True)
+
+# --- the second pinned decision: a base series that reaches a trade -------
+#
+# THE SEED IS 32, and it was searched for rather than chosen (the draft's
+# section 10.1, version 13). Method, stated before the search and run as
+# stated: seeds from 1 upward, each series run through
+# tests/test_golden_path.py's own harness with its fixture swapped -- so the
+# macro and BTC series are _write_pinned_set's and the path is the
+# production one -- and the redesign's gates applied to the resulting
+# record; the first seed whose last candle passes every gate is taken, any
+# tier counting. Seed 32 is the first. Seeds 1 to 31, by the first thing
+# that stops each: gates 3 to 5 in 11, gate 2 in 7, gate 8 in 5, gate 9 in
+# 4, and 4 whose draft side is not the risk plan's.
+#
+# A series searched for because it passes is chosen by construction. That is
+# acceptable here: the golden snapshot's job is to be stable, not
+# representative (this script's own docstring), and the first fixture stays
+# the case where the gates fail.
+#
+# Start, step, count and start price are the first series'; drift and vol are
+# the first series' own mean and standard deviation of close / open - 1
+# (0.001105 and 0.010528), rounded; vol_base puts synth's mean volume,
+# 1.25 x it, at the first series' mean of 181,999.
+#
+# HOW THIN IT IS, recorded because it decides when this seed has to be
+# searched again: the decision candle's ADX is 21.59, 1.59 over the floor of
+# 20, and its entry quality 79.83, 9.83 over the line of 70. A change to how
+# ADX is computed, or an ADX floor tuned above 21.59 (the tunable list,
+# ruled 12 November 2026), stops it being a trade.
+#
+# The committed file is the source of truth, not this block: random.gauss is
+# not promised to be stable across Python versions, and
+# tests/test_second_pinned_decision.py pins the file's content by hash. This
+# block is how it is reproduced, and the hash is how a drift is caught.
+write_csv(TRADE_4H, synth(seed=32, start_ms=1735689600000,
+                          step_ms=FOUR_HOURS_MS, count=450,
+                          start_price=0.5, drift=0.0011, vol=0.0105,
+                          vol_base=145_000.0))
 
 # --- base series: the harness fixture, with quote_volume added ------------
 base = read_csv(SOURCE_4H)

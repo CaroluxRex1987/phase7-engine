@@ -437,11 +437,37 @@ def test_a_missing_final_candle_is_not_forward_filled():
 # The consumers
 # ============================================================
 
-def test_a_missing_rsi_no_longer_scores_full_marks():
+# THE REDESIGN'S STAGE 4, 15 November 2026. Three tests stood here:
+#
+#     test_a_missing_rsi_no_longer_scores_full_marks
+#     test_a_missing_hvn_no_longer_scores_full_marks
+#     test_a_missing_atr_is_not_scored_against_a_fabricated_two_percent
+#
+# each holding that a missing indicator no longer scored its component's
+# TOP band: a missing RSI had fallen back to 50.0, inside the 40-60 "not
+# extended" band, and scored 15 of 15; a missing HVN had fallen back to
+# `close`, making the distance exactly zero and scoring 12 of 12; a missing
+# ATR had fallen back to close * 0.02, so the 25-point distance was scored
+# against a constant nobody measured.
+#
+# RSI leaves entry quality with the design (the draft's section 3.2), so
+# the first has nothing left to hold. The other two defects are the same
+# defect, and the rule that replaces the fix is stronger than the fix was:
+# a part whose input is missing is NOT MEASURED, and entry quality is not
+# computed at all. The two tests below hold that for the HVN and the ATR,
+# which is what the findings were about, and they hold it against the
+# fabrications by name.
+
+def test_a_missing_hvn_is_not_measured_rather_than_scored_against_the_close():
     """
-    The sharpest instance. 50.0 sits inside the 40-60 "not extended" band, so
-    the fallback awarded 15 of 15 — the maximum — for a reading that does not
-    exist. indicators.py's own failure text told the operator it scored 0.
+    `close` as the fallback made abs(close - hvn) exactly zero, which was
+    the tightest band: 12 of 12 for a high-volume node that was never
+    located. Identical in shape to the VWMA defect item 3 fixed, and it was
+    sitting forty lines below that fix.
+
+    Rewritten at stage 4 from test_a_missing_hvn_no_longer_scores_full_marks,
+    whose assertion was `struct_pts < 12`. Scoring it LOW would still be
+    scoring it; the HVN part is not computed, and neither is the quality.
     """
     if not _engine_available():
         pytest.skip("pandas_ta not installed")
@@ -453,43 +479,43 @@ def test_a_missing_rsi_no_longer_scores_full_marks():
     close = float(frame["close"].iloc[-1])
     zone = (close * 0.97, close * 0.99)
 
-    missing = frame.copy()
-    missing["RSI"] = np.nan
-    result = calculate_entry_quality(missing, zone[0], zone[1], "BULLISH")
-
-    assert result["rsi_pts"] < 15, (
-        f"a missing RSI scored {result['rsi_pts']} of 15 — the maximum, for a "
-        f"measurement never taken"
-    )
-
-
-def test_a_missing_hvn_no_longer_scores_full_marks():
-    """
-    `close` as the fallback makes the distance exactly zero, which is the
-    tightest band. Identical in shape to the VWMA defect item 3 fixed, and it
-    was sitting forty lines below that fix.
-    """
-    if not _engine_available():
-        pytest.skip("pandas_ta not installed")
-
-    import indicators.indicators as ind
-    from models.entry_model import calculate_entry_quality
-
-    frame, _ = ind.add_technical_indicators(_pinned_frame())
-    close = float(frame["close"].iloc[-1])
-    zone = (close * 0.97, close * 0.99)
-
+    # add_technical_indicators does not produce HVN -- the volume profile
+    # does, and engine_core merges it into the frame -- so the column is
+    # put here explicitly, as the fixture it is. Read before writing this:
+    # the frame comes back with 16 columns and HVN is not among them.
     missing = frame.copy()
     missing["HVN"] = np.nan
-    result = calculate_entry_quality(missing, zone[0], zone[1], "BULLISH")
+    result = calculate_entry_quality(missing, zone[0], zone[1])
 
-    assert result["struct_pts"] < 12, (
-        f"a missing HVN scored {result['struct_pts']} of 12 — the maximum, "
-        f"awarded for a high-volume node that was never located"
+    assert result["hvn_pts"] is None, (
+        f"a missing HVN scored {result['hvn_pts']} of 20 for a high-volume "
+        f"node that was never located"
     )
+    assert result["hvn_distance_atr"] is None
+    assert result["score"] is None, (
+        "the quality was computed with one of its two parts unmeasured")
+    assert any("HVN" in m for m in result["not_measured"]), result["not_measured"]
+    # The control, on the same frame: with the HVN there, both parts are
+    # measured and the quality is a number. Without it this test would pass
+    # on a function that returned None for everything.
+    located = frame.copy()
+    located["HVN"] = close * 0.99
+    present = calculate_entry_quality(located, zone[0], zone[1])
+    assert present["hvn_pts"] is not None and present["score"] is not None
+    assert present["not_measured"] == []
 
 
 def test_a_missing_atr_is_not_scored_against_a_fabricated_two_percent():
+    """
+    The ATR fallback was close * 0.02 -- the flat 2%-of-price constant
+    sequence item 9a removed from indicators.py, still living in the
+    consumer that read the column.
+
+    Stage 4: both parts are counted in ATRs now, so a missing ATR takes
+    both out rather than one. The assertion is no longer "it does not score
+    the same as the fabrication would" but "it does not score at all",
+    which cannot be satisfied by a different number.
+    """
     if not _engine_available():
         pytest.skip("pandas_ta not installed")
 
@@ -498,22 +524,36 @@ def test_a_missing_atr_is_not_scored_against_a_fabricated_two_percent():
 
     frame, _ = ind.add_technical_indicators(_pinned_frame())
     close = float(frame["close"].iloc[-1])
-    zone = (close * 0.90, close * 0.92)   # far from the zone, so the ratio bites
+    zone = (close * 0.90, close * 0.92)   # far from the band, so the ratio bites
 
-    missing = frame.copy()
+    # The HVN is supplied here for the same reason as in the test above:
+    # add_technical_indicators does not produce it, and without it the HVN
+    # part would be unmeasured for a second reason and this test could not
+    # tell which absence it was reading.
+    with_hvn = frame.copy()
+    with_hvn["HVN"] = close * 0.99
+
+    missing = with_hvn.copy()
     missing["ATR"] = np.nan
-    got = calculate_entry_quality(missing, zone[0], zone[1], "BULLISH")
+    got = calculate_entry_quality(missing, zone[0], zone[1])
 
-    fabricated = frame.copy()
-    fabricated["ATR"] = close * 0.02      # what the old fallback substituted
-    old = calculate_entry_quality(fabricated, zone[0], zone[1], "BULLISH")
+    assert got["distance_pts"] is None and got["hvn_pts"] is None, got
+    assert got["distance_atr"] is None and got["hvn_distance_atr"] is None
+    assert got["score"] is None
+    assert any("ATR" in m for m in got["not_measured"]), got["not_measured"]
 
-    assert got["atr_dist_pts"] != old["atr_dist_pts"], (
-        "a missing ATR still scores exactly as though close * 0.02 had been "
-        "measured, which is the constant item 9a removed from indicators.py"
-    )
+    # The fabrication the finding named, run for the control: it produces a
+    # real number, which is exactly why substituting it was a defect.
+    fabricated = with_hvn.copy()
+    fabricated["ATR"] = close * 0.02
+    old = calculate_entry_quality(fabricated, zone[0], zone[1])
+    assert old["score"] is not None and old["distance_pts"] is not None
 
-
+    # And the close's position against the band is still measured: it needs
+    # no ATR, so the absence is confined to the parts that needed it.
+    assert got["entry_status"] in ("INSIDE THE BAND", "ABOVE THE BAND",
+                                  "BELOW THE BAND"), got["entry_status"]
+    assert isinstance(got["close_inside_band"], bool)
 # ============================================================
 # The risk model
 # ============================================================

@@ -503,83 +503,65 @@ def render_panel(decision):
 
         def _entry_quality_lines(entry, entry_score):
             """
-            5 September 2026 — the entry sub-scores did not add up to the
-            printed total, and nothing on the panel said why.
+            THE REDESIGN'S STAGE 4, 15 November 2026. Entry quality is
+            D + H, so the panel prints the total and its two parts, each
+            beside the distance it was computed from:
 
-                ENTRY QUALITY : 45.18/100
-                    |-- EMA Zone Position : 10/30
-                    |-- ATR Distance      : 5/25
-                    |-- VWMA Distance     : 10/20
-                    |-- RSI Extension     : 10/15
-                    |-- Structure         : 4/12
+                ENTRY QUALITY : 0.00/100
+                    |-- Distance (D)      : 0.00/80 at 3.2070 ATR from the band's midpoint
+                    |-- HVN nearness (H)  : 0.00/20 at 15.1202 ATR from the HVN
+                    |-- Lines             : 70 for LONG/SHORT and AGGRESSIVE, 50 for CONSERVATIVE
 
-            39 printed under 45.18. Three things made up the gap and none of
-            them appeared anywhere: the sub-scores were rounded to whole
-            numbers while the total was not (ATR distance was 5.0297), three
-            confluence multipliers are applied after the sum, and the result
-            is clipped to 100 — which a perfect setup exceeds, since the five
-            components reach 102 before any multiplier.
+            What stood here was the reconciliation of 5 September 2026: five
+            sub-scores, their subtotal out of 102, the combined confluence
+            multiplier with its three factors, and the clip when it fired.
+            It was written because the panel printed five numbers and a
+            total they did not add up to -- 10 + 5 + 10 + 10 + 4 under 45.18
+            on the pinned fixture. D + H needs no reconciliation: the two
+            parts and the total are the whole of the arithmetic, and the
+            distances are printed so each part can be checked by hand
+            against the straight line it comes from, which was the reason
+            for straight lines (the draft's section 3.1).
 
-            The subtotal, the multiplier and its three factors are printed, so
-            the arithmetic can be followed. The clip is announced only when it
-            actually fired; a line saying "not clipped" on every run is noise.
+            The two tier lines are printed because Decision Reasoning names
+            them, and a line the operator is told a number is under should
+            be visible on the panel beside the number -- the same reason
+            stage 3 added TURNOVER, TRIGGER and TRIGGER VOLUME. They come
+            from models/decision_model.py's constants rather than being
+            written here again.
 
-            The denominators come from entry_model's constants rather than
-            being written here again — they were literals in this file, in the
-            band logic, and in the docstring, three copies of one fact.
-
-            Absent fields print as "n/a". They used to default to 22, 10, 20,
-            15 and 2 — plausible sub-scores, invented by this renderer, for a
-            run that reported none.
+            A part that was not measured prints as that, not as 0.00/80: the
+            denominators are the maxima and a zero is a real score. The
+            total prints through _score_text, which already says "not
+            computed" for a value the engine did not measure.
             """
-            from models.entry_model import (ATR_DISTANCE_MAX_POINTS,
-                                            EMA_ZONE_MAX_POINTS,
-                                            RSI_MAX_POINTS,
-                                            STRUCTURE_MAX_POINTS,
-                                            VWMA_MAX_POINTS)
+            from models.decision_model import DecisionModel
+            from models.entry_model import (DISTANCE_MAX_POINTS,
+                                            HVN_MAX_POINTS)
 
-            def component(label, key, maximum):
-                value = entry.get(key)
-                shown = (f"{safe_float(value, float('nan')):.2f}"
-                         if value is not None
-                         and math.isfinite(safe_float(value, float("nan")))
-                         else "n/a")
-                return f"    |-- {label:<18}: {shown}/{maximum:.0f}\n"
+            def part(label, points_key, distance_key, maximum, against):
+                points = entry.get(points_key)
+                distance = entry.get(distance_key)
+                shown = _score_text(safe_float(points, float("nan")), maximum)
+                if shown == "not computed":
+                    return f"    |-- {label:<18}: not measured\n"
+                at = safe_float(distance, float("nan"))
+                where = (f" at {at:.4f} ATR from {against}"
+                         if math.isfinite(at) else "")
+                return f"    |-- {label:<18}: {shown}{where}\n"
 
             lines = (
-                f"ENTRY QUALITY : "
-                f"{_score_text(entry_score, safe_float(entry.get('score_ceiling'), 100.0))}\n"
-                + component("EMA Zone Position", "ema_pos_pts", EMA_ZONE_MAX_POINTS)
-                + component("ATR Distance", "atr_dist_pts", ATR_DISTANCE_MAX_POINTS)
-                + component("VWMA Distance", "vwma_pts", VWMA_MAX_POINTS)
-                + component("RSI Extension", "rsi_pts", RSI_MAX_POINTS)
-                + component("Structure", "struct_pts", STRUCTURE_MAX_POINTS)
+                f"ENTRY QUALITY : {_score_text(entry_score)}\n"
+                + part("Distance (D)", "distance_pts", "distance_atr",
+                       DISTANCE_MAX_POINTS, "the band's midpoint")
+                + part("HVN nearness (H)", "hvn_pts", "hvn_distance_atr",
+                       HVN_MAX_POINTS, "the HVN")
+                + (f"    |-- {'Lines':<18}: "
+                   f"{DecisionModel.UPPER_TIER_ENTRY_QUALITY_MIN:g} for "
+                   f"LONG/SHORT and AGGRESSIVE, "
+                   f"{DecisionModel.CONSERVATIVE_ENTRY_QUALITY_MIN:g} for "
+                   f"CONSERVATIVE\n")
             )
-
-            base = safe_float(entry.get("base_score"), float("nan"))
-            maximum = safe_float(entry.get("component_max_points"), float("nan"))
-            combined = safe_float(entry.get("combined_multiplier"), float("nan"))
-
-            if math.isfinite(base) and math.isfinite(maximum):
-                lines += (f"    |-- {'Subtotal':<18}: {base:.2f}/{maximum:.0f}\n")
-
-            if math.isfinite(combined):
-                macro = safe_float(entry.get("macro_multiplier"), float("nan"))
-                trend = safe_float(entry.get("trend_multiplier"), float("nan"))
-                struct = safe_float(entry.get("structure_multiplier"), float("nan"))
-                factors = ""
-                if all(math.isfinite(v) for v in (macro, trend, struct)):
-                    factors = (f"  (macro x{macro:.2f}, trend x{trend:.2f}, "
-                               f"structure x{struct:.2f})")
-                lines += (f"    |-- {'Confluence':<18}: "
-                          f"x{combined:.4f}{factors}\n")
-
-            if entry.get("score_clipped"):
-                scaled = safe_float(entry.get("scaled_score"), float("nan"))
-                ceiling = safe_float(entry.get("score_ceiling"), 100.0)
-                if math.isfinite(scaled):
-                    lines += (f"    |-- {'Clipped':<18}: {scaled:.2f} "
-                              f"exceeded the {ceiling:.0f} ceiling\n")
 
             return lines + "\n"
 
@@ -1020,6 +1002,15 @@ def render_panel(decision):
             f"{current_price_line}"
             f"{live_price_line}"
             f"{_entry_zone_lines(entry, c_cyan, reset)}"
+            # Stage 4, 15 November 2026: STATUS is the close's POSITION
+            # against the EMA band -- INSIDE THE BAND, ABOVE THE BAND,
+            # BELOW THE BAND -- and no longer a distance in band widths
+            # (ACTIVE ENTRY ZONE, NEAR ZONE, APPROACHING ZONE, AWAY FROM
+            # ZONE, ZONE HAS NO WIDTH, whose 1, 2 and 3.5 no ruling set).
+            # It is printed FROM entry.close_inside_band, the same field
+            # the AGGRESSIVE tier reads, so the word here cannot disagree
+            # with the tier (models/entry_model.py; Viktor's ruling of
+            # 7 November 2026). ZONE NOT AVAILABLE and NO DATA stay.
             f"STATUS        : {colorize_val(entry.get('entry_status', 'UNKNOWN'))}\n"
             f"{_gate_lines(entry, bias)}"
             f"{swing_struct_line}\n"

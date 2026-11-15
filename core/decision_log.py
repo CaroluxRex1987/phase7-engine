@@ -247,9 +247,20 @@ FINGERPRINTED_MODULES = {
         # point 7: Bitcoin is reference only), and both constants with it, so
         # both names leave the run-hash payload -- which moves run_hash, and
         # with it the archive's file name.
-        "DecisionModel.AGGRESSIVE_TREND_HEALTH_MIN",
-        "DecisionModel.AGGRESSIVE_ENTRY_SCORE_MIN",
-        "DecisionModel.CONSERVATIVE_TREND_HEALTH_MIN",
+        # THE REDESIGN'S STAGE 4, 15 November 2026. Three names stood here:
+        #
+        #     "DecisionModel.AGGRESSIVE_TREND_HEALTH_MIN"    75.0
+        #     "DecisionModel.AGGRESSIVE_ENTRY_SCORE_MIN"     70.0
+        #     "DecisionModel.CONSERVATIVE_TREND_HEALTH_MIN"  50.0
+        #
+        # the trend-health and entry-quality lines of the old ladder. The
+        # tiers come from entry quality alone now (ruling 4, 25 October
+        # 2026), so both trend-health lines leave the payload; the 70 is the
+        # same value under a name that says what it measures, and the 50 is
+        # a new name, because the old 50 was trend health's. Each change
+        # moves run_hash, and with it the archive's file name.
+        "DecisionModel.UPPER_TIER_ENTRY_QUALITY_MIN",
+        "DecisionModel.CONSERVATIVE_ENTRY_QUALITY_MIN",
         # FINDING 22, 21 September 2026. Three class constants that set numbers
         # the operator reads and were missing from this list, found in the
         # deferred read. BTC_STRESS_PENALTY is BTC_ADJUSTMENT_CAP's sibling --
@@ -276,11 +287,25 @@ FINGERPRINTED_MODULES = {
     # models/entry_model.py and nameable here like everything else in this
     # list.
     "models.entry_model": [
-        "EMA_ZONE_MAX_POINTS", "ATR_DISTANCE_MAX_POINTS",
-        "VWMA_MAX_POINTS", "RSI_MAX_POINTS", "STRUCTURE_MAX_POINTS",
-        "COMPONENT_MAX_POINTS", "SCORE_CEILING",
-        "ZONE_POINTS_NOT_MEASURED", "ATR_POINTS_NOT_MEASURED",
-        "CONFLUENCE_BOOST_MULT", "CONFLUENCE_PENALTY_MULT",
+        # THE REDESIGN'S STAGE 4, 15 November 2026. Eleven names stood at
+        # the head of this list:
+        #
+        #     "EMA_ZONE_MAX_POINTS", "ATR_DISTANCE_MAX_POINTS",
+        #     "VWMA_MAX_POINTS", "RSI_MAX_POINTS", "STRUCTURE_MAX_POINTS",
+        #     "COMPONENT_MAX_POINTS", "SCORE_CEILING",
+        #     "ZONE_POINTS_NOT_MEASURED", "ATR_POINTS_NOT_MEASURED",
+        #     "CONFLUENCE_BOOST_MULT", "CONFLUENCE_PENALTY_MULT"
+        #
+        # the five parts' maxima, their sum, the clip, the two
+        # not-measured values and the two confluence multipliers. Entry
+        # quality is D + H, with no multiplier and no clip, and a part whose
+        # input is missing is not measured rather than scored -- so all
+        # eleven leave the run-hash payload, and the four below take their
+        # place. Each of the four moves entry quality, which is the only
+        # input to the tier, so each decides which runs may trade. Both
+        # changes move run_hash, and with it the archive's file name.
+        "DISTANCE_MAX_POINTS", "DISTANCE_ZERO_ATR",
+        "HVN_MAX_POINTS", "HVN_ZERO_ATR",
         # FIX 2, 5 October 2026: the confirmation gate's ADX threshold -- under
         # it, no side confirms. It decides which runs may trade, so it is in
         # the run-hash payload by the same argument as MIN_ACTION_BIAS above;

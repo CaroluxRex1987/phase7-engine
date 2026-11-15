@@ -234,54 +234,68 @@ def test_module_snapshot_reaches_a_constant_held_on_a_class():
 # two-hop path it exercised is still exercised by the ceiling's test above.
 
 
-def test_module_snapshot_reaches_the_aggressive_trend_health_min():
+def test_module_snapshot_reaches_the_upper_tier_entry_quality_min():
     """
-    ROUND 6 (Meta Muse Spark 1.3), F1 follow-up, 13 September 2026. The
-    trend-health half of the AGGRESSIVE-eligibility band, promoted from a
-    bare `75` inside _determine_final_action -- same class-attribute shape
-    as DEGRADED_CONFIDENCE_CEILING/BTC_ADJUSTMENT_CAP above.
-    """
-    from core.decision_log import MISSING, module_snapshot
-    from models.decision_model import DecisionModel
+    THE REDESIGN'S STAGE 4, 15 November 2026. Three tests stood here:
 
-    snap = module_snapshot().get("models.decision_model", {})
-    key = "DecisionModel.AGGRESSIVE_TREND_HEALTH_MIN"
+        test_module_snapshot_reaches_the_aggressive_trend_health_min
+        test_module_snapshot_reaches_the_aggressive_entry_score_min
+        test_module_snapshot_reaches_the_conservative_trend_health_min
 
-    assert key in snap and snap[key] is not MISSING, (
-        "the trend-health floor for AGGRESSIVE eligibility is not in the record"
-    )
-    assert snap[key] == DecisionModel.AGGRESSIVE_TREND_HEALTH_MIN
-
-
-def test_module_snapshot_reaches_the_aggressive_entry_score_min():
-    """The entry-score half of the same band, promoted from a bare `70`."""
-    from core.decision_log import MISSING, module_snapshot
-    from models.decision_model import DecisionModel
-
-    snap = module_snapshot().get("models.decision_model", {})
-    key = "DecisionModel.AGGRESSIVE_ENTRY_SCORE_MIN"
-
-    assert key in snap and snap[key] is not MISSING, (
-        "the entry-score floor for AGGRESSIVE eligibility is not in the record"
-    )
-    assert snap[key] == DecisionModel.AGGRESSIVE_ENTRY_SCORE_MIN
-
-
-def test_module_snapshot_reaches_the_conservative_trend_health_min():
-    """
-    The CONSERVATIVE-vs-WAIT band, promoted from a bare `50` used at both
-    the BULLISH and BEARISH branches of _determine_final_action.
+    for DecisionModel.AGGRESSIVE_TREND_HEALTH_MIN (75),
+    AGGRESSIVE_ENTRY_SCORE_MIN (70) and CONSERVATIVE_TREND_HEALTH_MIN (50),
+    all three promoted from bare literals inside _determine_final_action at
+    round 6's F1 follow-up. The tiers come from entry quality alone now
+    (ruling 4, 25 October 2026), so both trend-health lines are gone; the 70
+    is the same value under a name that says what it measures, and the
+    CONSERVATIVE line is entry quality's 50, a new name for a new
+    measurement. Two tests for two constants, in the same shape as before:
+    a class attribute module_snapshot has to reach through
+    `getattr(module, "DecisionModel")` and then the attribute.
     """
     from core.decision_log import MISSING, module_snapshot
     from models.decision_model import DecisionModel
 
     snap = module_snapshot().get("models.decision_model", {})
-    key = "DecisionModel.CONSERVATIVE_TREND_HEALTH_MIN"
+    key = "DecisionModel.UPPER_TIER_ENTRY_QUALITY_MIN"
 
     assert key in snap and snap[key] is not MISSING, (
-        "the trend-health floor for CONSERVATIVE eligibility is not in the record"
+        "the entry-quality line the upper tiers share is not in the record"
     )
-    assert snap[key] == DecisionModel.CONSERVATIVE_TREND_HEALTH_MIN
+    assert snap[key] == DecisionModel.UPPER_TIER_ENTRY_QUALITY_MIN
+
+
+def test_module_snapshot_reaches_the_conservative_entry_quality_min():
+    """The CONSERVATIVE-vs-WAIT line, gate 9's lower one."""
+    from core.decision_log import MISSING, module_snapshot
+    from models.decision_model import DecisionModel
+
+    snap = module_snapshot().get("models.decision_model", {})
+    key = "DecisionModel.CONSERVATIVE_ENTRY_QUALITY_MIN"
+
+    assert key in snap and snap[key] is not MISSING, (
+        "the entry-quality line a CONSERVATIVE trade needs is not in the record"
+    )
+    assert snap[key] == DecisionModel.CONSERVATIVE_ENTRY_QUALITY_MIN
+
+
+def test_the_trend_health_lines_are_gone_from_the_record():
+    """
+    The other half of the rename, and the decay rule 11 warns about: a
+    constant that leaves the code and stays in FINGERPRINTED_MODULES is
+    recorded as MISSING on every run, and one that leaves the list and
+    stays in the code drops out of the run-hash payload silently.
+    """
+    from core.decision_log import FINGERPRINTED_MODULES, module_snapshot
+    from models.decision_model import DecisionModel
+
+    listed = FINGERPRINTED_MODULES["models.decision_model"]
+    snap = module_snapshot().get("models.decision_model", {})
+    for gone in ("AGGRESSIVE_TREND_HEALTH_MIN", "AGGRESSIVE_ENTRY_SCORE_MIN",
+                 "CONSERVATIVE_TREND_HEALTH_MIN"):
+        assert not hasattr(DecisionModel, gone), gone
+        assert f"DecisionModel.{gone}" not in listed, gone
+        assert f"DecisionModel.{gone}" not in snap, gone
 
 
 def test_module_snapshot_reaches_spike_ratio():
@@ -673,14 +687,25 @@ def test_a_changed_comparison_moves_the_hash():
     Work order F, 21 September 2026: retargeted again, same comparison. The
     `and not divergence` clause left the condition when divergence moved to
     the confirmation gate (see decision_model.py's _apply_signal_gate).
+
+    THE REDESIGN'S STAGE 4, 15 November 2026: retargeted a third time, for
+    the same reason each time -- this test is about the operator, not the
+    operand's name or where it is read. The comparison was
+
+        if (trend_health >= self.AGGRESSIVE_TREND_HEALTH_MIN
+                        and entry_score >= self.AGGRESSIVE_ENTRY_SCORE_MIN):
+
+    in _determine_final_action. The tier comes from entry quality alone
+    now, at gate 9, and the comparison below is the line between the upper
+    tiers and CONSERVATIVE. `<` becoming `<=` there moves a setup sitting
+    exactly on 70 from the upper tier to CONSERVATIVE without changing any
+    constant, which is exactly what an enumeration of constants cannot see.
     """
     _assert_moves(
         MUTABLE[2],
-        "if (trend_health >= self.AGGRESSIVE_TREND_HEALTH_MIN\n"
-        "                        and entry_score >= self.AGGRESSIVE_ENTRY_SCORE_MIN):",
-        "if (trend_health > self.AGGRESSIVE_TREND_HEALTH_MIN\n"
-        "                        and entry_score >= self.AGGRESSIVE_ENTRY_SCORE_MIN):",
-        "changing a trend-band comparison left the code hash identical",
+        "        if quality < upper:",
+        "        if quality <= upper:",
+        "changing the tier comparison left the code hash identical",
     )
 
 

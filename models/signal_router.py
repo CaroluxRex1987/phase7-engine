@@ -428,37 +428,47 @@ class SignalRouter:
                     "trigger": self._optional_flag(entry.get("trigger")),
                     "trigger_volume": self._optional_number(entry.get("trigger_volume")),
                     "trigger_volume_median": self._optional_number(entry.get("trigger_volume_median")),
-                    "score": self._finite_or_nan(entry.get("score")),
+                    # THE REDESIGN'S STAGE 4, 15 November 2026. Entry
+                    # quality is D + H, and a part of it that could not be
+                    # read makes the whole quality NOT MEASURED, which the
+                    # engine spells None (models/entry_model.py). So `score`
+                    # and the four numbers below go through
+                    # _optional_number, which passes None through, and not
+                    # _finite_or_nan, which would write NaN into the record
+                    # for a value the engine already called None -- one
+                    # value under two spellings, in the two places a reader
+                    # compares (F8, one name for one meaning). `score` read
+                    #
+                    #     self._finite_or_nan(entry.get("score"))
+                    #
+                    # until this stage, when it could not be None.
+                    "score": self._optional_number(entry.get("score")),
+                    "distance_atr": self._optional_number(entry.get("distance_atr")),
+                    "distance_pts": self._optional_number(entry.get("distance_pts")),
+                    "hvn_distance_atr": self._optional_number(entry.get("hvn_distance_atr")),
+                    "hvn_pts": self._optional_number(entry.get("hvn_pts")),
+                    # The fact the AGGRESSIVE tier reads. None when the band
+                    # was not available: a close has no position against a
+                    # band nobody located, and _optional_flag never writes
+                    # False for an absence.
+                    "close_inside_band": self._optional_flag(entry.get("close_inside_band")),
                     "distance_from_zone": self._finite_or_nan(entry.get("distance_from_zone")),
                     "entry_status": str(entry.get("entry_status", "UNKNOWN")),
-                    "ema_pos_pts": self._finite_or_nan(entry.get("ema_pos_pts")),
-                    "atr_dist_pts": self._finite_or_nan(entry.get("atr_dist_pts")),
-                    "vwma_pts": self._finite_or_nan(entry.get("vwma_pts")),
-                    "rsi_pts": self._finite_or_nan(entry.get("rsi_pts")),
-                    "struct_pts": self._finite_or_nan(entry.get("struct_pts")),
 
-                    # 5 September 2026. This block rebuilds the entry section
-                    # field by field, so anything the engine adds and this
-                    # list does not name is silently dropped before the panel
-                    # or the decision log ever sees it -- which is what
-                    # happened to these nine on the first attempt at this fix:
-                    # the reconciliation lines simply did not appear, with no
-                    # error.
-                    #
-                    # They are how the five sub-scores above become `score`:
-                    # they sum to base_score (out of component_max_points,
-                    # which is 102, not 100), that is multiplied by
-                    # combined_multiplier, and the result is clipped to
-                    # score_ceiling.
-                    "base_score": self._finite_or_nan(entry.get("base_score")),
-                    "component_max_points": self._finite_or_nan(entry.get("component_max_points")),
-                    "macro_multiplier": self._finite_or_nan(entry.get("macro_multiplier")),
-                    "trend_multiplier": self._finite_or_nan(entry.get("trend_multiplier")),
-                    "structure_multiplier": self._finite_or_nan(entry.get("structure_multiplier")),
-                    "combined_multiplier": self._finite_or_nan(entry.get("combined_multiplier")),
-                    "scaled_score": self._finite_or_nan(entry.get("scaled_score")),
-                    "score_ceiling": self._finite_or_nan(entry.get("score_ceiling")),
-                    "score_clipped": bool(entry["score_clipped"]),
+                    # 5 September 2026's reconciliation block stood here --
+                    # ema_pos_pts, atr_dist_pts, vwma_pts, rsi_pts,
+                    # struct_pts, base_score, component_max_points, the
+                    # three multipliers, their product, scaled_score,
+                    # score_ceiling and score_clipped. It was added because
+                    # the panel printed five sub-scores and a total they did
+                    # not add up to; the parts and the multipliers it
+                    # explained are gone, and D + H is its own
+                    # reconciliation. The warning the block carried still
+                    # holds and is why `distance_atr` and the three beside
+                    # it are named here: this method rebuilds the entry
+                    # section field by field, so anything the engine adds
+                    # and this list does not name is silently dropped
+                    # before the panel or the decision log sees it.
                 },
 
                 "risk": {
@@ -501,7 +511,12 @@ class SignalRouter:
                     # passthrough. Field names/paths kept identical so
                     # panel_render.py needs no changes to consume them.
                     "confidence_score": float(confidence),
-                    "trade_quality_proposed": float(trade_quality["proposed_entry"]),
+                    # Stage 4, 15 November 2026: this was
+                    # float(trade_quality["proposed_entry"]), which raises a
+                    # TypeError when entry quality was not measured -- the
+                    # proposed entry IS entry quality on an undegraded run,
+                    # so it is None exactly when that is.
+                    "trade_quality_proposed": self._optional_number(trade_quality["proposed_entry"]),
                     "validation_state": str(risk.get("validation_state", "UNKNOWN")),
                     "validation_score": self._finite_or_nan(risk.get("validation_score")),
                     "validation_note": str(risk.get("validation_note", "No validation note supplied.")),
