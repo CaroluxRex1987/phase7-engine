@@ -135,6 +135,25 @@ class EntryBlock(TypedDict):
     short_signal: bool
     long_signal_blockers: List[str]
     short_signal_blockers: List[str]
+    # THE REDESIGN'S STAGE 3, 15 November 2026 (gates 6 to 8). The blocker
+    # lists above now carry gate 6's reason (no LONG under a bearish daily
+    # trend) and gate 7's (the liquidity floor) beside gates 3 to 5's.
+    # `*_signal_refusal` is the NO-TRADE label of the first gate that side
+    # does not pass -- SIGNAL UNCONFIRMED, MACRO AGAINST or THIN MARKET --
+    # and None when it passes them all. `quote_volume` is the decision
+    # candle's turnover in USDT and `liquidity_floor` the line it is set
+    # against. `trigger` is gate 8's price test for the direction's side;
+    # `trigger_volume` and `trigger_volume_median` are the decision candle's
+    # volume and the median of the twenty before it. Each of the last five
+    # is None when it was not measured, and `trigger` also when the
+    # direction is NEUTRAL and there is no side to read it for.
+    long_signal_refusal: Any      # str, or None when no gate refuses the side
+    short_signal_refusal: Any     # the same
+    quote_volume: Any             # float, or None when not measured
+    liquidity_floor: float
+    trigger: Any                  # bool, or None: not measured, or no side
+    trigger_volume: Any           # float, or None when not measured
+    trigger_volume_median: Any    # float, or None when not measured
     score: float
     # From the band's midpoint, as a percentage of the close (round 8, F5).
     distance_from_zone: float

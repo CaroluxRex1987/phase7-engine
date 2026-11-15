@@ -95,10 +95,15 @@ def test_a_reading_that_does_not_exist_has_no_text():
             raise AssertionError(f"{args!r} printed as {text!r}")
 
 
-def test_no_engine_module_calls_the_helper_yet():
+def test_the_engine_modules_that_print_through_the_helper_are_the_ones_named():
     """
-    Stage 1 adds the helper unused, so no sentence and no action changes. The
-    stage that rewrites the first sentence through it removes this test.
+    Stage 1 added the helper unused and held that with
+    test_no_engine_module_calls_the_helper_yet, which the stage that first
+    used it was to remove. That is stage 3, 15 November 2026: gate 7's
+    blocker (models/entry_model.py), gate 8's sentence
+    (models/decision_model.py) and the panel's TURNOVER and TRIGGER VOLUME
+    lines (core/panel_render.py) print through it. The same scan now holds
+    that list, so a fourth user is named here when it arrives.
     """
     users = []
     for folder in ("core", "data", "indicators", "models", "structure", "utils"):
@@ -112,4 +117,5 @@ def test_no_engine_module_calls_the_helper_yet():
         with open(os.path.join(REPO_ROOT, name), encoding="utf-8") as f:
             if "threshold_text" in f.read():
                 users.append(name)
-    assert users == [], users
+    assert users == ["core/panel_render.py", "models/decision_model.py",
+                     "models/entry_model.py"], users

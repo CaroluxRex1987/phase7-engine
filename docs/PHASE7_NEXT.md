@@ -1,10 +1,10 @@
 # Next step — read this first
 
-*14 November 2026, in the session that opened at 08:05, on the branch `redesign`.
-Rewritten by stage 2 of the redesign's build, the branch's second commit, which also
-files the readings made building it and records `6038283`'s landing;
+*15 November 2026, in the session that opened at 07:17, on the branch `redesign`.
+Rewritten by stage 3 of the redesign's build, the branch's third commit, which also
+files the readings made building it and records `c012e5b`'s landing;
 the lines it removed from the version at
-`6038283` are in HISTORY, which points to that whole version in git.
+`c012e5b` are in HISTORY, which points to that whole version in git.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
 rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
@@ -47,7 +47,7 @@ with what they hash.
    set's `AEROUSDT_4h.csv` and the golden test's own set carry it as volume × close.
    H5's flat-candle fix is in. Entry 58's print helper, `core/threshold_text.py`, is
    in and nothing calls it. No decision reads any of it.
-2. **Direction — landed by the commit that writes this section** (DECISIONS,
+2. **Direction — landed, `c012e5b`** (DECISIONS,
    "Decision, 14 November 2026 — stage 2 of the redesign's build: what it is, six
    readings made building it, and three more errors in the draft"). `bias.raw` is
    EMA50's slope and the order of `EMA_20` and `EMA_50` (`models/bias_engine.py`,
@@ -56,17 +56,48 @@ with what they hash.
    is the NEUTRAL direction, with its own sentence, and `MIN_ACTION_BIAS` is gone;
    the state file's key is `raw_bias`; the record gains `lineage.direction` and
    `lineage.risk_inputs.side`. Its live run is recorded in its commit message.
-3. **Gates 6 to 8** — macro on LONG, the liquidity floor, the trigger and its volume.
-   **Next.**
+3. **Gates 6 to 8 — landed by the commit that writes this section** (DECISIONS,
+   "Decision, 15 November 2026 — stage 3 of the redesign's build: gates 6 to 8,
+   eight readings made building them, and what the draft got right and wrong").
+   No LONG while the daily trend is BEARISH (gate 6) and the decision candle's
+   `quote_volume` at least `LIQUIDITY_FLOOR_USDT`, 10,000 (gate 7), are blockers on
+   the confirmation signal's list, each with a label of its own, NO-TRADE (MACRO
+   AGAINST) and NO-TRADE (THIN MARKET); the label a refused side takes is the first
+   gate's, in order, that it does not pass, recorded as `entry.long_signal_refusal`
+   and `entry.short_signal_refusal`. Gate 8 follows the signal: the decision candle
+   closes beyond its open and the previous close, on a volume strictly above the
+   median of the `TRIGGER_VOLUME_LOOKBACK`, 20, candles before it, or the action is
+   WAIT; `entry.trigger`, `.trigger_volume`, `.trigger_volume_median`,
+   `.quote_volume` and `.liquidity_floor` record what was read. A frame without
+   `quote_volume` is now a degraded run. The panel prints TURNOVER, TRIGGER and
+   TRIGGER VOLUME under STATUS. **The golden decision is a WAIT at gate 8.** Its
+   live run is recorded in its commit message.
 4. **Entry quality** D + H, the tiers 70 and 50, gate 9, the second pinned decision.
+   **Next.**
 5. **Removals** — trend health, confidence and EV, validation, the exit watch's two
    flags, **and the weighted sum** (below).
 6. **Reconciliation** against the draft's sections 13 and 14; replacements for H1, H2
    and H5 proposed.
 
-**The branch's `code_hash`:** `43d15cbb…` since stage 2, `a3d499df…` at stage 1,
-`816d4951…` on `master`, which the scheduled task runs. Computed in the Linux
-sandbox on both trees at each stage; stage 1's is also on its live record.
+**The branch's `code_hash`:** `b8afef79…` since stage 3, `43d15cbb…` at stage 2,
+`a3d499df…` at stage 1, `816d4951…` on `master`, which the scheduled task runs.
+Computed in the Linux sandbox on both trees at each stage; stage 1's and stage 2's
+are also on their live records.
+
+**Left for a later stage on purpose, by stage 3** (the entry's readings 1, 6 and 8):
+
+- **The ladder's tiers are still trend health's.** Gate 8 runs on a trade the old
+  ladder chose, and a refusal by gate 6 or 7 still reads "This would have been
+  CONSERVATIVE LONG", a tier stage 4 redefines. `explanation.reasons` therefore
+  moves again in stages 4 and 5; gate 8's sentence, the summary it gives and the
+  golden action do not.
+- **Entry 58's helper has an edge, found and not fixed:** a value equal to a line
+  that needs more than two decimals prints above it (100.123456 against itself
+  prints "100.13"). No constant line in the engine has decimals. Gate 8's median is
+  a line the data gives; there the equal case is printed exactly, and a test holds
+  it. For stage 4, which prints entry quality against 70 and 50 through the helper.
+- Hand-built test records that reach a trade carry a trigger that holds, by a
+  constant in six files; stage 4 does the same for entry quality's inputs.
 
 **Left for a later stage on purpose, by stage 2** (the entry's reading 1):
 
@@ -90,17 +121,25 @@ sandbox on both trees at each stage; stage 1's is also on its live record.
 
 **Left for a later stage on purpose, by stage 1:**
 
-- An absent `quote_volume` means nothing yet. The draft's §5 makes it a missing input
-  (the run degraded, gate 7 recording "not measured"); that arrives with gate 7, in
-  stage 3. `tests/test_quote_volume_reaches_the_frame.py::test_a_frame_without_quote_volume_is_still_a_frame_until_stage_3`
-  holds today's behaviour and is moved then.
-- No sentence prints through the helper yet.
-  `tests/test_compared_value_text.py::test_no_engine_module_calls_the_helper_yet`
-  holds that and is removed by the stage that first uses it.
-- F, 10,000 USDT, is not a constant yet, so no test sets the fixture against it. By
-  computation at stage 1 (Linux sandbox), the fixture's smallest `quote_volume` is
-  10,650.0211 and the decision candle's 67,901.6508, the draft's figures.
 - H5's replacement as a held-back defect: stage 6, with H1's and H2's.
+- Stage 1's other three are closed by stage 3: an absent `quote_volume` is a
+  missing input, and the test that held the old behaviour is moved
+  (`tests/test_gates_6_to_8.py::test_on_the_engine_path_a_frame_without_quote_volume_degrades_the_run`);
+  three engine modules print through the helper, and the test that held "none
+  yet" now holds that list; and F is a constant, with a test that the golden
+  series' smallest `quote_volume`, 10,650.0211, is at or over it.
+
+**Stage 3's readings that are Viktor's to reverse** (all eight are; these four
+change what a run prints or does beyond the rulings' own words):
+
+- **A gate that could not be measured blocks, under the label SIGNAL UNCONFIRMED**
+  for gates 6 and 7, and as a WAIT with its own sentence for gate 8; the run is
+  degraded as well. It is never called MACRO AGAINST or THIN MARKET.
+- **Under NEUTRAL no trigger is read:** `entry.trigger` is null and the panel says
+  there is no side to read it for.
+- **Two record fields and three panel lines the draft does not have:** the two
+  `*_signal_refusal` labels, and TURNOVER, TRIGGER and TRIGGER VOLUME.
+- **Gate 8's sentence prints the volume and its median and no price.**
 
 **Stage 2's readings that are Viktor's to reverse** (all six are; these three change
 something he ruled or would see):
@@ -123,29 +162,30 @@ something he ruled or would see):
   BEARISH to BULLISH on the golden run, computed from the committed
   `BTCUSDT_4h.csv`. The golden run's BTC series is the clean fixture reversed, and on
   it the rule gives BEARISH: `btc_context.raw` does not move, and
-  `btc_context.detailed` moves to BEARISH. **Before stage 3, every figure the draft
-  gives for the golden run is to be recomputed from the golden test's own three
-  series, not taken from §13.**
+  `btc_context.detailed` moves to BEARISH. **Before each stage, every figure the
+  draft gives for the golden run is recomputed from the golden test's own three
+  series, not taken from §13;** done before stage 3 (below), and owed before
+  stage 4 for §13.1's gate 9 (`d` 3.2070 ATR, `h` 15.1202 ATR, entry quality 0).
 - *Stage 2.* §13.3's `lineage.direction` has a field for EMA20's slope, which the
   ruled rule does not read, and true-or-false fields that cannot tell falling from
   flat; three words are recorded instead.
 - *Stage 2.* §14 misses `tests/test_b9_btc_supertrend_is_read_directly.py` and
   misclassifies four tests and one helper in four files; listed in the entry.
+- *Stage 3.* §13.1's figures for gates 6 to 8 were recomputed from the golden
+  test's own series before building and are right: the golden 4h series is the
+  committed pinned one. §14 misclassifies or misses six tests and one set-up, and
+  lists one as rewritten that holds; listed in stage 3's entry. §13.3 has no field
+  for the label of a refused side.
 
-**`6038283`'s landing.** Viktor's opening message of 14 November: stage 1 landed as
-`6038283` (tree `f3bec8f9…`), pushed at about 08:04, and its landing "was checked at
-08:05 against GitHub and the 22 files on disk and holds, except the worktree's index,
-COMMIT_EDITMSG and refs under `E:\phase7_engine\.git`, which were not read: check
-those". Read by this session at 08:06 to 08:07, off his disk and from GitHub, and
-they hold: the worktree's index is the commit's tree, entry for entry (307);
-`COMMIT_EDITMSG` is the commit's message byte for byte, with no CR; the loose commit
-object hashes to its name and is GitHub's; `refs\heads\redesign` and
-`refs\remotes\origin\redesign` are `6038283`, written at 08:04:31 and 08:04:46, their
-reflogs ending in the commit and "update by push"; the commit's tree is the one its
-`Verified-Tree:` line names; GitHub's `redesign` was `6038283` at 08:06:58; and
-`master` has not moved, `696af24` on his disk (written 13 November, 02:44) and on
-GitHub. The 22 files and the earlier read of GitHub are recorded on his statement;
-this session read neither again.
+**`c012e5b`'s landing.** Viktor's opening message of 15 November, sent at 07:17:
+stage 2 landed as `c012e5b` (tree `92e611f1…`), pushed on 15 November at 06:21:05,
+and its landing "was checked at 06:21:48 against GitHub and the disk and holds: tip,
+parent 6038283, tree against Verified-Tree, message, COMMIT_EDITMSG, index (308
+entries), the 31 files, the root clean, master still 696af24". Recorded on his
+statement. Of it this session read from GitHub, by its clone of 07:17: `redesign`'s
+tip is `c012e5b`, its parent `6038283`, its tree
+`92e611f15fe7304574762b9b353a8af4d29136a5`, the one its `Verified-Tree:` line names,
+and `master` is `696af24`. His disk was not read again for it.
 
 ## PACE FIRST — read this before the rest of this file
 
@@ -4020,9 +4060,11 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
   11 November, byte for byte, before the patch was built; it adds no file. (This file
   at `706e858` and at `4ab59d7` still gave `bc250fc`'s sentence here, against
   `a0ca299`; corrected on 7 November.)
-- **code_hash:** **on this branch `43d15cbb…` since stage 2 of the redesign's build
-  and `a3d499df…` at stage 1** (THE REDESIGN'S BUILD, above; stage 1 moved it and
-  left this line saying `816d4951…`, found at stage 2). What follows is the record
+- **code_hash:** **on this branch
+  `b8afef792ccc606d6bf49e2b086ad06d4abb7100b12566f7c051fd74bf0c3707` since stage 3
+  of the redesign's build, `43d15cbb…` at stage 2 and `a3d499df…` at stage 1** (THE
+  REDESIGN'S BUILD, above; stage 1 moved it and left this line saying `816d4951…`,
+  found at stage 2). What follows is the record
   of `master`'s, which the scheduled task runs:
   `816d4951bb0322763ec4abc4b9ed8161d5b902372823350e5272f2fb7176e380`,
   set by `0491b84` from `bc1b9c2c…` — `main.py` alone — and confirmed on Windows: its
@@ -4099,10 +4141,25 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
   output, a CPython implementation detail (`core/code_fingerprint.py`, "WHAT IT DOES NOT
   SURVIVE"). **Every `code_hash` claim about this project is computed under Python 3.12**
   (Viktor runs 3.12.10).
-- **Golden snapshot:** **re-baselined by the commit that writes this line, stage 2 of
-  the redesign's build, with `PHASE7_UPDATE_SNAPSHOT=1`: 6 leaves move, 4 are new and
-  2 are removed, 230 leaves from 228; `exit.action` is still CONSERVATIVE LONG, and
-  `explanation` does not move.** Moved: `bias.detailed` (BULLISH CONFIRMED → BULLISH),
+- **Golden snapshot:** **re-baselined by the commit that writes this line, stage 3 of
+  the redesign's build, with `PHASE7_UPDATE_SNAPSHOT=1`: 7 leaves move and 9 are new,
+  239 leaves from 230; `exit.action` moves from CONSERVATIVE LONG to WAIT, at gate
+  8.** Moved: `exit.action`; `explanation.summary` ("WAIT — No earlier gate refused
+  the long, but there is no resumption candle yet: …"); `explanation.reasons` (gate
+  8's sentence added third, and the EV sentence gaining its "(this is hypothetical,
+  since no trade is actually being suggested right now)"); `lineage.run_hash` and
+  `provenance.run_hash` (`3d2e7758…` → `de8256d4…`), `lineage.archive.path` and
+  `provenance.archive_path` (the same sixteen digits). New: `entry.quote_volume`
+  (67901.6508), `.liquidity_floor` (10000.0), `.trigger` (false), `.trigger_volume`
+  (84693.7281), `.trigger_volume_median` (179247.8923), `.long_signal_refusal`
+  (null), `.short_signal_refusal` (NO-TRADE (SIGNAL UNCONFIRMED)), and the module
+  constants `models.entry_model.LIQUIDITY_FLOOR_USDT` and
+  `.TRIGGER_VOLUME_LOOKBACK`. Predicted before the run, leaf by leaf, and every
+  line held; nothing else moved. `explanation.reasons` moves again in stages 4 and
+  5 (THE REDESIGN'S BUILD, above). Linux sandbox; the Windows run is his pytest
+  step. **Before it, re-baselined by `c012e5b`, stage 2, 6 leaves moved, 4 new and
+  2 removed, 230 leaves from 228; `exit.action` was still CONSERVATIVE LONG, and
+  `explanation` did not move.** Moved: `bias.detailed` (BULLISH CONFIRMED → BULLISH),
   `btc_context.detailed` (BEARISH CONFIRMED → BEARISH), `lineage.run_hash` and
   `provenance.run_hash` (`5eb672e1…` → `3d2e7758…`), `lineage.archive.path` and
   `provenance.archive_path` (the same sixteen digits). New:
@@ -4183,14 +4240,23 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
   `22a9a35`, 4 leaves (the confirmation reason, `volume_sentiment` twice and
   `validation_note`'s volume half: VOLUME DIVERGENCE → FADING VOLUME); before that at
   `6469a67`, 8 leaves.
-- **Test suite** — **1018 passed / 0 failed, no warnings line** with `pandas_ta`;
-  **833 passed / 174 skipped** without it; `run_tests.py` **950 passed / 0 failed /
+- **Test suite** — **1058 passed / 0 failed, no warnings line** with `pandas_ta`;
+  **869 passed / 178 skipped** without it; `run_tests.py` **990 passed / 0 failed /
   31 errors**, all 31 fixture-collection `TypeError`s: the 32 of `e88e0dd` less
   `test_no_module_defaults_a_missing_risk_verdict_to_a_pass`. This is meant to be the
   one place the watched error count is written as a number (DECISIONS, "Ruling,
   15 October 2026 — Part 4's three test shapes", point 5); `README.md` wrote it too
-  until `713e084` (entry 50). The commit that writes this line, stage 2 of the
-  redesign's build, takes the suite from 1009 to 1018, from 833 / 165 to 833 / 174,
+  until `713e084` (entry 50). The commit that writes this line, stage 3 of the
+  redesign's build, takes the suite from 1018 to 1058, from 833 / 174 to 869 / 178,
+  and from 950 / 0 / 31 to 990 / 0 / 31: 40 tests in one new file,
+  `tests/test_gates_6_to_8.py`, none taking a fixture, so the errors stay 31; four
+  of them run the engine and skip without `pandas_ta`. No test is removed: five
+  are renamed, the draft's two X, turned round; the one stage 1 left to be moved;
+  the one that held "no module calls the helper yet", which now holds which three
+  do; and the golden note test, whose copy is turned the other way. Thirteen existing test files change and one is new. From
+  the Linux sandbox, Python 3.12.3, pinned requirements, on the patch applied to an
+  autocrlf clone of `c012e5b` at `redesign`. `c012e5b`, stage 2 of the
+  redesign's build, took the suite from 1009 to 1018, from 833 / 165 to 833 / 174,
   and from 941 / 0 / 31 to 950 / 0 / 31: 12 tests in one new file,
   `tests/test_direction_is_the_slow_trends_side.py`, 5 more in three files
   (`test_plan_direction_and_side.py` 2, `test_b9_btc_supertrend_is_read_directly.py`
@@ -4640,17 +4706,17 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
   then run on Windows at 09:06 on 12 October: both matched (792; 721 / 0 / 32). One test,
   `test_the_commit_messages_up_to_the_tag_are_round_7s_to_the_byte`, runs `git log` up
   to the tag `round7-sent-2026-09-30`: it needs the tag, which a full clone has.
-- **Engineering Notes:** through Entry #288 (v1.43), which covers `a60d66b`; ten
+- **Engineering Notes:** through Entry #288 (v1.43), which covers `a60d66b`; eleven
   commits behind, `9cc48d7`, `a9b83a9`, `66b5c50`, `b26e5c7`, `6df23f4`, `dac70c1`,
-  `a3c863e`, `696af24`, `6038283`, the first to change code among them, and the
-  commit that writes this line (below). The gap
+  `a3c863e`, `696af24`, `6038283`, the first to change code among them, `c012e5b`
+  and the commit that writes this line (below). The gap
   left by v1.36 was closed in four regenerations: v1.37 at `f8805a6` covered `e7a94d1`
   to `eb86846`, v1.38 at `0a518fd` `c2b07fb` to `67f6ec1`, v1.39 at `a0ca299` `0491b84`
   to `b8f88d8`, and v1.40 at `bc250fc` `a1c4218` to `0a518fd`. v1.41, at `9db4ae2`,
   covered the seven commits `706e858` to `82ea40e`, v1.42, at `82b824d`, the two
   commits `7dac328` and `340ee8d`, and v1.43, at `4cdad4e`,
   covers the three commits `6bb82cc`, `e4363d5` and `a60d66b`, one entry each.
-  **Ten commits that need an entry are behind:** `9cc48d7`, which files the ruling of
+  **Eleven commits that need an entry are behind:** `9cc48d7`, which files the ruling of
   11 November and the reading, `a9b83a9`, which files the rulings of 08:55 on
   11 November and writes the draft's version 9, `66b5c50`, which files the ruling of
   09:41 on 11 November and writes the draft's version 10, `b26e5c7`, which files the
@@ -4659,9 +4725,9 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
   `dac70c1`, which files the ruling of 11:00 on 11 November and writes the draft's
   version 13, `a3c863e`, which files the ruling of 07:33
   on 12 November and writes the draft's version 14, `696af24`, which files the ruling
-  of 01:15 on 13 November, `6038283`, stage 1 of the redesign's build, and the
-  commit that writes this
-  line, stage 2 of it; none has one until the next regeneration. `bc250fc`, `9db4ae2`, `82b824d` and
+  of 01:15 on 13 November, `6038283`, stage 1 of the redesign's build, `c012e5b`,
+  stage 2 of it, and the commit that writes this
+  line, stage 3; none has one until the next regeneration. `bc250fc`, `9db4ae2`, `82b824d` and
   `4cdad4e` are regenerations and have none (a commit that
   regenerates the Notes cannot cover itself, Entry #144). Every later commit adds one
   until the next regeneration. Batched, by the 15 September rule. v1.43 records the
@@ -6322,12 +6388,13 @@ Claude critiques it.
 
 - **Owed to the next commit:** nothing, unless this commit's push deviates from its
   prediction (ruling on proposal (b), 27 September).
-- **Claude's, next: stage 3 of the redesign's build, gates 6 to 8** (THE REDESIGN'S
-  BUILD, above), after recomputing the draft's figures for the golden run from the
-  golden test's own series.
-- **Viktor's, when he reads it: stage 2's three readings that change something he
-  ruled or would see** (THE REDESIGN'S BUILD, above). None waits for him; each is his
-  to reverse, and a reversal is cheapest before stage 3.
+- **Claude's, next: stage 4 of the redesign's build, entry quality D + H, the tiers
+  70 and 50, gate 9 and the second pinned decision** (THE REDESIGN'S BUILD, above),
+  after recomputing the draft's figures for the golden run's gate 9 from the golden
+  test's own series.
+- **Viktor's, when he reads it: stage 2's three readings and stage 3's four that
+  change something he ruled or would see** (THE REDESIGN'S BUILD, above). None waits
+  for him; each is his to reverse, and a reversal is cheapest before stage 4.
 - **The worktree's setup: done.** Viktor ran it after `696af24`'s push; his message of
   14 November has it checked on 13 November at 02:53 and holding (THE REDESIGN'S
   BUILD, above, with what this session did and did not read).

@@ -223661,3 +223661,170 @@ Lines 6234–6235 of the version at `6038283`:
 - **Claude's, next: stage 2 of the redesign's build, direction** (THE REDESIGN'S
   BUILD, above).
 ~~~~~
+
+## 15 November 2026 — the lines the rewrite of PHASE7_NEXT.md removed from its version at `c012e5b`
+
+*Moved here on 15 November 2026 by stage 3 of the redesign's build, the third commit
+on the branch `redesign`, under "Ruling, 4 November 2026 — HISTORY
+keeps what each rewrite of PHASE7_NEXT.md removes, not the whole file" (DECISIONS).
+Below the rule, each block is a run of lines of the file as it stood at `c012e5b` that
+the rewrite deleted or replaced, word for word, labelled with its line numbers in that
+version; "this session" in them is the session that opened at 08:05 on 14 November,
+not the one that writes this entry, which opened at 07:17 on 15 November, and "the
+commit that writes this line", "the commit that writes this section" and "this
+commit" name `c012e5b`. The
+whole version: `git show c012e5b:docs/PHASE7_NEXT.md`. Checked by
+`docs/build/check_history_move.py`.*
+
+---
+
+Lines 3–5 of the version at `c012e5b`:
+
+~~~~~
+*14 November 2026, in the session that opened at 08:05, on the branch `redesign`.
+Rewritten by stage 2 of the redesign's build, the branch's second commit, which also
+files the readings made building it and records `6038283`'s landing;
+~~~~~
+
+Line 7 of the version at `c012e5b`:
+
+~~~~~
+`6038283` are in HISTORY, which points to that whole version in git.
+~~~~~
+
+Line 50 of the version at `c012e5b`:
+
+~~~~~
+2. **Direction — landed by the commit that writes this section** (DECISIONS,
+~~~~~
+
+Line 59 of the version at `c012e5b`:
+
+~~~~~
+3. **Gates 6 to 8** — macro on LONG, the liquidity floor, the trigger and its volume.
+~~~~~
+
+Line 61 of the version at `c012e5b`:
+
+~~~~~
+4. **Entry quality** D + H, the tiers 70 and 50, gate 9, the second pinned decision.
+~~~~~
+
+Lines 67–69 of the version at `c012e5b`:
+
+~~~~~
+**The branch's `code_hash`:** `43d15cbb…` since stage 2, `a3d499df…` at stage 1,
+`816d4951…` on `master`, which the scheduled task runs. Computed in the Linux
+sandbox on both trees at each stage; stage 1's is also on its live record.
+~~~~~
+
+Lines 93–102 of the version at `c012e5b`:
+
+~~~~~
+- An absent `quote_volume` means nothing yet. The draft's §5 makes it a missing input
+  (the run degraded, gate 7 recording "not measured"); that arrives with gate 7, in
+  stage 3. `tests/test_quote_volume_reaches_the_frame.py::test_a_frame_without_quote_volume_is_still_a_frame_until_stage_3`
+  holds today's behaviour and is moved then.
+- No sentence prints through the helper yet.
+  `tests/test_compared_value_text.py::test_no_engine_module_calls_the_helper_yet`
+  holds that and is removed by the stage that first uses it.
+- F, 10,000 USDT, is not a constant yet, so no test sets the fixture against it. By
+  computation at stage 1 (Linux sandbox), the fixture's smallest `quote_volume` is
+  10,650.0211 and the decision candle's 67,901.6508, the draft's figures.
+~~~~~
+
+Lines 126–128 of the version at `c012e5b`:
+
+~~~~~
+  `btc_context.detailed` moves to BEARISH. **Before stage 3, every figure the draft
+  gives for the golden run is to be recomputed from the golden test's own three
+  series, not taken from §13.**
+~~~~~
+
+Lines 135–148 of the version at `c012e5b`:
+
+~~~~~
+**`6038283`'s landing.** Viktor's opening message of 14 November: stage 1 landed as
+`6038283` (tree `f3bec8f9…`), pushed at about 08:04, and its landing "was checked at
+08:05 against GitHub and the 22 files on disk and holds, except the worktree's index,
+COMMIT_EDITMSG and refs under `E:\phase7_engine\.git`, which were not read: check
+those". Read by this session at 08:06 to 08:07, off his disk and from GitHub, and
+they hold: the worktree's index is the commit's tree, entry for entry (307);
+`COMMIT_EDITMSG` is the commit's message byte for byte, with no CR; the loose commit
+object hashes to its name and is GitHub's; `refs\heads\redesign` and
+`refs\remotes\origin\redesign` are `6038283`, written at 08:04:31 and 08:04:46, their
+reflogs ending in the commit and "update by push"; the commit's tree is the one its
+`Verified-Tree:` line names; GitHub's `redesign` was `6038283` at 08:06:58; and
+`master` has not moved, `696af24` on his disk (written 13 November, 02:44) and on
+GitHub. The 22 files and the earlier read of GitHub are recorded on his statement;
+this session read neither again.
+~~~~~
+
+Lines 4023–4025 of the version at `c012e5b`:
+
+~~~~~
+- **code_hash:** **on this branch `43d15cbb…` since stage 2 of the redesign's build
+  and `a3d499df…` at stage 1** (THE REDESIGN'S BUILD, above; stage 1 moved it and
+  left this line saying `816d4951…`, found at stage 2). What follows is the record
+~~~~~
+
+Lines 4102–4105 of the version at `c012e5b`:
+
+~~~~~
+- **Golden snapshot:** **re-baselined by the commit that writes this line, stage 2 of
+  the redesign's build, with `PHASE7_UPDATE_SNAPSHOT=1`: 6 leaves move, 4 are new and
+  2 are removed, 230 leaves from 228; `exit.action` is still CONSERVATIVE LONG, and
+  `explanation` does not move.** Moved: `bias.detailed` (BULLISH CONFIRMED → BULLISH),
+~~~~~
+
+Lines 4186–4187 of the version at `c012e5b`:
+
+~~~~~
+- **Test suite** — **1018 passed / 0 failed, no warnings line** with `pandas_ta`;
+  **833 passed / 174 skipped** without it; `run_tests.py` **950 passed / 0 failed /
+~~~~~
+
+Lines 4192–4193 of the version at `c012e5b`:
+
+~~~~~
+  until `713e084` (entry 50). The commit that writes this line, stage 2 of the
+  redesign's build, takes the suite from 1009 to 1018, from 833 / 165 to 833 / 174,
+~~~~~
+
+Line 4643 of the version at `c012e5b`:
+
+~~~~~
+- **Engineering Notes:** through Entry #288 (v1.43), which covers `a60d66b`; ten
+~~~~~
+
+Lines 4645–4646 of the version at `c012e5b`:
+
+~~~~~
+  `a3c863e`, `696af24`, `6038283`, the first to change code among them, and the
+  commit that writes this line (below). The gap
+~~~~~
+
+Line 4653 of the version at `c012e5b`:
+
+~~~~~
+  **Ten commits that need an entry are behind:** `9cc48d7`, which files the ruling of
+~~~~~
+
+Lines 4662–4664 of the version at `c012e5b`:
+
+~~~~~
+  of 01:15 on 13 November, `6038283`, stage 1 of the redesign's build, and the
+  commit that writes this
+  line, stage 2 of it; none has one until the next regeneration. `bc250fc`, `9db4ae2`, `82b824d` and
+~~~~~
+
+Lines 6325–6330 of the version at `c012e5b`:
+
+~~~~~
+- **Claude's, next: stage 3 of the redesign's build, gates 6 to 8** (THE REDESIGN'S
+  BUILD, above), after recomputing the draft's figures for the golden run from the
+  golden test's own series.
+- **Viktor's, when he reads it: stage 2's three readings that change something he
+  ruled or would see** (THE REDESIGN'S BUILD, above). None waits for him; each is his
+  to reverse, and a reversal is cheapest before stage 3.
+~~~~~

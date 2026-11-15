@@ -1,8 +1,10 @@
 import logging
 import math
 import textwrap
+from decimal import Decimal
 
 from . import config
+from .threshold_text import compared_value_text
 
 logger = logging.getLogger(__name__)
 
@@ -648,6 +650,76 @@ def render_panel(decision):
 
             return zone_line + distance_line
 
+        def _gate_lines(entry, bias):
+            """
+            THE REDESIGN'S STAGE 3, 15 November 2026: what gates 7 and 8
+            read, so that a refusal named in Decision Reasoning points at
+            something visible on the panel, and a gate that passed is
+            visible too.
+
+                TURNOVER      : 67902 USDT on the decision candle (floor 10000)
+                TRIGGER       : NO -- the candle did not close beyond its open and the previous close
+                TRIGGER VOLUME: 84694 against a median of 179247.8923 before it -- not above it
+
+            Entry 58's rule holds here as in the sentences: a value set
+            against a line is printed on its own side of it
+            (core/threshold_text.py), and the median, which is a line the
+            data gives, is printed exactly as computed (how many candles it
+            is over is models/entry_model.py's TRIGGER_VOLUME_LOOKBACK, and
+            Decision Reasoning says it). A value that was not
+            measured prints as that; under a NEUTRAL direction there is no
+            side to read a trigger for, and the line says so.
+            """
+            def amount(value):
+                if isinstance(value, bool) or not isinstance(value, (int, float)):
+                    return None
+                number = float(value)
+                if not math.isfinite(number) or number < 0.0:
+                    return None
+                return number
+
+            turnover = amount(entry.get("quote_volume"))
+            floor = amount(entry.get("liquidity_floor"))
+            if turnover is None or floor is None:
+                turnover_line = "TURNOVER      : not measured\n"
+            else:
+                verdict = "" if turnover >= floor else " -- UNDER THE FLOOR"
+                turnover_line = (
+                    f"TURNOVER      : {compared_value_text(turnover, floor)} "
+                    f"USDT on the decision candle (floor {floor:g}){verdict}\n"
+                )
+
+            trigger = entry.get("trigger")
+            raw = bias.get("raw")
+            if trigger is True:
+                trigger_line = ("TRIGGER       : YES -- the candle closed "
+                                "beyond its open and the previous close\n")
+            elif trigger is False:
+                trigger_line = ("TRIGGER       : NO -- the candle did not "
+                                "close beyond its open and the previous close\n")
+            elif raw == "BULLISH" or raw == "BEARISH":
+                trigger_line = "TRIGGER       : not measured\n"
+            else:
+                trigger_line = "TRIGGER       : not read -- no side to read it for\n"
+
+            volume = amount(entry.get("trigger_volume"))
+            median = amount(entry.get("trigger_volume_median"))
+            if volume is None or median is None:
+                volume_line = "TRIGGER VOLUME: not measured\n"
+            else:
+                exact_median = f"{Decimal(repr(median)):f}"
+                if volume == median:
+                    printed = exact_median
+                else:
+                    printed = compared_value_text(volume, median)
+                verdict = "above it" if volume > median else "not above it"
+                volume_line = (
+                    f"TRIGGER VOLUME: {printed} against a median of "
+                    f"{exact_median} before it -- {verdict}\n"
+                )
+
+            return turnover_line + trigger_line + volume_line
+
         def _correlation_lines(btc, colorize_val):
             """
             AUDIT FINDING (a), 5 September 2026. These two lines were:
@@ -949,6 +1021,7 @@ def render_panel(decision):
             f"{live_price_line}"
             f"{_entry_zone_lines(entry, c_cyan, reset)}"
             f"STATUS        : {colorize_val(entry.get('entry_status', 'UNKNOWN'))}\n"
+            f"{_gate_lines(entry, bias)}"
             f"{swing_struct_line}\n"
             f"{plan_lines}\n"
             f"{divider}"

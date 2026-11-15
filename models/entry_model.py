@@ -3,7 +3,9 @@ import numbers
 from decimal import Decimal, ROUND_FLOOR
 
 import numpy as np
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Tuple
+
+from core.threshold_text import compared_value_text
 
 # AUDIT FINDING (4), 5 September 2026. What a sub-score is worth when the
 # thing it scores could not be measured.
@@ -626,6 +628,116 @@ def _adx_text(adx: float) -> str:
                                                   rounding=ROUND_FLOOR))
 
 
+# THE REDESIGN'S STAGE 3, 15 November 2026: gates 6 and 7 of the draft's
+# ladder (docs/redesign_entry53_draft.md, section 4) join this list, so that
+# one place still names every reason a side is refused.
+#
+# GATE 6, Viktor's ruling of 25 October 2026, point 3: no LONG while the
+# daily trend is bearish. A NEUTRAL daily trend passes; SHORT is not gated by
+# macro. It is written in one vocabulary, side LONG against macro BEARISH,
+# because entry 14's defect was a comparison of macro's words with the
+# trade's. A macro value outside BULLISH, BEARISH and NEUTRAL is not a
+# reading: it is neither passed nor called bearish (below).
+#
+# GATE 7, his ruling of 31 October 2026: the liquidity floor. The decision
+# candle's turnover in USDT, MEXC's quote_volume, must be at least
+# LIQUIDITY_FLOOR_USDT. 10,000 is his ruling of 11 November 2026, a starting
+# value on the tunable list; it is the largest value of 1, 2, 5, 10, 20, 50 ...
+# at which no pair had more than 5% of its records under it in the reading of
+# 11 November. It applies to both sides.
+#
+# WHICH LABEL A REFUSED SIDE GETS. The draft's ladder takes the first gate,
+# in order, that fails: gates 3 to 5 are NO-TRADE (SIGNAL UNCONFIRMED), as
+# before; then gate 6, NO-TRADE (MACRO AGAINST); then gate 7, NO-TRADE (THIN
+# MARKET). The blocker list still carries every reason. A gate 6 or 7 that
+# could NOT BE MEASURED blocks the side too -- an absent confirmation is not
+# a confirmation -- and takes the label SIGNAL UNCONFIRMED, never MACRO
+# AGAINST or THIN MARKET: a market nobody measured is not given the label of
+# a thin one (the draft's section 5, version 1). In the engine such a run is
+# also degraded, named by core/engine_core.py.
+LIQUIDITY_FLOOR_USDT = 10000.0
+
+SIGNAL_UNCONFIRMED = "NO-TRADE (SIGNAL UNCONFIRMED)"
+MACRO_AGAINST = "NO-TRADE (MACRO AGAINST)"
+THIN_MARKET = "NO-TRADE (THIN MARKET)"
+REFUSAL_LABELS = (SIGNAL_UNCONFIRMED, MACRO_AGAINST, THIN_MARKET)
+
+MACRO_READINGS = ("BULLISH", "BEARISH", "NEUTRAL")
+
+
+def _measured_amount(value: Any) -> Optional[float]:
+    """
+    A volume or a turnover as a float, or None when there is no valid
+    reading: a bool, anything that is not a number, NaN, an infinity or a
+    negative amount. Zero is a reading.
+    """
+    if isinstance(value, bool) or not isinstance(value, numbers.Real):
+        return None
+    amount = float(value)
+    if not math.isfinite(amount) or amount < 0.0:
+        return None
+    return amount
+
+
+def exact_text(value: float) -> str:
+    """A number as recorded: its shortest decimal form, with no rounding."""
+    return f"{Decimal(repr(float(value))):f}"
+
+
+def _signal_refusals(
+    direction: str,
+    structure_regime: str,
+    momentum_divergence: bool,
+    divergence_direction: str,
+    *,
+    adx: Any,
+    macro_bias: Any,
+    quote_volume: Any,
+) -> List[Tuple[str, str]]:
+    """
+    Every reason the setup does not confirm `direction`, in gate order, each
+    with the label that gate gives a refused trade. signal_blockers() is the
+    reasons; generate_entry_signals() also records the first one's label.
+    """
+    if direction not in ("LONG", "SHORT"):
+        raise ValueError(f"direction must be LONG or SHORT, got {direction!r}")
+
+    refusals = [(SIGNAL_UNCONFIRMED, reason) for reason in _confirmation_blockers(
+        direction, structure_regime, momentum_divergence, divergence_direction,
+        adx=adx)]
+
+    # Gate 6.
+    if direction == "LONG":
+        if not isinstance(macro_bias, str) or macro_bias not in MACRO_READINGS:
+            refusals.append((
+                SIGNAL_UNCONFIRMED,
+                f"the daily trend was recorded as {macro_bias!r}, which is "
+                "not BULLISH, BEARISH or NEUTRAL, so it cannot be shown not "
+                "to be bearish"))
+        elif macro_bias == "BEARISH":
+            refusals.append((
+                MACRO_AGAINST,
+                "the daily trend is BEARISH, and no long is taken while the "
+                "daily trend is bearish"))
+
+    # Gate 7.
+    turnover = _measured_amount(quote_volume)
+    if turnover is None:
+        refusals.append((
+            SIGNAL_UNCONFIRMED,
+            "the decision candle's turnover in USDT has no valid reading on "
+            "this run, so the market cannot be shown to be liquid enough"))
+    elif turnover < LIQUIDITY_FLOOR_USDT:
+        refusals.append((
+            THIN_MARKET,
+            f"the decision candle's turnover was "
+            f"{compared_value_text(turnover, LIQUIDITY_FLOOR_USDT)} USDT, "
+            f"under the {LIQUIDITY_FLOOR_USDT:g} USDT the engine requires "
+            f"to treat the market as liquid enough"))
+
+    return refusals
+
+
 def signal_blockers(
     direction: str,
     structure_regime: str,
@@ -633,6 +745,8 @@ def signal_blockers(
     divergence_direction: str,
     *,
     adx: Any,
+    macro_bias: Any,
+    quote_volume: Any,
 ) -> List[str]:
     """
     Every reason the setup does NOT confirm a trade in `direction` ("LONG" or
@@ -641,10 +755,24 @@ def signal_blockers(
     `adx` is keyword-only and has no default (fix 2): a call in the shape
     before fix 2 -- the exhaustion flag third, five positional arguments --
     raises TypeError instead of binding the flag to another parameter.
+    `macro_bias` and `quote_volume` (stage 3 of the redesign, gates 6 and 7)
+    are keyword-only with no default for the same reason: a call that does
+    not give them is refused, not read as a market that passed both.
     """
-    if direction not in ("LONG", "SHORT"):
-        raise ValueError(f"direction must be LONG or SHORT, got {direction!r}")
+    return [reason for _, reason in _signal_refusals(
+        direction, structure_regime, momentum_divergence, divergence_direction,
+        adx=adx, macro_bias=macro_bias, quote_volume=quote_volume)]
 
+
+def _confirmation_blockers(
+    direction: str,
+    structure_regime: str,
+    momentum_divergence: bool,
+    divergence_direction: str,
+    *,
+    adx: Any,
+) -> List[str]:
+    """Gates 3 to 5: structure, ADX and the price/RSI disagreement."""
     wanted_structure = "BULLISH TREND" if direction == "LONG" else "BEARISH TREND"
     opposing = "BEARISH" if direction == "LONG" else "BULLISH"
     blockers: List[str] = []
@@ -689,24 +817,126 @@ def generate_entry_signals(
     divergence_direction: str,
     *,
     adx: Any,
+    macro_bias: Any,
+    quote_volume: Any,
 ) -> Dict[str, Any]:
     """
     Both sides' confirmation signals and the reasons behind each.
 
     Returns long_signal / short_signal (True exactly when that side's blocker
-    list is empty) and long_signal_blockers / short_signal_blockers. Both
-    sides are recorded so the decision log shows why each was or was not
-    confirmed, not only the side that was traded.
+    list is empty), long_signal_blockers / short_signal_blockers, and, since
+    stage 3 of the redesign, long_signal_refusal / short_signal_refusal: the
+    NO-TRADE label of the first gate that side does not pass, None when it
+    passes them all. Both sides are recorded so the decision log shows why
+    each was or was not confirmed, not only the side that was traded.
     """
-    long_blockers = signal_blockers(
-        "LONG", structure_regime, momentum_divergence, divergence_direction,
-        adx=adx)
-    short_blockers = signal_blockers(
-        "SHORT", structure_regime, momentum_divergence, divergence_direction,
-        adx=adx)
+    out: Dict[str, Any] = {}
+    for key, direction in (("long", "LONG"), ("short", "SHORT")):
+        refusals = _signal_refusals(
+            direction, structure_regime, momentum_divergence,
+            divergence_direction, adx=adx, macro_bias=macro_bias,
+            quote_volume=quote_volume)
+        out[f"{key}_signal"] = not refusals
+        out[f"{key}_signal_blockers"] = [reason for _, reason in refusals]
+        out[f"{key}_signal_refusal"] = refusals[0][0] if refusals else None
+    return out
+
+
+# THE REDESIGN'S STAGE 3, 15 November 2026: gate 8, the trigger and its
+# volume (the draft's section 5).
+#
+# THE TRIGGER, Viktor's ruling of 11 November 2026: for a LONG, the decision
+# candle -- the last closed one -- closes above its open AND above the
+# previous candle's close; a SHORT is the mirror. A pullback that has not
+# turned yet is a WAIT.
+#
+# ITS VOLUME, his ruling of 31 October 2026: that candle's volume must be
+# strictly above the median of the TRIGGER_VOLUME_LOOKBACK candles before it.
+# The margin starts at zero. Twenty is a length, not a cutoff. Base-asset
+# volume, because it is compared with itself on one pair.
+#
+# NOT MEASURED IS NOT A READING (the draft's section 3.2, entry 19's lesson
+# carried forward): an absent or non-finite volume on the decision candle, or
+# fewer than twenty readable candles before it, leaves the median None and is
+# named in `not_measured`; it is never compared as though it were the median.
+# The same for a price that is not a finite number. core/engine_core.py
+# degrades the run on any name in that list.
+#
+# With no side -- a NEUTRAL direction -- there is no trigger to read, and
+# `trigger` is None with nothing named: the ladder has already returned WAIT
+# at gate 2. The two volumes are still recorded; they have no side.
+TRIGGER_VOLUME_LOOKBACK = 20
+
+
+def read_trigger(
+    side: Optional[str],
+    *,
+    open_price: Any,
+    close_price: Any,
+    previous_close: Any,
+    volume: Any,
+    previous_volumes: Any,
+) -> Dict[str, Any]:
+    """
+    Gate 8's readings on the decision candle.
+
+    `side` is "LONG", "SHORT" or None (no side). `previous_volumes` is the
+    volume of the candles before the decision candle, oldest first; the last
+    TRIGGER_VOLUME_LOOKBACK of them are read.
+
+    Returns `trigger` (True, False, or None when there is no side or a price
+    was not measured), `trigger_volume`, `trigger_volume_median` (each None
+    when not measured) and `not_measured`, the names of what could not be
+    read.
+    """
+    if side not in ("LONG", "SHORT", None):
+        raise ValueError(f"side must be LONG, SHORT or None, got {side!r}")
+
+    not_measured: List[str] = []
+
+    def price(value: Any, name: str) -> Optional[float]:
+        if (isinstance(value, bool) or not isinstance(value, numbers.Real)
+                or not math.isfinite(float(value))):
+            not_measured.append(name)
+            return None
+        return float(value)
+
+    opened = price(open_price, "the decision candle's open")
+    closed = price(close_price, "the decision candle's close")
+    before = price(previous_close, "the previous candle's close")
+
+    trigger: Optional[bool] = None
+    if side is not None and None not in (opened, closed, before):
+        if side == "LONG":
+            trigger = closed > opened and closed > before
+        else:
+            trigger = closed < opened and closed < before
+
+    trigger_volume = _measured_amount(volume)
+    if trigger_volume is None:
+        not_measured.append("the decision candle's volume")
+
+    try:
+        earlier = list(previous_volumes)
+    except TypeError:
+        earlier = []
+    window = [_measured_amount(v) for v in earlier[-TRIGGER_VOLUME_LOOKBACK:]]
+    median: Optional[float] = None
+    if len(window) == TRIGGER_VOLUME_LOOKBACK and None not in window:
+        ordered = sorted(window)
+        middle = TRIGGER_VOLUME_LOOKBACK // 2
+        if TRIGGER_VOLUME_LOOKBACK % 2:
+            median = ordered[middle]
+        else:
+            median = (ordered[middle - 1] + ordered[middle]) / 2.0
+    else:
+        not_measured.append(
+            f"the volume of the {TRIGGER_VOLUME_LOOKBACK} candles before "
+            f"the decision candle")
+
     return {
-        "long_signal": not long_blockers,
-        "short_signal": not short_blockers,
-        "long_signal_blockers": long_blockers,
-        "short_signal_blockers": short_blockers,
+        "trigger": trigger,
+        "trigger_volume": trigger_volume,
+        "trigger_volume_median": median,
+        "not_measured": not_measured,
     }

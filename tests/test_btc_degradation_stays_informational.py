@@ -64,7 +64,15 @@ def _write_pinned_set(directory):
     import pandas as pd
 
     base = pd.read_csv(fixture("ohlcv_clean_4h.csv"))
-    base.to_csv(os.path.join(directory, f"{SYMBOL}_{TIMEFRAME}.csv"), index=False)
+    # The redesign's stage 3, 15 November 2026: gate 7 reads quote_volume on
+    # the series under analysis, and a frame without it degrades the run.
+    # These tests compare a run with a BTC-only failure against a control
+    # that must NOT be degraded, so the series carries the column, by the
+    # golden test's rule (volume x close, four decimals).
+    struct = base.copy()
+    struct["quote_volume"] = [round(float(v) * float(c), 4)
+                              for v, c in zip(base["volume"], base["close"])]
+    struct.to_csv(os.path.join(directory, f"{SYMBOL}_{TIMEFRAME}.csv"), index=False)
 
     groups = base.index // 6
     daily = base.groupby(groups).agg(

@@ -52,7 +52,11 @@ def _evaluate(risk_valid=True, degradation=None, targets=(1.1, 1.2, 1.3),
         entry={"score": entry_score, "entry_status": "ACTIVE ENTRY ZONE",
                "long_signal": True, "short_signal": False,
                "long_signal_blockers": [],
-               "short_signal_blockers": ["structure is BULLISH TREND, not BEARISH TREND"]},
+               "short_signal_blockers": ["structure is BULLISH TREND, not BEARISH TREND"],
+               # The redesign's stage 3, 15 November 2026: and a trigger
+               # that holds, so gate 8 passes too, for the same reason.
+               "trigger": True, "trigger_volume": 2.0,
+               "trigger_volume_median": 1.0},
         risk={"risk_valid": risk_valid,
               "risk_reason": "Stop distance exceeds maximum allowable threshold (15%).",
               "risk_regime": "NORMAL RISK",

@@ -39,6 +39,24 @@ where CONSERVATIVE is expected; the old sentence), not by a TypeError. The
 router returns an error record with no "exit" when assembly fails, so every
 exact-action assertion here raises on a failed build rather than passing.
 
+THE REDESIGN'S STAGE 3, 15 November 2026 -- macro is a gate on LONG
+
+Viktor's ruling of 25 October, point 3: no LONG while the daily trend is
+bearish. Macro no longer votes in the direction (stage 2), so the gate is
+not a second count of it. It sits with the confirmation signal
+(models/entry_model.py, gate 6), and the decision model still takes no macro
+parameter. So test_a_conservative_long_does_not_depend_on_macro, which held
+G's removal for the long side, is TURNED ROUND (the draft's section 14, one
+of its two X): it is now
+test_a_conservative_long_is_refused_under_a_bearish_daily_trend_and_no_other.
+That is the ruling's consequence, not a new rule. The short side's test
+holds as it was: SHORT is not gated by macro.
+
+The signal record these tests give the router is now the engine's own,
+generate_entry_signals called with the macro reading the router is given, a
+turnover over the floor and, beside it, a trigger that holds -- so that
+macro is the one thing each test moves.
+
 No fixtures and no pytest import: run_tests.py calls each test with no
 arguments.
 """
@@ -50,6 +68,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from models.decision_model import DecisionModel
+from models.entry_model import generate_entry_signals
 from models.signal_router import SignalRouter
 
 MACROS = ("BULLISH", "BEARISH", "NEUTRAL")
@@ -57,12 +76,21 @@ TREND_MIN = DecisionModel.AGGRESSIVE_TREND_HEALTH_MIN
 ENTRY_MIN = DecisionModel.AGGRESSIVE_ENTRY_SCORE_MIN
 
 
-def _confirmed(side):
-    """A complete, confirmed signal record for `side`, so the gate passes."""
-    other = "short" if side == "long" else "long"
-    return {f"{side}_signal": True, f"{side}_signal_blockers": [],
-            f"{other}_signal": False,
-            f"{other}_signal_blockers": ["structure does not agree"]}
+def _confirmed(side, macro="NEUTRAL"):
+    """
+    A complete signal record for `side` under the daily trend `macro`, as
+    the engine computes it: structure agreeing with the side, a trending
+    ADX, no divergence, a turnover over the floor -- and a trigger that
+    holds. Under any macro but a bearish one on the long side, every gate
+    passes.
+    """
+    structure = "BULLISH TREND" if side == "long" else "BEARISH TREND"
+    record = generate_entry_signals(
+        structure_regime=structure, momentum_divergence=False,
+        divergence_direction="NONE", adx=30.0,
+        macro_bias=macro, quote_volume=50_000.0)
+    record.update(trigger=True, trigger_volume=2.0, trigger_volume_median=1.0)
+    return record
 
 
 # 13 OCTOBER 2026, the fallback sweep (DECISIONS, "Ruling, 13 October 2026
@@ -88,7 +116,7 @@ def _route(side, macro, health=60.0, entry_score=40.0, score=60.0):
                "momentum_divergence": False},
         structure={},
         entry={**ROUTER_READS_ENTRY, "score": entry_score,
-               "entry_status": "APPROACHING ZONE", **_confirmed(side)},
+               "entry_status": "APPROACHING ZONE", **_confirmed(side, macro)},
         risk={"risk_valid": True, "risk_reason": "OK",
               "risk_regime": "NORMAL RISK", "validation_state": "NEUTRAL",
               "targets": [1.1, 1.2, 1.3] if long_side else [0.9, 0.8, 0.7]},
@@ -108,12 +136,24 @@ def _conservative_reason(out):
 
 # --- the tier no longer depends on macro -------------------------------------
 
-def test_a_conservative_long_does_not_depend_on_macro():
-    for macro in MACROS:
+def test_a_conservative_long_is_refused_under_a_bearish_daily_trend_and_no_other():
+    """
+    Turned round at the redesign's stage 3 (see the module docstring). A
+    bullish or neutral daily trend leaves the tier as work order G left it;
+    a bearish one refuses the long, with gate 6's own label and reason.
+    """
+    for macro in ("BULLISH", "NEUTRAL"):
         out = _route("long", macro)
         assert out["exit"]["action"] == "CONSERVATIVE LONG", (
             f"macro {macro}: {out['exit']['action']} -- "
             f"{out['explanation']['reasons']}")
+    out = _route("long", "BEARISH")
+    assert out["exit"]["action"] == "NO-TRADE (MACRO AGAINST)", (
+        out["exit"]["action"], out["explanation"]["reasons"])
+    assert out["explanation"]["summary"] == (
+        "NO-TRADE (MACRO AGAINST) — This would have been CONSERVATIVE LONG, "
+        "but the daily trend is BEARISH, and no long is taken while the "
+        "daily trend is bearish, so no trade is taken."), out["explanation"]
 
 
 def test_a_conservative_short_does_not_depend_on_macro():
@@ -206,8 +246,12 @@ def test_the_sentence_makes_no_claim_about_macro():
     """
     for side in ("long", "short"):
         for macro in MACROS:
+            # Under a bearish daily trend the long is refused by gate 6
+            # (stage 3 of the redesign); the ladder's sentence is still
+            # written first, and is the one read here.
             reason = _conservative_reason(_route(side, macro))
             assert "macro" not in reason.lower(), reason
+            assert "daily trend" not in reason.lower(), reason
 
 
 def test_the_sentence_names_the_bias_side_and_the_trend_direction():

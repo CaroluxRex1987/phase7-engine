@@ -169,7 +169,14 @@ def test_on_a_real_decision_object_the_real_target_1_note_is_withheld():
     notes = [f for f in decision["exit_watch"] if "Target 1" in f]
     assert len(notes) == 1 and notes[0].startswith(TARGET1_NOTE_PREFIX), notes
 
-    as_built = render_panel(json.loads(json.dumps(decision)))
+    # Since the redesign's stage 3 (15 November 2026) the golden decision is
+    # a WAIT at gate 8, on which the panel withholds the note (B10). The
+    # control that the note prints at all is therefore made on the same
+    # record naming the side its plan is for.
+    trading = json.loads(json.dumps(decision))
+    assert trading["exit"]["action"] == "WAIT", trading["exit"]
+    trading["exit"]["action"] = "CONSERVATIVE LONG"
+    as_built = render_panel(trading)
     assert "Target 1" in _exit_watch_section(as_built)
     assert len(_lines(as_built, "STOP LOSS")) == 1
 
@@ -270,7 +277,11 @@ def _grid_actions(raw):
             trend={"trend_health": health, "trend_direction_sign": 1},
             entry={"score": entry_score, "entry_status": status,
                    "long_signal": confirmed, "long_signal_blockers": blockers,
-                   "short_signal": confirmed, "short_signal_blockers": list(blockers)},
+                   "short_signal": confirmed, "short_signal_blockers": list(blockers),
+                   # The redesign's stage 3, 15 November 2026: a trigger that
+                   # holds, so gate 8 is not what keeps a side out below.
+                   "trigger": True, "trigger_volume": 2.0,
+                   "trigger_volume_median": 1.0},
             risk={"risk_valid": risk_valid, "risk_reason": "test",
                   "risk_regime": regime, "validation_state": validation,
                   "atr_stop": stop, "targets": targets},

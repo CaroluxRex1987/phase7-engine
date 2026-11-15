@@ -68,12 +68,20 @@ from models.signal_router import SignalRouter
 # therefore carries a COMPLETE record. Without it, the "cannot open a
 # direction" tests would pass vacuously: a regression back to a LONG would be
 # refused by the gate for missing data, not caught by the assertion.
+#
+# THE REDESIGN'S STAGE 3, 15 November 2026. Gate 8 follows the signal, and a
+# trigger that is absent fails safe to WAIT. So a complete record now also
+# carries a trigger that holds, for the same reason: without it every "cannot
+# open a direction" test here would pass on the missing trigger's WAIT.
+TRIGGERED = {"trigger": True, "trigger_volume": 2.0, "trigger_volume_median": 1.0}
 LONG_CONFIRMED = {"long_signal": True, "short_signal": False,
                   "long_signal_blockers": [],
-                  "short_signal_blockers": ["structure is BULLISH TREND, not BEARISH TREND"]}
+                  "short_signal_blockers": ["structure is BULLISH TREND, not BEARISH TREND"],
+                  **TRIGGERED}
 SHORT_CONFIRMED = {"long_signal": False, "short_signal": True,
                    "long_signal_blockers": ["structure is BEARISH TREND, not BULLISH TREND"],
-                   "short_signal_blockers": []}
+                   "short_signal_blockers": [],
+                   **TRIGGERED}
 
 
 # The live run, as close to the panel as the inputs allow.

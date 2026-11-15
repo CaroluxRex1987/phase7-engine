@@ -611,7 +611,10 @@ def test_the_golden_decision_gives_the_drafts_own_numbers():
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
     assert r["archive problem"] is None
-    assert r["draft dir"] == "BULLISH" and r["today"] == "CONSERVATIVE LONG"
+    # "today" is the action the record carries. Until the redesign's stage 3
+    # (15 November 2026) that was the old ladder's CONSERVATIVE LONG; with
+    # gates 6 to 8 built it is the draft's own answer, below.
+    assert r["draft dir"] == "BULLISH" and r["today"] == "WAIT"
     assert r["trig"] == (False, False)
     q, dd, h = r["q"]
     assert dd == pytest.approx(3.2070, abs=5e-5) and h == pytest.approx(15.1202, abs=5e-5) and q == 0.0

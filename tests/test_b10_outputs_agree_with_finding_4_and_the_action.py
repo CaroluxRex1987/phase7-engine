@@ -75,13 +75,24 @@ ACTION_SHAPE = re.compile(
 
 
 def _actions_decision_model_writes():
-    """Every string literal in models/decision_model.py shaped like an action."""
-    with open(os.path.join(REPO, "models", "decision_model.py"),
-              encoding="utf-8") as fh:
-        tree = ast.parse(fh.read())
-    return {node.value for node in ast.walk(tree)
-            if isinstance(node, ast.Constant) and isinstance(node.value, str)
-            and ACTION_SHAPE.match(node.value)}
+    """
+    Every string literal shaped like an action in models/decision_model.py
+    and, since the redesign's stage 3 (15 November 2026), in
+    models/entry_model.py: the signal gate now returns the label that module
+    recorded for the first gate a side did not pass, and the decision model
+    believes only the three that module names (REFUSAL_LABELS;
+    tests/test_gates_6_to_8.py holds that a label outside them is not
+    returned). Scanning the decision model alone would no longer see every
+    action it can write.
+    """
+    found = set()
+    for name in ("decision_model.py", "entry_model.py"):
+        with open(os.path.join(REPO, "models", name), encoding="utf-8") as fh:
+            tree = ast.parse(fh.read())
+        found |= {node.value for node in ast.walk(tree)
+                  if isinstance(node, ast.Constant) and isinstance(node.value, str)
+                  and ACTION_SHAPE.match(node.value)}
+    return found
 
 
 def _t1_note(t1):
@@ -148,6 +159,8 @@ def test_every_action_the_decision_model_writes_is_a_side_wait_or_a_no_trade():
         "NO-TRADE (DEGRADED INPUT)", "NO-TRADE (PLAN CONTRADICTS ACTION)",
         "NO-TRADE (RISK NOT ASSESSED)", "NO-TRADE (RISK TOO HIGH)",
         "NO-TRADE (SIGNAL UNCONFIRMED)",
+        # The redesign's stage 3: gates 6 and 7.
+        "NO-TRADE (MACRO AGAINST)", "NO-TRADE (THIN MARKET)",
     }, sorted(actions)
 
 
@@ -157,7 +170,7 @@ def test_every_action_the_decision_model_writes_is_a_side_wait_or_a_no_trade():
 
 def test_no_action_that_names_no_side_prints_the_target_1_note():
     no_side = sorted(a for a in _actions_decision_model_writes() if a not in SIDES)
-    assert "WAIT" in no_side and len(no_side) == 7, no_side
+    assert "WAIT" in no_side and len(no_side) == 9, no_side
 
     for raw in ("BULLISH", "BEARISH"):
         for action in no_side:
@@ -180,20 +193,29 @@ def test_an_absent_action_prints_no_target_1_note():
     assert "high-volume node" in section, section
 
 
-def test_on_the_golden_decision_the_note_prints_on_its_trade_and_not_on_a_wait():
+def test_on_the_golden_decision_the_note_prints_on_a_trade_and_not_on_its_wait():
+    """
+    Until the redesign's stage 3 (15 November 2026) the golden decision was a
+    CONSERVATIVE LONG, and this test turned a copy of it into a WAIT. Gate 8
+    makes the golden decision itself the WAIT, so the copy is turned the
+    other way: the real note the engine wrote is withheld on the record as
+    built, and printed once the same record names a side. The half that
+    reads a real trade as the engine built it returns with the second
+    pinned decision, in stage 4 (the draft's section 14).
+    """
     decision = _golden()
-    assert decision["exit"]["action"] == "CONSERVATIVE LONG", decision["exit"]
+    assert decision["exit"]["action"] == "WAIT", decision["exit"]
     notes = [f for f in decision["exit_watch"] if f.startswith(TARGET1_NOTE_PREFIX)]
     assert len(notes) == 1, decision["exit_watch"]
 
     as_built = _exit_watch_section(render_panel(copy.deepcopy(decision)))
-    assert TARGET1_NOTE_PREFIX in as_built, as_built
+    assert TARGET1_NOTE_PREFIX not in as_built, as_built
 
-    waiting = copy.deepcopy(decision)
-    waiting["exit"]["action"] = "WAIT"
-    section = _exit_watch_section(render_panel(waiting))
-    assert TARGET1_NOTE_PREFIX not in section, section
-    assert waiting["exit_watch"] == decision["exit_watch"], waiting["exit_watch"]
+    trading = copy.deepcopy(decision)
+    trading["exit"]["action"] = "CONSERVATIVE LONG"
+    section = _exit_watch_section(render_panel(trading))
+    assert TARGET1_NOTE_PREFIX in section, section
+    assert trading["exit_watch"] == decision["exit_watch"], trading["exit_watch"]
 
 
 # ============================================================
@@ -266,7 +288,9 @@ def test_built_from_the_golden_decision_the_order_carries_its_band_and_close():
     assert order["ema_band"] == {"lower": decision["entry"]["zone_lower"],
                                  "upper": decision["entry"]["zone_upper"]}, order
     assert order["current_price"] == decision["exit"]["current_price"], order
-    assert order["decision"] == "CONSERVATIVE LONG", order
+    # A WAIT since the redesign's stage 3 (gate 8); the band and the close
+    # this test is about are carried on any action.
+    assert order["decision"] == decision["exit"]["action"] == "WAIT", order
     json.dumps(order)   # still writable as the file it is
 
 

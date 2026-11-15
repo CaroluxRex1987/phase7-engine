@@ -286,6 +286,11 @@ FINGERPRINTED_MODULES = {
         # the run-hash payload by the same argument as MIN_ACTION_BIAS above;
         # adding it moves run_hash, and with it the archive's file name.
         "MIN_TREND_ADX",
+        # THE REDESIGN'S STAGE 3, 15 November 2026: gate 7's floor and gate
+        # 8's lookback. Each decides which runs may trade, so each is in the
+        # run-hash payload; adding them moves run_hash, and with it the
+        # archive's file name.
+        "LIQUIDITY_FLOOR_USDT", "TRIGGER_VOLUME_LOOKBACK",
     ],
     "models.risk_model": [
         "ATR_STOP_MULT", "TARGET1_MULT", "TARGET2_MULT", "TARGET3_MULT",

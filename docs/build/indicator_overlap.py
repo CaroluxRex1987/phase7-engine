@@ -180,6 +180,7 @@ def bar_row(frame_ind, daily_ind, t, variants=VARIANTS):
     """
     from indicators.trend_health import compute_trend_health
     from structure.structure import calculate_structure
+    from models import entry_model
     from models.entry_model import calculate_entry_quality, generate_entry_signals
     from models.risk_model import RiskModel
     from models.decision_model import DecisionModel
@@ -201,8 +202,15 @@ def bar_row(frame_ind, daily_ind, t, variants=VARIANTS):
               trend_direction_sign=tr["trend_direction_sign"], structure_regime=s["regime"],
               volume_sentiment=s["volume_sentiment"], supertrend_direction=supertrend, macro_bias=macro)
     _, volatility = bias_engine.calculate_dynamic_regime(dfs)
+    # The redesign's stage 3, 15 November 2026: the engine's gates 6 to 8,
+    # read as core/engine_core.py reads them. A frame with no quote_volume
+    # column gives gate 7 no reading, which blocks both sides here as it does
+    # in the engine (where the run is also degraded, which this tool does not
+    # model).
+    quote_volume = float(dfs["quote_volume"].iloc[-1]) if "quote_volume" in dfs.columns else None
     signals = generate_entry_signals(structure_regime=s["regime"], momentum_divergence=tr["momentum_divergence"],
-                                     divergence_direction=tr["divergence_direction"], adx=tr["adx"])
+                                     divergence_direction=tr["divergence_direction"], adx=tr["adx"],
+                                     macro_bias=macro, quote_volume=quote_volume)
     lo, hi = sorted([float(dfs["EMA_20"].iloc[-1]), float(dfs["EMA_50"].iloc[-1])])
     price, atr = float(dfs["close"].iloc[-1]), float(dfs["ATR"].iloc[-1])
     slope = (float(dfs["EMA20_Slope"].iloc[-1]) + float(dfs["EMA50_Slope"].iloc[-1])) / 2.0
@@ -220,6 +228,13 @@ def bar_row(frame_ind, daily_ind, t, variants=VARIANTS):
         raw = bias_engine.direction_from_emas(
             dfs["EMA50_Slope"].iloc[-1], dfs["EMA_20"].iloc[-1], dfs["EMA_50"].iloc[-1]) or "NEUTRAL"
         side = bias_engine.plan_side(raw)
+        lookback = entry_model.TRIGGER_VOLUME_LOOKBACK
+        trigger = entry_model.read_trigger(
+            {"BULLISH": "LONG", "BEARISH": "SHORT"}.get(raw),
+            open_price=float(dfs["open"].iloc[-1]), close_price=price,
+            previous_close=float(dfs["close"].iloc[-2]) if len(dfs) > 1 else None,
+            volume=float(dfs["volume"].iloc[-1]),
+            previous_volumes=[float(v) for v in dfs["volume"].iloc[-(lookback + 1):-1]])
         eq = calculate_entry_quality(dfs, lo, hi, macro_bias=macro, trade_direction=side,
                                      trend_direction=tr["trend_direction"], structure_sequence=s["sequence"])
         entry_score = _entry_score(eq, entry_mode)
@@ -234,8 +249,8 @@ def bar_row(frame_ind, daily_ind, t, variants=VARIANTS):
             bias={"raw": raw, "score": score},
             trend={"trend_health": tr["trend_health"], "trend_direction_sign": tr["trend_direction_sign"]},
             entry={"score": entry_score, "entry_status": eq["entry_status"],
-                   **{k: signals[k] for k in ("long_signal", "short_signal",
-                                              "long_signal_blockers", "short_signal_blockers")}},
+                   **signals,
+                   **{k: trigger[k] for k in ("trigger", "trigger_volume", "trigger_volume_median")}},
             risk={"risk_valid": valid, "risk_reason": reason, "risk_regime": regime,
                   "validation_state": state, "atr_stop": stop, "targets": (t1, t2, t3)},
             degradation=[])

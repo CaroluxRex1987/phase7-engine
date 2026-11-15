@@ -12,6 +12,7 @@ from models.risk_model import read_risk_verdict
 # name: a module-level MIN_TREND_ADX here would be a second, unlisted copy of
 # a fingerprinted constant (tests/test_fingerprint_names_every_constant.py).
 from models import entry_model
+from core.threshold_text import compared_value_text
 
 logger = logging.getLogger(__name__)
 
@@ -193,6 +194,16 @@ class DecisionModel:
         if final_action != action_before_gate and len(reasons) > before:
             action_reason_index = len(reasons) - 1
 
+        # THE REDESIGN'S STAGE 3, 15 November 2026: gate 8, the trigger and
+        # its volume. After gates 3 to 7 (the signal gate above), so that a
+        # refusal there stays the label: the draft's ladder takes the first
+        # gate, in order, that fails.
+        action_before_trigger = final_action
+        before = len(reasons)
+        final_action = self._apply_trigger_gate(final_action, entry, reasons)
+        if final_action != action_before_trigger and len(reasons) > before:
+            action_reason_index = len(reasons) - 1
+
         # The guard that would have caught 2 September's live run.
         #
         # Narrowing the direction source stops the two modules disagreeing for
@@ -250,6 +261,23 @@ class DecisionModel:
 
     SIGNAL_UNCONFIRMED = "NO-TRADE (SIGNAL UNCONFIRMED)"
 
+    @classmethod
+    def _read_refusal(cls, entry: Any, side: str) -> str:
+        """
+        The label a refused side takes: the one models/entry_model.py
+        recorded for the first gate that side did not pass (stage 3 of the
+        redesign: SIGNAL UNCONFIRMED, MACRO AGAINST or THIN MARKET).
+
+        Fails safe to SIGNAL UNCONFIRMED: a label that is absent, or is not
+        one of the three, is not believed. Called only for a side
+        _read_signal did not confirm.
+        """
+        entry = entry if isinstance(entry, dict) else {}
+        label = entry.get(f"{side}_signal_refusal")
+        if isinstance(label, str) and label in entry_model.REFUSAL_LABELS:
+            return label
+        return cls.SIGNAL_UNCONFIRMED
+
     @staticmethod
     def _read_signal(entry: Any, side: str) -> Tuple[bool, List[str]]:
         """
@@ -301,12 +329,23 @@ class DecisionModel:
                 )
                 return final_action
             leaning = "bullish" if side == "long" else "bearish"
-            reasons.append(
-                f"This would have been {final_action}, but the {leaning} bias "
-                f"lacked structural confirmation ({'; '.join(blockers)}), so no "
-                f"trade is taken."
-            )
-            return self.SIGNAL_UNCONFIRMED
+            # Stage 3 of the redesign, 15 November 2026: the label is the
+            # first gate's that the side did not pass. Gates 3 to 5 keep
+            # their sentence and their label; a side they pass and gate 6 or
+            # 7 refuses is not said to lack structural confirmation.
+            label = self._read_refusal(entry, side)
+            if label == self.SIGNAL_UNCONFIRMED:
+                reasons.append(
+                    f"This would have been {final_action}, but the {leaning} bias "
+                    f"lacked structural confirmation ({'; '.join(blockers)}), so no "
+                    f"trade is taken."
+                )
+            else:
+                reasons.append(
+                    f"This would have been {final_action}, but "
+                    f"{'; '.join(blockers)}, so no trade is taken."
+                )
+            return label
 
         if final_action == "NO-TRADE (RISK TOO HIGH)":
             raw_bias = str(bias.get("raw", "NEUTRAL")) if isinstance(bias, dict) else "NEUTRAL"
@@ -314,13 +353,85 @@ class DecisionModel:
                 side = "long" if raw_bias == "BULLISH" else "short"
                 confirmed, blockers = self._read_signal(entry, side)
                 if not confirmed:
-                    reasons.append(
-                        f"Separately, the {raw_bias.lower()} bias also lacked "
-                        f"structural confirmation ({'; '.join(blockers)}). The "
-                        f"risk refusal is the label; this is recorded so the "
-                        f"log shows both failures."
-                    )
+                    if self._read_refusal(entry, side) == self.SIGNAL_UNCONFIRMED:
+                        reasons.append(
+                            f"Separately, the {raw_bias.lower()} bias also lacked "
+                            f"structural confirmation ({'; '.join(blockers)}). The "
+                            f"risk refusal is the label; this is recorded so the "
+                            f"log shows both failures."
+                        )
+                    else:
+                        reasons.append(
+                            f"Separately, the {side} would also have been "
+                            f"refused ({'; '.join(blockers)}). The risk "
+                            f"refusal is the label; this is recorded so the "
+                            f"log shows both failures."
+                        )
         return final_action
+
+    def _apply_trigger_gate(self, final_action: str, entry: Any,
+                            reasons: List[str]) -> str:
+        """
+        GATE 8 of the redesign (stage 3, 15 November 2026): a trade that
+        passed every earlier gate is taken only on a resumption candle with
+        volume behind it. The rule is documented above read_trigger in
+        models/entry_model.py; this reads what that function recorded in
+        `entry` and does not compute it again.
+
+        Fails safe: a trigger that is absent or not True/False, or a volume
+        or median that is not a number, is not a trigger. That is a WAIT with
+        its own sentence, and never the sentence of a candle that was read
+        and did not resume. On the engine's path such a run is degraded too.
+        """
+        if not any(side in final_action for side in ("LONG", "SHORT")):
+            return final_action
+        side = "long" if "LONG" in final_action else "short"
+        entry = entry if isinstance(entry, dict) else {}
+
+        trigger = entry.get("trigger")
+        volume = entry_model._measured_amount(entry.get("trigger_volume"))
+        median = entry_model._measured_amount(entry.get("trigger_volume_median"))
+        lookback = entry_model.TRIGGER_VOLUME_LOOKBACK
+
+        if not isinstance(trigger, bool) or volume is None or median is None:
+            reasons.append(
+                f"No earlier gate refused the {side}, but the trigger was "
+                f"not measured on this run (the decision candle against its "
+                f"open and the previous close, and its volume against the "
+                f"median of the {lookback} candles before it), and a trigger "
+                f"that was not measured is not a trigger — WAIT."
+            )
+            return "WAIT"
+
+        beyond = "above" if side == "long" else "below"
+        failures: List[str] = []
+        if not trigger:
+            failures.append(
+                f"the last closed candle did not close {beyond} both its "
+                f"open and the previous candle's close")
+        if not volume > median:
+            # Entry 58's rule: the volume is printed on its own side of the
+            # median, which is printed exactly as computed.
+            printed = (entry_model.exact_text(volume) if volume == median
+                       else compared_value_text(volume, median))
+            failures.append(
+                f"its volume, {printed}, is not above the median of the "
+                f"{lookback} candles before it, "
+                f"{entry_model.exact_text(median)}")
+        if not failures:
+            reasons.append(
+                f"The last closed candle is a resumption candle for the "
+                f"{side}: it closed {beyond} both its open and the previous "
+                f"candle's close, on volume above the median of the "
+                f"{lookback} candles before it."
+            )
+            return final_action
+
+        reasons.append(
+            f"No earlier gate refused the {side}, but there is no "
+            f"resumption candle yet: {', and '.join(failures)} — WAIT."
+        )
+        return "WAIT"
 
     @staticmethod
     def _plan_direction(risk: Dict[str, Any]) -> Optional[str]:

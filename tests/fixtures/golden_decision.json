@@ -34,9 +34,12 @@
     "distance_from_zone": 4.22162838,
     "ema_pos_pts": 10.0,
     "entry_status": "APPROACHING ZONE",
+    "liquidity_floor": 10000.0,
     "long_signal": true,
     "long_signal_blockers": [],
+    "long_signal_refusal": null,
     "macro_multiplier": 1.05,
+    "quote_volume": 67901.6508,
     "rsi_pts": 10.0,
     "scaled_score": 45.18175716,
     "score": 45.18175716,
@@ -46,15 +49,19 @@
     "short_signal_blockers": [
       "structure is BULLISH TREND, not BEARISH TREND"
     ],
+    "short_signal_refusal": "NO-TRADE (SIGNAL UNCONFIRMED)",
     "struct_pts": 4.0,
     "structure_multiplier": 1.05,
     "trend_multiplier": 1.05,
+    "trigger": false,
+    "trigger_volume": 84693.7281,
+    "trigger_volume_median": 179247.8923,
     "vwma_pts": 10.0,
     "zone_lower": 0.76017364,
     "zone_upper": 0.77559759
   },
   "exit": {
-    "action": "CONSERVATIVE LONG",
+    "action": "WAIT",
     "current_price": 0.80173175
   },
   "exit_watch": [
@@ -64,15 +71,16 @@
     "reasons": [
       "Bias is bullish, trend strength 95/100 (up), but the entry quality (45/100) is below the 70 the LONG tier needs \u2014 CONSERVATIVE LONG.",
       "Structural confirmation holds for the long: structure agrees with the direction, ADX is 20 or more, and no price/RSI disagreement over four candles points against it.",
+      "No earlier gate refused the long, but there is no resumption candle yet: the last closed candle did not close above both its open and the previous candle's close, and its volume, 84694, is not above the median of the 20 candles before it, 179247.8923 \u2014 WAIT.",
       "Confidence is 77/100 \u2014 the bias engine's own composite strength (trend health, structure regime, volume sentiment, SuperTrend direction, macro bias, and reversal/continuation, already weighted and blended into one score). Restating any of those as a separate bonus here would count the same evidence twice.",
       "Entry quality is 45/100 \u2014 a weak entry. Compare it against the TREND line rather than against a restatement of it.",
-      "Expected value (illustrative, not backtested): the 77/100 confidence score restated against the standard 2:1 average reward, not a second reading of the setup \u2014 it is arithmetic on confidence alone, so it can never disagree with it. On that basis about +1.31R per trade \u2014 positive -- worth taking on average if that win rate holds up. On this reward multiple any confidence above 33/100 is breakeven or better, and above 43/100 reads as positive."
+      "Expected value (illustrative, not backtested): the 77/100 confidence score restated against the standard 2:1 average reward, not a second reading of the setup \u2014 it is arithmetic on confidence alone, so it can never disagree with it. On that basis about +1.31R per trade \u2014 positive -- worth taking on average if that win rate holds up (this is hypothetical, since no trade is actually being suggested right now). On this reward multiple any confidence above 33/100 is breakeven or better, and above 43/100 reads as positive."
     ],
-    "summary": "CONSERVATIVE LONG \u2014 Bias is bullish, trend strength 95/100 (up), but the entry quality (45/100) is below the 70 the LONG tier needs \u2014 CONSERVATIVE LONG."
+    "summary": "WAIT \u2014 No earlier gate refused the long, but there is no resumption candle yet: the last closed candle did not close above both its open and the previous candle's close, and its volume, 84694, is not above the median of the 20 candles before it, 179247.8923 \u2014 WAIT."
   },
   "lineage": {
     "archive": {
-      "path": "logs/pinned/archive/testusdt_4h_3d2e7758309b1d1c.json.gz",
+      "path": "logs/pinned/archive/testusdt_4h_de8256d426eadae2.json.gz",
       "pruned_this_run": 0,
       "retention_days": 90
     },
@@ -202,11 +210,11 @@
       "side": "LONG",
       "volatility_state": "MEDIUM VOLATILITY"
     },
-    "run_hash": "3d2e7758309b1d1c7d8e7eb8c0cf20d26aa7fc0e5aefb6def485e8ae1f5d82ee"
+    "run_hash": "de8256d426eadae263358c977e0c5455e20c760d219a2c8a120a3c0a4e668f64"
   },
   "macro_bias": "BULLISH",
   "provenance": {
-    "archive_path": "logs/pinned/archive/testusdt_4h_3d2e7758309b1d1c.json.gz",
+    "archive_path": "logs/pinned/archive/testusdt_4h_de8256d426eadae2.json.gz",
     "canonical_format": 1,
     "decision_candles": {
       "btc": {
@@ -282,10 +290,12 @@
         "CONFLUENCE_BOOST_MULT": 1.05,
         "CONFLUENCE_PENALTY_MULT": 0.9,
         "EMA_ZONE_MAX_POINTS": 30.0,
+        "LIQUIDITY_FLOOR_USDT": 10000.0,
         "MIN_TREND_ADX": 20.0,
         "RSI_MAX_POINTS": 15.0,
         "SCORE_CEILING": 100.0,
         "STRUCTURE_MAX_POINTS": 12.0,
+        "TRIGGER_VOLUME_LOOKBACK": 20,
         "VWMA_MAX_POINTS": 20.0,
         "ZONE_POINTS_NOT_MEASURED": 15.0
       },
@@ -307,7 +317,7 @@
     },
     "prior_state": {},
     "row_count": 450,
-    "run_hash": "3d2e7758309b1d1c7d8e7eb8c0cf20d26aa7fc0e5aefb6def485e8ae1f5d82ee",
+    "run_hash": "de8256d426eadae263358c977e0c5455e20c760d219a2c8a120a3c0a4e668f64",
     "source": "pinned"
   },
   "risk": {

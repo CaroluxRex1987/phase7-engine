@@ -8435,6 +8435,141 @@ them. A failed BTC SuperTrend is again a failure the decision object does not sh
 And the first run after the merge compares no bias with the run before it: a real
 flip across that one run is not reported.
 
+## Decision, 15 November 2026 — stage 3 of the redesign's build: gates 6 to 8, eight readings made building them, and what the draft got right and wrong
+
+*New in this file on 15 November 2026. Claude's, under Viktor's "you are the engineer
+and the brain of this project" of 29 October, his to reverse, each one. Made in the
+session that opened at 07:17 on 15 November at `c012e5b`, on the branch `redesign`,
+and filed by stage 3's commit. No earlier entry is edited (the ruling of
+20 September), and the draft is not edited here: stage 6 reconciles it.*
+
+**What stage 3 is.** Three gates of the draft's ladder (its sections 4 and 5), each
+ruled by Viktor. *Gate 6:* no LONG while the daily trend is BEARISH (25 October,
+point 3); a NEUTRAL daily trend passes and SHORT is not gated. *Gate 7:* the decision
+candle's `quote_volume` is at least 10,000 USDT (31 October; F ruled on 11 November),
+`LIQUIDITY_FLOOR_USDT`. *Gate 8:* the decision candle closes beyond its open and
+beyond the previous candle's close (11 November), on a volume strictly above the
+median of the twenty candles before it (31 October), `TRIGGER_VOLUME_LOOKBACK`.
+Gates 6 and 7 are blockers on the confirmation signal's list
+(`models/entry_model.py`), as the draft proposed; gate 8 follows the signal in
+`DecisionModel.evaluate()`. Both constants are fingerprinted.
+
+**The golden run's figures, recomputed first.** Before any code, from the golden
+test's own three series (`tests/test_golden_path.py`, `_write_pinned_set`), with
+pandas in the Linux sandbox: the decision candle, 16 March 2025 20:00, opened at
+0.80634644 and closed at 0.80173175, the previous close 0.80634644; its volume
+84,693.7281 against a median of 179,247.8923; its `quote_volume` 67,901.6508, the
+series' smallest 10,650.0211; the daily trend BULLISH. **These are the draft's
+figures (§13.1, gates 6 to 8), and this time they are the golden run's:** the golden
+4h series is `ohlcv_clean_4h.csv` itself, which the committed `AEROUSDT_4h.csv` also
+is, so a figure computed from either is a figure of both. That is not so for the BTC
+series, where stage 2 found the error. A test now recomputes them from the golden
+test's own series. So the golden action moves from CONSERVATIVE LONG to WAIT at
+gate 8, as §13.1 has it.
+
+**The readings.**
+
+1. *`explanation.reasons` cannot move once.* It is one leaf holding a list of
+   sentences, and the sentences belong to different stages: this stage adds gate 8's,
+   stage 4 rewrites the tier's, stage 5 removes confidence's and EV's. Read with
+   "each golden leaf moves once", the list moves at each of those stages, as the
+   four digest leaves do (stage 1's first reading). The rule is kept for what a
+   stage writes: gate 8's sentence, and so `explanation.summary` and `exit.action`,
+   are at their final wording and value. For that the sentence names no tier, which
+   stage 4 derives after gate 9, and says "no earlier gate refused the long".
+2. *The label of a refused side is recorded, in two fields the draft does not
+   have.* The draft makes gates 6 and 7 blockers on the signal's list and also gives
+   each a label of its own, NO-TRADE (MACRO AGAINST) and NO-TRADE (THIN MARKET). A
+   list of sentences cannot say which gate each came from, and the decision model
+   takes no macro parameter (work order G; a test holds it). So
+   `generate_entry_signals` records `long_signal_refusal` and `short_signal_refusal`:
+   the label of the first gate, in order, that the side does not pass, None when it
+   passes them all. That order is the one the reading of 11 November counted with
+   (`docs/build/measure_draft_gaps.py`, "the draft action is the first gate, in
+   order, that fails"). The decision model believes only the three labels
+   `models/entry_model.py` names; anything else, or none, is SIGNAL UNCONFIRMED.
+3. *A gate that could not be measured blocks, and is not given a failed gate's
+   label.* A daily trend that is not BULLISH, BEARISH or NEUTRAL (the draft's §3.2,
+   entry 14) and a turnover that is not a non-negative finite number each add a
+   blocker and take the label SIGNAL UNCONFIRMED, never MACRO AGAINST or THIN
+   MARKET: the draft's §5, version 1, a market nobody measured is not given the
+   label of a thin one. In the engine each also degrades the run. An unmeasured
+   trigger, a volume, or a median over fewer than twenty readable candles, is a
+   WAIT with a sentence of its own, "the trigger was not measured", and degrades
+   the run too. That follows the precedent of fix 2 (5 October), where an unreadable
+   ADX blocks under the signal's label on a degraded run.
+4. *Under NEUTRAL no trigger is read.* Stage 2 drew the plan for a stand-in side
+   under NEUTRAL because the risk check needs a stop. Nothing needs a trigger there:
+   gate 2 has already returned WAIT. A trigger read for a side nobody measured would
+   be a claim about the market, so `entry.trigger` is null under NEUTRAL, with
+   nothing named as missing; the two volumes, which have no side, are still
+   recorded.
+5. *Stage 1's second reading ends here, as it said.* A struct frame without
+   `quote_volume` is a degraded run that names it; the turnover is recorded as null
+   and is not computed from volume × close. Validation still accepts a five-column
+   frame, since the macro and BTC series carry none. The test stage 1 left to be
+   moved is moved.
+6. *What the sentences print.* Gate 7's blocker prints the turnover through entry
+   58's helper against F. Gate 8's sentence prints the volume through the helper
+   against the median, and the median exactly as computed, since it is a line the
+   data gives; it prints no price, because the entry block carries none of the three
+   it compares and they are in `lineage.indicators_at_decision_bar` and the archive.
+   The helper has an edge found here and not fixed: a value EQUAL to a line that
+   needs more than two decimals prints above it (100.123456 against itself prints
+   "100.13"). No constant line in the engine has decimals; where the line is the
+   median, the equal case is printed exactly and a test holds it.
+7. *The panel gains three lines the draft does not list,* TURNOVER, TRIGGER and
+   TRIGGER VOLUME, under STATUS, so that a refusal Decision Reasoning names points at
+   something visible and a gate that passed is visible too.
+8. *The ladder's tiers are still trend health's until stage 4.* Gate 8 therefore
+   runs on a trade the old ladder chose, and a refusal by gate 6 or 7 still says
+   "This would have been CONSERVATIVE LONG", a tier stage 4 redefines.
+
+**The draft, against what was built.**
+
+- *Right:* §13.1's figures for gates 6 to 8 (above); §13.2's `exit.action`,
+  `explanation.summary` and `explanation.reasons` moving, and nothing else of its
+  own value; §13.3's five entry fields by name and value.
+- *§14, the two X:* turned round as it says, each under a new name.
+- *§14 misclassifies or misses six tests and one set-up.* Listed as holding, and
+  rewritten because the golden decision is a WAIT:
+  `test_b10_…::test_built_from_the_golden_decision_the_order_carries_its_band_and_close`
+  and `test_neutral_bias_prints_no_plan.py::test_on_a_real_decision_object_the_real_target_1_note_is_withheld`.
+  Listed as holding, and changed because the decision model can now return a label
+  written in another module:
+  `test_b10_…::test_every_action_the_decision_model_writes_is_a_side_wait_or_a_no_trade`,
+  whose scan reads both modules now. Listed as holding by its helper, and rewritten
+  for the call's shape:
+  `test_b4_labels_say_what_is_measured.py::test_the_blockers_say_what_is_compared`.
+  Not listed: `test_b10_…::test_no_action_that_names_no_side_prints_the_target_1_note`
+  (seven such actions became nine) and
+  `test_measure_draft_gaps.py::test_the_golden_decision_gives_the_drafts_own_numbers`
+  (the record's own action is now the draft's). And the set-up of
+  `test_timeframe_disagreement.py`, of which §14 lists two tests of seven: it fed
+  the engine a five-column frame, on which its tests that assert no side comes out
+  would now have passed on the degradation alone.
+  `test_btc_degradation_stays_informational.py`'s set-up changes for the same
+  reason, which §14's "its helper or fixture moves" covers. Listed as rewritten,
+  and it holds unchanged: `test_golden_path.py::test_the_macro_series_is_actually_read`.
+
+**What it weakens.** Trades: in the reading of 11 November the trigger and its volume
+blocked 68 of the 76 records that passed every other gate, and the finish line needs
+about 100 closed trades of one version. Until stage 4, a record can read "would have
+been CONSERVATIVE LONG" under a tier the redesign does not have. Hand-built test
+records that reach a trade now carry a trigger that holds, by a constant in each
+file; a test that builds one without it gets the fail-safe WAIT. The six files that
+needed it were found by a control of theirs failing; the two that fed the engine a
+five-column frame were found by having the engine log, for one run of the suite,
+each test on which the new degradation fired, since nothing in them failed. A test
+that asserts only "no trade" on a hand-built record with no signal at all was
+refused by the signal's fail-safe before this stage and still is.
+`docs/build/indicator_overlap.py` follows the engine, so on an archive from
+before stage 1, which has no `quote_volume`, its baseline now blocks both sides and
+no longer reproduces the logged actions; it goes or is rebuilt in stage 5. And the
+label of a refusal is now a field the signal writes and the decision model reads:
+a wrong label there is a wrong action, which is why the model accepts three and
+fails safe on the rest.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then

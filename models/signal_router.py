@@ -415,6 +415,19 @@ class SignalRouter:
                     # as an empty one: an empty list would read as "confirmed".
                     "long_signal_blockers": self._blocker_list(entry.get("long_signal_blockers")),
                     "short_signal_blockers": self._blocker_list(entry.get("short_signal_blockers")),
+                    # Stage 3 of the redesign, 15 November 2026. Each is
+                    # passed through as the engine measured it, None when it
+                    # did not: a refusal label that is None is a side no gate
+                    # refused, and the other four are None when not measured
+                    # (`trigger` also when there is no side to read it for).
+                    # None of them is given a value here.
+                    "long_signal_refusal": self._optional_label(entry.get("long_signal_refusal")),
+                    "short_signal_refusal": self._optional_label(entry.get("short_signal_refusal")),
+                    "quote_volume": self._optional_number(entry.get("quote_volume")),
+                    "liquidity_floor": self._finite_or_nan(entry.get("liquidity_floor")),
+                    "trigger": self._optional_flag(entry.get("trigger")),
+                    "trigger_volume": self._optional_number(entry.get("trigger_volume")),
+                    "trigger_volume_median": self._optional_number(entry.get("trigger_volume_median")),
                     "score": self._finite_or_nan(entry.get("score")),
                     "distance_from_zone": self._finite_or_nan(entry.get("distance_from_zone")),
                     "entry_status": str(entry.get("entry_status", "UNKNOWN")),
@@ -605,6 +618,16 @@ class SignalRouter:
         if isinstance(value, list):
             return [str(v) for v in value]
         return ["the confirmation signal was not computed on this run"]
+
+    @staticmethod
+    def _optional_label(value: Any) -> Optional[str]:
+        """A label the producer may not have: a string, or None."""
+        return value if isinstance(value, str) else None
+
+    @staticmethod
+    def _optional_flag(value: Any) -> Optional[bool]:
+        """True or False as measured; None for anything else, never False."""
+        return value if isinstance(value, bool) else None
 
     @staticmethod
     def _finite_or_nan(value: Any) -> float:

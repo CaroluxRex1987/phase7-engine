@@ -136,15 +136,21 @@ def test_no_divergence_no_flag():
 
 
 def test_the_blockers_say_what_is_compared():
-    assert signal_blockers("LONG", "BULLISH TREND", True, "BEARISH", adx=30.0) == [
+    # The redesign's stage 3, 15 November 2026: the signal also reads the
+    # daily trend and the candle's turnover (gates 6 and 7). Both are given
+    # passing values, so the divergence's sentence is the whole list.
+    passes = {"macro_bias": "NEUTRAL", "quote_volume": 50_000.0}
+    assert signal_blockers("LONG", "BULLISH TREND", True, "BEARISH", adx=30.0,
+                           **passes) == [
         "a bearish price/RSI disagreement over four candles points against "
         "the trade"]
-    assert signal_blockers("SHORT", "BEARISH TREND", True, "BULLISH", adx=30.0) == [
+    assert signal_blockers("SHORT", "BEARISH TREND", True, "BULLISH", adx=30.0,
+                           **passes) == [
         "a bullish price/RSI disagreement over four candles points against "
         "the trade"]
     for direction in ("NONE", "UNKNOWN", None):
         blockers = signal_blockers("LONG", "BULLISH TREND", True, direction,
-                                   adx=30.0)
+                                   adx=30.0, **passes)
         assert blockers == [
             "price and RSI disagree over four candles, but the direction was "
             f"recorded as {direction!r}, so it cannot be shown not to point "

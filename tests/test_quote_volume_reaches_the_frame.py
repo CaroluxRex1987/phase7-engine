@@ -177,11 +177,19 @@ def test_one_zero_quote_volume_candle_is_a_measurement_not_a_defect():
     assert validate_ohlcv(df, timeframe="4h") is None
 
 
-def test_a_frame_without_quote_volume_is_still_a_frame_until_stage_3():
+def test_a_frame_without_quote_volume_still_validates_and_the_engine_names_the_absence():
     """
-    Stage 1 changes no action, so a five-column frame validates as it did.
-    Stage 3 gives the absence its meaning (a missing input: the run is
-    degraded and gate 7 records "not measured") and moves this test.
+    MOVED AT STAGE 3, 15 November 2026, as stage 1 said it would be. It was
+    test_a_frame_without_quote_volume_is_still_a_frame_until_stage_3: stage 1
+    changed no action, so a five-column frame meant nothing more than it had.
+
+    Validation still accepts it -- the macro and BTC series carry no such
+    column, and a fetch is not refused over one. What the absence means on
+    the series under analysis is now the engine's: gate 7 reads the column,
+    so the run is degraded and names quote_volume, the turnover is recorded
+    as None, and no trade follows. That half runs the engine and is held in
+    tests/test_gates_6_to_8.py::test_on_the_engine_path_a_frame_without_quote_volume_degrades_the_run.
+    This half holds what did not change.
     """
     assert validate_ohlcv(_clean_frame(), timeframe="4h") is None
 

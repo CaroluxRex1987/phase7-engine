@@ -21,6 +21,10 @@ from models.bias_engine import (
 )
 from models.risk_model import RiskModel
 from models.entry_model import generate_entry_signals, calculate_entry_quality
+# Stage 3 of the redesign: the module, for its constants and read_trigger. A
+# fingerprinted constant imported by name would be a second, unlisted copy
+# (tests/test_fingerprint_names_every_constant.py).
+from models import entry_model
 from models.exit_model import build_exit_watch
 from core import lineage
 from core import decision_log
@@ -373,6 +377,43 @@ class Phase7Engine:
         except (TypeError, ValueError):
             return None
         return value if math.isfinite(value) else None
+
+    @staticmethod
+    def _bar_value(df, column, position) -> Optional[float]:
+        """
+        _decision_bar_value for another row: `position` counts from the end,
+        -1 the decision bar, -2 the candle before it. None when the frame has
+        no such row. (Stage 3 of the redesign: the previous candle's close,
+        for the trigger.)
+        """
+        if (df is None or column not in df.columns
+                or position >= 0 or len(df) < -position):
+            return None
+        try:
+            value = float(df[column].iloc[position])
+        except (TypeError, ValueError):
+            return None
+        return value if math.isfinite(value) else None
+
+    @staticmethod
+    def _bar_values_before_decision(df, column, count) -> List[Any]:
+        """
+        `column` on up to `count` candles before the decision bar, oldest
+        first, each cell as the frame holds it: the reader decides what is a
+        reading (models/entry_model.py, read_trigger, which refuses a median
+        over fewer than it asked for or over a cell that is not a number).
+        Empty when the column is absent.
+        """
+        if df is None or column not in df.columns or len(df) < 2:
+            return []
+        cells = df[column].iloc[-(int(count) + 1):-1].tolist()
+        out: List[Any] = []
+        for cell in cells:
+            try:
+                out.append(float(cell))
+            except (TypeError, ValueError):
+                out.append(None)
+        return out
 
     @staticmethod
     def _frame_summary(df, digest) -> Dict[str, Any]:
@@ -1107,14 +1148,64 @@ class Phase7Engine:
             # FIX 2, 5 October 2026: the exhaustion flag no longer reaches the
             # gate; trend health's raw ADX does (None when it could not be
             # read, which the gate refuses). See MIN_TREND_ADX there.
+            #
+            # THE REDESIGN'S STAGE 3, 15 November 2026: gates 6 and 7 read
+            # here too (models/entry_model.py, above LIQUIDITY_FLOOR_USDT).
+            #
+            # Gate 6 reads the daily trend. macro_bias is one of three words
+            # on every path above, and a read that failed is already a
+            # degraded run; the check below holds that, so that a fourth
+            # value arriving from a later change is a named missing input
+            # and not a daily trend that passed.
+            if macro_bias not in entry_model.MACRO_READINGS:
+                degradation.append(
+                    f"daily trend (recorded as {macro_bias!r}, which is not "
+                    f"BULLISH, BEARISH or NEUTRAL)")
+            # Gate 7 reads the decision candle's turnover in USDT. Until this
+            # stage a frame without quote_volume was a frame as before (stage
+            # 1's second reading); now the gate reads the column, so its
+            # absence is a missing input: the run is degraded, the turnover
+            # is recorded as None, and nothing is computed from volume x
+            # close in its place (the draft's section 5, version 1).
+            decision_quote_volume = self._decision_bar_value(df_struct, "quote_volume")
+            if decision_quote_volume is not None and decision_quote_volume < 0.0:
+                decision_quote_volume = None
+            if decision_quote_volume is None:
+                degradation.append(
+                    "quote_volume (the decision candle's turnover in USDT "
+                    "was not measured) -- the liquidity floor could not be "
+                    "read")
             signals = generate_entry_signals(
                 structure_regime=structure_regime,
                 momentum_divergence=trend["momentum_divergence"],
                 divergence_direction=trend["divergence_direction"],
                 adx=trend["adx"],
+                macro_bias=macro_bias,
+                quote_volume=decision_quote_volume,
             )
             long_signal = signals["long_signal"]
             short_signal = signals["short_signal"]
+
+            # Gate 8: the trigger and its volume, read on the decision candle
+            # for the side the direction gives (models/entry_model.py, above
+            # TRIGGER_VOLUME_LOOKBACK). No side under NEUTRAL: the plan's
+            # stand-in side (plan_side) is not used here, because a trigger
+            # read for a side nobody measured would be a claim about the
+            # market, and gate 2 has already returned WAIT.
+            trigger_side = {"BULLISH": "LONG", "BEARISH": "SHORT"}.get(raw_bias)
+            trigger_reading = entry_model.read_trigger(
+                trigger_side,
+                open_price=self._decision_bar_value(df_struct, "open"),
+                close_price=self._decision_bar_value(df_struct, "close"),
+                previous_close=self._bar_value(df_struct, "close", -2),
+                volume=self._decision_bar_value(df_struct, "volume"),
+                previous_volumes=self._bar_values_before_decision(
+                    df_struct, "volume", entry_model.TRIGGER_VOLUME_LOOKBACK),
+            )
+            if trigger_reading["not_measured"]:
+                degradation.append(
+                    f"trigger ({'; '.join(trigger_reading['not_measured'])} "
+                    f"not measured) -- gate 8 could not be read")
 
             # AUDIT FINDING (4), 5 September 2026. These two lines were:
             #
@@ -1220,6 +1311,15 @@ class Phase7Engine:
                 "short_signal": short_signal,
                 "long_signal_blockers": signals["long_signal_blockers"],
                 "short_signal_blockers": signals["short_signal_blockers"],
+                # Stage 3 of the redesign, 15 November 2026: the label each
+                # side would be refused with, and what gates 7 and 8 read.
+                "long_signal_refusal": signals["long_signal_refusal"],
+                "short_signal_refusal": signals["short_signal_refusal"],
+                "quote_volume": decision_quote_volume,
+                "liquidity_floor": entry_model.LIQUIDITY_FLOOR_USDT,
+                "trigger": trigger_reading["trigger"],
+                "trigger_volume": trigger_reading["trigger_volume"],
+                "trigger_volume_median": trigger_reading["trigger_volume_median"],
                 "score": eq_metrics["score"],
                 "ema_pos_pts": eq_metrics["ema_pos_pts"],
                 "atr_dist_pts": eq_metrics["atr_dist_pts"],
