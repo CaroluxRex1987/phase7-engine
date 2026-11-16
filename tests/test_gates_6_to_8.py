@@ -100,13 +100,15 @@ def _evaluate(raw="BULLISH", signals=None, trigger=TRIGGERED, risk_valid=True,
              "entry_status": "INSIDE THE BAND",
              **signals, **(trigger or {})}
     return DecisionModel().evaluate(
-        bias={"raw": raw, "score": 78.0 if long_plan else -78.0},
-        trend={"trend_health": health,
-               "trend_direction_sign": 1 if long_plan else -1,
-               "momentum_divergence": False},
+        # The redesign's stage 5, 15 November 2026: `trend` was the second
+        # positional parameter and is gone -- _compute_trade_quality was
+        # its last reader in the decision model. The `score` this bias
+        # dict carried and the `validation_state` in the risk dict are
+        # gone with it: neither is a field the engine writes now.
+        bias={"raw": raw},
         entry=entry,
         risk={"risk_valid": risk_valid, "risk_reason": "the stop is too far",
-              "risk_regime": "NORMAL RISK", "validation_state": "NEUTRAL",
+              "risk_regime": "NORMAL RISK",
               "targets": [1.1, 1.2, 1.3] if long_plan else [0.9, 0.8, 0.7]},
         degradation=degradation,
     )

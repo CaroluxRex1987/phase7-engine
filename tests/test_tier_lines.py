@@ -94,12 +94,14 @@ def _evaluate(quality, inside=False, regime="NORMAL RISK", raw="BULLISH",
              "entry_status": "INSIDE THE BAND" if inside else "ABOVE THE BAND",
              **signals, **(TRIGGERED if trigger is None else trigger)}
     return DecisionModel().evaluate(
-        bias={"raw": raw, "score": 60.0 if long_side else -60.0},
-        trend={"trend_health": 90.0, "trend_direction_sign": 1 if long_side else -1,
-               "momentum_divergence": False},
+        # The redesign's stage 5, 15 November 2026: `trend` was the second
+        # positional parameter and is gone -- _compute_trade_quality was
+        # its last reader in the decision model. The `score` this bias
+        # dict carried and the `validation_state` in the risk dict are
+        # gone with it: neither is a field the engine writes now.
+        bias={"raw": raw},
         entry=entry,
         risk={"risk_valid": True, "risk_reason": "OK", "risk_regime": regime,
-              "validation_state": "NEUTRAL",
               "targets": [1.1, 1.2, 1.3] if long_side else [0.9, 0.8, 0.7]},
         degradation=None,
     )
@@ -469,7 +471,12 @@ def test_on_the_engine_path_an_unreadable_hvn_degrades_the_run_and_waits():
     assert entry["hvn_pts"] is None, entry
     assert entry["score"] is None, (
         "entry quality was computed with one of its two parts unmeasured")
-    assert decision["risk"]["trade_quality_proposed"] is None
+    # Stage 5, 15 November 2026: this read risk.trade_quality_proposed,
+    # which was entry.score under a second name and None exactly when entry
+    # quality was not measured. The field is gone -- one name for one
+    # meaning -- so entry.score above is the whole of the assertion, and
+    # that the duplicate has not come back is asserted here.
+    assert "trade_quality_proposed" not in decision["risk"], decision["risk"]
 
     block = decision["degradation"]
     assert block["degraded"] is True, block

@@ -3,7 +3,6 @@
     "detailed": "BULLISH",
     "raw": "BULLISH",
     "regime": "BULLISH TREND",
-    "score": 77.09945429,
     "volatility": "MEDIUM VOLATILITY"
   },
   "btc_context": {
@@ -17,7 +16,6 @@
     "n_observations": 30,
     "raw": "BEARISH",
     "regime": "BEARISH TREND",
-    "trend_health": 97.0,
     "volatility": "MEDIUM VOLATILITY"
   },
   "decision_log_path": "logs/pinned/phase7_decision_log_testusdt.jsonl",
@@ -62,68 +60,15 @@
     "reasons": [
       "The direction is BULLISH: EMA50 is rising and EMA20 is above it, so the long is the side the remaining gates are read for.",
       "Structural confirmation holds for the long: structure agrees with the direction, ADX is 20 or more, and no price/RSI disagreement over four candles points against it.",
-      "No earlier gate refused the long, but there is no resumption candle yet: the last closed candle did not close above both its open and the previous candle's close, and its volume, 84694, is not above the median of the 20 candles before it, 179247.8923 \u2014 WAIT.",
-      "Confidence is 77/100 \u2014 the bias engine's own composite strength (trend health, structure regime, volume sentiment, SuperTrend direction, macro bias, and reversal/continuation, already weighted and blended into one score). Restating any of those as a separate bonus here would count the same evidence twice.",
-      "Entry quality is 0/100 \u2014 a weak entry. Compare it against the TREND line rather than against a restatement of it.",
-      "Expected value (illustrative, not backtested): the 77/100 confidence score restated against the standard 2:1 average reward, not a second reading of the setup \u2014 it is arithmetic on confidence alone, so it can never disagree with it. On that basis about +1.31R per trade \u2014 positive -- worth taking on average if that win rate holds up (this is hypothetical, since no trade is actually being suggested right now). On this reward multiple any confidence above 33/100 is breakeven or better, and above 43/100 reads as positive."
+      "No earlier gate refused the long, but there is no resumption candle yet: the last closed candle did not close above both its open and the previous candle's close, and its volume, 84694, is not above the median of the 20 candles before it, 179247.8923 \u2014 WAIT."
     ],
     "summary": "WAIT \u2014 No earlier gate refused the long, but there is no resumption candle yet: the last closed candle did not close above both its open and the previous candle's close, and its volume, 84694, is not above the median of the 20 candles before it, 179247.8923 \u2014 WAIT."
   },
   "lineage": {
     "archive": {
-      "path": "logs/pinned/archive/testusdt_4h_c2cded78df6a67aa.json.gz",
+      "path": "logs/pinned/archive/testusdt_4h_fd8eddb21cc5b6bd.json.gz",
       "pruned_this_run": 0,
       "retention_days": 90
-    },
-    "bias_components": {
-      "after_discount": 77.09945429,
-      "bias_score": 77.09945429,
-      "choch_against_trend": false,
-      "clipped": false,
-      "factors": {
-        "macro_bias": {
-          "contribution": 10.0,
-          "input": "BULLISH",
-          "signed": 100.0,
-          "weight": 0.1
-        },
-        "reversal_continuation": {
-          "contribution": 3.49517902,
-          "input": 34.95179024,
-          "signed": 34.95179024,
-          "weight": 0.1
-        },
-        "structure_regime": {
-          "contribution": 20.0,
-          "input": "BULLISH TREND",
-          "signed": 100.0,
-          "weight": 0.2
-        },
-        "supertrend_direction": {
-          "contribution": 15.0,
-          "input": 1.0,
-          "signed": 100.0,
-          "weight": 0.15
-        },
-        "trend_health": {
-          "contribution": 28.60427526,
-          "input": 95.34758422,
-          "signed": 95.34758422,
-          "weight": 0.3
-        },
-        "volume_sentiment": {
-          "contribution": 0.0,
-          "input": "FADING VOLUME",
-          "signed": 0.0,
-          "weight": 0.15
-        }
-      },
-      "raw_bias_threshold": 20.0,
-      "reversal_direction": "NONE",
-      "reversal_strength": 0.0,
-      "trend_direction": 1,
-      "trend_sequence": "BOS BULLISH (TREND CONTINUATION)",
-      "weighted_sum": 77.09945429
     },
     "direction": {
       "ema20_vs_ema50": "ABOVE",
@@ -201,11 +146,12 @@
       "side": "LONG",
       "volatility_state": "MEDIUM VOLATILITY"
     },
-    "run_hash": "c2cded78df6a67aabc94ba279af4f75cac9c9894c9783fce577cc719ed05955e"
+    "run_hash": "fd8eddb21cc5b6bd697f590891877f71aeeb2d4f5201384dc50a9a9d68a4dc82"
   },
   "macro_bias": "BULLISH",
+  "macro_note": "The higher timeframe agrees with this bias.",
   "provenance": {
-    "archive_path": "logs/pinned/archive/testusdt_4h_c2cded78df6a67aa.json.gz",
+    "archive_path": "logs/pinned/archive/testusdt_4h_fd8eddb21cc5b6bd.json.gz",
     "canonical_format": 1,
     "decision_candles": {
       "btc": {
@@ -254,23 +200,11 @@
       "indicators.indicators": {
         "SPIKE_RATIO": 10.0
       },
-      "models.bias_engine": {
-        "RAW_BIAS_THRESHOLD": 20.0,
-        "WEIGHT_MACRO_BIAS": 0.1,
-        "WEIGHT_REVERSAL_CONTINUATION": 0.1,
-        "WEIGHT_STRUCTURE_REGIME": 0.2,
-        "WEIGHT_SUPERTREND_DIRECTION": 0.15,
-        "WEIGHT_TREND_HEALTH": 0.3,
-        "WEIGHT_VOLUME_SENTIMENT": 0.15
-      },
       "models.btc_context": {
         "CORRELATION_WINDOW": 30
       },
       "models.decision_model": {
-        "DecisionModel.AVG_REWARD_R": 2.0,
         "DecisionModel.CONSERVATIVE_ENTRY_QUALITY_MIN": 50.0,
-        "DecisionModel.DEGRADED_CONFIDENCE_CEILING": 50.0,
-        "DecisionModel.EV_BREAKEVEN_BAND_R": 0.3,
         "DecisionModel.UPPER_TIER_ENTRY_QUALITY_MIN": 70.0
       },
       "models.entry_model": {
@@ -300,15 +234,11 @@
     },
     "prior_state": {},
     "row_count": 450,
-    "run_hash": "c2cded78df6a67aabc94ba279af4f75cac9c9894c9783fce577cc719ed05955e",
+    "run_hash": "fd8eddb21cc5b6bd697f590891877f71aeeb2d4f5201384dc50a9a9d68a4dc82",
     "source": "pinned"
   },
   "risk": {
-    "assumed_win_rate": 77.09945429,
     "atr_stop": 0.78906727,
-    "avg_reward_r": 2.0,
-    "confidence_score": 77.09945429,
-    "ev_r": 1.31298363,
     "risk_reason": "OK",
     "risk_regime": "NORMAL RISK",
     "risk_valid": true,
@@ -316,11 +246,7 @@
       0.81439623,
       0.8270607,
       0.83972518
-    ],
-    "trade_quality_proposed": 0.0,
-    "validation_note": "The higher timeframe agrees with this bias. | This candle's volume is below the volume four candles back, and volume is not expanding.",
-    "validation_score": 35.0,
-    "validation_state": "WEAK"
+    ]
   },
   "structure": {
     "hvn": 0.6421571,
@@ -334,10 +260,6 @@
   "timeframe": "4h",
   "trend": {
     "divergence_direction": "NONE",
-    "exhaustion": false,
-    "momentum_divergence": false,
-    "momentum_mode": "STRONG",
-    "trend_direction": "BULLISH",
-    "trend_health": 95.34758422
+    "momentum_divergence": false
   }
 }

@@ -51,14 +51,34 @@ DELETED_COLUMNS = [
     "KAMA_Slope", "VWMA_Slope",            # produced, never read
 ]
 
-# Kept, and load-bearing. If a future cleanup takes one of these, the engine
-# breaks quietly rather than loudly — trend_health falls back to 0.0 slopes
-# and entry_model scores VWMA distance against a column that is not there.
+# Kept and still produced. Most are load-bearing: if a cleanup takes one, the
+# engine breaks quietly rather than loudly.
+#
+# THE REDESIGN'S STAGE 5, 15 November 2026 -- TWO OF THESE ARE NOW PRODUCED
+# AND READ BY NOTHING, which is the question the draft's section 2 left for
+# the code to answer, and said this file would answer:
+#
+#   EMA20_Slope  trend_health read it twice, for the mean slope and the
+#                acceleration. Both went with the score. The ruled direction
+#                reads EMA50's slope only (Viktor's ruling of 7 November).
+#   VWMA         entry_model scored the close's distance from it until stage 4
+#                made entry quality D + H, with no VWMA part.
+#
+# Each is still computed every run and still recorded in
+# lineage.indicators_at_decision_bar, which is where the draft leaves them
+# ("the record keeps it in indicators_at_decision_bar while the column is
+# produced"). THAT IS AN ITEM 16 QUESTION -- no unconsumed complexity -- and
+# it is recorded rather than answered here: removing a column moves the struct
+# input hash, run_hash and the nineteen indicators_at_decision_bar leaves the
+# plan for this stage says do not move, so it belongs to stage 6's
+# reconciliation, with Viktor told that it is open. This list therefore
+# asserts what it has always asserted, that each column is still produced;
+# the comments say which of them anything reads.
 KEPT_COLUMNS = [
     "EMA_20", "EMA_50",
-    "EMA20_Slope",    # trend_health.py reads it in three places
-    "EMA50_Slope",    # trend_health.py:1711
-    "VWMA",           # entry_model distance scoring
+    "EMA20_Slope",    # READ BY NOTHING since this stage -- see above
+    "EMA50_Slope",    # bias_engine.direction_from_emas: the ruled direction
+    "VWMA",           # READ BY NOTHING since this stage -- see above
     "ADX",            # trend_health and bias both read it
     "RSI", "ATR", "SuperTrend", "ST_Direction",
 ]

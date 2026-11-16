@@ -111,11 +111,17 @@ def test_absent_scores_print_as_absent_not_as_zero():
     """
     panel = _render({"symbol": "TESTUSDT", "timeframe": "4h"})
 
-    for prefix in ("TREND", "VALIDATION", "CONFIDENCE (decision)",
-                   "|-- Proposed Entry", "ENTRY QUALITY"):
-        line = _line(panel, prefix)
-        assert "not computed" in line, line
-        assert "0.00/100" not in line, line
+    # THE REDESIGN'S STAGE 5, 15 November 2026: four of the five prefixes
+    # are gone with their lines -- TREND, VALIDATION, CONFIDENCE (decision)
+    # and |-- Proposed Entry. ENTRY QUALITY is the panel's one remaining
+    # score line, and it is the one this rule now rests on. The rule itself
+    # is unchanged, and so is where it is enforced: every score line prints
+    # through _score_text (core/panel_render.py), which is the single
+    # function the 21 September work order introduced so the next line added
+    # could not forget its scale.
+    line = _line(panel, "ENTRY QUALITY")
+    assert "not computed" in line, line
+    assert "0.00/100" not in line, line
     assert _no_nan(panel)
 
 
@@ -130,18 +136,56 @@ def test_a_computed_score_still_prints_with_its_scale():
     """
     Negative control. A guard that printed "not computed" for everything would
     pass every test above.
+
+    Stage 5, 15 November 2026: four of the five scores asserted here have
+    left the decision object, so the control is the one score the panel
+    still prints. The second half is this stage's own guard -- the four
+    removed LINES must stay removed, which a negative assertion on an absent
+    key could never show on its own.
     """
     panel = _render({
         "symbol": "TESTUSDT", "timeframe": "4h",
-        "trend": {"trend_health": 62.5},
-        "entry": {"score": 71.25, "score_ceiling": 100.0},
-        "risk": {"validation_score": 35.0, "confidence_score": 42.5,
-                 "trade_quality_proposed": 58.0},
+        "entry": {"score": 71.25},
     })
-    assert "(Score: 62.50/100)" in _line(panel, "TREND")
-    assert "(Score: 35.00/100)" in _line(panel, "VALIDATION")
-    assert _line(panel, "CONFIDENCE (decision)").endswith("42.50/100")
-    assert _line(panel, "|-- Proposed Entry").endswith("58.00/100")
+    assert _line(panel, "ENTRY QUALITY").endswith("71.25/100")
+
+
+def test_the_lines_stage_5_removed_stay_removed():
+    """
+    THE REDESIGN'S STAGE 5, 15 November 2026. Four score lines and one
+    section left the panel with the readings behind them, and a stale
+    decision object carrying those readings -- a record written before this
+    stage, or a hand-built one -- must not bring any of them back.
+
+    The MACRO NOTE line is the positive half: one sentence survives the
+    Validation Notes section, printed beside the macro reading it is about
+    (the draft's section 4).
+    """
+    stale = {
+        "symbol": "TESTUSDT", "timeframe": "4h",
+        "macro_bias": "BULLISH",
+        "macro_note": "The higher timeframe agrees with this bias.",
+        "trend": {"trend_health": 62.5, "momentum_mode": "STRONG",
+                  "trend_direction": "BULLISH", "exhaustion": False},
+        "entry": {"score": 71.25},
+        "risk": {"validation_score": 35.0, "validation_state": "WEAK",
+                 "validation_note": "a note from before stage 5",
+                 "confidence_score": 42.5, "trade_quality_proposed": 58.0,
+                 "ev_r": 1.31, "assumed_win_rate": 42.5, "avg_reward_r": 2.0},
+    }
+    panel = _render(stale)
+
+    present = [ln.strip() for ln in panel.splitlines()]
+    for prefix in ("TREND      :", "VALIDATION :", "CONFIDENCE (decision)",
+                   "TRADE QUALITY", "|-- Proposed Entry", "Validation Notes:"):
+        assert not any(ln.startswith(prefix) for ln in present), prefix
+
+    for printed in ("62.50", "35.00", "42.50", "58.00", "WEAK",
+                    "a note from before stage 5"):
+        assert printed not in panel, printed
+
+    note_line = _line(panel, "MACRO NOTE :")
+    assert "The higher timeframe agrees with this bias." in note_line, note_line
     assert _line(panel, "ENTRY QUALITY").endswith("71.25/100")
 
 
@@ -150,9 +194,15 @@ def test_a_real_zero_is_still_printed_as_zero():
     Negative control for the other direction: 0.0 is a score, and must not be
     swallowed as though it were missing.
     """
+
+    # Stage 5, 15 November 2026: this was asserted on CONFIDENCE (decision),
+    # whose score is gone. Entry quality is the panel's remaining score, and
+    # a zero there is a real reading -- the golden run's own entry quality is
+    # exactly 0.0 (D = 0 at 3.2070 ATR, H = 0 at 15.1202 ATR), which is the
+    # sharpest case this control can have.
     panel = _render({"symbol": "TESTUSDT", "timeframe": "4h",
-                     "risk": {"confidence_score": 0.0}})
-    assert _line(panel, "CONFIDENCE (decision)").endswith("0.00/100")
+                     "entry": {"score": 0.0}})
+    assert _line(panel, "ENTRY QUALITY").endswith("0.00/100")
 
 
 # THE REDESIGN'S STAGE 4, 15 November 2026:

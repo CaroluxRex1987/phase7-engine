@@ -71,25 +71,34 @@ pytest.importorskip(
 from core.engine_core import macro_agreement
 
 
-def test_agreement_scores_and_says_so():
+# THE REDESIGN'S STAGE 5, 15 November 2026. macro_agreement returned
+# (score_delta, note) and now returns the NOTE ALONE. The deltas -- +10
+# agreeing, -20 disagreeing, 0 with nothing to compare -- fed
+# validation_score, which is gone with the whole validation block
+# (core/engine_core.py); the macro comparison is gate 6 now, and a gate
+# answers yes or no rather than adding points. Keeping the delta beside the
+# note with no reader would be the unreachable-value shape this project keeps
+# finding, so the three tests below lost their `delta ==` assertions and
+# nothing else: every sentence this function can produce is still swept, and
+# the defect of 2 September is still the case these tests exist for.
+
+
+def test_agreement_says_so():
     for macro, bias in (("BULLISH", "BULLISH"), ("BEARISH", "BEARISH")):
-        delta, note = macro_agreement(macro, bias)
-        assert delta == 10.0
-        assert note == "The higher timeframe agrees with this bias."
+        assert macro_agreement(macro, bias) == (
+            "The higher timeframe agrees with this bias.")
 
 
-def test_disagreement_scores_and_says_so():
+def test_disagreement_says_so():
     for macro, bias in (("BULLISH", "BEARISH"), ("BEARISH", "BULLISH")):
-        delta, note = macro_agreement(macro, bias)
-        assert delta == -20.0
-        assert note == "The higher timeframe disagrees with this bias."
+        assert macro_agreement(macro, bias) == (
+            "The higher timeframe disagrees with this bias.")
 
 
 def test_a_neutral_macro_is_reported_as_a_neutral_macro():
     for bias in ("BULLISH", "BEARISH", "NEUTRAL"):
-        delta, note = macro_agreement("NEUTRAL", bias)
-        assert delta == 0.0
-        assert note == "The higher timeframe is neutral."
+        assert macro_agreement("NEUTRAL", bias) == (
+            "The higher timeframe is neutral.")
 
 
 def test_a_directional_macro_is_never_called_neutral():
@@ -97,12 +106,8 @@ def test_a_directional_macro_is_never_called_neutral():
     The defect itself. This is the case the live run hit.
     """
     for macro in ("BULLISH", "BEARISH"):
-        delta, note = macro_agreement(macro, "NEUTRAL")
+        note = macro_agreement(macro, "NEUTRAL")
 
-        assert delta == 0.0, (
-            "a neutral bias must not move the validation score -- there is "
-            "nothing to agree or disagree with"
-        )
         assert "The higher timeframe is neutral." != note, (
             f"the macro is {macro} and the note calls the higher timeframe "
             f"neutral. That is the panel contradicting its own MACRO TREND "
@@ -124,7 +129,7 @@ def test_the_note_never_claims_more_than_it_knows():
     """
     for macro in ("BULLISH", "BEARISH", "NEUTRAL", "", "BULLISH CONFIRMED"):
         for bias in ("BULLISH", "BEARISH", "NEUTRAL"):
-            _, note = macro_agreement(macro, bias)
+            note = macro_agreement(macro, bias)
             claims_neutral = note == "The higher timeframe is neutral."
             macro_is_directional = ("BULLISH" in macro.upper()
                                     or "BEARISH" in macro.upper())

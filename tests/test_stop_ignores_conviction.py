@@ -280,11 +280,24 @@ def test_the_record_holds_every_input_the_stop_reads():
         regime, decision["risk"]["risk_regime"], inputs["risk_regime"])
 
     # Not vacuous: on this fixture trend health and the bias score moved the
-    # stop before fix 1, so a record without trend health could not rebuild it.
-    score = float(decision["bias"]["score"])
+    # stop before fix 1, so a record without trend health could not rebuild
+    # it.
+    #
+    # THE REDESIGN'S STAGE 5, 15 November 2026: both numbers are gone from
+    # the record, so the old formula can no longer be evaluated from it --
+    # which is the strongest form this check can take and the reason F1 was
+    # raised. The two figures the pre-fix stop needed are read off the golden
+    # snapshot of the run before this stage instead, so the comparison is
+    # still against real values of this fixture rather than invented ones:
+    # bias.score 77.09945428836092 and trend.trend_health 95.3475842150379,
+    # recomputed from the golden test's own series through the production
+    # path before this stage was built.
+    assert "score" not in decision["bias"], decision["bias"]
+    assert "trend_health" not in decision.get("trend", {}), decision["trend"]
+
+    score, health = 77.09945428836092, 95.3475842150379
     assert (score >= 0) == (inputs["side"] == "LONG"), (score, inputs["side"])
-    old = _pre_fix_stop(price, atr, score,
-                        float(decision["trend"]["trend_health"]), vol)
+    old = _pre_fix_stop(price, atr, score, health, vol)
     assert abs(old - stop) > 1e-6, (
         f"the old formula gives {old} on this fixture, the same as the stop "
         f"{stop}; this test no longer shows that conviction left the stop")

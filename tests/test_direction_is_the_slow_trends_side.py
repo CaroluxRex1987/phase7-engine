@@ -211,7 +211,7 @@ def test_the_rule_is_the_one_the_reading_of_11_november_counted():
 # 7. engine_core's two calls
 # ============================================================
 
-def test_engine_core_asks_the_rule_twice_and_discards_the_sums_label():
+def test_engine_core_asks_the_rule_twice_and_computes_no_sum():
     path = os.path.join(REPO_ROOT, "core", "engine_core.py")
     with open(path, "rb") as fh:
         tree = ast.parse(fh.read().decode("utf-8"))
@@ -222,18 +222,24 @@ def test_engine_core_asks_the_rule_twice_and_discards_the_sums_label():
 
     assert len(calls("direction_from_emas")) == 2, len(calls("direction_from_emas"))
 
-    sums = [n for n in ast.walk(tree) if isinstance(n, ast.Assign)
-            and isinstance(n.value, ast.Call)
-            and isinstance(n.value.func, ast.Name)
-            and n.value.func.id == "calculate_dynamic_bias"]
-    assert len(calls("calculate_dynamic_bias")) == 1 and len(sums) == 1, (
-        "the weighted sum is computed once, for the asset's score, until "
-        "stage 5; BTC's is no longer computed")
-    target = sums[0].targets[0]
-    assert isinstance(target, ast.Tuple) and len(target.elts) == 2, ast.dump(target)
-    assert [e.id for e in target.elts] == ["_", "bias_score"], (
-        "the label the weighted sum returns is assigned to a name again; "
-        "since stage 2 the direction is direction_from_emas' alone")
+    # THE REDESIGN'S STAGE 5, 15 November 2026. Until this stage the sum was
+    # still computed once, for the asset's score, and this held that its
+    # LABEL was thrown away -- assigned to `_` -- so the direction was
+    # direction_from_emas' alone. The sum is gone, which is the stronger
+    # statement and the one asserted now: engine_core calls it nowhere, and
+    # the name is not importable from the module either.
+    assert calls("calculate_dynamic_bias") == [], (
+        "engine_core calls calculate_dynamic_bias again; the weighted sum "
+        "was removed at stage 5")
+
+    import models.bias_engine as be
+    assert not hasattr(be, "calculate_dynamic_bias"), (
+        "models.bias_engine defines calculate_dynamic_bias again")
+    for weight in ("WEIGHT_TREND_HEALTH", "WEIGHT_STRUCTURE_REGIME",
+                   "WEIGHT_VOLUME_SENTIMENT", "WEIGHT_SUPERTREND_DIRECTION",
+                   "WEIGHT_MACRO_BIAS", "WEIGHT_REVERSAL_CONTINUATION",
+                   "RAW_BIAS_THRESHOLD"):
+        assert not hasattr(be, weight), f"{weight} is back"
 
     names = {n.id for n in ast.walk(tree) if isinstance(n, ast.Name)}
     assert "btc_bias_score" not in names and "btc_supertrend_direction" not in names
@@ -316,10 +322,11 @@ def test_on_the_pinned_run_the_record_shows_what_the_direction_compared():
 
 def test_the_direction_alone_picks_the_side():
     """
-    The pinned run's weighted sum is about +77 and its SuperTrend, structure
-    and macro are bullish. With EMA50 falling and EMA20 under it at the
-    decision candle, the direction is BEARISH, the plan is a short's, and no
-    long is returned: the sum picks nothing.
+    The pinned run's SuperTrend, structure and macro are bullish, and its
+    weighted sum was about +77 until stage 5 removed it. With EMA50 falling
+    and EMA20 under it at the decision candle, the direction is BEARISH, the
+    plan is a short's, and no long is returned: nothing but the EMAs has a
+    say in the side.
     """
     if not _engine_available():
         pytest.skip("pandas_ta not installed")
@@ -330,7 +337,13 @@ def test_the_direction_alone_picks_the_side():
                        "EMA_20": bar["EMA_50"], "EMA_50": bar["EMA_20"]})
     assert "error" not in decision, decision.get("error")
 
-    assert decision["bias"]["score"] == control["bias"]["score"] > 30, decision["bias"]
+    # Stage 5, 15 November 2026: this asserted that bias.score was the
+    # control's and above 30 -- the point being that a sum calling the run
+    # strongly bullish picked nothing. There is no score to compare, and
+    # "the sum picks nothing" is now "there is no sum": the record carries
+    # no score at all, which is asserted here and in
+    # test_engine_core_asks_the_rule_twice_and_computes_no_sum above.
+    assert "score" not in decision["bias"], decision["bias"]
     assert decision["bias"]["raw"] == decision["bias"]["detailed"] == "BEARISH"
     assert decision["lineage"]["direction"] == {
         "ema50_slope": "FALLING", "ema20_vs_ema50": "BELOW", "result": "BEARISH"}

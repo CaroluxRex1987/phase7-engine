@@ -241,18 +241,19 @@ def render_panel(decision):
         # SEQUENCE ITEM 13: the `risk_score = ...` line that survived that fix
         # is gone too. After the fix nothing printed it, so the panel bound a
         # local and dropped it — and the comment claimed it was still used for
-        # CONFIDENCE, which reads confidence_score. The field itself is removed
-        # from the decision object; bias.score is where that number lives.
-        validation_score = safe_float(risk.get('validation_score'), default=float('nan'))
-        # 21 SEPTEMBER 2026, work order B: these three defaulted an absent
-        # value to 0, printed as "0.00/100". NaN now, printed by _score_text
-        # as "not computed". The router always sets all three today, so the
-        # default was latent -- the same reasoning Round 6 F3 applied to the
-        # price lines above.
+        # CONFIDENCE, which reads confidence_score.
+        #
+        # THE REDESIGN'S STAGE 5, 15 November 2026: four of these locals are
+        # gone with the four lines that printed them -- validation_score
+        # (VALIDATION), confidence_score (CONFIDENCE (decision)), tq_proposed
+        # (TRADE QUALITY / Proposed Entry) and trend_health_score (the TREND
+        # line's score). The fields themselves have left the decision object.
+        # 21 SEPTEMBER 2026, work order B: this and the three above defaulted
+        # an absent value to 0, printed as "0.00/100". NaN now, printed by
+        # _score_text as "not computed". The router always sets it today, so
+        # the default was latent -- the same reasoning Round 6 F3 applied to
+        # the price lines above.
         entry_score = safe_float(entry.get('score'), float('nan'))
-        confidence_score = safe_float(risk.get('confidence_score'), float('nan'))
-        tq_proposed = safe_float(risk.get('trade_quality_proposed'), float('nan'))
-        trend_health_score = safe_float(trend.get('trend_health'), default=float('nan'))
 
         # C4 BUILD: position size and the standalone EV line were both
         # dropped from the panel per Viktor's request -- the underlying
@@ -343,9 +344,16 @@ def render_panel(decision):
         #
         # The replacement says only that nothing was produced, which is the
         # one thing that is true when the key is absent.
-        validation_note = (
-            risk.get("validation_note")
-            or "No validation note was produced for this run."
+        #
+        # THE REDESIGN'S STAGE 5, 15 November 2026: this read
+        # risk.validation_note, the macro and volume notes joined. The
+        # validation block is gone and the macro note alone survives, as the
+        # top-level macro_note, printed on its own line under MACRO TREND
+        # rather than in a "Validation Notes" section at the foot of the
+        # panel.
+        macro_note = (
+            decision.get("macro_note")
+            or "No macro note was produced for this run."
         )
         chart_line = (
             f"Chart saved to {saved_chart}\n" if saved_chart
@@ -383,7 +391,9 @@ def render_panel(decision):
         # (docs/PHASE7_DECISIONS.md, "Ruling, 27 September 2026 -- a NEUTRAL
         # bias prints no plan (finding 5)"). The plan's direction is the sign
         # of bias_score (models/risk_model.py, calculate_stop_targets), so
-        # under a NEUTRAL bias -- a score inside +/-RAW_BIAS_THRESHOLD -- the
+        # under a NEUTRAL bias -- a score inside +/-RAW_BIAS_THRESHOLD, until
+        # the redesign's stage 2 made the side the direction's and stage 5
+        # removed the score -- the
         # panel printed a long- or short-shaped stop and targets for a
         # direction the engine had not chosen; exactly 0 printed a long. The
         # panel now prints no stop, no targets and no R:R under a NEUTRAL bias,
@@ -976,20 +986,17 @@ def render_panel(decision):
             # bias.volatility; only the panel prints each reading once.
             f"STRUCTURE  : {colorize_val(structure.get('regime', 'UNKNOWN STRUCTURE'))}\n"
             f"SEQUENCE   : {colorize_val(structure.get('sequence', 'UNKNOWN'))}\n"
-            # ROUND 8, F9, 12 October 2026: the two fallbacks were 'NEUTRAL'
-            # and 'HEALTHY' -- a direction and a momentum nobody measured.
-            # They cannot fire on the engine's path (the router writes both
-            # keys on every decision it builds), so they are now the router's
-            # own fallback, UNKNOWN, rather than a reading.
-            f"TREND      : {colorize_val(trend.get('trend_direction', 'UNKNOWN'))} / {colorize_val(trend.get('momentum_mode', 'UNKNOWN'))} (Score: {_score_text(trend_health_score)})\n"
-            # SEQUENCE ITEM 11 took trend_health_score off a MOMENTUM line
-            # that sat here, because the TREND line above already shows it,
-            # and kept the line for its label, momentum_mode. But the TREND
-            # line prints momentum_mode too, after the slash, so the label
-            # was the same reading twice. F8, round 8 (Item 10), 11 October
-            # 2026: the MOMENTUM line is gone; the TREND line carries both.
+            # THE REDESIGN'S STAGE 5, 15 November 2026. Two lines stood here
+            # and are gone with the readings they printed:
+            #
+            #     TREND      : <trend_direction> / <momentum_mode> (Score: <trend_health>)
+            #     VALIDATION : <validation_state> (Score: <validation_score>)
+            #
+            # All five readings have left the decision object. The direction
+            # the engine acts on is the BIAS line above, which has been the
+            # EMAs' since stage 2; what the macro says about it is the MACRO
+            # NOTE line below, and the gates are in Decision Reasoning.
             f"VOLUME     : {colorize_val(structure.get('volume_sentiment', 'UNKNOWN VOLUME'))}\n"
-            f"VALIDATION : {colorize_val(risk.get('validation_state', 'UNKNOWN'))} (Score: {_score_text(validation_score)})\n"
             f"VOLATILITY : {colorize_val(bias.get('volatility', 'UNKNOWN'))}\n"
             # ITEM 14 RE-AUDIT (Finding 5): the independent risk classification
             # that now caps the AGGRESSIVE action label -- see
@@ -997,7 +1004,11 @@ def render_panel(decision):
             # reasoning in Decision Reasoning below ("the risk regime is HIGH
             # VOLATILITY RISK") points at something visible on the panel.
             f"RISK REGIME: {colorize_val(risk.get('risk_regime', 'UNKNOWN RISK'))}\n"
-            f"MACRO TREND: {colorize_val(macro_bias)}\n\n"
+            f"MACRO TREND: {colorize_val(macro_bias)}\n"
+            # Stage 5, 15 November 2026: the macro note, beside the reading it
+            # is about, where the draft's section 4 puts it. It is what
+            # survives the Validation Notes section at the foot of the panel.
+            f"MACRO NOTE : {macro_note}\n\n"
             f"{divider}"
             f"{current_price_line}"
             f"{live_price_line}"
@@ -1017,11 +1028,16 @@ def render_panel(decision):
             f"{plan_lines}\n"
             f"{divider}"
             f"{_entry_quality_lines(entry, entry_score)}"
-            f"{divider}"
-            f"CONFIDENCE (decision): {_score_text(confidence_score)}\n"
-            f"TRADE QUALITY :\n"
-
-            f"    |-- Proposed Entry    : {_score_text(tq_proposed)}\n\n"
+            # THE REDESIGN'S STAGE 5, 15 November 2026: a divider, then
+            #
+            #     CONFIDENCE (decision): <confidence_score>
+            #     TRADE QUALITY :
+            #         |-- Proposed Entry    : <trade_quality_proposed>
+            #
+            # stood here. Both numbers have left the decision object: the
+            # first was the weighted sum's magnitude, the second was entry
+            # quality under a second name, and ENTRY QUALITY with the D, the
+            # H and their two ATR distances is printed just above.
             f"{box_top}"
             f"DECISION      : {colored_action}\n\n"
             f"{direction_box}"
@@ -1031,9 +1047,14 @@ def render_panel(decision):
             f"{divider}"
             f"Exit Watch (advisory only -- not automatic):\n"
             f"{exit_watch_lines}\n"
-            f"{divider}"
-            f"Validation Notes:\n"
-            f" - {validation_note}\n"
+            # Stage 5, 15 November 2026: a divider and
+            #
+            #     Validation Notes:
+            #      - <validation_note>
+            #
+            # stood here, printing the macro and volume notes joined. The
+            # volume note is gone with volume_agreement and the macro note is
+            # on the MACRO NOTE line above.
             f"{btc_section}"
             f"{box_top}\n"
             f"{log_line}"

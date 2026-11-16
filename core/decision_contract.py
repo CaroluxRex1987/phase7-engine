@@ -97,23 +97,28 @@ except ImportError:                      # Python < 3.8
 class BiasBlock(TypedDict):
     raw: str
     detailed: str
-    score: float
+    # Stage 5 of the redesign, 15 November 2026: `score` was declared here,
+    # the weighted sum. It left with the sum (models/bias_engine.py), whose
+    # one remaining reader was the confidence score.
     regime: str
     volatility: str
 
 
 class TrendBlock(TypedDict):
-    # `health` and `momentum` were declared here as duplicates of the two
-    # fields below and removed at sequence item 13.
-    trend_health: float
-    exhaustion: bool
-    momentum_mode: str
+    # `health` and `momentum` were declared here as duplicates of
+    # trend_health and momentum_mode and removed at sequence item 13.
+    #
+    # Stage 5 of the redesign, 15 November 2026: four more left this block
+    # with the readings that produced them (indicators/trend_health.py) --
+    # trend_health (float), exhaustion (bool), momentum_mode (str) and
+    # trend_direction (str). The two divergence fields are what remains, and
+    # the block is kept rather than folded away because they are a trend
+    # reading and the confirmation gate reads them.
     momentum_divergence: bool
     # Work order F, 21 September 2026: which way a divergence points --
     # "BULLISH", "BEARISH" or "NONE". The confirmation gate reads it; the
     # record carries it so a blocked trade can be checked against it.
     divergence_direction: str
-    trend_direction: str
 
 
 class StructureBlock(TypedDict):
@@ -213,21 +218,27 @@ class RiskBlock(TypedDict):
     # for a volatility state that function does not know.
     risk_regime: str
     # `risk_score` and `signal_strength` both held bias_score and were removed
-    # at sequence item 13. bias.score is that number's one home.
-    confidence_score: float
-    # Stage 4, 15 November 2026: this is `entry.score` on an undegraded
-    # run, and it is capped rather than computed again on a degraded one, so
-    # it is None exactly when entry quality was not measured. `float` until
-    # this stage.
-    trade_quality_proposed: Any   # float, or None when not measured
-    validation_state: str
-    validation_score: float
-    validation_note: str
+    # at sequence item 13.
     # The five position-sizing fields were declared here and removed at
     # sequence item 13 — see module docstring.
-    ev_r: float
-    assumed_win_rate: float
-    avg_reward_r: float
+    #
+    # STAGE 5 OF THE REDESIGN, 15 November 2026. Eight more left this block,
+    # which now carries the plan and the two verdicts about it and nothing
+    # else:
+    #
+    #     confidence_score       (float)  abs(bias.score)
+    #     trade_quality_proposed (Any)    entry.score under a second name
+    #     validation_state       (str)    the 70 / 45 bands
+    #     validation_score       (float)  50 +/- two deltas
+    #     validation_note        (str)    the macro and volume notes joined
+    #     ev_r                   (float)  a rescaling of confidence
+    #     assumed_win_rate       (float)  confidence, as a percent
+    #     avg_reward_r           (float)  AVG_REWARD_R, 2.0
+    #
+    # The records are in models/decision_model.py (the first and the last
+    # three), core/engine_core.py (the three validation fields, of which the
+    # macro note survives as the top-level `macro_note`) and, for the second,
+    # round 8's F8: one name for one meaning.
 
 
 class ExitBlock(TypedDict):
@@ -267,7 +278,8 @@ class BtcContextBlock(_BtcContextRequired, total=False):
     detailed: str
     regime: str
     volatility: str
-    trend_health: float
+    # Stage 5 of the redesign, 15 November 2026: `trend_health` (float) was
+    # declared here, BTC's own score, and left with the score itself.
     correlation: float
     correlation_label: str
     beta: float
@@ -396,10 +408,12 @@ class LineageBlock(TypedDict):
     direction_from_emas). The numbers themselves are in
     indicators_at_decision_bar. `risk_inputs` records `side` where it recorded
     bias_score: the side is passed to the stop now, not read off a sign.
-    `bias_components` is still the weighted sum's breakdown, and from this
-    stage it explains bias.score alone, which confidence reads; the sum
-    decides no direction. It leaves with the sum in stage 5, and the chain
-    drawn above is redrawn then.
+    STAGE 5, 15 November 2026: `bias_components` was declared below, the
+    weighted sum's breakdown -- each of the six factors' input, signed value,
+    weight and contribution, the CHOCH discount, the clip and the threshold,
+    thirty-four leaves in all. It explained bias.score, which confidence
+    read; both are gone, so the chain above runs from the candles through the
+    indicators to `direction` and the gates, with no weighted number in it.
 
     A note on what `archive.path` means when it is None. It means nothing was
     written for this run -- not that the path is unknown. The alternative, a
@@ -412,7 +426,6 @@ class LineageBlock(TypedDict):
     inputs: Dict[str, Any]
     indicators_at_decision_bar: Dict[str, Any]
     direction: Dict[str, Any]
-    bias_components: Dict[str, Any]
     risk_inputs: Dict[str, Any]
     archive: Dict[str, Any]
 
@@ -421,6 +434,11 @@ class DecisionObject(TypedDict):
     symbol: str
     timeframe: str
     macro_bias: str
+    # Stage 5 of the redesign, 15 November 2026: one sentence on how the
+    # higher timeframe stands relative to this bias, beside the reading it is
+    # about. It is what survives risk.validation_note, and it decides
+    # nothing: gate 6 is what acts on the macro.
+    macro_note: str
     bias: BiasBlock
     trend: TrendBlock
     structure: StructureBlock
@@ -453,6 +471,7 @@ class EngineOutput(TypedDict):
     symbol: str
     timeframe: str
     macro_bias: str
+    macro_note: str                        # stage 5 of the redesign
     bias: Dict[str, Any]
     trend: Dict[str, Any]
     structure: Dict[str, Any]

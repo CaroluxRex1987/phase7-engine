@@ -223979,3 +223979,153 @@ Lines 6391–6397 of the version at `5e7e429`:
   change something he ruled or would see** (THE REDESIGN'S BUILD, above). None waits
   for him; each is his to reverse, and a reversal is cheapest before stage 4.
 ~~~~~
+
+## 15 November 2026 — the lines the rewrite of PHASE7_NEXT.md removed from its version at `ebd98e50`
+
+*Moved here on 15 November 2026 by stage 5 of the redesign's build, the fifth commit
+on the branch `redesign`, under "Ruling, 4 November 2026 — HISTORY
+keeps what each rewrite of PHASE7_NEXT.md removes, not the whole file" (DECISIONS).
+Below the rule, each block is a run of lines of the file as it stood at `ebd98e50`
+that the rewrite deleted or replaced, word for word, labelled with its line numbers
+in that version; "this session" in them is the session that opened at 11:28 on
+15 November, not the one that writes this entry, which opened at 20:34 on
+15 November, and "the commit that writes this line", "the commit that writes this
+section" and "this commit" name `ebd98e50`. The
+whole version: `git show ebd98e5:docs/PHASE7_NEXT.md`. Checked by
+`docs/build/check_history_move.py`.*
+
+---
+Lines 3–5 of the version at `ebd98e5`:
+
+~~~~~
+*15 November 2026, in the session that opened at 11:28, on the branch `redesign`.
+Rewritten by stage 4 of the redesign's build, the branch's fourth commit, which also
+files the readings made building it and records `5e7e429`'s landing;
+~~~~~
+
+Line 7 of the version at `ebd98e5`:
+
+~~~~~
+`5e7e429` are in HISTORY, which points to that whole version in git.
+~~~~~
+
+Lines 74–75 of the version at `ebd98e5`:
+
+~~~~~
+4. **Entry quality, the tiers and gate 9 — landed by the commit that writes this
+   section** (DECISIONS, "Decision, 15 November 2026 — stage 4 of the redesign's
+~~~~~
+
+Lines 93–94 of the version at `ebd98e5`:
+
+~~~~~
+5. **Removals** — trend health, confidence and EV, validation, the exit watch's two
+   flags, **and the weighted sum** (below). **Next.**
+~~~~~
+
+Line 96 of the version at `ebd98e5`:
+
+~~~~~
+   and H5 proposed.
+~~~~~
+
+Lines 98–101 of the version at `ebd98e5`:
+
+~~~~~
+**The branch's `code_hash`:** `322cdf66…` since stage 4, `b8afef79…` at stage 3,
+`43d15cbb…` at stage 2, `a3d499df…` at stage 1, `816d4951…` on `master`, which the
+scheduled task runs. Computed in the Linux sandbox on both trees at each stage;
+stage 1's, stage 2's and stage 3's are also on their live records.
+~~~~~
+
+Lines 103–104 of the version at `ebd98e5`:
+
+~~~~~
+**Left for a later stage on purpose, by stage 4** (the entry's readings 3, 5
+and 10, and what it weakens):
+~~~~~
+
+Lines 106–110 of the version at `ebd98e5`:
+
+~~~~~
+- **Trend health, confidence, EV and validation are still computed, recorded and
+  printed, and nothing in the decision reads any of them.** Four numbers on the
+  panel that no gate consults. They leave in stage 5. `validation_score`,
+  `validation_state` and `validation_note` are among them: H1's branch, which
+  read two of them, is gone with the ladder, but the fields stay.
+~~~~~
+
+Lines 115–118 of the version at `ebd98e5`:
+
+~~~~~
+- **`docs/build/indicator_overlap.py` lost its three entry-quality variants**
+  with the record fields they read, and its row carries D, H and their
+  distances. The tool still follows the engine's path, so it goes or is rebuilt
+  with the weighted sum in stage 5.
+~~~~~
+
+Lines 239–253 of the version at `ebd98e5`:
+
+~~~~~
+**`5e7e429`'s landing.** Viktor's opening message of 15 November, sent at 11:28:
+stage 3 landed as `5e7e429` (tree `3d173f87…`), pushed on 15 November at
+08:56:33, and its landing "was checked at 11:24 against GitHub and the disk and
+holds: tip, parent `c012e5b`, tree against Verified-Tree, message, COMMIT_EDITMSG
+less its CRs, index (309 entries), the 28 files, the root clean, master still
+`696af24`". New at that check, on his statement: a `git gc` ran during the
+commit, so no loose objects are left on his disk and the commit object was read
+out of the single pack, where it hashes to its name and equals GitHub's — a
+landing check reads the pack now. Also on his statement: **stage 3 was built by a
+Claude Fable 5.2 session and its landing checked by a Claude Opus 5 one, the
+model having changed mid-session.** Recorded on his statement. Of it this session
+read from GitHub, by its clone of 11:28: `redesign`'s tip is `5e7e429`, its
+parent `c012e5b`, its tree `3d173f87c4cead90cac89390b53e6b99569b3f0f`, the one
+its `Verified-Tree:` line names, and `master` is `696af24`. His disk was not read
+again for it.
+~~~~~
+
+Lines 4209–4212 of the version at `ebd98e5`:
+
+~~~~~
+- **Golden snapshot:** **re-baselined by the commit that writes this line, stage 3 of
+  the redesign's build, with `PHASE7_UPDATE_SNAPSHOT=1`: 7 leaves move and 9 are new,
+  239 leaves from 230; `exit.action` moves from CONSERVATIVE LONG to WAIT, at gate
+  8.** Moved: `exit.action`; `explanation.summary` ("WAIT — No earlier gate refused
+~~~~~
+
+Lines 4308–4309 of the version at `ebd98e5`:
+
+~~~~~
+- **Test suite** — **1061 passed / 0 failed, no warnings line** with `pandas_ta`;
+  **873 passed / 177 skipped** without it; `run_tests.py` **992 passed / 0 failed /
+~~~~~
+
+Lines 4314–4315 of the version at `ebd98e5`:
+
+~~~~~
+  until `713e084` (entry 50). The commit that writes this line, stage 4 of the
+  redesign's build, takes the suite from 1058 to 1061, from 869 / 178 to 873 / 177,
+~~~~~
+
+Line 6458 of the version at `ebd98e5`:
+
+~~~~~
+  from the version at `5e7e429` are in HISTORY's new entry, checked by
+~~~~~
+
+Lines 6468–6479 of the version at `ebd98e5`:
+
+~~~~~
+- **Claude's, next: stage 5 of the redesign's build, the removals** — trend health,
+  confidence and EV, validation, the exit watch's two flags, and the weighted sum
+  (THE REDESIGN'S BUILD, above), after recomputing the draft's figures for the
+  golden run from the golden test's own series, as each stage has. Four numbers
+  the panel prints that no gate now reads leave there, and
+  `docs/build/indicator_overlap.py` goes or is rebuilt with the sum.
+- **Viktor's, when he reads it: stage 2's three readings, stage 3's four and stage
+  4's five that change something he ruled or would see** (THE REDESIGN'S BUILD,
+  above). None waits for him; each is his to reverse, and a reversal is cheapest
+  before the merge, and cheaper still before stage 5 for anything stage 5 builds
+  on — gate 9's place last in the ladder above all, since stage 5 removes the
+  sentences around it.
+~~~~~

@@ -182,14 +182,18 @@ def _panel(momentum_mode):
     })
 
 
-def test_the_momentum_label_is_printed_once_on_the_trend_line():
-    word = "EXTENDED"
-    panel = _panel(word)
-    lines = [ln for ln in panel.splitlines() if word in ln]
-    assert len(lines) == 1, (
-        f"momentum_mode is printed on {len(lines)} lines:\n" + "\n".join(lines)
-    )
-    assert lines[0].strip().startswith("TREND"), lines[0]
+# THE REDESIGN'S STAGE 5, 15 November 2026:
+# test_the_momentum_label_is_printed_once_on_the_trend_line stood here. F8
+# (round 8, Item 10, 11 October 2026) found momentum_mode printed twice --
+# once as the MOMENTUM line's label and again after the slash on the TREND
+# line -- and removed the MOMENTUM line, leaving the TREND line carrying
+# both. Both lines are gone now, with trend health, momentum_mode and
+# trend_direction (indicators/trend_health.py), so the label is printed
+# ZERO times and a test asserting "exactly one" would pass on nothing at
+# all. The test below keeps the half that can still fail: no line is headed
+# MOMENTUM, which is what F8's fix actually removed, and it is checked on a
+# panel built from a stale trend block carrying the label, so the line
+# cannot come back unnoticed.
 
 
 def test_no_line_is_headed_momentum():
@@ -197,3 +201,6 @@ def test_no_line_is_headed_momentum():
     headed = [ln for ln in panel.splitlines()
               if ln.strip().startswith("MOMENTUM")]
     assert not headed, headed
+    # Stage 5: and no line prints the label at all, from either heading.
+    assert "STRONG" not in panel, [ln for ln in panel.splitlines()
+                                   if "STRONG" in ln]

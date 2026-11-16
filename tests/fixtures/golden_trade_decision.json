@@ -3,7 +3,6 @@
     "detailed": "BULLISH",
     "raw": "BULLISH",
     "regime": "BULLISH TREND",
-    "score": 62.65215204,
     "volatility": "MEDIUM VOLATILITY"
   },
   "btc_context": {
@@ -17,7 +16,6 @@
     "n_observations": 30,
     "raw": "BEARISH",
     "regime": "BEARISH TREND",
-    "trend_health": 78.64771826,
     "volatility": "HIGH VOLATILITY"
   },
   "decision_log_path": "logs/pinned/phase7_decision_log_testusdt.jsonl",
@@ -63,68 +61,15 @@
       "The direction is BULLISH: EMA50 is rising and EMA20 is above it, so the long is the side the remaining gates are read for.",
       "Structural confirmation holds for the long: structure agrees with the direction, ADX is 20 or more, and no price/RSI disagreement over four candles points against it.",
       "The last closed candle is a resumption candle for the long: it closed above both its open and the previous candle's close, on volume above the median of the 20 candles before it.",
-      "The bullish bias passed every gate with entry quality 80 of 100, at or above the 70 the upper tiers need, but the close is above the EMA band rather than inside it, which AGGRESSIVE requires \u2014 LONG.",
-      "Confidence is 63/100 \u2014 the bias engine's own composite strength (trend health, structure regime, volume sentiment, SuperTrend direction, macro bias, and reversal/continuation, already weighted and blended into one score). Restating any of those as a separate bonus here would count the same evidence twice.",
-      "Entry quality is 80/100 \u2014 a high-quality entry on its own terms. Compare it against the TREND line rather than against a restatement of it.",
-      "Expected value (illustrative, not backtested): the 63/100 confidence score restated against the standard 2:1 average reward, not a second reading of the setup \u2014 it is arithmetic on confidence alone, so it can never disagree with it. On that basis about +0.88R per trade \u2014 positive -- worth taking on average if that win rate holds up. On this reward multiple any confidence above 33/100 is breakeven or better, and above 43/100 reads as positive."
+      "The bullish bias passed every gate with entry quality 80 of 100, at or above the 70 the upper tiers need, but the close is above the EMA band rather than inside it, which AGGRESSIVE requires \u2014 LONG."
     ],
     "summary": "LONG \u2014 The bullish bias passed every gate with entry quality 80 of 100, at or above the 70 the upper tiers need, but the close is above the EMA band rather than inside it, which AGGRESSIVE requires \u2014 LONG."
   },
   "lineage": {
     "archive": {
-      "path": "logs/pinned/archive/testusdt_4h_3e00088e55fb4928.json.gz",
+      "path": "logs/pinned/archive/testusdt_4h_023552b7cff809a7.json.gz",
       "pruned_this_run": 0,
       "retention_days": 90
-    },
-    "bias_components": {
-      "after_discount": 62.65215204,
-      "bias_score": 62.65215204,
-      "choch_against_trend": false,
-      "clipped": false,
-      "factors": {
-        "macro_bias": {
-          "contribution": 10.0,
-          "input": "BULLISH",
-          "signed": 100.0,
-          "weight": 0.1
-        },
-        "reversal_continuation": {
-          "contribution": 0.0,
-          "input": 0.0,
-          "signed": 0.0,
-          "weight": 0.1
-        },
-        "structure_regime": {
-          "contribution": 20.0,
-          "input": "BULLISH TREND",
-          "signed": 100.0,
-          "weight": 0.2
-        },
-        "supertrend_direction": {
-          "contribution": 15.0,
-          "input": 1.0,
-          "signed": 100.0,
-          "weight": 0.15
-        },
-        "trend_health": {
-          "contribution": 25.15215204,
-          "input": 83.84050678,
-          "signed": 83.84050678,
-          "weight": 0.3
-        },
-        "volume_sentiment": {
-          "contribution": -7.5,
-          "input": "BEARISH VOLUME PRESSURE",
-          "signed": -50.0,
-          "weight": 0.15
-        }
-      },
-      "raw_bias_threshold": 20.0,
-      "reversal_direction": "BEARISH",
-      "reversal_strength": 4.0,
-      "trend_direction": 1,
-      "trend_sequence": "BEARISH SWING SEQUENCE (LH-LL)",
-      "weighted_sum": 62.65215204
     },
     "direction": {
       "ema20_vs_ema50": "ABOVE",
@@ -202,11 +147,12 @@
       "side": "LONG",
       "volatility_state": "MEDIUM VOLATILITY"
     },
-    "run_hash": "3e00088e55fb4928ad9f0246e9f63bba73184f3ee2db7a0ba031fcf29f046f4e"
+    "run_hash": "023552b7cff809a71ea783bec9521055e397c49a5f6fa08b59c38d7230cbb31d"
   },
   "macro_bias": "BULLISH",
+  "macro_note": "The higher timeframe agrees with this bias.",
   "provenance": {
-    "archive_path": "logs/pinned/archive/testusdt_4h_3e00088e55fb4928.json.gz",
+    "archive_path": "logs/pinned/archive/testusdt_4h_023552b7cff809a7.json.gz",
     "canonical_format": 1,
     "decision_candles": {
       "btc": {
@@ -255,23 +201,11 @@
       "indicators.indicators": {
         "SPIKE_RATIO": 10.0
       },
-      "models.bias_engine": {
-        "RAW_BIAS_THRESHOLD": 20.0,
-        "WEIGHT_MACRO_BIAS": 0.1,
-        "WEIGHT_REVERSAL_CONTINUATION": 0.1,
-        "WEIGHT_STRUCTURE_REGIME": 0.2,
-        "WEIGHT_SUPERTREND_DIRECTION": 0.15,
-        "WEIGHT_TREND_HEALTH": 0.3,
-        "WEIGHT_VOLUME_SENTIMENT": 0.15
-      },
       "models.btc_context": {
         "CORRELATION_WINDOW": 30
       },
       "models.decision_model": {
-        "DecisionModel.AVG_REWARD_R": 2.0,
         "DecisionModel.CONSERVATIVE_ENTRY_QUALITY_MIN": 50.0,
-        "DecisionModel.DEGRADED_CONFIDENCE_CEILING": 50.0,
-        "DecisionModel.EV_BREAKEVEN_BAND_R": 0.3,
         "DecisionModel.UPPER_TIER_ENTRY_QUALITY_MIN": 70.0
       },
       "models.entry_model": {
@@ -301,15 +235,11 @@
     },
     "prior_state": {},
     "row_count": 450,
-    "run_hash": "3e00088e55fb4928ad9f0246e9f63bba73184f3ee2db7a0ba031fcf29f046f4e",
+    "run_hash": "023552b7cff809a71ea783bec9521055e397c49a5f6fa08b59c38d7230cbb31d",
     "source": "pinned"
   },
   "risk": {
-    "assumed_win_rate": 62.65215204,
     "atr_stop": 0.66341722,
-    "avg_reward_r": 2.0,
-    "confidence_score": 62.65215204,
-    "ev_r": 0.87956456,
     "risk_reason": "OK",
     "risk_regime": "NORMAL RISK",
     "risk_valid": true,
@@ -317,11 +247,7 @@
       0.69574956,
       0.71191573,
       0.7280819
-    ],
-    "trade_quality_proposed": 79.82563809,
-    "validation_note": "The higher timeframe agrees with this bias. | Volume sentiment (BEARISH VOLUME PRESSURE) runs AGAINST this bias.",
-    "validation_score": 35.0,
-    "validation_state": "WEAK"
+    ]
   },
   "structure": {
     "hvn": 0.65996519,
@@ -335,10 +261,6 @@
   "timeframe": "4h",
   "trend": {
     "divergence_direction": "NONE",
-    "exhaustion": false,
-    "momentum_divergence": false,
-    "momentum_mode": "HEALTHY",
-    "trend_direction": "BULLISH",
-    "trend_health": 83.84050678
+    "momentum_divergence": false
   }
 }

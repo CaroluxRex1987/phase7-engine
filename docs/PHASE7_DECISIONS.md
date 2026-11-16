@@ -8777,6 +8777,267 @@ golden run is recomputed from the golden test's own three series.
   whether to collapse the labels is raised again only if the upper tiers are
   still empty after the redesign's own first reading.
 
+## Decision, 15 November 2026 — stage 5 of the redesign's build: the removals — trend health, confidence and EV, validation, the exit watch's two flags and the weighted sum; twelve readings made building them, four operator-facing strings that outlived their calculations, and two indicator columns nothing reads
+
+*New in this file on 15 November 2026. Claude's, under Viktor's "you are the
+engineer and the brain of this project" of 29 October, his to reverse, each one.
+Made in the session that opened at 20:34 on 15 November at `ebd98e50`, on the
+branch `redesign`, and filed by stage 5's commit. No earlier entry is edited (the
+ruling of 20 September), and the draft is not edited here: stage 6 reconciles it.*
+
+**What stage 5 is.** Five groups leave the engine, each ruled on 25 October 2026
+(DECISIONS, "Ruling, 25 October 2026 — the indicator document's eight questions":
+ruling 2 takes macro out of the validation score, ruling 3 removes trend health and
+its 75 / 50 tiers, ruling 6 drops confidence and the EV line) or on 9 November
+(DECISIONS, "Ruling, 9 November 2026 — the redesign's exit watch drops its
+exhaustion and reversal flags"):
+
+1. *The weighted sum.* `models/bias_engine.py`'s `calculate_dynamic_bias`, its six
+   `WEIGHT_*`, `RAW_BIAS_THRESHOLD`, the `_VOLUME_SENTIMENT_SCORES` table, the
+   CHOCH discount and the clip. `bias.score`, `lineage.bias_components`'s
+   thirty-four leaves and seven `module_constants` entries leave the record, and
+   `models.bias_engine` leaves `FINGERPRINTED_MODULES` altogether.
+2. *Confidence and EV.* `_compute_confidence`, `_compute_ev`, `AVG_REWARD_R`,
+   `EV_BREAKEVEN_BAND_R`, and `risk.confidence_score`, `risk.ev_r`,
+   `risk.assumed_win_rate`, `risk.avg_reward_r`.
+3. *Trade quality.* `_compute_trade_quality` and `risk.trade_quality_proposed`.
+4. *Validation.* `volume_agreement` whole; `macro_agreement` reduced to its note;
+   `risk.validation_score`, `risk.validation_state` and `risk.validation_note`.
+5. *Trend health.* `indicators/trend_health.py` keeps ADX, the momentum divergence
+   and its degraded inputs, and loses the score, the exhaustion flag, the
+   continuation and reversal readings, `momentum_mode`, `trend_direction`,
+   `trend_direction_sign`, `trend_slope`, `trend_acceleration` and `trend_regime` —
+   the last three having been returned and read by nothing outside that module even
+   before this stage. `trend.trend_health`, `trend.exhaustion`,
+   `trend.momentum_mode`, `trend.trend_direction` and `btc_context.trend_health`
+   leave the record, and the exit watch loses its exhaustion and reversal flags,
+   keeping every other: the divergence, the CHOCH against the side, the HVN and LVN
+   proximity, the SuperTrend flip, the bias flip and the Target 1 note.
+
+`evaluate()` returns the action and the explanation and nothing else, and takes no
+`trend` block. `docs/build/indicator_overlap.py` is deleted.
+
+**Both golden runs' figures, recomputed first.** Before any code, from the golden
+test's own three series (`tests/test_golden_path.py`, `_write_pinned_set`, which
+since stage 4 takes a base fixture), run through the production path in the Linux
+sandbox — not from `tests/fixtures/pinned` and not from either snapshot's
+`indicators_at_decision_bar`, which `_strip` has already rounded and which is how
+stage 4's draft figures came out wrong in the eighth decimal. On the clean run and
+the trade run: `bias.score` 77.09945428836092 / 62.65215203528861, which is
+`risk.confidence_score` and `risk.assumed_win_rate` exactly; `risk.ev_r`
+1.3129836286508274 / 0.8795645610586583; `trend.trend_health` 95.3475842150379 /
+83.84050678429537; `btc_context.trend_health` 96.99999999980207 /
+78.64771826245423; `validation_score` 35.0 on both, WEAK on both;
+`risk.trade_quality_proposed` 0.0 / 79.82563808648668; ADX 31.956320179198244 /
+21.592822502305648, which does not move, the module keeping it.
+`explanation.reasons` holds 6 sentences and 7, of which the last three on each are
+confidence's, entry quality's restatement and EV's.
+
+**The readings.**
+
+1. *The degraded run's cap goes with what it capped, and that changes what a ruling
+   of Viktor's does — HIS TO REVERSE.* The ruling of 29 August 2026 says, in point
+   2, "confidence and trade quality must be reduced accordingly", and
+   `_apply_degradation` capped both at `DEGRADED_CONFIDENCE_CEILING`, 50.0. Both
+   quantities leave the record here, so nothing is left to reduce. **Capping the
+   one surviving score was considered and refused:** entry quality is printed
+   beside the D, the H and the two ATR distances it is computed from
+   (`80 × max(0, 1 − d/3) + 20 × max(0, 1 − h/2)`), so a capped value would
+   contradict its own arithmetic on the same screen — two places computing one
+   number, the defect shape this engine keeps finding — and it is not needed for
+   safety, because the ruling's last sentence refuses the trade outright, which is
+   stronger than any ceiling. So the cap and the constant go. The draft's §7 says
+   the opposite, that "trade quality, that is entry quality, is still capped at
+   `DEGRADED_CONFIDENCE_CEILING`, which is renamed to say what it caps"; it was
+   written while trade quality was still a leaf of the record, and reading 2 takes
+   that leaf away.
+2. *`risk.trade_quality_proposed` leaves the record.* The draft's §13.2 has it
+   MOVING, 45.18175716 → 0.0, not removed. It is `entry.score` on an undegraded
+   run — the same number under a second name, which is round 8's F8 — and the only
+   thing that ever distinguished the two was the cap in reading 1. Removed with the
+   sentence that printed it, which told the reader to "compare it against the TREND
+   line", a line that leaves here too.
+3. *The macro note is recorded as a new top-level leaf, `macro_note`.* The draft's
+   §4 removes `validation_score`, `validation_state` and `validation_note` from the
+   decision and keeps "the macro note on the panel as information beside gate 6". A
+   sentence cannot reach the panel without travelling in the decision object, so it
+   needs a home; `risk`, where `validation_note` was, is the wrong block for a
+   reading about the macro, so it sits beside `macro_bias` at the top level. §13.3
+   does not list it. The router reads it directly rather than with a fallback,
+   unlike `macro_bias` next to it: a note has no equivalent of the word UNKNOWN, and
+   inventing a sentence for an absent one is the fabrication the sweep of 13 October
+   removed. `macro_agreement` returns the note ALONE — keeping its +10 / −20 delta
+   beside it with no reader would be the unreachable-value shape this project keeps
+   finding.
+4. *`models.bias_engine` leaves `FINGERPRINTED_MODULES` entirely, not as an empty
+   entry.* That is the open question §13.3 recorded ("whether `models.bias_engine`
+   keeps an empty entry in `module_constants` once its last constant goes was not
+   read"). `module_snapshot()` would write `"models.bias_engine": {}`, and an empty
+   dict beside the others reads as "this module has fingerprinted constants and none
+   could be resolved" — which is what the `"<import failed>"` key exists to say. The
+   module holds no decision-affecting constant at all now: `direction_from_emas`
+   compares a slope with zero and two averages with each other.
+5. *`docs/build/indicator_overlap.py` is deleted, not rebuilt.* The draft allows
+   either ("it goes or is rebuilt with the weighted sum in stage 5"). Every variant
+   it compared zeroes one of the six `WEIGHT_*`, so with no weights it has a
+   baseline and nothing to compare it with, and its headline figure — removing the
+   four disputed bias factors cut trade actions by 35.5% — measures a design that no
+   longer exists. Its two questions were "are the indicators duplicated?" and "does
+   that change the engine's decisions?", asked of a weighted blend. **Whether to ask
+   them again of the redesign's own path is new work, after the merge, and is named
+   as such rather than smuggled in as a rebuild.**
+   `tests/test_indicator_overlap_tool.py` goes with it.
+6. *The panel loses four score lines and a section, and gains one line.* TREND
+   (`trend_direction` / `momentum_mode` and trend health's score), VALIDATION,
+   CONFIDENCE (decision) and TRADE QUALITY / Proposed Entry go with their readings;
+   the Validation Notes section at the foot goes with the volume note; MACRO NOTE
+   prints under MACRO TREND. **ENTRY QUALITY, with D, H and their two ATR distances,
+   is the only score the panel prints** — which is the opposite of the fault stage 4
+   recorded, a panel showing more than the decision used. `_score_text` is still the
+   one function every score line goes through, so the denominator rule of
+   20 September holds without the two tests that held it (below).
+7. *The guard on `compute_trend_health`'s return contract checks `"adx"`.* It
+   checked `"trend_health"`, the key that module no longer writes. ADX is on every
+   one of its returns and is the reading the confirmation gate compares, so the
+   guard names the value the run actually depends on; its absence still means a
+   contract violation and still ends the run with a named error, now "Trend readings
+   failed".
+8. *`indicators/trend_health.py` and `compute_trend_health` keep their names, and
+   compute no trend health.* That is round 8's F8, one name for one meaning, and it
+   is recorded in the module rather than fixed: a rename touches every caller, the
+   tests that import it and the change list, and **a rename is not a removal**, so
+   it belongs to stage 6. Flagged because leaving it unrecorded is how the project
+   has twice ended up with prose outliving the code it described.
+9. *The module reads ADX and RSI, and nothing else.* It read `EMA20_Slope` and
+   `EMA50_Slope` too, for the score and the acceleration, and named them in
+   `degraded_inputs` when absent. **It no longer names them**: the EMA columns are
+   read by `direction_from_emas`, which degrades the run with the column named, and
+   BTC's by subscript, so a missing one raises and takes the BTC section (stage 2) —
+   each a stronger answer than a name in a list. The early return for "both slopes
+   absent" went with them, and the twenty-candle guard is left exactly where it was,
+   because lowering it with the score that set it would admit frames this module has
+   always refused, which is a behaviour change rather than a removal. BTC's call to
+   the module is kept for its `degraded_inputs` alone, which `btc_context` records.
+10. *Four operator-facing strings in `indicators/indicators.py` named calculations
+    that no longer run.* Found by scanning every string literal in the engine for
+    the names this stage removes, not by a failing test. The ADX failure note
+    claimed trend health lost "up to 40 of its 100 points"; the RSI note claimed
+    entry quality scored RSI extension "at its neutral 10 of 15", **which has been
+    false since stage 4 made entry quality D + H, and which nothing caught at the
+    time**; the EMA note named trend health's slope component; and the volume-spike
+    note named VWMA, the bias score and a capped confidence. Each is rewritten to
+    name what that input now decides — the direction and D for the EMAs, the
+    momentum divergence for RSI, the confirmation gate for ADX, and the two volume
+    gates of 31 October for volume. **The ADX string is now on its third
+    correction:** round 5 reported its "25" on 12 September, F9(4) made it 40 on
+    12 October, and the number is what went stale both times, which is the argument
+    for naming a reader rather than a point budget.
+11. *Two tests were passing on nothing, and are removed rather than left green.*
+    `test_the_panel_prints_trend_health_once` counted the string
+    "trend_health_score" in `panel_render`'s code and asserted it appeared at most
+    twice; after this stage it appears NONE, so it **passed vacuously** — the fifth
+    of the five errors of 3 September 2026. And the b10 action scanner's expected
+    set contained a bare `"NO-TRADE"` that **was never an action the decision model
+    writes**: it was the argument of `final_action.startswith("NO-TRADE")` inside
+    `_compute_confidence`, which chose the confidence sentence's qualifier, and a
+    scanner reading string literals out of the parse tree could not tell a prefix
+    test from an action. Removing the method removed the literal, which is how the
+    over-count surfaced; nothing the engine decides changed.
+12. *`test_no_circular_reasoning.py` keeps one test of fourteen*, which is what §14
+    predicted of it. Item 11's thirteen instances go with the paths they guarded —
+    there is no confidence, no EV, no trade quality, no validation score and no
+    weighted sum, so there is nothing for a factor to reach twice. The survivor is
+    structure's regime, the one factor of the old blend that remains as a gate's
+    input, which must be a read of close and of nothing else. Among the thirteen,
+    `test_rsi_exemption_holds_in_downtrends_and_not_in_uptrends` measured the
+    duplicated RSI path across RSI 0–100 (Pearson r = 0.37 in downtrends, 0.83 in
+    uptrends) that `bias_engine`'s own comment recorded and deliberately did not
+    fix; both of its readers are gone, so the measurement has no subject, and the
+    finding stays in the dated record. The redesign's own version of the question —
+    whether the direction and entry quality share a measurement, both reading the
+    EMA band — was asked and answered in the design: §16.1 found that
+    `EMA20_Slope` is above zero exactly when the close is above the previous
+    candle's `EMA_20`, and Viktor's ruling of 7 November settled the direction on
+    EMA50's slope and the EMAs' order instead (§16.4).
+
+**Two mistakes made building this, both caught by checking rather than by a failing
+test, and recorded because this project records wrong turns.**
+
+- **`models/signal_router.py` went on publishing `bias.score`** after
+  `core/engine_core.py` stopped producing it, so the router's `_finite_or_nan` wrote
+  **NaN into every record** — an absent reading published as a measured gap. Because
+  NaN does not equal itself, two identical runs then compared unequal, which is what
+  found it: `test_lineage`'s archive-rebuild test reported the `bias` block differing
+  from itself, and `test_direction_is_the_slow_trends_side` asserted `nan == nan`.
+  A removed field that one of two modules keeps writing is the shape to look for
+  next time.
+- **An edit to `core/decision_log.py` dropped
+  `"DecisionModel.CONSERVATIVE_ENTRY_QUALITY_MIN"` from the run-hash payload**
+  while trimming the three names above it. Caught by reading
+  `FINGERPRINTED_MODULES` back after the edit, not by a test — no test asserted
+  that name was listed, which is itself worth knowing — and restored. Had it
+  shipped, gate 9's lower line would have been invisible in the record.
+
+**The draft, against what was built.**
+
+- *Right:* §7's list of what confidence and EV take with them; §4's removal of
+  `validation_score`, `validation_state` and `validation_note` with H1's inputs;
+  §2's account of what `indicators/trend_health.py` returns and who reads each part,
+  and of the exit watch keeping every flag but the two ruled out; §2's prediction
+  that `RAW_BIAS_THRESHOLD`, the six weights and `MIN_ACTION_BIAS` leave the
+  fingerprinted constants and move `run_hash`; §13.2's list of which leaves are
+  removed, every one of which left.
+- *§13.2's counts were version 1's and were never re-made.* Measured on both
+  re-baselined snapshots: **222 leaves before and 165 after, 58 removed, 1 added and
+  5 moved, identically on each.** The five moved are `explanation.reasons` and the
+  four digest leaves — `run_hash` and the archive path, twice each — so every leaf
+  of this stage moves once, to its final value, but for the digests, which move with
+  what they hash. **`exit.action` and `explanation.summary` did NOT move on either
+  run**, so the clean fixture is still a WAIT at gate 8 and the trade fixture still a
+  LONG at entry quality 79.82563809.
+- *§13.2 also has `risk.trade_quality_proposed` moving rather than leaving:* reading
+  2. And §13.3 does not list `macro_note`: reading 3.
+- *§7's cap:* reading 1.
+- *§14 was not used as a list.* Every verdict in this stage was taken from the code,
+  file by file, because §14 has misclassified or missed tests at each of the last
+  three stages and its own caveat says its tests "were not read line by line" —
+  which cost stage 4 one restore. Reconciling §14 as a list is stage 6's.
+
+**What it weakens.**
+
+- **A degraded run's entry quality is now reported uncapped** (reading 1). It is
+  printed beside NO-TRADE (DEGRADED INPUT) and a named missing input, so it cannot
+  be read as a green light, but the number itself is no longer held down.
+- **Nothing says how sure the engine is.** A run printed a confidence and an
+  expected value beside its action and does not now. That is deliberate — every
+  number that claimed to say so was the weighted sum restated, which is the finding
+  the redesign answers — but an operator who read CONFIDENCE will find the action
+  and nine gates in Decision Reasoning in its place, and no single figure.
+- **Two indicator columns are now computed every run and read by nothing:**
+  `EMA20_Slope`, which trend health read twice, and `VWMA`, which entry quality
+  scored a distance from until stage 4. Both are still in
+  `lineage.indicators_at_decision_bar`, where the draft's §2 leaves them. **That is
+  an Item 16 breach — no unconsumed complexity — recorded and not fixed:** removing
+  a column moves the struct input hash, `run_hash` and the nineteen
+  `indicators_at_decision_bar` leaves this stage's plan says do not move. Stage 6's,
+  and Viktor's to know.
+- **`btc_context.degraded_inputs` narrows in meaning.** It named the inputs BTC's
+  trend score lacked; it now names the inputs of a reading the BTC section does not
+  itself record, ADX and RSI, because the call is kept for that list alone. A BTC
+  frame missing an EMA column is no longer named there — stage 2 made that raise and
+  take the whole section, which is a stronger answer.
+- **The suite loses 61 tests**, 39 with six files deleted whole. Each removal is
+  named above or in the file it came from, and one test is added — that the four
+  score lines and the Validation Notes section stay removed even on a stale decision
+  object carrying their readings. The denominator rule of 20 September loses both of
+  its own test files and keeps its enforcement, `_score_text`, with its coverage
+  moved to the ENTRY QUALITY line.
+- **Trades: nothing in this stage makes a refused run trade, and nothing makes one
+  refuse.** Both golden actions are unchanged, and no gate's input moved. What
+  changes is what a record and a panel say, not what the engine decides — the first
+  stage of the five whose live run should read identically to the one before it but
+  for the four numbers that are gone.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then

@@ -211,19 +211,28 @@ def test_module_snapshot_reaches_a_constant_held_on_a_class():
     from models.decision_model import DecisionModel
 
     snap = module_snapshot().get("models.decision_model", {})
-    key = "DecisionModel.DEGRADED_CONFIDENCE_CEILING"
+    # THE REDESIGN'S STAGE 5, 15 November 2026: the constant this exercised
+    # was DecisionModel.DEGRADED_CONFIDENCE_CEILING, Kimi Finding 3's first
+    # item -- the ceiling a degraded run's confidence and trade quality were
+    # capped at. Both quantities left the record in this stage and the cap
+    # went with them, so the two-hop path (a constant held on a CLASS, which
+    # a plain getattr on the module cannot reach) is exercised on the
+    # constant that decides the most in its place: gate 9's CONSERVATIVE
+    # line, the difference between a trade and a WAIT.
+    key = "DecisionModel.CONSERVATIVE_ENTRY_QUALITY_MIN"
 
     assert key in snap, (
-        "the confidence ceiling applied to every degraded run is not in the "
-        "record. Kimi Finding 3, first item."
+        "the entry-quality line a trade must reach is not in the record. "
+        "Kimi Finding 3, first item, on the constant that replaced the "
+        "ceiling it named."
     )
     assert snap[key] is not MISSING, (
-        "the ceiling is named but resolves to MISSING, which is a record "
+        "the line is named but resolves to MISSING, which is a record "
         "asserting the constant is undefined while decision_model reads it"
     )
-    assert snap[key] == DecisionModel.DEGRADED_CONFIDENCE_CEILING, (
+    assert snap[key] == DecisionModel.CONSERVATIVE_ENTRY_QUALITY_MIN, (
         f"the record says {snap[key]!r}; the class says "
-        f"{DecisionModel.DEGRADED_CONFIDENCE_CEILING!r}"
+        f"{DecisionModel.CONSERVATIVE_ENTRY_QUALITY_MIN!r}"
     )
 
 
@@ -639,15 +648,21 @@ def test_a_function_local_moves_the_hash():
 
 def test_a_class_attribute_moves_the_hash():
     """
-    `DEGRADED_CONFIDENCE_CEILING`. It is now ALSO nameable in
-    FINGERPRINTED_MODULES, which is why part one has a test for it -- but it
-    became nameable only because module_snapshot learned dotted paths, and the
-    source hash covers it without needing to be told.
+    A constant held on a class rather than on the module. It is ALSO
+    nameable in FINGERPRINTED_MODULES, which is why part one has a test for
+    it -- but it became nameable only because module_snapshot learned dotted
+    paths, and the source hash covers it without needing to be told.
+
+    Stage 5 of the redesign, 15 November 2026: this edited
+    DEGRADED_CONFIDENCE_CEILING, which left the class with the cap it set.
+    The CONSERVATIVE entry-quality line is a class attribute in the same
+    file and serves the same purpose here.
     """
     _assert_moves(
-        MUTABLE[2], "DEGRADED_CONFIDENCE_CEILING = 50.0",
-        "DEGRADED_CONFIDENCE_CEILING = 60.0",
-        "changing the degraded confidence ceiling left the code hash identical",
+        MUTABLE[2], "CONSERVATIVE_ENTRY_QUALITY_MIN = 50.0",
+        "CONSERVATIVE_ENTRY_QUALITY_MIN = 55.0",
+        "changing the CONSERVATIVE entry-quality line left the code hash "
+        "identical",
     )
 
 

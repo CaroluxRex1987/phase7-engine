@@ -90,55 +90,24 @@ class DecisionModel:
     assembles/renders the result -- it is a pure assembler, per the
     roadmap's stated architecture.
 
-    confidence and trade_quality are first real, multi-factor outputs here
-    -- previously confidence_score was just trend_health renamed. This is a
-    V1: the roadmap's Layer 2 (multi-factor bias weighting) and Layer 5
-    (entry multipliers) will feed richer inputs into this later without
-    requiring another rewrite of this module's shape.
+    THE REDESIGN'S STAGE 5, 15 November 2026. This class produced four
+    things until this stage: the action, a confidence score, a trade
+    quality and an illustrative EV. Three of them are gone, and so are the
+    three constants behind them --
 
-    C4 (advisory EV): risk_model.py's targets are always fixed at exactly
-    1:1 / 2:1 / 3:1 reward:risk by construction (see risk_model.py's A12
-    fix), averaging to a 2:1 reward multiple. That means an EV estimate
-    doesn't need the actual target prices -- it's a fixed function of the
-    reward multiple and an assumed win rate. This is explicitly NOT a
-    backtested statistic -- it uses this decision's confidence score as a
-    stand-in for "win rate," which is a simplifying assumption, not a
-    measured fact. Purely a displayed number for you to read (per the
-    plan's C4: "recommendations you read, not actions the engine takes").
+        AVG_REWARD_R                = 2.0
+        EV_BREAKEVEN_BAND_R         = 0.3
+        DEGRADED_CONFIDENCE_CEILING = 50.0
+
+    -- which leaves the run-hash payload (core/decision_log.py), moving
+    run_hash and the archive's file name. evaluate() returns the action and
+    the explanation, and nothing else. See the records at _compute_confidence
+    and _apply_degradation below for what each part was and why it went.
     """
-
-    AVG_REWARD_R = 2.0
-
-    # The band around zero inside which ev_r is reported as breakeven rather
-    # than positive or negative. Was a bare +/-0.3 literal inside _compute_ev;
-    # named here so decision_log.module_snapshot() can see it and so the
-    # confidence levels the EV sentence quotes are derived from it rather than
-    # written out by hand. ROUND 6 F1's rule, applied to this module.
-    EV_BREAKEVEN_BAND_R = 0.3
-
-    # SEQUENCE ITEM 9a. Viktor's ruling of 29 August, verbatim: "When an
-    # indicator fails, the engine continues in an explicitly degraded state. It
-    # must not fabricate replacement values. The failure must be recorded in
-    # the decision output, and confidence and trade quality must be reduced
-    # accordingly. A degraded result does not by itself authorize trading."
-    #
-    # A CEILING RATHER THAN A PENALTY, and the choice is worth stating.
-    #
-    # A subtraction — "minus ten points per missing indicator" — would be a
-    # number invented to look precise, and this project has spent a week
-    # removing numbers invented to look precise. A ceiling says something the
-    # engine can actually defend: however the arithmetic came out, an analysis
-    # computed from incomplete inputs is not permitted to claim more than
-    # moderate confidence.
-    #
-    # 50 because it is the midpoint, and the midpoint is the strongest honest
-    # claim available when you do not know what you did not measure.
-    DEGRADED_CONFIDENCE_CEILING = 50.0
 
     def evaluate(
         self,
         bias: Dict[str, Any],
-        trend: Dict[str, Any],
         entry: Dict[str, Any],
         risk: Dict[str, Any],
         *,
@@ -162,6 +131,15 @@ class DecisionModel:
         # docstring. signal_router.py still reads structure.regime for its
         # own "structure" block; this method simply no longer needs a second
         # copy of it.
+        # THE REDESIGN'S STAGE 5, 15 November 2026: `trend` was the second
+        # positional parameter and is gone. Stage 4 took the trend block out
+        # of _determine_final_action with trend health's tiers, which left
+        # _compute_trade_quality as its one reader here; that method goes in
+        # this stage, so nothing in this class reads a trend reading at all.
+        # A caller still passing it in second place now gives four
+        # positional arguments to three slots and fails with a TypeError
+        # rather than having the trend block land silently in `entry` --
+        # the same protection work order G relied on when macro_bias left.
         reasons: List[str] = []
         degradation = list(degradation) if degradation else []
 
@@ -237,22 +215,21 @@ class DecisionModel:
         final_action = self._refuse_incoherent_plan(final_action, risk, reasons)
         if final_action != action_before_refusal and len(reasons) > before:
             action_reason_index = len(reasons) - 1
-        confidence = self._compute_confidence(bias, final_action, reasons)
-        trade_quality = self._compute_trade_quality(trend, entry, final_action, reasons)
+        # THE REDESIGN'S STAGE 5, 15 November 2026: _compute_confidence and
+        # _compute_trade_quality were called here, and _compute_ev after the
+        # degradation below. All three are gone; the records are at
+        # _compute_confidence's old position.
 
         if degradation:
             action_before_degradation = final_action
             before = len(reasons)
-            final_action, confidence, trade_quality = self._apply_degradation(
-                degradation, final_action, confidence, trade_quality, reasons
+            final_action = self._apply_degradation(
+                degradation, final_action, reasons
             )
             # Degradation appends its notes whether or not it changes the
-            # action. Only a changed action moves the summary; a capped
-            # confidence on an unchanged action does not.
+            # action. Only a changed action moves the summary.
             if final_action != action_before_degradation and len(reasons) > before:
                 action_reason_index = len(reasons) - 1
-
-        ev = self._compute_ev(confidence, final_action, reasons)
 
         # N5, 9 October 2026: the BTC-adjusted confidence was computed here,
         # after everything above had decided, and nothing that decides read
@@ -273,9 +250,6 @@ class DecisionModel:
 
         return {
             "final_action": final_action,
-            "confidence": confidence,
-            "trade_quality": trade_quality,
-            "ev": ev,
             "explanation": explanation,
         }
 
@@ -642,23 +616,49 @@ class DecisionModel:
         )
         return "NO-TRADE (PLAN CONTRADICTS ACTION)"
 
-    def _apply_degradation(self, degradation, final_action, confidence,
-                           trade_quality, reasons):
+    def _apply_degradation(self, degradation, final_action, reasons):
         """
         Enforce the degrade ruling on a decision already computed.
 
-        Three effects, in the order the ruling states them.
+        Viktor's ruling of 29 August 2026, verbatim: "When an indicator
+        fails, the engine continues in an explicitly degraded state. It must
+        not fabricate replacement values. The failure must be recorded in the
+        decision output, and confidence and trade quality must be reduced
+        accordingly. A degraded result does not by itself authorize trading."
 
-        1. The failure is recorded in the decision output. It is listed here in
-           the reasoning the operator reads, not only in a structural field
-           they might not look at.
+        1. It must not fabricate replacement values. Held where each value is
+           produced: a missing indicator is None or NaN and is named, never
+           substituted (sequence item 9a; entry quality's own not-measured
+           rule, stage 4).
 
-        2. Confidence and trade quality are reduced. Capped, not penalised —
-           see DEGRADED_CONFIDENCE_CEILING.
+        2. The failure is recorded in the decision output. Listed here in the
+           reasoning the operator reads, as well as in `degradation`.
 
         3. A degraded result does not by itself authorize trading. Any action
-           naming a side becomes NO-TRADE. WAIT and NO-TRADE are already not
-           authorizations and are left as they are, with the reason added.
+           naming a side becomes NO-TRADE, and degradation.trading_authorized
+           is false.
+
+        THE CAP IS GONE, AND SO IS THE CLAUSE IT SERVED -- the redesign's
+        stage 5, 15 November 2026, Claude's reading of this ruling, VIKTOR'S
+        TO REVERSE. The second sentence of point 2 of the ruling named two
+        quantities, confidence and trade quality, and this method capped both
+        at DEGRADED_CONFIDENCE_CEILING (50.0). Both leave the record in this
+        stage, so there is nothing left for the cap to reduce.
+
+        The one surviving score is entry quality, and capping THAT was
+        considered and refused: entry.score is printed on the panel beside
+        the D, the H and the two ATR distances it is computed from
+        (80 x max(0, 1 - d/3) + 20 x max(0, 1 - h/2)), so a capped score
+        would contradict its own stated arithmetic on the same screen -- two
+        places computing one number, the defect shape this engine keeps
+        finding. It is also not needed for safety: point 3 above already
+        refuses the trade outright, which is a stronger constraint than any
+        ceiling on a reported number.
+
+        WHAT THAT WEAKENS: a degraded run's entry quality is now reported
+        uncapped. It is reported beside a NO-TRADE (DEGRADED INPUT) and a
+        named missing input, so it cannot be read as a green light, but the
+        number itself is no longer held down.
 
         Applied AFTER the normal computation rather than instead of it, on
         purpose: the engine still does the analysis it can, and the degraded
@@ -673,29 +673,6 @@ class DecisionModel:
             f"regardless of how the remaining scores came out."
         )
 
-        capped_confidence = min(confidence, self.DEGRADED_CONFIDENCE_CEILING)
-        # Stage 4, 15 November 2026: a trade quality that was not measured
-        # stays not measured. The line read
-        #     min(trade_quality.get("proposed_entry", 0.0), ...)
-        # which raises a TypeError on None -- and capping an absence at 50
-        # would report a number nobody computed, the shape entry quality's
-        # own not-measured rule exists to remove. A cap is a ceiling on a
-        # measurement, not a substitute for one.
-        proposed = trade_quality.get("proposed_entry")
-        capped_quality = {
-            "proposed_entry": (
-                None if proposed is None
-                else min(proposed, self.DEGRADED_CONFIDENCE_CEILING)),
-        }
-
-        if capped_confidence < confidence:
-            reasons.append(
-                f"Confidence is capped at {self.DEGRADED_CONFIDENCE_CEILING:.0f}/100 "
-                f"for this run (the uncapped score was {confidence:.0f}/100). "
-                f"An analysis missing inputs cannot claim more than moderate "
-                f"confidence, whatever the parts that did compute say."
-            )
-
         if any(side in final_action for side in ("LONG", "SHORT")):
             reasons.append(
                 f"The action would have been {final_action}; a degraded run "
@@ -703,7 +680,7 @@ class DecisionModel:
             )
             final_action = "NO-TRADE (DEGRADED INPUT)"
 
-        return final_action, capped_confidence, capped_quality
+        return final_action
 
     # ============================================================
     # FINAL ACTION (moved here verbatim from signal_router.py's
@@ -942,223 +919,59 @@ class DecisionModel:
     # trend_health passthrough)
     # ============================================================
 
-    def _compute_confidence(
-        self,
-        bias: Dict[str, Any],
-        final_action: str,
-        reasons: List[str],
-    ) -> float:
-        """
-        Confidence is bias_score's own magnitude, and nothing else.
-
-        ITEM 11 RE-AUDIT (Finding 4), the second half. Sequence item 11
-        removed a direct `trend_health * 0.3` term because trend health
-        already reaches bias_score at WEIGHT_TREND_HEALTH = 0.30 inside
-        bias_engine.py. This removes the two terms that survived that pass
-        and that the auditor's Finding 4 named specifically:
-
-            structure_alignment   +/-10 to +/-15 if structure_regime agreed
-                                   or disagreed with raw_bias
-            validation_adj        +/-10 to -15 from risk.validation_state,
-                                   which engine_core.py built from macro_bias
-                                   agreement and volume_sentiment strength
-
-        structure_regime, macro_bias and volume_sentiment are not new
-        evidence at this point in the pipeline -- they are three of the six
-        weighted factors bias_engine.calculate_dynamic_bias() already blended
-        into bias_score, at 0.20, 0.10 and 0.15 respectively (see that
-        module's dependency-graph comment). Adding structure_alignment and
-        validation_adj on top counted each of them a second time, and let the
-        confidence explanation describe that repetition as independent
-        confirmation -- literally the auditor's concrete scenario: "structure
-        agrees with the bullish bias, and validation is strong," about a
-        bias score those same two facts had already produced.
-
-        The dependency graph, stated rather than left to be reconstructed:
-        bias_score already IS the multi-factor consensus (trend health,
-        structure regime, volume sentiment, SuperTrend direction, macro bias,
-        reversal/continuation). Confidence reports how decisively that
-        consensus committed to a direction; it does not re-derive an opinion
-        from any of the six factors, because there is no genuinely
-        independent input left to check them against. entry_score is the
-        nearest candidate, and it already shares macro_bias, trend_direction
-        and structure_sequence with bias_score (see engine_core.py's call
-        into calculate_entry_quality) -- folding it in here would reproduce
-        the same defect through a fourth path rather than fix it.
-
-        Ruled by Viktor, 31 August 2026 (delegated). No rescale needed:
-        bias_strength already spans 0-100 on its own (bias_score is clipped
-        to +/-100 in bias_engine.py), so removing the two additive terms
-        does not shrink confidence's own range the way removing the old
-        trend_health term once did.
-        """
-        confidence = min(100.0, abs(_safe_float(bias.get("score"), 0.0)))
-
-        # When the risk-regime gate has already blocked the trade, make clear this
-        # confidence score describes how the picture lines up, not a green light --
-        # otherwise a high number here right after "NO-TRADE" reads as contradictory.
-        # SWEEP ITEM 13, 8 September 2026. Previous text blamed "the risk
-        # check above" on every NO-TRADE, including PLAN CONTRADICTS ACTION
-        # and DEGRADED INPUT. Only attach that clause when the action itself
-        # names risk.
-        qualifier = (
-            " This reflects how the picture lines up, not a green light — the risk check above is what's blocking the trade."
-            if final_action.startswith("NO-TRADE") and "RISK" in final_action.upper()
-            else (
-                " This reflects how the picture lines up, not a green light — the trade is blocked for the reason named in the action."
-                if final_action.startswith("NO-TRADE")
-                else ""
-            )
-        )
-
-        reasons.append(
-            f"Confidence is {confidence:.0f}/100 — the bias engine's own composite "
-            f"strength (trend health, structure regime, volume sentiment, SuperTrend "
-            f"direction, macro bias, and reversal/continuation, already weighted and "
-            f"blended into one score). Restating any of those as a separate bonus here "
-            f"would count the same evidence twice.{qualifier}"
-        )
-        return float(confidence)
-
     # ============================================================
-    # TRADE QUALITY (formalizes what the panel already showed as
-    # "Current Market" / "Proposed Entry" -- now owned here instead of
-    # being computed ad hoc where the panel happened to read it from)
+    # CONFIDENCE, TRADE QUALITY AND EV -- REMOVED at the redesign's
+    # stage 5, 15 November 2026
     # ============================================================
-
-    def _compute_trade_quality(
-        self,
-        trend: Dict[str, Any],
-        entry: Dict[str, Any],
-        final_action: str,
-        reasons: List[str],
-    ) -> Dict[str, float]:
-        # SEQUENCE ITEM 11: `current_market` was
-        #     _safe_float(trend.get("trend_health", ...))
-        # — trend health verbatim, under a third name. The panel printed it as
-        # TREND, again as MOMENTUM's number, and again here as Current Market,
-        # then this sentence compared the entry against it as though that were
-        # an independent yardstick. It is the same measurement three times.
-        #
-        # Removed rather than replaced with an invented metric: a reader has
-        # TREND and ENTRY QUALITY on the panel already and can compare them.
-        # Inventing a distinct "market backdrop" score would be new-feature
-        # work, and Step 5's own guidance sides with removal.
-        # THE REDESIGN'S STAGE 4, 15 November 2026. Two changes, neither of
-        # which moves a number this function reports.
-        #
-        # 1. The bare 70 and 50 here were the tier lines written a second
-        #    time. Gate 9 reads them from the two constants, and so does
-        #    this sentence now, so a line cannot move in one place and not
-        #    the other -- the three-copies-of-one-fact defect this project
-        #    has recorded more than once. Same values, so the phrase each
-        #    run gets is unchanged.
-        #
-        # 2. `_safe_float(entry.get("score"), 0.0)` turned an entry quality
-        #    that was NOT MEASURED into 0.0, and reported it as "0/100 -- a
-        #    weak entry": a measurement nobody took, printed as the worst
-        #    one there is. Entry quality is None when a part of it could not
-        #    be read (models/entry_model.py), and that absence is carried
-        #    rather than scored.
-        proposed_entry = entry_model._finite(entry.get("score"))
-
-        if proposed_entry is None:
-            reasons.append(
-                "Entry quality was not measured on this run, so there is no "
-                "trade quality to report from it. The run's degradation "
-                "names which input was missing."
-            )
-            return {
-                "proposed_entry": None,
-            }
-
-        if proposed_entry >= self.UPPER_TIER_ENTRY_QUALITY_MIN:
-            quality_phrase = "a high-quality entry on its own terms"
-        elif proposed_entry >= self.CONSERVATIVE_ENTRY_QUALITY_MIN:
-            quality_phrase = "a workable entry"
-        else:
-            quality_phrase = "a weak entry"
-
-        # Entry 58's rule, as in gate 9: the number is printed on its own
-        # side of both lines the phrase above is chosen by.
-        printed = compared_value_text(
-            proposed_entry, (self.CONSERVATIVE_ENTRY_QUALITY_MIN,
-                             self.UPPER_TIER_ENTRY_QUALITY_MIN))
-        reasons.append(
-            f"Entry quality is {printed}/100 — {quality_phrase}. "
-            f"Compare it against the TREND line rather than against a restatement "
-            f"of it."
-        )
-
-        return {
-            "proposed_entry": float(proposed_entry),
-        }
-
-    # ============================================================
-    # EV (C4 build -- new, illustrative-only)
-    # ============================================================
-
-    def _compute_ev(
-        self,
-        confidence: float,
-        final_action: str,
-        reasons: List[str],
-    ) -> Dict[str, float]:
-        """
-        EV = (win_rate x average reward) - (loss_rate x 1), expressed in "R"
-        (multiples of what's being risked). Uses confidence/100 as a stand-in
-        for win rate and AVG_REWARD_R (2.0, the average of risk_model.py's
-        fixed 1:1/2:1/3:1 targets) as the reward side. Not a measured,
-        backtested number.
-
-        It is also not a check on the confidence score. With the reward
-        multiple fixed, this is a linear rescaling of confidence -- the two
-        move together by construction and cannot disagree -- so it was
-        described as a "sanity-check translation" for longer than it should
-        have been. The reason string says what it is instead.
-        """
-        win_rate = max(0.0, min(1.0, confidence / 100.0))
-        ev_r = (win_rate * self.AVG_REWARD_R) - ((1.0 - win_rate) * 1.0)
-
-        # WHAT THIS NUMBER IS, 20 September 2026. ev_r is a straight-line
-        # restatement of confidence: with a fixed reward multiple R,
-        # ev_r = confidence/100 x (R + 1) - 1. It carries no information
-        # confidence does not already carry and cannot disagree with it, so
-        # it is not a second opinion and the sentence below no longer reads
-        # like one. The two confidence levels quoted are derived from
-        # AVG_REWARD_R and EV_BREAKEVEN_BAND_R rather than written out, so
-        # changing either constant moves the sentence with it.
-        breakeven_confidence = 100.0 / (self.AVG_REWARD_R + 1.0)
-        positive_confidence = (
-            (1.0 + self.EV_BREAKEVEN_BAND_R) * 100.0 / (self.AVG_REWARD_R + 1.0)
-        )
-
-        if ev_r > self.EV_BREAKEVEN_BAND_R:
-            ev_phrase = "positive -- worth taking on average if that win rate holds up"
-        elif ev_r < -self.EV_BREAKEVEN_BAND_R:
-            ev_phrase = "negative -- would lose money on average even at that win rate"
-        else:
-            ev_phrase = "close to breakeven"
-
-        qualifier = (
-            " (this is hypothetical, since no trade is actually being suggested right now)"
-            if not any(side in final_action for side in ("LONG", "SHORT"))
-            else ""
-        )
-
-        reasons.append(
-            f"Expected value (illustrative, not backtested): the {confidence:.0f}/100 confidence score restated "
-            f"against the standard {self.AVG_REWARD_R:.0f}:1 average reward, not a second reading of the setup — "
-            f"it is arithmetic on confidence alone, so it can never disagree with it. On that basis about "
-            f"{ev_r:+.2f}R per trade — {ev_phrase}{qualifier}. On this reward multiple any confidence above "
-            f"{breakeven_confidence:.0f}/100 is breakeven or better, and above {positive_confidence:.0f}/100 reads as positive."
-        )
-
-        return {
-            "ev_r": float(ev_r),
-            "assumed_win_rate": float(win_rate * 100.0),
-            "avg_reward_r": float(self.AVG_REWARD_R),
-        }
+    #
+    # _compute_confidence, _compute_trade_quality and _compute_ev stood
+    # here, in that order, with AVG_REWARD_R, EV_BREAKEVEN_BAND_R and
+    # DEGRADED_CONFIDENCE_CEILING above them. Ruling 6 of 25 October 2026
+    # (DECISIONS, "Ruling, 25 October 2026 -- the indicator document's eight
+    # questions"): confidence and the EV line are dropped.
+    #
+    # WHAT EACH WAS.
+    #
+    #   _compute_confidence   abs(bias.score) clipped to 100 -- the weighted
+    #                         sum's own magnitude and nothing else, after the
+    #                         Item 11 re-audit removed structure_alignment
+    #                         and validation_adj from it. It wrote the
+    #                         sentence naming the sum's six factors, and
+    #                         risk.confidence_score. The sum goes in this
+    #                         stage (models/bias_engine.py), so there is no
+    #                         score to take a magnitude of.
+    #   _compute_trade_quality  entry.score under a second name, as
+    #                         risk.trade_quality_proposed, plus the sentence
+    #                         "Entry quality is X/100 -- a weak entry.
+    #                         Compare it against the TREND line ...". Both
+    #                         go: the number is entry.score, which gate 9
+    #                         reads and the panel prints with the D and H it
+    #                         is made of, and the sentence compared it
+    #                         against the TREND line, which is trend
+    #                         health's and leaves here too. One name for one
+    #                         meaning (round 8, F8).
+    #   _compute_ev           (win_rate x AVG_REWARD_R) - (loss_rate x 1)
+    #                         with confidence/100 as the win rate: a linear
+    #                         rescaling of confidence that could not
+    #                         disagree with it, as its own comment said, and
+    #                         risk.ev_r, risk.assumed_win_rate and
+    #                         risk.avg_reward_r with it.
+    #
+    # So eight leaves leave the record -- risk.confidence_score,
+    # risk.trade_quality_proposed, risk.ev_r, risk.assumed_win_rate,
+    # risk.avg_reward_r and, from engine_core's validation block,
+    # risk.validation_state, risk.validation_score and
+    # risk.validation_note -- and three sentences leave
+    # explanation.reasons, which moves again as stage 3's reading 1 said it
+    # would. Each leaf moves once, to its final value: gone.
+    #
+    # WHAT NO LONGER HAPPENS, STATED PLAINLY. A run used to print a
+    # confidence and an expected value beside its action. It does not. The
+    # action is the engine's answer, and the nine gates behind it are each
+    # a yes or a no an operator can read in Decision Reasoning. There is no
+    # single number saying how sure the engine is, because every number
+    # that said so was the weighted sum restated -- which is the finding
+    # the redesign was built to answer, not a gap it leaves.
 
     # ============================================================
     # BTC-ADJUSTED CONFIDENCE -- removed, N5, 9 October 2026

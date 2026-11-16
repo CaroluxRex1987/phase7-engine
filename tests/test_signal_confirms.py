@@ -89,15 +89,16 @@ def _evaluate(raw="BULLISH", score=78.0, health=90.0, entry_score=80.0,
         entry.update(signals)
     long_plan = raw != "BEARISH"
     return DecisionModel().evaluate(
-        bias={"raw": raw, "score": score if long_plan else -abs(score)},
-        trend={"trend_health": health,
-               "trend_direction_sign": 1 if long_plan else -1,
-               "momentum_divergence": trend_divergence},
+        # The redesign's stage 5, 15 November 2026: `trend` was the second
+        # positional parameter and is gone -- _compute_trade_quality was
+        # its last reader in the decision model. The `score` this bias
+        # dict carried and the `validation_state` in the risk dict are
+        # gone with it: neither is a field the engine writes now.
+        bias={"raw": raw},
         entry=entry,
         risk={"risk_valid": risk_valid,
               "risk_reason": "Stop distance exceeds maximum allowable threshold (15%).",
               "risk_regime": "NORMAL RISK",
-              "validation_state": "NEUTRAL",
               "targets": [1.1, 1.2, 1.3] if long_plan else [0.9, 0.8, 0.7]},
         # Work order G, 27 September 2026: evaluate() no longer takes
         # macro_bias; the `macro` parameter this helper had is gone with it.
@@ -319,7 +320,7 @@ def test_an_opposing_macro_blocks_a_long_and_not_a_short():
                   "risk_regime": "NORMAL RISK", "validation_state": "NEUTRAL",
                   "targets": targets},
             exit_data={"current_price": 1.0},
-            macro_bias=macro, chart_path="",
+            macro_bias=macro, macro_note="The higher timeframe is neutral.", chart_path="",
         )
 
     long_against = routed("BULLISH", "BULLISH TREND", "BEARISH", [1.1, 1.2, 1.3])

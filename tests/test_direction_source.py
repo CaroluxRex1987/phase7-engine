@@ -125,7 +125,7 @@ def _evaluate(bias, trend, entry, risk, macro_bias):
         bias=bias, trend={**ROUTER_READS_TREND, **trend}, structure={},
         entry={**ROUTER_READS_ENTRY, **entry}, risk=risk,
         exit_data={"current_price": 1.0},
-        macro_bias=macro_bias, chart_path="",
+        macro_bias=macro_bias, macro_note="The higher timeframe is neutral.", chart_path="",
     )
     return {"final_action": out["exit"]["action"],
             "explanation": out["explanation"]}

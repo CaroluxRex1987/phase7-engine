@@ -7,7 +7,9 @@ SWEEP ITEM 11 (8 September 2026, c3b0d43, GLM F-6) fixed "BTC-side trend
 degradations were computed and discarded" by appending them, as `f"BTC {d}"`,
 into the SAME `degradation` list `DecisionModel.evaluate()` reads to cap
 `confidence_score` at `DEGRADED_CONFIDENCE_CEILING` (50.0) and gate
-`trading_authorized`. Requested-run 4 (GPT-6 Astra's round-5 report) found
+`trading_authorized`. (Confidence and the cap left the engine at the
+redesign's stage 5, 15 November 2026; `degradation` still gates
+`trading_authorized`, which is the half of the ruling that always mattered.) Requested-run 4 (GPT-6 Astra's round-5 report) found
 this empirically on 12 September: mocking BTC's own `ta.adx` call to fail --
 AERO's own indicators, structure and trend left completely real -- dropped
 AERO's `confidence_score` from 78.70 to exactly 50.0 and flipped
@@ -147,11 +149,20 @@ def test_a_btc_only_indicator_failure_does_not_move_aeros_confidence_or_gate(mon
     degraded_run = _run()
     assert "error" not in degraded_run, degraded_run.get("error")
 
-    assert degraded_run["risk"]["confidence_score"] == control["risk"]["confidence_score"], (
-        "a BTC-only indicator failure changed AERO's own confidence_score. "
-        "BTC context is informational and must never gate it -- Viktor's ruling, "
-        "12 September 2026."
-    )
+    # THE REDESIGN'S STAGE 5, 15 November 2026: this compared AERO's own
+    # risk.confidence_score across the two runs, which was the number
+    # SWEEP ITEM 11 had let a BTC-only ADX failure drop from 78.70 to exactly
+    # 50.0 -- the case that found the defect. Confidence is gone, so what the
+    # ruling protects is asserted on the blocks that are left and on all of
+    # them at once: a BTC-only failure must change nothing about AERO's own
+    # analysis.
+    for block in ("bias", "trend", "entry", "risk"):
+        assert degraded_run[block] == control[block], (
+            f"a BTC-only indicator failure changed AERO's own {block} block. "
+            f"BTC context is informational and must never gate it -- "
+            f"Viktor's ruling, 12 September 2026.\n"
+            f"{degraded_run[block]!r}\nvs control\n{control[block]!r}"
+        )
     assert degraded_run["exit"]["action"] == control["exit"]["action"], (
         "a BTC-only indicator failure changed AERO's own action."
     )

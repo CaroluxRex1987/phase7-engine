@@ -21,6 +21,31 @@ Claude's suggestion:
 
 Plus the panel's TREND line, whose fallbacks were NEUTRAL / HEALTHY.
 
+THE REDESIGN'S STAGE 5, 15 November 2026 -- WHAT IS LEFT OF EACH
+
+F9(1) stands unchanged. The other three and the TREND line lose most of
+their subject, and the tests follow:
+
+  F9(2)  All three labels are gone with trend health. What a failed run of
+         that module now reports is an ADX of None and a named failure, so
+         the two tests below hold that instead. The one that fed it a frame
+         WITHOUT ITS EMA SLOPE COLUMNS is gone: the module does not read
+         them any more, so such a frame is no longer a failure at all. The
+         reachable failure is a missing ADX column, and that is what it
+         tests now.
+  F9(3)  volume_agreement is gone with the validation block. Both of its
+         tests go: no label is scored or answered anywhere, so a failed
+         volume read cannot be reported as a neutral one.
+  F9(4)  The ADX note's first half named trend health's 40-point component
+         and is gone with it; the half that mattered, and that F9(4) added,
+         is the confirmation gate refusing both sides. The test checks that
+         half and that no point budget has come back -- the third time this
+         one string has outlived the calculation it described.
+  TREND  The line itself is gone. That the panel no longer prints it, or
+         VALIDATION, CONFIDENCE or TRADE QUALITY, is held in
+         test_panel_prints_only_what_was_computed.py, beside the lines it
+         does print.
+
 Every test here is behavioural -- each one runs the code, none of them reads a
 source file -- and none takes a pytest fixture, so run_tests.py's watched
 error count does not move.
@@ -130,26 +155,41 @@ def test_a_frame_too_short_to_read_is_unknown_not_neutral():
 # F9(2) -- trend_health's failure labels
 # ======================================================================
 
-def _assert_unavailable(out, how):
-    for key in ("momentum_mode", "trend_regime", "trend_direction"):
-        assert out[key] == "UNAVAILABLE", (
-            f"{how}: {key} is {out[key]!r}; a run that measured nothing must "
-            f"not print a reading")
+def _assert_nothing_claimed(out, how):
+    """
+    A run of the trend readings that measured nothing must report that, and
+    must not report a reading. Since stage 5 that is two fields: ADX is None
+    rather than a number, and the failure is named.
+    """
+    assert out["adx"] is None, (
+        f"{how}: adx is {out['adx']!r}; a run that measured nothing must not "
+        f"report a number the confirmation gate would compare")
+    assert out["momentum_divergence"] is False, (
+        f"{how}: a divergence nobody measured was recorded as present")
+    assert out["divergence_direction"] == "NONE", (
+        f"{how}: divergence_direction is {out['divergence_direction']!r}")
     assert out["degraded_inputs"], f"{how}: the failure was not recorded"
 
 
-def test_trend_health_with_no_frame_reports_unavailable():
+def test_the_trend_readings_with_no_frame_claim_nothing():
     from indicators.trend_health import compute_trend_health
 
-    _assert_unavailable(compute_trend_health(None), "no frame")
+    _assert_nothing_claimed(compute_trend_health(None), "no frame")
 
 
-def test_trend_health_without_its_slopes_reports_unavailable():
-    """The reachable one: indicators.py drops a column it could not compute."""
+def test_the_trend_readings_without_adx_claim_no_adx():
+    """
+    The reachable one: indicators.py drops a column it could not compute.
+    Before stage 5 this fed a frame with no EMA SLOPE columns, which that
+    module no longer reads -- see the record in this file's docstring.
+    """
     from indicators.trend_health import compute_trend_health
 
     frame = _closes([100.0 + 0.1 * i for i in range(40)])
-    _assert_unavailable(compute_trend_health(frame), "no EMA slope columns")
+    out = compute_trend_health(frame)
+    _assert_nothing_claimed(out, "no ADX column")
+    assert any("ADX" in note for note in out["degraded_inputs"]), (
+        out["degraded_inputs"])
 
 
 # THE REDESIGN'S STAGE 4, 15 November 2026:
@@ -163,28 +203,13 @@ def test_trend_health_without_its_slopes_reports_unavailable():
 # claim F9 made cannot be restated about the new score, because the input
 # it was about does not reach it.
 
-def test_a_failed_volume_read_is_not_reported_as_neutral():
-    if not _pandas_ta_available():
-        pytest.skip("core.engine_core imports pandas_ta at module level")
-    from core.engine_core import volume_agreement
-
-    for bias in ("BULLISH", "BEARISH", "NEUTRAL"):
-        delta, note = volume_agreement("UNKNOWN VOLUME", bias)
-        assert delta == 0.0, (bias, delta)
-        assert "neutral" not in note.lower(), (
-            f"a failed volume read was reported as {note!r}")
-        assert "could not be read" in note and "UNKNOWN VOLUME" in note, note
-
-
-def test_a_neutral_volume_read_is_still_reported_as_neutral():
-    """Negative control: the real neutral reading keeps its sentence."""
-    if not _pandas_ta_available():
-        pytest.skip("core.engine_core imports pandas_ta at module level")
-    from core.engine_core import volume_agreement
-
-    for bias in ("BULLISH", "BEARISH"):
-        assert volume_agreement("NEUTRAL VOLUME", bias) == (
-            0.0, "Volume sentiment is neutral.")
+# F9(3) -- REMOVED at the redesign's stage 5, 15 November 2026. Two tests
+# stood here, on volume_agreement: that a failed read ("UNKNOWN VOLUME") was
+# not reported as a neutral one, and the negative control that a real neutral
+# read kept its sentence. volume_agreement went with the validation block
+# (core/engine_core.py), and no label the detector returns is scored or
+# answered anywhere now, so neither claim has a subject. The detector's own
+# labels are still swept in test_b4_labels_say_what_is_measured.py.
 
 
 # ======================================================================
@@ -194,9 +219,16 @@ def test_a_neutral_volume_read_is_still_reported_as_neutral():
 def test_the_adx_failure_note_states_what_is_lost():
     """
     Breaks ta.adx for real and reads the recorded consequence -- the way
-    test_degraded_state.py simulates a failure. The note's number is checked
-    against trend_health's own ceiling, not against a literal: ADX far above
-    33.3 must give an adx_strength of exactly the number the note names.
+    test_degraded_state.py simulates a failure.
+
+    THE REDESIGN'S STAGE 5, 15 November 2026: the note named trend health's
+    ADX component and this test measured that component's ceiling from the
+    module itself, so the prose and the code could not drift apart. There is
+    no component and no score: ADX reaches exactly one reader, the
+    confirmation gate, which refuses both sides without a reading. So the
+    assertion is that the note says THAT and names no point budget at all --
+    the third correction of this one string, each time because the prose
+    outlived the calculation it described.
     """
     if not _pandas_ta_available():
         pytest.skip("pandas_ta not installed")
@@ -217,40 +249,32 @@ def test_the_adx_failure_note_states_what_is_lost():
     assert len(notes) == 1, [f.indicator for f in failures]
     note = notes[0]
 
-    # The ceiling, measured: trend health on rising slopes with ADX 0 and
-    # ADX 99 differs by the ADX component's full worth.
-    rows = 40
-    base = _closes([100.0 + 0.1 * i for i in range(rows)])
-    base["EMA20_Slope"] = 0.5
-    base["EMA50_Slope"] = 0.5
-    base["RSI"] = 55.0
-    low = compute_trend_health(base.assign(ADX=0.0))["trend_health"]
-    high = compute_trend_health(base.assign(ADX=99.0))["trend_health"]
-    ceiling = high - low
-    assert ceiling > 0, (low, high)
-    assert f"up to {ceiling:g} of its 100 points" in note, (ceiling, note)
-    assert "25 of its 100" not in note, note
+    # The half that always mattered, and the only one left.
+    assert "confirmation gate refuses both sides" in note, note
     assert "no trade" in note, note
 
+    # No point budget, of any size: there is no score for ADX to be a part
+    # of. "25 of its 100" was round 5's report, "40 of its 100" the fix.
+    assert "of its 100" not in note, note
+    assert "trend health" not in note.lower(), note
+    assert "component" not in note.lower(), note
+
+    # And ADX itself still reaches the gate as an absence rather than a
+    # number, which is what makes "refuses both sides" true.
+    base = _closes([100.0 + 0.1 * i for i in range(40)])
+    assert compute_trend_health(base)["adx"] is None
+
 
 # ======================================================================
-# The panel's TREND line
+# The panel's TREND line -- REMOVED at the redesign's stage 5,
+# 15 November 2026
 # ======================================================================
-
-def test_the_trend_line_prints_unknown_for_a_missing_label():
-    from core.panel_render import render_panel
-
-    fixture = os.path.join(REPO_ROOT, "tests", "fixtures", "golden_decision.json")
-    if not os.path.exists(fixture):
-        pytest.skip("golden fixture not present")
-    with open(fixture, encoding="utf-8") as fh:
-        decision = json.load(fh)
-
-    decision["trend"].pop("trend_direction", None)
-    decision["trend"].pop("momentum_mode", None)
-    panel = re.sub(r"\x1b\[[0-9;]*m", "", render_panel(decision))
-
-    lines = [l for l in panel.splitlines() if l.startswith("TREND      :")]
-    assert len(lines) == 1, lines
-    assert "UNKNOWN / UNKNOWN" in lines[0], lines[0]
-    assert "NEUTRAL" not in lines[0] and "HEALTHY" not in lines[0], lines[0]
+#
+# One test stood here: it stripped trend_direction and momentum_mode from the
+# golden decision and asserted the TREND line read "UNKNOWN / UNKNOWN" rather
+# than F9's fabricated "NEUTRAL / HEALTHY". The line is gone, with the three
+# readings it printed. That the panel prints no TREND line -- and no
+# VALIDATION, CONFIDENCE or TRADE QUALITY line either -- is held in
+# test_panel_prints_only_what_was_computed.py, beside the lines it does
+# print, which is where a reader comparing the panel against the record will
+# look.

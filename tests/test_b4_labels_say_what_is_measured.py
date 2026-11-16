@@ -17,7 +17,10 @@ The 5 October 2026 self-review (B4, Minor), confirmed on the real candles:
   close had moved at all from four candles back. It was the most common
   volume label (39% of bars), printed as "VOLUME DIVERGENCE", and cost
   validation_score 25 points with the note "Volume divergence or weakness
-  detected."
+  detected." (The validation score left the engine at the redesign's
+  stage 5, 15 November 2026, with the whole of core/engine_core.py's
+  validation block; the label is still what the panel's VOLUME line
+  prints.)
 
 THE RULING
 
@@ -28,13 +31,25 @@ momentum_divergence and divergence_direction keep their names. Whether the
 divergence should veto a side is a trading rule, Viktor's, not ruled -- these
 tests check words and leave every score and action as it was.
 
-WHY THE VOCABULARY TEST
+WHY THE VOCABULARY TEST, AND WHAT IS LEFT OF IT
 
 core/engine_core.py matched the volume label by part of a word:
 `"DIVERGENCE" in v or "WEAK" in v or "EXHAUSTION" in v`. Renaming the label
 in structure.py alone would have dropped the 25 points without a test
-failing. So the detector is run through every label it can return, and each
-must be one bias_engine scores and one volume_agreement answers for itself.
+failing. So the detector was run through every label it can return, and each
+had to be one bias_engine scores and one volume_agreement answers for
+itself.
+
+THE REDESIGN'S STAGE 5, 15 November 2026: nothing scores or branches on
+these labels any more. bias_engine's _VOLUME_SENTIMENT_SCORES went with the
+weighted sum and volume_agreement with the validation block, so volume
+sentiment is produced, recorded and printed and read by nothing -- volume
+enters the redesign as the two gates of 31 October, which read
+`quote_volume` and the trigger's volume, not a sentiment label. So
+`test_no_warning_label_reaches_the_neutral_note` is gone, and the
+vocabulary test keeps the half that still has a subject: every frame
+reaches the branch it is named for. There is no second vocabulary left to
+agree with.
 
 Every test here is fixture-free, so run_tests.py runs them too.
 """
@@ -49,7 +64,6 @@ import pytest
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from indicators.trend_health import compute_trend_health
-from models.bias_engine import _VOLUME_SENTIMENT_SCORES
 from models.entry_model import signal_blockers
 from models.exit_model import build_exit_watch
 from structure.structure import StructureEngine
@@ -200,49 +214,22 @@ def test_fading_volume_is_a_move_on_lower_volume_in_either_direction():
     assert _detect(FALLING, GROWING) == "BEARISH VOLUME PRESSURE"
 
 
-def test_every_label_the_detector_returns_is_one_the_engine_scores():
+def test_every_frame_reaches_the_branch_it_is_named_for():
     """
-    Each frame reaches the branch it is named for, and the set of labels
-    reached is exactly the set bias_engine scores. A label renamed in one
-    place and not the other fails here.
+    Each frame reaches the branch it is named for, so the detector's own
+    labels are exercised end to end and FADING VOLUME is the word the
+    renamed branch returns.
+
+    THE REDESIGN'S STAGE 5, 15 November 2026: this test also compared the
+    set of labels reached with bias_engine._VOLUME_SENTIMENT_SCORES, and
+    asserted "VOLUME DIVERGENCE" was not among its keys. That table went
+    with the weighted sum, so there is no second vocabulary to agree with
+    and no 25 points for a rename to drop silently. What a rename could now
+    change is one word on the panel's VOLUME line, which is what this
+    keeps.
     """
     produced = {}
     for expected, (closes, volumes) in BRANCH_FRAMES.items():
         produced[expected] = _detect(closes, volumes)
     assert produced == {k: k for k in BRANCH_FRAMES}, produced
-    assert set(produced.values()) == set(_VOLUME_SENTIMENT_SCORES), (
-        sorted(set(produced.values()) ^ set(_VOLUME_SENTIMENT_SCORES)))
-    assert "VOLUME DIVERGENCE" not in _VOLUME_SENTIMENT_SCORES
-
-
-def test_no_warning_label_reaches_the_neutral_note():
-    """
-    Every label without a direction, other than NEUTRAL VOLUME, costs
-    validation 25 points under every bias, with a note of its own. This is
-    the test that fails if structure.py renames a warning label and
-    core/engine_core.py does not follow.
-    """
-    pytest.importorskip(
-        "pandas_ta",
-        reason="core.engine_core imports indicators.indicators, which imports "
-               "pandas_ta at module level. volume_agreement itself needs neither.")
-    from core.engine_core import volume_agreement
-
-    warnings = [label for label in (_detect(c, v) for c, v in BRANCH_FRAMES.values())
-                if "BULLISH" not in label and "BEARISH" not in label
-                and label != "NEUTRAL VOLUME"]
-    assert sorted(warnings) == ["FADING VOLUME", "VOLUME EXHAUSTION"], warnings
-    notes = set()
-    for label in warnings:
-        for bias in ("BULLISH", "BEARISH", "NEUTRAL"):
-            delta, note = volume_agreement(label, bias)
-            assert delta == -25.0, (label, bias, delta)
-            assert note != "Volume sentiment is neutral.", (label, bias)
-            assert "divergence" not in note.lower(), note
-            notes.add((label, note))
-    assert dict(notes) == {
-        "FADING VOLUME": ("This candle's volume is below the volume four "
-                          "candles back, and volume is not expanding."),
-        "VOLUME EXHAUSTION": ("Volume is expanding while the close has moved "
-                              "less than 0.1% from four candles back."),
-    }
+    assert "VOLUME DIVERGENCE" not in produced.values(), produced

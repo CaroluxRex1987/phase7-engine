@@ -366,6 +366,11 @@ def test_negative_control_a_stubbed_well_formed_run_still_reaches_a_decision(mon
         "lineage": {},
         "exit_watch": [],
         "macro_bias": "NEUTRAL",
+        # Stage 5 of the redesign, 15 November 2026: the router reads
+        # macro_note directly too, like the ten sections and unlike
+        # macro_bias beside it -- engine_core writes it on every result that
+        # is not an error, so a well-formed stub carries it.
+        "macro_note": "The higher timeframe is neutral.",
         "btc_context": {"available": False},
     })
     result = _route(monkeypatch, output)
@@ -392,6 +397,7 @@ def test_the_recorded_verdict_is_the_one_that_was_read_not_an_invented_pass(monk
         exit_data={"current_price": 1.0},
         degradation=[], provenance={}, lineage_record={}, exit_watch=[],
         btc_context={"available": False}, macro_bias="NEUTRAL",
+        macro_note="The higher timeframe is neutral.",
         chart_path=None,
     )
     assert decision["risk"]["risk_valid"] is None, (

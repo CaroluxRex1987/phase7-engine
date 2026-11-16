@@ -259,25 +259,49 @@ def test_a_clean_run_is_not_marked_degraded():
 # "Confidence and trade quality must be reduced accordingly"
 # ============================================================
 
-def test_confidence_and_trade_quality_are_capped_when_degraded():
+def test_the_degraded_run_reports_no_capped_score_because_there_is_none():
+    """
+    THE REDESIGN'S STAGE 5, 15 November 2026, and it changes what one of
+    Viktor's rulings does -- HIS TO REVERSE.
+
+    This test held the second sentence of point 2 of the ruling of
+    29 August 2026: "confidence and trade quality must be reduced
+    accordingly". Both were capped at DEGRADED_CONFIDENCE_CEILING (50.0) and
+    this read them off a real degraded run and checked the ceiling held.
+
+    Both quantities leave the record in this stage, and the cap and the
+    constant go with them (models/decision_model.py, _apply_degradation,
+    where the reasoning is written out). Capping the one surviving score,
+    entry quality, was refused: it is printed beside the D, the H and the two
+    ATR distances it is computed from, so a capped value would contradict its
+    own arithmetic on the same screen.
+
+    So what this test holds now is the shape of the record rather than a
+    ceiling: no capped score is reported, because no capped score exists,
+    and the ruling's load-bearing sentence -- a degraded result does not by
+    itself authorize trading -- is held by the test below it, which is
+    stronger than any ceiling.
+    """
     if not _engine_available():
         pytest.skip("pandas_ta not installed")
 
     from models.decision_model import DecisionModel
 
-    ceiling = DecisionModel.DEGRADED_CONFIDENCE_CEILING
+    assert not hasattr(DecisionModel, "DEGRADED_CONFIDENCE_CEILING"), (
+        "the ceiling is back, with nothing left for it to cap")
+
     decision = _run_with_broken("adx")
     risk = decision.get("risk", {})
+    for gone in ("confidence_score", "trade_quality_proposed"):
+        assert gone not in risk, (
+            f"risk.{gone} is back on a degraded run; it left the record at "
+            f"stage 5 and the cap left with it")
 
-    assert risk.get("confidence_score", 0.0) <= ceiling, (
-        f"confidence is {risk.get('confidence_score')} on a degraded run, "
-        f"above the {ceiling} ceiling"
-    )
-    assert risk.get("trade_quality_proposed", 0.0) <= ceiling, (
-        f"trade quality (proposed entry) is "
-        f"{risk.get('trade_quality_proposed')} on a degraded run, above the "
-        f"{ceiling} ceiling"
-    )
+    # And entry quality, the surviving score, is reported as measured --
+    # uncapped -- beside a refusal and a named missing input. That is what
+    # this stage weakens, asserted rather than left implicit.
+    assert decision["degradation"]["degraded"] is True, decision["degradation"]
+    assert decision["degradation"]["trading_authorized"] is False
 
 
 # ============================================================
@@ -466,8 +490,12 @@ def test_the_dead_trend_failure_gate_stays_removed():
     import models.exit_model as xm
     from core.decision_contract import TrendBlock
 
-    # The parameter is gone from both consumers that took it.
-    for fn in (em.generate_entry_signals, be.calculate_dynamic_bias):
+    # The parameter is gone from the consumer that took it. The second was
+    # bias_engine.calculate_dynamic_bias, the weighted sum, which halved the
+    # score on this flag; the whole function went at the redesign's stage 5,
+    # 15 November 2026, so there is no signature left to check -- the AST
+    # sweep below covers that module instead, and covers it more strongly.
+    for fn in (em.generate_entry_signals,):
         assert "trend_failure" not in inspect.signature(fn).parameters, (
             f"{fn.__name__} accepts trend_failure again. Nothing produces it."
         )

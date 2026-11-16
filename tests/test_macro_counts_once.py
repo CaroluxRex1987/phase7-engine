@@ -120,21 +120,23 @@ def _route(side, macro, health=60.0, entry_score=60.0, score=60.0,
     long_side = side == "long"
     out = SignalRouter(engine_core=object())._build_decision_object(
         symbol="TESTUSDT", timeframe="4h",
-        bias={"raw": "BULLISH" if long_side else "BEARISH",
-              "score": score if long_side else -score},
-        trend={**ROUTER_READS_TREND, "trend_health": health,
-               "trend_direction_sign": 1 if long_side else -1,
-               "momentum_divergence": False},
+        bias={"raw": "BULLISH" if long_side else "BEARISH"},
+        # The redesign's stage 5, 15 November 2026: the trend block carries
+        # the two divergence readings and nothing else, and bias.score and
+        # risk.validation_state are not fields the engine writes.
+        trend={**ROUTER_READS_TREND, "momentum_divergence": False},
         structure={},
         entry={**ROUTER_READS_ENTRY, "score": entry_score,
                "close_inside_band": inside,
                "entry_status": "INSIDE THE BAND" if inside else "ABOVE THE BAND",
                **_confirmed(side, macro)},
         risk={"risk_valid": True, "risk_reason": "OK",
-              "risk_regime": "NORMAL RISK", "validation_state": "NEUTRAL",
+              "risk_regime": "NORMAL RISK",
               "targets": [1.1, 1.2, 1.3] if long_side else [0.9, 0.8, 0.7]},
         exit_data={"current_price": 1.0},
-        macro_bias=macro, chart_path="",
+        macro_bias=macro,
+        macro_note="The higher timeframe is neutral.",
+        chart_path="",
     )
     return out
 
@@ -222,18 +224,20 @@ def test_a_fifth_positional_argument_is_refused():
     macro there must fail, not have "BULLISH" read as btc_context.
     """
     try:
+        # The redesign's stage 5, 15 November 2026: `trend` left the
+        # signature, so the three positional slots are bias, entry and risk
+        # and macro would be the FOURTH positional argument, not the fifth.
         DecisionModel().evaluate(
-            {"raw": "BULLISH", "score": 60.0},
-            {"trend_health": 60.0, "trend_direction_sign": 1},
+            {"raw": "BULLISH"},
             {"score": 60.0, "close_inside_band": False,
              "entry_status": "ABOVE THE BAND", **_confirmed("long")},
             {"risk_valid": True, "risk_regime": "NORMAL RISK",
-             "validation_state": "NEUTRAL", "targets": [1.1, 1.2, 1.3]},
+             "targets": [1.1, 1.2, 1.3]},
             "BULLISH",
         )
     except TypeError:
         return
-    raise AssertionError("evaluate() accepted a fifth positional argument")
+    raise AssertionError("evaluate() accepted a fourth positional argument")
 
 
 # --- the sentence names the line, and makes no claim about macro ------------

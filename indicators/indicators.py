@@ -419,9 +419,19 @@ def add_technical_indicators(df: pd.DataFrame, inplace: bool = False):
                     raise ValueError(unusable)
                 df[name] = fallback_ema
             except Exception as e:
+                # THE REDESIGN'S STAGE 5, 15 November 2026: this read
+                # "trend health loses its slope component and entry quality
+                # cannot score EMA zone position". Trend health is gone;
+                # what these two columns now decide is the DIRECTION itself
+                # (models/bias_engine.py, direction_from_emas, which reads
+                # EMA50_Slope and the order of the two averages) and D, the
+                # first of entry quality's two parts, which measures the
+                # close's distance from the band's midpoint in ATRs.
                 failed(name, e,
-                       "trend health loses its slope component and entry "
-                       f"quality cannot score EMA zone position (primary: {primary})")
+                       "the direction cannot be read, since it is EMA50's "
+                       "slope and the order of EMA_20 and EMA_50, and entry "
+                       "quality cannot score the close's distance from the "
+                       f"band's midpoint (primary: {primary})")
 
     # SEQUENCE ITEM 9a: both paths used to end in fallback_value=50.0.
     #
@@ -507,10 +517,28 @@ def add_technical_indicators(df: pd.DataFrame, inplace: bool = False):
             # the calculation, which is the same Item 8 defect as the "Lookback
             # 8" line the audit flagged. entry_model now leaves the component
             # at its neutral default and this says so.
+            # THE REDESIGN'S STAGE 5, 15 November 2026. This read "entry
+            # quality scores RSI extension at its neutral 10 of 15 rather
+            # than from a reading, and trend health loses its momentum
+            # component". BOTH HALVES WERE STALE, and the first became stale
+            # one stage earlier than the second: entry quality has been D + H
+            # since stage 4 (15 November 2026) and has no RSI part at all, so
+            # this string has been a user-facing claim about a component that
+            # does not exist since that commit -- the same Item 8 defect F9(4)
+            # fixed here on 12 October and the re-audit fixed before that, for
+            # the third time on this one line. Found by scanning every
+            # operator-facing string in the engine for the names this stage
+            # removes, not by a failing test.
+            #
+            # What RSI decides now: nothing scores it, and its one remaining
+            # reader is the momentum divergence (indicators/trend_health.py),
+            # which the confirmation gate consults as gate 5 and the exit
+            # watch prints as a flag.
             failed("RSI", fallback,
-                   "entry quality scores RSI extension at its neutral 10 of 15 "
-                   "rather than from a reading, and trend health loses its "
-                   f"momentum component (primary: {primary})")
+                   "the momentum divergence cannot be read, so the "
+                   "confirmation gate's divergence check does not run and the "
+                   "exit watch raises no divergence flag (primary: "
+                   f"{primary})")
 
     # SEQUENCE ITEM 5a: Bollinger Bands removed. BB_lower, BB_middle and
     # BB_upper were written on both the success and fallback paths and read
@@ -571,10 +599,15 @@ def add_technical_indicators(df: pd.DataFrame, inplace: bool = False):
         # since fix 2 (1b25f36) the confirmation gate refuses both sides when
         # ADX has no valid reading. Round 5 reported the "25" on 12 September;
         # it was not fixed then.
+        # THE REDESIGN'S STAGE 5, 15 November 2026: the first half named
+        # trend health's adx_strength, min(ADX * 1.2, 40). Trend health is
+        # gone and ADX reaches no score at all now -- the gate is its one
+        # reader, which is the half that always mattered and the half F9(4)
+        # added. Third correction of this one string; each time the prose
+        # outlived the calculation it described.
         failed("ADX", e,
-               "trend health loses its ADX component (up to 40 of its 100 "
-               "points), and the confirmation gate refuses both sides, since "
-               "no trade is taken without an ADX reading")
+               "the confirmation gate refuses both sides, since no trade is "
+               "taken without an ADX reading")
 
     # SuperTrend with error handling
     # A9 FIX: This is now the single, canonical SuperTrend implementation for the
@@ -820,12 +853,26 @@ def add_technical_indicators(df: pd.DataFrame, inplace: bool = False):
                         reason=(f"a candle in the last {window} carries volume "
                                 f"{worst:.0f}, {worst / baseline_median:.1f}x "
                                 f"the window's median ({baseline_median:.0f})"),
+                        # THE REDESIGN'S STAGE 5, 15 November 2026: this
+                        # named VWMA, volume sentiment and the bias score,
+                        # and said confidence was capped. The bias score and
+                        # confidence are gone, and nothing reads VWMA at all
+                        # since stage 4 took the VWMA part out of entry
+                        # quality. What volume decides now is the two gates
+                        # of 31 October: the turnover gate 7 compares with
+                        # the liquidity floor, and the trigger's volume
+                        # against the median of the twenty candles before it
+                        # (gate 8). A degraded run authorises no trade at
+                        # all, which is a stronger statement than a capped
+                        # number and is what the ruling of 29 August now
+                        # rests on here.
                         consequence=("an isolated extreme volume reading is "
-                                      "used as-is in VWMA, volume sentiment and "
-                                      "the bias score -- not fabricated away -- "
-                                      "but this run is degraded so confidence "
-                                      "is capped rather than taken at face "
-                                      "value"),
+                                      "used as-is in the trigger's volume and "
+                                      "its median, in the turnover the "
+                                      "liquidity floor compares, and in volume "
+                                      "sentiment -- not fabricated away -- but "
+                                      "this run is degraded, so no trade is "
+                                      "authorised on it"),
                     ))
 
     # ============================================================

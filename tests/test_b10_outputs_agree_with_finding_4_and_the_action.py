@@ -147,8 +147,14 @@ def _lines(panel, prefix):
 
 
 def _exit_watch_section(panel):
+    # Stage 5, 15 November 2026: the end marker was "Validation Notes:",
+    # the section that printed the macro and volume notes at the foot of
+    # the panel. That section is gone -- the macro note is on the MACRO
+    # NOTE line near the top and the volume note went with
+    # volume_agreement -- so the Exit Watch block now runs up to the BTC
+    # section, which the panel prints on every run, available or not.
     start = panel.index("Exit Watch (advisory only")
-    end = panel.index("Validation Notes:")
+    end = panel.index("BTC Market Context")
     return panel[start:end]
 
 
@@ -176,8 +182,17 @@ def test_every_action_the_decision_model_writes_is_a_side_wait_or_a_no_trade():
     assert SIDES <= actions, sorted(SIDES - actions)
     assert all(a == "WAIT" or a.startswith("NO-TRADE") for a in no_side), no_side
     assert [a for a in no_side if "LONG" in a or "SHORT" in a] == [], no_side
+    # THE REDESIGN'S STAGE 5, 15 November 2026: a bare "NO-TRADE" was in
+    # this set, and it was never an action the decision model writes. It was
+    # the argument of `final_action.startswith("NO-TRADE")` inside
+    # _compute_confidence, which chose which qualifier to append to the
+    # confidence sentence -- a PREFIX TEST that this scanner, which reads
+    # string literals out of the parse tree, could not tell from an action.
+    # The method went with confidence in this stage and the literal with it,
+    # which is how the over-count surfaced. Nothing the engine decides
+    # changed; the set was one entry too long and now is not.
     assert actions == SIDES | {
-        "WAIT", "NO-TRADE",
+        "WAIT",
         "NO-TRADE (DEGRADED INPUT)", "NO-TRADE (PLAN CONTRADICTS ACTION)",
         "NO-TRADE (RISK NOT ASSESSED)", "NO-TRADE (RISK TOO HIGH)",
         "NO-TRADE (SIGNAL UNCONFIRMED)",
@@ -192,7 +207,9 @@ def test_every_action_the_decision_model_writes_is_a_side_wait_or_a_no_trade():
 
 def test_no_action_that_names_no_side_prints_the_target_1_note():
     no_side = sorted(a for a in _actions_decision_model_writes() if a not in SIDES)
-    assert "WAIT" in no_side and len(no_side) == 9, no_side
+    # Stage 5, 15 November 2026: nine until the bare "NO-TRADE" left this
+    # scanner's reach -- see the test above for why it was never an action.
+    assert "WAIT" in no_side and len(no_side) == 8, no_side
 
     for raw in ("BULLISH", "BEARISH"):
         for action in no_side:

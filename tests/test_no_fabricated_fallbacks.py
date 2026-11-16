@@ -147,8 +147,14 @@ def test_compute_trend_health_is_total_which_is_why_the_handler_could_go():
         "infinities": pd.DataFrame({"close": [np.inf] * 60}),
     }
 
-    required = ("trend_health", "trend_direction_sign", "trend_exhaustion",
-                "momentum_mode", "momentum_divergence", "continuation_strength",
+    # THE REDESIGN'S STAGE 5, 15 November 2026: this named seven keys. Four
+    # of them -- trend_health, trend_direction_sign, trend_exhaustion and
+    # continuation_strength -- plus momentum_mode are gone with the score and
+    # its siblings. The property this test exists for is unchanged and is
+    # what the keys are for: engine_core reads them by subscript, so a return
+    # that omits one turns a degraded run into a KeyError one stage later.
+    # These four are every key the module now returns.
+    required = ("adx", "momentum_divergence", "divergence_direction",
                 "degraded_inputs")
 
     for label, value in cases.items():
@@ -170,10 +176,19 @@ def test_compute_trend_health_is_total_which_is_why_the_handler_could_go():
             f"these by subscript, so an absent key is a KeyError at the next "
             f"stage rather than a degraded run."
         )
-        assert out["trend_direction_sign"] in (-1, 0, 1), (
-            f"{label} returned trend_direction_sign="
-            f"{out['trend_direction_sign']!r}; the bias engine validates it "
-            f"to (-1, 0, 1) and raises otherwise."
+        # Stage 5, 15 November 2026: this asserted trend_direction_sign was
+        # in (-1, 0, 1), because the weighted sum validated it and raised
+        # otherwise. The sum and the field are gone. The equivalent now is
+        # ADX, which the confirmation gate compares: on every one of these
+        # malformed inputs it must be None -- an absence the gate refuses
+        # both sides on -- and never a number nobody measured.
+        assert out["adx"] is None, (
+            f"{label} returned adx={out['adx']!r}; a malformed input must "
+            f"not produce a number the confirmation gate would compare."
+        )
+        assert out["degraded_inputs"], (
+            f"{label} returned no degraded_inputs; the failure was not "
+            f"recorded."
         )
 
 
@@ -204,10 +219,16 @@ def test_a_broken_trend_contract_is_reported_not_papered_over(monkeypatch):
         "a trend module returning the wrong shape produced a decision object "
         f"with no error: {sorted(decision)[:12]}"
     )
-    assert "trend health" in decision["error"].lower(), (
+    # Stage 5, 15 November 2026: the message reads "Trend readings failed"
+    # rather than "Trend health analysis failed", because the module computes
+    # no trend health; it still names the stage and the file.
+    assert "trend readings" in decision["error"].lower(), (
         f"the error does not name the stage that failed: {decision['error']!r}"
     )
-    assert "trend_health" not in str(decision.get("trend", "")), (
+    assert "trend_health.py" in decision["error"], (
+        f"the error does not name the file: {decision['error']!r}"
+    )
+    assert not decision.get("trend"), (
         "a trend block survived a trend-engine contract violation"
     )
 

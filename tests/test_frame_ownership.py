@@ -314,21 +314,28 @@ def test_plotting_does_not_swallow_a_broken_repair_path():
     )
 
 
-def test_calculate_dynamic_bias_takes_no_frame():
+def test_the_direction_function_takes_no_frame():
     """
-    Signature-level. The frame parameter was write-only: the function filled
-    NaNs in four of the caller's columns and read none of them.
-
-    Restoring it as a copy-taking parameter would be worse than the bug — a
-    parameter that is accepted, copied, cleaned and discarded.
+    Signature-level, and it was calculate_dynamic_bias's test until the
+    redesign's stage 5, 15 November 2026. That function's `df` parameter was
+    write-only -- it filled NaNs in four of the caller's columns and read
+    none of them (sequence item 6) -- and restoring it as a copy-taking
+    parameter would have been worse than the bug: a parameter accepted,
+    copied, cleaned and discarded. The function is gone with the weighted
+    sum, so the property is asserted of what replaced it as the one place a
+    direction is decided: direction_from_emas takes three scalars and an
+    optional out-parameter, and no frame.
     """
-    from models.bias_engine import calculate_dynamic_bias
+    from models.bias_engine import direction_from_emas
 
-    params = inspect.signature(calculate_dynamic_bias).parameters
+    params = inspect.signature(direction_from_emas).parameters
     assert "df" not in params, (
-        "calculate_dynamic_bias has a `df` parameter again. It computes its "
-        "score entirely from scalar arguments; the frame was write-only."
+        "direction_from_emas has a `df` parameter. It decides the direction "
+        "from three scalars; a frame here would be the write-only parameter "
+        "sequence item 6 removed."
     )
+    assert set(params) == {"ema50_slope", "ema_20", "ema_50", "components"}, (
+        sorted(params))
 
 
 def test_calculate_structure_has_no_copy_opt_out():

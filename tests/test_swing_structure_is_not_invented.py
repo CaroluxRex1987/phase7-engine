@@ -292,6 +292,7 @@ def _decision(structure, current_price=1.0):
         exit_data={"current_price": current_price},
         degradation=[], provenance={}, lineage_record={}, exit_watch=[],
         btc_context={"available": False}, macro_bias="NEUTRAL",
+        macro_note="The higher timeframe is neutral.",
         chart_path=None,
     )
 

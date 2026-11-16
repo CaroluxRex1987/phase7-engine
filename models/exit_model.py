@@ -105,11 +105,23 @@ def build_exit_watch(
         # could not fire — trend_failure was always False — so this advisory
         # has never once appeared on a panel, while reading as though the
         # engine watches for a lower-high/lower-low pattern. It does not.
-
-        if bool(trend.get("trend_exhaustion", False)):
-            flags.append(
-                "Trend exhaustion is active — momentum looks stretched and may be due for a pause or pullback."
-            )
+        #
+        # THE REDESIGN'S STAGE 5, 15 November 2026: the EXHAUSTION flag stood
+        # here, reading trend.trend_exhaustion --
+        #
+        #     "Trend exhaustion is active - momentum looks stretched and may
+        #      be due for a pause or pullback."
+        #
+        # and the REVERSAL flag below it, reading reversal_direction and
+        # reversal_strength against the bias at a threshold of 40. VIKTOR
+        # RULED BOTH OUT on 9 November 2026 (DECISIONS, "Ruling, 9 November
+        # 2026 -- the redesign's exit watch drops its exhaustion and reversal
+        # flags"), with NOTHING replacing them, and their inputs leave
+        # indicators/trend_health.py in this stage. Every other flag stays:
+        # the divergence below, the CHOCH against the side, the HVN and LVN
+        # proximity, the SuperTrend flip, the bias flip and the Target 1
+        # note. Neither flag is in the golden exit_watch, which holds only
+        # the Target 1 note, so no golden leaf moves by their removal.
 
         # B4's LABELS, 14 October 2026: this flag said "Momentum divergence
         # is active -- price and momentum are disagreeing". What
@@ -138,18 +150,8 @@ def build_exit_watch(
                 f"{comparison}. An early warning worth watching."
             )
 
-        # --- Reversal signal opposing the current bias (B1) ---
-        reversal_direction = trend.get("reversal_direction", "NONE")
-        reversal_strength = float(trend.get("reversal_strength", 0.0) or 0.0)
-        reversal_opposes = (
-            (raw_bias == "BULLISH" and reversal_direction == "BEARISH")
-            or (raw_bias == "BEARISH" and reversal_direction == "BULLISH")
-        )
-        if reversal_opposes and reversal_strength >= 40.0:
-            flags.append(
-                f"A {reversal_direction} reversal signal is forming against the current {raw_bias} bias "
-                f"(strength {reversal_strength:.0f}/100)."
-            )
+        # --- Reversal signal opposing the current bias (B1) -- REMOVED at
+        # the redesign's stage 5; see the record above the divergence flag.
 
         # --- CHOCH opposing the current bias (B2) ---
         choch_opposes = (
