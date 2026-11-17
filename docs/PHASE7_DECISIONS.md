@@ -9038,6 +9038,400 @@ test, and recorded because this project records wrong turns.**
   stage of the five whose live run should read identically to the one before it but
   for the four numbers that are gone.
 
+## Decision, 16 November 2026 — every command of a delivery names its folder, and each check step carries its own: a path handed to `python` as an argument answers wrongly from a foreign console
+
+*New in this file on 17 November 2026. Claude's, a procedure, Viktor's to reverse. Its
+first half was made on 15 November after stage 4's delivery and its second on 16
+November during stage 5's, each by the session that built that stage, and both have been
+carried since by the patch-delivery skill's sections 7 and 11; neither was in an entry
+of this file. The first was recorded only in PHASE7_NEXT.md's account of `ebd98e50`'s
+landing, which this commit's rewrite moves to HISTORY, and the second only in
+`f6fff24a`'s commit message. Viktor's opening message of 16 November, sent at 20:30,
+says so and asks that it be filed "if you agree". Claude agrees: a session follows the
+skill, but a rule's reason belongs here, where the next change to the skill is checked
+against it. Filed by stage 6's commit, in the session that opened at 20:30 on 16
+November at `f6fff24a`. No earlier entry is edited (the ruling of 20 September).*
+
+**The first half, of 15 November.** Five `git add` steps of stage 4's list were pasted
+into a fresh console sitting in `E:\phase7_engine` and ran there. They staged nothing,
+those files being unchanged on `master`, and the sixth stopped with `fatal: pathspec
+'core/threshold_text.py' did not match any files`, that file existing only on the
+branch; had every path existed on `master` the list would have run to the commit, where
+only the commit-msg hook would have caught it. A `cd` as step 1 is only as good as the
+console it is pasted into. So every git command of a delivery names its folder, `git -C
+E:\phase7_redesign …`, and `del` takes an absolute path, with no `cd` step at all. On
+Viktor's statement of 15 November and the skill's record.
+
+**The second half, of 16 November.** That reached the git commands only. The three check
+steps of a delivery — the history check, pytest and `run_tests.py` — stayed bare
+`python`, and a bare `python` names no folder.
+
+**What was found, on Viktor's statement and the skill's record; this session did not see
+stage 5's delivery.** Handing each check its folder as an argument does not fail from a
+console sitting somewhere else. It answers, and answers wrongly. On stage 5's tree,
+`python -m pytest -q E:\phase7_redesign` gave 3 failed / 997 passed against the true
+1000, and `python E:\phase7_redesign\run_tests.py -q` gave 928 / 0 / 34 against the true
+931 / 0 / 31. The second moves the watched error count, the number this project reads to
+tell whether a fixture crept into a new test. Stage 4's wrong folder ended in `fatal:`,
+which at least stopped; a wrong count that reads like a count does not.
+
+**The rule for the check steps.** Each changes directory itself, inside the one command,
+and is pasted whole:
+
+- the history check: `python -c "import
+  os,runpy;os.chdir(r'E:\phase7_redesign');runpy.run_path(r'docs\build\check_history_move.py',run_name='__main__')"`
+- pytest: `python -c "import
+  os,sys,pytest;os.chdir(r'E:\phase7_redesign');sys.exit(pytest.main(['-q']))"`
+- `run_tests.py`: `python -c "import
+  os,sys,runpy;os.chdir(r'E:\phase7_redesign');sys.argv=['run_tests.py','-q'];runpy.run_path('run_tests.py',run_name='__main__')"`
+
+with `E:\phase7_engine` as the folder once the merge is made there. Never a bare `python
+-m pytest`, a bare `python run_tests.py`, or a path-as-argument form. It is the
+structural fix in the shape Viktor prefers (Working practice): the safe action is the
+only one available, rather than a step to remember.
+
+**What this session checked.** That the skill's update was saved: its marker reads
+current as of `f6fff24a`, section 7 carries the three forms and the paragraph "`git -C`
+covers only the git commands", and section 11 carries them for the worktree. Not checked
+by this session: the two wrong counts themselves, which are the earlier session's
+measurement, and why the path-as-argument forms give them.
+
+## Ruling, 17 November 2026 — the redesign's build is seven stages: stage 6 reconciles and changes no code; stage 7 removes the two unread columns and renames `indicators/trend_health.py`, before the merge
+
+*New in this file on 17 November 2026. Viktor's, by agreeing to Claude's suggestion, not
+by writing his position first. Made in the session that opened at 20:30 on 16 November
+at `f6fff24a`, on the branch `redesign`, and filed by stage 6's commit. It amends
+"Decision, 14 November 2026 — the redesign's code is cut into six stages; what stage 1
+is", which was Claude's and his to reverse: six stages become seven. That entry is not
+edited (the ruling of 20 September).*
+
+**How it was made.** His opening message of 16 November, sent at 20:30, kept the
+question for himself: stage 5 left three things — the two unconsumed columns,
+`EMA20_Slope` and `VWMA`; `indicators/trend_health.py`'s name; and the draft's §14
+reconciled as a list — and "whether all three belong in stage 6 or in a seventh stage
+after the merge is mine to decide; put the question to me with the measurements." Claude
+measured each and put the question with a third shape beside his two: stage 6
+documentation only, a stage 7 for the two code changes on the branch, then the merge;
+and held its own position back, by his practice. At 20:58: "Suggestion?" Claude
+suggested the three-stage shape. At 07:12 on 17 November he quoted Claude's line naming
+what was his — the split, and whether a fourth candidate displaces one of three among
+the held-back defects' replacements (the next entry) — and asked again: "Suggestion?"
+Claude answered the second. At 07:14: "Agree." **Claude read that as covering both
+suggestions and said so in its next message, before building; if it covered only the
+second, this entry is wrong and is his to correct before the commit.**
+
+**What was ruled.**
+
+1. **Stage 6 is the reconciliation and changes no code.** The draft's §13 and §14
+   against what stages 1 to 5 built, the held-back defects' replacements, and the
+   entries this commit files. §14 reconciled as a list is stage 6's by definition rather
+   than a thing carried: it is the reconciliation.
+2. **Stage 7 is the two code changes, together, on the branch, before the merge:**
+   `EMA20_Slope` and `VWMA` stop being computed, and `indicators/trend_health.py` and
+   `compute_trend_health` take a name that says what they return.
+3. **Then the merge**, as a session of its own, as ruled on 13 November.
+
+**Claude's reasons, as given.** (a) *The forward measurement.* By his ruling of 08:55 on
+11 November the scheduled task measures the redesign's version from that version's first
+run, and a version's count starts from zero. Both changes move `code_hash`. Landed after
+the merge, they discard whatever the merged version had counted; landed before it,
+`master`'s first version of the redesign is its final one. (b) *The guard would be
+measuring itself.* §14's purpose is that a test which moves and is not on its list stops
+the work. The two columns are named in 12 test files and the rename reaches 8; in stage
+6's commit that movement would arrive in the same commit whose job is to say which test
+movements stages 1 to 5 caused. (c) *The stated cost of removing a column was wrong,*
+and with it the ground for putting the removal off (the next entry but one, its three
+corrections). Against, as Claude gave it: a seventh stage is a seventh session and a
+seventh landing check, and that is the only argument found for folding the two into
+stage 6.
+
+**The measurements the ruling was made on** (Linux sandbox, an autocrlf clone of
+`f6fff24a`; read in the code, not run as a change — stage 7 predicts and then measures):
+
+- *The two columns.* Engine: `indicators/indicators.py` alone — the VWMA block, the
+  slope list's `EMA20_Slope`, and `VWMA` in the `critical_indicators` sweep. Tests: 12
+  files name one or both. Golden: 2 leaves leave `lineage.indicators_at_decision_bar` on
+  each run, 19 to 17; no value and no action moves. `code_hash` moves; the struct input
+  hash and `run_hash` do not.
+- *The name.* The module file, `core/engine_core.py` (one import, three call sites),
+  `models/signal_router.py`, `core/decision_contract.py`, `tests/conftest.py`'s module
+  list, 8 test files that import or patch it, and a line of `docs/audit_change_list.md`.
+  `code_hash` moves, because it hashes each file's path with its digest; `run_hash` does
+  not, `FINGERPRINTED_MODULES` holding only `models.decision_model`,
+  `models.entry_model` and `models.risk_model`; and no golden leaf moves, `code_hash`
+  being in neither snapshot.
+
+**Claude's, with it, his to reverse: the name.** `indicators/trend_readings.py` and
+`compute_trend_readings`. Stage 5 already rewrote the engine's failure string for this
+call to "Trend readings failed", so the code calls them that today, and the rename makes
+the module agree with the error it raises.
+
+**What follows.** PHASE7_NEXT.md's build section says seven stages. The patch-delivery
+skill's section 11 describes the merge as following "the last stage's landing" and names
+no count, so no procedure there changes.
+
+## Ruling, 17 November 2026 — the held-back defects' replacements are H6, H7 and H8; a held-back defect that can move a reading is still owed
+
+*New in this file on 17 November 2026. Viktor's, by agreeing to Claude's suggestion, not
+by writing his position first. Made in the session that opened at 20:30 on 16 November
+at `f6fff24a`, and filed by stage 6's commit. It does what "Decision, 25 October 2026 —
+the held-back defects the redesign reaches are replaced or judged again, not protected"
+left for when the redesign's code exists, and what was agreed with his rulings of 08:55
+on 11 November: replacements for H1, H2 and H5, proposed by Claude for him to accept.
+"Ruling, 18 October 2026 — the four held-back defects: H1, H2, H3 and H5" is not edited
+(the ruling of 20 September); H3 stands as ruled there.*
+
+**How it was made.** The redesign removed what three of the four were about. H1's branch
+went with the ladder it belonged to (stage 4); H2's function, `calculate_dynamic_bias`,
+went with the weighted sum (stage 5); H5 was fixed by stage 1, the reading of 14
+November having found it not minor. Claude searched the engine at `f6fff24a` from the
+parse tree, for the kinds the search of 18 October used — parameters no function reads,
+dead stores, unused imports, dead module constants, comparisons against strings nothing
+produces — and for two more: functions nothing calls, and docstrings naming something
+stage 5 removed. It proposed three, all "code that does nothing", said that none could
+move a computed number, and put a fourth of another kind beside them as his to choose.
+At 07:12 on 17 November: "Suggestion?" Claude suggested the fourth in place of the
+unused import, and carrying the missing kind as an item rather than calling the set
+complete. At 07:14: "Agree."
+
+**What was ruled.** Amazon's audit is scored on H3 and these three. Each is minor,
+changes no decision and no recorded value, touches none of Items 2, 3, 6 and 18, is
+pointed at by no comment, docstring or test that ships, and sits in a file a scoped
+package on those four Items would carry — Claude's reading of that package, whose cut is
+still not decided. Line numbers are at `f6fff24a`. Each was made by the redesign's own
+stages and not found before them, so none is on the list for after the audit under
+another name.
+
+1. **H6 — `_safe_float` is defined and nothing calls it.** `models/decision_model.py`,
+   line 20. It had six call sites at `e69d5bb`; stage 5 removed the last of them with
+   confidence, EV, trade quality and the weighted sum, and left the helper. No other
+   line of the engine, and no test, names it. Carried: the file is the decision, the
+   first link of Item 6's chain, as H1's was.
+   *Found means:* Parts 1–6 name `_safe_float` in `models/decision_model.py` and say
+   that nothing calls it: it is dead, unused or left over.
+2. **H7 — the panel binds the decision's `trend` block and never reads it.**
+   `core/panel_render.py`, `render_panel`, line 141, in the block that takes each
+   section of the decision object with a safe default: `bias`, `structure`, `entry`,
+   `risk` and `exit_data` are each read below it and `trend` is not, since stage 5
+   removed the TREND line, the only thing that read it. It is the shape sequence item 13
+   fixed in this function once before — its comment, about a hundred lines further down,
+   records that "the panel bound a local and dropped it" — and stage 5 made it again one
+   block up. Carried: Item 6's own test reads the module (`tests/test_traceability.py`).
+   *Found means:* Parts 1–6 name `render_panel`'s `trend` local (or the line that takes
+   the decision's `trend` block) and say that nothing reads it.
+3. **H8 — `DecisionModel`'s docstring gives `evaluate()` an input it no longer takes.**
+   `models/decision_model.py`, the class docstring, line 82: "the single place that
+   turns {bias, trend, entry, risk} into" its result. `evaluate()` takes `bias`, `entry`
+   and `risk`; `trend` stopped being a parameter in stage 5. The same sentence's
+   parenthesis records exactly that for `structure` ("was a parameter too until …") and
+   for `macro_bias`, so the sentence is about parameters and not about the decision
+   object's sections; and stage 5 added a paragraph to this docstring for what the class
+   no longer returns, and none for what it no longer takes. Carried: as H6.
+   *Found means:* Parts 1–6 name the `DecisionModel` class docstring (or its list of
+   what `evaluate()` reads) and say that it names `trend` as an input the method does
+   not take.
+
+**Not chosen.** The fourth result of the search: `models/entry_model.py` imports numpy,
+line 5, and uses it nowhere since stage 4 made entry quality D + H. It was one of the
+three first proposed. Not chosen because its kind is already on the list for after the
+audit — `data/validation.py` imports `math` and never uses it — so the list itself tells
+an auditor to look for it, and finding it would score a habit the list had already asked
+for. It goes on the list. The search's other results: unread parameters — one, the
+`name` of a fallback colour class's `__getattr__` in `core/panel_render.py`, which must
+take it; dead stores — H7, and the loop variable in `utils/plotting.py` already on the
+list; unused imports — the two above; and names that nothing refers to anywhere, in the
+engine, the tests or `docs/build` — two: H6, and `StructureAnalysisResult`, a
+`TypedDict` at the head of `structure/structure.py` that its comment calls the formal
+return contract and that no function is annotated with, there since before `e69d5bb`.
+**That one was found after the ruling,** when the search was run again more strictly to
+write this entry; it is the kind of H6 and H7, it is not new with the redesign, and it
+goes on the list. His to put in H6's or H7's place if he prefers it. **Disqualified
+rather than overlooked:** the two unconsumed columns and `indicators/trend_health.py`'s
+name. Both are written up in this file and in PHASE7_NEXT.md, the name is recorded in
+the module itself, and stage 7 fixes both.
+
+**What the set still lacks, and what is owed for it.** H5 could move a computed reading:
+a flat candle could put the HVN one bin away. Nothing among H3, H6, H7 and H8 can. H6
+and H7 are also found by one sweep for names nothing reads, which is the weakness the
+ruling of 18 October already had with H1 and H2. So the set tests whether an auditor
+follows what the code does (H3), sweeps for unread names (H6, H7) and reads the prose
+against the code (H8), and it does not test whether an auditor checks a calculation at
+its edges. **Owed: a held-back defect that can move a reading.** Claude searches again
+once stage 7's code exists, in the tree as it will merge; if one is found it is proposed
+to Viktor, who rules which of the four it displaces, and if none is found that is put to
+him as it stands. Carried in PHASE7_NEXT.md's Open items; not closed by this ruling.
+
+**A difference from H1 to H5, recorded.** `docs/audit_package/phase7_engine_source.md`
+and a round-1 reasoning file hold `_safe_float` as it was, with its callers. They are
+dated records of earlier code and point at no defect, but a reader of them would see the
+helper in use. Whether the send carries either is part of the package's cut.
+
+**Who does what.** As on 18 October: work on the list, stage 7 and the merge leave the
+four as they are. Stage 7's two changes edit neither `models/decision_model.py` nor
+`core/panel_render.py` — Claude's reading of its scope, to be checked when it is built,
+and if either file must change, H6 to H8 are re-checked in the same commit. Before the
+send, Claude re-checks each at the tag: present as described, and named by no shipped
+line, the instruction included. They are fixed after the audit, and Amazon verifies the
+fixes with the rest.
+
+## Decision, 17 November 2026 — stage 6 of the redesign's build: the reconciliation — the draft's §13 leaf by leaf and §14 as a list, three corrections to stage 5's account of the two columns, and two to Claude's own counts
+
+*New in this file on 17 November 2026. Claude's, under Viktor's "you are the engineer
+and the brain of this project" of 29 October, his to reverse, each one. Made in the
+session that opened at 20:30 on 16 November at `f6fff24a`, on the branch `redesign`, and
+filed by stage 6's commit, which changes no engine code, no test and no tool. No earlier
+entry is edited (the ruling of 20 September). The draft is edited here, as the earlier
+stages' entries said it would be: version 15 adds §18 and leaves §13 and §14 as they
+were written, because a prediction rewritten to match its outcome is no longer a
+prediction.*
+
+**What stage 6 is.** Two documents checked against built code, and the entries this
+commit files. The base of the comparison is `e69d5bb` for the golden snapshot, the
+commit §13 and §14 were written against, and `696af24` for the tests, the branch's
+parent, so that what is counted is what the five stages did and nothing a commit before
+them did. Everything below is from the Linux sandbox, on an autocrlf clone of `f6fff24a`
+checked out at `redesign`, under Python 3.12.3.
+
+**§13, the golden snapshot.** `tests/fixtures/golden_decision.json` had 227 leaves at
+`e69d5bb` and has 165: **88 removed, 26 added, 14 moved.** `golden_trade_decision.json`,
+the second pinned decision, has the same 165. Against §13.2's 85 removed, 15 moved and 2
+renamed:
+
+- *Every leaf §13.2 predicted removed was removed* — its 81, and the 4 that were
+  Viktor's until his ruling of 7 November. Not one survived.
+- *The other 3 removed.* The 2 it called renamed, `AGGRESSIVE_ENTRY_SCORE_MIN` and
+  `DEGRADED_CONFIDENCE_CEILING`: a `module_constants` leaf is its name, so a new name is
+  a removal and an addition, and `DEGRADED_CONFIDENCE_CEILING` took no new name at all,
+  the cap having gone with what it capped (stage 5's reading 1). And
+  `risk.trade_quality_proposed`, which §13.2 has moving and stage 5's reading 2 removed.
+- *Of the 15 predicted to move, 13 moved.* `risk.trade_quality_proposed` left, and
+  `btc_context.raw` held at BEARISH, the draft's error stage 2 recorded. The fourteenth
+  is `entry.entry_status`, APPROACHING ZONE to ABOVE THE BAND, which §13.2 counts as
+  unchanged; versions 4 and 6 said it would move and did not re-make the counts.
+- *The 26 added.* Twenty as §13.3 proposed them: its ten `entry` fields,
+  `lineage.direction.result`, `lineage.risk_inputs.side`,
+  `lineage.indicators_at_decision_bar.quote_volume` and seven constants. Six it does not
+  have: `entry.long_signal_refusal` and `entry.short_signal_refusal` (stage 3),
+  `macro_note` (stage 5), `UPPER_TIER_ENTRY_QUALITY_MIN`, the 70 under a new name, and
+  `lineage.direction`'s `ema20_vs_ema50` and `ema50_slope`, three words where §13.3
+  proposed three true-or-false fields (stage 2).
+- *§13.1, the pinned run through the gates, is right in every verdict:* BULLISH at gate
+  2, through gates 3 to 7, a WAIT at gate 8 with the trigger false, on a trigger volume
+  of 84,693.7281 against a median of 179,247.8923, and entry quality 0. Its only wrong
+  figures are the eighth decimals of `distance_atr` and `hvn_distance_atr`, which stage
+  4 recorded.
+
+So §13 was right about what the redesign would do to the record and loose in its
+arithmetic: every difference is one an earlier stage's entry already names, and stage 6
+found no new one.
+
+**§14, the tests, as a list.** All 467 of its verdicts were read out of the draft by a
+script — the count it parsed is the count §14 declares, file by file — and each test's
+own source at `696af24` was compared with its source at `f6fff24a`, whitespace aside.
+None of the 467 moved between `e69d5bb` and `696af24`.
+
+| predicted | gone | changed | identical |
+|---|---|---|---|
+| G, goes — 95 | 94 | 0 | 1 |
+| R, rewritten — 124 | 20 | 57 | 47 |
+| X, reversed — 2 | 2 | 0 | 0 |
+| H, holds — 118 | 4 | 12 | 102 |
+| h, holds, its helper moves — 128 | 0 | 5 | 123 |
+
+**376 of 467 verdicts matched what happened; 91 did not.** By size:
+
+- *47 predicted rewritten needed no edit.* The largest group by far: 7 each in
+  `test_direction_source.py`, `test_no_risk_free_conviction.py` and
+  `test_signal_confirms.py`, 6 in `test_risk_verdict_is_read_not_assumed.py`. §14
+  over-predicted work.
+- *20 predicted rewritten were removed instead,* their subject having left with stage 5.
+- *17 predicted to hold were edited,* 12 H and 5 h, and *4 predicted to hold were
+  removed.*
+- *Both X went.* `test_a_conservative_long_does_not_depend_on_macro` and
+  `test_an_opposing_macro_does_not_block_a_confirmed_trade` were each written to hold a
+  ruling the redesign reverses, and §14 has each turned round. Neither was: each was
+  removed, and gate 6's own tests hold the new rule (`tests/test_gates_6_to_8.py`).
+- *1 predicted to go is still there, unchanged.*
+
+The 91, test by test, are in the draft's §18.2.
+
+**What §14 did not name.** At `e69d5bb` it set 407 tests aside as naming nothing that
+moves. **12 of them moved in the build: 9 gone and 3 changed.**
+`test_indicator_overlap_tool.py`, 7 gone with the file, of which §14 names the other 6;
+`test_b9_btc_supertrend_is_read_directly.py`, 2 gone, the miss stage 2 recorded; and one
+changed in each of `test_b10_outputs_agree_with_finding_4_and_the_action.py`,
+`test_closed_candles.py` and `test_pinned_source.py`. A thirteenth test that changed, in
+`test_measure_draft_gaps.py`, was written after §14 and is in neither count. The build
+added 7 test files and deleted 7, and the suite's test functions went from 940 at
+`696af24` to 962.
+
+**What the two reconciliations say together.** §13 could be checked exactly, by a diff,
+and was nearly right. §14 could not, was "not read line by line" by its own caveat, and
+was wrong about one verdict in five — but in the safe direction almost every time: it
+predicted more rewriting than was needed, and what it missed, 12 tests in 407, was
+caught at each stage by the suite, which is what the rule of the cut is for. Its cost
+was the four stages that each stopped to list its errors, and stage 4's one restore.
+
+**Three corrections to stage 5's account of the two columns.** Stage 5's entry and
+PHASE7_NEXT.md both say that removing `EMA20_Slope` or `VWMA` "moves the struct input
+hash, `run_hash` and the nineteen `indicators_at_decision_bar` leaves", and give that as
+why the removal was put off. Read in the code at `f6fff24a`:
+
+1. *The struct input hash does not move.* `core/engine_core.py` takes `raw_struct =
+   df.copy()` at line 581, before any derived column exists, and its comment gives that
+   as the reason. `lineage.inputs.struct.columns`, its `sha256` and
+   `provenance.input_hashes.struct` are of that frame.
+2. *`run_hash` does not move.* Its payload is the input hashes, the fingerprinted
+   configuration and the fingerprinted modules' constants. No input hash moves (1);
+   neither column is a fingerprinted module's constant; and `VWMA_LENGTH` stays in the
+   fingerprinted configuration because it stays read, by the volume-spike guard's window
+   (`indicators/indicators.py`, line 841).
+3. *Two leaves go, not nineteen.* `lineage.indicators_at_decision_bar` loses
+   `EMA20_Slope` and `VWMA` and keeps its other seventeen at their values.
+
+So the removal costs two golden leaves and `code_hash`. **One consequence no record
+names:** `VWMA` is in `critical_indicators`, the sweep that drops a column whose last
+value is unusable and records the failure, so today a frame whose VWMA cannot be
+computed is a degraded run with `VWMA` named. With the column gone it is not, on that
+account. Nothing reads VWMA, so that degradation reports the loss of a reading nothing
+uses; but it is a change in what a run does and stage 7 predicts it. Not run: these are
+reads of the code, and stage 7 measures them.
+
+**Claude's errors in this session, recorded.**
+
+- *Two counts given to Viktor were of the wrong window.* Claude first compared the tests
+  at `e69d5bb` with the tip and told him that 15 of the 407 had moved, 11 gone and 4
+  changed, and that ten test files were new. Six commits before the build changed tests
+  after `e69d5bb`; entry 59's (`5fe8522`) moved three tests of
+  `test_real_log_directory_untouched.py`, and three of the ten files are tooling tests
+  of that period. Counted from `696af24`: 12 of the 407, and 7 files. Found writing this
+  entry, when a guard test for the real log directory appeared among "what the redesign
+  removed" and its history was read. The 467 verdicts are unaffected. Corrected to him
+  in the message that delivered the patch.
+- *"Volume sentiment's" window.* Claude told him `VWMA_LENGTH` stays read by "the
+  volume-spike guard's window and volume sentiment's". The one remaining reader is the
+  volume-spike guard. The conclusion, that `run_hash` does not move, stands.
+- *The sandbox's first runs were under Python 3.13.18,* the sandbox's default, where the
+  skill says 3.12. The three suites gave the baselines' counts there too, but
+  `code_hash` came out as `2f9a1b2f…`, which is what showed it. Both virtualenvs were
+  rebuilt on 3.12.3, where `code_hash` is the branch's `85c4c826…`, and every figure in
+  this entry and in the commit message is from those.
+
+**What it weakens.**
+
+- **The branch carries two known breaches of its own design through one more commit** —
+  Item 16, the two unread columns, and F8, a module named for a score it no longer
+  computes — and both are stage 7's by ruling (the entry before last). Nothing decides
+  worse for either.
+- **The reconciliation's measure of a test is its source text.** "Changed" includes an
+  edit to a comment inside the function, and "identical" means the function's own text
+  did not change, even where a helper or fixture it uses did. It cannot say whether a
+  test still tests what it was written to.
+- **§14 is reconciled, not corrected.** The draft still holds 91 verdicts that were
+  wrong, each now listed beside what happened.
+- **Trades: none.** No engine file changes; `code_hash` is `85c4c826…` before and after,
+  computed on both trees, and both golden snapshots are untouched.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then

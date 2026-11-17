@@ -224129,3 +224129,238 @@ Lines 6468–6479 of the version at `ebd98e5`:
   on — gate 9's place last in the ladder above all, since stage 5 removes the
   sentences around it.
 ~~~~~
+
+## 17 November 2026 — the lines the rewrite of PHASE7_NEXT.md removed from its version at `f6fff24a`
+
+*Moved here on 17 November 2026 by stage 6 of the redesign's build, the sixth commit on
+the branch `redesign`, under "Ruling, 4 November 2026 — HISTORY keeps what each rewrite
+of PHASE7_NEXT.md removes, not the whole file" (DECISIONS). Below the rule, each block
+is a run of lines of the file as it stood at `f6fff24a` that the rewrite deleted or
+replaced, word for word, labelled with its line numbers in that version; "this session"
+in them is the session that opened at 20:34 on 15 November, not the one that writes this
+entry, which opened at 20:30 on 16 November, and "the commit that writes this line",
+"the commit that writes this section" and "this commit" name `f6fff24a`. The whole
+version: `git show f6fff24:docs/PHASE7_NEXT.md`. Checked by
+`docs/build/check_history_move.py`.*
+
+---
+Lines 3–7 of the version at `f6fff24`:
+
+~~~~~
+*15 November 2026, in the session that opened at 20:34, on the branch `redesign`.
+Rewritten by stage 5 of the redesign's build, the branch's fifth commit, which also
+files the readings made building it and records `ebd98e50`'s landing;
+the lines it removed from the version at
+`ebd98e50` are in HISTORY, which points to that whole version in git.
+~~~~~
+
+Lines 37–39 of the version at `f6fff24`:
+
+~~~~~
+**Six stages on `redesign`, then the merge** (DECISIONS, "Decision, 14 November 2026 —
+the redesign's code is cut into six stages; what stage 1 is"; Claude's, Viktor's to
+reverse). Every stage leaves the engine running and the three suites green, with a
+~~~~~
+
+Line 92 of the version at `f6fff24`:
+
+~~~~~
+5. **The removals — landed by the commit that writes this section** (DECISIONS,
+~~~~~
+
+Lines 122–123 of the version at `f6fff24`:
+
+~~~~~
+6. **Reconciliation** against the draft's sections 13 and 14; replacements for H1, H2
+   and H5 proposed. **Next.**
+~~~~~
+
+Line 132 of the version at `f6fff24`:
+
+~~~~~
+deleting `docs/build/indicator_overlap.py` and six test files moves nothing.
+~~~~~
+
+Lines 137–151 of the version at `f6fff24`:
+
+~~~~~
+- **Two indicator columns are now produced every run and read by nothing:**
+  `EMA20_Slope`, which trend health read twice, and `VWMA`, which entry quality
+  scored a distance from until stage 4. Both are still computed and still in
+  `lineage.indicators_at_decision_bar`, which is where the draft's section 2
+  leaves them. **That is an Item 16 breach — no unconsumed complexity — and it
+  is recorded rather than fixed here:** removing a column moves the struct input
+  hash, `run_hash` and the nineteen `indicators_at_decision_bar` leaves this
+  stage's plan says do not move, so it belongs to stage 6, and it is **Viktor's
+  to know about** (Open items). `tests/test_no_dead_columns.py` says which
+  columns anything reads.
+- **`indicators/trend_health.py` and `compute_trend_health` keep their names**
+  and compute no trend health. That is round 8's F8, one name for one meaning, in
+  the place the project has recorded it before. A rename touches every caller,
+  the tests that import it and the change list, and a rename is not a removal, so
+  it is stage 6's, recorded in the module itself.
+~~~~~
+
+Lines 157–159 of the version at `f6fff24`:
+
+~~~~~
+  and entry quality to about ±2 to ±4 points. H5's fix removes the known defect
+  that puts volume in the wrong bin and is proposed in stage 6, with H1's and
+  H2's.
+~~~~~
+
+Line 210 of the version at `f6fff24`:
+
+~~~~~
+- H5's replacement as a held-back defect: stage 6, with H1's and H2's.
+~~~~~
+
+Line 292 of the version at `f6fff24`:
+
+~~~~~
+**The draft's errors found so far; the draft is not edited until stage 6:**
+~~~~~
+
+Lines 346–355 of the version at `f6fff24`:
+
+~~~~~
+**`ebd98e50`'s landing.** Viktor's opening message of 15 November, sent at 20:34:
+stage 4 landed as `ebd98e50` (tree `b7e6d9a6…`), pushed on 15 November at
+20:27:15, and its landing "was checked at 20:30 against GitHub and the disk and
+holds: tip, parent `5e7e429`, tree against Verified-Tree, message, COMMIT_EDITMSG
+less its CRs, index (312 entries), the 40 files, the deleted file gone, the root
+clean, master still `696af24`". New at that check, on his statement: **the commit
+object is loose again, not packed**, and hashes to its name with no CR, so no
+`git gc` has run since stage 3's — a landing check reads whichever of the two the
+disk has. Also on his statement: **stage 4 was built and its landing checked by
+one Claude Opus 5 session.**
+~~~~~
+
+Lines 357–371 of the version at `f6fff24`:
+
+~~~~~
+**And, on his statement, the one deviation of that landing, which is why every
+command in a delivery now names its folder.** Five `git add` steps of stage 4's
+list were pasted into a fresh console sitting in `E:\phase7_engine` and ran
+there. They staged nothing — those files are unchanged on `master`, so git left
+the index alone — and the sixth stopped with `fatal: pathspec
+'core/threshold_text.py' did not match any files`, that file existing only on the
+branch. **Had every path existed on `master` the list would have run to the
+commit**, where only the commit-msg hook would have caught it. A `cd` as step 1
+is only as good as the console it is pasted into. The patch-delivery skill's
+sections 7 and 11 were updated for it — `git -C E:\phase7_redesign …` and
+absolute paths for `del`, with no `cd` step at all — and **this session checked
+that the update was saved**: the skill is marked current as of `ebd98e50` and
+both sections carry the new form. It is the structural fix in the shape he
+prefers: the safe action is the only available one, rather than a step to
+remember.
+~~~~~
+
+Lines 373–377 of the version at `f6fff24`:
+
+~~~~~
+Of stage 4 this session read from GitHub, by its clone of 20:35: `redesign`'s tip
+is `ebd98e50`, its parent `5e7e429`, its tree
+`b7e6d9a6f1ce1038bf08f2b91f5f95f0db01388a`, the one its `Verified-Tree:` line
+names, and `master` is `696af24919ba73eb676a996c58365abf94635bad`. His disk was
+not read again for it.
+~~~~~
+
+Line 4333 of the version at `f6fff24`:
+
+~~~~~
+- **Golden snapshot:** **re-baselined by the commit that writes this line, stage 5
+~~~~~
+
+Line 4469 of the version at `f6fff24`:
+
+~~~~~
+  until `713e084` (entry 50). **The commit that writes this line, stage 5 of the
+~~~~~
+
+Lines 4966–4969 of the version at `f6fff24`:
+
+~~~~~
+- **Engineering Notes:** through Entry #288 (v1.43), which covers `a60d66b`; eleven
+  commits behind, `9cc48d7`, `a9b83a9`, `66b5c50`, `b26e5c7`, `6df23f4`, `dac70c1`,
+  `a3c863e`, `696af24`, `6038283`, the first to change code among them, `c012e5b`
+  and the commit that writes this line (below). The gap
+~~~~~
+
+Line 4976 of the version at `f6fff24`:
+
+~~~~~
+  **Eleven commits that need an entry are behind:** `9cc48d7`, which files the ruling of
+~~~~~
+
+Lines 4986–4987 of the version at `f6fff24`:
+
+~~~~~
+  stage 2 of it, and the commit that writes this
+  line, stage 3; none has one until the next regeneration. `bc250fc`, `9db4ae2`, `82b824d` and
+~~~~~
+
+Line 5568 of the version at `f6fff24`:
+
+~~~~~
+  the audit.
+~~~~~
+
+Line 5769 of the version at `f6fff24`:
+
+~~~~~
+  Amazon's audit as H2** (the same ruling): left as it is until after the audit.
+~~~~~
+
+Lines 5959–5960 of the version at `f6fff24`:
+
+~~~~~
+  whose 4.2 test fails on the code before it). Its replacement as a held-back defect
+  is proposed at stage 6.
+~~~~~
+
+Line 6638 of the version at `f6fff24`:
+
+~~~~~
+  from the version at `ebd98e50` are in HISTORY's new entry, checked by
+~~~~~
+
+Lines 6640–6650 of the version at `f6fff24`:
+
+~~~~~
+- **Four operator-facing strings in `indicators/indicators.py` named calculations
+  that no longer run**, found by scanning every string literal in the engine for
+  the names this stage removes rather than by a failing test. The ADX failure note
+  claimed trend health lost "up to 40 of its 100 points"; the RSI note claimed
+  entry quality scored RSI extension "at its neutral 10 of 15", **which has been
+  false since stage 4 made entry quality D + H** and which no test caught; the EMA
+  note named trend health's slope component; and the volume-spike note named VWMA,
+  the bias score and a capped confidence. All four are rewritten to name what each
+  input now decides. The ADX one is the third correction of that single string —
+  round 5 reported its "25" on 12 September, F9(4) fixed it to 40 on 12 October,
+  and the number itself is what went stale both times.
+~~~~~
+
+Lines 6659–6665 of the version at `f6fff24`:
+
+~~~~~
+- **Claude's, next: stage 6 of the redesign's build, the reconciliation** — the
+  draft's sections 13 and 14 against what was built, and the replacements for the
+  held-back defects H1, H2 and H5 proposed, which was agreed on 11 November for
+  when the redesign's code exists (THE REDESIGN'S BUILD, above). It carries three
+  things this stage left: the two unconsumed indicator columns below,
+  `indicators/trend_health.py`'s name, and §14 reconciled as a list rather than
+  file by file. After it, the merge, as a session of its own.
+~~~~~
+
+Lines 6674–6680 of the version at `f6fff24`:
+
+~~~~~
+- **Viktor's to know, found by stage 5, not fixed: two indicator columns are now
+  computed every run and read by nothing** — `EMA20_Slope` and `VWMA`. That is an
+  Item 16 breach (no unconsumed complexity), and removing a column moves the
+  struct input hash, `run_hash` and the nineteen
+  `lineage.indicators_at_decision_bar` leaves, which this stage's plan says do not
+  move; so it is stage 6's, with his eye on it first. Nothing decides worse for
+  it: the cost is a column computed and recorded that no gate reads.
+~~~~~

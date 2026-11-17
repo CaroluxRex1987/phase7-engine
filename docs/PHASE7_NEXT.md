@@ -1,10 +1,11 @@
 # Next step — read this first
 
-*15 November 2026, in the session that opened at 20:34, on the branch `redesign`.
-Rewritten by stage 5 of the redesign's build, the branch's fifth commit, which also
-files the readings made building it and records `ebd98e50`'s landing;
-the lines it removed from the version at
-`ebd98e50` are in HISTORY, which points to that whole version in git.
+*17 November 2026, in the session that opened at 20:30 on 16 November, on the branch
+`redesign`. Rewritten by stage 6 of the redesign's build, the branch's sixth commit,
+which changes no code: it files the reconciliation, two rulings of 17 November and a
+delivery procedure, writes the redesign draft's version 15 and records `f6fff24a`'s
+landing; the lines it removed from the version at `f6fff24a` are in HISTORY, which
+points to that whole version in git.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
 rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
@@ -34,9 +35,10 @@ goes on running from it. The merge's last step removes this section.
 
 ## THE REDESIGN'S BUILD — where it stands
 
-**Six stages on `redesign`, then the merge** (DECISIONS, "Decision, 14 November 2026 —
-the redesign's code is cut into six stages; what stage 1 is"; Claude's, Viktor's to
-reverse). Every stage leaves the engine running and the three suites green, with a
+**Seven stages on `redesign`, then the merge** (DECISIONS, "Decision, 14 November 2026 —
+the redesign's code is cut into six stages; what stage 1 is", Claude's, amended by
+"Ruling, 17 November 2026 — the redesign's build is seven stages …", Viktor's). Every
+stage leaves the engine running and the three suites green, with a
 live run from `E:\phase7_redesign` before its commit; each golden leaf moves once, to
 its final value, but for `run_hash` and the archive path, which are digests and move
 with what they hash.
@@ -89,7 +91,7 @@ with what they hash.
    with a snapshot of its own that pins a LONG. **The golden decision is
    unchanged — still a WAIT at gate 8.** Its live run is recorded in its commit
    message.
-5. **The removals — landed by the commit that writes this section** (DECISIONS,
+5. **The removals — landed, `f6fff24a`** (DECISIONS,
    "Decision, 15 November 2026 — stage 5 of the redesign's build: the removals —
    trend health, confidence and EV, validation, the exit watch's two flags and
    the weighted sum …"). Five groups go, and with them **sixty-six leaves of the
@@ -119,8 +121,20 @@ with what they hash.
    clean fixture's WAIT at gate 8 and the trade fixture's LONG, with
    `exit.action` and `explanation.summary` not moving on either. Its live run is
    recorded in its commit message.
-6. **Reconciliation** against the draft's sections 13 and 14; replacements for H1, H2
-   and H5 proposed. **Next.**
+6. **Reconciliation — landed by the commit that writes this section; no code**
+   (DECISIONS, "Decision, 17 November 2026 — stage 6 of the redesign's build: the
+   reconciliation …"). The draft's §13 and §14 against what stages 1 to 5 built, written
+   into the draft's version 15 as §18, with §13 and §14 left as they were. **§13:** the
+   golden snapshot went from 227 leaves at `e69d5bb` to 165 — 88 removed, 26 added, 14
+   moved, against a predicted 85, 15 and 2 renamed — and every difference is one an
+   earlier stage had already recorded. **§14:** 376 of its 467 verdicts matched what
+   happened and 91 did not, 47 of those being tests it had rewritten that needed no
+   edit; of the 407 tests it set aside, 12 moved. The held-back defects' replacements
+   were ruled (below). Its live run is recorded in its commit message.
+7. **The two unread columns and the module's name.** `EMA20_Slope` and `VWMA` stop being
+   computed, and `indicators/trend_health.py` and `compute_trend_health` become
+   `indicators/trend_readings.py` and `compute_trend_readings`. **Next, and the last
+   before the merge.**
 
 **The branch's `code_hash`:** `85c4c826…` since stage 5, `322cdf66…` at stage 4,
 `b8afef79…` at stage 3, `43d15cbb…` at stage 2, `a3d499df…` at stage 1,
@@ -129,34 +143,71 @@ sandbox on both trees at each stage; stage 1's to stage 4's are also on their li
 records. Stage 5 moved the fingerprint of exactly the ten engine modules it
 edited and of no other file, which was checked file by file rather than inferred
 from the top-level hash; `docs/` and `tests/` are excluded by directory, so
-deleting `docs/build/indicator_overlap.py` and six test files moves nothing.
+deleting `docs/build/indicator_overlap.py` and six test files moves nothing. **Stage 6
+changes no engine file and moves no hash:** `85c4c826…` on the tree before it and on the
+tree after it, computed on both in the Linux sandbox under Python 3.12.3.
+
+**Ruled on 17 November, at stage 6** — both Viktor's, each by agreeing to Claude's
+suggestion and not by writing his position first:
+
+- **The build is seven stages** (DECISIONS, "Ruling, 17 November 2026 — the redesign's
+  build is seven stages …"). Stage 6 changes no code; stage 7 makes the two code changes
+  stage 5 left, on the branch, before the merge. Claude's reasons: both changes move
+  `code_hash`, and by his ruling of 08:55 on 11 November the task counts a version from
+  its first run, so landed after the merge they would discard the merged version's first
+  counts; and the reconciliation should not share a commit with test movement of its
+  own. **His "Agree." at 07:14 followed two suggestions; Claude read it as covering both
+  and said so before building.** His to correct.
+- **The held-back defects' replacements are H6, H7 and H8** (DECISIONS, "Ruling, 17
+  November 2026 — the held-back defects' replacements are H6, H7 and H8 …"), so Amazon's
+  audit is scored on H3 and these: `_safe_float` in `models/decision_model.py`, which
+  nothing calls since stage 5; `render_panel`'s `trend` local in `core/panel_render.py`,
+  which nothing reads since stage 5; and `DecisionModel`'s docstring, which gives
+  `evaluate()` a `trend` input it no longer takes. Each is on the list ("Found after 22
+  September", its last entries) and left as it is until after the audit. **Owed with it:
+  a held-back defect that can move a reading**, which H5 could and none of the four can
+  (Open items).
+
+**Stage 6's three corrections to what stage 5 recorded about the two columns** (the next
+heading's first bullet, as stage 5 wrote it, said removing a column "moves the struct
+input hash, `run_hash` and the nineteen `indicators_at_decision_bar` leaves"). Read in
+the code at `f6fff24a`, not run: the struct input hash is of the frame copied before any
+derived column exists (`core/engine_core.py`, line 581), so it does not move; `run_hash`
+does not move, `VWMA_LENGTH` staying in the fingerprinted configuration because the
+volume-spike guard still reads it; and two leaves leave `indicators_at_decision_bar`, 19
+to 17, the other seventeen keeping their values. The removal costs two golden leaves and
+`code_hash`. **One consequence no record had named:** `VWMA` is in the sweep that drops
+an unusable column and degrades the run, so a frame whose VWMA cannot be computed is a
+degraded run today and will not be, on that account, once the column is gone. Stage 7
+predicts and measures all of it.
 
 **Left for a later stage on purpose, by stage 5** (the entry's readings, and
 what it weakens):
 
-- **Two indicator columns are now produced every run and read by nothing:**
-  `EMA20_Slope`, which trend health read twice, and `VWMA`, which entry quality
-  scored a distance from until stage 4. Both are still computed and still in
-  `lineage.indicators_at_decision_bar`, which is where the draft's section 2
-  leaves them. **That is an Item 16 breach — no unconsumed complexity — and it
-  is recorded rather than fixed here:** removing a column moves the struct input
-  hash, `run_hash` and the nineteen `indicators_at_decision_bar` leaves this
-  stage's plan says do not move, so it belongs to stage 6, and it is **Viktor's
-  to know about** (Open items). `tests/test_no_dead_columns.py` says which
-  columns anything reads.
-- **`indicators/trend_health.py` and `compute_trend_health` keep their names**
-  and compute no trend health. That is round 8's F8, one name for one meaning, in
-  the place the project has recorded it before. A rename touches every caller,
-  the tests that import it and the change list, and a rename is not a removal, so
-  it is stage 6's, recorded in the module itself.
+- **Two indicator columns are produced every run and read by nothing:** `EMA20_Slope`,
+  which trend health read twice, and `VWMA`, which entry quality scored a distance from
+  until stage 4. Both are still computed and still in
+  `lineage.indicators_at_decision_bar`, which is where the draft's section 2 leaves
+  them. **That is an Item 16 breach — no unconsumed complexity — recorded by stage 5 and
+  fixed by stage 7**, by Viktor's ruling of 17 November. What removing them moves is
+  corrected above. `tests/test_no_dead_columns.py` says which columns anything reads.
+- **`indicators/trend_health.py` and `compute_trend_health` keep their names** and
+  compute no trend health. That is round 8's F8, one name for one meaning, in the place
+  the project has recorded it before, and it is recorded in the module itself. **Stage 7
+  renames them** `indicators/trend_readings.py` and `compute_trend_readings` — Claude's
+  choice of name, Viktor's to reverse; the engine's own failure string for the call
+  already reads "Trend readings failed". The rename reaches `core/engine_core.py`,
+  `models/signal_router.py`, `core/decision_contract.py`, `tests/conftest.py`, eight
+  test files and the change list; it moves `code_hash`, which hashes each file's path,
+  and neither `run_hash` nor a golden leaf.
 - **Entry 58's helper still has its edge, found by stage 3 and not fixed:** a
   value equal to a line that needs more than two decimals prints above it. It
   cannot fire at gate 9's two lines, 70 and 50, which have no decimals, and a
   test holds that. No constant line in the engine has decimals.
 - **The HVN is a bin's midpoint,** so `h` is known only to half a bin either way
-  and entry quality to about ±2 to ±4 points. H5's fix removes the known defect
-  that puts volume in the wrong bin and is proposed in stage 6, with H1's and
-  H2's.
+  and entry quality to about ±2 to ±4 points. H5's fix, in since stage 1, removes the
+  known defect that puts volume in the wrong bin; its replacement as a held-back defect
+  was ruled at stage 6, with H1's and H2's (above).
 
 **Closed by stage 5, from stage 4's list:**
 
@@ -207,7 +258,8 @@ what it weakens):
 
 **Left for a later stage on purpose, by stage 1:**
 
-- H5's replacement as a held-back defect: stage 6, with H1's and H2's.
+- H5's replacement as a held-back defect: ruled at stage 6, with H1's and H2's — H6, H7
+  and H8 (above).
 - Stage 1's other three are closed by stage 3: an absent `quote_volume` is a
   missing input, and the test that held the old behaviour is moved
   (`tests/test_gates_6_to_8.py::test_on_the_engine_path_a_frame_without_quote_volume_degrades_the_run`);
@@ -289,7 +341,8 @@ something he ruled or would see):
 - **The PLAN line under NEUTRAL** keeps the wording he ruled on 27 September and
   loses "(score X, inside ±20)".
 
-**The draft's errors found so far; the draft is not edited until stage 6:**
+**The draft's errors, as each stage found them; reconciled at stage 6 in the draft's
+version 15, §18, which leaves §13 and §14 as they were written:**
 
 - *Stage 1.* §5 has the golden run's `quote_volume` come from
   `docs/build/make_pinned.py`; the golden test derives its series from
@@ -342,39 +395,47 @@ something he ruled or would see):
   the golden run that is not the golden run's.** §14 misclassifies four tests
   and misses one scanner, listed in stage 4's entry; its own caveat that the
   tests "were not read line by line" cost one restore, also listed there.
+- *Stage 6.* §13 and §14 compared whole, the snapshot with `e69d5bb`'s and the tests
+  with `696af24`'s (Linux sandbox, Python 3.12.3). **§13.2:** 88 removed against its 85,
+  every leaf it predicted removed having left, the other three being the two it called
+  renamed and `risk.trade_quality_proposed`; 14 moved against its 15, thirteen of its
+  own and `entry.entry_status`; 26 added, twenty as §13.3 has them and six it does not
+  have. **§13.1** is right in every verdict. No difference is new at stage 6. **§14:**
+  376 of 467 verdicts matched and 91 did not — 47 rewritten that needed no edit, 20
+  rewritten that were removed, 17 held that were edited, 4 held that were removed, both
+  of its reversals removed instead, and one that was to go still there; and 12 of the
+  407 tests it set aside moved, 9 gone and 3 changed. The lists are the draft's §18.2
+  and §18.3.
 
-**`ebd98e50`'s landing.** Viktor's opening message of 15 November, sent at 20:34:
-stage 4 landed as `ebd98e50` (tree `b7e6d9a6…`), pushed on 15 November at
-20:27:15, and its landing "was checked at 20:30 against GitHub and the disk and
-holds: tip, parent `5e7e429`, tree against Verified-Tree, message, COMMIT_EDITMSG
-less its CRs, index (312 entries), the 40 files, the deleted file gone, the root
-clean, master still `696af24`". New at that check, on his statement: **the commit
-object is loose again, not packed**, and hashes to its name with no CR, so no
-`git gc` has run since stage 3's — a landing check reads whichever of the two the
-disk has. Also on his statement: **stage 4 was built and its landing checked by
-one Claude Opus 5 session.**
+**`f6fff24a`'s landing.** Viktor's opening message of 16 November, sent at 20:30: stage
+5 landed as `f6fff24a` (tree `9b615c6b…`), pushed on 16 November at 20:00:19, and its
+landing was "checked that evening and holds: tip, parent ebd98e50, tree against
+Verified-Tree, message against the delivered file less its 457 CRs, COMMIT_EDITMSG at
+27035 bytes, index 305 entries, the 55 files (48 modified, 7 deleted), the seven deleted
+paths gone, root clean, master still 696af24, and the commit object loose, hashing to
+its name with no CR."
 
-**And, on his statement, the one deviation of that landing, which is why every
-command in a delivery now names its folder.** Five `git add` steps of stage 4's
-list were pasted into a fresh console sitting in `E:\phase7_engine` and ran
-there. They staged nothing — those files are unchanged on `master`, so git left
-the index alone — and the sixth stopped with `fatal: pathspec
-'core/threshold_text.py' did not match any files`, that file existing only on the
-branch. **Had every path existed on `master` the list would have run to the
-commit**, where only the commit-msg hook would have caught it. A `cd` as step 1
-is only as good as the console it is pasted into. The patch-delivery skill's
-sections 7 and 11 were updated for it — `git -C E:\phase7_redesign …` and
-absolute paths for `del`, with no `cd` step at all — and **this session checked
-that the update was saved**: the skill is marked current as of `ebd98e50` and
-both sections carry the new form. It is the structural fix in the shape he
-prefers: the safe action is the only available one, rather than a step to
-remember.
+**And, on his statement, what stage 5's delivery changed, which is why each check step
+now carries its own folder.** The pytest and `run_tests.py` steps had to change form: "a
+bare python names no folder, and a path handed as an argument does not fail from the
+wrong console, it answers wrongly (3 failed / 997 passed, and 928 / 0 / 34, moving the
+watched error count). Each check step now carries its own os.chdir." The patch-delivery
+skill's sections 7 and 11 were updated for it, and **this session checked that the
+update was saved**: the skill is marked current as of `f6fff24a`, section 7 carries the
+three one-line forms and section 11 carries them for the worktree. That rule, and stage
+4's before it that every git command names its folder, were in no entry of DECISIONS;
+both are filed by this commit (DECISIONS, "Decision, 16 November 2026 — every command of
+a delivery names its folder, and each check step carries its own …").
 
-Of stage 4 this session read from GitHub, by its clone of 20:35: `redesign`'s tip
-is `ebd98e50`, its parent `5e7e429`, its tree
-`b7e6d9a6f1ce1038bf08f2b91f5f95f0db01388a`, the one its `Verified-Tree:` line
-names, and `master` is `696af24919ba73eb676a996c58365abf94635bad`. His disk was
-not read again for it.
+Of stage 5 this session read from GitHub, by its clone of about 20:31 on 16 November:
+`redesign`'s tip is `f6fff24af0cfa5f1e3c1127d1641caa5671d0839`, its parent `ebd98e50`,
+its tree `9b615c6b0ee02063974ae13af796fea9d4741028`, the one its `Verified-Tree:` line
+names, and `master` is `696af24`. Off his disk, on 17 November, it staged the four files
+this commit changes — this file, DECISIONS, HISTORY and the redesign draft — and each is
+byte for byte the tip's in an autocrlf checkout. The staging gave this file's
+modification time as 18:33:04 on 16 November and HISTORY's as 09:08:44 the same day,
+though one commit changed both; read, not explained, and it bears on nothing the landing
+holds.
 
 ## PACE FIRST — read this before the rest of this file
 
@@ -4330,7 +4391,7 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
   output, a CPython implementation detail (`core/code_fingerprint.py`, "WHAT IT DOES NOT
   SURVIVE"). **Every `code_hash` claim about this project is computed under Python 3.12**
   (Viktor runs 3.12.10).
-- **Golden snapshot:** **re-baselined by the commit that writes this line, stage 5
+- **Golden snapshot:** untouched by stage 6, which changes no code. **Re-baselined by `f6fff24a`, stage 5
   of the redesign's build, with `PHASE7_UPDATE_SNAPSHOT=1` — both snapshots, the
   clean fixture's and the trade fixture's, and identically: 58 leaves removed, 1
   added and 5 moved on each, 165 leaves from 222. `exit.action` and
@@ -4466,7 +4527,7 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
   `test_no_module_defaults_a_missing_risk_verdict_to_a_pass`. This is meant to be the
   one place the watched error count is written as a number (DECISIONS, "Ruling,
   15 October 2026 — Part 4's three test shapes", point 5); `README.md` wrote it too
-  until `713e084` (entry 50). **The commit that writes this line, stage 5 of the
+  until `713e084` (entry 50). Stage 6 moves none of the three. **`f6fff24a`, stage 5 of the
   redesign's build, takes the suite from 1061 to 1000, from 873 / 177 to 830 / 166,
   and from 992 / 0 / 31 to 931 / 0 / 31 — the first stage of the redesign to remove
   more tests than it adds, which is what a stage of removals should do.** Minus 61
@@ -4963,17 +5024,20 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
   then run on Windows at 09:06 on 12 October: both matched (792; 721 / 0 / 32). One test,
   `test_the_commit_messages_up_to_the_tag_are_round_7s_to_the_byte`, runs `git log` up
   to the tag `round7-sent-2026-09-30`: it needs the tag, which a full clone has.
-- **Engineering Notes:** through Entry #288 (v1.43), which covers `a60d66b`; eleven
-  commits behind, `9cc48d7`, `a9b83a9`, `66b5c50`, `b26e5c7`, `6df23f4`, `dac70c1`,
-  `a3c863e`, `696af24`, `6038283`, the first to change code among them, `c012e5b`
-  and the commit that writes this line (below). The gap
+- **Engineering Notes:** through Entry #288 (v1.43), which covers `a60d66b`; **fourteen
+  commits behind, and not rebuilt since before stage 1 of the redesign's build**:
+  `9cc48d7`, `a9b83a9`, `66b5c50`, `b26e5c7`, `6df23f4`, `dac70c1`, `a3c863e`,
+  `696af24`, `6038283`, the first to change code among them, `c012e5b`, `5e7e429`,
+  `ebd98e50`, `f6fff24a` and the commit that writes this line, stage 6 (below). This
+  line and the count below stood at eleven through stages 4 and 5, which did not bring
+  them current; corrected on 17 November, on Viktor's opening message. The gap
   left by v1.36 was closed in four regenerations: v1.37 at `f8805a6` covered `e7a94d1`
   to `eb86846`, v1.38 at `0a518fd` `c2b07fb` to `67f6ec1`, v1.39 at `a0ca299` `0491b84`
   to `b8f88d8`, and v1.40 at `bc250fc` `a1c4218` to `0a518fd`. v1.41, at `9db4ae2`,
   covered the seven commits `706e858` to `82ea40e`, v1.42, at `82b824d`, the two
   commits `7dac328` and `340ee8d`, and v1.43, at `4cdad4e`,
   covers the three commits `6bb82cc`, `e4363d5` and `a60d66b`, one entry each.
-  **Eleven commits that need an entry are behind:** `9cc48d7`, which files the ruling of
+  **Fourteen commits that need an entry are behind:** `9cc48d7`, which files the ruling of
   11 November and the reading, `a9b83a9`, which files the rulings of 08:55 on
   11 November and writes the draft's version 9, `66b5c50`, which files the ruling of
   09:41 on 11 November and writes the draft's version 10, `b26e5c7`, which files the
@@ -4983,8 +5047,9 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
   version 13, `a3c863e`, which files the ruling of 07:33
   on 12 November and writes the draft's version 14, `696af24`, which files the ruling
   of 01:15 on 13 November, `6038283`, stage 1 of the redesign's build, `c012e5b`,
-  stage 2 of it, and the commit that writes this
-  line, stage 3; none has one until the next regeneration. `bc250fc`, `9db4ae2`, `82b824d` and
+  stage 2 of it, `5e7e429`, stage 3, `ebd98e50`, stage 4, `f6fff24a`, stage 5, and the
+  commit that writes this line, stage 6; none has one until the next regeneration.
+  `bc250fc`, `9db4ae2`, `82b824d` and
   `4cdad4e` are regenerations and have none (a commit that
   regenerates the Notes cannot cover itself, Entry #144). Every later commit adds one
   until the next regeneration. Batched, by the 15 September rule. v1.43 records the
@@ -5565,7 +5630,9 @@ the work before the audit, entry 1 apart.
   this list by the 22 September ruling, not separately ruled. The Part 7 document's
   S4; round 8 found it (F10). **Held back for Amazon's audit as H1** (DECISIONS,
   "Ruling, 18 October 2026 — the four held-back defects …"): left as it is until after
-  the audit.
+  the audit. **Gone with the redesign:** stage 4 removed the branch with the ladder it
+  belonged to. Replaced as a held-back defect on 17 November (H6 to H8, this list's last
+  entries).
 - **A floor on T1: at least 3% after fees.** Point 2 of "Ruling, 28 September 2026 —
   what "finished" means, and how the engine is judged": the engine should issue no LONG
   whose T1 nets under 3% after fees. Today T1 equals the stop distance, anywhere from
@@ -5766,7 +5833,9 @@ the work before the audit, entry 1 apart.
   bool and then unused, so the bias score does not see it, and a caller would think it
   does. Found by Claude scoping fix 2 on the night of 5 to 6 October. It changes no
   trade; on this list by the 22 September ruling, not separately ruled. **Held back for
-  Amazon's audit as H2** (the same ruling): left as it is until after the audit.
+  Amazon's audit as H2** (the same ruling): left as it is until after the audit. **Gone
+  with the redesign:** stage 5 removed `calculate_dynamic_bias` with the weighted sum.
+  Replaced as a held-back defect on 17 November (H6 to H8, this list's last entries).
 - **Two counts in `models/risk_model.py`'s docstrings are wrong** (read at `1b25f36`,
   from the parse tree): `read_risk_verdict` says `validate_risk_parameters` has six
   return paths, and it has seven; `validate_risk_parameters` says "the three
@@ -5956,8 +6025,10 @@ the work before the audit, entry 1 apart.
   draft's §8, version 9, has the fix and its tests), and replaced as a held-back
   defect. **Fixed by stage 1 of the redesign's build, 14 November:** a flat candle
   goes to the bin that holds its price (`tests/test_flat_candle_goes_to_its_bin.py`,
-  whose 4.2 test fails on the code before it). Its replacement as a held-back defect
-  is proposed at stage 6.
+  whose 4.2 test fails on the code before it). Replaced as a held-back defect on 17
+  November, with H1 and H2, by H6 to H8 (this list's last entries); what H5 tested, a
+  calculation at its edge, none of them does, and a defect that does is still owed (Open
+  items).
 - **`_compute_trade_quality` takes `trend` and `final_action` and reads neither**
   (`models/decision_model.py:872`, found by the same search). Its only use of `trend`
   went at sequence item 11, as the comment inside it says; `final_action` is never
@@ -6319,6 +6390,41 @@ the work before the audit, entry 1 apart.
   change: a code fix, so it moves `code_hash` and waits until after the reading of
   14 November; its shape (degrade the run, or leave the column out as a failed
   indicator) is settled with that patch. Its severity is not ruled.
+- **`_safe_float` is defined and nothing calls it** (found 16 November by a search of
+  the engine's parse tree at `f6fff24a`, made for the held-back defects' replacements).
+  `models/decision_model.py`, line 20: six call sites at `e69d5bb`, the last of them
+  removed by stage 5 with confidence, EV, trade quality and the weighted sum. No other
+  line of the engine and no test names it. Cleanup only; `code_hash` moves when it goes.
+  Entry 62; not in the sort. **Held back for Amazon's audit as H6** (DECISIONS, "Ruling,
+  17 November 2026 — the held-back defects' replacements are H6, H7 and H8 …"): left as
+  it is until after the audit.
+- **`render_panel` binds the decision's `trend` block and never reads it** (found by the
+  same search). `core/panel_render.py`, line 141, among the lines that take each section
+  of the decision object with a safe default; stage 5 removed the TREND line, the only
+  reader. The shape sequence item 13 fixed in this function once. Cleanup only; changes
+  nothing printed. Entry 63; not in the sort. **Held back for Amazon's audit as H7**
+  (the same ruling): left as it is until after the audit.
+- **`DecisionModel`'s docstring gives `evaluate()` a `trend` input it does not take**
+  (found by the same search, reading the docstrings that name something stage 5
+  removed). `models/decision_model.py`, line 82: "{bias, trend, entry, risk}", where
+  `evaluate()` takes `bias`, `entry` and `risk`; the sentence's own parenthesis records
+  the same change for `structure` and `macro_bias`. A wrong sentence; changes no code.
+  Entry 64; not in the sort. **Held back for Amazon's audit as H8** (the same ruling):
+  left as it is until after the audit.
+- **`models/entry_model.py` imports numpy and never uses it** (line 5, found by the same
+  search): nothing in the module reads `np` since stage 4 made entry quality D + H.
+  Cleanup only; `code_hash` moves. Proposed as a held-back defect and not chosen, its
+  kind being on this list already (`data/validation.py`'s `math`). Entry 65; not in the
+  sort.
+- **`StructureAnalysisResult` is declared and nothing refers to it** (found 17 November,
+  running the same search again for names nothing refers to anywhere — the engine, the
+  tests and `docs/build`). `structure/structure.py`, line 8: a `TypedDict` its comment
+  calls the formal return contract; `analyze()` is annotated `Dict[str, Any]`, and no
+  function, test or tool names the class. There since before `e69d5bb`, and not found on
+  18 October, whose search did not look for unreferenced classes. So the contract it
+  states is checked against nothing. Cleanup, or annotate `analyze()` with it; either
+  moves `code_hash`. Found after the ruling of 17 November and not held back; Viktor's
+  to put in H6's or H7's place if he prefers it. Entry 66; not in the sort.
 
 ## Work order — Claude's, under Viktor's delegation
 
@@ -6635,19 +6741,30 @@ Each code commit is its own commit and updates this file for its own landing.
   11 November. Left as found: bringing them current is a read of six commits, a
   piece of its own (Open items).
 - **This file's rewrite**, by the commit that writes this line. The lines it removed
-  from the version at `ebd98e50` are in HISTORY's new entry, checked by
+  from the version at `f6fff24a` are in HISTORY's new entry, checked by
   `docs/build/check_history_move.py` (the commit message has the result).
-- **Four operator-facing strings in `indicators/indicators.py` named calculations
-  that no longer run**, found by scanning every string literal in the engine for
-  the names this stage removes rather than by a failing test. The ADX failure note
-  claimed trend health lost "up to 40 of its 100 points"; the RSI note claimed
-  entry quality scored RSI extension "at its neutral 10 of 15", **which has been
-  false since stage 4 made entry quality D + H** and which no test caught; the EMA
-  note named trend health's slope component; and the volume-spike note named VWMA,
-  the bias score and a capped confidence. All four are rewritten to name what each
-  input now decides. The ADX one is the third correction of that single string —
-  round 5 reported its "25" on 12 September, F9(4) fixed it to 40 on 12 October,
-  and the number itself is what went stale both times.
+- **Stage 6 of the redesign's build, the reconciliation** (THE REDESIGN'S BUILD, above;
+  DECISIONS, "Decision, 17 November 2026 — stage 6 …"; the redesign draft's version 15,
+  §18). No code, no test, no tool.
+- **Two rulings of Viktor's, 17 November, at 07:14:** the build is seven stages, and the
+  held-back defects' replacements are H6, H7 and H8 (THE REDESIGN'S BUILD, above). The
+  second leaves an item owed (Open items).
+- **The delivery procedure of 15 and 16 November, filed:** every command names its
+  folder and each check step carries its own (DECISIONS, "Decision, 16 November 2026 —
+  every command of a delivery names its folder …"). It had been in the patch-delivery
+  skill and in no entry.
+- **Found, and on the list, not fixed:** `models/entry_model.py`'s unused numpy import
+  (entry 65) and `structure/structure.py`'s unreferenced `StructureAnalysisResult`
+  (entry 66).
+- **Claude's errors in this session**, each in stage 6's entry: two counts given to
+  Viktor from the wrong window (15 and ten, where the build's own are 12 and 7);
+  `VWMA_LENGTH`'s remaining reader named as two things where it is one; and the
+  sandbox's first runs made under Python 3.13, found by `code_hash` not being the
+  branch's, and made again under 3.12.3.
+- **By which model, on Viktor's `/model` at 07:14 on 17 November:** the measurements,
+  the search and both suggestions were made by Claude Opus 5; this commit's files and
+  message were written, and the measurements re-run under Python 3.12, by Claude Fable
+  5.2, in the same session.
 
 ## Open items
 
@@ -6656,13 +6773,28 @@ Claude critiques it.
 
 - **Owed to the next commit:** nothing, unless this commit's push deviates from its
   prediction (ruling on proposal (b), 27 September).
-- **Claude's, next: stage 6 of the redesign's build, the reconciliation** — the
-  draft's sections 13 and 14 against what was built, and the replacements for the
-  held-back defects H1, H2 and H5 proposed, which was agreed on 11 November for
-  when the redesign's code exists (THE REDESIGN'S BUILD, above). It carries three
-  things this stage left: the two unconsumed indicator columns below,
-  `indicators/trend_health.py`'s name, and §14 reconciled as a list rather than
-  file by file. After it, the merge, as a session of its own.
+- **Claude's, next: stage 7 of the redesign's build, the last before the merge** —
+  `EMA20_Slope` and `VWMA` stop being computed, and `indicators/trend_health.py` and
+  `compute_trend_health` are renamed `indicators/trend_readings.py` and
+  `compute_trend_readings` (THE REDESIGN'S BUILD, above; Viktor's ruling of 17
+  November). Predicted from a read of the code, to be measured: two leaves leave
+  `indicators_at_decision_bar` on each golden run, `code_hash` moves, and the struct
+  input hash, `run_hash`, every other golden leaf and both actions do not; a frame whose
+  VWMA cannot be computed stops being a degraded run on that account. It edits neither
+  `models/decision_model.py` nor `core/panel_render.py`, where H6 to H8 are; if it must,
+  they are re-checked in the same commit. After it, the merge, as a session of its own.
+- **Claude's, owed since 17 November — a held-back defect that can move a reading**
+  (DECISIONS, "Ruling, 17 November 2026 — the held-back defects' replacements are H6, H7
+  and H8 …"). H5 could move the HVN by a bin; H3, H6, H7 and H8 cannot move a number,
+  and H6 and H7 fall to one sweep. Claude searches again once stage 7's code exists, in
+  the tree as it will merge; a find is proposed to Viktor, who rules which of the four
+  it displaces, and no find is put to him as it stands.
+- **Claude's, due and not done — the Engineering Notes.** Not rebuilt since before stage
+  1: fourteen commits behind with this one ("Where things stand"). By the rule of 15
+  September it is batched to a session's close or to several commits landed, and both
+  have come. Not done in this session, which closes on stage 6's landing; it is the next
+  session's first piece after that landing's check, or stage 7's close, whichever Viktor
+  prefers.
 - **Viktor's, when he reads it: stage 2's three readings, stage 3's four, stage
   4's five and stage 5's five that change something he ruled or would see** (THE
   REDESIGN'S BUILD, above). None waits for him; each is his to reverse, and a
@@ -6671,13 +6803,16 @@ Claude critiques it.
   because both quantities left the record, and that is the second sentence of
   point 2 of his ruling of 29 August. The ruling's last sentence — a degraded
   result does not by itself authorize trading — is unchanged.
-- **Viktor's to know, found by stage 5, not fixed: two indicator columns are now
-  computed every run and read by nothing** — `EMA20_Slope` and `VWMA`. That is an
-  Item 16 breach (no unconsumed complexity), and removing a column moves the
-  struct input hash, `run_hash` and the nineteen
-  `lineage.indicators_at_decision_bar` leaves, which this stage's plan says do not
-  move; so it is stage 6's, with his eye on it first. Nothing decides worse for
-  it: the cost is a column computed and recorded that no gate reads.
+- **Viktor's to know, found by stage 5 and stage 7's by his ruling: two indicator
+  columns are computed every run and read by nothing** — `EMA20_Slope` and `VWMA`, an
+  Item 16 breach (no unconsumed complexity). Stage 5 recorded that removing a column
+  moves the struct input hash, `run_hash` and the nineteen
+  `lineage.indicators_at_decision_bar` leaves; read in the code at stage 6, it moves two
+  of those leaves and `code_hash` and neither hash (THE REDESIGN'S BUILD, above).
+  Nothing decides worse for it meanwhile: the cost is a column computed and recorded
+  that no gate reads.
+- **Viktor's, only if he prefers it:** `StructureAnalysisResult` (entry 66), found after
+  his ruling on the held-back defects, in H6's or H7's place.
 - **The worktree's setup: done.** Viktor ran it after `696af24`'s push; his message of
   14 November has it checked on 13 November at 02:53 and holding (THE REDESIGN'S
   BUILD, above, with what this session did and did not read).
