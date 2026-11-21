@@ -290,7 +290,7 @@ class BtcContextBlock(_BtcContextRequired, total=False):
     # confidence, removed by Viktor's ruling of 5 October (point 7: Bitcoin is
     # reference only). The block now carries only what engine_core measured.
     # RULING, 12 September 2026 (Viktor). BTC's own indicator failures
-    # (compute_trend_health's degraded_inputs) are recorded here for the
+    # (compute_trend_readings's degraded_inputs) are recorded here for the
     # decision log, and deliberately go no further: never appended to the
     # top-level `degradation` block, never read by panel_render.py. See
     # engine_core.py's comment at the btc_context assembly for why.

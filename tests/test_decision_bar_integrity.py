@@ -794,20 +794,31 @@ def test_a_stale_decision_bar_now_degrades_the_routed_run():
 
 
 # ============================================================
-# F3, GPT-6 Astra round 5: the same finding, for VWMA
+# F3, GPT-6 Astra round 5: the same finding, for VWMA -- and the redesign's
+# stage 7, which stopped computing VWMA
 # ============================================================
+#
+# Round 5's F3 found VWMA's own forward-fill carrying the previous bar's
+# reading onto a decision bar with no usable volume window, and two tests
+# here held the fix at the indicator (the trailing edge dropped and reported,
+# an interior gap still filled forward), with a third holding it through the
+# production path (the run degraded, VWMA named). THE REDESIGN'S STAGE 7,
+# 21 November 2026: VWMA is no longer computed (Item 16 -- nothing has read
+# it since stage 4 made entry quality D + H; Viktor's ruling of 17 November).
+# The two indicator tests had no subject left and are replaced by one that
+# holds the column's absence on the same frame; the third is turned round to
+# hold what the same input does now, which is the one behaviour change stage
+# 7 predicted: a decision window with no usable volume no longer degrades
+# the run on VWMA's account. Their text is in git at the commit before stage
+# 7's.
 
-def test_vwma_trailing_edge_is_not_filled_from_the_previous_bar():
+def test_a_zero_volume_decision_window_leaves_no_vwma_and_no_vwma_failure():
     """
-    The mechanism this fix rests on, isolated from the full pipeline.
-
-    VWMA is computed inline in add_technical_indicators rather than through
-    a pandas_ta call, so it never went through clean_series's trailing-edge
-    rule -- it had its own forward-fill, added at item 3 (Finding 1) for
-    interior gaps, with no exception for the last row. A rolling window
-    with genuinely no usable volume at the decision bar came back holding
-    the previous bar's VWMA, and unusable_reason (which reads the last row)
-    could never see the absence.
+    The frame round 5's F3 reproduced -- the decision bar's own twenty-candle
+    window with no usable volume -- through add_technical_indicators: no
+    VWMA column comes back, and no failure names VWMA. Before stage 7 the
+    column was dropped and the failure recorded; neither can happen now,
+    because the column is not computed at all.
     """
     if not _engine_available():
         pytest.skip("pandas_ta not installed")
@@ -822,63 +833,22 @@ def test_vwma_trailing_edge_is_not_filled_from_the_previous_bar():
         "open": close, "high": close + 0.5, "low": close - 0.5, "close": close,
         "volume": rng.uniform(1000, 2000, n),
     })
-    # The decision bar's own rolling window (VWMA_LENGTH candles) has no
-    # usable volume at all -- the exact shape the report reproduced.
     df.loc[df.index[-config.VWMA_LENGTH:], "volume"] = 0.0
 
     out, failures = add_technical_indicators(df, inplace=False)
 
     assert "VWMA" not in out.columns, (
-        "VWMA survived with a decision-bar value carried forward from the "
-        "previous bar instead of being dropped and reported, same as every "
-        "other critical indicator with no usable value at the decision bar."
-    )
-    assert any(f.indicator == "VWMA" for f in failures), (
-        f"no VWMA failure was recorded: {[str(f) for f in failures]}"
-    )
-
-
-def test_vwma_interior_gaps_still_fill_forward():
-    """
-    The control. Only the trailing edge changed -- an interior window with
-    no usable volume is still carried forward from the last one that had it,
-    same as before this fix and same as every other indicator's
-    clean_series treatment.
-    """
-    if not _engine_available():
-        pytest.skip("pandas_ta not installed")
-
-    from core import config
-    from indicators.indicators import add_technical_indicators
-
-    n = 300
-    rng = np.random.default_rng(7)
-    close = 100 + np.cumsum(rng.normal(0, 0.3, n))
-    df = pd.DataFrame({
-        "open": close, "high": close + 0.5, "low": close - 0.5, "close": close,
-        "volume": rng.uniform(1000, 2000, n),
-    })
-    # An INTERIOR window with no usable volume, far from the decision bar.
-    df.loc[df.index[150:150 + config.VWMA_LENGTH], "volume"] = 0.0
-
-    out, failures = add_technical_indicators(df, inplace=False)
-
-    assert "VWMA" in out.columns, "an interior gap should not drop the column"
+        "a VWMA column came back from add_technical_indicators; stage 7 "
+        "stopped computing it because nothing reads it (Item 16)")
     assert not any(f.indicator == "VWMA" for f in failures), (
-        f"an interior gap should not be reported as a decision-bar failure: "
-        f"{[str(f) for f in failures]}"
-    )
-    assert np.isfinite(out["VWMA"].iloc[-1]), (
-        "the decision bar itself has a real volume window here and must "
-        "still be finite"
-    )
+        f"a failure names VWMA, which is not computed: "
+        f"{[str(f) for f in failures]}")
 
 
 def _zeroed_trailing_volume(real_get_tf, n):
     """Wrap DataFetcher.get_tf so every returned frame's last n rows have
     zero volume -- the full-pipeline equivalent of _trailing_nan above,
-    applied at the input rather than at a pandas_ta call, since VWMA is
-    computed from df["volume"] directly rather than through pandas_ta.
+    applied at the input rather than at a pandas_ta call.
     """
     def wrapped(symbol, timeframe, limit=300):
         out = real_get_tf(symbol, timeframe, limit=limit)
@@ -891,12 +861,18 @@ def _zeroed_trailing_volume(real_get_tf, n):
     return wrapped
 
 
-def test_a_stale_vwma_decision_bar_now_degrades_the_routed_run():
+def test_a_zero_volume_decision_window_no_longer_degrades_the_routed_run():
     """
-    The finding, end to end, through the production path.
+    The behaviour change, end to end, through the production path.
 
-    Before this fix: degraded False, VWMA silently held the previous bar's
-    reading, and the run reported itself clean.
+    Before stage 7, with the last twenty candles' volume zeroed on every
+    frame of the pinned series, the run was degraded with "VWMA" and
+    "macro VWMA" named, trading not authorized, and a WAIT (measured on the
+    tree before stage 7, Linux sandbox, 21 November 2026). VWMA is not
+    computed now, so the same input degrades nothing on its account. What the
+    zeroed volume still decides is gate 8: the decision candle's volume, 0.0,
+    is not above the median of the twenty before it, so the action is WAIT,
+    and the trigger records both numbers.
     """
     if not _engine_available():
         pytest.skip("pandas_ta not installed")
@@ -918,14 +894,14 @@ def test_a_stale_vwma_decision_bar_now_degrades_the_routed_run():
         data_fetcher.base_url = original_url
 
     block = decision.get("degradation", {})
-    assert block.get("degraded") is True, (
-        f"VWMA had no usable value at the decision bar and the run reports "
-        f"itself clean: {block}"
-    )
-    assert any("VWMA" in m for m in block.get("missing_inputs", [])), (
-        f"the degradation block does not name VWMA: {block.get('missing_inputs')}"
-    )
-    assert block.get("trading_authorized") is False, (
-        "a run whose indicator had no value at the decision bar still "
-        "authorizes trading"
-    )
+    assert not any("VWMA" in m for m in block.get("missing_inputs", [])), (
+        f"the degradation block names VWMA, which is not computed: "
+        f"{block.get('missing_inputs')}")
+    assert block.get("degraded") is False, (
+        f"nothing but VWMA degraded this input before stage 7, and the run "
+        f"is still degraded: {block}")
+    assert "VWMA" not in decision["lineage"]["indicators_at_decision_bar"]
+    entry = decision["entry"]
+    assert entry["trigger_volume"] == 0.0, entry["trigger_volume"]
+    assert entry["trigger_volume_median"] == 0.0, entry["trigger_volume_median"]
+    assert decision["exit"]["action"] == "WAIT", decision["exit"]["action"]

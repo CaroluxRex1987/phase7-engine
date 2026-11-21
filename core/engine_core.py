@@ -12,7 +12,7 @@ from data.data_fetcher import data_fetcher
 from data import validation
 from indicators.indicators import add_technical_indicators
 from structure.structure import calculate_structure
-from indicators.trend_health import compute_trend_health
+from indicators.trend_readings import compute_trend_readings
 from models.bias_engine import (
     calculate_dynamic_regime,
     direction_from_emas,
@@ -745,7 +745,9 @@ class Phase7Engine:
                 }
                 return decision_object
 
-            # 4. TREND HEALTH ENGINE
+            # 4. TREND READINGS (indicators/trend_readings.py, which was
+            #    indicators/trend_health.py until the redesign's stage 7;
+            #    this heading said TREND HEALTH ENGINE)
             #
             # AUDIT FINDING 6 (the surviving fabrication constants), 5 September
             # 2026. This stage used to wrap the call in a try whose handler
@@ -775,7 +777,7 @@ class Phase7Engine:
             # does not apply: there is no partial trend health to carry
             # forward, and no honest number to carry it with. It is reported as
             # the failure it is, in the same shape sections 2 and 3 already use.
-            trend = compute_trend_health(df_struct)
+            trend = compute_trend_readings(df_struct)
             # THE REDESIGN'S STAGE 5, 15 November 2026: the key checked was
             # "trend_health", the score that module no longer computes. "adx"
             # is checked instead: it is on every one of that function's
@@ -789,9 +791,9 @@ class Phase7Engine:
                     "symbol": symbol,
                     "timeframe": timeframe,
                     "error": (
-                        "Trend readings failed: compute_trend_health "
+                        "Trend readings failed: compute_trend_readings "
                         "returned an invalid format. That is a contract "
-                        "violation in indicators/trend_health.py, not a market "
+                        "violation in indicators/trend_readings.py, not a market "
                         "condition, so no substitute value is invented for it."
                     ),
                 }
@@ -937,7 +939,7 @@ class Phase7Engine:
                         # the direction (stage 2), so a missing one raises and
                         # this block's handler reports BTC unavailable, which
                         # is a stronger answer than naming it in a list.
-                        btc_trend = compute_trend_health(df_btc_struct)
+                        btc_trend = compute_trend_readings(df_btc_struct)
                         # RULING, 12 September 2026 (Viktor). SWEEP ITEM 11 (8
                         # September) fed BTC-side trend degradations into
                         # AERO's OWN degradation list -- the one

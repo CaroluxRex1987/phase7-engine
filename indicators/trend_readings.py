@@ -3,6 +3,14 @@ import numpy as np
 from typing import Dict, Any, Optional
 
 # ============================================================
+# TREND READINGS -- ADX AND THE MOMENTUM DIVERGENCE
+#
+# This module was indicators/trend_health.py, and its function
+# compute_trend_health, until the redesign's stage 7, 21 November 2026. The
+# record below of what it computed until stage 5 keeps the old name where it
+# was the name; a comment elsewhere in the engine that names
+# indicators/trend_health.py, and is dated before stage 7, names this file.
+#
 # TREND HEALTH -- THE SCORE AND ITS SIBLINGS REMOVED at the redesign's
 # stage 5, 15 November 2026
 # ============================================================
@@ -70,16 +78,18 @@ from typing import Dict, Any, Optional
 # section (the redesign's stage 2). The early return for "both slopes
 # absent" went with them.
 #
-# THE NAME IS NOT FIXED HERE, DELIBERATELY. A module called trend_health.py
-# whose function is compute_trend_health and which computes no trend health
-# is the "one name for one meaning" defect round 8 found as F8. Renaming it
-# touches every caller, the tests that import it and the audit change list,
-# and a rename is not a removal: it belongs in stage 6, the reconciliation
-# against the draft, and is recorded there as owed rather than done quietly
-# here.
+# THE NAME, FIXED AT STAGE 7. Stage 5 left this paragraph saying the name
+# was not fixed there, deliberately: a module called trend_health.py whose
+# function is compute_trend_health and which computes no trend health is the
+# "one name for one meaning" defect round 8 found as F8, and a rename is not
+# a removal. Viktor ruled on 17 November 2026 that stage 7 renames it, before
+# the merge (DECISIONS, "Ruling, 17 November 2026 -- the redesign's build is
+# seven stages ..."); the name is Claude's, his to reverse. It is the one the
+# engine's failure string for this call already used, "Trend readings
+# failed". Every value it returns is the same as before the rename.
 
 
-def compute_trend_health(df: Optional[pd.DataFrame]) -> Dict[str, Any]:
+def compute_trend_readings(df: Optional[pd.DataFrame]) -> Dict[str, Any]:
     """
     Read the ADX the confirmation gate compares, and the momentum
     divergence it and the exit watch read, naming any input that was

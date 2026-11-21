@@ -152,7 +152,7 @@ ENGINE_MODULES = [
     "data.data_fetcher",
     "data.validation",
     "indicators.indicators",
-    "indicators.trend_health",
+    "indicators.trend_readings",
     "indicators.volume_profile",
     "models.bias_engine",
     "models.btc_context",

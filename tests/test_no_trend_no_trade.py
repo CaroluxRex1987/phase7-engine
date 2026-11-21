@@ -296,12 +296,12 @@ def _run_pinned():
 def _run_pinned_with_trend_adx(value):
     """
     The pinned run, with the ADX in the pair's own trend-health result set to
-    `value`. engine_core calls compute_trend_health for the pair first and for
+    `value`. engine_core calls compute_trend_readings for the pair first and for
     BTC second; only the first call is changed. Restored in a finally.
     """
     import core.engine_core as ec
 
-    real = ec.compute_trend_health
+    real = ec.compute_trend_readings
     calls = {"n": 0}
 
     def first_call_patched(*a, **k):
@@ -312,10 +312,10 @@ def _run_pinned_with_trend_adx(value):
         return out
 
     try:
-        ec.compute_trend_health = first_call_patched
+        ec.compute_trend_readings = first_call_patched
         return _run_pinned()
     finally:
-        ec.compute_trend_health = real
+        ec.compute_trend_readings = real
 
 
 def _run_pinned_with_adx_broken():

@@ -80,7 +80,6 @@
     "indicators_at_decision_bar": {
       "ADX": 21.5928225,
       "ATR": 0.01347181,
-      "EMA20_Slope": 0.00516859,
       "EMA50_Slope": 0.03231698,
       "EMA_20": 0.67924988,
       "EMA_50": 0.67424666,
@@ -90,7 +89,6 @@
       "STRUCTURE": "BULLISH TREND",
       "ST_Direction": 1.0,
       "SuperTrend": 0.66990961,
-      "VWMA": 0.67596645,
       "close": 0.67958339,
       "high": 0.67990233,
       "low": 0.66715432,

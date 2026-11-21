@@ -125,7 +125,7 @@ def build_exit_watch(
 
         # B4's LABELS, 14 October 2026: this flag said "Momentum divergence
         # is active -- price and momentum are disagreeing". What
-        # indicators/trend_health.py compares is this candle's close and RSI
+        # indicators/trend_readings.py compares is this candle's close and RSI
         # with the close and RSI four candles back, so the flag says that,
         # and which way. A direction outside the two it can record is named
         # as not recorded rather than guessed.

@@ -38,7 +38,16 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 # cannot anchor anything, and leaving it here would let a future function
 # that assigns a vwma-named local pass the check by naming a dead constant.
 # test_every_anchor_still_exists_in_the_engine below holds that.
-VWMA_ANCHORS = frozenset({"VWMA", "VWMA_LENGTH"})
+#
+# THE REDESIGN'S STAGE 7, 21 November 2026: "VWMA" and "VWMA_LENGTH" stood
+# here, and both go. The engine computes no VWMA now (Item 16; Viktor's
+# ruling of 17 November), so "VWMA" anchors nothing; and VWMA_LENGTH is read
+# only as the volume-spike guard's window, which measures no VWMA, so a
+# function that read it would be anchored to a name, not to a calculation.
+# With no VWMA in the engine, no name may say vwma at all: the walk below
+# now finds an offender in any function that assigns one.
+# test_the_engine_has_no_vwma_left_to_anchor below holds the empty set.
+VWMA_ANCHORS = frozenset()
 
 
 def _vwma_names_without_an_anchor(tree):
@@ -82,7 +91,9 @@ def _engine_trees():
 def test_a_name_that_says_vwma_reads_the_engines_vwma():
     """
     The same walk code_hash takes (tests/ and docs/ excluded by directory):
-    every function that names something vwma reads the engine's VWMA.
+    every function that names something vwma reads the engine's VWMA --
+    which since stage 7 means no function names something vwma, the engine
+    having no VWMA to read.
     """
     offenders = []
     for path, tree in _engine_trees():
@@ -127,22 +138,30 @@ def test_no_engine_function_assigns_a_vwma_name_at_all_now():
         + "\n  ".join(assigning))
 
 
-def test_every_anchor_still_exists_in_the_engine():
+def test_the_engine_has_no_vwma_left_to_anchor():
     """
-    An anchor is what lets a vwma-named function pass the walk above. One
-    that no longer exists in the engine cannot be read by any function, so
-    it is dead weight that a future offender could name to pass the check.
-    Both of entry quality's anchors became dead at stage 4 and were removed
-    from the set; this holds the set against the code so the next one is
-    noticed.
+    THE REDESIGN'S STAGE 7, 21 November 2026. This was
+    test_every_anchor_still_exists_in_the_engine, which searched the engine's
+    source TEXT for each anchor -- so "VWMA" passed for as long as
+    "VWMA_LENGTH" was in the text, and a dead "VWMA" anchor could never have
+    been seen. The set is empty now; this holds that, and holds the reason
+    in the parse tree, where comments and docstrings do not count: no engine
+    module names the column "VWMA" as a string, a name or an attribute.
     """
-    sources = "\n".join(open(path, encoding="utf-8").read()
-                         for path, _ in _engine_trees())
-    for anchor in sorted(VWMA_ANCHORS):
-        assert anchor in sources, (
-            f"{anchor!r} is an anchor the engine no longer contains. Remove "
-            f"it from VWMA_ANCHORS, or the walk above can be passed by "
-            f"naming something that does not exist.")
+    assert VWMA_ANCHORS == frozenset(), (
+        f"VWMA_ANCHORS is {sorted(VWMA_ANCHORS)} again. The engine computes "
+        f"no VWMA (stage 7); an anchor would let a vwma-named function pass "
+        f"the walk by naming something that measures no VWMA.")
+    named = []
+    for path, tree in _engine_trees():
+        for n in ast.walk(tree):
+            if ((isinstance(n, ast.Constant) and n.value == "VWMA")
+                    or (isinstance(n, ast.Name) and n.id == "VWMA")
+                    or (isinstance(n, ast.Attribute) and n.attr == "VWMA")):
+                named.append(f"{os.path.relpath(path)}:{n.lineno}")
+    assert named == [], (
+        "the engine names the VWMA column again, which stage 7 stopped "
+        "computing because nothing read it (Item 16):\n  " + "\n  ".join(named))
 
 
 # The function as it stood before F8, trimmed to what the check reads.

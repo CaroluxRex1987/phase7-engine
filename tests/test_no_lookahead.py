@@ -297,8 +297,10 @@ def test_the_decision_bar_is_unaffected():
     out, failures = add_technical_indicators(_ohlcv(), inplace=False)
     assert not failures, f"clean data produced failures: {failures}"
 
-    for col in ("EMA_20", "EMA_50", "RSI", "ADX", "ATR", "VWMA",
-                "EMA20_Slope", "EMA50_Slope"):
+    # THE REDESIGN'S STAGE 7, 21 November 2026: VWMA and EMA20_Slope left
+    # this tuple with the columns, which are no longer computed (Item 16;
+    # tests/test_no_dead_columns.py holds that they stay gone).
+    for col in ("EMA_20", "EMA_50", "RSI", "ADX", "ATR", "EMA50_Slope"):
         assert col in out.columns, f"{col} is missing from the frame"
         assert not pd.isna(out[col].iloc[-1]), (
             f"{col} is NaN at the last bar — the bar every decision reads. "

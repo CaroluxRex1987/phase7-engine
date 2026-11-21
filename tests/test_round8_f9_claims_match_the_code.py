@@ -172,9 +172,9 @@ def _assert_nothing_claimed(out, how):
 
 
 def test_the_trend_readings_with_no_frame_claim_nothing():
-    from indicators.trend_health import compute_trend_health
+    from indicators.trend_readings import compute_trend_readings
 
-    _assert_nothing_claimed(compute_trend_health(None), "no frame")
+    _assert_nothing_claimed(compute_trend_readings(None), "no frame")
 
 
 def test_the_trend_readings_without_adx_claim_no_adx():
@@ -183,10 +183,10 @@ def test_the_trend_readings_without_adx_claim_no_adx():
     Before stage 5 this fed a frame with no EMA SLOPE columns, which that
     module no longer reads -- see the record in this file's docstring.
     """
-    from indicators.trend_health import compute_trend_health
+    from indicators.trend_readings import compute_trend_readings
 
     frame = _closes([100.0 + 0.1 * i for i in range(40)])
-    out = compute_trend_health(frame)
+    out = compute_trend_readings(frame)
     _assert_nothing_claimed(out, "no ADX column")
     assert any("ADX" in note for note in out["degraded_inputs"]), (
         out["degraded_inputs"])
@@ -233,7 +233,7 @@ def test_the_adx_failure_note_states_what_is_lost():
     if not _pandas_ta_available():
         pytest.skip("pandas_ta not installed")
     import indicators.indicators as ind
-    from indicators.trend_health import compute_trend_health
+    from indicators.trend_readings import compute_trend_readings
 
     path = os.path.join(REPO_ROOT, "tests", "fixtures", "ohlcv_clean_4h.csv")
     df = pd.read_csv(path)
@@ -262,7 +262,7 @@ def test_the_adx_failure_note_states_what_is_lost():
     # And ADX itself still reaches the gate as an absence rather than a
     # number, which is what makes "refuses both sides" true.
     base = _closes([100.0 + 0.1 * i for i in range(40)])
-    assert compute_trend_health(base)["adx"] is None
+    assert compute_trend_readings(base)["adx"] is None
 
 
 # ======================================================================

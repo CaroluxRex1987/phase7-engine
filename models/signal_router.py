@@ -382,7 +382,7 @@ class SignalRouter:
                     #
                     # 13 OCTOBER 2026, the fallback sweep: momentum_divergence
                     # defaulted to False -- no divergence -- when absent. A
-                    # bool has no UNKNOWN, and compute_trend_health writes it
+                    # bool has no UNKNOWN, and compute_trend_readings writes it
                     # on every one of its returns, so it is read directly: a
                     # missing one is a defect, and the handler at the end of
                     # this function records it as one, with provenance and
@@ -777,7 +777,7 @@ class SignalRouter:
             "volatility": str(btc_context.get("volatility", "UNKNOWN")),
             # Stage 5, 15 November 2026: "trend_health" stood here, BTC's own
             # score. It went with the score itself (the record is in
-            # indicators/trend_health.py); this block keeps BTC's direction,
+            # indicators/trend_readings.py); this block keeps BTC's direction,
             # regime, volatility and the correlation readings.
             # KIMI ROUND 4, FINDING 1 -- see _optional_number below. These two
             # were float(...get(key, 0.0)) and raised TypeError on the value

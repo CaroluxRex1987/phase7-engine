@@ -5,7 +5,7 @@ WHAT WAS THERE
 
 The 5 October 2026 self-review (B4, Minor), confirmed on the real candles:
 
-- Momentum divergence. indicators/trend_health.py compares this candle's
+- Momentum divergence. indicators/trend_readings.py compares this candle's
   close and RSI with the close and RSI four candles back. Its comments said
   "price making new highs" and "new lows", and the panel said "Momentum
   divergence is active -- price and momentum are disagreeing", both of which
@@ -63,7 +63,7 @@ import pytest
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from indicators.trend_health import compute_trend_health
+from indicators.trend_readings import compute_trend_readings
 from models.entry_model import signal_blockers
 from models.exit_model import build_exit_watch
 from structure.structure import StructureEngine
@@ -95,7 +95,7 @@ def test_the_divergence_compares_four_candles_back_not_highs():
     """
     closes = [1.0] * 25 + [1.0, 1.5, 2.0, 1.5, 1.1]
     rsis = [50.0] * 25 + [60.0, 70.0, 75.0, 65.0, 55.0]
-    out = compute_trend_health(_trend_frame(closes, rsis))
+    out = compute_trend_readings(_trend_frame(closes, rsis))
     assert max(closes[-4:-1]) > closes[-1], "the fixture must not make a new high"
     assert out["momentum_divergence"] is True, out
     assert out["divergence_direction"] == "BEARISH", out
@@ -103,7 +103,7 @@ def test_the_divergence_compares_four_candles_back_not_highs():
     # And the mirror: no new low, recorded BULLISH.
     closes = [2.0] * 25 + [2.0, 1.5, 1.0, 1.5, 1.9]
     rsis = [50.0] * 25 + [40.0, 30.0, 25.0, 35.0, 45.0]
-    out = compute_trend_health(_trend_frame(closes, rsis))
+    out = compute_trend_readings(_trend_frame(closes, rsis))
     assert min(closes[-4:-1]) < closes[-1]
     assert out["momentum_divergence"] is True, out
     assert out["divergence_direction"] == "BULLISH", out

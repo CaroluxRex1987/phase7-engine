@@ -369,13 +369,13 @@ def calculate_entry_quality(
 # about half of the bars with ADX under 20 and on none above. Both of its
 # clauses need ADX under 20, so every setup it blocked is still blocked.
 #
-# An ADX with no valid reading -- None (trend_health.py could not read it),
+# An ADX with no valid reading -- None (trend_readings.py could not read it),
 # NaN, an infinity, a bool, anything that is not a number, or a number
 # outside ADX's own 0-100 range -- blocks both sides too, with its own
 # reason. The ruling left this to the patch, failing safe: a reading that
 # does not exist cannot show a trend, so it cannot confirm one. The run
 # still completes and is recorded. In this engine such a run is already
-# degraded (trend_health.py names the missing ADX), and the gate runs before
+# degraded (trend_readings.py names the missing ADX), and the gate runs before
 # the degradation override, so when the ladder chose a side the label is
 # NO-TRADE (SIGNAL UNCONFIRMED) with the degradation notes appended to it --
 # the precedence work order F set -- where it was NO-TRADE (DEGRADED INPUT).
@@ -595,7 +595,7 @@ def _confirmation_blockers(
 
     # B4's LABELS, 14 October 2026: these sentences said "momentum
     # divergence", which reads as highs against highs. What
-    # indicators/trend_health.py compares is this candle's close and RSI
+    # indicators/trend_readings.py compares is this candle's close and RSI
     # with the close and RSI four candles back, so that is what they say.
     # The rule is unchanged (whether it should veto is Viktor's, not ruled).
     if momentum_divergence:

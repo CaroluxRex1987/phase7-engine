@@ -9432,6 +9432,158 @@ reads of the code, and stage 7 measures them.
 - **Trades: none.** No engine file changes; `code_hash` is `85c4c826…` before and after,
   computed on both trees, and both golden snapshots are untouched.
 
+## Decision, 21 November 2026 — stage 7 of the redesign's build: the two unread columns and the module's name, measured against what stage 6 predicted; two tests that could not see what they were for, and a find for the held-back list
+
+*New in this file on 21 November 2026. Claude's, building what Viktor ruled on 17
+November ("Ruling, 17 November 2026 — the redesign's build is seven stages …"), and each
+reading below his to reverse. Made in the session that opened at 15:40 on 21 November at
+`4d2a036a`, on the branch `redesign`, and filed by stage 7's commit, the last before the
+merge. No earlier entry is edited (the ruling of 20 September). Everything measured
+here is from the Linux sandbox, on an autocrlf clone of `4d2a036a` checked out at
+`redesign`, under Python 3.12.3, with `code_hash` read as `85c4c826…` on the unchanged
+tree before any count was trusted; the live run is Windows evidence and is in the
+commit message.*
+
+**What stage 7 is.** Three things. (1) `EMA20_Slope` and `VWMA` are no longer computed
+(Item 16, no unconsumed complexity): nothing has read VWMA since stage 4 made entry
+quality D + H, or EMA20's slope since stage 5 removed trend health's score, and the ruled
+direction reads EMA50's slope and the EMAs' order. The slope loop computes `EMA50_Slope`
+alone, and `VWMA` leaves the final sweep's `critical_indicators`. (2)
+`indicators/trend_health.py` and `compute_trend_health` are
+`indicators/trend_readings.py` and `compute_trend_readings` (round 8's F8, one name for
+one meaning; the name Claude's, his to reverse, and the one the engine's failure string
+for the call already used). The module's header names its old name. (3) README's four
+stale passages, which stage 6's handover check found and Claude added to this stage —
+the degraded run's cap, Item 11's resolution in terms of `bias_score` and confidence,
+and the tree listing — and a fifth found writing this one, its test counts, which were
+stage 4's.
+
+**Measured against stage 6's prediction** ("Decision, 17 November 2026 — stage 6 …", its
+three corrections; PHASE7_NEXT.md's Open items at `4d2a036a`):
+
+- *Golden.* On both runs exactly two leaves leave, `lineage.indicators_at_decision_bar`'s
+  `EMA20_Slope` and `VWMA`, 19 to 17; 165 leaves to 163 by the count stage 6 used. No
+  leaf is added and none moves, so the three input hashes, `run_hash`, the archive path
+  and both actions — the clean run's WAIT at gate 8 and the trade run's LONG — do not
+  move. **Held.** Re-baselined with `PHASE7_UPDATE_SNAPSHOT=1`, CRLF and the files'
+  missing final newline restored by hand, and the old and new snapshots compared leaf by
+  leaf.
+- *`code_hash`.* `85c4c826…` to `c4e45d7a783248901ee60e0eb5f26047406eccd6c2fa9b387ea9bd008ee1a41e`.
+  **Held**, and the files that move it were read, not inferred: exactly five paths —
+  `core/engine_core.py`, `indicators/indicators.py`, `data/validation.py`, and the
+  rename, `indicators/trend_health.py` out and `indicators/trend_readings.py` in. The
+  six engine files changed in comments or docstrings only — `models/signal_router.py`,
+  `core/decision_contract.py`, `models/btc_context.py`, `models/entry_model.py`,
+  `models/exit_model.py`, `structure/structure.py` — move nothing. `data/validation.py`
+  was in no prediction: reading 2.
+- *`run_hash`.* **Held**: it does not move. `VWMA_LENGTH` stays in
+  `FINGERPRINTED_CONFIG`, read by the volume-spike guard, and `indicators.trend_readings`
+  is in no fingerprinted list.
+- *The behaviour change.* **Held, and wider than predicted.** With the last twenty
+  candles' volume zeroed on every frame of the pinned series, the run before stage 7 was
+  degraded with both "VWMA" and "macro VWMA" named, not authorized, and a WAIT; after it,
+  it is clean and a WAIT at gate 8, the decision candle's volume 0.0 not above its
+  median 0.0. Stage 6 named the 4h frame; the daily frame lost the same path, because it
+  runs the same indicator pipeline (the find, below, is the same shape).
+- *Scope.* The rename reached `core/engine_core.py` (the import, two calls, and the
+  contract-violation message that named the function and the file — stage 6's "three
+  call sites"), `models/signal_router.py` and `core/decision_contract.py` (comments),
+  `tests/conftest.py`'s module list, and **six** test files that import or patch the
+  module, not stage 6's eight: `test_b4_labels_say_what_is_measured.py`,
+  `test_btc_degradation_stays_informational.py`, `test_degraded_state.py`,
+  `test_no_fabricated_fallbacks.py`, `test_no_trend_no_trade.py` and
+  `test_round8_f9_claims_match_the_code.py`. The other two of the eight were not
+  reconstructed; `test_one_name_one_meaning.py` and `test_risk_regime_independence.py`
+  name the old file in prose and may be them. And **one stage 6 did not see**:
+  `tests/test_send_round8_fix_verification.py` (reading 4). Of the twelve test files
+  naming the columns, four changed — `test_no_lookahead.py`, `test_no_dead_columns.py`,
+  `test_decision_bar_integrity.py`, `test_one_name_one_meaning.py` — and eight did not:
+  they pass the columns as inputs nothing reads, or name them in dated prose.
+
+**Readings made building it** (each Claude's, his to reverse):
+
+1. *Which comments follow the name.* Present-tense pointers to the module or the function
+   were changed, in seven engine files. Thirteen dated lines in eight files that name
+   `trend_health.py` or `compute_trend_health` as they were then named were left, among
+   them `models/decision_model.py`'s, which stage 7 may not edit; the new module's
+   header says it was that file, so each resolves. `models/decision_model.py` and
+   `core/panel_render.py` are not edited, so H6, H7 and H8 are as they were.
+2. *`data/validation.py`'s all-zero-volume message named VWMA*, an operator-facing string
+   — the shape stage 5 found four of. It names the volume profile's HVN and LVN now,
+   which read the base volume; gates 7 and 8 do not reject on it.
+3. *`tests/test_one_name_one_meaning.py`'s anchor set is empty.* "VWMA" anchored nothing
+   once the column went, and `VWMA_LENGTH` is only the spike guard's window, which
+   measures no VWMA. The test that held the set against the code searched the source
+   **text**, so "VWMA" passed for as long as "VWMA_LENGTH" was written anywhere: a dead
+   anchor it could never have seen. It reads the parse tree now, as the walk beside it
+   does, and fails if any engine module names the column.
+4. *`tests/test_send_round8_fix_verification.py` compared two states.* Its check that
+   every engine file is one the fingerprint walks took git's list at HEAD and the walk of
+   the working tree, so between the apply and the commit of a patch that renames or
+   deletes an engine file it failed — on Viktor's machine it would have stopped this
+   stage's pytest step at 998 / 1 (read from the test and measured in the sandbox, not
+   run on Windows). A path HEAD lists and the disk lacks is an
+   uncommitted deletion, not a disagreement between the two rules being compared; it is
+   left out of the comparison, and nothing else is. Found by running the suite on the
+   applied tree, the first time an engine file has been renamed since the test existed.
+5. *`tests/test_decision_bar_integrity.py`'s three VWMA tests became two.* The two that
+   held round 5's F3 at the indicator — the trailing edge dropped, an interior gap still
+   filled — had no subject left; one test holds the column's absence on the same frame.
+   The routed one is turned round to hold the behaviour change. No fixture in either, so
+   `run_tests.py`'s error count does not move.
+6. *`config.VWMA_LENGTH` keeps its name*, though it names a window that measures no VWMA
+   now. Renaming it moves `run_hash` and the record's config block, which the ruling did
+   not give this stage. Recorded beside the guard and in PHASE7_NEXT.md; it can move no
+   number.
+
+**The counts.** pytest with `pandas_ta` 1000 to **999**; without it 830 passed / 166
+skipped to **830 / 165**; `run_tests.py` 931 / 0 / 31 to **930 / 0 / 31** — reading 5's
+one test each, the error count unmoved. Two tests are renamed, which moves no count.
+
+**Against the code before stage 7.** With `indicators/indicators.py` put back as it was
+and every test as stage 7 leaves it, six tests fail, each on a behavioural assertion and
+none on an import: the two new ones in `test_decision_bar_integrity.py`,
+`test_no_dead_columns.py::test_deleted_columns_stay_deleted`,
+`test_one_name_one_meaning.py::test_the_engine_has_no_vwma_left_to_anchor` and both
+golden snapshots. The anchor test also fails with `"VWMA_LENGTH"` put back in the set,
+and reading 4's check still fails on an engine-listed file that is on disk and outside
+the walk. Each control was run with `PYTHONDONTWRITEBYTECODE=1` and each restore
+compared with `cmp`.
+
+**A find for the held-back list — owed since 17 November, put to Viktor, not filed and
+not fixed.** The ruling of 17 November on H6, H7 and H8 left owed "a held-back defect
+that can move a reading", to be searched for once this stage's code existed, in the tree
+as it will merge. One: **the daily frame's indicator failures degrade the asset's run,
+though the daily frame is read for two numbers.** `core/engine_core.py`'s macro block
+runs `add_technical_indicators` on the daily candles and appends every failure to the
+run's degradation list as "macro …"; the frame is then read for its last close and its
+last `EMA_50`, and nothing else. A daily RSI, ADX, SuperTrend, ST_Direction or ATR that
+cannot be read at its last row, or a daily volume spike, therefore refuses the 4h trade
+on an input no gate reads, and the spike's note says the volume is used in the trigger,
+the turnover and volume sentiment, none of which reads the daily frame. Reproduced on
+this stage's tree: the pinned run with the last daily candle's volume at 50 times the
+median of the 24 before it is degraded, "macro volume" named, trading not authorized
+(its action stays the golden run's WAIT). It moves `degradation.degraded`,
+`degradation.missing_inputs` and `degradation.trading_authorized`, and on a run that
+would trade, the action, always toward a refusal. In the 948 records of `master`'s
+forward measurement staged on 21 November it never fired: 13 were degraded, every one
+by the 4h spike. It is on `master` too. Whether it joins the list, and which of H3, H6,
+H7 and H8 it displaces, is Viktor's, his position first; if it joins, it is filed before
+the merge so that the branch carries it.
+
+**What it weakens.**
+
+- **One input that refused a trade no longer does on that account:** twenty daily
+  candles in a row with no volume. Before stage 7 the daily VWMA could not be read and
+  the run was degraded; now nothing reads the daily volume except the spike guard, whose
+  zero median finds no spike. On the 4h frame the same input still ends in a WAIT, at
+  gate 8. A daily series that has stopped trading while the 4h series trades is a data
+  fault this engine does not detect now; it did, by accident, through a column nothing
+  read.
+- **A dated comment in the engine can name a file that does not exist**, resolved only
+  through the new module's header. The alternative, rewriting dated records to follow a
+  move, is what the ruling of 20 September refuses for documents.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then

@@ -484,7 +484,7 @@ def test_the_dead_trend_failure_gate_stays_removed():
     import ast
     import inspect
 
-    import indicators.trend_health as th
+    import indicators.trend_readings as th
     import models.bias_engine as be
     import models.entry_model as em
     import models.exit_model as xm

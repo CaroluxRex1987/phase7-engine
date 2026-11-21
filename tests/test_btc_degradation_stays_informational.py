@@ -113,7 +113,7 @@ def _run():
 
 def _fail_only_the_btc_call(real_fn):
     """
-    engine_core.py calls compute_trend_health twice per run: once for AERO's
+    engine_core.py calls compute_trend_readings twice per run: once for AERO's
     own df_struct, once for BTC's df_btc_struct. This returns the real value
     for the first call and a degraded value for the second (BTC's) -- so
     AERO's own trend_health is completely real and only BTC's is missing
@@ -136,15 +136,15 @@ def test_a_btc_only_indicator_failure_does_not_move_aeros_confidence_or_gate(mon
     if not _engine_available():
         pytest.skip("pandas_ta not installed")
 
-    import indicators.trend_health as th
+    import indicators.trend_readings as th
 
     control = _run()
     assert "error" not in control, control.get("error")
 
-    real_compute_trend_health = th.compute_trend_health
+    real_compute_trend_readings = th.compute_trend_readings
     monkeypatch.setattr(
-        "core.engine_core.compute_trend_health",
-        _fail_only_the_btc_call(real_compute_trend_health),
+        "core.engine_core.compute_trend_readings",
+        _fail_only_the_btc_call(real_compute_trend_readings),
     )
     degraded_run = _run()
     assert "error" not in degraded_run, degraded_run.get("error")
@@ -184,12 +184,12 @@ def test_the_btc_only_failure_is_still_visible_in_the_record(monkeypatch):
     if not _engine_available():
         pytest.skip("pandas_ta not installed")
 
-    import indicators.trend_health as th
+    import indicators.trend_readings as th
 
-    real_compute_trend_health = th.compute_trend_health
+    real_compute_trend_readings = th.compute_trend_readings
     monkeypatch.setattr(
-        "core.engine_core.compute_trend_health",
-        _fail_only_the_btc_call(real_compute_trend_health),
+        "core.engine_core.compute_trend_readings",
+        _fail_only_the_btc_call(real_compute_trend_readings),
     )
     degraded_run = _run()
     assert "error" not in degraded_run, degraded_run.get("error")

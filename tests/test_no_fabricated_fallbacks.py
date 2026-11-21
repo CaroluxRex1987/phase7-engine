@@ -120,7 +120,7 @@ def test_engine_core_does_not_substitute_a_flat_percentage_for_atr():
     )
 
 
-def test_compute_trend_health_is_total_which_is_why_the_handler_could_go():
+def test_compute_trend_readings_is_total_which_is_why_the_handler_could_go():
     """
     The removed handler was justified by this property, so the property is
     now asserted rather than assumed.
@@ -134,7 +134,7 @@ def test_compute_trend_health_is_total_which_is_why_the_handler_could_go():
     import numpy as np
     import pandas as pd
 
-    from indicators.trend_health import compute_trend_health
+    from indicators.trend_readings import compute_trend_readings
 
     cases = {
         "None": None,
@@ -159,10 +159,10 @@ def test_compute_trend_health_is_total_which_is_why_the_handler_could_go():
 
     for label, value in cases.items():
         try:
-            out = compute_trend_health(value)
+            out = compute_trend_readings(value)
         except Exception as e:  # pragma: no cover - the failure is the message
             pytest.fail(
-                f"compute_trend_health raised on {label}: {type(e).__name__}: {e}\n"
+                f"compute_trend_readings raised on {label}: {type(e).__name__}: {e}\n"
                 "engine_core no longer wraps this call, because every path "
                 "through it is supposed to return a dict. If that stops being "
                 "true, restore a handler that REPORTS the failure — do not "
@@ -203,7 +203,7 @@ def test_a_broken_trend_contract_is_reported_not_papered_over(monkeypatch):
     import core.engine_core as ec
     from data.data_fetcher import DataFetcher, data_fetcher
 
-    monkeypatch.setattr(ec, "compute_trend_health", lambda df: {"nonsense": 1})
+    monkeypatch.setattr(ec, "compute_trend_readings", lambda df: {"nonsense": 1})
 
     original_url = data_fetcher.base_url
     try:
@@ -225,7 +225,7 @@ def test_a_broken_trend_contract_is_reported_not_papered_over(monkeypatch):
     assert "trend readings" in decision["error"].lower(), (
         f"the error does not name the stage that failed: {decision['error']!r}"
     )
-    assert "trend_health.py" in decision["error"], (
+    assert "trend_readings.py" in decision["error"], (
         f"the error does not name the file: {decision['error']!r}"
     )
     assert not decision.get("trend"), (

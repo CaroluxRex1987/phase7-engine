@@ -317,9 +317,9 @@ def validate_ohlcv(df, timeframe=None, now=None):
     # reported zero on every candle rather than failing to parse.
     if len(volume) and (volume == 0).all():
         return ("all volume values are zero; there is no genuine volume "
-                "measurement in this series. VWMA and every volume-weighted "
-                "read downstream would be computed from an absence, not a "
-                "quiet market.")
+                "measurement in this series. The volume profile's HVN and "
+                "LVN, and every other volume-weighted read downstream, would "
+                "be computed from an absence, not a quiet market.")
 
     # quote_volume, when the frame carries it: the same two checks, for the
     # same reasons. It has passed the NaN/Inf loop above.

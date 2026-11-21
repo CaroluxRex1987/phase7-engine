@@ -49,6 +49,11 @@ DELETED_COLUMNS = [
     "Typical_Price",                       # (H+L+C)/3, input to VWAP and CCI
     "KAMA",                                # only consumer was its own slope
     "KAMA_Slope", "VWMA_Slope",            # produced, never read
+    # Removed at the redesign's stage 7, 21 November 2026, by Viktor's ruling
+    # of 17 November -- produced and read by nothing since stages 4 and 5
+    # (the comment above KEPT_COLUMNS says how each lost its reader):
+    "EMA20_Slope",
+    "VWMA",
 ]
 
 # Kept and still produced. Most are load-bearing: if a cleanup takes one, the
@@ -56,7 +61,8 @@ DELETED_COLUMNS = [
 #
 # THE REDESIGN'S STAGE 5, 15 November 2026 -- TWO OF THESE ARE NOW PRODUCED
 # AND READ BY NOTHING, which is the question the draft's section 2 left for
-# the code to answer, and said this file would answer:
+# the code to answer, and said this file would answer (stage 5's text, kept;
+# stage 7 answered it, below):
 #
 #   EMA20_Slope  trend_health read it twice, for the mean slope and the
 #                acceleration. Both went with the score. The ruled direction
@@ -74,12 +80,17 @@ DELETED_COLUMNS = [
 # reconciliation, with Viktor told that it is open. This list therefore
 # asserts what it has always asserted, that each column is still produced;
 # the comments say which of them anything reads.
+#
+# THE REDESIGN'S STAGE 7, 21 November 2026: both are removed, by Viktor's
+# ruling of 17 November, and are in DELETED_COLUMNS above. Stage 6 corrected
+# what stage 5 said removing them would move: two leaves of
+# indicators_at_decision_bar on each golden run and code_hash, and neither
+# the struct input hash nor run_hash -- measured by stage 7 (DECISIONS, its
+# entry). Every column left here has a reader.
 KEPT_COLUMNS = [
     "EMA_20", "EMA_50",
-    "EMA20_Slope",    # READ BY NOTHING since this stage -- see above
     "EMA50_Slope",    # bias_engine.direction_from_emas: the ruled direction
-    "VWMA",           # READ BY NOTHING since this stage -- see above
-    "ADX",            # trend_health and bias both read it
+    "ADX",            # indicators/trend_readings.py, for the confirmation gate
     "RSI", "ATR", "SuperTrend", "ST_Direction",
 ]
 
@@ -140,11 +151,12 @@ def test_consumed_columns_are_still_produced():
     The other half, and the more important one.
 
     A deletion pass that removes something load-bearing does not necessarily
-    crash: trend_health guards its slope reads with `if "EMA20_Slope" in
-    df.columns else 0.0`, so removing that column would silently zero the
-    slope contribution to trend health rather than raising. The engine would
-    keep producing confident-looking numbers computed from less than it
-    claims.
+    crash: trend_health guarded its slope reads with `if "EMA20_Slope" in
+    df.columns else 0.0`, so removing that column would have silently zeroed
+    the slope contribution to trend health rather than raising (stage 7: the
+    score and that guard went at stage 5, and EMA20_Slope at stage 7). The
+    engine would keep producing confident-looking numbers computed from less
+    than it claims.
 
     That is exactly the failure class this project keeps finding, so it gets a
     test rather than a comment.
@@ -158,9 +170,8 @@ def test_consumed_columns_are_still_produced():
     assert not missing, (
         "indicator columns the engine actually consumes are missing: "
         + ", ".join(missing) +
-        "\nNote that trend_health guards its slope reads with a default of "
-        "0.0, so a missing slope column degrades the score silently instead "
-        "of raising."
+        "\nA reader that guards its read with a default degrades silently "
+        "instead of raising, which is why this is a test and not a comment."
     )
 
 
@@ -168,15 +179,16 @@ def test_slope_columns_are_not_all_zero():
     """
     Presence is not production.
 
-    `EMA20_Slope` surviving as a column of zeros would pass the test above and
-    still mean trend health is computed from nothing. Pinned data has real
-    price movement, so a real slope calculation cannot be flat.
+    `EMA50_Slope` surviving as a column of zeros would pass the test above and
+    still mean the direction is computed from nothing. Pinned data has real
+    price movement, so a real slope calculation cannot be flat. (Stage 7:
+    this named EMA20_Slope and trend health; both are gone.)
     """
     if not _engine_available():
         pytest.skip("pandas_ta not installed")
 
     df = _indicator_frame()
-    for col in ["EMA20_Slope", "EMA50_Slope"]:
+    for col in ["EMA50_Slope"]:
         assert (df[col] != 0.0).any(), (
             f"{col} is entirely zero on pinned data that has real price "
             f"movement — the slope loop is present but not computing."
