@@ -9584,6 +9584,80 @@ the merge so that the branch carries it.
   through the new module's header. The alternative, rewriting dated records to follow a
   move, is what the ruling of 20 September refuses for documents.
 
+## Ruling, 21 November 2026 — BLESSUSDT is run by command until the merge and made the default by one small commit after it, with the panel's price decimals following the price; the forward measurement's ten pairs stay
+
+*New in this file on 22 November 2026. Viktor's, by agreeing to Claude's suggestion
+("I accept this suggestion"), at 23:48 on 21 November, in the session that opened at
+15:40 that day, after stage 7's push. Filed by the branch's last commit, the first
+commit of the merge session that opened at 23:51 on 21 November. The suggestion itself
+was made in that earlier session and was not read by the merge session; the wording
+below is Viktor's, from his opening message of 23:51, which records the ruling in
+three points.*
+
+**What was ruled.**
+
+1. **Viktor runs BLESSUSDT by command from now on**, with `'BLESSUSDT'` after
+   `'main.py'` in the `sys.argv` list of the live-run one-liner (the patch-delivery
+   skill's section 7). He had asked that day to use BLESS (BLESSUSDT, MEXC spot) instead
+   of AERO.
+2. **After the merge, one small commit makes BLESSUSDT the default** (`config.SYMBOL`,
+   in `core/config.py`) **and makes the panel's price decimals follow the price.** BLESS
+   is about $0.0138 and the panel prints four decimals. That commit measures `code_hash`,
+   the golden runs and any test that expects AEROUSDT, and re-checks H6, H7 and H8,
+   since it touches `core/panel_render.py`, H7's file (the ruling of 17 November on the
+   held-back defects: a change to their files re-checks them in the same commit).
+3. **The forward measurement's ten pairs stay as they are.** The scheduled task names
+   them on the command line, and `main.py`'s `run_pair` sets `config.SYMBOL` to each
+   pair for its own run (read in `main.py` by the merge session, not run), so the
+   default does not change which pairs the task runs or what any of their records says
+   about the symbol.
+
+**A consequence the ruling did not name, found by the merge session before it built
+anything:** the commit of point 2 moves `code_hash`. `core/config.py` and
+`core/panel_render.py` are `.py` files outside `tests/` and `docs/`, which is what
+`core/code_fingerprint.py` reads. That is the reason stage 7 went before the merge
+(the ruling of 17 November on seven stages). The ruling below settles it.
+
+## Ruling, 22 November 2026 — the merge and the BLESS commit land inside one four-hour window of the forward measurement; if they cannot, the session pauses before the merge, never between the two
+
+*New in this file on 22 November 2026. Viktor's, by agreeing to Claude's suggestion
+("I accept. Proceed."), at 00:02 on 22 November, in the merge session that opened at
+23:51 on 21 November. Filed by the branch's last commit. It leaves the ruling of 23:48
+above as it is. It adds when the commit that ruling's point 2 describes lands.*
+
+**How it was made.** At 23:51 the merge session named the consequence above: the BLESS
+commit moves `code_hash`, and by the ruling of 08:55 on 11 November the task counts a
+version from its first run. So any scheduled run between the merge and the BLESS commit
+would be recorded under a hash that lives only in that gap. The decisions would be the
+same under both hashes, because the default changes no pair the task runs. Claude
+suggested keeping the ruling and landing both commits inside one window between two of
+the task's runs. If that cannot be done, the pause comes before the merge, so that the
+gap cannot open. Viktor answered "I accept. Proceed. Budget is enough." Claude read that
+as covering this suggestion and said so before building. It is his to correct.
+
+**What was ruled.** The merge and the BLESS commit are pushed between two runs of the
+scheduled task. If the window cannot be made, the session stops before the merge's
+first command and waits for the next window. It never stops between the two commits.
+This is the structural form he prefers: the order of the steps is what keeps the gap
+closed, not a reminder to be quick.
+
+**The window's evidence, read by the merge session.** Off his disk at 00:15 on
+22 November, through the device listing: every decision log in `E:\phase7_engine\logs`,
+and `phase7_engine.log`, was last written between 22:05:05 and 22:05:45 on 21 November.
+So the task's last run started at 22:05. The next is expected at 02:05 if its four-hour
+cadence holds. The task's own definition was not read.
+
+**What it weakens.** If a run starts while the merge is uncommitted, it runs the merged
+working tree (the patch-delivery skill's section 11: that record is the new version's
+first, not a deviation). If that happens, the ruling's purpose is missed for one run,
+and the record says so through its `code_hash`.
+
+**Not filed with it, by Claude's reading of the same answer:** the daily-frame find for
+the held-back list (stage 7's entry, its last paragraph). Viktor gave no position on it
+in this answer, and the question was his. So it is not filed with the branch. It stays
+his open item and reaches `master` as one (PHASE7_NEXT.md, Open items). A ruling on it
+is filed by whichever later commit follows it. H3, H6, H7 and H8 stand as ruled.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then
