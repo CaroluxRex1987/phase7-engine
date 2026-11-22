@@ -16,7 +16,7 @@ engine_version = "Phase‑7 Structural Quant Engine v1.0"
 # ============================================================
 
 # Default trading symbol and timeframe
-SYMBOL = "AEROUSDT"          # Main trading pair
+SYMBOL = "BLESSUSDT"         # Main trading pair (AEROUSDT until 22 November 2026)
 TIMEFRAME = "4h"            # Execution candle interval
 MACRO_TIMEFRAME = "1d"      # Macro Higher Timeframe for MTF Confluence
 

@@ -66,7 +66,7 @@
   },
   "lineage": {
     "archive": {
-      "path": "logs/pinned/archive/testusdt_4h_fd8eddb21cc5b6bd.json.gz",
+      "path": "logs/pinned/archive/testusdt_4h_b18a2e88f82886a2.json.gz",
       "pruned_this_run": 0,
       "retention_days": 90
     },
@@ -144,12 +144,12 @@
       "side": "LONG",
       "volatility_state": "MEDIUM VOLATILITY"
     },
-    "run_hash": "fd8eddb21cc5b6bd697f590891877f71aeeb2d4f5201384dc50a9a9d68a4dc82"
+    "run_hash": "b18a2e88f82886a2d7ebcaf99935a3c84bf22255127ba700a688cfe986a34f8d"
   },
   "macro_bias": "BULLISH",
   "macro_note": "The higher timeframe agrees with this bias.",
   "provenance": {
-    "archive_path": "logs/pinned/archive/testusdt_4h_fd8eddb21cc5b6bd.json.gz",
+    "archive_path": "logs/pinned/archive/testusdt_4h_b18a2e88f82886a2.json.gz",
     "canonical_format": 1,
     "decision_candles": {
       "btc": {
@@ -232,7 +232,7 @@
     },
     "prior_state": {},
     "row_count": 450,
-    "run_hash": "fd8eddb21cc5b6bd697f590891877f71aeeb2d4f5201384dc50a9a9d68a4dc82",
+    "run_hash": "b18a2e88f82886a2d7ebcaf99935a3c84bf22255127ba700a688cfe986a34f8d",
     "source": "pinned"
   },
   "risk": {

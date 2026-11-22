@@ -63,7 +63,8 @@ logger = logging.getLogger(__name__)
 
 # 17 October 2026 -- the pairs a run analyses come from the command line:
 #
-#     python main.py                     config.SYMBOL (AEROUSDT), as before
+#     python main.py                     config.SYMBOL (BLESSUSDT; AEROUSDT until
+#                                        22 November 2026), as before
 #     python main.py ETHUSDT SOLUSDT     each pair in turn, in this process
 #
 # Viktor's ruling of 17 October (DECISIONS, "Ruling, 17 October 2026 — the
@@ -106,8 +107,8 @@ def run_pair(symbol):
 
     config.SYMBOL is the pair for the length of the run, and restored after it.
     The decision log records config.SYMBOL among the settings that change a
-    decision (core/decision_log.py, FINGERPRINTED_CONFIG), so left at AEROUSDT
-    every other pair's record would say it was configured for AEROUSDT.
+    decision (core/decision_log.py, FINGERPRINTED_CONFIG), so left at the default
+    every other pair's record would say it was configured for the default's pair.
     Restored, so that a caller running main() in-process -- the tests -- gets
     config back as it was.
     """

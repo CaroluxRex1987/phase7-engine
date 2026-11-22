@@ -23,7 +23,10 @@ the real logs/. What they hold:
   - a run with no console -- sys.stdout and sys.stderr None, as under
     pythonw.exe -- still writes its record and exits 0;
   - with no pair named, main.py runs config.SYMBOL as before, and its record is
-    the one an explicit AEROUSDT makes;
+    the one naming config.SYMBOL explicitly makes (until 22 November 2026 the
+    default was AEROUSDT and the comparison was with run A's AEROUSDT; since
+    BLESSUSDT became the default, run E names it, on AEROUSDT's candles copied
+    under the default's name, as no BLESSUSDT candles are pinned);
   - importing main does not change folder, and a malformed pair refuses the
     whole command with exit code 2 before any pair runs.
 
@@ -80,10 +83,20 @@ def _copy_engine(dest):
     return dest
 
 
+def _default_symbol():
+    from core import config
+    return config.SYMBOL
+
+
 def _make_pinned(dest):
     os.makedirs(dest)
     for f in ("AEROUSDT_4h.csv", "AEROUSDT_1d.csv", "BTCUSDT_4h.csv"):
         shutil.copy2(os.path.join(PINNED, f), dest)
+    default = _default_symbol()
+    if default not in ("AEROUSDT", "TESTUSDT"):
+        for tf in ("4h", "1d"):
+            shutil.copyfile(os.path.join(PINNED, f"AEROUSDT_{tf}.csv"),
+                            os.path.join(dest, f"{default}_{tf}.csv"))
     for tf in ("4h", "1d"):
         with open(os.path.join(PINNED, f"AEROUSDT_{tf}.csv"), newline="") as fh:
             rows = list(csv.reader(fh))
@@ -173,7 +186,7 @@ runpy.run_path(sys.argv[0], run_name="__main__")
 
 
 def _runs():
-    """Run main.py four ways, once per test process, and keep what came back."""
+    """Run main.py five ways, once per test process, and keep what came back."""
     global _RUNS
     if _RUNS is not None:
         return _RUNS
@@ -203,9 +216,14 @@ def _runs():
     os.makedirs(elsewhere_d)
     run_d = _run([d], cwd=elsewhere_d, env=env, code=_IMPORT_AND_REFUSE)
 
+    # E: config.SYMBOL named, started from its own folder, as C is.
+    e = _copy_engine(os.path.join(root, "engine_e"))
+    run_e = _run(["main.py", _default_symbol()], cwd=e, env=env)
+
     _RUNS = {"root": root, "elsewhere": elsewhere, "elsewhere_d": elsewhere_d,
-             "a": a, "b": b, "c": c, "d": d,
-             "run_a": run_a, "run_b": run_b, "run_c": run_c, "run_d": run_d}
+             "a": a, "b": b, "c": c, "d": d, "e": e,
+             "run_a": run_a, "run_b": run_b, "run_c": run_c, "run_d": run_d,
+             "run_e": run_e}
     return _RUNS
 
 
@@ -290,14 +308,17 @@ def test_a_run_with_no_console_still_writes_its_record():
 def test_no_pair_named_runs_the_configured_pair_as_before():
     _need_engine()
     r = _runs()
+    symbol = _default_symbol()
     assert r["run_c"].returncode == 0, r["run_c"].stderr[-2000:]
-    assert _starts(_process_log(r["c"])) == ["AEROUSDT"]
-    default = _records(r["c"], "AEROUSDT")
-    named = _records(r["a"], "AEROUSDT")
+    assert r["run_e"].returncode == 0, r["run_e"].stderr[-2000:]
+    assert _starts(_process_log(r["c"])) == [symbol]
+    assert _starts(_process_log(r["e"])) == [symbol]
+    default = _records(r["c"], symbol)
+    named = _records(r["e"], symbol)
     assert len(default) == 1 and len(named) == 1
-    assert default[0]["config"]["SYMBOL"] == "AEROUSDT"
+    assert default[0]["config"]["SYMBOL"] == symbol
     assert _without_logged_at(default[0]) == _without_logged_at(named[0]), (
-        "the run with no pair named differs from the run that names AEROUSDT")
+        f"the run with no pair named differs from the run that names {symbol}")
 
 
 def _run_d():
@@ -328,9 +349,10 @@ def test_a_malformed_pair_refuses_the_whole_command():
 
 def test_the_pair_rules():
     _need_engine()
+    from core import config
     _, out = _run_d()
     parsed = out["parsed"]
-    assert parsed[0] == ["AEROUSDT"], "no pair named should mean config.SYMBOL"
+    assert parsed[0] == [config.SYMBOL], "no pair named should mean config.SYMBOL"
     assert parsed[1] == ["ETHUSDT", "SOLUSDT"], "pairs should keep the order named"
     for i, bad in ((2, "solusdt"), (3, "SOLUSD"), (4, "SOL/USDT"), (5, "USDT")):
         assert isinstance(parsed[i], str) and parsed[i].startswith("ValueError: "), (

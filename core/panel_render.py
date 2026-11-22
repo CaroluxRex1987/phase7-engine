@@ -16,6 +16,32 @@ logger = logging.getLogger(__name__)
 MAX_LINE_WIDTH = 125
 
 
+def _price_decimals(reference):
+    """
+    How many decimals the panel's prices are printed with: at least four
+    significant figures, and never fewer than four decimals.
+
+    22 November 2026, by Viktor's ruling of 23:48 on 21 November (DECISIONS,
+    "Ruling, 21 November 2026 -- BLESSUSDT is run by command ..."): every price
+    line printed four decimals, and BLESS is about $0.0138, three significant
+    figures -- a stop and a target a few hundredths of a cent apart could print
+    as one number. The reference is the decision close, so every price on one
+    panel has the same decimals and the lines can be compared by eye. A price
+    of $0.10 or more prints four decimals, as before; $0.01 to $0.10 five;
+    $0.001 to $0.01 six. The rule (four figures, floor of four decimals) is
+    Claude's, Viktor's to reverse.
+
+    A reference that is absent, not a number, not finite or zero gives four.
+    """
+    try:
+        ref = abs(float(reference))
+    except (TypeError, ValueError):
+        return 4
+    if not math.isfinite(ref) or ref == 0.0:
+        return 4
+    return max(4, 3 - math.floor(math.log10(ref)))
+
+
 def _wrap_bullets(items, empty_message):
     """
     Turns a list of strings into ' - ...' bulleted panel lines, wrapping
@@ -191,6 +217,8 @@ def render_panel(decision):
             t1 = t2 = t3 = float("nan")
 
         current_price = safe_float(exit_data.get("current_price"), float("nan"))
+        # Every price line below prints with these decimals (_price_decimals).
+        price_dp = _price_decimals(current_price)
         stop_loss = safe_float(risk.get("atr_stop"), float("nan"))
 
         # SEQUENCE ITEM 13: this was called `risk_amount`, which is what
@@ -324,7 +352,7 @@ def render_panel(decision):
         # price field. A level that was not found is said, not drawn.
         swing_value = safe_float(structure.get("swing_struct"), None)
         swing_struct_line = (
-            f"SWING STRUCT  : ${swing_value:.4f} (Lookback {config.STRUCT_LOOKBACK})"
+            f"SWING STRUCT  : ${swing_value:.{price_dp}f} (Lookback {config.STRUCT_LOOKBACK})"
             if swing_value is not None
             else "SWING STRUCT  : not located this run "
                  f"(Lookback {config.STRUCT_LOOKBACK})"
@@ -624,7 +652,7 @@ def render_panel(decision):
 
             if math.isfinite(lower) and math.isfinite(upper):
                 zone_line = (
-                    f"EMA BAND      : {c_cyan}${lower:.4f} - ${upper:.4f}{reset} "
+                    f"EMA BAND      : {c_cyan}${lower:.{price_dp}f} - ${upper:.{price_dp}f}{reset} "
                     f"{band} -- a reference, not the entry\n"
                 )
             else:
@@ -837,11 +865,11 @@ def render_panel(decision):
             current_price_line = "DECISION CLOSE: not available this run\n"
         elif plan_withheld:
             current_price_line = (
-                f"DECISION CLOSE: {ORANGE}${current_price:.4f}{reset}{candle_note}\n"
+                f"DECISION CLOSE: {ORANGE}${current_price:.{price_dp}f}{reset}{candle_note}\n"
             )
         else:
             current_price_line = (
-                f"DECISION CLOSE: {ORANGE}${current_price:.4f}{reset}{candle_note}"
+                f"DECISION CLOSE: {ORANGE}${current_price:.{price_dp}f}{reset}{candle_note}"
                 f" -- the plan's entry; stop, targets and R:R are measured from it\n"
             )
 
@@ -853,7 +881,7 @@ def render_panel(decision):
             else:
                 distance_text = "distance from the decision close not computed"
             live_price_line = (
-                f"LIVE PRICE    : ${live_price:.4f} -- information only, used by "
+                f"LIVE PRICE    : ${live_price:.{price_dp}f} -- information only, used by "
                 f"no decision; {distance_text}\n"
             )
         elif struct_candle.get("basis") == "pinned":
@@ -867,7 +895,7 @@ def render_panel(decision):
             live_price_line = "LIVE PRICE    : not available this run\n"
 
         stop_loss_line = (
-            f"STOP LOSS     : {c_red}${stop_loss:.4f}{reset}\n"
+            f"STOP LOSS     : {c_red}${stop_loss:.{price_dp}f}{reset}\n"
             if math.isfinite(stop_loss)
             else "STOP LOSS     : not computed this run\n"
         )
@@ -876,7 +904,7 @@ def render_panel(decision):
             if not math.isfinite(price):
                 return f"TARGET {label}: not located this run\n"
             rr_text = f"{rr:.2f}" if math.isfinite(rr) else "not computed"
-            return f"TARGET {label}: {c_green}${price:.4f}{reset} | R:R 1 : {rr_text}\n"
+            return f"TARGET {label}: {c_green}${price:.{price_dp}f}{reset} | R:R 1 : {rr_text}\n"
 
         target_lines = (
             _target_line("1 (Cons)", t1, rr_t1)

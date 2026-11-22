@@ -224864,3 +224864,166 @@ Lines 6827–6828 of the version at `4200f3b`:
   at `9cc48d7` (Resolved this session). To bring current on the branch, with a
   commit made for another reason.
 ~~~~~
+
+## 22 November 2026 — the lines the rewrite of PHASE7_NEXT.md removed from its version at `7034af1`
+
+*Moved here on 22 November 2026 by the BLESS commit, the first after the merge
+`7034af1`, under "Ruling, 4 November 2026 — HISTORY keeps what each rewrite of
+PHASE7_NEXT.md removes, not the whole file" (DECISIONS). Below the rule, each block is a
+run of lines of the file as it stood at `7034af1` (the same as at `4eb71aa`, the
+branch's last commit, which wrote them) that the rewrite deleted or replaced, word for
+word, labelled with its line numbers in that version. "This commit", "the commit that
+writes this line" and "the commit that writes this file" in them name `4eb71aa`. The
+whole version: `git show 7034af1:docs/PHASE7_NEXT.md`. Checked by
+`docs/build/check_history_move.py`.*
+
+---
+Lines 4–16 of the version at `7034af1`:
+
+~~~~~
+the branch `redesign`'s last commit, which writes this file as it is to be read on
+`master` and reaches `master` by the merge that follows it. The redesign's build is
+done: seven stages on `redesign`, `6038283` to `4200f3b` (THE REDESIGN'S BUILD, below).
+This commit changes no `.py` file. It files Viktor's rulings of 23:48 on 21 November and
+00:02 on 22 November (DECISIONS, and THE REDESIGN'S BUILD), records `4200f3b`'s landing,
+and removes this file's first section, "WHICH COPY OF THIS FILE", which only the build
+needed; the lines it removed from the version at `4200f3b` are in HISTORY, which points
+to that whole version in git. **Next: the merge, then the BLESS commit, both inside one
+four-hour window of the forward measurement** (the ruling of 00:02). **The Engineering
+Notes are sixteen commits behind with this one and are not rebuilt here:** Claude's
+reading, Viktor's to reverse, is that they are rebuilt once, after the merge and the
+BLESS commit, rather than now and again after them ("Where things stand", Engineering
+Notes).
+~~~~~
+
+Line 31 of the version at `7034af1`:
+
+~~~~~
+## THE REDESIGN'S BUILD — done; the merge and the BLESS commit next
+~~~~~
+
+Line 144 of the version at `7034af1`:
+
+~~~~~
+`816d4951…` on `master` until the merge, which brings `c4e45d7a…` to it; the branch's
+~~~~~
+
+Line 203 of the version at `7034af1`:
+
+~~~~~
+  21 November; the next is expected at 02:05 if its cadence holds.
+~~~~~
+
+Line 490 of the version at `7034af1`:
+
+~~~~~
+the scheduled task runs the redesign.
+~~~~~
+
+Lines 3658–3659 of the version at `7034af1`:
+
+~~~~~
+  branch `redesign`'s last, docs only, which reaches `master` by the merge that follows
+  it (THE REDESIGN'S BUILD, above). Before it on the branch: `4200f3b`, stage 7;
+~~~~~
+
+Lines 4371–4374 of the version at `7034af1`:
+
+~~~~~
+- **Before this commit**, every file its patch changes — this file, DECISIONS and
+  HISTORY — was staged off Viktor's disk, from `E:\phase7_redesign`, and matched an
+  autocrlf checkout of `4200f3b`, GitHub's `redesign`, cloned at 23:58 on 21 November,
+  byte for byte, before the patch was built; it adds no file. (This bullet named
+~~~~~
+
+Lines 4376–4378 of the version at `7034af1`:
+
+~~~~~
+- **code_hash:** **`c4e45d7a783248901ee60e0eb5f26047406eccd6c2fa9b387ea9bd008ee1a41e`
+  on the branch since stage 7, unchanged by the branch's last commit, and on `master`
+  from the merge**; each stage's value is in THE REDESIGN'S BUILD, above. This bullet
+~~~~~
+
+Line 4457 of the version at `7034af1`:
+
+~~~~~
+- **Golden snapshot:** **two leaves removed from each snapshot by `4200f3b`, stage 7** —
+~~~~~
+
+Lines 4590–4591 of the version at `7034af1`:
+
+~~~~~
+- **Test suite** — **999 passed / 0 failed, no warnings line** with `pandas_ta`;
+  **830 passed / 165 skipped** without it; `run_tests.py` **930 passed / 0 failed /
+~~~~~
+
+Lines 4596–4597 of the version at `7034af1`:
+
+~~~~~
+  until `713e084` (entry 50). **Stage 7 takes one test out of each, and the error count
+  does not move:** `tests/test_decision_bar_integrity.py`'s three VWMA tests become two
+~~~~~
+
+Line 5097 of the version at `7034af1`:
+
+~~~~~
+- **Engineering Notes:** through Entry #288 (v1.43), which covers `a60d66b`; **sixteen
+~~~~~
+
+Lines 5101–5105 of the version at `7034af1`:
+
+~~~~~
+  `ebd98e50`, `f6fff24a`, `4d2a036a`, stage 6, `4200f3b`, stage 7, and the commit that
+  writes this line, the branch's last. **Not rebuilt before the merge, by Claude's
+  reading, Viktor's to reverse:** rebuilt now, they would be rebuilt again after the
+  merge and the BLESS commit, which are two more commits to enter; rebuilt once after
+  them, they cover the whole build at once. This
+~~~~~
+
+Lines 5153–5155 of the version at `7034af1`:
+
+~~~~~
+  Viktor before his commit, and nothing else in it. **Its test counts are current (999,
+  830 / 165 and 930 passed, 0 failed), last changed by `4200f3b`, stage 7, with four
+  stale passages** (THE REDESIGN'S BUILD, stage 7; stages 2 to 4 changed the counts too,
+~~~~~
+
+Lines 6795–6810 of the version at `7034af1`:
+
+~~~~~
+- **`4200f3b`'s landing**, checked by Viktor on 21 November at 23:45 and holding (his
+  message), recorded by the commit that writes this line, made for its own reason
+  (DECISIONS, the correction of 4 November).
+- **Viktor's rulings of 23:48 on 21 November and 00:02 on 22 November**, filed in
+  DECISIONS by the commit that writes this line (THE REDESIGN'S BUILD, above).
+- **The patch-delivery skill's update proposed at stage 7 was saved** (THE REDESIGN'S
+  BUILD, above).
+- **This file written as it is to read on `master`**, its first section removed, by the
+  commit that writes this line. The lines it removed from the version at `4200f3b` are
+  in HISTORY's new entry, checked by `docs/build/check_history_move.py` (the commit
+  message has the result).
+- **Brought current with it, in "Where things stand":** the first lines of the Tip,
+  push, "Before this commit", code_hash, Golden snapshot, README and Engineering Notes
+  bullets, which named `696af24`, `a3c863e`, `9cc48d7`, stage 3's hash, stage 6 or
+  `340ee8d`'s counts. The rest of the file was not read end to end for this commit.
+- **By which model:** this session's work and this commit were Claude Opus 5.5's.
+~~~~~
+
+Lines 6819–6824 of the version at `7034af1`:
+
+~~~~~
+- **Claude's, next: the merge and then the BLESS commit, inside one four-hour window of
+  the forward measurement** (DECISIONS, the rulings of 23:48 on 21 November and 00:02
+  on 22 November; the patch-delivery skill's section 11, "The merge"). The branch's last
+  commit, the merge's first step, is the one that writes this line. Once the merge's
+  landing is checked, Viktor's commands remove the worktree `E:\phase7_redesign` and
+  delete the branch `redesign`; deleting `origin/redesign` is his call.
+~~~~~
+
+Lines 6841–6843 of the version at `7034af1`:
+
+~~~~~
+- **Claude's, by its reading, Viktor's to reverse — the Engineering Notes after the
+  merge and the BLESS commit.** Sixteen commits behind with this one ("Where things
+  stand"). Batched past the merge so that they are rebuilt once, over the whole build; the gap is stated in the
+~~~~~

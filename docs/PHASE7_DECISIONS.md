@@ -9658,6 +9658,38 @@ in this answer, and the question was his. So it is not filed with the branch. It
 his open item and reaches `master` as one (PHASE7_NEXT.md, Open items). A ruling on it
 is filed by whichever later commit follows it. H3, H6, H7 and H8 stand as ruled.
 
+## Correction, 22 November 2026 — the merge's commit message says the run of 14:05 ran `master`'s version; it ran the merged tree
+
+*New in this file on 22 November 2026. Claude's, filed by the BLESS commit, the first
+commit after the merge `7034af1`. It corrects that commit's message, which is pushed and
+stays as it is. It changes no ruling.*
+
+`7034af1`'s message, written before its commit and delivered at 13:52 on 22 November,
+says of the run of 14:05 that it "ran `master`'s version as before". It did not. The
+redo of the merge was made at 13:53:50, before that run, and stayed uncommitted until
+14:34:01. The task's run of 14:05 (its ten logs written 14:05:10 to 14:05:34, read off
+Viktor's disk through the device listing at 14:34) executed the merged working tree, and
+its ten records carry `code_hash` `c4e45d7a…` (read in ETHUSDT's log). For one run, the
+gap the ruling of 00:02 on 22 November exists to keep closed was open: the run recorded
+a version that lives only between the merge and the BLESS commit.
+
+**Claude's, both parts.** The sentence stated as done something that had not happened
+yet. That is the shape of the lesson of 3 September: a claim stated with the same
+confidence whether or not it had been checked. And the redo's steps went out before the
+run they had to wait for, gated by "start at 14:07 or later" in the text, which is an
+instruction to be careful. By Viktor's preference for structural fixes, the steps of a
+procedure that must wait for an event are given only after the event has been read off
+his disk. In this session the steps should have been withheld until the 14:05 run's logs
+showed it had finished.
+
+**What it leaves.** One run of the ten pairs under `c4e45d7a…`. The forward
+measurement counts a version from its first run (the ruling of 08:55 on 11 November), so
+`c4e45d7a…` has a count of one run, and the BLESS commit's `10402051…` starts its own
+from the run of 18:05, if the commit lands before it. The decisions under the two hashes
+are the same, because the default changes no pair the task runs. Whether the one run is
+read with the BLESS version's is a question for the reading that uses them. It is not
+decided here.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then
