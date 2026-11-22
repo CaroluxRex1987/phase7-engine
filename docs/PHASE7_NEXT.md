@@ -1,21 +1,18 @@
 # Next step — read this first
 
-*22 November 2026, in the merge session that opened at 23:51 on 21 November. Written by
-the BLESS commit, which follows `7034af1`, the redesign's merge into `master`, in the same
-four-hour window of the forward measurement (DECISIONS, the ruling of 00:02 on
-22 November). The redesign's build is done and merged: seven stages and the branch's last
-commit, `6038283` to `4eb71aa` (THE REDESIGN'S BUILD, below). This commit makes
-BLESSUSDT the default pair and makes the panel's price decimals follow the price (the
-ruling of 23:48 on 21 November, point 2); it moves `code_hash` and both golden
-snapshots' `run_hash`, and nothing the engine decides. The lines it removed from the
-version at `7034af1` are in HISTORY, which points to that whole version in git. **One deviation:** the
-run of 14:05 ran the uncommitted merge and recorded `c4e45d7a…`, the gap the ruling of
-00:02 keeps closed, for one run, and the merge's message says otherwise (THE REDESIGN'S
-BUILD; DECISIONS' correction of 22 November). **Next: the
-landing check of the merge and of this commit; then Viktor's commands remove the
-worktree `E:\phase7_redesign` and delete the branch `redesign`; then the Engineering
-Notes, eighteen commits behind with this one, rebuilt once over the whole build**
-("Where things stand", Engineering Notes; Open items).
+*22 November 2026, in the session that opened at 15:42. Written by the Engineering
+Notes' regeneration at v1.44, which follows `e022337`, the BLESS commit: documentation
+only (the Notes' build script and PDF, this file and HISTORY), and it moves no
+`code_hash`. The redesign is built and merged (THE REDESIGN'S BUILD, below): `master`
+runs it, BLESSUSDT is the default pair, and `code_hash` is `10402051…`. The landings of
+the merge, `7034af1`, and of `e022337` were checked at 15:39 on 22 November and hold,
+on Viktor's statement; his commands then removed the worktree `E:\phase7_redesign` and
+deleted the local branch `redesign`, which this session read off his disk.
+`origin/redesign` is still on GitHub: deleting it is his call. The Engineering Notes
+are rebuilt once over the whole build, Entries #289 to #306, and no commit that needs
+an entry is behind. The lines this commit removed from the version at `e022337` are in
+HISTORY, which points to that whole version in git. **Next: Viktor's call on the
+daily-frame find for the held-back list, his position first** (Open items).
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
 rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
@@ -520,7 +517,7 @@ listing's and `.git\logs\HEAD`'s):
   run, the shape of the lesson of 3 September; the commit is pushed and stays as it is,
   and DECISIONS' correction of 22 November records it.
 
-**The BLESS commit**, the commit that writes this file, `7034af1`'s child (DECISIONS, the
+**The BLESS commit**, `e022337`, `7034af1`'s child (DECISIONS, the
 ruling of 23:48 on 21 November, point 2; made inside one window with the merge, the
 ruling of 00:02). `core/config.py`: `SYMBOL` is `"BLESSUSDT"`. `core/panel_render.py`:
 `_price_decimals(reference)` gives the panel's price decimals from the decision close —
@@ -544,6 +541,13 @@ standing:** `models/decision_model.py`'s `_safe_float` is defined and called now
 nowhere (this commit's changes in that file are its new helper and the price lines);
 `DecisionModel`'s docstring still names `trend` among its inputs. Its live run and
 counts are in its commit message.
+
+**After it.** The landings of `7034af1` and `e022337` were checked at 15:39 on
+22 November and hold, on Viktor's statement; his commands then removed the worktree
+`E:\phase7_redesign` and deleted the local branch `redesign`, and the session of 15:42
+read both off his disk. `origin/redesign` stays on GitHub until he rules on it. The
+patch-delivery skill marks its section 11 retired. The commit that writes this file
+rebuilds the Engineering Notes once over the build, v1.44, Entries #289 to #306.
 
 ## PACE FIRST — read this before the rest of this file
 
@@ -3711,8 +3715,9 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
 ## Where things stand, right now
 
 - **Tip:** the commit that writes this line (a commit cannot name its own hash) — the
-  BLESS commit, BLESSUSDT the default and the panel's price decimals following the price
-  (THE REDESIGN'S BUILD, above). Before it: `7034af1`, the redesign's merge, whose second
+  Engineering Notes regenerated at v1.44, Entries #289 to #306, docs only. Before it:
+  `e022337`, the BLESS commit, BLESSUSDT the default and the panel's price decimals
+  following the price (THE REDESIGN'S BUILD, above). Before that: `7034af1`, the redesign's merge, whose second
   parent is `4eb71aa`, the branch `redesign`'s last, docs only. Before that on the branch: `4200f3b`, stage 7;
   `4d2a036a`, stage 6; `f6fff24a`, stage 5; `ebd98e50`, stage 4; `5e7e429`, stage 3;
   `c012e5b`, stage 2; `6038283`, stage 1 — each in THE REDESIGN'S BUILD and in its own
@@ -4120,7 +4125,12 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
   to `E:\phase7_engine`". Run the engine and every command from `E:\phase7_engine` (in
   cmd, changing drive needs `cd /d`). A dated record that names the D: paths means the
   same folders before the move; dated records are not edited.
-- **The pushes of the redesign's build**: the latest, `4200f3b`'s, by 23:45:12 on
+- **The pushes on `master` since the merge**: `7034af1`'s at 14:34:26 and `e022337`'s
+  at 15:38:14 on 22 November, by `origin/master`'s reflog on his disk, read by the
+  session of 15:42; both landings checked at 15:39 and holding, on Viktor's statement.
+  **The pushes of the redesign's build**: the branch's last, `4eb71aa`'s, by 11:17:05 on
+  22 November (Resolved this session, in HISTORY's entry for this commit); before it
+  `4200f3b`'s, by 23:45:12 on
   21 November, its landing checked at 23:45 and holding (THE REDESIGN'S BUILD, above);
   stages 1 to 6's are recorded there and in HISTORY. `696af24`'s push and the worktree's
   setup after it were checked on 13 November at 02:53 and held (Open items). What
@@ -4425,13 +4435,13 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
   The same holds for the push of the
   commit that writes this line unless it deviates. Earlier pushes and deviations are
   recorded in this file's previous versions, in HISTORY.
-- **Before this commit**, every file its patch changes was staged off Viktor's disk,
-  from `E:\phase7_engine` with the merge in place, and matched an autocrlf checkout of
-  `4eb71aa`, whose tree the merge has, byte for byte, before the patch was built; it adds
-  one file, `tests/test_panel_price_decimals_follow_the_price.py`. (This bullet named
-  `9cc48d7` from `a9b83a9` to stage 7; corrected by the branch's last commit.)
+- **Before this commit**, the four files its patch changes were staged off Viktor's
+  disk, from `E:\phase7_engine`, and matched an autocrlf checkout of `e022337` byte for
+  byte, before the patch was built; it adds no file. (This bullet named `9cc48d7` from
+  `a9b83a9` to stage 7; corrected by the branch's last commit.)
 - **code_hash:** **`10402051f922fbeba2112f6d2d5c069a8c049febebaf23bc58476965fdc88bf1`
-  from the BLESS commit, the commit that writes this line; before it
+  from the BLESS commit, `e022337`, unchanged by the commit that writes this line, which
+  changes files under `docs/` only; before it
   `c4e45d7a783248901ee60e0eb5f26047406eccd6c2fa9b387ea9bd008ee1a41e` on the branch from
   stage 7 and on `master` from the merge, `7034af1`**; each stage's value is in THE REDESIGN'S BUILD, above. This bullet
   named stage 3's `b8afef79…` from stage 3 to stage 7, which did not bring it current;
@@ -4512,9 +4522,9 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
   output, a CPython implementation detail (`core/code_fingerprint.py`, "WHAT IT DOES NOT
   SURVIVE"). **Every `code_hash` claim about this project is computed under Python 3.12**
   (Viktor runs 3.12.10).
-- **Golden snapshot:** **`run_hash` moved in both by the BLESS commit, the commit that
-  writes this line**, with the two archive paths named after it, four lines each and
-  nothing else: `config.SYMBOL` is in `FINGERPRINTED_CONFIG`. Before it, **two leaves
+- **Golden snapshot:** **`run_hash` moved in both by the BLESS commit, `e022337`**, with the
+  two archive paths named after it, four lines each and nothing else: `config.SYMBOL` is
+  in `FINGERPRINTED_CONFIG`. The commit that writes this line moves neither snapshot. Before `e022337`, **two leaves
   removed from each snapshot by `4200f3b`, stage 7** —
   `lineage.indicators_at_decision_bar`'s `EMA20_Slope` and `VWMA`, 19 to 17 — and
   nothing else (THE REDESIGN'S BUILD, stage 7); untouched by the branch's last commit
@@ -5157,59 +5167,52 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
   then run on Windows at 09:06 on 12 October: both matched (792; 721 / 0 / 32). One test,
   `test_the_commit_messages_up_to_the_tag_are_round_7s_to_the_byte`, runs `git log` up
   to the tag `round7-sent-2026-09-30`: it needs the tag, which a full clone has.
-- **Engineering Notes:** through Entry #288 (v1.43), which covers `a60d66b`; **eighteen
-  commits behind, and not rebuilt since before stage 1 of the redesign's build**:
-  `9cc48d7`, `a9b83a9`, `66b5c50`, `b26e5c7`, `6df23f4`, `dac70c1`, `a3c863e`,
-  `696af24`, `6038283`, the first to change code among them, `c012e5b`, `5e7e429`,
-  `ebd98e50`, `f6fff24a`, `4d2a036a`, stage 6, `4200f3b`, stage 7, `4eb71aa`, the
-  branch's last, `7034af1`, the merge, and the commit that writes this line, the BLESS
-  commit. **Rebuilt next, once, over the whole build**, by Claude's reading, Viktor's to
-  reverse (Open items). This
-  gap statement is what the rule of 15 September requires when the batch is not run. This
-  line and the count below stood at eleven through stages 4 and 5, which did not bring
-  them current; corrected on 17 November, on Viktor's opening message. The gap
+- **Engineering Notes:** through Entry #306 (v1.44), which covers `e022337`; **no commit
+  that needs an entry is behind.** v1.44, at the commit that writes this line, covers
+  the eighteen commits from `9cc48d7` to `e022337`, one entry each, rebuilt once over the
+  redesign's whole build after the merge, as Claude's reading of the batching rule put
+  it, Viktor's to reverse. The Notes had stood eighteen behind, not rebuilt since before
+  stage 1; the count stood at eleven through stages 4 and 5, which did not bring it
+  current, corrected on 17 November, on Viktor's opening message. The gap
   left by v1.36 was closed in four regenerations: v1.37 at `f8805a6` covered `e7a94d1`
   to `eb86846`, v1.38 at `0a518fd` `c2b07fb` to `67f6ec1`, v1.39 at `a0ca299` `0491b84`
   to `b8f88d8`, and v1.40 at `bc250fc` `a1c4218` to `0a518fd`. v1.41, at `9db4ae2`,
   covered the seven commits `706e858` to `82ea40e`, v1.42, at `82b824d`, the two
   commits `7dac328` and `340ee8d`, and v1.43, at `4cdad4e`,
-  covers the three commits `6bb82cc`, `e4363d5` and `a60d66b`, one entry each.
-  **Fifteen commits that need an entry are behind:** `9cc48d7`, which files the ruling of
-  11 November and the reading, `a9b83a9`, which files the rulings of 08:55 on
-  11 November and writes the draft's version 9, `66b5c50`, which files the ruling of
-  09:41 on 11 November and writes the draft's version 10, `b26e5c7`, which files the
-  ruling of 10:08 on 11 November and writes the draft's version 11, `6df23f4`, which
-  files the ruling of 10:34 on 11 November and writes the draft's version 12,
-  `dac70c1`, which files the ruling of 11:00 on 11 November and writes the draft's
-  version 13, `a3c863e`, which files the ruling of 07:33
-  on 12 November and writes the draft's version 14, `696af24`, which files the ruling
-  of 01:15 on 13 November, `6038283`, stage 1 of the redesign's build, `c012e5b`,
-  stage 2 of it, `5e7e429`, stage 3, `ebd98e50`, stage 4, `f6fff24a`, stage 5,
-  `4d2a036a`, stage 6, and the commit that writes this line, stage 7; none has one until
-  the next regeneration.
-  `bc250fc`, `9db4ae2`, `82b824d` and
-  `4cdad4e` are regenerations and have none (a commit that
-  regenerates the Notes cannot cover itself, Entry #144). Every later commit adds one
-  until the next regeneration. Batched, by the 15 September rule. v1.43 records the
-  ruling that the redesign's exit watch drops its exhaustion and reversal flags,
-  Claude's decision on the route of Amazon's audit and the ruling that it sends Nova 2
-  Lite — three entries for three commits, each written from its commit's message and
-  from the DECISIONS entry it files, none re-checked against the code, and none of
-  those entries' reads of Amazon's or OpenRouter's listings repeated. Entry #286
-  carries the correction that the exit watch's CHOCH flag stays; Entries #284 and
-  #285, which say nothing in the design reads a CHOCH, are not edited.
-  `code_hash` was recomputed on the three trees and on `82b824d`, under Python 3.12.3:
-  `816d4951…` on all four, no move, as every message records; the golden fixture was
-  not re-baselined in this range, its blob the same on all four trees. Its PDF's
-  extracted text differs from v1.42's only by the three entries, the new Document
-  History row, nineteen footer page numbers and four new footers (205 pages to 209),
-  compared word by word; v1.42's script at `a60d66b` rebuilt first gave the committed
-  v1.42 text exactly (Linux sandbox, reportlab 5.1.0).
+  covers the three commits `6bb82cc`, `e4363d5` and `a60d66b`, one entry each, and
+  v1.44 the eighteen above.
+  `bc250fc`, `9db4ae2`, `82b824d`, `4cdad4e` and the commit that writes this line are
+  regenerations and have none (a commit that regenerates the Notes cannot cover itself,
+  Entry #144). Every later commit adds one until the next regeneration. Batched, by the
+  15 September rule. Each of v1.44's entries is written from its commit's own message,
+  read whole in the session of 15:42 on 22 November; the DECISIONS entries those commits
+  file were read by their headings and in part, not each one whole. None is re-checked
+  against the code or the running engine, and no live record was re-read, except the
+  worktree's removal and the local branch's deletion, which Entry #306 names and that
+  session read off his disk. `code_hash` was recomputed under Python 3.12.3 on `4cdad4e`
+  and the eighteen trees, and every value matched its commit's message: `816d4951…`
+  through `696af24`, then `a3d499df…`, `43d15cbb…`, `b8afef79…`, `322cdf66…`,
+  `85c4c826…` (unchanged at `4d2a036a`), `c4e45d7a…` (unchanged at `4eb71aa` and
+  `7034af1`) and `10402051…`, seven moves. The golden fixture was re-baselined seven
+  times in the range and `golden_trade_decision.json` added at `ebd98e50` and
+  re-baselined three times, read from git log of the fixtures. The PDF's extracted text
+  differs from v1.43's only by the eighteen entries and the v1.44 row, footers and page
+  numbers aside, compared word by word (209 pages to 223); v1.43's script at `e022337`
+  rebuilt first gave the committed v1.43 text exactly. Linux sandbox, reportlab 5.1.0.
+  One page of the new entries was rendered and looked at; the others were read as
+  extracted text only.
 - **Portfolio Document and AI-Attribution Statement:** both current with their scripts —
   each rebuilt from `68c6191` in the sandbox (reportlab 5.0.1), its extracted text
   identical to the committed PDF. Neither changes in the commit that writes this line;
   the Attribution Statement's script last changed at `68c6191`, the Portfolio
   Document's at `6e1baba`.
+  **Found on 22 November, not fixed: the Portfolio Document describes the engine before
+  the redesign.** Read in `docs/build/build_portfolio_document.py` at `e022337`: it has
+  `trend_health.py` scoring trend health and `bias_engine.py` turning the indicators
+  into a weighted score (lines 233 and 366), the action depending on trend health
+  (line 428), and confidence computed and capped on a degraded run (lines 448 to 455).
+  The redesign removed all of these. Rebuilding the PDF would not change that: the
+  script's text has to be rewritten. Claude's, not started (Open items).
 - **README.md:** **`706e858` changed its "Independent audit" and "Engine code"
   rows**, for the ruling of 7 November on F2, in wording Claude wrote and put to
   Viktor before his commit, and nothing else in it. **Its test counts are current (1004,
@@ -6854,29 +6857,24 @@ Each code commit is its own commit and updates this file for its own landing.
 
 ## Resolved this session
 
-- **The redesign merged into `master`** by `7034af1`, its tree the branch's, `de1437cc…`
-  (THE REDESIGN'S BUILD, above).
-- **The BLESS commit**, the commit that writes this line: BLESSUSDT the default, the
-  panel's price decimals following the price (the ruling of 23:48 on 21 November, point
-  2), inside one window with the merge (the ruling of 00:02 on 22 November).
-- **`4eb71aa`'s landing**, checked at 11:17 on 22 November and holding: its tree
-  `de1437cc…`, the one its `Verified-Tree:` names; the message the delivered one less
-  CRs; the three docs on his disk the tip's byte for byte; the worktree's index the
-  tip's tree; the apply at 10:51, pytest at 10:55, the commit at 11:16:49, the push by
-  11:17:05; `master` still `696af24`; the root clean.
-- **Earlier in the same session**, by `4eb71aa`: Viktor's rulings of 23:48 on 21 November
-  and 00:02 on 22 November filed, `4200f3b`'s landing recorded, this file written as it
-  is to read on `master`.
-- **A wrong prediction of the merge session's, recorded here**: the expected output it
-  gave under the first attempt's `git status --short` held 7 of the 98 lines git
-  prints, and not in git's order. A prediction that cannot match catches nothing, so the
-  merge was checked off his disk instead (the index against the merged tree, above).
-  Caught by Claude after his steps, not by him; the redo's list gave all 98.
-- **The run of 14:05 on 22 November recorded `c4e45d7a…`**, the merged working tree,
-  uncommitted (THE REDESIGN'S BUILD, above). One run of the ten pairs fell in the gap
-  the ruling of 00:02 keeps closed. Claude's; the merge's message is wrong on it, and
-  DECISIONS' correction of 22 November says so.
-- **By which model:** this session's work and its commits were Claude Opus 5.5's.
+- **The Engineering Notes regenerated at v1.44**, Entries #289 to #306, one for each
+  commit from `9cc48d7` to `e022337`, by the commit that writes this line ("Where things
+  stand", Engineering Notes). The session of 15:42 on 22 November chose it by Viktor's
+  opening message, which named it as the work.
+- **The worktree removed and the local branch deleted**, by Viktor's commands after the
+  landings of `7034af1` and `e022337` were checked at 15:39 on 22 November (his
+  statement; that check was not read by this session). Read off his disk at about 15:43:
+  `E:\` holds no `phase7_redesign`; `.git` holds no `worktrees` folder;
+  `refs\heads\redesign` and its reflog are gone; `.git\config`, written at 15:41:56,
+  has no `[branch "redesign"]` section. `refs\remotes\origin\redesign` is still there,
+  `4eb71aa`, and so is the branch on GitHub: deleting it is Viktor's call (Open items).
+  Read from GitHub by this session's clone at about 15:43: `master` `e022337`, its tree
+  `d5f376a5…` the one its `Verified-Tree:` names; `7034af1`'s tree `de1437cc…`, the
+  same as `origin/redesign`'s and the one its message names. On his disk `master` is
+  `e022337`, written at 15:38:00, and `origin/master` at 15:38:14.
+- **The patch-delivery skill's update was saved:** the skill this session loaded is
+  current with DECISIONS as of `e022337` and marks its section 11 retired by the merge.
+- **By which model:** this session's work and its commit were Claude Opus 5.5's.
 
 ## Open items
 
@@ -6885,12 +6883,12 @@ Claude critiques it.
 
 - **Owed to the next commit:** nothing, unless this commit's push deviates from its
   prediction (ruling on proposal (b), 27 September).
-- **Claude's, next: the landing check of the merge, `7034af1`, and of the BLESS commit,
-  the commit that writes this line** (the patch-delivery skill's sections 10 and 11; the
-  merge adds one comparison, `master^{tree}` at `7034af1`, `redesign^{tree}` and its
-  message's line being one hash). Then Viktor's commands remove the worktree
-  `E:\phase7_redesign` and delete the branch `redesign`; deleting `origin/redesign` is his
-  call. Then the patch-delivery skill's update: its section 11 no longer applies.
+- **Viktor's call: whether to delete `origin/redesign`** on GitHub. The local branch
+  and the worktree are gone (Resolved this session); nothing reads the remote branch.
+- **Claude's, found 22 November, not started: the Portfolio Document's text describes
+  the engine before the redesign** ("Where things stand", Portfolio Document). A rewrite
+  of its script, not a rebuild. Whether the AI-Attribution Statement and the other
+  generated documents under `docs/build/` say the same was not checked.
 - **Viktor's call — a held-back defect that can move a reading, found by stage 7**
   (owed since 17 November: DECISIONS, "Ruling, 17 November 2026 — the held-back
   defects' replacements are H6, H7 and H8 …"; the find is in stage 7's entry). The daily
@@ -6907,9 +6905,6 @@ Claude critiques it.
   position first. **Not filed with the branch:** at 00:02 on 22 November he gave no
   position on it (DECISIONS, the ruling of 00:02, its last paragraph), so it reaches
   `master` as his, and a ruling on it is filed by whichever later commit follows it.
-- **Claude's, by its reading, Viktor's to reverse — the Engineering Notes, after the
-  landing check.** Eighteen commits behind with this one ("Where things stand"). Batched past the merge so that they are rebuilt once, over the whole build; the gap is stated in the
-  head block, which is what the rule of 15 September requires when the batch is not run.
 - **Viktor's, when he reads it: stage 2's three readings, stage 3's four, stage
   4's five and stage 5's five that change something he ruled or would see** (THE
   REDESIGN'S BUILD, above). None waits for him; each is his to reverse. A reversal

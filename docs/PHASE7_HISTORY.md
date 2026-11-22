@@ -225027,3 +225027,179 @@ Lines 6841–6843 of the version at `7034af1`:
   merge and the BLESS commit.** Sixteen commits behind with this one ("Where things
   stand"). Batched past the merge so that they are rebuilt once, over the whole build; the gap is stated in the
 ~~~~~
+
+## 22 November 2026 — the lines the rewrite of PHASE7_NEXT.md removed from its version at `e022337`
+
+*Moved here on 22 November 2026 by the Engineering Notes' regeneration at v1.44, the
+commit after the BLESS commit `e022337`, under "Ruling, 4 November 2026 — HISTORY keeps
+what each rewrite of PHASE7_NEXT.md removes, not the whole file" (DECISIONS). Below the
+rule, each block is a run of lines of the file as it stood at `e022337` that the rewrite
+deleted or replaced, word for word, labelled with its line numbers in that version.
+"This commit", "the commit that writes this line" and "the commit that writes this file"
+in them name `e022337`. The whole version: `git show e022337:docs/PHASE7_NEXT.md`.
+Checked by `docs/build/check_history_move.py`.*
+
+---
+Lines 3–18 of the version at `e022337`:
+
+~~~~~
+*22 November 2026, in the merge session that opened at 23:51 on 21 November. Written by
+the BLESS commit, which follows `7034af1`, the redesign's merge into `master`, in the same
+four-hour window of the forward measurement (DECISIONS, the ruling of 00:02 on
+22 November). The redesign's build is done and merged: seven stages and the branch's last
+commit, `6038283` to `4eb71aa` (THE REDESIGN'S BUILD, below). This commit makes
+BLESSUSDT the default pair and makes the panel's price decimals follow the price (the
+ruling of 23:48 on 21 November, point 2); it moves `code_hash` and both golden
+snapshots' `run_hash`, and nothing the engine decides. The lines it removed from the
+version at `7034af1` are in HISTORY, which points to that whole version in git. **One deviation:** the
+run of 14:05 ran the uncommitted merge and recorded `c4e45d7a…`, the gap the ruling of
+00:02 keeps closed, for one run, and the merge's message says otherwise (THE REDESIGN'S
+BUILD; DECISIONS' correction of 22 November). **Next: the
+landing check of the merge and of this commit; then Viktor's commands remove the
+worktree `E:\phase7_redesign` and delete the branch `redesign`; then the Engineering
+Notes, eighteen commits behind with this one, rebuilt once over the whole build**
+("Where things stand", Engineering Notes; Open items).
+~~~~~
+
+Line 523 of the version at `e022337`:
+
+~~~~~
+**The BLESS commit**, the commit that writes this file, `7034af1`'s child (DECISIONS, the
+~~~~~
+
+Lines 3714–3715 of the version at `e022337`:
+
+~~~~~
+  BLESS commit, BLESSUSDT the default and the panel's price decimals following the price
+  (THE REDESIGN'S BUILD, above). Before it: `7034af1`, the redesign's merge, whose second
+~~~~~
+
+Line 4123 of the version at `e022337`:
+
+~~~~~
+- **The pushes of the redesign's build**: the latest, `4200f3b`'s, by 23:45:12 on
+~~~~~
+
+Lines 4428–4432 of the version at `e022337`:
+
+~~~~~
+- **Before this commit**, every file its patch changes was staged off Viktor's disk,
+  from `E:\phase7_engine` with the merge in place, and matched an autocrlf checkout of
+  `4eb71aa`, whose tree the merge has, byte for byte, before the patch was built; it adds
+  one file, `tests/test_panel_price_decimals_follow_the_price.py`. (This bullet named
+  `9cc48d7` from `a9b83a9` to stage 7; corrected by the branch's last commit.)
+~~~~~
+
+Line 4434 of the version at `e022337`:
+
+~~~~~
+  from the BLESS commit, the commit that writes this line; before it
+~~~~~
+
+Lines 4515–4517 of the version at `e022337`:
+
+~~~~~
+- **Golden snapshot:** **`run_hash` moved in both by the BLESS commit, the commit that
+  writes this line**, with the two archive paths named after it, four lines each and
+  nothing else: `config.SYMBOL` is in `FINGERPRINTED_CONFIG`. Before it, **two leaves
+~~~~~
+
+Lines 5160–5170 of the version at `e022337`:
+
+~~~~~
+- **Engineering Notes:** through Entry #288 (v1.43), which covers `a60d66b`; **eighteen
+  commits behind, and not rebuilt since before stage 1 of the redesign's build**:
+  `9cc48d7`, `a9b83a9`, `66b5c50`, `b26e5c7`, `6df23f4`, `dac70c1`, `a3c863e`,
+  `696af24`, `6038283`, the first to change code among them, `c012e5b`, `5e7e429`,
+  `ebd98e50`, `f6fff24a`, `4d2a036a`, stage 6, `4200f3b`, stage 7, `4eb71aa`, the
+  branch's last, `7034af1`, the merge, and the commit that writes this line, the BLESS
+  commit. **Rebuilt next, once, over the whole build**, by Claude's reading, Viktor's to
+  reverse (Open items). This
+  gap statement is what the rule of 15 September requires when the batch is not run. This
+  line and the count below stood at eleven through stages 4 and 5, which did not bring
+  them current; corrected on 17 November, on Viktor's opening message. The gap
+~~~~~
+
+Lines 5176–5207 of the version at `e022337`:
+
+~~~~~
+  covers the three commits `6bb82cc`, `e4363d5` and `a60d66b`, one entry each.
+  **Fifteen commits that need an entry are behind:** `9cc48d7`, which files the ruling of
+  11 November and the reading, `a9b83a9`, which files the rulings of 08:55 on
+  11 November and writes the draft's version 9, `66b5c50`, which files the ruling of
+  09:41 on 11 November and writes the draft's version 10, `b26e5c7`, which files the
+  ruling of 10:08 on 11 November and writes the draft's version 11, `6df23f4`, which
+  files the ruling of 10:34 on 11 November and writes the draft's version 12,
+  `dac70c1`, which files the ruling of 11:00 on 11 November and writes the draft's
+  version 13, `a3c863e`, which files the ruling of 07:33
+  on 12 November and writes the draft's version 14, `696af24`, which files the ruling
+  of 01:15 on 13 November, `6038283`, stage 1 of the redesign's build, `c012e5b`,
+  stage 2 of it, `5e7e429`, stage 3, `ebd98e50`, stage 4, `f6fff24a`, stage 5,
+  `4d2a036a`, stage 6, and the commit that writes this line, stage 7; none has one until
+  the next regeneration.
+  `bc250fc`, `9db4ae2`, `82b824d` and
+  `4cdad4e` are regenerations and have none (a commit that
+  regenerates the Notes cannot cover itself, Entry #144). Every later commit adds one
+  until the next regeneration. Batched, by the 15 September rule. v1.43 records the
+  ruling that the redesign's exit watch drops its exhaustion and reversal flags,
+  Claude's decision on the route of Amazon's audit and the ruling that it sends Nova 2
+  Lite — three entries for three commits, each written from its commit's message and
+  from the DECISIONS entry it files, none re-checked against the code, and none of
+  those entries' reads of Amazon's or OpenRouter's listings repeated. Entry #286
+  carries the correction that the exit watch's CHOCH flag stays; Entries #284 and
+  #285, which say nothing in the design reads a CHOCH, are not edited.
+  `code_hash` was recomputed on the three trees and on `82b824d`, under Python 3.12.3:
+  `816d4951…` on all four, no move, as every message records; the golden fixture was
+  not re-baselined in this range, its blob the same on all four trees. Its PDF's
+  extracted text differs from v1.42's only by the three entries, the new Document
+  History row, nineteen footer page numbers and four new footers (205 pages to 209),
+  compared word by word; v1.42's script at `a60d66b` rebuilt first gave the committed
+  v1.42 text exactly (Linux sandbox, reportlab 5.1.0).
+~~~~~
+
+Lines 6857–6879 of the version at `e022337`:
+
+~~~~~
+- **The redesign merged into `master`** by `7034af1`, its tree the branch's, `de1437cc…`
+  (THE REDESIGN'S BUILD, above).
+- **The BLESS commit**, the commit that writes this line: BLESSUSDT the default, the
+  panel's price decimals following the price (the ruling of 23:48 on 21 November, point
+  2), inside one window with the merge (the ruling of 00:02 on 22 November).
+- **`4eb71aa`'s landing**, checked at 11:17 on 22 November and holding: its tree
+  `de1437cc…`, the one its `Verified-Tree:` names; the message the delivered one less
+  CRs; the three docs on his disk the tip's byte for byte; the worktree's index the
+  tip's tree; the apply at 10:51, pytest at 10:55, the commit at 11:16:49, the push by
+  11:17:05; `master` still `696af24`; the root clean.
+- **Earlier in the same session**, by `4eb71aa`: Viktor's rulings of 23:48 on 21 November
+  and 00:02 on 22 November filed, `4200f3b`'s landing recorded, this file written as it
+  is to read on `master`.
+- **A wrong prediction of the merge session's, recorded here**: the expected output it
+  gave under the first attempt's `git status --short` held 7 of the 98 lines git
+  prints, and not in git's order. A prediction that cannot match catches nothing, so the
+  merge was checked off his disk instead (the index against the merged tree, above).
+  Caught by Claude after his steps, not by him; the redo's list gave all 98.
+- **The run of 14:05 on 22 November recorded `c4e45d7a…`**, the merged working tree,
+  uncommitted (THE REDESIGN'S BUILD, above). One run of the ten pairs fell in the gap
+  the ruling of 00:02 keeps closed. Claude's; the merge's message is wrong on it, and
+  DECISIONS' correction of 22 November says so.
+- **By which model:** this session's work and its commits were Claude Opus 5.5's.
+~~~~~
+
+Lines 6888–6893 of the version at `e022337`:
+
+~~~~~
+- **Claude's, next: the landing check of the merge, `7034af1`, and of the BLESS commit,
+  the commit that writes this line** (the patch-delivery skill's sections 10 and 11; the
+  merge adds one comparison, `master^{tree}` at `7034af1`, `redesign^{tree}` and its
+  message's line being one hash). Then Viktor's commands remove the worktree
+  `E:\phase7_redesign` and delete the branch `redesign`; deleting `origin/redesign` is his
+  call. Then the patch-delivery skill's update: its section 11 no longer applies.
+~~~~~
+
+Lines 6910–6912 of the version at `e022337`:
+
+~~~~~
+- **Claude's, by its reading, Viktor's to reverse — the Engineering Notes, after the
+  landing check.** Eighteen commits behind with this one ("Where things stand"). Batched past the merge so that they are rebuilt once, over the whole build; the gap is stated in the
+  head block, which is what the rule of 15 September requires when the batch is not run.
+~~~~~
