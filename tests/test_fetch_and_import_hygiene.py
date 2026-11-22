@@ -190,7 +190,12 @@ def test_a_well_formed_response_still_becomes_a_frame(monkeypatch):
 
     assert isinstance(out, pd.DataFrame), f"got {type(out).__name__}: {out!r}"
     assert len(out) == 60
-    assert list(out.columns) == ["open", "high", "low", "close", "volume"]
+    # Stage 1 of the redesign, 14 November 2026: the eighth kline field,
+    # quote_volume, is kept. "105" in the rows above.
+    assert list(out.columns) == ["open", "high", "low", "close", "volume",
+                                 "quote_volume"]
+    assert out["quote_volume"].dtype.kind == "f"
+    assert (out["quote_volume"] == 105.0).all()
     assert out["close"].dtype.kind == "f", (
         f"close is {out['close'].dtype}, not a float — the conversion inside "
         f"the try did not run"

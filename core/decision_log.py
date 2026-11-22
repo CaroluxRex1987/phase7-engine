@@ -196,12 +196,20 @@ def config_snapshot(config):
 # added here because those constants are module-level and therefore readable,
 # not because the code hash needs the help.
 FINGERPRINTED_MODULES = {
-    "models.bias_engine": [
-        "WEIGHT_TREND_HEALTH", "WEIGHT_STRUCTURE_REGIME",
-        "WEIGHT_VOLUME_SENTIMENT", "WEIGHT_SUPERTREND_DIRECTION",
-        "WEIGHT_MACRO_BIAS", "WEIGHT_REVERSAL_CONTINUATION",
-        "RAW_BIAS_THRESHOLD",
-    ],
+    # THE REDESIGN'S STAGE 5, 15 November 2026. "models.bias_engine" was the
+    # first entry here, naming the six WEIGHT_* constants and
+    # RAW_BIAS_THRESHOLD -- the weights Finding 6's required action called out
+    # by name ("risk-model multipliers and bias weights"). The weighted sum is
+    # gone and that module now holds no decision-affecting constant at all:
+    # direction_from_emas compares a slope with zero and two averages with
+    # each other, and adds no number to fingerprint.
+    #
+    # THE KEY IS REMOVED RATHER THAN LEFT EMPTY, which is the open question
+    # the draft's section 13.3 recorded. module_snapshot() would write
+    # "models.bias_engine": {} for an entry with no names, and an empty dict
+    # beside the others reads as "this module has fingerprinted constants and
+    # none could be resolved" -- the shape the "<import failed>" key exists to
+    # report. A module with nothing to fingerprint should not appear.
     # The other half of Finding 6's required action, and it was missing
     # until 2 September. The comment above has quoted "risk-model
     # multipliers and bias weights" since the fix was written, while the
@@ -235,32 +243,49 @@ FINGERPRINTED_MODULES = {
     # more of the same shape as DEGRADED_CONFIDENCE_CEILING/BTC_ADJUSTMENT_CAP
     # above -- the AGGRESSIVE-eligibility and CONSERVATIVE trend-health bands,
     # promoted from bare literals inside _determine_final_action.
+    # THE REDESIGN'S STAGE 2, 14 November 2026: "MIN_ACTION_BIAS" was this
+    # entry's first name and left with the constant (models/decision_model.py,
+    # where it stood), which moves run_hash. The paragraphs above and below
+    # that name it are the dated record.
     "models.decision_model": [
-        "MIN_ACTION_BIAS",
-        "DecisionModel.DEGRADED_CONFIDENCE_CEILING",
+        # THE REDESIGN'S STAGE 5, 15 November 2026. Three names stood here:
+        #
+        #     "DecisionModel.DEGRADED_CONFIDENCE_CEILING"  50.0
+        #     "DecisionModel.AVG_REWARD_R"                 2.0
+        #     "DecisionModel.EV_BREAKEVEN_BAND_R"          0.3
+        #
+        # the ceiling a degraded run's confidence and trade quality were
+        # capped at, and the two constants of the illustrative EV sentence.
+        # Confidence, trade quality and EV are gone, and the cap with them
+        # (models/decision_model.py, _apply_degradation), so all three leave
+        # the run-hash payload -- which moves run_hash and the archive's file
+        # name. The two tier lines below are what the class fingerprints now.
         # N5, 9 October 2026: "DecisionModel.BTC_ADJUSTMENT_CAP" stood here,
         # and "DecisionModel.BTC_STRESS_PENALTY" below. The BTC-adjusted
         # confidence they bounded is gone (Viktor's ruling of 5 October,
         # point 7: Bitcoin is reference only), and both constants with it, so
         # both names leave the run-hash payload -- which moves run_hash, and
         # with it the archive's file name.
-        "DecisionModel.AGGRESSIVE_TREND_HEALTH_MIN",
-        "DecisionModel.AGGRESSIVE_ENTRY_SCORE_MIN",
-        "DecisionModel.CONSERVATIVE_TREND_HEALTH_MIN",
-        # FINDING 22, 21 September 2026. Three class constants that set numbers
-        # the operator reads and were missing from this list, found in the
-        # deferred read. BTC_STRESS_PENALTY is BTC_ADJUSTMENT_CAP's sibling --
-        # the two together bound the BTC-adjusted confidence -- and only the
-        # cap was here. AVG_REWARD_R and EV_BREAKEVEN_BAND_R set the
-        # illustrative EV sentence and its "worth taking" verdict. All three
-        # were already inside code_hash, so a change to them was detected;
-        # what the record could not say was which value a run used. Adding
-        # them changes run_hash (this dict is part of its payload) and so the
-        # archive's file name -- predicted, and the golden snapshot
-        # re-baselined in the same commit. BTC_STRESS_PENALTY left with N5
-        # (above).
-        "DecisionModel.AVG_REWARD_R",
-        "DecisionModel.EV_BREAKEVEN_BAND_R",
+        # THE REDESIGN'S STAGE 4, 15 November 2026. Three names stood here:
+        #
+        #     "DecisionModel.AGGRESSIVE_TREND_HEALTH_MIN"    75.0
+        #     "DecisionModel.AGGRESSIVE_ENTRY_SCORE_MIN"     70.0
+        #     "DecisionModel.CONSERVATIVE_TREND_HEALTH_MIN"  50.0
+        #
+        # the trend-health and entry-quality lines of the old ladder. The
+        # tiers come from entry quality alone now (ruling 4, 25 October
+        # 2026), so both trend-health lines leave the payload; the 70 is the
+        # same value under a name that says what it measures, and the 50 is
+        # a new name, because the old 50 was trend health's. Each change
+        # moves run_hash, and with it the archive's file name.
+        "DecisionModel.UPPER_TIER_ENTRY_QUALITY_MIN",
+        "DecisionModel.CONSERVATIVE_ENTRY_QUALITY_MIN",
+        # FINDING 22, 21 September 2026, is the dated record of two of the
+        # three names removed above: AVG_REWARD_R and EV_BREAKEVEN_BAND_R
+        # were added that day, with BTC_STRESS_PENALTY, because all three set
+        # numbers the operator reads and the record could not say which value
+        # a run used. BTC_STRESS_PENALTY left with N5; the other two leave
+        # here with the EV sentence itself.
     ],
     # KIMI FINDING 3 names "the entry multipliers", which were the bare 1.05
     # and 0.90 literals in generate_entry_signals' confluence ladder and were
@@ -273,16 +298,35 @@ FINGERPRINTED_MODULES = {
     # models/entry_model.py and nameable here like everything else in this
     # list.
     "models.entry_model": [
-        "EMA_ZONE_MAX_POINTS", "ATR_DISTANCE_MAX_POINTS",
-        "VWMA_MAX_POINTS", "RSI_MAX_POINTS", "STRUCTURE_MAX_POINTS",
-        "COMPONENT_MAX_POINTS", "SCORE_CEILING",
-        "ZONE_POINTS_NOT_MEASURED", "ATR_POINTS_NOT_MEASURED",
-        "CONFLUENCE_BOOST_MULT", "CONFLUENCE_PENALTY_MULT",
+        # THE REDESIGN'S STAGE 4, 15 November 2026. Eleven names stood at
+        # the head of this list:
+        #
+        #     "EMA_ZONE_MAX_POINTS", "ATR_DISTANCE_MAX_POINTS",
+        #     "VWMA_MAX_POINTS", "RSI_MAX_POINTS", "STRUCTURE_MAX_POINTS",
+        #     "COMPONENT_MAX_POINTS", "SCORE_CEILING",
+        #     "ZONE_POINTS_NOT_MEASURED", "ATR_POINTS_NOT_MEASURED",
+        #     "CONFLUENCE_BOOST_MULT", "CONFLUENCE_PENALTY_MULT"
+        #
+        # the five parts' maxima, their sum, the clip, the two
+        # not-measured values and the two confluence multipliers. Entry
+        # quality is D + H, with no multiplier and no clip, and a part whose
+        # input is missing is not measured rather than scored -- so all
+        # eleven leave the run-hash payload, and the four below take their
+        # place. Each of the four moves entry quality, which is the only
+        # input to the tier, so each decides which runs may trade. Both
+        # changes move run_hash, and with it the archive's file name.
+        "DISTANCE_MAX_POINTS", "DISTANCE_ZERO_ATR",
+        "HVN_MAX_POINTS", "HVN_ZERO_ATR",
         # FIX 2, 5 October 2026: the confirmation gate's ADX threshold -- under
         # it, no side confirms. It decides which runs may trade, so it is in
         # the run-hash payload by the same argument as MIN_ACTION_BIAS above;
         # adding it moves run_hash, and with it the archive's file name.
         "MIN_TREND_ADX",
+        # THE REDESIGN'S STAGE 3, 15 November 2026: gate 7's floor and gate
+        # 8's lookback. Each decides which runs may trade, so each is in the
+        # run-hash payload; adding them moves run_hash, and with it the
+        # archive's file name.
+        "LIQUIDITY_FLOOR_USDT", "TRIGGER_VOLUME_LOOKBACK",
     ],
     "models.risk_model": [
         "ATR_STOP_MULT", "TARGET1_MULT", "TARGET2_MULT", "TARGET3_MULT",

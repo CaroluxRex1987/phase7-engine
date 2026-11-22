@@ -172,7 +172,7 @@ def test_a_failed_assembly_still_carries_the_runs_lineage():
     out = SignalRouter(engine_core=object(), decision_model=_Fails())._build_decision_object(
         symbol="AEROUSDT", timeframe="4h",
         bias={}, trend={}, structure={}, entry={}, risk={}, exit_data={},
-        macro_bias="NEUTRAL", chart_path="",
+        macro_bias="NEUTRAL", macro_note="The higher timeframe is neutral.", chart_path="",
         provenance=provenance, lineage_record=lineage,
     )
 

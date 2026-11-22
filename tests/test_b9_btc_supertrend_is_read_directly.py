@@ -50,6 +50,31 @@ for one series, told apart by price: the pinned BTCUSDT candles close above
 50,000, the pinned AEROUSDT candles below 1.
 
 All fixture-free, so run_tests.py runs them too.
+
+THE REDESIGN'S STAGE 2, 14 November 2026 -- WHAT BECAME OF B9
+
+BTC's label is now the direction: EMA50's slope and the order of EMA_20 and
+EMA_50 on BTC's own candles (Viktor's ruling of 7 November 2026; the
+redesign's draft, section 2: the BTC section "takes the new function and
+stays reference only"). The weighted sum is no longer computed for BTC, so
+nothing reads BTC's SuperTrend, and a failed one cannot be read as a neutral
+factor of anything. The read B9 added is gone with its reader, and so tests
+1 and 2 above are turned round: a failed BTC SuperTrend leaves the section
+available, with the BTC BIAS a healthy run prints. Left as they were they
+would hold the section hostage to an indicator its one printed reading does
+not use.
+
+B9's lesson is kept on what the label reads now. Tests 6 and 7, new: when
+BTC's direction could not be measured, the section is unavailable and no
+BTC BIAS is printed, and the asset's own analysis does not move. The failure
+is made at the function, not at the indicator: both EMAs have a manual
+fallback inside indicators.py, so a pandas_ta failure does not remove them.
+
+The redesign's draft (section 14) did not list this file: its script looked
+for names the design removes, and BTC's SuperTrend read is not one of them.
+Found reading engine_core's BTC block before the change; Claude's reading of
+what the ruling of 7 November does to the ruling of 15 October, Viktor's to
+reverse. Controls 3, 4 and 5 are unchanged.
 """
 
 import json
@@ -86,14 +111,19 @@ def _engine_available():
         return False
 
 
-def _route(fail_supertrend_for=None):
+def _route(fail_supertrend_for=None, btc_direction_not_measured=False):
     """
     Route the pinned AEROUSDT set, with one series' SuperTrend raising.
 
     fail_supertrend_for is None, "btc" or "asset". The patch sits on the ta
     module indicators.py imports, as in tests/test_degraded_state.py, and is
     restored in a finally.
+
+    btc_direction_not_measured (stage 2): the direction function answers
+    None, its "not measured", for BTC's values and is untouched for the
+    asset's. The patch sits on the name engine_core imported.
     """
+    import core.engine_core as engine_core
     import indicators.indicators as ind
     from data.data_fetcher import DataFetcher, data_fetcher
     from models.signal_router import SignalRouter
@@ -107,14 +137,23 @@ def _route(fail_supertrend_for=None):
             raise RuntimeError(f"simulated {fail_supertrend_for} SuperTrend failure")
         return real_supertrend(high, low, close, *args, **kwargs)
 
+    real_direction = engine_core.direction_from_emas
+
+    def direction(ema50_slope, ema_20, ema_50, components=None):
+        if btc_direction_not_measured and float(ema_20) > BTC_PRICE_FLOOR:
+            return real_direction(float("nan"), ema_20, ema_50, components=components)
+        return real_direction(ema50_slope, ema_20, ema_50, components=components)
+
     original_url = data_fetcher.base_url
     try:
+        engine_core.direction_from_emas = direction
         ind.ta.supertrend = supertrend
         data_fetcher.base_url = UNREACHABLE
         DataFetcher.set_pinned_source(PINNED_DIR)
         return SignalRouter().route(symbol="AEROUSDT", timeframe="4h")
     finally:
         ind.ta.supertrend = real_supertrend
+        engine_core.direction_from_emas = real_direction
         DataFetcher.clear_pinned_source()
         data_fetcher.base_url = original_url
 
@@ -124,39 +163,86 @@ def _canonical(section):
     return json.dumps(section, sort_keys=True, default=str)
 
 
-def test_a_failed_btc_supertrend_leaves_the_btc_section_unavailable():
+def test_a_failed_btc_supertrend_no_longer_takes_the_btc_section():
+    """
+    Turned round at stage 2 (was: ...leaves_the_btc_section_unavailable).
+    BTC's label reads no SuperTrend now, so the section and its label are
+    what a healthy run gives.
+    """
     if not _engine_available():
         pytest.skip("pandas_ta not installed")
 
+    healthy = _route()
     decision = _route(fail_supertrend_for="btc")
     assert "error" not in decision, decision.get("error")
 
-    assert decision["btc_context"]["available"] is False, (
-        "BTC's SuperTrend failed, and the BTC section is still reported "
-        f"available: {decision['btc_context']!r}. Its bias was computed from "
-        "a direction of 0.0, which bias_engine scores as a neutral SuperTrend "
-        "-- a reading one factor short, recorded as if complete. B9, ruled "
-        "15 October 2026: the direction is read directly, so the block is "
-        "unavailable for the run."
+    assert decision["btc_context"]["available"] is True, (
+        "BTC's SuperTrend failed and the BTC section is unavailable, though "
+        f"nothing it reports reads the SuperTrend: {decision['btc_context']!r}"
     )
+    for key in ("raw", "detailed"):
+        assert decision["btc_context"][key] == healthy["btc_context"][key], (
+            key, decision["btc_context"][key], healthy["btc_context"][key])
+    assert decision["btc_context"]["raw"] in ("BULLISH", "BEARISH", "NEUTRAL")
 
 
-def test_the_panel_says_btc_is_unavailable_and_prints_no_btc_bias():
+def test_the_panel_prints_the_btc_bias_of_a_healthy_run():
+    """Turned round at stage 2 (was: ...and_prints_no_btc_bias)."""
     if not _engine_available():
         pytest.skip("pandas_ta not installed")
 
     from core.panel_render import render_panel
 
-    decision = _route(fail_supertrend_for="btc")
-    panel = render_panel(decision)
+    def btc_bias_line(decision):
+        lines = [ln for ln in render_panel(decision).splitlines() if "BTC BIAS" in ln]
+        assert len(lines) == 1, lines
+        return lines[0]
 
+    assert (btc_bias_line(_route(fail_supertrend_for="btc"))
+            == btc_bias_line(_route()))
+
+
+def test_a_btc_direction_not_measured_leaves_the_btc_section_unavailable():
+    """
+    B9's lesson on the label's own input. Fails if the block reports a BTC
+    label when direction_from_emas answered None: the negative control
+    removed the block's raise, and the section came back available with a
+    label of None.
+    """
+    if not _engine_available():
+        pytest.skip("pandas_ta not installed")
+
+    from core.panel_render import render_panel
+
+    decision = _route(btc_direction_not_measured=True)
+    assert "error" not in decision, decision.get("error")
+    assert decision["btc_context"]["available"] is False, (
+        "BTC's direction was not measured, and the BTC section is still "
+        f"reported available: {decision['btc_context']!r}"
+    )
+    panel = render_panel(decision)
     assert "BTC BIAS" not in panel, (
-        "the panel printed a BTC BIAS for a run in which BTC's SuperTrend "
-        "failed, with nothing to say a factor was missing"
+        "the panel printed a BTC BIAS for a run in which BTC's direction "
+        "was not measured"
     )
     assert "unavailable this run" in panel, (
         "the panel does not say the BTC section is unavailable"
     )
+
+
+def test_control_a_btc_direction_not_measured_does_not_move_the_asset():
+    if not _engine_available():
+        pytest.skip("pandas_ta not installed")
+
+    control = _route()
+    failed = _route(btc_direction_not_measured=True)
+    assert "error" not in failed, failed.get("error")
+    moved = [key for key in ASSET_SECTIONS
+             if _canonical(control[key]) != _canonical(failed[key])]
+    assert not moved, (
+        f"BTC's direction not being measured moved the asset's own {moved}"
+    )
+    assert failed["degradation"]["degraded"] is False, failed["degradation"]
 
 
 def test_control_the_assets_own_analysis_does_not_move():

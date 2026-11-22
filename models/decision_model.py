@@ -12,6 +12,7 @@ from models.risk_model import read_risk_verdict
 # name: a module-level MIN_TREND_ADX here would be a second, unlisted copy of
 # a fingerprinted constant (tests/test_fingerprint_names_every_constant.py).
 from models import entry_model
+from core.threshold_text import compared_value_text
 
 logger = logging.getLogger(__name__)
 
@@ -52,38 +53,23 @@ def asset_name(symbol: Any) -> str:
     return asset
 
 
-# 5 SEPTEMBER 2026 -- VIKTOR'S RULING, and the mechanism chosen for it.
+# 5 SEPTEMBER 2026 -- VIKTOR'S RULING: a lean is not a case. A directional
+# action must require more than a label that leans.
 #
-# HIS RULING: a directional action must require a minimum bias strength.
-# _determine_final_action read only the raw_bias STRING, so a bias_score of 21
-# -- barely past bias_engine's RAW_BIAS_THRESHOLD of 20 -- could return
-# AGGRESSIVE LONG, printed directly above CONFIDENCE 21/100.
+# From that day until 14 November 2026 the mechanism was a constant here,
+# MIN_ACTION_BIAS = 30: bias.raw came from the weighted sum past +/-20
+# (bias_engine's RAW_BIAS_THRESHOLD), and a side was acted on only at a sum
+# of 30 or more. Its comment, and the reasons for two thresholds, are in git
+# at 6038283.
 #
-# THE MECHANISM. A separate constant rather than raising RAW_BIAS_THRESHOLD to
-# 30, because the two answer different questions and both are needed:
-#
-#   RAW_BIAS_THRESHOLD (20)  does the blend lean far enough to CALL a side?
-#                            It sets the label, and risk_model builds the plan
-#                            shape from the sign either way.
-#   MIN_ACTION_BIAS    (30)  is that lean strong enough to ACT on?
-#
-# Raising the first to 30 would have collapsed both into one number and lost
-# the distinction between leaning bullish and being bullish enough to trade.
-# The risk of two thresholds is the item-14 defect -- a constant nothing reads
-# -- so tests/test_minimum_bias_strength.py holds both to being live, and this
-# one is fingerprinted in core/decision_log.py so a change to it changes
-# run_hash.
-#
-# 30 matches bias_engine's CONFIRMED threshold, where the state machine
-# already draws the line between a lean and a conviction. Viktor named that
-# value; making it a separate constant is Claude's call.
-# FINDING 18, 27 September 2026: the state machine is now bias_label
-# (models/bias_engine.py), a function of the current score -- it never had
-# memory. Its 30 is a literal there, for the reason its comment gives; the
-# label needs > 30 and this constant acts at >= 30, so at exactly 30.0 a run
-# can take a side while the panel's BIAS line reads BULLISH or BEARISH, not
-# CONFIRMED. Recorded, not changed.
-MIN_ACTION_BIAS = 30.0
+# THE REDESIGN'S STAGE 2, 14 November 2026. The direction is no longer a sum
+# (Viktor's ruling of 7 November 2026): it is BULLISH or BEARISH only when
+# EMA50's slope and the order of EMA_20 and EMA_50 agree, and NEUTRAL
+# otherwise (models/bias_engine.py, direction_from_emas). That agreement is
+# the floor. So the constant is gone, with its line in
+# core/decision_log.py's FINGERPRINTED_MODULES, and the lean is the NEUTRAL
+# direction: _determine_final_action answers WAIT for it with a sentence of
+# its own, where the constant's sentence stood.
 
 
 class DecisionModel:
@@ -104,55 +90,24 @@ class DecisionModel:
     assembles/renders the result -- it is a pure assembler, per the
     roadmap's stated architecture.
 
-    confidence and trade_quality are first real, multi-factor outputs here
-    -- previously confidence_score was just trend_health renamed. This is a
-    V1: the roadmap's Layer 2 (multi-factor bias weighting) and Layer 5
-    (entry multipliers) will feed richer inputs into this later without
-    requiring another rewrite of this module's shape.
+    THE REDESIGN'S STAGE 5, 15 November 2026. This class produced four
+    things until this stage: the action, a confidence score, a trade
+    quality and an illustrative EV. Three of them are gone, and so are the
+    three constants behind them --
 
-    C4 (advisory EV): risk_model.py's targets are always fixed at exactly
-    1:1 / 2:1 / 3:1 reward:risk by construction (see risk_model.py's A12
-    fix), averaging to a 2:1 reward multiple. That means an EV estimate
-    doesn't need the actual target prices -- it's a fixed function of the
-    reward multiple and an assumed win rate. This is explicitly NOT a
-    backtested statistic -- it uses this decision's confidence score as a
-    stand-in for "win rate," which is a simplifying assumption, not a
-    measured fact. Purely a displayed number for you to read (per the
-    plan's C4: "recommendations you read, not actions the engine takes").
+        AVG_REWARD_R                = 2.0
+        EV_BREAKEVEN_BAND_R         = 0.3
+        DEGRADED_CONFIDENCE_CEILING = 50.0
+
+    -- which leaves the run-hash payload (core/decision_log.py), moving
+    run_hash and the archive's file name. evaluate() returns the action and
+    the explanation, and nothing else. See the records at _compute_confidence
+    and _apply_degradation below for what each part was and why it went.
     """
-
-    AVG_REWARD_R = 2.0
-
-    # The band around zero inside which ev_r is reported as breakeven rather
-    # than positive or negative. Was a bare +/-0.3 literal inside _compute_ev;
-    # named here so decision_log.module_snapshot() can see it and so the
-    # confidence levels the EV sentence quotes are derived from it rather than
-    # written out by hand. ROUND 6 F1's rule, applied to this module.
-    EV_BREAKEVEN_BAND_R = 0.3
-
-    # SEQUENCE ITEM 9a. Viktor's ruling of 29 August, verbatim: "When an
-    # indicator fails, the engine continues in an explicitly degraded state. It
-    # must not fabricate replacement values. The failure must be recorded in
-    # the decision output, and confidence and trade quality must be reduced
-    # accordingly. A degraded result does not by itself authorize trading."
-    #
-    # A CEILING RATHER THAN A PENALTY, and the choice is worth stating.
-    #
-    # A subtraction — "minus ten points per missing indicator" — would be a
-    # number invented to look precise, and this project has spent a week
-    # removing numbers invented to look precise. A ceiling says something the
-    # engine can actually defend: however the arithmetic came out, an analysis
-    # computed from incomplete inputs is not permitted to claim more than
-    # moderate confidence.
-    #
-    # 50 because it is the midpoint, and the midpoint is the strongest honest
-    # claim available when you do not know what you did not measure.
-    DEGRADED_CONFIDENCE_CEILING = 50.0
 
     def evaluate(
         self,
         bias: Dict[str, Any],
-        trend: Dict[str, Any],
         entry: Dict[str, Any],
         risk: Dict[str, Any],
         *,
@@ -176,6 +131,15 @@ class DecisionModel:
         # docstring. signal_router.py still reads structure.regime for its
         # own "structure" block; this method simply no longer needs a second
         # copy of it.
+        # THE REDESIGN'S STAGE 5, 15 November 2026: `trend` was the second
+        # positional parameter and is gone. Stage 4 took the trend block out
+        # of _determine_final_action with trend health's tiers, which left
+        # _compute_trade_quality as its one reader here; that method goes in
+        # this stage, so nothing in this class reads a trend reading at all.
+        # A caller still passing it in second place now gives four
+        # positional arguments to three slots and fails with a TypeError
+        # rather than having the trend block land silently in `entry` --
+        # the same protection work order G relied on when macro_bias left.
         reasons: List[str] = []
         degradation = list(degradation) if degradation else []
 
@@ -193,7 +157,7 @@ class DecisionModel:
         action_reason_index: Optional[int] = None
 
         before = len(reasons)
-        final_action = self._determine_final_action(bias, trend, entry, risk, reasons=reasons)
+        final_action = self._determine_final_action(bias, entry, risk, reasons=reasons)
         if len(reasons) > before:
             action_reason_index = len(reasons) - 1
 
@@ -206,6 +170,36 @@ class DecisionModel:
         before = len(reasons)
         final_action = self._apply_signal_gate(final_action, bias, entry, reasons)
         if final_action != action_before_gate and len(reasons) > before:
+            action_reason_index = len(reasons) - 1
+
+        # THE REDESIGN'S STAGE 3, 15 November 2026: gate 8, the trigger and
+        # its volume. After gates 3 to 7 (the signal gate above), so that a
+        # refusal there stays the label: the draft's ladder takes the first
+        # gate, in order, that fails.
+        action_before_trigger = final_action
+        before = len(reasons)
+        final_action = self._apply_trigger_gate(final_action, entry, reasons)
+        if final_action != action_before_trigger and len(reasons) > before:
+            action_reason_index = len(reasons) - 1
+
+        # THE REDESIGN'S STAGE 4, 15 November 2026: gate 9, entry quality,
+        # and the tier it decides. Last of the gates, after gate 8, because
+        # the draft's ladder takes the label of the first gate in its order
+        # that fails and the tier is derived only once all of them pass.
+        # _apply_quality_gate writes the sentence that names the tier, and
+        # it is the only place a tier is chosen.
+        before = len(reasons)
+        final_action = self._apply_quality_gate(final_action, entry, risk, reasons)
+        # Gate 9 is the ONLY stage that chooses a tier, so whenever it runs
+        # it is the stage that set the action -- including when the tier it
+        # chooses is the bare side it was handed and the string does not
+        # change. The "did the action change?" test the gates above use
+        # would miss precisely that case, and the summary of every plain
+        # LONG or SHORT would name the direction sentence instead of the
+        # sentence saying why this is a LONG and not a CONSERVATIVE LONG or
+        # a WAIT. Found by running the second pinned decision before this
+        # stage's commit: it is a LONG, and its summary named gate 2.
+        if len(reasons) > before:
             action_reason_index = len(reasons) - 1
 
         # The guard that would have caught 2 September's live run.
@@ -221,22 +215,21 @@ class DecisionModel:
         final_action = self._refuse_incoherent_plan(final_action, risk, reasons)
         if final_action != action_before_refusal and len(reasons) > before:
             action_reason_index = len(reasons) - 1
-        confidence = self._compute_confidence(bias, final_action, reasons)
-        trade_quality = self._compute_trade_quality(trend, entry, final_action, reasons)
+        # THE REDESIGN'S STAGE 5, 15 November 2026: _compute_confidence and
+        # _compute_trade_quality were called here, and _compute_ev after the
+        # degradation below. All three are gone; the records are at
+        # _compute_confidence's old position.
 
         if degradation:
             action_before_degradation = final_action
             before = len(reasons)
-            final_action, confidence, trade_quality = self._apply_degradation(
-                degradation, final_action, confidence, trade_quality, reasons
+            final_action = self._apply_degradation(
+                degradation, final_action, reasons
             )
             # Degradation appends its notes whether or not it changes the
-            # action. Only a changed action moves the summary; a capped
-            # confidence on an unchanged action does not.
+            # action. Only a changed action moves the summary.
             if final_action != action_before_degradation and len(reasons) > before:
                 action_reason_index = len(reasons) - 1
-
-        ev = self._compute_ev(confidence, final_action, reasons)
 
         # N5, 9 October 2026: the BTC-adjusted confidence was computed here,
         # after everything above had decided, and nothing that decides read
@@ -257,13 +250,27 @@ class DecisionModel:
 
         return {
             "final_action": final_action,
-            "confidence": confidence,
-            "trade_quality": trade_quality,
-            "ev": ev,
             "explanation": explanation,
         }
 
     SIGNAL_UNCONFIRMED = "NO-TRADE (SIGNAL UNCONFIRMED)"
+
+    @classmethod
+    def _read_refusal(cls, entry: Any, side: str) -> str:
+        """
+        The label a refused side takes: the one models/entry_model.py
+        recorded for the first gate that side did not pass (stage 3 of the
+        redesign: SIGNAL UNCONFIRMED, MACRO AGAINST or THIN MARKET).
+
+        Fails safe to SIGNAL UNCONFIRMED: a label that is absent, or is not
+        one of the three, is not believed. Called only for a side
+        _read_signal did not confirm.
+        """
+        entry = entry if isinstance(entry, dict) else {}
+        label = entry.get(f"{side}_signal_refusal")
+        if isinstance(label, str) and label in entry_model.REFUSAL_LABELS:
+            return label
+        return cls.SIGNAL_UNCONFIRMED
 
     @staticmethod
     def _read_signal(entry: Any, side: str) -> Tuple[bool, List[str]]:
@@ -316,12 +323,29 @@ class DecisionModel:
                 )
                 return final_action
             leaning = "bullish" if side == "long" else "bearish"
-            reasons.append(
-                f"This would have been {final_action}, but the {leaning} bias "
-                f"lacked structural confirmation ({'; '.join(blockers)}), so no "
-                f"trade is taken."
-            )
-            return self.SIGNAL_UNCONFIRMED
+            # Stage 3 of the redesign, 15 November 2026: the label is the
+            # first gate's that the side did not pass. Gates 3 to 5 keep
+            # their sentence and their label; a side they pass and gate 6 or
+            # 7 refuses is not said to lack structural confirmation.
+            # Stage 4, 15 November 2026: both sentences read "This would
+            # have been {final_action}" -- a tier the old ladder had already
+            # chosen from trend health. The tier is now derived after gate 9
+            # (_apply_quality_gate), so at this point there is no tier, and
+            # final_action is the bare side. The wording follows gate 8's,
+            # which stage 3 wrote for the same reason.
+            label = self._read_refusal(entry, side)
+            if label == self.SIGNAL_UNCONFIRMED:
+                reasons.append(
+                    f"No earlier gate refused the {side}, but the {leaning} "
+                    f"bias lacks structural confirmation "
+                    f"({'; '.join(blockers)}), so no trade is taken."
+                )
+            else:
+                reasons.append(
+                    f"No earlier gate refused the {side}, but "
+                    f"{'; '.join(blockers)}, so no trade is taken."
+                )
+            return label
 
         if final_action == "NO-TRADE (RISK TOO HIGH)":
             raw_bias = str(bias.get("raw", "NEUTRAL")) if isinstance(bias, dict) else "NEUTRAL"
@@ -329,13 +353,204 @@ class DecisionModel:
                 side = "long" if raw_bias == "BULLISH" else "short"
                 confirmed, blockers = self._read_signal(entry, side)
                 if not confirmed:
-                    reasons.append(
-                        f"Separately, the {raw_bias.lower()} bias also lacked "
-                        f"structural confirmation ({'; '.join(blockers)}). The "
-                        f"risk refusal is the label; this is recorded so the "
-                        f"log shows both failures."
-                    )
+                    if self._read_refusal(entry, side) == self.SIGNAL_UNCONFIRMED:
+                        reasons.append(
+                            f"Separately, the {raw_bias.lower()} bias also lacked "
+                            f"structural confirmation ({'; '.join(blockers)}). The "
+                            f"risk refusal is the label; this is recorded so the "
+                            f"log shows both failures."
+                        )
+                    else:
+                        reasons.append(
+                            f"Separately, the {side} would also have been "
+                            f"refused ({'; '.join(blockers)}). The risk "
+                            f"refusal is the label; this is recorded so the "
+                            f"log shows both failures."
+                        )
         return final_action
+
+    def _apply_trigger_gate(self, final_action: str, entry: Any,
+                            reasons: List[str]) -> str:
+        """
+        GATE 8 of the redesign (stage 3, 15 November 2026): a trade that
+        passed every earlier gate is taken only on a resumption candle with
+        volume behind it. The rule is documented above read_trigger in
+        models/entry_model.py; this reads what that function recorded in
+        `entry` and does not compute it again.
+
+        Fails safe: a trigger that is absent or not True/False, or a volume
+        or median that is not a number, is not a trigger. That is a WAIT with
+        its own sentence, and never the sentence of a candle that was read
+        and did not resume. On the engine's path such a run is degraded too.
+        """
+        if not any(side in final_action for side in ("LONG", "SHORT")):
+            return final_action
+        side = "long" if "LONG" in final_action else "short"
+        entry = entry if isinstance(entry, dict) else {}
+
+        trigger = entry.get("trigger")
+        volume = entry_model._measured_amount(entry.get("trigger_volume"))
+        median = entry_model._measured_amount(entry.get("trigger_volume_median"))
+        lookback = entry_model.TRIGGER_VOLUME_LOOKBACK
+
+        if not isinstance(trigger, bool) or volume is None or median is None:
+            reasons.append(
+                f"No earlier gate refused the {side}, but the trigger was "
+                f"not measured on this run (the decision candle against its "
+                f"open and the previous close, and its volume against the "
+                f"median of the {lookback} candles before it), and a trigger "
+                f"that was not measured is not a trigger — WAIT."
+            )
+            return "WAIT"
+
+        beyond = "above" if side == "long" else "below"
+        failures: List[str] = []
+        if not trigger:
+            failures.append(
+                f"the last closed candle did not close {beyond} both its "
+                f"open and the previous candle's close")
+        if not volume > median:
+            # Entry 58's rule: the volume is printed on its own side of the
+            # median, which is printed exactly as computed.
+            printed = (entry_model.exact_text(volume) if volume == median
+                       else compared_value_text(volume, median))
+            failures.append(
+                f"its volume, {printed}, is not above the median of the "
+                f"{lookback} candles before it, "
+                f"{entry_model.exact_text(median)}")
+        if not failures:
+            reasons.append(
+                f"The last closed candle is a resumption candle for the "
+                f"{side}: it closed {beyond} both its open and the previous "
+                f"candle's close, on volume above the median of the "
+                f"{lookback} candles before it."
+            )
+            return final_action
+
+        reasons.append(
+            f"No earlier gate refused the {side}, but there is no "
+            f"resumption candle yet: {', and '.join(failures)} — WAIT."
+        )
+        return "WAIT"
+
+    def _apply_quality_gate(self, final_action: str, entry: Any,
+                            risk: Any, reasons: List[str]) -> str:
+        """
+        GATE 9 of the redesign (stage 4, 15 November 2026), and the tier it
+        decides. The last gate: a side that has passed gates 0 to 8 is taken
+        only if the close is at a pullback to the average, which entry
+        quality measures (ruling 4, 25 October 2026, point 4).
+
+            quality >= UPPER_TIER_ENTRY_QUALITY_MIN   LONG / SHORT, and
+                AGGRESSIVE when the close is inside the EMA band and the
+                risk regime is NORMAL or LOW
+            quality >= CONSERVATIVE_ENTRY_QUALITY_MIN CONSERVATIVE LONG/SHORT
+            under that                               WAIT -- not a pullback
+
+        Last, not first. The draft's ladder runs 0, 1, 2, 3-5, 6, 7, 8, 9
+        and takes the label of the FIRST gate that fails, and the reading of
+        11 November counted with that order
+        (docs/build/measure_draft_gaps.py, `ladder`). So a low quality beside
+        a failed ADX is the ADX's refusal, not this one, and the tier is
+        derived only once every earlier gate has passed -- which is why
+        _determine_final_action returns the bare side and no sentence before
+        this one names a tier.
+
+        What AGGRESSIVE reads is `entry.close_inside_band`, a true-or-false
+        field, and not the STATUS word (Viktor's ruling of 7 November 2026
+        that the redesign's AGGRESSIVE reads the close inside the band; the
+        draft's section 3.1, proposal 1). Until this stage it read
+        `"ACTIVE" in entry_status.upper()`, so a change to a panel word
+        could change an action. The risk regime is the same intensity gate
+        as before (item 14 re-audit, finding 5): conviction never overrides
+        risk, and a regime outside NORMAL and LOW leaves a high-quality
+        setup at the plain side.
+
+        Fails safe: a quality that is absent or is not a finite number is
+        not a quality, and that is a WAIT with a sentence of its own, never
+        a quality of zero and never the sentence of a close that was
+        measured and found too far out. On the engine's path such a run is
+        degraded too, with the missing input named
+        (models/entry_model.py, calculate_entry_quality). `close_inside_band`
+        anything but True is read as not inside, so a record that does not
+        carry the field cannot reach AGGRESSIVE.
+        """
+        if not any(side in final_action for side in ("LONG", "SHORT")):
+            return final_action
+        side = "LONG" if "LONG" in final_action else "SHORT"
+        leaning = "bullish" if side == "LONG" else "bearish"
+        entry = entry if isinstance(entry, dict) else {}
+        risk = risk if isinstance(risk, dict) else {}
+
+        upper = self.UPPER_TIER_ENTRY_QUALITY_MIN
+        conservative = self.CONSERVATIVE_ENTRY_QUALITY_MIN
+
+        quality = entry_model._finite(entry.get("score"))
+        if quality is None:
+            reasons.append(
+                f"No earlier gate refused the {side.lower()}, but entry "
+                f"quality was not measured on this run (the close's "
+                f"distance from the EMA band's midpoint and from the HVN, "
+                f"both counted in ATRs), and a quality that was not "
+                f"measured is not a quality — WAIT."
+            )
+            return "WAIT"
+
+        # Entry 58's rule: the quality is printed on its own side of every
+        # line the sentence names, so it can never print AS a line it is
+        # only near (core/threshold_text.py).
+        printed = compared_value_text(quality, (conservative, upper))
+
+        if quality < conservative:
+            reasons.append(
+                f"No earlier gate refused the {side.lower()}, but entry "
+                f"quality is {printed} of 100, under the {conservative:g} a "
+                f"trade needs: the close is not at a pullback to the "
+                f"average — WAIT."
+            )
+            return "WAIT"
+
+        if quality < upper:
+            reasons.append(
+                f"The {leaning} bias passed every gate with entry quality "
+                f"{printed} of 100 — at or above the {conservative:g} a "
+                f"CONSERVATIVE trade needs, and under the {upper:g} the "
+                f"upper tiers need — CONSERVATIVE {side}."
+            )
+            return f"CONSERVATIVE {side}"
+
+        inside = entry.get("close_inside_band") is True
+        regime = str(risk.get("risk_regime", "UNKNOWN RISK"))
+        aggressive_allowed = regime in ("NORMAL RISK", "LOW RISK")
+
+        if inside and aggressive_allowed:
+            reasons.append(
+                f"The {leaning} bias passed every gate with entry quality "
+                f"{printed} of 100, at or above the {upper:g} the upper "
+                f"tiers need, the close inside the EMA band, and a "
+                f"{regime.lower()} — AGGRESSIVE {side}."
+            )
+            return f"AGGRESSIVE {side}"
+
+        if inside:
+            reasons.append(
+                f"The {leaning} bias passed every gate with entry quality "
+                f"{printed} of 100 and the close inside the EMA band, which "
+                f"would otherwise qualify as AGGRESSIVE, but the risk "
+                f"regime is {regime} — directional conviction does not "
+                f"override risk, so this stays {side}."
+            )
+            return side
+
+        where = {"ABOVE THE BAND": "above", "BELOW THE BAND": "below"}.get(
+            str(entry.get("entry_status", "")), "outside")
+        reasons.append(
+            f"The {leaning} bias passed every gate with entry quality "
+            f"{printed} of 100, at or above the {upper:g} the upper tiers "
+            f"need, but the close is {where} the EMA band rather than "
+            f"inside it, which AGGRESSIVE requires — {side}."
+        )
+        return side
 
     @staticmethod
     def _plan_direction(risk: Dict[str, Any]) -> Optional[str]:
@@ -401,23 +616,49 @@ class DecisionModel:
         )
         return "NO-TRADE (PLAN CONTRADICTS ACTION)"
 
-    def _apply_degradation(self, degradation, final_action, confidence,
-                           trade_quality, reasons):
+    def _apply_degradation(self, degradation, final_action, reasons):
         """
         Enforce the degrade ruling on a decision already computed.
 
-        Three effects, in the order the ruling states them.
+        Viktor's ruling of 29 August 2026, verbatim: "When an indicator
+        fails, the engine continues in an explicitly degraded state. It must
+        not fabricate replacement values. The failure must be recorded in the
+        decision output, and confidence and trade quality must be reduced
+        accordingly. A degraded result does not by itself authorize trading."
 
-        1. The failure is recorded in the decision output. It is listed here in
-           the reasoning the operator reads, not only in a structural field
-           they might not look at.
+        1. It must not fabricate replacement values. Held where each value is
+           produced: a missing indicator is None or NaN and is named, never
+           substituted (sequence item 9a; entry quality's own not-measured
+           rule, stage 4).
 
-        2. Confidence and trade quality are reduced. Capped, not penalised —
-           see DEGRADED_CONFIDENCE_CEILING.
+        2. The failure is recorded in the decision output. Listed here in the
+           reasoning the operator reads, as well as in `degradation`.
 
         3. A degraded result does not by itself authorize trading. Any action
-           naming a side becomes NO-TRADE. WAIT and NO-TRADE are already not
-           authorizations and are left as they are, with the reason added.
+           naming a side becomes NO-TRADE, and degradation.trading_authorized
+           is false.
+
+        THE CAP IS GONE, AND SO IS THE CLAUSE IT SERVED -- the redesign's
+        stage 5, 15 November 2026, Claude's reading of this ruling, VIKTOR'S
+        TO REVERSE. The second sentence of point 2 of the ruling named two
+        quantities, confidence and trade quality, and this method capped both
+        at DEGRADED_CONFIDENCE_CEILING (50.0). Both leave the record in this
+        stage, so there is nothing left for the cap to reduce.
+
+        The one surviving score is entry quality, and capping THAT was
+        considered and refused: entry.score is printed on the panel beside
+        the D, the H and the two ATR distances it is computed from
+        (80 x max(0, 1 - d/3) + 20 x max(0, 1 - h/2)), so a capped score
+        would contradict its own stated arithmetic on the same screen -- two
+        places computing one number, the defect shape this engine keeps
+        finding. It is also not needed for safety: point 3 above already
+        refuses the trade outright, which is a stronger constraint than any
+        ceiling on a reported number.
+
+        WHAT THAT WEAKENS: a degraded run's entry quality is now reported
+        uncapped. It is reported beside a NO-TRADE (DEGRADED INPUT) and a
+        named missing input, so it cannot be read as a green light, but the
+        number itself is no longer held down.
 
         Applied AFTER the normal computation rather than instead of it, on
         purpose: the engine still does the analysis it can, and the degraded
@@ -432,20 +673,6 @@ class DecisionModel:
             f"regardless of how the remaining scores came out."
         )
 
-        capped_confidence = min(confidence, self.DEGRADED_CONFIDENCE_CEILING)
-        capped_quality = {
-            "proposed_entry": min(trade_quality.get("proposed_entry", 0.0),
-                                  self.DEGRADED_CONFIDENCE_CEILING),
-        }
-
-        if capped_confidence < confidence:
-            reasons.append(
-                f"Confidence is capped at {self.DEGRADED_CONFIDENCE_CEILING:.0f}/100 "
-                f"for this run (the uncapped score was {confidence:.0f}/100). "
-                f"An analysis missing inputs cannot claim more than moderate "
-                f"confidence, whatever the parts that did compute say."
-            )
-
         if any(side in final_action for side in ("LONG", "SHORT")):
             reasons.append(
                 f"The action would have been {final_action}; a degraded run "
@@ -453,7 +680,7 @@ class DecisionModel:
             )
             final_action = "NO-TRADE (DEGRADED INPUT)"
 
-        return final_action, capped_confidence, capped_quality
+        return final_action
 
     # ============================================================
     # FINAL ACTION (moved here verbatim from signal_router.py's
@@ -461,84 +688,94 @@ class DecisionModel:
     # architecturally correct place, per the roadmap's own diagnosis)
     # ============================================================
 
-    # ROUND 6 (Meta Muse Spark 1.3), F1 follow-up, 13 September 2026:
-    # promoted from bare literals inside _determine_final_action below,
-    # values unchanged. The pair (trend health >= 75, entry score >= 70)
-    # is the line between AGGRESSIVE-eligible and plain LONG/SHORT; the
-    # single 50 is the line between CONSERVATIVE and WAIT. (It read "when
-    # macro agrees" until work order G, 27 September 2026, removed the
-    # macro condition.) Named and fingerprinted like every other decision-affecting
-    # number in this file (AVG_REWARD_R, DEGRADED_CONFIDENCE_CEILING
-    # above; BTC_ADJUSTMENT_CAP and BTC_STRESS_PENALTY stood below until N5,
-    # 9 October 2026) -- see core/decision_log.py's FINGERPRINTED_MODULES
-    # entry for this class.
+    # THE REDESIGN'S STAGE 4, 15 November 2026: the tiers come from entry
+    # quality alone (ruling 4, 25 October 2026), and the two lines are 70
+    # and 50 (DECISIONS, "Ruling, 11 November 2026 -- the redesign's tier
+    # lines are 70 and 50 ...", where Viktor also kept all three labels).
     #
-    # RAW_BIAS_THRESHOLD (models/bias_engine.py) and MIN_ACTION_BIAS above
-    # were mentioned in the same audit finding, alongside these three, but
-    # neither needed this fix: both are already named module-level
-    # constants and both are already fingerprinted (see
-    # FINGERPRINTED_MODULES/FINGERPRINTED_CONFIG). They are deliberately
-    # two different thresholds answering two different questions -- see
-    # MIN_ACTION_BIAS's own comment above for why -- not a naming
-    # inconsistency to reconcile, and nothing about that pair changes here.
-    AGGRESSIVE_TREND_HEALTH_MIN = 75.0
-    AGGRESSIVE_ENTRY_SCORE_MIN = 70.0
-    CONSERVATIVE_TREND_HEALTH_MIN = 50.0
+    #   quality >= UPPER_TIER_ENTRY_QUALITY_MIN   LONG / SHORT, and
+    #                                            AGGRESSIVE when the close
+    #                                            is inside the EMA band and
+    #                                            the risk regime is NORMAL
+    #                                            or LOW
+    #   quality >= CONSERVATIVE_ENTRY_QUALITY_MIN CONSERVATIVE LONG / SHORT
+    #   under that                               WAIT -- not a pullback
+    #
+    # WHAT THESE TWO NAMES REPLACE.
+    #
+    #     AGGRESSIVE_TREND_HEALTH_MIN   = 75.0
+    #     AGGRESSIVE_ENTRY_SCORE_MIN    = 70.0
+    #     CONSERVATIVE_TREND_HEALTH_MIN = 50.0
+    #
+    # were promoted from bare literals inside _determine_final_action on
+    # 13 September 2026 (round 6's F1 follow-up). The pair (trend health >=
+    # 75, entry score >= 70) was the line between AGGRESSIVE-eligible and
+    # plain LONG/SHORT, and the single 50 -- trend health's -- was the line
+    # between CONSERVATIVE and WAIT. Trend health leaves the tier here and
+    # the module in stage 5, so both of its lines go; the 70 is the same
+    # number under a name that says what it now measures, which is the one
+    # line the upper tiers share; and the 50 is a new name, because the old
+    # 50 was a trend-health line and this one is entry quality's.
+    #
+    # Both are fingerprinted, like every other decision-affecting number in
+    # this class (AVG_REWARD_R, DEGRADED_CONFIDENCE_CEILING above) -- see
+    # core/decision_log.py's FINGERPRINTED_MODULES entry for this class.
+    # Renaming a fingerprinted constant without updating that list drops it
+    # out of the run-hash payload silently, which is the decay rule 11 warns
+    # about; it is updated in this commit.
+    #
+    # (Dated: MIN_ACTION_BIAS left this file at the redesign's stage 2,
+    # 14 November 2026, and RAW_BIAS_THRESHOLD leaves models/bias_engine.py
+    # with the weighted sum in stage 5. Both were named beside these three
+    # in the same audit finding; neither needed F1's fix.)
+    UPPER_TIER_ENTRY_QUALITY_MIN = 70.0
+    CONSERVATIVE_ENTRY_QUALITY_MIN = 50.0
 
-    def _conservative_reason(self, leaning: str, side: str, trend_note: str,
-                             trend_health: float, entry_score: float) -> str:
-        """
-        The CONSERVATIVE sentence, naming what kept the setup below the
-        LONG/SHORT tier.
-
-        WORK ORDER G, 27 September 2026. The sentence read "...but the entry
-        quality (N/100) isn't strong enough" in every case. The tier is also
-        reached with a strong entry and trend strength between the
-        CONSERVATIVE and upper-tier lines, and then the sentence blamed a
-        number that had passed. Item 8's class: the engine asserting
-        something that is not so, in the line the operator reads first.
-        Viktor ruled to fix it inside G, since G rewrites this sentence.
-
-        One helper for both sides, so the two cannot drift apart. The
-        thresholds are read from the constants the ladder compares against,
-        so the sentence cannot quote a number the ladder does not use.
-        """
-        trend_short = trend_health < self.AGGRESSIVE_TREND_HEALTH_MIN
-        entry_short = entry_score < self.AGGRESSIVE_ENTRY_SCORE_MIN
-        trend_min = f"{self.AGGRESSIVE_TREND_HEALTH_MIN:.0f}"
-        entry_min = f"{self.AGGRESSIVE_ENTRY_SCORE_MIN:.0f}"
-        if trend_short and entry_short:
-            detail = (f"below the {trend_min} the {side} tier needs, and the "
-                      f"entry quality ({entry_score:.0f}/100) is below its {entry_min}")
-        elif trend_short:
-            detail = (f"below the {trend_min} the {side} tier needs, with entry "
-                      f"quality {entry_score:.0f}/100")
-        else:
-            # entry_short alone. Neither short cannot reach this helper: the
-            # ladder's upper-tier branch returns before the CONSERVATIVE one.
-            detail = (f"but the entry quality ({entry_score:.0f}/100) is below "
-                      f"the {entry_min} the {side} tier needs")
-        return f"Bias is {leaning}, {trend_note}, {detail} — CONSERVATIVE {side}."
+    # THE REDESIGN'S STAGE 4, 15 November 2026: _conservative_reason stood
+    # here. It named what kept a setup below the upper tier -- trend health
+    # under 75, entry quality under 70, or both -- and was written on
+    # 21 September because the sentence had blamed the wrong one of the two.
+    # With the tiers coming from entry quality alone there is one line to
+    # name and no attribution to get wrong, so the sentence is written where
+    # the tier is decided (_apply_quality_gate below).
 
     def _determine_final_action(
         self,
         bias: Dict[str, Any],
-        trend: Dict[str, Any],
         entry: Dict[str, Any],
         risk: Dict[str, Any],
         *,
         reasons: List[str],
     ) -> str:
         """
-        Multi-factor decision engine mapping quantitative states to final trade actions:
-        - LONG / CONSERVATIVE LONG / AGGRESSIVE LONG
-        - SHORT / CONSERVATIVE SHORT / AGGRESSIVE SHORT
+        GATES 0 TO 2 of the redesign's ladder, and nothing else: whether the
+        inputs are well formed, whether risk was assessed and passed, and
+        whether there is a direction to act on. What it returns is the SIDE,
+        naming no tier:
+
+        - LONG / SHORT
         - WAIT
         - NO-TRADE (RISK NOT ASSESSED)
         - NO-TRADE (RISK TOO HIGH)
+
+        THE REDESIGN'S STAGE 4, 15 November 2026. Until this stage this
+        function also chose the tier, from trend health and entry quality,
+        and so returned CONSERVATIVE LONG, AGGRESSIVE SHORT and the rest.
+        The tier now comes from entry quality alone (ruling 4, 25 October
+        2026) and is derived AFTER gate 9, which is after gates 3 to 8 --
+        the draft's order, and the order the reading of 11 November counted
+        with (docs/build/measure_draft_gaps.py, `ladder`: 0, 1, 2, 3-5, 6,
+        7, 8, 9, and the tier only once every one of them passes). So the
+        tier cannot be chosen here: a gate between this function and gate 9
+        may refuse the side, and a tier named before gate 9 would be a claim
+        about a trade that does not exist. See _apply_quality_gate.
+
+        `trend` was the second parameter and is gone: with trend health out
+        of the tier, nothing in this function reads it. The number stays in
+        the record and on the panel until stage 5.
         """
         try:
-            if not all(isinstance(d, dict) for d in [bias, trend, entry, risk]):
+            if not all(isinstance(d, dict) for d in [bias, entry, risk]):
                 logger.warning("Invalid input types for decision engine, defaulting to WAIT")
                 reasons.append("Some of the engine's inputs came back malformed, so no decision could be made safely — waiting.")
                 return "WAIT"
@@ -574,206 +811,103 @@ class DecisionModel:
                 reasons.append(f"Risk check failed ({risk_reason}), so no trade is allowed right now.")
                 return "NO-TRADE (RISK TOO HIGH)"
 
-            # ITEM 14 RE-AUDIT (Finding 5): risk_regime is read here as its
-            # own, independent input -- see models/risk_model.py's
-            # classify_risk_regime(), which computed this all along but
-            # discarded everything except the EXTREME RISK/not-EXTREME
-            # boolean already folded into risk_valid above. It gates action
-            # INTENSITY only -- whether "AGGRESSIVE" may be used -- never
-            # direction and never whether a trade is allowed at all; that is
-            # what risk_valid above already decided. Conviction (trend
-            # health, entry quality) and risk are now two separate checks
-            # instead of one number standing in for both, per the audit's
-            # required action: "directional conviction must never be treated
-            # as equivalent to risk."
-            risk_regime = str(risk.get("risk_regime", "UNKNOWN RISK"))
-            aggressive_allowed = risk_regime in ("NORMAL RISK", "LOW RISK")
-
-            validation_state = str(risk.get("validation_state", "NEUTRAL"))
-            # SEQUENCE ITEM 13: this read trend["health"] first and fell back
-            # to trend["trend_health"]. Both held the same number, but the
-            # duplicate was the preferred one, so the canonical field could have
-            # been changed here without any effect. "health" is now gone.
-            trend_health = _safe_float(trend.get("trend_health", float("nan")), default=float("nan"))
-            entry_score = _safe_float(entry.get("score", 0.0))
-            entry_status = str(entry.get("entry_status", ""))
-            # WORK ORDER F, 21 September 2026: `divergence` was read here
-            # and vetoed the two upper tiers whichever way it pointed, while
-            # CONSERVATIVE had no divergence check at all. Divergence is now
-            # judged in ONE place -- the confirmation gate
-            # (_apply_signal_gate, after this function), which blocks every
-            # tier on a divergence pointing against the trade and none on one
-            # pointing with it. Viktor ruled the direction rule; removing this
-            # second, disagreeing rule was Claude's call under his delegation.
-            # Consequence, predicted: an upper-tier setup with a divergence
-            # against it used to fall through to CONSERVATIVE or WAIT and now
-            # reaches the gate and becomes NO-TRADE (SIGNAL UNCONFIRMED); one
-            # with a divergence pointing its own way is no longer demoted.
-            entry_active = "ACTIVE" in entry_status.upper()
+            # ITEM 14 RE-AUDIT (Finding 5): risk_regime gates action
+            # INTENSITY -- whether "AGGRESSIVE" may be used -- and never
+            # direction, and never whether a trade is allowed at all, which
+            # risk_valid above has already decided. It still does, and it is
+            # now read where AGGRESSIVE is decided: gate 9
+            # (_apply_quality_gate). Entry quality and the close's position
+            # against the band moved there with it.
+            #
+            # Gone from this function with the tier: SEQUENCE ITEM 13's
+            # trend_health read, 5 September's trend_direction_sign, the
+            # trend_note the two built, and work order B's "not computed"
+            # text for a trend health that was never measured. The tier no
+            # longer reads trend health (ruling 4, 25 October 2026 -- the
+            # tiers come from entry quality alone), and the number itself
+            # stays in the record and on the panel until stage 5.
+            #
+            # H1 IS GONE. It was
+            #
+            #     if validation_state == "WEAK" and trend_health < 40:
+            #         return "WAIT"
+            #
+            # the held-back defect H1 (Decision, 25 October 2026, point 2).
+            # The redesign's ladder has no such gate -- the draft's section
+            # 4, "H1 goes" -- and both of its inputs leave in stage 5, so
+            # leaving the branch here for one stage would let a run WAIT for
+            # a reason no gate in the design names, and before gate 2 at
+            # that. Removed with the ladder rather than with its inputs, so
+            # that the ladder this stage leaves behind IS the design's.
+            # validation_score, validation_state and validation_note stay in
+            # the record and on the panel until stage 5; nothing in the
+            # decision reads any of them now. H1's replacement is proposed
+            # in stage 6, with H2's and H5's (agreed 11 November 2026).
 
             raw_bias = str(bias.get("raw", "NEUTRAL"))
 
-            # 5 SEPTEMBER 2026: the magnitude, not only the label.
-            bias_strength = abs(_safe_float(bias.get("score"), 0.0))
-
-            # 5 SEPTEMBER 2026 -- VIKTOR'S RULING. trend_health is an UNSIGNED
-            # magnitude: a strong DOWNtrend also scores 90. The reason strings
-            # below read "Bias is bullish with strong trend health (90/100)",
-            # offering a direction-blind number as support for a direction --
-            # the same 90 would have appeared if the trend ran the other way.
-            #
-            # trend_direction_sign arrived on 4 September for exactly this
-            # reason. Used here, the sentence can no longer imply support the
-            # number does not give: it names the direction beside the magnitude
-            # and lets the reader see when the two disagree.
-            trend_sign = int(_safe_float(trend.get("trend_direction_sign"), 0.0))
-            _dir_word = "up" if trend_sign > 0 else ("down" if trend_sign < 0 else "flat")
-            # 21 SEPTEMBER 2026, work order B: trend_health is NaN when it
-            # was not measured (read above with a NaN default), and ":.0f"
-            # printed that as "trend strength nan/100" in Decision Reasoning.
-            _strength = (f"{trend_health:.0f}/100" if math.isfinite(trend_health)
-                         else "not computed")
-            trend_note = f"trend strength {_strength} ({_dir_word})"
+            # 5 SEPTEMBER 2026: the magnitude was read here, not only the
+            # label (bias_strength, |bias.score|), for the floor below.
+            # Stage 2 of the redesign, 14 November 2026: the floor reads the
+            # label alone again, because the label now carries it.
 
             # VIKTOR'S RULING, 2 September 2026: bias is the sole direction
             # source. This block used to read
             #
             #     if raw_bias == "BULLISH" or long_signal or macro_bias == "BULLISH":
             #
-            # and the bearish block below it mirrored that. Three independent
-            # sources could each open a direction, the first block to match
-            # returned, and nothing ever compared the answer against the risk
-            # plan -- which risk_model builds from `detailed_bias` alone.
-            #
-            # Found by running the engine on live data, 2 September. AEROUSDT
-            # 4h came back BEARISH CONFIRMED on every measure the engine has --
-            # bearish regime, bearish structure, an LH-LL sequence, strong
-            # bearish distribution, SuperTrend freshly flipped bearish -- with a
-            # BULLISH macro read. The macro clause alone entered the bullish
-            # block; `trend_health >= 50` passed because trend health is an
-            # UNSIGNED magnitude and a strong bearish trend scores 69; and the
-            # engine printed CONSERVATIVE LONG above a stop ABOVE price and
-            # three targets BELOW it. A long label on a short plan.
-            #
-            # It also printed "Bias is bullish and the broader macro trend
-            # agrees" while its own Validation Notes said the higher timeframe
-            # DISAGREED. Two contradictory claims in one panel, and the first
-            # of them false -- Item 8's class, in the module that picks the side.
-            #
-            # Why bias rather than macro: macro is ALREADY inside bias_score as
-            # a 10% weighted factor. Letting it also override the blend counts
-            # one piece of evidence twice, which is Item 11 in the module that
-            # decides direction. It has had its vote.
-            #
-            # long_signal / short_signal are gone from here for the same
-            # reason, not as tidying: an entry-zone signal that can open a
-            # direction against the engine's own bias is the identical defect
-            # wearing a different name. They remain available in `entry` for a
-            # future ruling on whether they should CONFIRM a direction bias has
-            # already chosen; they may no longer choose one.
-            #
-            # RULED 21 September 2026 (work order F): they confirm. See
-            # _apply_signal_gate, which runs after this function returns.
-
-            if validation_state == "WEAK" and trend_health < 40:
-                reasons.append(
-                    f"Validation is weak and trend health is low ({trend_health:.0f}/100) — waiting for a cleaner setup."
-                )
-                return "WAIT"
+            # and the bearish block below it mirrored that. Three
+            # independent sources could each open a direction, the first
+            # block to match returned, and nothing ever compared the answer
+            # against the risk plan -- which risk_model builds from the side
+            # alone. Found by running the engine on live data, 2 September:
+            # AEROUSDT 4h came back bearish on every measure the engine has,
+            # with a BULLISH macro read, and the engine printed CONSERVATIVE
+            # LONG above a stop ABOVE price and three targets BELOW it. A
+            # long label on a short plan. Why bias rather than macro: macro
+            # has had its vote. long_signal / short_signal went for the same
+            # reason, and were RULED to confirm on 21 September (work order
+            # F) -- see _apply_signal_gate.
 
             # VIKTOR'S RULING, 5 September 2026: a lean is not a case.
-            if raw_bias in ("BULLISH", "BEARISH") and bias_strength < MIN_ACTION_BIAS:
+            #
+            # THE REDESIGN'S STAGE 2, 14 November 2026 (the draft's gate 2).
+            # This compared |bias.score| with MIN_ACTION_BIAS and sent a
+            # BULLISH or BEARISH label under 30 to WAIT. The lean is now the
+            # NEUTRAL direction itself, so the floor is the label. The
+            # sentence says what BULLISH and BEARISH require and that this
+            # candle is neither, so that it is also true of a direction that
+            # could not be measured, which arrives here as NEUTRAL beside a
+            # degradation that names what was missing.
+            if raw_bias not in ("BULLISH", "BEARISH"):
                 reasons.append(
-                    f"Bias leans {raw_bias.lower()} but only at {bias_strength:.0f}/100, "
-                    f"below the {MIN_ACTION_BIAS:.0f} needed to act on a direction — WAIT."
+                    "The direction is NEUTRAL: it is bullish only when EMA50 "
+                    "is rising and EMA20 is above it, and bearish only when "
+                    "EMA50 is falling and EMA20 is below it. This candle is "
+                    "neither, so there is no side to act on — WAIT."
                 )
                 return "WAIT"
 
-            # WORK ORDER G, 27 September 2026 (finding 17). Both CONSERVATIVE
-            # branches below read
-            #
-            #     elif trend_health >= ... and macro_bias == "BULLISH":
-            #
-            # (and "BEARISH" in the short branch): a hard requirement on
-            # evidence already weighted into bias_score at 10% -- the double
-            # count Viktor removed from the entry signal at work order F, and
-            # the one his ruling of 2 September removed from direction. The
-            # upper tiers never had it; only the tier with the weakest case
-            # did. Claude's call under Viktor's delegation. Removed, and
-            # macro_bias removed from this function and from evaluate(), since
-            # nothing here read it after that. The router still records it.
-            #
-            # Predicted consequence, recorded: a directional bias at
-            # CONSERVATIVE strength with a disagreeing or neutral macro used
-            # to be WAIT and now reaches the confirmation gate as CONSERVATIVE
-            # LONG/SHORT. In the live log of 27 September (43 runs) that is 2
-            # runs, both on 15 September.
-            #
-            # What still reads macro, unchanged here: bias_score's 10% factor,
-            # the entry score's confluence multiplier, and the validation
-            # score. Those are the weighting questions ruled for after the
-            # independent audit (DECISIONS, 22 September 2026).
-            if raw_bias == "BULLISH":
-                if (trend_health >= self.AGGRESSIVE_TREND_HEALTH_MIN
-                        and entry_score >= self.AGGRESSIVE_ENTRY_SCORE_MIN):
-                    if entry_active and aggressive_allowed:
-                        reasons.append(
-                            f"Bias is bullish, {trend_note}, with a "
-                            f"high-quality, active entry ({entry_score:.0f}/100) "
-                            f"and a {risk_regime.lower()} — AGGRESSIVE LONG."
-                        )
-                        return "AGGRESSIVE LONG"
-                    if entry_active and not aggressive_allowed:
-                        reasons.append(
-                            f"Bias is bullish, {trend_note}, with a "
-                            f"high-quality, active entry ({entry_score:.0f}/100) would otherwise qualify as "
-                            f"AGGRESSIVE, but the risk regime is {risk_regime} — directional conviction does "
-                            f"not override risk, so this stays LONG."
-                        )
-                        return "LONG"
-                    reasons.append(
-                        f"Bias is bullish, {trend_note}, with a high-quality "
-                        f"entry ({entry_score:.0f}/100) — LONG."
-                    )
-                    return "LONG"
-                elif trend_health >= self.CONSERVATIVE_TREND_HEALTH_MIN:
-                    reasons.append(self._conservative_reason(
-                        "bullish", "LONG", trend_note, trend_health, entry_score))
-                    return "CONSERVATIVE LONG"
-
-            if raw_bias == "BEARISH":
-                if (trend_health >= self.AGGRESSIVE_TREND_HEALTH_MIN
-                        and entry_score >= self.AGGRESSIVE_ENTRY_SCORE_MIN):
-                    if entry_active and aggressive_allowed:
-                        reasons.append(
-                            f"Bias is bearish, {trend_note}, with a "
-                            f"high-quality, active entry ({entry_score:.0f}/100) "
-                            f"and a {risk_regime.lower()} — AGGRESSIVE SHORT."
-                        )
-                        return "AGGRESSIVE SHORT"
-                    if entry_active and not aggressive_allowed:
-                        reasons.append(
-                            f"Bias is bearish, {trend_note}, with a "
-                            f"high-quality, active entry ({entry_score:.0f}/100) would otherwise qualify as "
-                            f"AGGRESSIVE, but the risk regime is {risk_regime} — directional conviction does "
-                            f"not override risk, so this stays SHORT."
-                        )
-                        return "SHORT"
-                    reasons.append(
-                        f"Bias is bearish, {trend_note}, with a high-quality "
-                        f"entry ({entry_score:.0f}/100) — SHORT."
-                    )
-                    return "SHORT"
-                elif trend_health >= self.CONSERVATIVE_TREND_HEALTH_MIN:
-                    reasons.append(self._conservative_reason(
-                        "bearish", "SHORT", trend_note, trend_health, entry_score))
-                    return "CONSERVATIVE SHORT"
-
+            # THE SIDE, AND NO TIER. Gates 3 to 7 are the confirmation
+            # signal's blockers (_apply_signal_gate), gate 8 is the trigger
+            # (_apply_trigger_gate) and gate 9 is entry quality and the tier
+            # (_apply_quality_gate). Each runs after this function, in the
+            # draft's order, so every sentence they write about this action
+            # names no tier either: until gate 9 passes there is no tier to
+            # claim. Until this stage a refusal by gate 6, 7 or 8 read "This
+            # would have been CONSERVATIVE LONG" -- a tier the old ladder
+            # chose from trend health, which stage 3 filed as a claim stage
+            # 4 had to remove (DECISIONS, "Decision, 15 November 2026 --
+            # stage 3 of the redesign's build ...", reading 8).
+            side = "LONG" if raw_bias == "BULLISH" else "SHORT"
+            rule = ("EMA50 is rising and EMA20 is above it" if side == "LONG"
+                    else "EMA50 is falling and EMA20 is below it")
             reasons.append(
-                f"No side has a strong enough, well-aligned case right now ({trend_note}, "
-                f"entry quality {entry_score:.0f}/100) — waiting for a better setup."
+                f"The direction is {raw_bias}: {rule}, so the "
+                f"{side.lower()} is the side the remaining gates are read "
+                f"for."
             )
-            return "WAIT"
+            return side
 
         except Exception as e:
             logger.error(f"Decision engine evaluation failed: {e}")
@@ -785,192 +919,59 @@ class DecisionModel:
     # trend_health passthrough)
     # ============================================================
 
-    def _compute_confidence(
-        self,
-        bias: Dict[str, Any],
-        final_action: str,
-        reasons: List[str],
-    ) -> float:
-        """
-        Confidence is bias_score's own magnitude, and nothing else.
-
-        ITEM 11 RE-AUDIT (Finding 4), the second half. Sequence item 11
-        removed a direct `trend_health * 0.3` term because trend health
-        already reaches bias_score at WEIGHT_TREND_HEALTH = 0.30 inside
-        bias_engine.py. This removes the two terms that survived that pass
-        and that the auditor's Finding 4 named specifically:
-
-            structure_alignment   +/-10 to +/-15 if structure_regime agreed
-                                   or disagreed with raw_bias
-            validation_adj        +/-10 to -15 from risk.validation_state,
-                                   which engine_core.py built from macro_bias
-                                   agreement and volume_sentiment strength
-
-        structure_regime, macro_bias and volume_sentiment are not new
-        evidence at this point in the pipeline -- they are three of the six
-        weighted factors bias_engine.calculate_dynamic_bias() already blended
-        into bias_score, at 0.20, 0.10 and 0.15 respectively (see that
-        module's dependency-graph comment). Adding structure_alignment and
-        validation_adj on top counted each of them a second time, and let the
-        confidence explanation describe that repetition as independent
-        confirmation -- literally the auditor's concrete scenario: "structure
-        agrees with the bullish bias, and validation is strong," about a
-        bias score those same two facts had already produced.
-
-        The dependency graph, stated rather than left to be reconstructed:
-        bias_score already IS the multi-factor consensus (trend health,
-        structure regime, volume sentiment, SuperTrend direction, macro bias,
-        reversal/continuation). Confidence reports how decisively that
-        consensus committed to a direction; it does not re-derive an opinion
-        from any of the six factors, because there is no genuinely
-        independent input left to check them against. entry_score is the
-        nearest candidate, and it already shares macro_bias, trend_direction
-        and structure_sequence with bias_score (see engine_core.py's call
-        into calculate_entry_quality) -- folding it in here would reproduce
-        the same defect through a fourth path rather than fix it.
-
-        Ruled by Viktor, 31 August 2026 (delegated). No rescale needed:
-        bias_strength already spans 0-100 on its own (bias_score is clipped
-        to +/-100 in bias_engine.py), so removing the two additive terms
-        does not shrink confidence's own range the way removing the old
-        trend_health term once did.
-        """
-        confidence = min(100.0, abs(_safe_float(bias.get("score"), 0.0)))
-
-        # When the risk-regime gate has already blocked the trade, make clear this
-        # confidence score describes how the picture lines up, not a green light --
-        # otherwise a high number here right after "NO-TRADE" reads as contradictory.
-        # SWEEP ITEM 13, 8 September 2026. Previous text blamed "the risk
-        # check above" on every NO-TRADE, including PLAN CONTRADICTS ACTION
-        # and DEGRADED INPUT. Only attach that clause when the action itself
-        # names risk.
-        qualifier = (
-            " This reflects how the picture lines up, not a green light — the risk check above is what's blocking the trade."
-            if final_action.startswith("NO-TRADE") and "RISK" in final_action.upper()
-            else (
-                " This reflects how the picture lines up, not a green light — the trade is blocked for the reason named in the action."
-                if final_action.startswith("NO-TRADE")
-                else ""
-            )
-        )
-
-        reasons.append(
-            f"Confidence is {confidence:.0f}/100 — the bias engine's own composite "
-            f"strength (trend health, structure regime, volume sentiment, SuperTrend "
-            f"direction, macro bias, and reversal/continuation, already weighted and "
-            f"blended into one score). Restating any of those as a separate bonus here "
-            f"would count the same evidence twice.{qualifier}"
-        )
-        return float(confidence)
-
     # ============================================================
-    # TRADE QUALITY (formalizes what the panel already showed as
-    # "Current Market" / "Proposed Entry" -- now owned here instead of
-    # being computed ad hoc where the panel happened to read it from)
+    # CONFIDENCE, TRADE QUALITY AND EV -- REMOVED at the redesign's
+    # stage 5, 15 November 2026
     # ============================================================
-
-    def _compute_trade_quality(
-        self,
-        trend: Dict[str, Any],
-        entry: Dict[str, Any],
-        final_action: str,
-        reasons: List[str],
-    ) -> Dict[str, float]:
-        # SEQUENCE ITEM 11: `current_market` was
-        #     _safe_float(trend.get("trend_health", ...))
-        # — trend health verbatim, under a third name. The panel printed it as
-        # TREND, again as MOMENTUM's number, and again here as Current Market,
-        # then this sentence compared the entry against it as though that were
-        # an independent yardstick. It is the same measurement three times.
-        #
-        # Removed rather than replaced with an invented metric: a reader has
-        # TREND and ENTRY QUALITY on the panel already and can compare them.
-        # Inventing a distinct "market backdrop" score would be new-feature
-        # work, and Step 5's own guidance sides with removal.
-        proposed_entry = _safe_float(entry.get("score"), 0.0)
-
-        if proposed_entry >= 70:
-            quality_phrase = "a high-quality entry on its own terms"
-        elif proposed_entry >= 50:
-            quality_phrase = "a workable entry"
-        else:
-            quality_phrase = "a weak entry"
-
-        reasons.append(
-            f"Entry quality is {proposed_entry:.0f}/100 — {quality_phrase}. "
-            f"Compare it against the TREND line rather than against a restatement "
-            f"of it."
-        )
-
-        return {
-            "proposed_entry": float(proposed_entry),
-        }
-
-    # ============================================================
-    # EV (C4 build -- new, illustrative-only)
-    # ============================================================
-
-    def _compute_ev(
-        self,
-        confidence: float,
-        final_action: str,
-        reasons: List[str],
-    ) -> Dict[str, float]:
-        """
-        EV = (win_rate x average reward) - (loss_rate x 1), expressed in "R"
-        (multiples of what's being risked). Uses confidence/100 as a stand-in
-        for win rate and AVG_REWARD_R (2.0, the average of risk_model.py's
-        fixed 1:1/2:1/3:1 targets) as the reward side. Not a measured,
-        backtested number.
-
-        It is also not a check on the confidence score. With the reward
-        multiple fixed, this is a linear rescaling of confidence -- the two
-        move together by construction and cannot disagree -- so it was
-        described as a "sanity-check translation" for longer than it should
-        have been. The reason string says what it is instead.
-        """
-        win_rate = max(0.0, min(1.0, confidence / 100.0))
-        ev_r = (win_rate * self.AVG_REWARD_R) - ((1.0 - win_rate) * 1.0)
-
-        # WHAT THIS NUMBER IS, 20 September 2026. ev_r is a straight-line
-        # restatement of confidence: with a fixed reward multiple R,
-        # ev_r = confidence/100 x (R + 1) - 1. It carries no information
-        # confidence does not already carry and cannot disagree with it, so
-        # it is not a second opinion and the sentence below no longer reads
-        # like one. The two confidence levels quoted are derived from
-        # AVG_REWARD_R and EV_BREAKEVEN_BAND_R rather than written out, so
-        # changing either constant moves the sentence with it.
-        breakeven_confidence = 100.0 / (self.AVG_REWARD_R + 1.0)
-        positive_confidence = (
-            (1.0 + self.EV_BREAKEVEN_BAND_R) * 100.0 / (self.AVG_REWARD_R + 1.0)
-        )
-
-        if ev_r > self.EV_BREAKEVEN_BAND_R:
-            ev_phrase = "positive -- worth taking on average if that win rate holds up"
-        elif ev_r < -self.EV_BREAKEVEN_BAND_R:
-            ev_phrase = "negative -- would lose money on average even at that win rate"
-        else:
-            ev_phrase = "close to breakeven"
-
-        qualifier = (
-            " (this is hypothetical, since no trade is actually being suggested right now)"
-            if not any(side in final_action for side in ("LONG", "SHORT"))
-            else ""
-        )
-
-        reasons.append(
-            f"Expected value (illustrative, not backtested): the {confidence:.0f}/100 confidence score restated "
-            f"against the standard {self.AVG_REWARD_R:.0f}:1 average reward, not a second reading of the setup — "
-            f"it is arithmetic on confidence alone, so it can never disagree with it. On that basis about "
-            f"{ev_r:+.2f}R per trade — {ev_phrase}{qualifier}. On this reward multiple any confidence above "
-            f"{breakeven_confidence:.0f}/100 is breakeven or better, and above {positive_confidence:.0f}/100 reads as positive."
-        )
-
-        return {
-            "ev_r": float(ev_r),
-            "assumed_win_rate": float(win_rate * 100.0),
-            "avg_reward_r": float(self.AVG_REWARD_R),
-        }
+    #
+    # _compute_confidence, _compute_trade_quality and _compute_ev stood
+    # here, in that order, with AVG_REWARD_R, EV_BREAKEVEN_BAND_R and
+    # DEGRADED_CONFIDENCE_CEILING above them. Ruling 6 of 25 October 2026
+    # (DECISIONS, "Ruling, 25 October 2026 -- the indicator document's eight
+    # questions"): confidence and the EV line are dropped.
+    #
+    # WHAT EACH WAS.
+    #
+    #   _compute_confidence   abs(bias.score) clipped to 100 -- the weighted
+    #                         sum's own magnitude and nothing else, after the
+    #                         Item 11 re-audit removed structure_alignment
+    #                         and validation_adj from it. It wrote the
+    #                         sentence naming the sum's six factors, and
+    #                         risk.confidence_score. The sum goes in this
+    #                         stage (models/bias_engine.py), so there is no
+    #                         score to take a magnitude of.
+    #   _compute_trade_quality  entry.score under a second name, as
+    #                         risk.trade_quality_proposed, plus the sentence
+    #                         "Entry quality is X/100 -- a weak entry.
+    #                         Compare it against the TREND line ...". Both
+    #                         go: the number is entry.score, which gate 9
+    #                         reads and the panel prints with the D and H it
+    #                         is made of, and the sentence compared it
+    #                         against the TREND line, which is trend
+    #                         health's and leaves here too. One name for one
+    #                         meaning (round 8, F8).
+    #   _compute_ev           (win_rate x AVG_REWARD_R) - (loss_rate x 1)
+    #                         with confidence/100 as the win rate: a linear
+    #                         rescaling of confidence that could not
+    #                         disagree with it, as its own comment said, and
+    #                         risk.ev_r, risk.assumed_win_rate and
+    #                         risk.avg_reward_r with it.
+    #
+    # So eight leaves leave the record -- risk.confidence_score,
+    # risk.trade_quality_proposed, risk.ev_r, risk.assumed_win_rate,
+    # risk.avg_reward_r and, from engine_core's validation block,
+    # risk.validation_state, risk.validation_score and
+    # risk.validation_note -- and three sentences leave
+    # explanation.reasons, which moves again as stage 3's reading 1 said it
+    # would. Each leaf moves once, to its final value: gone.
+    #
+    # WHAT NO LONGER HAPPENS, STATED PLAINLY. A run used to print a
+    # confidence and an expected value beside its action. It does not. The
+    # action is the engine's answer, and the nine gates behind it are each
+    # a yes or a no an operator can read in Decision Reasoning. There is no
+    # single number saying how sure the engine is, because every number
+    # that said so was the weighted sum restated -- which is the finding
+    # the redesign was built to answer, not a gap it leaves.
 
     # ============================================================
     # BTC-ADJUSTED CONFIDENCE -- removed, N5, 9 October 2026

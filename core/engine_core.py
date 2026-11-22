@@ -12,14 +12,18 @@ from data.data_fetcher import data_fetcher
 from data import validation
 from indicators.indicators import add_technical_indicators
 from structure.structure import calculate_structure
-from indicators.trend_health import compute_trend_health
+from indicators.trend_readings import compute_trend_readings
 from models.bias_engine import (
-    calculate_dynamic_bias,
     calculate_dynamic_regime,
-    bias_label,
+    direction_from_emas,
+    plan_side,
 )
 from models.risk_model import RiskModel
 from models.entry_model import generate_entry_signals, calculate_entry_quality
+# Stage 3 of the redesign: the module, for its constants and read_trigger. A
+# fingerprinted constant imported by name would be a second, unlisted copy
+# (tests/test_fingerprint_names_every_constant.py).
+from models import entry_model
 from models.exit_model import build_exit_watch
 from core import lineage
 from core import decision_log
@@ -30,140 +34,82 @@ from utils.plotting import plot_engine_chart
 logger = logging.getLogger(__name__)
 
 
-# AUDIT FINDING (2 September 2026), found by running the engine.
+# ============================================================
+# VALIDATION'S TWO PARTS -- volume_agreement REMOVED, macro_agreement
+# REDUCED TO ITS NOTE, at the redesign's stage 5, 15 November 2026
+# ============================================================
 #
-# The panel printed, four lines apart:
+# validation_score was 50, plus macro_agreement's delta (+10 agreeing, -20
+# disagreeing, 0 with nothing to compare) and volume_agreement's (+15
+# supporting, -25 against or on either warning label, 0 otherwise), banded
+# into validation_state at 70 and 45. Ruling 2 of 25 October 2026 takes
+# macro out of the validation score and makes it a gate on LONG (gate 6,
+# built at stage 3), and the draft's section 4 removes validation_score,
+# validation_state and validation_note from the decision with H1's branch,
+# whose inputs they were. All three leaves go here.
 #
-#     MACRO TREND: BULLISH
-#     ...
-#     Validation Notes:
-#      - The higher timeframe is neutral.
+# WHY THE SCORE GOES AND NOT JUST ITS NAME. Its two parts are each a
+# comparison between two readings the panel already prints: the bias
+# against MACRO TREND, and the bias against VOLUME. Banding that into a
+# 0-100 number and a STRONG/NEUTRAL/WEAK word presented the comparison as a
+# third measurement. Its own history is the argument: the macro half
+# printed a sentence that contradicted MACRO TREND (2 September 2026, the
+# finding this comment replaces), and the volume half scored STRONG BEARISH
+# DISTRIBUTION as +15 towards a BULLISH validation because it matched the
+# word STRONG and ignored the direction (5 September 2026). Both were
+# direction-blind tests producing a directional claim, and both were found
+# by running the engine rather than by review.
 #
-# Two claims about the same thing, in one panel, and the second one false.
-# The block that produced it had three branches -- agrees, disagrees, and an
-# else that said "The higher timeframe is neutral." That else was covering
-# TWO different situations:
+# WHAT SURVIVES, AND WHERE IT WENT.
 #
-#     the macro really is neutral            -> the sentence is true
-#     the macro has a direction, the BIAS    -> the sentence is false. It
-#     is neutral                                describes the bias and
-#                                               attributes it to the macro.
+#   The macro COMPARISON is now gate 6 -- no LONG while the daily trend is
+#   BEARISH (stage 3, models/entry_model.py). A refusal there is a blocker
+#   with its own label, NO-TRADE (MACRO AGAINST), not a number.
 #
-# On a neutral-bias run -- which is what the engine reports whenever its six
-# factors cancel, a common state -- the panel therefore contradicted its own
-# MACRO TREND line every time.
+#   The macro NOTE stays, as the draft's section 4 asks: "the macro note
+#   stays on the panel as information beside gate 6". It needed a home in
+#   the decision object to reach the panel at all, so it is recorded as the
+#   top-level leaf `macro_note`, beside `macro_bias`, which is the reading
+#   it is about -- not in `risk`, where validation_note was and where a
+#   macro note does not belong. One leaf added; the draft's section 13.3
+#   does not list it.
 #
-# This is the same shape as the contradiction that exposed the direction
-# Critical on 2 September: the decision claimed "the broader macro trend
-# agrees" while Validation Notes said it disagreed. Item 8, in the section
-# that exists to tell the operator what was checked.
+#   The VOLUME comparison survives nowhere, by ruling 2's own words: volume
+#   enters the redesign as the two gates of 31 October (the liquidity floor
+#   and the trigger's volume, both built at stage 3), and the panel's VOLUME
+#   line still prints structure.py's sentiment label. volume_agreement and
+#   its weights are gone.
 #
-# Extracted to a function so the four cases can be tested directly. Inline,
-# the only way to reach the false branch was to find market data that
-# produced a neutral bias under a directional macro.
-# AUDIT FINDING (5 September 2026), found by running the engine.
-#
-# The panel printed VOLUME : STRONG BEARISH DISTRIBUTION and, in the same
-# run, under Validation Notes: "Volume sentiment is supportive of current
-# momentum." The bias was BULLISH CONFIRMED.
-#
-# The test was `if "STRONG" in volume_sentiment.upper()`. It matched the word
-# and ignored the direction, so strongly BEARISH volume scored +15 towards a
-# BULLISH validation and printed as support. On the run that exposed it, that
-# +15 is what made VALIDATION read STRONG at exactly 75.00 -- 50 baseline,
-# +10 macro agreeing, +15 volume "supporting".
-#
-# Third instance of one class: a direction-blind test producing a directional
-# claim. The macro note was the first (macro_agreement below, 3 September),
-# and bias_engine signing trend_health from the sign of a magnitude was the
-# second (4 September).
-#
-# models/bias_engine.py already had this right. _VOLUME_SENTIMENT_SCORES maps
-# STRONG BEARISH DISTRIBUTION to -100. One quantity computed correctly in one
-# module and wrongly in another -- exactly what check 7.6 of the auditor
-# instruction asks a reviewer to look for.
-#
-# No weight is invented. +15 for volume supporting the bias, as before; -25
-# for volume against it, which is the weight this same block already used for
-# its disconfirming branch. Strong volume against the bias is disconfirming.
-def volume_agreement(volume_sentiment, raw_bias):
-    """
-    How the volume reading stands relative to this run's bias.
-
-    Returns (score_delta, note). Extracted so every case can be tested
-    directly; inline, the false branch needed market data that happened to
-    pair strong counter-trend volume with an opposing bias.
-    """
-    v = str(volume_sentiment).upper()
-    vol_up = "BULLISH" in v
-    vol_down = "BEARISH" in v
-    bias_up = raw_bias == "BULLISH"
-    bias_down = raw_bias == "BEARISH"
-
-    # ROUND 8, F9(3), 12 October 2026: a failed read is not a neutral one.
-    # "UNKNOWN VOLUME" is what structure.py writes when the volume sentiment
-    # detector could not run (and for an empty frame). It fell through to the
-    # branch below and printed "Volume sentiment is neutral." under
-    # Validation Notes, beside a VOLUME line reading UNKNOWN VOLUME -- the
-    # conflation the macro note was fixed for on 3 September. The score is
-    # unchanged, 0.0; only the sentence is. No label the detector produces on
-    # a successful read contains UNKNOWN.
-    if "UNKNOWN" in v:
-        return 0.0, (
-            f"Volume sentiment could not be read ({volume_sentiment}), so "
-            f"volume neither supports nor opposes this bias."
-        )
-
-    # B4's LABELS, 14 October 2026 (the 5 October self-review, B4; point 8
-    # of round 8's triage). This was `"DIVERGENCE" in v or "WEAK" in v or
-    # "EXHAUSTION" in v`, answered with one note, "Volume divergence or
-    # weakness detected.", for both labels it matched. No label structure.py
-    # writes contains WEAK, so that third of the test could not match. And a
-    # match on part of a word means renaming the label in structure.py
-    # silently drops the 25 points here -- which is what renaming "VOLUME
-    # DIVERGENCE" to "FADING VOLUME" would have done. So the two warning
-    # labels are matched whole, each with a note saying what it measured.
-    # The scores are unchanged. tests/test_b4_labels_say_what_is_measured.py
-    # runs the detector through every label it can return and fails if a
-    # warning label reaches the neutral branch below.
-    if v == "FADING VOLUME":
-        return -25.0, (
-            "This candle's volume is below the volume four candles back, "
-            "and volume is not expanding."
-        )
-    if v == "VOLUME EXHAUSTION":
-        return -25.0, (
-            "Volume is expanding while the close has moved less than 0.1% "
-            "from four candles back."
-        )
-
-    if not (vol_up or vol_down):
-        return 0.0, "Volume sentiment is neutral."
-
-    if (vol_up and bias_up) or (vol_down and bias_down):
-        return 15.0, "Volume sentiment supports this bias."
-
-    if (vol_up and bias_down) or (vol_down and bias_up):
-        return -25.0, (
-            f"Volume sentiment ({volume_sentiment}) runs AGAINST this bias."
-        )
-
-    # Volume has a direction and the bias does not. Naming the reading lets
-    # the operator check this line against the VOLUME line above it.
-    return 0.0, (
-        f"The bias is neutral, so volume sentiment ({volume_sentiment}) "
-        f"neither supports nor opposes it."
-    )
+# macro_agreement returns the note ALONE now. Keeping the delta beside it
+# with no reader is the unreachable-value shape this project keeps finding;
+# the +10/-20 are in this comment, which is the record of them.
 
 
 def macro_agreement(macro_bias, raw_bias):
     """
-    How the higher timeframe stands relative to this run's bias.
+    How the higher timeframe stands relative to this run's bias, as one
+    sentence for the panel.
 
-    Returns (score_delta, note). The deltas are unchanged from the inline
-    version: +10 agreeing, -20 disagreeing, 0 when there is no comparison to
-    make. Only the sentence for that last case is new, and only in the half
-    of it that was previously described wrongly.
+    AUDIT FINDING (2 September 2026), found by running the engine, and the
+    reason this is a function rather than four inline branches. The panel
+    printed, four lines apart:
+
+        MACRO TREND: BULLISH
+        ...
+        Validation Notes:
+         - The higher timeframe is neutral.
+
+    Two claims about the same thing, in one panel, and the second one
+    false. The block had three branches -- agrees, disagrees, and an else
+    that said "The higher timeframe is neutral." That else covered two
+    different situations: the macro really is neutral, where the sentence
+    is true, and the macro has a direction while the BIAS is neutral, where
+    it describes the bias and attributes it to the macro. On a neutral-bias
+    run the panel contradicted its own MACRO TREND line every time.
+
+    Extracted so the four cases can be tested directly; inline, the only
+    way to reach the false branch was to find market data that produced a
+    neutral bias under a directional macro.
     """
     macro = str(macro_bias).upper()
     macro_up = "BULLISH" in macro
@@ -172,21 +118,22 @@ def macro_agreement(macro_bias, raw_bias):
     bias_down = raw_bias == "BEARISH"
 
     if (macro_up and bias_up) or (macro_down and bias_down):
-        return 10.0, "The higher timeframe agrees with this bias."
+        return "The higher timeframe agrees with this bias."
 
     if (macro_up and bias_down) or (macro_down and bias_up):
-        return -20.0, "The higher timeframe disagrees with this bias."
+        return "The higher timeframe disagrees with this bias."
 
     if not (macro_up or macro_down):
-        return 0.0, "The higher timeframe is neutral."
+        return "The higher timeframe is neutral."
 
     # The macro has a direction and the bias does not. Naming the macro read
     # here matters: the operator can see MACRO TREND on the panel above and
     # check this sentence against it.
-    return 0.0, (
+    return (
         f"The bias is neutral, so there is nothing for the higher timeframe "
         f"({macro}) to agree or disagree with."
     )
+
 
 class Phase7Engine:
     """
@@ -213,8 +160,11 @@ class Phase7Engine:
         # self.btc_bias_state_machine were built here, the second "tracked
         # independently ... with their own history of confirmations". Neither
         # kept a history: transition() never read its previous state, and an
-        # instance lived one run. Both labels now come from
-        # models.bias_engine.bias_label, which has no state. See its comment.
+        # instance lived one run. Both labels then came from
+        # models.bias_engine.bias_label, which had no state.
+        # THE REDESIGN'S STAGE 2, 14 November 2026: bias_label is gone too.
+        # Each label is the direction itself (models/bias_engine.py,
+        # direction_from_emas).
         self.risk_model = RiskModel()
         # SEQUENCE ITEM 6: _indicator_cache, _structure_cache and
         # _max_cache_size lived here. See the run() docstring for why they went.
@@ -349,6 +299,62 @@ class Phase7Engine:
             # "nan": this record is read back as JSON, and "nan" in a numeric
             # field is the exact defect Observation 5 named in the panel.
             out[str(name)] = as_float if math.isfinite(as_float) else None
+        return out
+
+    @staticmethod
+    def _decision_bar_value(df, column) -> Optional[float]:
+        """
+        One column's value at the decision bar, as a finite float; None when
+        the column is absent or the cell is not a finite number.
+
+        For a reader that must tell "not measured" from a reading, and names
+        the column when it is not (the direction, stage 2 of the redesign).
+        A failed indicator leaves no column (indicators/indicators.py), so
+        absent and not-a-number are the same answer here.
+        """
+        if df is None or len(df) == 0 or column not in df.columns:
+            return None
+        try:
+            value = float(df[column].iloc[-1])
+        except (TypeError, ValueError):
+            return None
+        return value if math.isfinite(value) else None
+
+    @staticmethod
+    def _bar_value(df, column, position) -> Optional[float]:
+        """
+        _decision_bar_value for another row: `position` counts from the end,
+        -1 the decision bar, -2 the candle before it. None when the frame has
+        no such row. (Stage 3 of the redesign: the previous candle's close,
+        for the trigger.)
+        """
+        if (df is None or column not in df.columns
+                or position >= 0 or len(df) < -position):
+            return None
+        try:
+            value = float(df[column].iloc[position])
+        except (TypeError, ValueError):
+            return None
+        return value if math.isfinite(value) else None
+
+    @staticmethod
+    def _bar_values_before_decision(df, column, count) -> List[Any]:
+        """
+        `column` on up to `count` candles before the decision bar, oldest
+        first, each cell as the frame holds it: the reader decides what is a
+        reading (models/entry_model.py, read_trigger, which refuses a median
+        over fewer than it asked for or over a cell that is not a number).
+        Empty when the column is absent.
+        """
+        if df is None or column not in df.columns or len(df) < 2:
+            return []
+        cells = df[column].iloc[-(int(count) + 1):-1].tolist()
+        out: List[Any] = []
+        for cell in cells:
+            try:
+                out.append(float(cell))
+            except (TypeError, ValueError):
+                out.append(None)
         return out
 
     @staticmethod
@@ -739,7 +745,9 @@ class Phase7Engine:
                 }
                 return decision_object
 
-            # 4. TREND HEALTH ENGINE
+            # 4. TREND READINGS (indicators/trend_readings.py, which was
+            #    indicators/trend_health.py until the redesign's stage 7;
+            #    this heading said TREND HEALTH ENGINE)
             #
             # AUDIT FINDING 6 (the surviving fabrication constants), 5 September
             # 2026. This stage used to wrap the call in a try whose handler
@@ -769,24 +777,34 @@ class Phase7Engine:
             # does not apply: there is no partial trend health to carry
             # forward, and no honest number to carry it with. It is reported as
             # the failure it is, in the same shape sections 2 and 3 already use.
-            trend = compute_trend_health(df_struct)
-            if not isinstance(trend, dict) or "trend_health" not in trend:
-                logger.error("Trend health engine returned an invalid format")
+            trend = compute_trend_readings(df_struct)
+            # THE REDESIGN'S STAGE 5, 15 November 2026: the key checked was
+            # "trend_health", the score that module no longer computes. "adx"
+            # is checked instead: it is on every one of that function's
+            # returns, and it is the reading the confirmation gate compares
+            # (models/entry_model.py, MIN_TREND_ADX), so the guard now names
+            # the value the run actually depends on. Its absence still means
+            # the module broke its return contract.
+            if not isinstance(trend, dict) or "adx" not in trend:
+                logger.error("Trend reading engine returned an invalid format")
                 decision_object = {
                     "symbol": symbol,
                     "timeframe": timeframe,
                     "error": (
-                        "Trend health analysis failed: compute_trend_health "
+                        "Trend readings failed: compute_trend_readings "
                         "returned an invalid format. That is a contract "
-                        "violation in indicators/trend_health.py, not a market "
-                        "condition, so no substitute score is invented for it."
+                        "violation in indicators/trend_readings.py, not a market "
+                        "condition, so no substitute value is invented for it."
                     ),
                 }
                 return decision_object
 
-            # SEQUENCE ITEM 9a: trend_health names the inputs it scored
-            # without. Those are degradations of this run, not of that
-            # module, so they join the same list.
+            # SEQUENCE ITEM 9a: the trend readings name the inputs they were
+            # taken without. Those are degradations of this run, not of that
+            # module, so they join the same list. Stage 5, 15 November 2026:
+            # that list is ADX and RSI now; the two EMA slopes left it with
+            # the score, and the EMA columns the direction reads are degraded
+            # by direction_from_emas below.
             degradation.extend(trend.get("degraded_inputs", []))
 
             # 5. BIAS ENGINE
@@ -796,42 +814,64 @@ class Phase7Engine:
             # (all computed above), plus SuperTrend direction (extracted here).
             supertrend_direction = float(df_struct["ST_Direction"].iloc[-1]) if "ST_Direction" in df_struct.columns else 0.0
 
-            # SEQUENCE ITEM 6: the df=df_struct argument is gone. See
-            # bias_engine.calculate_dynamic_bias — it never read the frame.
-            # AUDIT FINDING 7: the blend fills this in as it runs, so what is
-            # recorded is the arithmetic that produced bias_score rather than
-            # a second computation of it. See bias_engine.calculate_dynamic_bias.
-            bias_components: Dict[str, Any] = {}
-            raw_bias, bias_score = calculate_dynamic_bias(
-                trend_sequence=trend_sequence,
-                trend_health=trend["trend_health"],
-                trend_exhaustion=trend["trend_exhaustion"],
-                reversal_direction=trend.get("reversal_direction"),
-                # 13 OCTOBER 2026, the fallback sweep: was .get(..., 0), a
-                # reversal strength nobody measured. compute_trend_health
-                # writes it on all four of its returns; read directly.
-                reversal_strength=trend["reversal_strength"],
-                continuation_strength=trend.get("continuation_strength"),
-                # 4 SEPTEMBER 2026: the trend direction now travels explicitly
-                # rather than being inferred from continuation_strength's sign
-                # inside bias_engine. Read with [] rather than .get(): a missing
-                # key here means trend_health did not run, and defaulting it to
-                # 0 would zero a 30% weight -- the exact defect this closes.
-                trend_direction_sign=trend["trend_direction_sign"],
-                structure_regime=structure_regime,
-                volume_sentiment=volume_sentiment,
-                supertrend_direction=supertrend_direction,
-                macro_bias=macro_bias,
-                components=bias_components,
+            # THE REDESIGN'S STAGE 5, 15 November 2026: the call to
+            # bias_engine.calculate_dynamic_bias stood here, filling
+            # bias_components as it ran. Stage 2 discarded the label it
+            # returned and kept the call for its score, because confidence
+            # was that score's magnitude; confidence leaves in this stage, so
+            # the score has no reader and the call, bias.score and
+            # lineage.bias_components all go. The function's own record is in
+            # models/bias_engine.py.
+
+            # THE DIRECTION -- Viktor's ruling of 7 November 2026: EMA50's
+            # slope and the order of EMA_20 and EMA_50, read off the decision
+            # candle. The three are read through one helper that answers None
+            # for a column that is absent or a cell that is not a number, and
+            # direction_from_emas answers None for a direction it could not
+            # measure. That is not NEUTRAL, which is a measurement (the two
+            # disagree). The run is degraded with the columns named, so no
+            # trade can follow, and bias.raw carries NEUTRAL because there is
+            # no side -- the shape the macro block above uses for a daily
+            # trend it could not read. lineage.direction keeps the
+            # difference: its result is null on such a run.
+            direction_components: Dict[str, Any] = {}
+            direction_inputs = {
+                column: self._decision_bar_value(df_struct, column)
+                for column in ("EMA50_Slope", "EMA_20", "EMA_50")
+            }
+            measured_direction = direction_from_emas(
+                direction_inputs["EMA50_Slope"],
+                direction_inputs["EMA_20"],
+                direction_inputs["EMA_50"],
+                components=direction_components,
             )
+            if measured_direction is None:
+                not_measured = [column for column, value in direction_inputs.items()
+                                if value is None]
+                degradation.append(
+                    f"direction ({'/'.join(not_measured)} not measured) -- "
+                    f"reported as NEUTRAL because no side could be read, not "
+                    f"because EMA50's slope and the EMAs' order disagree"
+                )
+                raw_bias = "NEUTRAL"
+            else:
+                raw_bias = measured_direction
+            # The side the risk plan and entry quality are computed for. Under
+            # NEUTRAL it is a stand-in: see plan_side.
+            side = plan_side(raw_bias)
 
             dynamic_regime, volatility_mode = calculate_dynamic_regime(df_struct)
-            detailed_bias = bias_label(raw_bias, bias_score)
+            # Until stage 2 this was bias_label(raw_bias, bias_score): the raw
+            # label, with CONFIRMED past a score of 30. There is no score
+            # behind the direction now, so the label is the direction. The key
+            # stays: the panel's BIAS line and the contract read it.
+            detailed_bias = raw_bias
 
             bias = {
                 "raw": raw_bias,
                 "detailed": detailed_bias,
-                "score": bias_score,
+                # Stage 5, 15 November 2026: "score" stood here, the
+                # weighted sum. It went with confidence, its one reader.
                 "regime": dynamic_regime,
                 "volatility": volatility_mode,
             }
@@ -890,7 +930,16 @@ class Phase7Engine:
                             volume_profile_bins=config.VOLUME_PROFILE_BINS
                         )
                         df_btc_struct = btc_structure_obj.get("df", df_btc)
-                        btc_trend = compute_trend_health(df_btc_struct)
+                        # Stage 5, 15 November 2026: this call is kept for
+                        # its degraded_inputs alone, which btc_context records
+                        # below. What that list can now name is ADX and RSI --
+                        # the inputs of the readings this module still takes.
+                        # It named the two EMA slopes as well until this
+                        # stage; BTC's EMA columns are read by subscript by
+                        # the direction (stage 2), so a missing one raises and
+                        # this block's handler reports BTC unavailable, which
+                        # is a stronger answer than naming it in a list.
+                        btc_trend = compute_trend_readings(df_btc_struct)
                         # RULING, 12 September 2026 (Viktor). SWEEP ITEM 11 (8
                         # September) fed BTC-side trend degradations into
                         # AERO's OWN degradation list -- the one
@@ -933,51 +982,48 @@ class Phase7Engine:
                         # either. Since B9 a failed BTC SuperTrend makes the
                         # section unavailable, so it is not one of them.
                         # Comment only; what is recorded is unchanged.
+                        # (Stage 2 of the redesign, 14 November 2026: a
+                        # failed BTC SuperTrend is one of them again. See
+                        # the note below.)
                         btc_degraded_inputs = list(btc_trend.get("degraded_inputs", []) or [])
 
-                        # B9, 15 OCTOBER 2026 (Viktor's ruling that day, by
-                        # agreeing to Claude's suggestion). This read 0.0 when
-                        # the column was missing -- and it is missing exactly
-                        # when BTC's SuperTrend failed, since a failed
-                        # indicator leaves no column (indicators.py). The
-                        # failure reached only the log line above, and
-                        # bias_engine scores 0.0 as a neutral SuperTrend, so
-                        # the panel's BTC BIAS printed a reading one factor
-                        # short as if it were complete. Read directly, the
-                        # 13 October shape: a missing column raises here, and
-                        # this block's handler reports BTC unavailable for the
-                        # run, as it does for any BTC failure. The asset's own
-                        # read in section 5 keeps its 0.0 by the same ruling:
-                        # there a failure is a recorded degradation and no
-                        # trade can follow from it (on the list for after the
-                        # audit, PHASE7_NEXT.md).
-                        btc_supertrend_direction = float(df_btc_struct["ST_Direction"].iloc[-1])
-                        btc_raw_bias, btc_bias_score = calculate_dynamic_bias(
-                            # 13 OCTOBER 2026, the fallback sweep: sequence,
-                            # reversal_strength, regime and volume_sentiment
-                            # were read here with NONE, 0, NEUTRAL STRUCTURE and
-                            # NEUTRAL VOLUME -- the defaults the 2 September note
-                            # removed from the asset's own call. calculate_structure
-                            # and compute_trend_health write all four on every
-                            # return, so read directly; a missing one raises inside
-                            # this block's handler, which reports BTC unavailable.
-                            trend_sequence=btc_structure_obj["sequence"],
-                            trend_health=btc_trend["trend_health"],
-                            trend_exhaustion=btc_trend["trend_exhaustion"],
-                            reversal_direction=btc_trend.get("reversal_direction"),
-                            reversal_strength=btc_trend["reversal_strength"],
-                            continuation_strength=btc_trend.get("continuation_strength"),
-                            trend_direction_sign=btc_trend["trend_direction_sign"],
-                            structure_regime=btc_structure_obj["regime"],
-                            volume_sentiment=btc_structure_obj["volume_sentiment"],
-                            supertrend_direction=btc_supertrend_direction,
-                            # V1: BTC's own macro-timeframe confluence isn't fetched
-                            # separately yet (a third API call for diminishing
-                            # returns at this stage) -- straightforward to add later.
-                            macro_bias="NEUTRAL",
+                        # THE REDESIGN'S STAGE 2, 14 November 2026. BTC's
+                        # direction is the asset's rule on BTC's own candles
+                        # (models/bias_engine.py, direction_from_emas), and
+                        # stays reference only. Until this stage the weighted
+                        # sum was computed here a second time, for its label
+                        # alone: BTC's score was recorded nowhere (N5,
+                        # 9 October).
+                        #
+                        # B9, 15 OCTOBER 2026, and what becomes of it. BTC's
+                        # SuperTrend was read here directly, so that a failed
+                        # one made the section unavailable where it had been
+                        # scored as a neutral factor of that sum (Viktor's
+                        # ruling of that day). The sum is no longer computed
+                        # for BTC, so nothing reads BTC's SuperTrend and it
+                        # cannot be read as anything; the read is gone with
+                        # its reader. The ruling's shape is kept for what the
+                        # label reads now: the three columns are read by
+                        # subscript, so a missing one raises here, and a
+                        # direction that could not be measured raises below.
+                        # Either way this block's handler reports BTC
+                        # unavailable for the run, and no BTC BIAS is printed
+                        # from a reading that was not made. The asset's own
+                        # SuperTrend read in section 5 is unchanged: the sum
+                        # still reads it there, until stage 5.
+                        btc_raw_bias = direction_from_emas(
+                            df_btc_struct["EMA50_Slope"].iloc[-1],
+                            df_btc_struct["EMA_20"].iloc[-1],
+                            df_btc_struct["EMA_50"].iloc[-1],
                         )
+                        if btc_raw_bias is None:
+                            raise ValueError(
+                                "BTC's direction could not be measured: "
+                                "EMA50_Slope, EMA_20 or EMA_50 is not a "
+                                "finite number on its decision candle"
+                            )
                         btc_dynamic_regime, btc_volatility_mode = calculate_dynamic_regime(df_btc_struct)
-                        btc_detailed_bias = bias_label(btc_raw_bias, btc_bias_score)
+                        btc_detailed_bias = btc_raw_bias
 
                         # ROUND 6 (Meta Muse Spark 1.3), F1: window=30 was a
                         # bare literal here restating compute_correlation_beta's
@@ -996,11 +1042,17 @@ class Phase7Engine:
                             # stood here. Its only reader was the BTC-adjusted
                             # confidence, gone by Viktor's ruling of 5 October
                             # (point 7); the router never copied it into the
-                            # decision object. btc_detailed_bias above still
-                            # comes from it.
+                            # decision object. btc_detailed_bias above came
+                            # from it until the redesign's stage 2, when the
+                            # label became the direction and BTC's score
+                            # stopped being computed.
                             "regime": btc_dynamic_regime,
                             "volatility": btc_volatility_mode,
-                            "trend_health": float(btc_trend["trend_health"]),
+                            # Stage 5, 15 November 2026: "trend_health" stood
+                            # here, BTC's own score. It went with the score
+                            # itself; BTC's section keeps its direction, its
+                            # regime, its volatility and the correlation
+                            # readings, none of which read it.
                             # AUDIT FINDING (a), 5 September 2026. NaN means
                             # "not measured" inside btc_context; None is how
                             # this file already spells it in the record (see
@@ -1034,14 +1086,64 @@ class Phase7Engine:
             # FIX 2, 5 October 2026: the exhaustion flag no longer reaches the
             # gate; trend health's raw ADX does (None when it could not be
             # read, which the gate refuses). See MIN_TREND_ADX there.
+            #
+            # THE REDESIGN'S STAGE 3, 15 November 2026: gates 6 and 7 read
+            # here too (models/entry_model.py, above LIQUIDITY_FLOOR_USDT).
+            #
+            # Gate 6 reads the daily trend. macro_bias is one of three words
+            # on every path above, and a read that failed is already a
+            # degraded run; the check below holds that, so that a fourth
+            # value arriving from a later change is a named missing input
+            # and not a daily trend that passed.
+            if macro_bias not in entry_model.MACRO_READINGS:
+                degradation.append(
+                    f"daily trend (recorded as {macro_bias!r}, which is not "
+                    f"BULLISH, BEARISH or NEUTRAL)")
+            # Gate 7 reads the decision candle's turnover in USDT. Until this
+            # stage a frame without quote_volume was a frame as before (stage
+            # 1's second reading); now the gate reads the column, so its
+            # absence is a missing input: the run is degraded, the turnover
+            # is recorded as None, and nothing is computed from volume x
+            # close in its place (the draft's section 5, version 1).
+            decision_quote_volume = self._decision_bar_value(df_struct, "quote_volume")
+            if decision_quote_volume is not None and decision_quote_volume < 0.0:
+                decision_quote_volume = None
+            if decision_quote_volume is None:
+                degradation.append(
+                    "quote_volume (the decision candle's turnover in USDT "
+                    "was not measured) -- the liquidity floor could not be "
+                    "read")
             signals = generate_entry_signals(
                 structure_regime=structure_regime,
                 momentum_divergence=trend["momentum_divergence"],
                 divergence_direction=trend["divergence_direction"],
                 adx=trend["adx"],
+                macro_bias=macro_bias,
+                quote_volume=decision_quote_volume,
             )
             long_signal = signals["long_signal"]
             short_signal = signals["short_signal"]
+
+            # Gate 8: the trigger and its volume, read on the decision candle
+            # for the side the direction gives (models/entry_model.py, above
+            # TRIGGER_VOLUME_LOOKBACK). No side under NEUTRAL: the plan's
+            # stand-in side (plan_side) is not used here, because a trigger
+            # read for a side nobody measured would be a claim about the
+            # market, and gate 2 has already returned WAIT.
+            trigger_side = {"BULLISH": "LONG", "BEARISH": "SHORT"}.get(raw_bias)
+            trigger_reading = entry_model.read_trigger(
+                trigger_side,
+                open_price=self._decision_bar_value(df_struct, "open"),
+                close_price=self._decision_bar_value(df_struct, "close"),
+                previous_close=self._bar_value(df_struct, "close", -2),
+                volume=self._decision_bar_value(df_struct, "volume"),
+                previous_volumes=self._bar_values_before_decision(
+                    df_struct, "volume", entry_model.TRIGGER_VOLUME_LOOKBACK),
+            )
+            if trigger_reading["not_measured"]:
+                degradation.append(
+                    f"trigger ({'; '.join(trigger_reading['not_measured'])} "
+                    f"not measured) -- gate 8 could not be read")
 
             # AUDIT FINDING (4), 5 September 2026. These two lines were:
             #
@@ -1095,49 +1197,41 @@ class Phase7Engine:
                 degradation.append(
                     f"entry zone ({'/'.join(missing)} unavailable)")
 
-            # A6-adjacent FIX: calculate_entry_quality() accepts macro_bias and
-            # trade_direction to apply its macro-confluence multiplier, but neither
-            # was ever passed, so that multiplier silently defaulted to neutral/LONG
-            # every call. Now derives trade_direction from whichever signal (if any)
-            # is active and passes the real macro_bias through.
+            # THE REDESIGN'S STAGE 4, 15 November 2026: entry quality is
+            # D + H, and it takes the frame and the band and nothing else
+            # (models/entry_model.py, calculate_entry_quality).
             #
-            # Roadmap Layer 5: also passes trend_direction (trend_health.py) and
-            # structure_sequence (structure.py's B2 sequence, already computed
-            # above as trend_sequence) through, so entry quality's own multipliers
-            # can factor in whether the granular trend/structure context actually
-            # supports this specific trade direction.
+            # What this call passed until this stage, and why none of it is
+            # passed now. macro_bias and trade_direction were the macro
+            # confluence multiplier's inputs; trend_direction and
+            # structure_sequence were the trend and structure multipliers'.
+            # All three multipliers are gone -- the first two with the
+            # factors they counted a second time, the third by Viktor's
+            # ruling of 7 November 2026 -- so there is nothing left for any
+            # of the four to move. The dated record of why each was passed
+            # in the first place (the A6-adjacent fix, roadmap layer 5, F2
+            # of round 5 on 12 September, the fallback sweep of 13 October,
+            # and stage 2's `side`) is in docs/PHASE7_HISTORY.md and in the
+            # commits that made them.
             #
-            # F2 FIX, 12 September 2026, GPT-6 Astra round 5: this was
-            # `"SHORT" if short_signal else "LONG"` -- short_signal is False for
-            # reasons that have nothing to do with direction (a reversal warning,
-            # macro disagreement, a structure/trend-health gate miss), so a fully
-            # BEARISH CONFIRMED setup could still be scored as a LONG entry, and
-            # decision_model.py's BEARISH branch used that wrong-direction score
-            # without ever checking short_signal itself. decision_model.py picks
-            # the final action from raw_bias alone (VIKTOR'S RULING, 2 September:
-            # bias is the sole direction source) -- entry quality's direction now
-            # follows the same source, for the same reason: an entry-zone signal
-            # that can score a direction against the engine's own bias is the
-            # identical defect wearing a different name. long_signal/short_signal
-            # are unchanged in `entry` below; they no longer choose this direction.
-            if raw_bias == "BULLISH":
-                eq_trade_direction = "LONG"
-            elif raw_bias == "BEARISH":
-                eq_trade_direction = "SHORT"
-            else:
-                eq_trade_direction = "LONG" if bias_score >= 0 else "SHORT"
+            # Entry quality has no side. d and h are absolute distances, so
+            # the same close scores the same whichever way the direction
+            # points; `side` is not passed, and stage 2's note that "entry
+            # quality is scored for the same side" as the plan has nothing
+            # left to apply to.
             eq_metrics = calculate_entry_quality(
                 df_struct,
                 entry_zone_lower,
                 entry_zone_upper,
-                macro_bias=macro_bias,
-                trade_direction=eq_trade_direction,
-                # 13 OCTOBER 2026, the fallback sweep: was .get(..., "NEUTRAL"),
-                # a direction nobody measured, into the entry score.
-                # compute_trend_health writes it on all four returns.
-                trend_direction=trend["trend_direction"],
-                structure_sequence=trend_sequence,
             )
+            # A part of entry quality that could not be read is a missing
+            # input, named here so the run reports itself degraded -- which
+            # is what stops it authorising a trade -- and gate 9 reads the
+            # absent score as a WAIT with a sentence of its own. The band's
+            # own absence is named above, where it is computed and where
+            # which of EMA_20 / EMA_50 was missing is known, so
+            # calculate_entry_quality does not name it a second time.
+            degradation.extend(eq_metrics["not_measured"])
 
             entry = {
                 "zone_lower": entry_zone_lower,
@@ -1146,29 +1240,36 @@ class Phase7Engine:
                 "short_signal": short_signal,
                 "long_signal_blockers": signals["long_signal_blockers"],
                 "short_signal_blockers": signals["short_signal_blockers"],
+                # Stage 3 of the redesign, 15 November 2026: the label each
+                # side would be refused with, and what gates 7 and 8 read.
+                "long_signal_refusal": signals["long_signal_refusal"],
+                "short_signal_refusal": signals["short_signal_refusal"],
+                "quote_volume": decision_quote_volume,
+                "liquidity_floor": entry_model.LIQUIDITY_FLOOR_USDT,
+                "trigger": trigger_reading["trigger"],
+                "trigger_volume": trigger_reading["trigger_volume"],
+                "trigger_volume_median": trigger_reading["trigger_volume_median"],
                 "score": eq_metrics["score"],
-                "ema_pos_pts": eq_metrics["ema_pos_pts"],
-                "atr_dist_pts": eq_metrics["atr_dist_pts"],
-                "vwma_pts": eq_metrics["vwma_pts"],
-                "rsi_pts": eq_metrics["rsi_pts"],
-                "struct_pts": eq_metrics["struct_pts"],
+                # Stage 4: D and H, each with the distance it is computed
+                # from, in ATRs. The five sub-scores and the whole
+                # reconciliation block that stood here -- ema_pos_pts,
+                # atr_dist_pts, vwma_pts, rsi_pts, struct_pts, base_score,
+                # component_max_points, the three multipliers, their
+                # product, scaled_score, score_ceiling and score_clipped --
+                # went with the parts and the multipliers they explained.
+                # They were added on 5 September 2026 because the panel
+                # printed five numbers and a total they did not add up to;
+                # D + H needs no reconciliation, since the two parts and
+                # the total are the whole of the arithmetic.
+                "distance_atr": eq_metrics["distance_atr"],
+                "distance_pts": eq_metrics["distance_pts"],
+                "hvn_distance_atr": eq_metrics["hvn_distance_atr"],
+                "hvn_pts": eq_metrics["hvn_pts"],
+                # The fact the AGGRESSIVE tier reads, and the fact STATUS is
+                # printed from (Viktor's ruling of 7 November 2026).
+                "close_inside_band": eq_metrics["close_inside_band"],
                 "entry_status": eq_metrics["entry_status"],
                 "distance_from_zone": eq_metrics["distance_from_zone"],
-
-                # 5 September 2026: the reconciliation between the five
-                # sub-scores and the printed total. Every one of these was a
-                # local variable inside calculate_entry_quality that vanished
-                # when it returned, so neither the panel nor the decision log
-                # could explain why 10+5+10+10+4 was printed under 45.18.
-                "base_score": eq_metrics["base_score"],
-                "component_max_points": eq_metrics["component_max_points"],
-                "macro_multiplier": eq_metrics["macro_multiplier"],
-                "trend_multiplier": eq_metrics["trend_multiplier"],
-                "structure_multiplier": eq_metrics["structure_multiplier"],
-                "combined_multiplier": eq_metrics["combined_multiplier"],
-                "scaled_score": eq_metrics["scaled_score"],
-                "score_ceiling": eq_metrics["score_ceiling"],
-                "score_clipped": eq_metrics["score_clipped"],
             }
 
             # 8. RISK MODEL & VALIDATION ENGINE
@@ -1239,10 +1340,12 @@ class Phase7Engine:
             # Item 14. The stop is ATR x 1.2 x the volatility factor:
             # trend_health is no longer passed, and bias_score only picks the
             # side.
+            # THE REDESIGN'S STAGE 2, 14 November 2026: bias_score no longer
+            # picks it. The side is passed, from the direction (section 5).
             atr_stop, t1, t2, t3 = self.risk_model.calculate_stop_targets(
                 current_price=current_price,
                 atr_val=atr_val,
-                bias_score=bias_score,
+                side=side,
                 volatility_state=volatility_mode,
             )
 
@@ -1288,54 +1391,22 @@ class Phase7Engine:
             # models/risk_model.py for the full note.
 
             # ============================================================
-            # VALIDATION — SEQUENCE ITEM 11 (Item 11, No Circular Reasoning)
+            # THE MACRO NOTE -- what is left of VALIDATION
             # ============================================================
             #
-            # This block used to open with `val_score = trend_health` and then
-            # nudge it by ±5 and +10/−15. Validation was therefore trend health
-            # wearing a second name, and it reached confidence a third time
-            # through validation_adj — after arriving directly and again inside
-            # bias_score.
+            # THE REDESIGN'S STAGE 5, 15 November 2026. The validation block
+            # stood here: val_score from 50 plus macro_agreement's and
+            # volume_agreement's deltas, banded into validation_state at 70
+            # and 45, with the two notes joined into validation_note. All
+            # three leaves leave the decision (the draft's section 4; ruling 2
+            # of 25 October takes macro out of the score and makes it gate 6).
+            # The record of why is above macro_agreement at the top of this
+            # file.
             #
-            # A validation signal must be INDEPENDENT of the thing it
-            # validates, or it is a restatement. It now starts neutral and
-            # moves only on evidence trend health does not already contain:
-            # volume behaviour, and whether the higher timeframe agrees.
-            #
-            # The macro test also used to be direction-blind: `-= 5` for any
-            # bearish macro, even when the engine's own bias was bearish and
-            # macro therefore AGREED. Validation measures agreement, not
-            # direction.
-            #
-            # Weights are a judgment, and stated as one: disconfirming evidence
-            # weighs more than confirming, and STRONG requires BOTH signals
-            # (50+15+10=75) rather than either alone (65 or 60, both NEUTRAL).
-            # A gate that opens on one input is not a gate.
-            val_score = 50.0
-            val_notes = []
-
-            macro_delta, macro_note = macro_agreement(macro_bias, raw_bias)
-            val_score += macro_delta
-            val_notes.append(macro_note)
-
-            volume_delta, volume_note = volume_agreement(volume_sentiment, raw_bias)
-            val_score += volume_delta
-            val_notes.append(volume_note)
-
-            # The three "Trend health is robust / moderate / degrading" notes
-            # that used to live here are gone with the rest: they restated the
-            # TREND line verbatim in a section headed Validation Notes.
-
-            val_score = max(0.0, min(100.0, val_score))
-
-            if val_score >= 70:
-                validation_state = "STRONG"
-            elif val_score >= 45:
-                validation_state = "NEUTRAL"
-            else:
-                validation_state = "WEAK"
-
-            validation_note = " | ".join(val_notes)
+            # One sentence survives, as the draft asks: the macro note, on the
+            # panel beside gate 6. It is recorded as a top-level leaf beside
+            # macro_bias, the reading it is about.
+            macro_note = macro_agreement(macro_bias, raw_bias)
 
             risk = {
                 "atr_stop": atr_stop,
@@ -1363,10 +1434,13 @@ class Phase7Engine:
                 # it -- so RULED, 13 September 2026: drop rather than rename.
                 # The value is not lost: it is already recorded, correctly,
                 # a few lines below under decision_object["trend"]["trend_health"].
-                "trade_quality_proposed": eq_metrics["score"],
-                "validation_state": validation_state,
-                "validation_score": val_score,
-                "validation_note": validation_note,
+                # Stage 5, 15 November 2026: four keys stood here.
+                # "trade_quality_proposed" was eq_metrics["score"] -- entry
+                # quality under a second name, which models/signal_router.py
+                # then overwrote with DecisionModel's copy of the same number;
+                # it is entry.score, and one name for one meaning (round 8,
+                # F8). "validation_state", "validation_score" and
+                # "validation_note" went with the validation block above.
             }
 
             # 9. EXIT MODEL
@@ -1405,9 +1479,18 @@ class Phase7Engine:
 
             # Persist this run's state so the NEXT run can detect a
             # SuperTrend flip / bias flip against it.
+            #
+            # THE REDESIGN'S STAGE 2, 14 November 2026: the bias is saved
+            # under "raw_bias", and was saved under "detailed_bias". The old
+            # key held bias_label's words (BULLISH CONFIRMED ...). Compared
+            # with the direction, a state file written before this stage
+            # would report "Bias state changed from BULLISH CONFIRMED to
+            # BULLISH" on a pair whose direction did not change. Under a new
+            # key an old file has nothing to compare, and the first run
+            # reports no flip (models/exit_model.py reads the same key).
             self._save_state(
                 symbol, timeframe,
-                {"supertrend_direction": supertrend_direction, "detailed_bias": detailed_bias},
+                {"supertrend_direction": supertrend_direction, "raw_bias": raw_bias},
                 records_dir,
             )
 
@@ -1579,7 +1662,12 @@ class Phase7Engine:
                     "btc": self._frame_summary(raw_btc, input_hashes["btc"]),
                 },
                 "indicators_at_decision_bar": self._decision_bar_row(df_struct),
-                "bias_components": bias_components,
+                # THE REDESIGN'S STAGE 2, 14 November 2026: what the
+                # direction compared, filled by direction_from_emas as it ran.
+                # STAGE 5, 15 November 2026: "bias_components" stood beside
+                # it, the weighted sum's breakdown -- thirty-four leaves
+                # explaining bias.score. Both leave with the sum.
+                "direction": direction_components,
                 "risk_inputs": {
                     "current_price": current_price,
                     "atr": atr_val if math.isfinite(atr_val) else None,
@@ -1588,7 +1676,12 @@ class Phase7Engine:
                     # for detailed_bias below -- it no longer feeds the stop or
                     # the targets. The HVN is still recorded under
                     # structure.hvn and indicators_at_decision_bar.HVN.
-                    "bias_score": bias_score,
+                    # THE REDESIGN'S STAGE 2, 14 November 2026: bias_score
+                    # stood here, because its sign picked the plan's side. The
+                    # side is passed now and is what is recorded; the
+                    # paragraphs below are dated and say "the sign of
+                    # bias_score" where the code now says side.
+                    "side": side,
                     # 21 SEPTEMBER 2026, work order C: detailed_bias stood here
                     # and no longer does, for the reason given for trend_health
                     # below -- it never fed the stop or the targets (see
@@ -1640,6 +1733,11 @@ class Phase7Engine:
                 "symbol": symbol,
                 "timeframe": timeframe,
                 "macro_bias": macro_bias,
+                # Stage 5, 15 November 2026: the one sentence that survives
+                # the validation block, beside the reading it compares the
+                # bias against. It decides nothing; the panel prints it under
+                # MACRO TREND, and gate 6 is what acts on the macro.
+                "macro_note": macro_note,
                 "bias": bias,
                 "trend": trend,
                 "structure": structure,

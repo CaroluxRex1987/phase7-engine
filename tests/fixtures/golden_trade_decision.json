@@ -1,0 +1,264 @@
+{
+  "bias": {
+    "detailed": "BULLISH",
+    "raw": "BULLISH",
+    "regime": "BULLISH TREND",
+    "volatility": "MEDIUM VOLATILITY"
+  },
+  "btc_context": {
+    "available": true,
+    "beta": 0.11371409,
+    "broad_market_stress": true,
+    "correlation": 0.12302836,
+    "correlation_label": "WEAK / NO CLEAR RELATIONSHIP",
+    "degraded_inputs": [],
+    "detailed": "BEARISH",
+    "n_observations": 30,
+    "raw": "BEARISH",
+    "regime": "BEARISH TREND",
+    "volatility": "HIGH VOLATILITY"
+  },
+  "decision_log_path": "logs/pinned/phase7_decision_log_testusdt.jsonl",
+  "degradation": {
+    "degraded": false,
+    "missing_inputs": [],
+    "trading_authorized": true
+  },
+  "entry": {
+    "close_inside_band": false,
+    "distance_atr": 0.21044825,
+    "distance_from_zone": 0.4171848,
+    "distance_pts": 74.38804664,
+    "entry_status": "ABOVE THE BAND",
+    "hvn_distance_atr": 1.45624086,
+    "hvn_pts": 5.43759144,
+    "liquidity_floor": 10000.0,
+    "long_signal": true,
+    "long_signal_blockers": [],
+    "long_signal_refusal": null,
+    "quote_volume": 171026.6819,
+    "score": 79.82563809,
+    "short_signal": false,
+    "short_signal_blockers": [
+      "structure is BULLISH TREND, not BEARISH TREND"
+    ],
+    "short_signal_refusal": "NO-TRADE (SIGNAL UNCONFIRMED)",
+    "trigger": true,
+    "trigger_volume": 251664.0112,
+    "trigger_volume_median": 198645.1064,
+    "zone_lower": 0.67424666,
+    "zone_upper": 0.67924988
+  },
+  "exit": {
+    "action": "LONG",
+    "current_price": 0.67958339
+  },
+  "exit_watch": [
+    "If you're already in this trade, a common approach is moving your stop to breakeven once price reaches Target 1 ($0.6957)."
+  ],
+  "explanation": {
+    "reasons": [
+      "The direction is BULLISH: EMA50 is rising and EMA20 is above it, so the long is the side the remaining gates are read for.",
+      "Structural confirmation holds for the long: structure agrees with the direction, ADX is 20 or more, and no price/RSI disagreement over four candles points against it.",
+      "The last closed candle is a resumption candle for the long: it closed above both its open and the previous candle's close, on volume above the median of the 20 candles before it.",
+      "The bullish bias passed every gate with entry quality 80 of 100, at or above the 70 the upper tiers need, but the close is above the EMA band rather than inside it, which AGGRESSIVE requires \u2014 LONG."
+    ],
+    "summary": "LONG \u2014 The bullish bias passed every gate with entry quality 80 of 100, at or above the 70 the upper tiers need, but the close is above the EMA band rather than inside it, which AGGRESSIVE requires \u2014 LONG."
+  },
+  "lineage": {
+    "archive": {
+      "path": "logs/pinned/archive/testusdt_4h_023552b7cff809a7.json.gz",
+      "pruned_this_run": 0,
+      "retention_days": 90
+    },
+    "direction": {
+      "ema20_vs_ema50": "ABOVE",
+      "ema50_slope": "RISING",
+      "result": "BULLISH"
+    },
+    "format": 1,
+    "indicators_at_decision_bar": {
+      "ADX": 21.5928225,
+      "ATR": 0.01347181,
+      "EMA50_Slope": 0.03231698,
+      "EMA_20": 0.67924988,
+      "EMA_50": 0.67424666,
+      "HVN": 0.65996519,
+      "LVN": 0.73267047,
+      "RSI": 51.43571162,
+      "STRUCTURE": "BULLISH TREND",
+      "ST_Direction": 1.0,
+      "SuperTrend": 0.66990961,
+      "close": 0.67958339,
+      "high": 0.67990233,
+      "low": 0.66715432,
+      "open": 0.67218579,
+      "quote_volume": 171026.6819,
+      "volume": 251664.0112
+    },
+    "inputs": {
+      "btc": {
+        "columns": [
+          "close",
+          "high",
+          "low",
+          "open",
+          "volume"
+        ],
+        "first_candle": "2025-01-01 00:00:00",
+        "last_candle": "2025-03-16 20:00:00",
+        "rows": 450,
+        "sha256": "ef1294117111d1905be367e23b64040d7ff16e2737fd2b82ebbeb0b7a8867e70"
+      },
+      "macro": {
+        "columns": [
+          "close",
+          "high",
+          "low",
+          "open",
+          "volume"
+        ],
+        "first_candle": "2025-01-01 00:00:00",
+        "last_candle": "2025-03-16 00:00:00",
+        "rows": 75,
+        "sha256": "1b6c215d28d882e2c684ebcd60bf3a95dd5eb819c3d3936e36337bee445f6433"
+      },
+      "struct": {
+        "columns": [
+          "close",
+          "high",
+          "low",
+          "open",
+          "quote_volume",
+          "volume"
+        ],
+        "first_candle": "2025-01-01 00:00:00",
+        "last_candle": "2025-03-16 20:00:00",
+        "rows": 450,
+        "sha256": "669e4514e1bdd8a4bf7a8c253ceed1e511af0e9a533cd2996b30a89caa401f2b"
+      }
+    },
+    "risk_inputs": {
+      "atr": 0.01347181,
+      "current_price": 0.67958339,
+      "risk_regime": "NORMAL RISK",
+      "side": "LONG",
+      "volatility_state": "MEDIUM VOLATILITY"
+    },
+    "run_hash": "023552b7cff809a71ea783bec9521055e397c49a5f6fa08b59c38d7230cbb31d"
+  },
+  "macro_bias": "BULLISH",
+  "macro_note": "The higher timeframe agrees with this bias.",
+  "provenance": {
+    "archive_path": "logs/pinned/archive/testusdt_4h_023552b7cff809a7.json.gz",
+    "canonical_format": 1,
+    "decision_candles": {
+      "btc": {
+        "basis": "pinned",
+        "close_time": "2025-03-17 00:00:00",
+        "exchange_close_time": null,
+        "forming_candles_dropped": null,
+        "live_price": null,
+        "open_time": "2025-03-16 20:00:00"
+      },
+      "macro": {
+        "basis": "pinned",
+        "close_time": "2025-03-17 00:00:00",
+        "exchange_close_time": null,
+        "forming_candles_dropped": null,
+        "live_price": null,
+        "open_time": "2025-03-16 00:00:00"
+      },
+      "struct": {
+        "basis": "pinned",
+        "close_time": "2025-03-17 00:00:00",
+        "exchange_close_time": null,
+        "forming_candles_dropped": null,
+        "live_price": null,
+        "open_time": "2025-03-16 20:00:00"
+      }
+    },
+    "engine_version": "Phase\u20117 Structural Quant Engine v1.0",
+    "fetch": {
+      "effective_rows": {
+        "btc": 450,
+        "macro": 75,
+        "struct": 450
+      },
+      "macro_requested_limit": 100,
+      "pinned": true,
+      "requested_limit": 450
+    },
+    "input_hashes": {
+      "btc": "ef1294117111d1905be367e23b64040d7ff16e2737fd2b82ebbeb0b7a8867e70",
+      "macro": "1b6c215d28d882e2c684ebcd60bf3a95dd5eb819c3d3936e36337bee445f6433",
+      "struct": "669e4514e1bdd8a4bf7a8c253ceed1e511af0e9a533cd2996b30a89caa401f2b"
+    },
+    "last_candle": "2025-03-16 20:00:00",
+    "module_constants": {
+      "indicators.indicators": {
+        "SPIKE_RATIO": 10.0
+      },
+      "models.btc_context": {
+        "CORRELATION_WINDOW": 30
+      },
+      "models.decision_model": {
+        "DecisionModel.CONSERVATIVE_ENTRY_QUALITY_MIN": 50.0,
+        "DecisionModel.UPPER_TIER_ENTRY_QUALITY_MIN": 70.0
+      },
+      "models.entry_model": {
+        "DISTANCE_MAX_POINTS": 80.0,
+        "DISTANCE_ZERO_ATR": 3.0,
+        "HVN_MAX_POINTS": 20.0,
+        "HVN_ZERO_ATR": 2.0,
+        "LIQUIDITY_FLOOR_USDT": 10000.0,
+        "MIN_TREND_ADX": 20.0,
+        "TRIGGER_VOLUME_LOOKBACK": 20
+      },
+      "models.risk_model": {
+        "ATR_STOP_MULT": 1.2,
+        "MAX_STOP_DISTANCE_PCT": 15.0,
+        "MIN_STOP_DISTANCE_PCT": 0.2,
+        "REGIME_EXTREME_STOP_PCT": 8.0,
+        "TARGET1_MULT": 1.0,
+        "TARGET2_MULT": 2.0,
+        "TARGET3_MULT": 3.0,
+        "VOL_MULT_EXTREME": 1.6,
+        "VOL_MULT_HIGH": 1.35,
+        "VOL_MULT_LOW": 0.85
+      },
+      "structure.structure": {
+        "StructureEngine.REGIME_HYSTERESIS_THRESHOLD": 0.0015
+      }
+    },
+    "prior_state": {},
+    "row_count": 450,
+    "run_hash": "023552b7cff809a71ea783bec9521055e397c49a5f6fa08b59c38d7230cbb31d",
+    "source": "pinned"
+  },
+  "risk": {
+    "atr_stop": 0.66341722,
+    "risk_reason": "OK",
+    "risk_regime": "NORMAL RISK",
+    "risk_valid": true,
+    "targets": [
+      0.69574956,
+      0.71191573,
+      0.7280819
+    ]
+  },
+  "structure": {
+    "hvn": 0.65996519,
+    "lvn": 0.73267047,
+    "regime": "BULLISH TREND",
+    "sequence": "BEARISH SWING SEQUENCE (LH-LL)",
+    "swing_struct": 0.68893835,
+    "volume_sentiment": "BEARISH VOLUME PRESSURE"
+  },
+  "symbol": "TESTUSDT",
+  "timeframe": "4h",
+  "trend": {
+    "divergence_direction": "NONE",
+    "momentum_divergence": false
+  }
+}

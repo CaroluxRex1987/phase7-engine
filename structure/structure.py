@@ -427,8 +427,10 @@ class StructureEngine:
         The slope it reads is the change between two 5-candle volume-weighted
         means of the close: closes[-5:] against closes[-10:-5]. It is not the
         engine's VWMA -- indicators/indicators.py's 20-candle rolling ratio
-        that entry_model scores as "VWMA Distance" -- and the two can point
-        opposite ways in the same run.
+        that entry_model scored as "VWMA Distance" -- and the two could point
+        opposite ways in the same run. (The redesign's stage 4 took the VWMA
+        part out of entry quality and stage 7 stopped computing the column,
+        so this is the engine's only volume-weighted mean of the close.)
         """
         if df is None or len(df) < 20:
             return "NEUTRAL VOLUME"

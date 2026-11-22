@@ -437,11 +437,37 @@ def test_a_missing_final_candle_is_not_forward_filled():
 # The consumers
 # ============================================================
 
-def test_a_missing_rsi_no_longer_scores_full_marks():
+# THE REDESIGN'S STAGE 4, 15 November 2026. Three tests stood here:
+#
+#     test_a_missing_rsi_no_longer_scores_full_marks
+#     test_a_missing_hvn_no_longer_scores_full_marks
+#     test_a_missing_atr_is_not_scored_against_a_fabricated_two_percent
+#
+# each holding that a missing indicator no longer scored its component's
+# TOP band: a missing RSI had fallen back to 50.0, inside the 40-60 "not
+# extended" band, and scored 15 of 15; a missing HVN had fallen back to
+# `close`, making the distance exactly zero and scoring 12 of 12; a missing
+# ATR had fallen back to close * 0.02, so the 25-point distance was scored
+# against a constant nobody measured.
+#
+# RSI leaves entry quality with the design (the draft's section 3.2), so
+# the first has nothing left to hold. The other two defects are the same
+# defect, and the rule that replaces the fix is stronger than the fix was:
+# a part whose input is missing is NOT MEASURED, and entry quality is not
+# computed at all. The two tests below hold that for the HVN and the ATR,
+# which is what the findings were about, and they hold it against the
+# fabrications by name.
+
+def test_a_missing_hvn_is_not_measured_rather_than_scored_against_the_close():
     """
-    The sharpest instance. 50.0 sits inside the 40-60 "not extended" band, so
-    the fallback awarded 15 of 15 — the maximum — for a reading that does not
-    exist. indicators.py's own failure text told the operator it scored 0.
+    `close` as the fallback made abs(close - hvn) exactly zero, which was
+    the tightest band: 12 of 12 for a high-volume node that was never
+    located. Identical in shape to the VWMA defect item 3 fixed, and it was
+    sitting forty lines below that fix.
+
+    Rewritten at stage 4 from test_a_missing_hvn_no_longer_scores_full_marks,
+    whose assertion was `struct_pts < 12`. Scoring it LOW would still be
+    scoring it; the HVN part is not computed, and neither is the quality.
     """
     if not _engine_available():
         pytest.skip("pandas_ta not installed")
@@ -453,43 +479,43 @@ def test_a_missing_rsi_no_longer_scores_full_marks():
     close = float(frame["close"].iloc[-1])
     zone = (close * 0.97, close * 0.99)
 
-    missing = frame.copy()
-    missing["RSI"] = np.nan
-    result = calculate_entry_quality(missing, zone[0], zone[1], "BULLISH")
-
-    assert result["rsi_pts"] < 15, (
-        f"a missing RSI scored {result['rsi_pts']} of 15 — the maximum, for a "
-        f"measurement never taken"
-    )
-
-
-def test_a_missing_hvn_no_longer_scores_full_marks():
-    """
-    `close` as the fallback makes the distance exactly zero, which is the
-    tightest band. Identical in shape to the VWMA defect item 3 fixed, and it
-    was sitting forty lines below that fix.
-    """
-    if not _engine_available():
-        pytest.skip("pandas_ta not installed")
-
-    import indicators.indicators as ind
-    from models.entry_model import calculate_entry_quality
-
-    frame, _ = ind.add_technical_indicators(_pinned_frame())
-    close = float(frame["close"].iloc[-1])
-    zone = (close * 0.97, close * 0.99)
-
+    # add_technical_indicators does not produce HVN -- the volume profile
+    # does, and engine_core merges it into the frame -- so the column is
+    # put here explicitly, as the fixture it is. Read before writing this:
+    # the frame comes back with 16 columns and HVN is not among them.
     missing = frame.copy()
     missing["HVN"] = np.nan
-    result = calculate_entry_quality(missing, zone[0], zone[1], "BULLISH")
+    result = calculate_entry_quality(missing, zone[0], zone[1])
 
-    assert result["struct_pts"] < 12, (
-        f"a missing HVN scored {result['struct_pts']} of 12 — the maximum, "
-        f"awarded for a high-volume node that was never located"
+    assert result["hvn_pts"] is None, (
+        f"a missing HVN scored {result['hvn_pts']} of 20 for a high-volume "
+        f"node that was never located"
     )
+    assert result["hvn_distance_atr"] is None
+    assert result["score"] is None, (
+        "the quality was computed with one of its two parts unmeasured")
+    assert any("HVN" in m for m in result["not_measured"]), result["not_measured"]
+    # The control, on the same frame: with the HVN there, both parts are
+    # measured and the quality is a number. Without it this test would pass
+    # on a function that returned None for everything.
+    located = frame.copy()
+    located["HVN"] = close * 0.99
+    present = calculate_entry_quality(located, zone[0], zone[1])
+    assert present["hvn_pts"] is not None and present["score"] is not None
+    assert present["not_measured"] == []
 
 
 def test_a_missing_atr_is_not_scored_against_a_fabricated_two_percent():
+    """
+    The ATR fallback was close * 0.02 -- the flat 2%-of-price constant
+    sequence item 9a removed from indicators.py, still living in the
+    consumer that read the column.
+
+    Stage 4: both parts are counted in ATRs now, so a missing ATR takes
+    both out rather than one. The assertion is no longer "it does not score
+    the same as the fabrication would" but "it does not score at all",
+    which cannot be satisfied by a different number.
+    """
     if not _engine_available():
         pytest.skip("pandas_ta not installed")
 
@@ -498,22 +524,36 @@ def test_a_missing_atr_is_not_scored_against_a_fabricated_two_percent():
 
     frame, _ = ind.add_technical_indicators(_pinned_frame())
     close = float(frame["close"].iloc[-1])
-    zone = (close * 0.90, close * 0.92)   # far from the zone, so the ratio bites
+    zone = (close * 0.90, close * 0.92)   # far from the band, so the ratio bites
 
-    missing = frame.copy()
+    # The HVN is supplied here for the same reason as in the test above:
+    # add_technical_indicators does not produce it, and without it the HVN
+    # part would be unmeasured for a second reason and this test could not
+    # tell which absence it was reading.
+    with_hvn = frame.copy()
+    with_hvn["HVN"] = close * 0.99
+
+    missing = with_hvn.copy()
     missing["ATR"] = np.nan
-    got = calculate_entry_quality(missing, zone[0], zone[1], "BULLISH")
+    got = calculate_entry_quality(missing, zone[0], zone[1])
 
-    fabricated = frame.copy()
-    fabricated["ATR"] = close * 0.02      # what the old fallback substituted
-    old = calculate_entry_quality(fabricated, zone[0], zone[1], "BULLISH")
+    assert got["distance_pts"] is None and got["hvn_pts"] is None, got
+    assert got["distance_atr"] is None and got["hvn_distance_atr"] is None
+    assert got["score"] is None
+    assert any("ATR" in m for m in got["not_measured"]), got["not_measured"]
 
-    assert got["atr_dist_pts"] != old["atr_dist_pts"], (
-        "a missing ATR still scores exactly as though close * 0.02 had been "
-        "measured, which is the constant item 9a removed from indicators.py"
-    )
+    # The fabrication the finding named, run for the control: it produces a
+    # real number, which is exactly why substituting it was a defect.
+    fabricated = with_hvn.copy()
+    fabricated["ATR"] = close * 0.02
+    old = calculate_entry_quality(fabricated, zone[0], zone[1])
+    assert old["score"] is not None and old["distance_pts"] is not None
 
-
+    # And the close's position against the band is still measured: it needs
+    # no ATR, so the absence is confined to the parts that needed it.
+    assert got["entry_status"] in ("INSIDE THE BAND", "ABOVE THE BAND",
+                                  "BELOW THE BAND"), got["entry_status"]
+    assert isinstance(got["close_inside_band"], bool)
 # ============================================================
 # The risk model
 # ============================================================
@@ -534,10 +574,13 @@ def test_calculate_stop_targets_rejects_a_non_finite_atr():
     # call would have raised TypeError before reaching the NaN guard, and
     # Exception would have accepted it -- a pass with the guard deleted. The
     # keyword is gone, and the assertion now names the error the guard raises.
+    # THE REDESIGN'S STAGE 2, 14 November 2026: the same happened again.
+    # bias_score=60.0 stood in both calls below, the parameter became `side`,
+    # and this assertion failed on the TypeError rather than accept it.
     model = RiskModel()
     with pytest.raises(ValueError, match="Non-finite price or ATR"):
         model.calculate_stop_targets(current_price=100.0,
-                                     atr_val=float("nan"), bias_score=60.0)
+                                     atr_val=float("nan"), side="LONG")
 
 
 # test_a_structural_level_no_longer_masks_a_missing_atr stood here: the
@@ -556,7 +599,7 @@ def test_valid_inputs_still_produce_levels():
     # FIX 1, 5 October 2026: trend_health=80.0 stood first here; the
     # parameter is gone.
     stop, t1, t2, t3 = RiskModel().calculate_stop_targets(
-        current_price=100.0, atr_val=2.0, bias_score=60.0)
+        current_price=100.0, atr_val=2.0, side="LONG")
 
     for value in (stop, t1, t2, t3):
         assert np.isfinite(value), (stop, t1, t2, t3)
@@ -751,20 +794,31 @@ def test_a_stale_decision_bar_now_degrades_the_routed_run():
 
 
 # ============================================================
-# F3, GPT-6 Astra round 5: the same finding, for VWMA
+# F3, GPT-6 Astra round 5: the same finding, for VWMA -- and the redesign's
+# stage 7, which stopped computing VWMA
 # ============================================================
+#
+# Round 5's F3 found VWMA's own forward-fill carrying the previous bar's
+# reading onto a decision bar with no usable volume window, and two tests
+# here held the fix at the indicator (the trailing edge dropped and reported,
+# an interior gap still filled forward), with a third holding it through the
+# production path (the run degraded, VWMA named). THE REDESIGN'S STAGE 7,
+# 21 November 2026: VWMA is no longer computed (Item 16 -- nothing has read
+# it since stage 4 made entry quality D + H; Viktor's ruling of 17 November).
+# The two indicator tests had no subject left and are replaced by one that
+# holds the column's absence on the same frame; the third is turned round to
+# hold what the same input does now, which is the one behaviour change stage
+# 7 predicted: a decision window with no usable volume no longer degrades
+# the run on VWMA's account. Their text is in git at the commit before stage
+# 7's.
 
-def test_vwma_trailing_edge_is_not_filled_from_the_previous_bar():
+def test_a_zero_volume_decision_window_leaves_no_vwma_and_no_vwma_failure():
     """
-    The mechanism this fix rests on, isolated from the full pipeline.
-
-    VWMA is computed inline in add_technical_indicators rather than through
-    a pandas_ta call, so it never went through clean_series's trailing-edge
-    rule -- it had its own forward-fill, added at item 3 (Finding 1) for
-    interior gaps, with no exception for the last row. A rolling window
-    with genuinely no usable volume at the decision bar came back holding
-    the previous bar's VWMA, and unusable_reason (which reads the last row)
-    could never see the absence.
+    The frame round 5's F3 reproduced -- the decision bar's own twenty-candle
+    window with no usable volume -- through add_technical_indicators: no
+    VWMA column comes back, and no failure names VWMA. Before stage 7 the
+    column was dropped and the failure recorded; neither can happen now,
+    because the column is not computed at all.
     """
     if not _engine_available():
         pytest.skip("pandas_ta not installed")
@@ -779,63 +833,22 @@ def test_vwma_trailing_edge_is_not_filled_from_the_previous_bar():
         "open": close, "high": close + 0.5, "low": close - 0.5, "close": close,
         "volume": rng.uniform(1000, 2000, n),
     })
-    # The decision bar's own rolling window (VWMA_LENGTH candles) has no
-    # usable volume at all -- the exact shape the report reproduced.
     df.loc[df.index[-config.VWMA_LENGTH:], "volume"] = 0.0
 
     out, failures = add_technical_indicators(df, inplace=False)
 
     assert "VWMA" not in out.columns, (
-        "VWMA survived with a decision-bar value carried forward from the "
-        "previous bar instead of being dropped and reported, same as every "
-        "other critical indicator with no usable value at the decision bar."
-    )
-    assert any(f.indicator == "VWMA" for f in failures), (
-        f"no VWMA failure was recorded: {[str(f) for f in failures]}"
-    )
-
-
-def test_vwma_interior_gaps_still_fill_forward():
-    """
-    The control. Only the trailing edge changed -- an interior window with
-    no usable volume is still carried forward from the last one that had it,
-    same as before this fix and same as every other indicator's
-    clean_series treatment.
-    """
-    if not _engine_available():
-        pytest.skip("pandas_ta not installed")
-
-    from core import config
-    from indicators.indicators import add_technical_indicators
-
-    n = 300
-    rng = np.random.default_rng(7)
-    close = 100 + np.cumsum(rng.normal(0, 0.3, n))
-    df = pd.DataFrame({
-        "open": close, "high": close + 0.5, "low": close - 0.5, "close": close,
-        "volume": rng.uniform(1000, 2000, n),
-    })
-    # An INTERIOR window with no usable volume, far from the decision bar.
-    df.loc[df.index[150:150 + config.VWMA_LENGTH], "volume"] = 0.0
-
-    out, failures = add_technical_indicators(df, inplace=False)
-
-    assert "VWMA" in out.columns, "an interior gap should not drop the column"
+        "a VWMA column came back from add_technical_indicators; stage 7 "
+        "stopped computing it because nothing reads it (Item 16)")
     assert not any(f.indicator == "VWMA" for f in failures), (
-        f"an interior gap should not be reported as a decision-bar failure: "
-        f"{[str(f) for f in failures]}"
-    )
-    assert np.isfinite(out["VWMA"].iloc[-1]), (
-        "the decision bar itself has a real volume window here and must "
-        "still be finite"
-    )
+        f"a failure names VWMA, which is not computed: "
+        f"{[str(f) for f in failures]}")
 
 
 def _zeroed_trailing_volume(real_get_tf, n):
     """Wrap DataFetcher.get_tf so every returned frame's last n rows have
     zero volume -- the full-pipeline equivalent of _trailing_nan above,
-    applied at the input rather than at a pandas_ta call, since VWMA is
-    computed from df["volume"] directly rather than through pandas_ta.
+    applied at the input rather than at a pandas_ta call.
     """
     def wrapped(symbol, timeframe, limit=300):
         out = real_get_tf(symbol, timeframe, limit=limit)
@@ -848,12 +861,18 @@ def _zeroed_trailing_volume(real_get_tf, n):
     return wrapped
 
 
-def test_a_stale_vwma_decision_bar_now_degrades_the_routed_run():
+def test_a_zero_volume_decision_window_no_longer_degrades_the_routed_run():
     """
-    The finding, end to end, through the production path.
+    The behaviour change, end to end, through the production path.
 
-    Before this fix: degraded False, VWMA silently held the previous bar's
-    reading, and the run reported itself clean.
+    Before stage 7, with the last twenty candles' volume zeroed on every
+    frame of the pinned series, the run was degraded with "VWMA" and
+    "macro VWMA" named, trading not authorized, and a WAIT (measured on the
+    tree before stage 7, Linux sandbox, 21 November 2026). VWMA is not
+    computed now, so the same input degrades nothing on its account. What the
+    zeroed volume still decides is gate 8: the decision candle's volume, 0.0,
+    is not above the median of the twenty before it, so the action is WAIT,
+    and the trigger records both numbers.
     """
     if not _engine_available():
         pytest.skip("pandas_ta not installed")
@@ -875,14 +894,14 @@ def test_a_stale_vwma_decision_bar_now_degrades_the_routed_run():
         data_fetcher.base_url = original_url
 
     block = decision.get("degradation", {})
-    assert block.get("degraded") is True, (
-        f"VWMA had no usable value at the decision bar and the run reports "
-        f"itself clean: {block}"
-    )
-    assert any("VWMA" in m for m in block.get("missing_inputs", [])), (
-        f"the degradation block does not name VWMA: {block.get('missing_inputs')}"
-    )
-    assert block.get("trading_authorized") is False, (
-        "a run whose indicator had no value at the decision bar still "
-        "authorizes trading"
-    )
+    assert not any("VWMA" in m for m in block.get("missing_inputs", [])), (
+        f"the degradation block names VWMA, which is not computed: "
+        f"{block.get('missing_inputs')}")
+    assert block.get("degraded") is False, (
+        f"nothing but VWMA degraded this input before stage 7, and the run "
+        f"is still degraded: {block}")
+    assert "VWMA" not in decision["lineage"]["indicators_at_decision_bar"]
+    entry = decision["entry"]
+    assert entry["trigger_volume"] == 0.0, entry["trigger_volume"]
+    assert entry["trigger_volume_median"] == 0.0, entry["trigger_volume_median"]
+    assert decision["exit"]["action"] == "WAIT", decision["exit"]["action"]

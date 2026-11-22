@@ -198,35 +198,60 @@ def test_the_survivors_are_still_there():
     decision = _run()
     assert "error" not in decision, decision.get("error")
 
-    assert "trend_health" in decision.get("trend", {}), "trend.trend_health is gone"
-    assert "momentum_mode" in decision.get("trend", {}), "trend.momentum_mode is gone"
-    assert "score" in decision.get("bias", {}), (
-        "bias.score is gone — that is the field risk_score and signal_strength "
-        "were duplicating, and removing them was only safe because it stays."
+    # THE REDESIGN'S STAGE 5, 15 November 2026. This asserted three fields:
+    # trend.trend_health, trend.momentum_mode and bias.score, the last
+    # because risk_score and signal_strength had duplicated it and removing
+    # them was only safe while it stayed. All three are gone now, and bias
+    # .score last of all -- so there is no third name for it to be the one
+    # home of. What this test is for is unchanged: the removal must not have
+    # taken the canonical fields with it, stated separately because a test
+    # that only asserts absence passes just as happily on an engine that
+    # produces nothing at all. So it names the fields the plan and the
+    # record now canonically carry.
+    assert "raw" in decision.get("bias", {}), "bias.raw is gone"
+    assert "atr_stop" in decision.get("risk", {}), "risk.atr_stop is gone"
+    assert "targets" in decision.get("risk", {}), "risk.targets are gone"
+    assert "score" in decision.get("entry", {}), (
+        "entry.score is gone -- it is entry quality itself, which gate 9 "
+        "reads and which risk.trade_quality_proposed duplicated until this "
+        "stage."
     )
 
 
-def test_the_decision_model_reads_the_canonical_trend_field():
+def test_the_decision_model_reads_no_trend_field_at_all():
     """
     decision_model.py read `trend["health"]` first, falling back to
-    trend_health. With the duplicate gone the fallback would carry it silently
-    — but the default is 50.0, so a future rename of trend_health would give
-    every decision a fixed mid-range trend reading and raise nothing.
+    trend_health. With the duplicate gone the fallback would have carried it
+    silently -- but the default was 50.0, so a rename of trend_health would
+    have given every decision a fixed mid-range trend reading and raised
+    nothing. That was this test, asserted at the source because the value is
+    identical either way and a behavioural test cannot see the difference.
 
-    Asserted at the source, because the value is identical either way and a
-    behavioural test cannot see the difference.
+    THE REDESIGN'S STAGE 5, 15 November 2026: the module takes no `trend`
+    parameter now -- _compute_trade_quality was its last reader and goes with
+    confidence -- so the stronger statement is available and is asserted
+    instead: the decision model reads no trend reading by any name.
     """
+    import inspect
+
+    from models.decision_model import DecisionModel
     from conftest import REPO_ROOT
+
+    assert "trend" not in inspect.signature(DecisionModel.evaluate).parameters, (
+        "DecisionModel.evaluate takes a trend block again")
 
     path = os.path.join(REPO_ROOT, "models", "decision_model.py")
     with open(path, encoding="utf-8") as f:
         code = "\n".join(line.split("#", 1)[0] for line in f.read().splitlines())
 
-    assert 'trend.get("health"' not in code and "trend.get('health'" not in code, (
-        "decision_model.py reads trend['health'] again. It no longer exists, "
-        "so this silently falls through to a default of 50.0 — a fixed "
-        "mid-range trend reading on every decision, raising nothing."
-    )
+    for spelling in ('trend.get("health"', "trend.get('health'",
+                     'trend.get("trend_health"', "trend.get('trend_health'",
+                     'trend["trend_health"]', "trend['trend_health']"):
+        assert spelling not in code, (
+            f"decision_model.py reads {spelling} again. There is no trend "
+            f"block in its signature, so this cannot be the engine's own "
+            f"reading."
+        )
 
 
 # ============================================================

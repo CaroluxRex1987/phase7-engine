@@ -49,7 +49,8 @@ V3, AND WHY EACH PART OF IT
 
 2. IT CONTROLS THE C3 STATE FILE
 
-   engine_core persists {supertrend_direction, detailed_bias} to
+   engine_core persists {supertrend_direction, detailed_bias} (since the
+   redesign's stage 2, 14 November 2026: {supertrend_direction, raw_bias}) to
    Logs/phase7_state_{symbol}_{timeframe}.json after every run, and the next run
    compares against it to produce two of the Exit Watch flags. exit_watch is IN
    the decision object, so the snapshot was a function of run history as well as
@@ -118,6 +119,19 @@ from conftest import fixture, REPO_ROOT
 SNAPSHOT = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                         "fixtures", "golden_decision.json")
 
+# THE SECOND PINNED DECISION (the redesign's stage 4, 15 November 2026; the
+# draft's section 10.1). The first fixture became a WAIT at gate 8 in stage
+# 3 and its entry quality is 0 in stage 4, so the snapshot above no longer
+# covers a trade's plan -- the stop, the three targets, the R:R, the order
+# the panel prints. It stays as the case where the gates REFUSE, and a
+# second base series whose last candle passes every gate is pinned beside
+# it, with a snapshot of its own. The seed, the search and how thin the
+# trade is are recorded in docs/build/make_pinned.py, which writes the file.
+BASE_4H = "ohlcv_clean_4h.csv"
+TRADE_4H = "ohlcv_trade_4h.csv"
+TRADE_SNAPSHOT = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                              "fixtures", "golden_trade_decision.json")
+
 # TESTUSDT, not AEROUSDT, on purpose: it is what makes
 # test_explanation_does_not_name_a_hardcoded_symbol meaningful. Running the
 # golden path on AERO would let the hardcoded string pass unnoticed.
@@ -168,23 +182,39 @@ def _strip(obj):
 # The pinned set
 # ============================================================
 
-def _write_pinned_set(directory):
+def _write_pinned_set(directory, base_name=BASE_4H):
     """
-    Derive three series from the one committed fixture and write them where the
-    real pinned loader will find them.
+    Derive three series from one committed base fixture and write them where
+    the real pinned loader will find them.
+
+    `base_name` is the fixture to derive from: BASE_4H, whose decision candle
+    the gates refuse, or TRADE_4H, whose decision candle passes every one of
+    them (stage 4 of the redesign, 15 November 2026). The derivations below
+    are the same for both, so the two runs differ only by their base series
+    -- which is what makes the second decision a second reading of the same
+    production path and not a second path.
 
     Derived rather than committed so there is a single source of truth: change
     ohlcv_clean_4h.csv and all three move together. The derivations are pure
     functions of it, so the set is byte-identical on every machine.
 
-    TESTUSDT_4h   the fixture verbatim — the series under analysis
+    TESTUSDT_4h   the fixture, with quote_volume added — the series under
+                  analysis. Until stage 1 of the redesign (14 November 2026)
+                  it was the fixture verbatim. quote_volume is volume x close,
+                  to four decimals: docs/build/make_pinned.py's rule for the
+                  committed pinned set, so this series is byte for byte that
+                  set's AEROUSDT_4h.csv in pandas' writing of it. The macro
+                  and BTC series below do not carry the column.
     TESTUSDT_1d   a real daily aggregate of it, for the macro-confluence read
     BTCUSDT_4h    a distinct but plausible series, for BTC context
     """
     import pandas as pd
 
-    base = pd.read_csv(fixture("ohlcv_clean_4h.csv"))
-    base.to_csv(os.path.join(directory, f"{SYMBOL}_{TIMEFRAME}.csv"), index=False)
+    base = pd.read_csv(fixture(base_name))
+    struct = base.copy()
+    struct["quote_volume"] = [round(float(v) * float(c), 4)
+                              for v, c in zip(base["volume"], base["close"])]
+    struct.to_csv(os.path.join(directory, f"{SYMBOL}_{TIMEFRAME}.csv"), index=False)
 
     # --- macro: six 4h candles make one day ---
     #
@@ -295,12 +325,14 @@ def _seed_state(**values):
         json.dump(values, f)
 
 
-def _run(seed=None):
+def _run(seed=None, base_name=BASE_4H):
     """
     One engine run through the production path, on pinned data, with the
     network unreachable and the C3 state under the test's control.
 
     seed=None deletes the state file (no prior run). A dict seeds it.
+    `base_name` picks which committed base series the three are derived
+    from (stage 4 of the redesign).
     """
     from data.data_fetcher import DataFetcher, data_fetcher
     from models.signal_router import SignalRouter
@@ -313,7 +345,7 @@ def _run(seed=None):
     tmp = tempfile.mkdtemp(prefix="phase7_golden_")
     original_url = data_fetcher.base_url
     try:
-        _write_pinned_set(tmp)
+        _write_pinned_set(tmp, base_name)
         data_fetcher.base_url = UNREACHABLE
         DataFetcher.set_pinned_source(tmp)
         with _golden_workspace():
@@ -370,6 +402,117 @@ def test_decision_object_matches_snapshot():
             + "\n\nIf the change was intended, re-baseline with "
               "PHASE7_UPDATE_SNAPSHOT=1 and say so in the commit message."
         )
+
+
+def test_the_trade_decision_matches_its_snapshot():
+    """
+    THE SECOND PINNED DECISION (the redesign's stage 4, 15 November 2026;
+    the draft's section 10.1). The same baseline comparison as above, on the
+    base series whose decision candle passes every gate -- so the golden
+    snapshot still pins a trade's plan now that the first fixture is a WAIT
+    at gate 8.
+
+    Both are needed and neither replaces the other. The first pins what the
+    engine does when the gates REFUSE: the labels, the sentences, the fields
+    a refused run still records. This one pins what it does when they pass:
+    the tier, the stop, the three targets, the R:R, the order the panel
+    prints, and the trigger and quality figures a trade carries.
+    """
+    if not _engine_available():
+        pytest.skip("pandas_ta not installed")
+
+    raw = _run(base_name=TRADE_4H)
+    assert "error" not in raw, (
+        f"the engine reported an error on the trade fixture: {raw.get('error')}\n"
+        "A baseline cannot be captured from a failed run."
+    )
+    decision = _strip(raw)
+
+    if os.environ.get("PHASE7_UPDATE_SNAPSHOT"):
+        os.makedirs(os.path.dirname(TRADE_SNAPSHOT), exist_ok=True)
+        with open(TRADE_SNAPSHOT, "w") as f:
+            json.dump(decision, f, indent=2, sort_keys=True, default=str)
+        print(f"snapshot written: {TRADE_SNAPSHOT}")
+        return
+
+    assert os.path.exists(TRADE_SNAPSHOT), (
+        "no baseline snapshot exists yet for the trade fixture. Create one with:\n"
+        "    set PHASE7_UPDATE_SNAPSHOT=1\n"
+        "    python run_tests.py golden\n"
+        "then commit tests/fixtures/golden_trade_decision.json"
+    )
+
+    with open(TRADE_SNAPSHOT) as f:
+        expected = json.load(f)
+
+    actual = json.loads(json.dumps(decision, sort_keys=True, default=str))
+
+    if actual != expected:
+        diffs = []
+        for key in sorted(set(expected) | set(actual)):
+            a, b = expected.get(key, "<missing>"), actual.get(key, "<missing>")
+            if a != b:
+                diffs.append(f"  {key}:\n    was: {a}\n    now: {b}")
+        raise AssertionError(
+            "the engine's decision changed on identical input:\n"
+            + "\n".join(diffs)
+            + "\n\nIf the change was intended, re-baseline with "
+              "PHASE7_UPDATE_SNAPSHOT=1 and say so in the commit message."
+        )
+
+
+def test_the_second_pinned_decision_actually_reaches_a_trade():
+    """
+    The whole point of the second fixture, asserted against the engine
+    rather than against its own snapshot.
+
+    A snapshot records whatever the engine does, defects included -- that is
+    what a baseline is. So "the snapshot matches" cannot be read as "this
+    fixture still covers a trade": a change that turned the trade into a
+    WAIT and was then re-baselined would leave this file silent about the
+    coverage it exists to give. The reading of 11 November found 68 of 76
+    otherwise-passing records blocked by the trigger alone, so a fixture
+    that reaches a trade at all is not easy to come by and its loss is
+    exactly what has to be noticed.
+
+    Asserted: a side, every gate passed, a plan on the correct side of the
+    close, and the tier the lines give.
+    """
+    if not _engine_available():
+        pytest.skip("pandas_ta not installed")
+
+    raw = _run(base_name=TRADE_4H)
+    assert "error" not in raw, raw.get("error")
+
+    entry, risk = raw["entry"], raw["risk"]
+    assert raw["exit"]["action"] == "LONG", (
+        f"the second pinned decision is no longer a LONG: "
+        f"{raw['exit']['action']}. The seed has to be searched again "
+        f"(docs/build/make_pinned.py), not re-baselined."
+    )
+    assert raw["bias"]["raw"] == "BULLISH"
+    assert raw["degradation"]["degraded"] is False
+    assert risk["risk_valid"] is True
+    assert entry["long_signal"] is True, entry["long_signal_blockers"]
+    assert entry["long_signal_refusal"] is None
+    assert entry["quote_volume"] > entry["liquidity_floor"]
+    assert entry["trigger"] is True
+    assert entry["trigger_volume"] > entry["trigger_volume_median"]
+
+    from models.decision_model import DecisionModel
+    assert entry["score"] >= DecisionModel.UPPER_TIER_ENTRY_QUALITY_MIN, (
+        f"entry quality {entry['score']} is under the upper tiers' line; "
+        f"the tier this fixture pins would change")
+    # LONG and not AGGRESSIVE because the close is outside the band, which
+    # is what section 10.1 recorded of this seed. Both halves are asserted:
+    # the regime does allow AGGRESSIVE, so the band is the only reason.
+    assert entry["close_inside_band"] is False
+    assert risk["risk_regime"] in ("NORMAL RISK", "LOW RISK")
+
+    # The plan is a long's, measured from the decision close (finding 4).
+    close = raw["exit"]["current_price"]
+    assert risk["atr_stop"] < close
+    assert all(t > close for t in risk["targets"])
 
 
 def test_the_snapshot_covers_every_top_level_field():
@@ -557,20 +700,59 @@ def test_a_bias_flip_against_prior_state_is_reported():
     if not _engine_available():
         pytest.skip("pandas_ta not installed")
 
-    actual_bias = _run().get("bias", {}).get("detailed", "")
-    assert actual_bias, "the run produced no detailed bias to compare against"
+    # THE REDESIGN'S STAGE 2, 14 November 2026: the state's key is
+    # "raw_bias" and what is compared is bias.raw. It was "detailed_bias" and
+    # bias.detailed, with a prior of BEARISH CONFIRMED or BULLISH CONFIRMED,
+    # words no run produces any more.
+    actual_bias = _run().get("bias", {}).get("raw", "")
+    assert actual_bias in ("BULLISH", "BEARISH", "NEUTRAL"), (
+        f"the run produced no direction to compare against: {actual_bias!r}")
 
     # A prior state that cannot match whatever the run produces.
-    prior = "BEARISH CONFIRMED" if "BULL" in actual_bias.upper() else "BULLISH CONFIRMED"
-    flags = " ".join(_run(seed={"detailed_bias": prior}).get("exit_watch", []))
+    prior = "BEARISH" if actual_bias == "BULLISH" else "BULLISH"
+    flags = " ".join(_run(seed={"raw_bias": prior}).get("exit_watch", []))
 
-    assert prior in flags and "Bias state changed" in flags, (
+    assert (f"Bias state changed from {prior} to {actual_bias}" in flags), (
         f"seeded a prior bias of {prior!r} and ran to {actual_bias!r}, but no "
         f"bias-flip flag was raised.\nExit Watch said: {flags or '(nothing)'}\n"
         "Either the state file is not being read, or the comparison is broken. "
         "Both fail silently in normal use, because 'no flag' is also what "
         "agreement looks like."
     )
+
+
+def test_a_state_file_from_before_stage_2_reports_no_bias_flip():
+    """
+    The redesign's stage 2, 14 November 2026. Until then the state held
+    bias_label's words under "detailed_bias". Compared with the direction,
+    the first run after the change would have reported "Bias state changed
+    from BULLISH CONFIRMED to BULLISH" on a pair whose direction had not
+    changed, once on every pair. The state is saved under "raw_bias", so an
+    old file has nothing to compare, and the first run reports no flip.
+
+    Both halves: an old file whose label agrees in direction, and one whose
+    label does not. Neither is compared. The second is a flip the first run
+    after the change does not report; that is the price of not reporting
+    the false one, and the next run compares like with like.
+    """
+    if not _engine_available():
+        pytest.skip("pandas_ta not installed")
+
+    actual_bias = _run().get("bias", {}).get("raw", "")
+    assert actual_bias == "BULLISH", actual_bias
+    for old_label in ("BULLISH CONFIRMED", "BEARISH CONFIRMED", "NEUTRAL"):
+        flags = " ".join(_run(seed={"detailed_bias": old_label}).get("exit_watch", []))
+        assert "Bias state changed" not in flags, (old_label, flags)
+
+    # And the run saves the new key, so that the next one has it.
+    _run()
+    try:
+        with open(_state_path()) as fh:
+            saved = json.load(fh)
+    finally:
+        _clear_state()
+    assert saved.get("raw_bias") == "BULLISH", saved
+    assert "detailed_bias" not in saved, saved
     _clear_state()
 
 

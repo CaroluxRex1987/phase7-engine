@@ -156,7 +156,12 @@ def test_pinned_source_serves_all_three_series_without_network():
             err = df.attrs.get("fetch_error")
             assert err is None, f"{symbol} {timeframe} failed: {err}"
             assert len(df) > 0, f"{symbol} {timeframe} returned no rows"
-            assert list(df.columns) == ["open", "high", "low", "close", "volume"], (
+            # Stage 1 of the redesign, 14 November 2026: the series under
+            # analysis carries quote_volume; the macro and BTC series do not.
+            expected = ["open", "high", "low", "close", "volume"]
+            if (symbol, timeframe) == ("AEROUSDT", "4h"):
+                expected = expected + ["quote_volume"]
+            assert list(df.columns) == expected, (
                 f"{symbol} {timeframe} has unexpected columns: {list(df.columns)}"
             )
     finally:

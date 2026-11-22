@@ -133,8 +133,20 @@ def test_the_package_carries_what_the_decision_names_in_order():
     assert "tests/test_send_round8_fix_verification.py" not in names
     assert added, "no test file was added since e186423"
     # Every engine file is one the code fingerprint walks.
+    #
+    # THE REDESIGN'S STAGE 7, 21 November 2026: `engine` is git's list at
+    # HEAD and the walk reads the working tree, so between the apply and the
+    # commit of a patch that renames or deletes an engine file -- stage 7's
+    # rename of indicators/trend_health.py was the first -- HEAD's old path
+    # is on the list and not on disk, and this failed on a state it is not
+    # about. A file HEAD lists and the disk does not have is an uncommitted
+    # deletion, not a disagreement between the two exclusion rules, which is
+    # what this compares; it is left out of the comparison, nothing else is,
+    # and after the commit the two lists are the same files again.
     walked = set(_fingerprint_files())
-    assert set(engine) <= walked
+    on_disk = [p for p in engine if (REPO / p).is_file()]
+    assert on_disk, engine
+    assert set(on_disk) <= walked
     assert "models/risk_model.py" in engine and "core/config.py" in engine
     assert not [p for p in engine if p.startswith(("tests/", "docs/"))]
 

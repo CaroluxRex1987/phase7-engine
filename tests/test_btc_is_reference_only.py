@@ -98,13 +98,18 @@ def _declared_btc_keys():
 
 
 def _neutral_inputs():
-    """bias, trend, entry, risk for a run the ladder answers WAIT."""
+    """
+    bias, entry, risk for a run the ladder answers WAIT.
+
+    Stage 5 of the redesign, 15 November 2026: `trend` was the second of four
+    and is gone from evaluate()'s signature, and with it bias.score and
+    risk.validation_state, neither of which is a field the engine writes now.
+    """
     return (
-        {"raw": "NEUTRAL", "detailed": "NEUTRAL", "score": 5.0},
-        {"trend_health": 60.0, "trend_direction_sign": 1},
+        {"raw": "NEUTRAL", "detailed": "NEUTRAL"},
         {"score": 40.0, "entry_status": "AWAY FROM ZONE"},
         {"risk_valid": True, "risk_regime": "NORMAL RISK",
-         "validation_state": "NEUTRAL", "targets": [1.1, 1.2, 1.3]},
+         "targets": [1.1, 1.2, 1.3]},
     )
 
 
@@ -209,7 +214,10 @@ def test_the_record_names_neither_constant():
             f"FINGERPRINTED_MODULES lists DecisionModel.{name} again")
         assert f"DecisionModel.{name}" not in snap
     # Negative control: the snapshot still walks to a class constant.
-    assert snap["DecisionModel.DEGRADED_CONFIDENCE_CEILING"] == 50.0
+    # Stage 5, 15 November 2026: this was DEGRADED_CONFIDENCE_CEILING, which
+    # left the class with the cap it set. The two tier lines are what the
+    # class fingerprints now, and either serves the control.
+    assert snap["DecisionModel.CONSERVATIVE_ENTRY_QUALITY_MIN"] == 50.0
 
 
 # --- the panel ----------------------------------------------------------------

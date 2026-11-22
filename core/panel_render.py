@@ -1,8 +1,10 @@
 import logging
 import math
 import textwrap
+from decimal import Decimal
 
 from . import config
+from .threshold_text import compared_value_text
 
 logger = logging.getLogger(__name__)
 
@@ -239,18 +241,19 @@ def render_panel(decision):
         # SEQUENCE ITEM 13: the `risk_score = ...` line that survived that fix
         # is gone too. After the fix nothing printed it, so the panel bound a
         # local and dropped it — and the comment claimed it was still used for
-        # CONFIDENCE, which reads confidence_score. The field itself is removed
-        # from the decision object; bias.score is where that number lives.
-        validation_score = safe_float(risk.get('validation_score'), default=float('nan'))
-        # 21 SEPTEMBER 2026, work order B: these three defaulted an absent
-        # value to 0, printed as "0.00/100". NaN now, printed by _score_text
-        # as "not computed". The router always sets all three today, so the
-        # default was latent -- the same reasoning Round 6 F3 applied to the
-        # price lines above.
+        # CONFIDENCE, which reads confidence_score.
+        #
+        # THE REDESIGN'S STAGE 5, 15 November 2026: four of these locals are
+        # gone with the four lines that printed them -- validation_score
+        # (VALIDATION), confidence_score (CONFIDENCE (decision)), tq_proposed
+        # (TRADE QUALITY / Proposed Entry) and trend_health_score (the TREND
+        # line's score). The fields themselves have left the decision object.
+        # 21 SEPTEMBER 2026, work order B: this and the three above defaulted
+        # an absent value to 0, printed as "0.00/100". NaN now, printed by
+        # _score_text as "not computed". The router always sets it today, so
+        # the default was latent -- the same reasoning Round 6 F3 applied to
+        # the price lines above.
         entry_score = safe_float(entry.get('score'), float('nan'))
-        confidence_score = safe_float(risk.get('confidence_score'), float('nan'))
-        tq_proposed = safe_float(risk.get('trade_quality_proposed'), float('nan'))
-        trend_health_score = safe_float(trend.get('trend_health'), default=float('nan'))
 
         # C4 BUILD: position size and the standalone EV line were both
         # dropped from the panel per Viktor's request -- the underlying
@@ -341,9 +344,16 @@ def render_panel(decision):
         #
         # The replacement says only that nothing was produced, which is the
         # one thing that is true when the key is absent.
-        validation_note = (
-            risk.get("validation_note")
-            or "No validation note was produced for this run."
+        #
+        # THE REDESIGN'S STAGE 5, 15 November 2026: this read
+        # risk.validation_note, the macro and volume notes joined. The
+        # validation block is gone and the macro note alone survives, as the
+        # top-level macro_note, printed on its own line under MACRO TREND
+        # rather than in a "Validation Notes" section at the foot of the
+        # panel.
+        macro_note = (
+            decision.get("macro_note")
+            or "No macro note was produced for this run."
         )
         chart_line = (
             f"Chart saved to {saved_chart}\n" if saved_chart
@@ -381,7 +391,9 @@ def render_panel(decision):
         # (docs/PHASE7_DECISIONS.md, "Ruling, 27 September 2026 -- a NEUTRAL
         # bias prints no plan (finding 5)"). The plan's direction is the sign
         # of bias_score (models/risk_model.py, calculate_stop_targets), so
-        # under a NEUTRAL bias -- a score inside +/-RAW_BIAS_THRESHOLD -- the
+        # under a NEUTRAL bias -- a score inside +/-RAW_BIAS_THRESHOLD, until
+        # the redesign's stage 2 made the side the direction's and stage 5
+        # removed the score -- the
         # panel printed a long- or short-shaped stop and targets for a
         # direction the engine had not chosen; exactly 0 printed a long. The
         # panel now prints no stop, no targets and no R:R under a NEUTRAL bias,
@@ -501,83 +513,65 @@ def render_panel(decision):
 
         def _entry_quality_lines(entry, entry_score):
             """
-            5 September 2026 — the entry sub-scores did not add up to the
-            printed total, and nothing on the panel said why.
+            THE REDESIGN'S STAGE 4, 15 November 2026. Entry quality is
+            D + H, so the panel prints the total and its two parts, each
+            beside the distance it was computed from:
 
-                ENTRY QUALITY : 45.18/100
-                    |-- EMA Zone Position : 10/30
-                    |-- ATR Distance      : 5/25
-                    |-- VWMA Distance     : 10/20
-                    |-- RSI Extension     : 10/15
-                    |-- Structure         : 4/12
+                ENTRY QUALITY : 0.00/100
+                    |-- Distance (D)      : 0.00/80 at 3.2070 ATR from the band's midpoint
+                    |-- HVN nearness (H)  : 0.00/20 at 15.1202 ATR from the HVN
+                    |-- Lines             : 70 for LONG/SHORT and AGGRESSIVE, 50 for CONSERVATIVE
 
-            39 printed under 45.18. Three things made up the gap and none of
-            them appeared anywhere: the sub-scores were rounded to whole
-            numbers while the total was not (ATR distance was 5.0297), three
-            confluence multipliers are applied after the sum, and the result
-            is clipped to 100 — which a perfect setup exceeds, since the five
-            components reach 102 before any multiplier.
+            What stood here was the reconciliation of 5 September 2026: five
+            sub-scores, their subtotal out of 102, the combined confluence
+            multiplier with its three factors, and the clip when it fired.
+            It was written because the panel printed five numbers and a
+            total they did not add up to -- 10 + 5 + 10 + 10 + 4 under 45.18
+            on the pinned fixture. D + H needs no reconciliation: the two
+            parts and the total are the whole of the arithmetic, and the
+            distances are printed so each part can be checked by hand
+            against the straight line it comes from, which was the reason
+            for straight lines (the draft's section 3.1).
 
-            The subtotal, the multiplier and its three factors are printed, so
-            the arithmetic can be followed. The clip is announced only when it
-            actually fired; a line saying "not clipped" on every run is noise.
+            The two tier lines are printed because Decision Reasoning names
+            them, and a line the operator is told a number is under should
+            be visible on the panel beside the number -- the same reason
+            stage 3 added TURNOVER, TRIGGER and TRIGGER VOLUME. They come
+            from models/decision_model.py's constants rather than being
+            written here again.
 
-            The denominators come from entry_model's constants rather than
-            being written here again — they were literals in this file, in the
-            band logic, and in the docstring, three copies of one fact.
-
-            Absent fields print as "n/a". They used to default to 22, 10, 20,
-            15 and 2 — plausible sub-scores, invented by this renderer, for a
-            run that reported none.
+            A part that was not measured prints as that, not as 0.00/80: the
+            denominators are the maxima and a zero is a real score. The
+            total prints through _score_text, which already says "not
+            computed" for a value the engine did not measure.
             """
-            from models.entry_model import (ATR_DISTANCE_MAX_POINTS,
-                                            EMA_ZONE_MAX_POINTS,
-                                            RSI_MAX_POINTS,
-                                            STRUCTURE_MAX_POINTS,
-                                            VWMA_MAX_POINTS)
+            from models.decision_model import DecisionModel
+            from models.entry_model import (DISTANCE_MAX_POINTS,
+                                            HVN_MAX_POINTS)
 
-            def component(label, key, maximum):
-                value = entry.get(key)
-                shown = (f"{safe_float(value, float('nan')):.2f}"
-                         if value is not None
-                         and math.isfinite(safe_float(value, float("nan")))
-                         else "n/a")
-                return f"    |-- {label:<18}: {shown}/{maximum:.0f}\n"
+            def part(label, points_key, distance_key, maximum, against):
+                points = entry.get(points_key)
+                distance = entry.get(distance_key)
+                shown = _score_text(safe_float(points, float("nan")), maximum)
+                if shown == "not computed":
+                    return f"    |-- {label:<18}: not measured\n"
+                at = safe_float(distance, float("nan"))
+                where = (f" at {at:.4f} ATR from {against}"
+                         if math.isfinite(at) else "")
+                return f"    |-- {label:<18}: {shown}{where}\n"
 
             lines = (
-                f"ENTRY QUALITY : "
-                f"{_score_text(entry_score, safe_float(entry.get('score_ceiling'), 100.0))}\n"
-                + component("EMA Zone Position", "ema_pos_pts", EMA_ZONE_MAX_POINTS)
-                + component("ATR Distance", "atr_dist_pts", ATR_DISTANCE_MAX_POINTS)
-                + component("VWMA Distance", "vwma_pts", VWMA_MAX_POINTS)
-                + component("RSI Extension", "rsi_pts", RSI_MAX_POINTS)
-                + component("Structure", "struct_pts", STRUCTURE_MAX_POINTS)
+                f"ENTRY QUALITY : {_score_text(entry_score)}\n"
+                + part("Distance (D)", "distance_pts", "distance_atr",
+                       DISTANCE_MAX_POINTS, "the band's midpoint")
+                + part("HVN nearness (H)", "hvn_pts", "hvn_distance_atr",
+                       HVN_MAX_POINTS, "the HVN")
+                + (f"    |-- {'Lines':<18}: "
+                   f"{DecisionModel.UPPER_TIER_ENTRY_QUALITY_MIN:g} for "
+                   f"LONG/SHORT and AGGRESSIVE, "
+                   f"{DecisionModel.CONSERVATIVE_ENTRY_QUALITY_MIN:g} for "
+                   f"CONSERVATIVE\n")
             )
-
-            base = safe_float(entry.get("base_score"), float("nan"))
-            maximum = safe_float(entry.get("component_max_points"), float("nan"))
-            combined = safe_float(entry.get("combined_multiplier"), float("nan"))
-
-            if math.isfinite(base) and math.isfinite(maximum):
-                lines += (f"    |-- {'Subtotal':<18}: {base:.2f}/{maximum:.0f}\n")
-
-            if math.isfinite(combined):
-                macro = safe_float(entry.get("macro_multiplier"), float("nan"))
-                trend = safe_float(entry.get("trend_multiplier"), float("nan"))
-                struct = safe_float(entry.get("structure_multiplier"), float("nan"))
-                factors = ""
-                if all(math.isfinite(v) for v in (macro, trend, struct)):
-                    factors = (f"  (macro x{macro:.2f}, trend x{trend:.2f}, "
-                               f"structure x{struct:.2f})")
-                lines += (f"    |-- {'Confluence':<18}: "
-                          f"x{combined:.4f}{factors}\n")
-
-            if entry.get("score_clipped"):
-                scaled = safe_float(entry.get("scaled_score"), float("nan"))
-                ceiling = safe_float(entry.get("score_ceiling"), 100.0)
-                if math.isfinite(scaled):
-                    lines += (f"    |-- {'Clipped':<18}: {scaled:.2f} "
-                              f"exceeded the {ceiling:.0f} ceiling\n")
 
             return lines + "\n"
 
@@ -647,6 +641,76 @@ def render_panel(decision):
                 distance_line = "BAND DISTANCE : not measured\n"
 
             return zone_line + distance_line
+
+        def _gate_lines(entry, bias):
+            """
+            THE REDESIGN'S STAGE 3, 15 November 2026: what gates 7 and 8
+            read, so that a refusal named in Decision Reasoning points at
+            something visible on the panel, and a gate that passed is
+            visible too.
+
+                TURNOVER      : 67902 USDT on the decision candle (floor 10000)
+                TRIGGER       : NO -- the candle did not close beyond its open and the previous close
+                TRIGGER VOLUME: 84694 against a median of 179247.8923 before it -- not above it
+
+            Entry 58's rule holds here as in the sentences: a value set
+            against a line is printed on its own side of it
+            (core/threshold_text.py), and the median, which is a line the
+            data gives, is printed exactly as computed (how many candles it
+            is over is models/entry_model.py's TRIGGER_VOLUME_LOOKBACK, and
+            Decision Reasoning says it). A value that was not
+            measured prints as that; under a NEUTRAL direction there is no
+            side to read a trigger for, and the line says so.
+            """
+            def amount(value):
+                if isinstance(value, bool) or not isinstance(value, (int, float)):
+                    return None
+                number = float(value)
+                if not math.isfinite(number) or number < 0.0:
+                    return None
+                return number
+
+            turnover = amount(entry.get("quote_volume"))
+            floor = amount(entry.get("liquidity_floor"))
+            if turnover is None or floor is None:
+                turnover_line = "TURNOVER      : not measured\n"
+            else:
+                verdict = "" if turnover >= floor else " -- UNDER THE FLOOR"
+                turnover_line = (
+                    f"TURNOVER      : {compared_value_text(turnover, floor)} "
+                    f"USDT on the decision candle (floor {floor:g}){verdict}\n"
+                )
+
+            trigger = entry.get("trigger")
+            raw = bias.get("raw")
+            if trigger is True:
+                trigger_line = ("TRIGGER       : YES -- the candle closed "
+                                "beyond its open and the previous close\n")
+            elif trigger is False:
+                trigger_line = ("TRIGGER       : NO -- the candle did not "
+                                "close beyond its open and the previous close\n")
+            elif raw == "BULLISH" or raw == "BEARISH":
+                trigger_line = "TRIGGER       : not measured\n"
+            else:
+                trigger_line = "TRIGGER       : not read -- no side to read it for\n"
+
+            volume = amount(entry.get("trigger_volume"))
+            median = amount(entry.get("trigger_volume_median"))
+            if volume is None or median is None:
+                volume_line = "TRIGGER VOLUME: not measured\n"
+            else:
+                exact_median = f"{Decimal(repr(median)):f}"
+                if volume == median:
+                    printed = exact_median
+                else:
+                    printed = compared_value_text(volume, median)
+                verdict = "above it" if volume > median else "not above it"
+                volume_line = (
+                    f"TRIGGER VOLUME: {printed} against a median of "
+                    f"{exact_median} before it -- {verdict}\n"
+                )
+
+            return turnover_line + trigger_line + volume_line
 
         def _correlation_lines(btc, colorize_val):
             """
@@ -821,19 +885,20 @@ def render_panel(decision):
         )
 
         # FINDING 5: under a NEUTRAL bias one PLAN line replaces the stop,
-        # the three targets and their R:R. The threshold is read from
-        # bias_engine, so the line moves with the constant.
+        # the three targets and their R:R.
+        #
+        # THE REDESIGN'S STAGE 2, 14 November 2026. The line read "the bias
+        # is NEUTRAL (score X, inside +/-20)", the wording Viktor ruled on
+        # 27 September, with the score and the threshold read from the
+        # weighted sum. NEUTRAL no longer comes from that sum (his ruling of
+        # 7 November: EMA50's slope and the EMAs' order), so printing the
+        # sum beside it would give a reason that is not the reason. The
+        # line keeps the ruling's sentence and drops the parenthesis; the
+        # reason is in Decision Reasoning, in decision_model's own sentence.
         if plan_withheld:
-            from models.bias_engine import RAW_BIAS_THRESHOLD
-            neutral_score = safe_float(bias.get("score"), float("nan"))
-            if math.isfinite(neutral_score):
-                score_text = (f"score {neutral_score:+.1f}, inside "
-                              f"\u00b1{RAW_BIAS_THRESHOLD:.0f}")
-            else:
-                score_text = "score not computed"
             plan_lines = (
-                f"PLAN          : none -- the bias is NEUTRAL ({score_text}), "
-                f"so there is no direction to measure a stop from\n"
+                "PLAN          : none -- the bias is NEUTRAL, "
+                "so there is no direction to measure a stop from\n"
             )
         else:
             plan_lines = f"{stop_loss_line}{target_lines}"
@@ -921,20 +986,17 @@ def render_panel(decision):
             # bias.volatility; only the panel prints each reading once.
             f"STRUCTURE  : {colorize_val(structure.get('regime', 'UNKNOWN STRUCTURE'))}\n"
             f"SEQUENCE   : {colorize_val(structure.get('sequence', 'UNKNOWN'))}\n"
-            # ROUND 8, F9, 12 October 2026: the two fallbacks were 'NEUTRAL'
-            # and 'HEALTHY' -- a direction and a momentum nobody measured.
-            # They cannot fire on the engine's path (the router writes both
-            # keys on every decision it builds), so they are now the router's
-            # own fallback, UNKNOWN, rather than a reading.
-            f"TREND      : {colorize_val(trend.get('trend_direction', 'UNKNOWN'))} / {colorize_val(trend.get('momentum_mode', 'UNKNOWN'))} (Score: {_score_text(trend_health_score)})\n"
-            # SEQUENCE ITEM 11 took trend_health_score off a MOMENTUM line
-            # that sat here, because the TREND line above already shows it,
-            # and kept the line for its label, momentum_mode. But the TREND
-            # line prints momentum_mode too, after the slash, so the label
-            # was the same reading twice. F8, round 8 (Item 10), 11 October
-            # 2026: the MOMENTUM line is gone; the TREND line carries both.
+            # THE REDESIGN'S STAGE 5, 15 November 2026. Two lines stood here
+            # and are gone with the readings they printed:
+            #
+            #     TREND      : <trend_direction> / <momentum_mode> (Score: <trend_health>)
+            #     VALIDATION : <validation_state> (Score: <validation_score>)
+            #
+            # All five readings have left the decision object. The direction
+            # the engine acts on is the BIAS line above, which has been the
+            # EMAs' since stage 2; what the macro says about it is the MACRO
+            # NOTE line below, and the gates are in Decision Reasoning.
             f"VOLUME     : {colorize_val(structure.get('volume_sentiment', 'UNKNOWN VOLUME'))}\n"
-            f"VALIDATION : {colorize_val(risk.get('validation_state', 'UNKNOWN'))} (Score: {_score_text(validation_score)})\n"
             f"VOLATILITY : {colorize_val(bias.get('volatility', 'UNKNOWN'))}\n"
             # ITEM 14 RE-AUDIT (Finding 5): the independent risk classification
             # that now caps the AGGRESSIVE action label -- see
@@ -942,21 +1004,40 @@ def render_panel(decision):
             # reasoning in Decision Reasoning below ("the risk regime is HIGH
             # VOLATILITY RISK") points at something visible on the panel.
             f"RISK REGIME: {colorize_val(risk.get('risk_regime', 'UNKNOWN RISK'))}\n"
-            f"MACRO TREND: {colorize_val(macro_bias)}\n\n"
+            f"MACRO TREND: {colorize_val(macro_bias)}\n"
+            # Stage 5, 15 November 2026: the macro note, beside the reading it
+            # is about, where the draft's section 4 puts it. It is what
+            # survives the Validation Notes section at the foot of the panel.
+            f"MACRO NOTE : {macro_note}\n\n"
             f"{divider}"
             f"{current_price_line}"
             f"{live_price_line}"
             f"{_entry_zone_lines(entry, c_cyan, reset)}"
+            # Stage 4, 15 November 2026: STATUS is the close's POSITION
+            # against the EMA band -- INSIDE THE BAND, ABOVE THE BAND,
+            # BELOW THE BAND -- and no longer a distance in band widths
+            # (ACTIVE ENTRY ZONE, NEAR ZONE, APPROACHING ZONE, AWAY FROM
+            # ZONE, ZONE HAS NO WIDTH, whose 1, 2 and 3.5 no ruling set).
+            # It is printed FROM entry.close_inside_band, the same field
+            # the AGGRESSIVE tier reads, so the word here cannot disagree
+            # with the tier (models/entry_model.py; Viktor's ruling of
+            # 7 November 2026). ZONE NOT AVAILABLE and NO DATA stay.
             f"STATUS        : {colorize_val(entry.get('entry_status', 'UNKNOWN'))}\n"
+            f"{_gate_lines(entry, bias)}"
             f"{swing_struct_line}\n"
             f"{plan_lines}\n"
             f"{divider}"
             f"{_entry_quality_lines(entry, entry_score)}"
-            f"{divider}"
-            f"CONFIDENCE (decision): {_score_text(confidence_score)}\n"
-            f"TRADE QUALITY :\n"
-
-            f"    |-- Proposed Entry    : {_score_text(tq_proposed)}\n\n"
+            # THE REDESIGN'S STAGE 5, 15 November 2026: a divider, then
+            #
+            #     CONFIDENCE (decision): <confidence_score>
+            #     TRADE QUALITY :
+            #         |-- Proposed Entry    : <trade_quality_proposed>
+            #
+            # stood here. Both numbers have left the decision object: the
+            # first was the weighted sum's magnitude, the second was entry
+            # quality under a second name, and ENTRY QUALITY with the D, the
+            # H and their two ATR distances is printed just above.
             f"{box_top}"
             f"DECISION      : {colored_action}\n\n"
             f"{direction_box}"
@@ -966,9 +1047,14 @@ def render_panel(decision):
             f"{divider}"
             f"Exit Watch (advisory only -- not automatic):\n"
             f"{exit_watch_lines}\n"
-            f"{divider}"
-            f"Validation Notes:\n"
-            f" - {validation_note}\n"
+            # Stage 5, 15 November 2026: a divider and
+            #
+            #     Validation Notes:
+            #      - <validation_note>
+            #
+            # stood here, printing the macro and volume notes joined. The
+            # volume note is gone with volume_agreement and the macro note is
+            # on the MACRO NOTE line above.
             f"{btc_section}"
             f"{box_top}\n"
             f"{log_line}"

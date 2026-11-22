@@ -247,14 +247,22 @@ def test_the_lineage_chain_has_every_link_the_constitution_names():
         assert indicators["ATR"] is not None and indicators["ATR"] > 0
 
         # decision components <- normalized signals <- raw signals
-        factors = lin["bias_components"]["factors"]
-        assert len(factors) == 6, (
-            f"six weighted factors are blended into bias_score; "
-            f"{len(factors)} are recorded."
-        )
-        for name, factor in factors.items():
-            for field in ("input", "signed", "weight", "contribution"):
-                assert field in factor, f"factor {name} records no {field}"
+        #
+        # THE REDESIGN'S STAGE 5, 15 November 2026: this link was
+        # lineage.bias_components, the weighted sum's breakdown -- each of six
+        # factors' input, signed value, weight and contribution. The sum is
+        # gone, so the link in the chain is lineage.direction, which records
+        # what the ruled direction compared and what it concluded, filled by
+        # direction_from_emas as it ran (stage 2). The numbers it compared are
+        # in indicators_at_decision_bar above, so they are not copied.
+        direction = lin["direction"]
+        for field in ("ema50_slope", "ema20_vs_ema50", "result"):
+            assert field in direction, (
+                f"the direction record names no {field}; the chain stops at "
+                f"the comparison it does not record."
+            )
+        assert direction["result"] in ("BULLISH", "BEARISH", "NEUTRAL", None), (
+            direction["result"])
 
         # validated market data
         assert lin["inputs"]["struct"]["sha256"], "no hash for the input frame"
@@ -266,35 +274,43 @@ def test_the_lineage_chain_has_every_link_the_constitution_names():
         shutil.rmtree(work, ignore_errors=True)
 
 
-def test_the_recorded_contributions_add_up_to_the_score_they_explain():
+def test_the_recorded_direction_is_the_direction_the_decision_was_made_on():
     """
-    The breakdown must be the arithmetic that ran, not a plausible-looking
-    account of it.
+    THE REDESIGN'S STAGE 5, 15 November 2026. This was
+    test_the_recorded_contributions_add_up_to_the_score_they_explain: the six
+    recorded contributions had to sum to the weighted_sum they claimed to
+    explain, and that sum had to equal bias.score. It was the check that
+    would have caught a recomputed explanation drifting from the real blend
+    -- the failure mode that made `components` an out-parameter rather than a
+    second function.
 
-    This is the check that would have caught a recomputed explanation drifting
-    from the real blend — the failure mode that made an out-parameter the
-    right shape for this rather than a second function.
+    The blend is gone. The same property is asserted of what replaced it, and
+    for the same reason: lineage.direction is filled by direction_from_emas
+    as it runs, so it is the comparison that happened rather than an account
+    of it, and it must agree with the bias the decision reports.
     """
     if not _engine_available():
         pytest.skip("pandas_ta not installed")
 
-    work = tempfile.mkdtemp(prefix="phase7_sum_")
+    work = tempfile.mkdtemp(prefix="phase7_dir_")
     try:
         decision = _run(PINNED_DIR, os.path.join(work, "logs"))
-        components = decision["lineage"]["bias_components"]
-        total = sum(f["contribution"] for f in components["factors"].values())
-        assert abs(total - components["weighted_sum"]) < 1e-9, (
-            f"the six recorded contributions sum to {total}, and the blend "
-            f"they claim to explain is {components['weighted_sum']}. A "
-            f"breakdown that does not add up to its own total is a second, "
-            f"wrong implementation of the score."
+        direction = decision["lineage"]["direction"]
+        assert direction["result"] == decision["bias"]["raw"], (
+            f"the lineage records a direction of {direction['result']!r} and "
+            f"the decision reports bias.raw {decision['bias']['raw']!r}. A "
+            f"record that does not agree with the decision it explains is a "
+            f"second, wrong implementation of it."
         )
-        # And the score the decision was made on is reachable from them.
-        assert components["bias_score"] == pytest.approx(
-            decision["bias"]["score"], abs=1e-9), (
-            "the bias score in the lineage record is not the bias score the "
-            "decision reports."
-        )
+        assert decision["bias"]["detailed"] == decision["bias"]["raw"], (
+            "bias.detailed is no longer the raw label")
+
+        # And the words recorded are the ruled rule's own: BULLISH needs a
+        # rising EMA50 and EMA20 above it, BEARISH the mirror.
+        expected = {("RISING", "ABOVE"): "BULLISH",
+                    ("FALLING", "BELOW"): "BEARISH"}.get(
+            (direction["ema50_slope"], direction["ema20_vs_ema50"]), "NEUTRAL")
+        assert direction["result"] == expected, (direction, expected)
     finally:
         shutil.rmtree(work, ignore_errors=True)
 
@@ -374,36 +390,48 @@ def test_nan_survives_the_round_trip_as_nan():
     assert lineage.frame_hash(rebuilt) == lineage.frame_hash(df)
 
 
-def test_the_run_hash_moves_when_a_bias_weight_moves():
+def test_the_run_hash_moves_when_a_fingerprinted_constant_moves():
     """
-    Finding 6's required action includes "all decision-affecting configuration,
-    including risk-model multipliers and bias weights."
+    Finding 6's required action includes "all decision-affecting
+    configuration, including risk-model multipliers and bias weights."
 
-    The weights are not in config.py, so before this they were in no record at
-    all. Changing 0.30 to 0.35 changes every decision the engine makes while
-    leaving the candles, the config and the indicator lengths identical — two
-    such runs were previously indistinguishable in the log.
+    THE REDESIGN'S STAGE 5, 15 November 2026. This moved
+    bias_engine.WEIGHT_TREND_HEALTH from 0.30 to 0.35 and required the run
+    hash to move with it: the weights were not in config.py, so before
+    Finding 6's fix they were in no record at all, and two runs that would
+    reach different decisions carried the same identity.
+
+    There are no weights. The whole "models.bias_engine" entry has left
+    FINGERPRINTED_MODULES, because that module now holds no
+    decision-affecting constant at all -- direction_from_emas compares a
+    slope with zero and two averages with each other. The property is
+    asserted of the constant that decides the most in its place: gate 9's
+    CONSERVATIVE line, which is the difference between a trade and a WAIT.
     """
     from core import lineage
     from core import decision_log
-    from models import bias_engine
+    from models.decision_model import DecisionModel
+
+    assert "models.bias_engine" not in decision_log.FINGERPRINTED_MODULES, (
+        "models.bias_engine is fingerprinted again; it holds no "
+        "decision-affecting constant since stage 5")
 
     inputs = {"struct": "a" * 64, "macro": None, "btc": None}
     before = lineage.run_hash(
         inputs, {"config": {"RSI_LENGTH": 14}, "modules": decision_log.module_snapshot()})
 
-    original = bias_engine.WEIGHT_TREND_HEALTH
+    original = DecisionModel.CONSERVATIVE_ENTRY_QUALITY_MIN
     try:
-        bias_engine.WEIGHT_TREND_HEALTH = 0.35
+        DecisionModel.CONSERVATIVE_ENTRY_QUALITY_MIN = 55.0
         after = lineage.run_hash(
             inputs, {"config": {"RSI_LENGTH": 14}, "modules": decision_log.module_snapshot()})
     finally:
-        bias_engine.WEIGHT_TREND_HEALTH = original
+        DecisionModel.CONSERVATIVE_ENTRY_QUALITY_MIN = original
 
     assert before != after, (
-        "changing the trend-health weight from 0.30 to 0.35 left the run hash "
-        "unchanged. Two runs that would reach different decisions carry the "
-        "same identity."
+        "moving the CONSERVATIVE entry-quality line from 50 to 55 left the "
+        "run hash unchanged. Two runs that would reach different decisions "
+        "carry the same identity."
     )
 
 

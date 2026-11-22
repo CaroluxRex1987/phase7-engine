@@ -84,7 +84,6 @@ def build_exit_watch(
 
     try:
         raw_bias = str(bias.get("raw", "NEUTRAL"))
-        detailed_bias = str(bias.get("detailed", "NEUTRAL"))
         sequence = str(structure.get("sequence", "NONE"))
         # SWEEP ITEM 7, 8 September 2026. `or 0.0` invented a real price of
         # zero when the level was missing/None. NaN means not located; the
@@ -106,15 +105,27 @@ def build_exit_watch(
         # could not fire — trend_failure was always False — so this advisory
         # has never once appeared on a panel, while reading as though the
         # engine watches for a lower-high/lower-low pattern. It does not.
-
-        if bool(trend.get("trend_exhaustion", False)):
-            flags.append(
-                "Trend exhaustion is active — momentum looks stretched and may be due for a pause or pullback."
-            )
+        #
+        # THE REDESIGN'S STAGE 5, 15 November 2026: the EXHAUSTION flag stood
+        # here, reading trend.trend_exhaustion --
+        #
+        #     "Trend exhaustion is active - momentum looks stretched and may
+        #      be due for a pause or pullback."
+        #
+        # and the REVERSAL flag below it, reading reversal_direction and
+        # reversal_strength against the bias at a threshold of 40. VIKTOR
+        # RULED BOTH OUT on 9 November 2026 (DECISIONS, "Ruling, 9 November
+        # 2026 -- the redesign's exit watch drops its exhaustion and reversal
+        # flags"), with NOTHING replacing them, and their inputs leave
+        # indicators/trend_health.py in this stage. Every other flag stays:
+        # the divergence below, the CHOCH against the side, the HVN and LVN
+        # proximity, the SuperTrend flip, the bias flip and the Target 1
+        # note. Neither flag is in the golden exit_watch, which holds only
+        # the Target 1 note, so no golden leaf moves by their removal.
 
         # B4's LABELS, 14 October 2026: this flag said "Momentum divergence
         # is active -- price and momentum are disagreeing". What
-        # indicators/trend_health.py compares is this candle's close and RSI
+        # indicators/trend_readings.py compares is this candle's close and RSI
         # with the close and RSI four candles back, so the flag says that,
         # and which way. A direction outside the two it can record is named
         # as not recorded rather than guessed.
@@ -139,18 +150,8 @@ def build_exit_watch(
                 f"{comparison}. An early warning worth watching."
             )
 
-        # --- Reversal signal opposing the current bias (B1) ---
-        reversal_direction = trend.get("reversal_direction", "NONE")
-        reversal_strength = float(trend.get("reversal_strength", 0.0) or 0.0)
-        reversal_opposes = (
-            (raw_bias == "BULLISH" and reversal_direction == "BEARISH")
-            or (raw_bias == "BEARISH" and reversal_direction == "BULLISH")
-        )
-        if reversal_opposes and reversal_strength >= 40.0:
-            flags.append(
-                f"A {reversal_direction} reversal signal is forming against the current {raw_bias} bias "
-                f"(strength {reversal_strength:.0f}/100)."
-            )
+        # --- Reversal signal opposing the current bias (B1) -- REMOVED at
+        # the redesign's stage 5; see the record above the divergence flag.
 
         # --- CHOCH opposing the current bias (B2) ---
         choch_opposes = (
@@ -190,9 +191,15 @@ def build_exit_watch(
                 pass
 
         # --- Bias state flip since the last run (needs prior_state) ---
-        prior_bias = prior_state.get("detailed_bias")
-        if prior_bias and str(prior_bias) != detailed_bias:
-            flags.append(f"Bias state changed from {prior_bias} to {detailed_bias} since the last run.")
+        # THE REDESIGN'S STAGE 2, 14 November 2026: the state's key is
+        # "raw_bias", and what is compared is bias.raw. It was
+        # "detailed_bias" and bias.detailed, bias_label's words. A state
+        # file from before this stage has no "raw_bias", so the first run
+        # after it compares nothing and reports no flip (core/engine_core.py,
+        # where the state is saved).
+        prior_bias = prior_state.get("raw_bias")
+        if prior_bias and str(prior_bias) != raw_bias:
+            flags.append(f"Bias state changed from {prior_bias} to {raw_bias} since the last run.")
 
         # --- Always-on informational note (not a warning) ---
         if target_t1 and float(target_t1) > 0:

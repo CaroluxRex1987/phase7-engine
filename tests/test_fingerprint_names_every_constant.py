@@ -89,12 +89,34 @@ def test_every_numeric_constant_in_a_fingerprinted_module_is_listed():
     )
 
 
-def test_the_two_found_on_21_september_that_remain_are_recorded_with_their_values():
+def test_the_constants_the_class_still_holds_are_recorded_with_their_values():
+    """
+    THE REDESIGN'S STAGE 5, 15 November 2026. This was
+    test_the_two_found_on_21_september_that_remain_are_recorded_with_their_values,
+    and the two were AVG_REWARD_R (2.0) and EV_BREAKEVEN_BAND_R (0.3) --
+    found in finding 22's deferred read, added to FINGERPRINTED_MODULES that
+    day because the record could not otherwise say which value a run used.
+    Both set the illustrative EV sentence, which is gone (ruling 6,
+    25 October 2026), and BTC_STRESS_PENALTY, the third of the three, left
+    with N5 on 9 October. None of finding 22's three is left.
+
+    The two the class holds now are gate 9's tier lines, and the property is
+    the same: each is recorded with the value the class actually holds, so
+    the record can say which line a run was judged against.
+    """
     from core import decision_log
+    from models.decision_model import DecisionModel
 
     snap = decision_log.module_snapshot()["models.decision_model"]
-    assert snap["DecisionModel.AVG_REWARD_R"] == 2.0
-    assert snap["DecisionModel.EV_BREAKEVEN_BAND_R"] == 0.3
+    assert snap["DecisionModel.UPPER_TIER_ENTRY_QUALITY_MIN"] == 70.0
+    assert snap["DecisionModel.CONSERVATIVE_ENTRY_QUALITY_MIN"] == 50.0
+    assert snap["DecisionModel.UPPER_TIER_ENTRY_QUALITY_MIN"] == (
+        DecisionModel.UPPER_TIER_ENTRY_QUALITY_MIN)
+    assert snap["DecisionModel.CONSERVATIVE_ENTRY_QUALITY_MIN"] == (
+        DecisionModel.CONSERVATIVE_ENTRY_QUALITY_MIN)
+    for gone in ("AVG_REWARD_R", "EV_BREAKEVEN_BAND_R",
+                 "DEGRADED_CONFIDENCE_CEILING"):
+        assert f"DecisionModel.{gone}" not in snap, gone
 
 
 def test_the_scan_sees_class_constants_and_skips_sentinels():
@@ -105,8 +127,16 @@ def test_the_scan_sees_class_constants_and_skips_sentinels():
     from models import btc_context, decision_model
 
     found = _named_constants(decision_model)
-    assert "MIN_ACTION_BIAS" in found
-    assert "DecisionModel.DEGRADED_CONFIDENCE_CEILING" in found
+    # THE REDESIGN'S STAGE 2, 14 November 2026: "MIN_ACTION_BIAS" was
+    # asserted found here, the module's one module-level knob. It left the
+    # code with the weighted sum's floor. The module-level half of this
+    # control now reads models.risk_model, below.
+    assert "MIN_ACTION_BIAS" not in found
+    # Stage 5, 15 November 2026: DEGRADED_CONFIDENCE_CEILING was the class
+    # constant this control read; it left with the cap it set.
+    assert "DecisionModel.CONSERVATIVE_ENTRY_QUALITY_MIN" in found
     assert "DecisionModel.SIGNAL_UNCONFIRMED" not in found   # a label
     assert "NOT_MEASURED" not in _named_constants(btc_context)  # NaN sentinel
     assert "CORRELATION_WINDOW" in _named_constants(btc_context)
+    from models import risk_model
+    assert "ATR_STOP_MULT" in _named_constants(risk_model)

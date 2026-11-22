@@ -65,26 +65,49 @@ NO_READING = ("ADX has no valid reading on this run, so the market cannot be "
 SIDES = (("LONG", "BULLISH TREND"), ("SHORT", "BEARISH TREND"))
 
 
+# The redesign's stage 3, 15 November 2026: the signal also reads the daily
+# trend (gate 6) and the candle's turnover (gate 7), and the trigger (gate 8)
+# follows it. Every test here gives a NEUTRAL daily trend, a turnover over
+# the floor and a trigger that holds, so ADX is still the one thing each
+# moves. Those gates' own cases are in tests/test_gates_6_to_8.py.
+PASSES = {"macro_bias": "NEUTRAL", "quote_volume": 50_000.0}
+TRIGGERED = {"trigger": True, "trigger_volume": 2.0, "trigger_volume_median": 1.0}
+
+
 def _blockers(side, structure, adx):
-    return signal_blockers(side, structure, False, "NONE", adx=adx)
+    return signal_blockers(side, structure, False, "NONE", adx=adx, **PASSES)
 
 
 def _signals(adx, structure="BULLISH TREND"):
     return generate_entry_signals(structure_regime=structure,
                                   momentum_divergence=False,
-                                  divergence_direction="NONE", adx=adx)
+                                  divergence_direction="NONE", adx=adx,
+                                  **PASSES)
 
 
 def _evaluate(signals, degradation=None):
-    """An AGGRESSIVE LONG on the ladder; the gate decides the rest."""
-    entry = {"score": 80.0, "entry_status": "ACTIVE ENTRY ZONE", **signals}
+    """
+    An AGGRESSIVE LONG when every gate passes; the signal gate decides the
+    rest.
+
+    Stage 4, 15 November 2026: the tier is gate 9's, and AGGRESSIVE reads
+    entry.close_inside_band rather than the STATUS word "ACTIVE ENTRY ZONE"
+    this record carried (Viktor's ruling of 7 November). The quality of 80
+    is over the upper tiers' line of 70.
+    """
+    entry = {"score": 80.0, "close_inside_band": True,
+             "entry_status": "INSIDE THE BAND", **TRIGGERED,
+             **signals}
     return DecisionModel().evaluate(
-        bias={"raw": "BULLISH", "score": 78.0},
-        trend={"trend_health": 90.0, "trend_direction_sign": 1,
-               "momentum_divergence": False},
+        # The redesign's stage 5, 15 November 2026: `trend` was the second
+        # positional parameter and is gone -- _compute_trade_quality was
+        # its last reader in the decision model. The `score` this bias
+        # dict carried and the `validation_state` in the risk dict are
+        # gone with it: neither is a field the engine writes now.
+        bias={"raw": "BULLISH"},
         entry=entry,
         risk={"risk_valid": True, "risk_reason": "OK",
-              "risk_regime": "NORMAL RISK", "validation_state": "NEUTRAL",
+              "risk_regime": "NORMAL RISK",
               "targets": [1.1, 1.2, 1.3]},
         degradation=degradation,
     )
@@ -165,19 +188,22 @@ def test_numpy_numbers_are_valid_readings():
 def test_a_call_in_the_shape_before_fix_2_is_refused():
     # Before fix 2 the flag was the third positional argument of five.
     with pytest.raises(TypeError):
-        signal_blockers("LONG", "BULLISH TREND", False, False, "NONE")
+        signal_blockers("LONG", "BULLISH TREND", False, False, "NONE", **PASSES)
     with pytest.raises(TypeError):
         generate_entry_signals(structure_regime="BULLISH TREND",
                                trend_exhaustion=False,
                                momentum_divergence=False,
-                               divergence_direction="NONE")
+                               divergence_direction="NONE", **PASSES)
     # And adx has no default: forgetting it is an error, not a reading.
+    # (Gates 6 and 7's inputs are given, so each TypeError here is ADX's.)
     with pytest.raises(TypeError):
-        signal_blockers("LONG", "BULLISH TREND", False, "NONE")
+        signal_blockers("LONG", "BULLISH TREND", False, "NONE", **PASSES)
     with pytest.raises(TypeError):
         generate_entry_signals(structure_regime="BULLISH TREND",
                                momentum_divergence=False,
-                               divergence_direction="NONE")
+                               divergence_direction="NONE", **PASSES)
+    # The control: with adx given too, the same calls are accepted.
+    signal_blockers("LONG", "BULLISH TREND", False, "NONE", adx=30.0, **PASSES)
 
 
 # ============================================================
@@ -215,7 +241,9 @@ def test_engine_core_hands_the_gate_adx_and_not_the_flag():
 def test_a_low_adx_refuses_a_trade_the_ladder_chose_and_says_why():
     out = _evaluate(_signals(15.0))
     assert out["final_action"] == UNCONFIRMED, out["explanation"]
-    reason = ("This would have been AGGRESSIVE LONG, but the bullish bias lacked "
+    # Stage 4: the refusal names no tier -- the tier is derived at gate 9,
+    # after this gate.
+    reason = ("No earlier gate refused the long, but the bullish bias lacks "
               f"structural confirmation (ADX is 15.0, {LOW}), so no trade is taken.")
     assert reason in out["explanation"]["reasons"]
     assert out["explanation"]["summary"] == f"{UNCONFIRMED} — {reason}"
@@ -268,12 +296,12 @@ def _run_pinned():
 def _run_pinned_with_trend_adx(value):
     """
     The pinned run, with the ADX in the pair's own trend-health result set to
-    `value`. engine_core calls compute_trend_health for the pair first and for
+    `value`. engine_core calls compute_trend_readings for the pair first and for
     BTC second; only the first call is changed. Restored in a finally.
     """
     import core.engine_core as ec
 
-    real = ec.compute_trend_health
+    real = ec.compute_trend_readings
     calls = {"n": 0}
 
     def first_call_patched(*a, **k):
@@ -284,10 +312,10 @@ def _run_pinned_with_trend_adx(value):
         return out
 
     try:
-        ec.compute_trend_health = first_call_patched
+        ec.compute_trend_readings = first_call_patched
         return _run_pinned()
     finally:
-        ec.compute_trend_health = real
+        ec.compute_trend_readings = real
 
 
 def _run_pinned_with_adx_broken():
@@ -312,7 +340,16 @@ def test_on_the_engine_path_a_low_adx_refuses_the_pinned_long():
     assert adx >= MIN_TREND_ADX, (
         f"the pinned fixture's ADX is {adx}; the control needs a trending one")
     assert control["entry"]["long_signal"] is True, control["entry"]
-    assert control["exit"]["action"].endswith("LONG"), control["exit"]["action"]
+    # Until the redesign's stage 3 the control was a CONSERVATIVE LONG. The
+    # pinned decision candle is not a resumption candle, so gate 8 now makes
+    # it a WAIT -- after the signal confirmed the long, which is what this
+    # control is for: the low ADX below is refused by the signal, the gate
+    # before the trigger, and takes the signal's label, not the WAIT.
+    assert control["exit"]["action"] == "WAIT", control["exit"]["action"]
+    assert any(r.startswith("Structural confirmation holds for the long")
+               for r in control["explanation"]["reasons"]), control["explanation"]
+    assert "no resumption candle yet" in control["explanation"]["summary"], (
+        control["explanation"])
 
     low = _run_pinned_with_trend_adx(15.0)
     for side in ("long", "short"):

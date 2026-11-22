@@ -3,464 +3,269 @@ import numbers
 from decimal import Decimal, ROUND_FLOOR
 
 import numpy as np
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Tuple
 
-# AUDIT FINDING (4), 5 September 2026. What a sub-score is worth when the
-# thing it scores could not be measured.
+from core.threshold_text import compared_value_text
+
+# THE REDESIGN'S STAGE 4, 15 November 2026. Entry quality is D + H
+# (docs/redesign_entry53_draft.md, section 3.1; the design was approved as a
+# whole on 12 November, the tier lines ruled on 11 November, and the
+# structure multiplier ruled out on 7 November).
 #
-# Named rather than written as a bare 15.0 in four places, because this is a
-# policy and it should be possible to find every application of it. The policy
-# is this file's own, established by Finding 3 on 1 September: a missing input
-# leaves its component at a neutral value and does NOT lower the score by
-# itself. Lowering conviction is the degraded-run flag's job -- engine_core
-# records the missing input, and a run carrying degraded inputs cannot
-# authorise a trade regardless of what it scored. Scoring the absence twice
-# would make a degraded run look like a bad setup instead of an unmeasured one.
+# WHAT STOOD HERE UNTIL THIS STAGE, AND WHY NONE OF IT IS LEFT.
 #
-# Both are the midpoint of their component's reachable range, so neither can
-# be mistaken for one of the bands below it.
-ZONE_POINTS_NOT_MEASURED = 15.0     # of 30
-ATR_POINTS_NOT_MEASURED = 15.0      # of 25
-
-
-# 5 September 2026, the "entry sub-scores do not sum to the printed total"
-# observation. The five component maxima, declared once.
+#     ZONE_POINTS_NOT_MEASURED = 15.0   of 30
+#     ATR_POINTS_NOT_MEASURED  = 15.0   of 25
 #
-# They were literals in three places: the band values in this function, the
-# "/30 /25 /20 /15 /12" denominators in panel_render.py, and the docstring.
-# Three copies of one fact, which is the defect this project has now recorded
-# four times. Each constant is used to award its own component's top band, so
-# changing one changes the engine rather than only the label.
-EMA_ZONE_MAX_POINTS = 30.0
-ATR_DISTANCE_MAX_POINTS = 25.0
-VWMA_MAX_POINTS = 20.0
-RSI_MAX_POINTS = 15.0
-STRUCTURE_MAX_POINTS = 12.0
+# were this file's own policy, established by Finding 3 on 1 September: a
+# missing input left its component at the midpoint of its range and did not
+# lower the score by itself, because carrying the absence was the degraded
+# flag's job. The redesign does not score an absence at all. A part whose
+# input is missing is NOT MEASURED, entry quality is not computed, and the
+# run is degraded (section 3.1, "it is not given a neutral value"). So both
+# constants go, and so do the VWMA 15.0, RSI 10.0 and structure 6.0 defaults
+# that were written inline beside them -- the same fabrication shape without
+# a name.
+#
+#     EMA_ZONE_MAX_POINTS = 30.0   ATR_DISTANCE_MAX_POINTS = 25.0
+#     VWMA_MAX_POINTS     = 20.0   RSI_MAX_POINTS          = 15.0
+#     STRUCTURE_MAX_POINTS = 12.0  COMPONENT_MAX_POINTS    = 102.0
+#
+# were the five parts' maxima and their sum. Four of the five parts leave
+# with the design (section 3.2): VWMA, RSI and the HVN's percent bands are
+# not the hypothesis the redesign tests, and the EMA-zone part's own band
+# widths of 1, 2 and 3.5 were set by no ruling. Distance survives, as D,
+# measured in ATRs instead of in band widths.
+#
+#     SCORE_CEILING = 100.0
+#     CONFLUENCE_BOOST_MULT = 1.05   CONFLUENCE_PENALTY_MULT = 0.90
+#
+# were the clip and the two values the three confluence multipliers took.
+# Viktor ruled the structure multiplier out on 7 November (DECISIONS,
+# "Ruling, 7 November 2026 -- the redesign's entry quality has no structure
+# multiplier"); macro's and trend's went with the factors they counted a
+# second time (section 3.3). D + H reaches 100 exactly, so there is nothing
+# left to clip.
+#
+# THE FOUR THAT REPLACE THEM. D is the close's distance from the midpoint of
+# the EMA band, counted in ATRs; H is its distance from the HVN, in the same
+# unit, so the two parts read in ONE unit (section 3.1). Both are straight
+# lines rather than the old exp(-0.5 x ratio) decay, so every point on the
+# panel can be checked by hand and the line reaches zero at a stated
+# distance instead of never.
+#
+#     D = DISTANCE_MAX_POINTS x max(0, 1 - d / DISTANCE_ZERO_ATR)
+#     H = HVN_MAX_POINTS      x max(0, 1 - h / HVN_ZERO_ATR)
+#
+# 80 and 20, not an even split: the hypothesis is a pullback to the average
+# (ruling 1), so the distance is the question and the HVN is supporting
+# evidence that a level is there. Keeping the HVN part at 20 also limits what
+# H5 can move (section 8).
+#
+# Each of the four is registered in core/decision_log.py's
+# FINGERPRINTED_MODULES, like every other constant that decides which runs
+# may trade: each moves entry quality, and entry quality is the only input to
+# the tier (ruling 4).
+DISTANCE_MAX_POINTS = 80.0
+DISTANCE_ZERO_ATR = 3.0
+HVN_MAX_POINTS = 20.0
+HVN_ZERO_ATR = 2.0
 
-# 102, not 100. The docstring below said "Max points: 100" while listing five
-# components that add to 102, and the final clip to 100 hid the discrepancy.
-# Summed rather than written out, so it cannot disagree with the five above.
-COMPONENT_MAX_POINTS = (EMA_ZONE_MAX_POINTS + ATR_DISTANCE_MAX_POINTS
-                        + VWMA_MAX_POINTS + RSI_MAX_POINTS
-                        + STRUCTURE_MAX_POINTS)
 
-# The ceiling the final score is clipped to, after the confluence multipliers.
-# With all three multipliers at their maximum a perfect setup reaches
-# 102 x 1.05^3 = 118.08, so this clip discards real headroom on the best
-# setups. That is a deliberate choice -- the score is presented out of 100 --
-# but it was invisible, so the result now carries score_clipped and the panel
-# says when it fired.
-SCORE_CEILING = 100.0
+def _finite(value: Any) -> Optional[float]:
+    """
+    `value` as a float when it is a real, finite number, and None when there
+    is no reading in it: a bool, anything that is not a number, NaN or an
+    infinity. Zero is a reading, and so is a negative number -- the callers
+    that need a positive one say so themselves.
 
-# ROUND 6 (Meta Muse Spark 1.3), F1 -- T2-4 Explicit Configuration, Moderate.
-# The confluence ladder below applied bare 1.05 / 0.90 literals six times,
-# with no name at module scope -- decision_log.module_snapshot() cannot see a
-# constant that was never bound to a name, so a run that used 0.90 and a run
-# that used 0.85 were indistinguishable in the record even though every entry
-# score, and possibly AGGRESSIVE eligibility, differs between them. RULED,
-# 13 September 2026: fix. Two named constants replace all six literals --
-# one boost, one penalty, shared by all three ladders (macro, trend,
-# structure) exactly as the six unnamed literals were. Registered in
-# core/decision_log.py's FINGERPRINTED_MODULES alongside this module's other
-# scoring constants. Values unchanged -- this names what was already there,
-# it does not change what any run decides.
-CONFLUENCE_BOOST_MULT = 1.05
-CONFLUENCE_PENALTY_MULT = 0.90
+    _measured_amount below is the same idea for a volume or a turnover,
+    where a negative amount is not a reading either; the two are kept apart
+    so neither has to carry the other's rule.
+    """
+    if isinstance(value, bool) or not isinstance(value, numbers.Real):
+        return None
+    number = float(value)
+    return number if math.isfinite(number) else None
+
+
+def _reading(df: Any, column: str) -> Optional[float]:
+    """
+    The decision candle's value in `column` -- the frame's last row, which
+    the fetcher has already reduced to the latest CLOSED candle (finding 16)
+    -- or None when there is no reading there.
+    """
+    try:
+        if column not in df.columns or df[column].empty:
+            return None
+        return _finite(df[column].iloc[-1])
+    except (AttributeError, IndexError, KeyError, TypeError, ValueError):
+        return None
 
 def calculate_entry_quality(
     df: Optional[Any],
     zone_lower: float,
     zone_upper: float,
-    macro_bias: str = "NEUTRAL",
-    trade_direction: str = "LONG",
-    trend_direction: str = "NEUTRAL",
-    structure_sequence: str = "NONE",
 ) -> Dict[str, Any]:
     """
-    Calculates real, quantitative sub-scores and total score for entry quality,
-    fully integrated with Macro Trend Confluence and comprehensive NaN handling.
+    Entry quality: D + H, from 0 to 100, with no multiplier and no clip.
 
-    - EMA Zone Position : 30 pts
-    - ATR Distance      : 25 pts
-    - VWMA Distance     : 20 pts
-    - RSI Extension     : 15 pts
-    - Structure         : 12 pts
-                          ------
-    subtotal              102 pts, then x confluence, then clipped to 100
+    D, the distance part, is the close's distance from the midpoint of the
+    EMA band, counted in ATRs:
 
-    5 SEPTEMBER 2026. This said "Max points: 100" directly above five
-    components that add to 102, and the panel printed a total the five printed
-    sub-scores did not add up to. On the pinned fixture: 10 + 5 + 10 + 10 + 4
-    = 39 printed under a total of 45.18. Not wrong -- unexplained, which for a
-    number an operator is meant to act on is its own defect.
+        d = |close - band_mid| / ATR
+        D = DISTANCE_MAX_POINTS x max(0, 1 - d / DISTANCE_ZERO_ATR)
 
-    Three things made up the gap and none of them was on the panel:
+    H, the HVN part, is its distance from the high-volume node, in the same
+    unit:
 
-      1. The sub-scores were rounded to whole numbers for display while the
-         total was computed from the unrounded values. ATR distance was
-         5.0297, printed as 5.
-      2. Three confluence multipliers (macro, trend, structure) are applied
-         AFTER the sum, each 0.90, 1.00 or 1.05. On that run all three were
-         1.05, so the subtotal of 39.03 became 45.18.
-      3. The result is clipped to 100, and the components plus the maximum
-         multipliers reach 118.08, so the clip is not decorative.
+        h = |close - HVN| / ATR
+        H = HVN_MAX_POINTS x max(0, 1 - h / HVN_ZERO_ATR)
 
-    The sub-scores are returned unrounded, so they sum to base_score exactly,
-    and base_score, the three multipliers, their product and score_clipped are
-    all returned and printed. The arithmetic now reconciles on the panel.
-    (Macro alignment, trend direction, and structure sequence each act as a
-    small multiplier/adjuster -- see section 6 below. Roadmap Layer 5: this
-    was previously just the single macro multiplier; trend_direction and
-    structure_sequence are new inputs, using signals that already existed
-    elsewhere in the engine (trend_health.py's new trend_direction field,
-    structure.py's B2 sequence detection) but weren't yet factored into
-    entry quality itself.)
+    Full points at the band's middle, nothing at DISTANCE_ZERO_ATR and
+    beyond, and the same shape for H. The design, and why 80 and 20 rather
+    than an even split, are above the four constants and in
+    docs/redesign_entry53_draft.md, section 3.1.
+
+    NOT MEASURED, AND WHY IT IS NOT A ZERO. If the close, the band, the ATR
+    or the HVN cannot be read, the part that needed it is NOT MEASURED and
+    entry quality is not computed: `score` is None, and so is each part that
+    could not be read. `not_measured` names what was missing, and
+    core/engine_core.py appends it to the run's degradation; gate 9 reads an
+    absent score as a WAIT with a sentence of its own
+    (models/decision_model.py, _apply_quality_gate), never as a quality of
+    zero. Until this stage a missing input took the midpoint of its
+    component's range -- 15 of 30 for the band, 15 of 25 for the ATR
+    distance, 15 of 20 for VWMA, 10 of 15 for RSI, 6 of 12 for the HVN -- on
+    the policy of 1 September that the degraded flag and not the score
+    carries the absence. The redesign's rule of 29 August is the other way
+    round: a number nobody measured is not reported as a number.
+
+    The band's own absence is NOT named here. core/engine_core.py computes
+    the band from EMA_20 and EMA_50 and can say which of the two was
+    missing, so it names it there; naming it twice would put one missing
+    input in the record under two descriptions.
+
+    STATUS IS A POSITION, NOT A DISTANCE. The close is INSIDE THE BAND when
+    it lies between EMA_20 and EMA_50 with the ends included, and ABOVE or
+    BELOW it otherwise. `close_inside_band` is that same fact as a
+    true-or-false field, and it is what the AGGRESSIVE tier reads
+    (models/decision_model.py), so a change to a panel word cannot change an
+    action and the word on the panel cannot disagree with the tier (section
+    3.1, proposal 1, under Viktor's ruling of 7 November 2026 that the
+    redesign's AGGRESSIVE reads the close inside the band). The words NEAR
+    ZONE, APPROACHING ZONE, AWAY FROM ZONE and ZONE HAS NO WIDTH go with the
+    band widths of 1, 2 and 3.5 that set them, which no ruling did; ZONE NOT
+    AVAILABLE and NO DATA stay. Two coincident averages are still a band a
+    close has a position against, which is why ZONE HAS NO WIDTH is not
+    needed: the close is inside it, above it or below it as before.
+
+    `distance_from_zone` keeps its key and its definition -- the same
+    distance as a percentage of the close (round 8, F5) -- and
+    `distance_atr` is that distance in ATRs. One measurement under two
+    names, each name saying its unit (F8), and neither decides anything on
+    its own.
     """
-    default_response = {
-        "score": 0.0,
-        "ema_pos_pts": 0,
-        "atr_dist_pts": 0,
-        "vwma_pts": 0,
-        "rsi_pts": 0,
-        "struct_pts": 0,
-        "entry_status": "NO DATA",
-        "base_score": 0.0,
-        "component_max_points": float(COMPONENT_MAX_POINTS),
-        "macro_multiplier": 1.0,
-        "trend_multiplier": 1.0,
-        "structure_multiplier": 1.0,
-        "combined_multiplier": 1.0,
-        "scaled_score": 0.0,
-        "score_ceiling": float(SCORE_CEILING),
-        "score_clipped": False,
-        # AUDIT FINDING (4), 5 September 2026: this was 0.0, which the panel
-        # printed as "0.00% away from zone" -- price sitting exactly on a zone
-        # that does not exist, on a run that had no data at all. NaN is how
-        # this engine spells "not located"; panel_render prints it as such.
-        "distance_from_zone": float("nan")
-    }
+    not_measured: List[str] = []
+
+    def unmeasured(status: str) -> Dict[str, Any]:
+        return {
+            "score": None,
+            "distance_atr": None,
+            "distance_pts": None,
+            "hvn_distance_atr": None,
+            "hvn_pts": None,
+            "entry_status": str(status),
+            "close_inside_band": None,
+            # AUDIT FINDING (4), 5 September 2026: this was 0.0, which the
+            # panel printed as "0.00% away from zone" -- price sitting
+            # exactly on a zone that does not exist, on a run that had no
+            # data at all. NaN is how this engine spells "not located" for
+            # this field and panel_render prints it as such; the key, the
+            # definition and the spelling are unchanged by this stage.
+            "distance_from_zone": float("nan"),
+            "not_measured": not_measured,
+        }
 
     if df is None or getattr(df, "empty", True):
-        return default_response
+        not_measured.append("the decision frame (it has no rows to read)")
+        return unmeasured("NO DATA")
 
-    # Validate and clean inputs
-    def safe_float(value: Any, fallback: float) -> float:
-        """Safely extract float value with fallback."""
-        try:
-            if value is None or not np.isfinite(value):
-                return fallback
-            return float(value)
-        except (ValueError, TypeError):
-            return fallback
+    # AUDIT FINDING (4), 5 September 2026: the close fell back to 1.0, and
+    # every distance, ratio and percentage below was measured against it.
+    close = _reading(df, "close")
+    if close is None or close <= 0.0:
+        not_measured.append("close (the decision candle's close price)")
+        return unmeasured("NO DATA")
 
-    # AUDIT FINDING (4), 5 September 2026. These three lines were:
-    #
-    #     close      = safe_float(..., 1.0)
-    #     zone_lower = safe_float(zone_lower, close * 0.99)
-    #     zone_upper = safe_float(zone_upper, close * 1.01)
-    #
-    # Three fabrications in three lines, and the worst of them is the first: a
-    # close price that could not be read became $1.00, and every distance,
-    # ratio and percentage below is measured against it.
-    #
-    # The zone pair is the finding proper. A missing zone became a band one
-    # percent either side of the last price -- a number with no relationship
-    # to this instrument, to its EMAs, or to anything that was measured. It
-    # then scored the 30-point EMA position component AND, through
-    # dist_to_mid, the 25-point ATR distance component: 55 of 100 derived from
-    # a constant. engine_core supplied the same fabrication from the other
-    # side, which is why this took two files to fix.
-    close = safe_float(
-        df["close"].iloc[-1]
-        if "close" in df.columns and not df["close"].empty else None,
-        float("nan"))
+    lower = _finite(zone_lower)
+    upper = _finite(zone_upper)
+    band_available = lower is not None and upper is not None
+    if band_available and lower > upper:
+        # Kept as a guard even though engine_core orders them before
+        # calling: this function is public and takes the two bounds as
+        # separate arguments, so it cannot assume its caller did.
+        lower, upper = upper, lower
 
-    if not np.isfinite(close) or close <= 0:
-        # No price, no distances, no percentages. This is what
-        # default_response exists for, and it was being bypassed by the 1.0.
-        return dict(default_response)
-
-    zone_lower = safe_float(zone_lower, float("nan"))
-    zone_upper = safe_float(zone_upper, float("nan"))
-    zone_available = bool(np.isfinite(zone_lower) and np.isfinite(zone_upper))
-
-    # Ensure zone bounds are logical. Kept as a guard even though engine_core
-    # now orders them before calling: this function is public and takes the
-    # two bounds as separate arguments, so it cannot assume its caller did.
-    if zone_available and zone_lower > zone_upper:
-        zone_lower, zone_upper = zone_upper, zone_lower
-
-    # ============================================================
-    # 1. EMA ZONE POSITION SCORING (Max 30)
-    # ============================================================
-    if not zone_available:
-        # dist_to_mid is what section 2 measures the ATR distance with, so an
-        # absent zone neutralises that component too. Set to NaN here and
-        # handled there; a number would be a distance from a zone that was
-        # never located.
-        dist_to_mid = float("nan")
-        ema_pos_pts = ZONE_POINTS_NOT_MEASURED
-        entry_status = "ZONE NOT AVAILABLE"
-        distance_from_zone = float("nan")
-    else:
-        zone_mid = (zone_lower + zone_upper) / 2.0
-        zone_width = abs(zone_upper - zone_lower)
-        dist_to_mid = abs(close - zone_mid)
-        # distance_from_zone's definition (round 8, F5, 10 October 2026): the
-        # distance from the band's MIDPOINT, as a percentage of the close --
-        # not from the band's nearer edge, and not zero inside the band. The
-        # panel labels it so ("from the band's midpoint").
+    if band_available:
+        band_mid = (lower + upper) / 2.0
+        dist_to_mid = abs(close - band_mid)
         distance_from_zone = float((dist_to_mid / close) * 100.0)
-
-        if zone_width <= 1e-8:
-            # AUDIT FINDING (4), the third fabrication: this line was
-            #     zone_width = close * 0.01   # Default to 1% of current price
-            # A zero-width zone is a REAL state -- the two EMAs have crossed
-            # and coincide -- and one percent of price is not a measurement of
-            # it. Substituting a width also silently re-scaled all three bands
-            # below, which are multiples of that width.
-            #
-            # There is no proportional band to place price in when the zone has
-            # no width, so the component is not scored. Whether a coincident
-            # pair of EMAs should instead be banded on distance as a
-            # PERCENTAGE of price is a design question, not a defect, and is
-            # left open rather than decided here. distance_from_zone above is
-            # still real and still printed.
-            ema_pos_pts = ZONE_POINTS_NOT_MEASURED
-            entry_status = "ZONE HAS NO WIDTH"
-        elif dist_to_mid <= zone_width:
-            ema_pos_pts = EMA_ZONE_MAX_POINTS
-            entry_status = "ACTIVE ENTRY ZONE"
-        elif dist_to_mid <= zone_width * 2.0:
-            ema_pos_pts = 20
-            entry_status = "NEAR ZONE"
-        elif dist_to_mid <= zone_width * 3.5:
-            ema_pos_pts = 10
-            entry_status = "APPROACHING ZONE"
+        inside = bool(lower <= close <= upper)
+        if inside:
+            entry_status = "INSIDE THE BAND"
+        elif close > upper:
+            entry_status = "ABOVE THE BAND"
         else:
-            ema_pos_pts = 5
-            entry_status = "AWAY FROM ZONE"
-
-    # ============================================================
-    # 2. ATR DISTANCE SCORING (Max 25)
-    # ============================================================
-    # FINDING 3 RE-AUDIT, 1 September 2026: the fallback here was
-    # `close * 0.02` -- the same flat 2%-of-price constant sequence item 9a
-    # deleted from indicators.py, still living in the consumer that reads the
-    # column. On this repo's own pinned fixture the real ATR is 0.010554 and
-    # the fallback is 0.016035: a 52% overstatement of how much this
-    # instrument moves, fed straight into the ATR-distance score.
-    #
-    # A missing ATR now leaves atr_dist_pts at the same neutral default the
-    # unusable-ratio branches below already use, rather than scoring a
-    # distance measured against a number nobody computed. Same treatment VWMA
-    # got at item 3, twenty lines down.
-    atr = safe_float(df["ATR"].iloc[-1] if "ATR" in df.columns and not df["ATR"].empty else None,
-                     float("nan"))
-
-    # AUDIT FINDING (4): dist_to_mid is NaN when the zone could not be
-    # located, and this component measures a distance TO that zone. Without
-    # one there is nothing to divide by ATR. Previously unreachable, because
-    # the zone was always fabricated into existence above.
-    if np.isfinite(atr) and atr > 0 and np.isfinite(dist_to_mid):
-        try:
-            atr_ratio = dist_to_mid / atr
-            if np.isfinite(atr_ratio):
-                # Smooth exponential decay instead of hard thresholds
-                atr_dist_pts = float(ATR_DISTANCE_MAX_POINTS
-                                     * np.exp(-atr_ratio * 0.5))
-                atr_dist_pts = max(5.0, min(ATR_DISTANCE_MAX_POINTS,
-                                            atr_dist_pts))
-            else:
-                atr_dist_pts = ATR_POINTS_NOT_MEASURED
-        except (ZeroDivisionError, OverflowError):
-            atr_dist_pts = ATR_POINTS_NOT_MEASURED
+            entry_status = "BELOW THE BAND"
     else:
-        atr_dist_pts = ATR_POINTS_NOT_MEASURED
+        dist_to_mid = None
+        distance_from_zone = float("nan")
+        inside = None
+        entry_status = "ZONE NOT AVAILABLE"
 
-    # ============================================================
-    # 3. VWMA DISTANCE SCORING (Max 20)
-    # ============================================================
-    vwma_pts = 15.0  # Default score
-    if "VWMA" in df.columns and not df["VWMA"].empty:
-        # ITEM 3 RE-AUDIT (Finding 1): this used
-        #     vwma = safe_float(df["VWMA"].iloc[-1], close)
-        # -- close as the fallback whenever the last VWMA value was NaN.
-        # indicators.py now leaves VWMA as NaN for exactly the windows with no
-        # usable volume measurement (all-zero or invalid volume_sum), rather
-        # than fabricating a close-price substitute -- see
-        # indicators/indicators.py's VWMA block. This was the second half of
-        # the same defect: even a genuinely-missing VWMA reached here and was
-        # quietly replaced by `close`, making `vwma_diff` exactly zero and
-        # awarding the full 20 points for a distance that was never measured.
-        # "Fix the helper, not just the branch" -- the source stopped
-        # fabricating a value, and this consumer was the branch still reading
-        # one.
-        #
-        # A missing VWMA now leaves vwma_pts at its neutral default above,
-        # the same treatment the column-absent case already got two lines up.
-        vwma_raw = df["VWMA"].iloc[-1]
-        if np.isfinite(vwma_raw) and close > 0:
-            vwma = float(vwma_raw)
-            try:
-                vwma_diff = abs(close - vwma) / close
-                if np.isfinite(vwma_diff):
-                    if vwma_diff < 0.01:
-                        vwma_pts = VWMA_MAX_POINTS
-                    elif vwma_diff < 0.025:
-                        vwma_pts = 15.0
-                    elif vwma_diff < 0.05:
-                        vwma_pts = 10.0
-                    else:
-                        vwma_pts = 5.0
-            except (ZeroDivisionError, OverflowError):
-                vwma_pts = 15.0
+    atr = _reading(df, "ATR")
+    if atr is not None and atr <= 0.0:
+        # A zero or negative ATR is not a unit to count a distance in.
+        atr = None
+    if atr is None:
+        not_measured.append(
+            "ATR (entry quality counts both of its distances in ATRs)")
 
-    # ============================================================
-    # 4. RSI EXTENSION SCORING (Max 15)
-    # ============================================================
-    rsi_pts = 10.0  # Default score
-    if "RSI" in df.columns and not df["RSI"].empty:
-        # FINDING 3 RE-AUDIT, 1 September 2026: the fallback was 50.0 -- the
-        # exact "perfectly balanced" constant sequence item 9a removed from
-        # indicators.py, and the worst possible choice here. 50 sits inside the
-        # 40-60 band, so a missing RSI scored the FULL 15 of 15: top marks for
-        # "not extended", awarded for a measurement that was never taken.
-        # indicators.py's own failure text for RSI tells the operator this
-        # "scores RSI extension at 0 of 15"; the code did the opposite.
-        #
-        # Now a missing RSI leaves rsi_pts at the neutral default set above,
-        # which is also what the column-absent case gets one line up.
-        rsi = safe_float(df["RSI"].iloc[-1], float("nan"))
+    hvn = _reading(df, "HVN")
+    if hvn is None:
+        not_measured.append(
+            "HVN (the high-volume node the HVN part measures against)")
 
-        if not np.isfinite(rsi):
-            pass  # neutral default stands; nothing was measured to score
-        elif 40.0 <= rsi <= 60.0:
-            rsi_pts = RSI_MAX_POINTS
-        elif 30.0 <= rsi < 40.0 or 60.0 < rsi <= 70.0:
-            rsi_pts = 10.0
-        else:
-            rsi_pts = 5.0
+    if dist_to_mid is None or atr is None:
+        distance_atr = None
+        distance_pts = None
+    else:
+        distance_atr = float(dist_to_mid / atr)
+        distance_pts = float(DISTANCE_MAX_POINTS
+                             * max(0.0, 1.0 - distance_atr / DISTANCE_ZERO_ATR))
 
-    # ============================================================
-    # 5. STRUCTURE PROXIMITY SCORING (Max 12)
-    # ============================================================
-    struct_pts = 6.0  # Default score
-    if "HVN" in df.columns and not df["HVN"].empty:
-        # FINDING 3 RE-AUDIT, 1 September 2026: the fallback was `close` --
-        # byte-for-byte the same defect item 3 fixed for VWMA forty lines up,
-        # sitting untouched next to it. close as the fallback makes
-        # `abs(close - hvn) / close` exactly zero, which lands in the
-        # `< 0.015` band and awards the FULL 12 of 12 structure points for a
-        # high-volume node that was never located.
-        #
-        # Item 3 fixed the instance it was looking at and left its twin. That
-        # is rule 22 of docs/PHASE7_DECISIONS.md's list ("Fixing the instance
-        # you found does not close the item"), applied to the item that wrote
-        # it. Cited here as rule 18 until 20 September 2026: the same commit
-        # that wrote this comment, 108cc9f, renumbered the list.
-        hvn = safe_float(df["HVN"].iloc[-1], float("nan"))
+    if hvn is None or atr is None:
+        hvn_distance_atr = None
+        hvn_pts = None
+    else:
+        hvn_distance_atr = float(abs(close - hvn) / atr)
+        hvn_pts = float(HVN_MAX_POINTS
+                        * max(0.0, 1.0 - hvn_distance_atr / HVN_ZERO_ATR))
 
-        if np.isfinite(hvn) and close > 0:
-            try:
-                hvn_dist = abs(close - hvn) / close
-                if np.isfinite(hvn_dist):
-                    if hvn_dist < 0.015:
-                        struct_pts = STRUCTURE_MAX_POINTS
-                    elif hvn_dist < 0.03:
-                        struct_pts = 8.0
-                    else:
-                        struct_pts = 4.0
-            except (ZeroDivisionError, OverflowError):
-                struct_pts = 6.0
+    score = (None if distance_pts is None or hvn_pts is None
+             else float(distance_pts + hvn_pts))
 
-    base_score = float(ema_pos_pts + atr_dist_pts + vwma_pts + rsi_pts + struct_pts)
-
-    # ============================================================
-    # 6. CONFLUENCE MULTIPLIERS & FINAL BOUNDS (Roadmap Layer 5)
-    # ============================================================
-    # Each multiplier is independently small (+-5-10%) and only nudges the
-    # score -- none of them can gate a trade on their own (generate_entry_signals
-    # already handles hard gating). Combined, they let entry quality reflect
-    # not just "is price near a good zone" but "does the broader context this
-    # trade would be entering into actually support this specific direction."
-    macro_multiplier = 1.0
-    if macro_bias == "BULLISH" and trade_direction == "LONG":
-        macro_multiplier = CONFLUENCE_BOOST_MULT
-    elif macro_bias == "BEARISH" and trade_direction == "SHORT":
-        macro_multiplier = CONFLUENCE_BOOST_MULT
-    elif macro_bias not in ["NEUTRAL", ""] and macro_bias != trade_direction:
-        macro_multiplier = CONFLUENCE_PENALTY_MULT
-
-    # Trend direction alignment: trend_health.py's EMA-slope-based direction
-    # label agreeing (or disagreeing) with the direction being scored here.
-    trend_multiplier = 1.0
-    if trade_direction == "LONG":
-        if trend_direction == "BULLISH":
-            trend_multiplier = CONFLUENCE_BOOST_MULT
-        elif trend_direction == "BEARISH":
-            trend_multiplier = CONFLUENCE_PENALTY_MULT
-    elif trade_direction == "SHORT":
-        if trend_direction == "BEARISH":
-            trend_multiplier = CONFLUENCE_BOOST_MULT
-        elif trend_direction == "BULLISH":
-            trend_multiplier = CONFLUENCE_PENALTY_MULT
-
-    # Structure sequence alignment: a BOS (continuation) in this trade's own
-    # direction is rewarded; a CHOCH (possible reversal) against this trade's
-    # direction is penalized. An established (non-BOS) swing sequence in this
-    # trade's direction, or "NONE"/anything else, is left neutral -- BOS is a
-    # stronger continuation signal than a plain swing sequence, so only BOS
-    # earns the reward tier here.
-    structure_multiplier = 1.0
-    if trade_direction == "LONG":
-        if structure_sequence == "BOS BULLISH (TREND CONTINUATION)":
-            structure_multiplier = CONFLUENCE_BOOST_MULT
-        elif structure_sequence == "CHOCH BEARISH (POSSIBLE REVERSAL)":
-            structure_multiplier = CONFLUENCE_PENALTY_MULT
-    elif trade_direction == "SHORT":
-        if structure_sequence == "BOS BEARISH (TREND CONTINUATION)":
-            structure_multiplier = CONFLUENCE_BOOST_MULT
-        elif structure_sequence == "CHOCH BULLISH (POSSIBLE REVERSAL)":
-            structure_multiplier = CONFLUENCE_PENALTY_MULT
-
-    combined_multiplier = macro_multiplier * trend_multiplier * structure_multiplier
-    scaled_score = base_score * combined_multiplier
-    total_score = float(min(SCORE_CEILING, max(0.0, scaled_score)))
-
-    # 5 September 2026: the five sub-scores were returned as int() and
-    # int(round()) while total_score was computed from the unrounded values,
-    # so the printed components could not add up to the printed total even
-    # before the multipliers were applied. ATR distance was the one that
-    # showed it -- 5.0297 printed as 5.
-    #
-    # Returned unrounded. They now sum to base_score exactly, and the panel
-    # formats them for display rather than the model rounding on its behalf.
-    # (The panel prints two decimals, so the displayed values can still differ
-    # from the displayed subtotal in the last digit by ordinary rounding; the
-    # exact values are here and in the decision log.)
     return {
-        "score": float(total_score),
-        "ema_pos_pts": float(ema_pos_pts),
-        "atr_dist_pts": float(atr_dist_pts),
-        "vwma_pts": float(vwma_pts),
-        "rsi_pts": float(rsi_pts),
-        "struct_pts": float(struct_pts),
-        "entry_status": str(entry_status),
-        "distance_from_zone": float(distance_from_zone),
-
-        # The reconciliation, so the panel does not have to reconstruct it and
-        # the decision log carries it. Every one of these was previously a
-        # local variable that vanished when the function returned.
-        "base_score": float(base_score),
-        "component_max_points": float(COMPONENT_MAX_POINTS),
-        "macro_multiplier": float(macro_multiplier),
-        "trend_multiplier": float(trend_multiplier),
-        "structure_multiplier": float(structure_multiplier),
-        "combined_multiplier": float(combined_multiplier),
-        "scaled_score": float(scaled_score),
-        "score_ceiling": float(SCORE_CEILING),
-        "score_clipped": bool(scaled_score > SCORE_CEILING or scaled_score < 0.0),
+        "score": score,
+        "distance_atr": distance_atr,
+        "distance_pts": distance_pts,
+        "hvn_distance_atr": hvn_distance_atr,
+        "hvn_pts": hvn_pts,
+        "entry_status": entry_status,
+        "close_inside_band": inside,
+        "distance_from_zone": distance_from_zone,
+        "not_measured": not_measured,
     }
 
 
@@ -564,13 +369,13 @@ def calculate_entry_quality(
 # about half of the bars with ADX under 20 and on none above. Both of its
 # clauses need ADX under 20, so every setup it blocked is still blocked.
 #
-# An ADX with no valid reading -- None (trend_health.py could not read it),
+# An ADX with no valid reading -- None (trend_readings.py could not read it),
 # NaN, an infinity, a bool, anything that is not a number, or a number
 # outside ADX's own 0-100 range -- blocks both sides too, with its own
 # reason. The ruling left this to the patch, failing safe: a reading that
 # does not exist cannot show a trend, so it cannot confirm one. The run
 # still completes and is recorded. In this engine such a run is already
-# degraded (trend_health.py names the missing ADX), and the gate runs before
+# degraded (trend_readings.py names the missing ADX), and the gate runs before
 # the degradation override, so when the ladder chose a side the label is
 # NO-TRADE (SIGNAL UNCONFIRMED) with the degradation notes appended to it --
 # the precedence work order F set -- where it was NO-TRADE (DEGRADED INPUT).
@@ -626,6 +431,116 @@ def _adx_text(adx: float) -> str:
                                                   rounding=ROUND_FLOOR))
 
 
+# THE REDESIGN'S STAGE 3, 15 November 2026: gates 6 and 7 of the draft's
+# ladder (docs/redesign_entry53_draft.md, section 4) join this list, so that
+# one place still names every reason a side is refused.
+#
+# GATE 6, Viktor's ruling of 25 October 2026, point 3: no LONG while the
+# daily trend is bearish. A NEUTRAL daily trend passes; SHORT is not gated by
+# macro. It is written in one vocabulary, side LONG against macro BEARISH,
+# because entry 14's defect was a comparison of macro's words with the
+# trade's. A macro value outside BULLISH, BEARISH and NEUTRAL is not a
+# reading: it is neither passed nor called bearish (below).
+#
+# GATE 7, his ruling of 31 October 2026: the liquidity floor. The decision
+# candle's turnover in USDT, MEXC's quote_volume, must be at least
+# LIQUIDITY_FLOOR_USDT. 10,000 is his ruling of 11 November 2026, a starting
+# value on the tunable list; it is the largest value of 1, 2, 5, 10, 20, 50 ...
+# at which no pair had more than 5% of its records under it in the reading of
+# 11 November. It applies to both sides.
+#
+# WHICH LABEL A REFUSED SIDE GETS. The draft's ladder takes the first gate,
+# in order, that fails: gates 3 to 5 are NO-TRADE (SIGNAL UNCONFIRMED), as
+# before; then gate 6, NO-TRADE (MACRO AGAINST); then gate 7, NO-TRADE (THIN
+# MARKET). The blocker list still carries every reason. A gate 6 or 7 that
+# could NOT BE MEASURED blocks the side too -- an absent confirmation is not
+# a confirmation -- and takes the label SIGNAL UNCONFIRMED, never MACRO
+# AGAINST or THIN MARKET: a market nobody measured is not given the label of
+# a thin one (the draft's section 5, version 1). In the engine such a run is
+# also degraded, named by core/engine_core.py.
+LIQUIDITY_FLOOR_USDT = 10000.0
+
+SIGNAL_UNCONFIRMED = "NO-TRADE (SIGNAL UNCONFIRMED)"
+MACRO_AGAINST = "NO-TRADE (MACRO AGAINST)"
+THIN_MARKET = "NO-TRADE (THIN MARKET)"
+REFUSAL_LABELS = (SIGNAL_UNCONFIRMED, MACRO_AGAINST, THIN_MARKET)
+
+MACRO_READINGS = ("BULLISH", "BEARISH", "NEUTRAL")
+
+
+def _measured_amount(value: Any) -> Optional[float]:
+    """
+    A volume or a turnover as a float, or None when there is no valid
+    reading: a bool, anything that is not a number, NaN, an infinity or a
+    negative amount. Zero is a reading.
+    """
+    if isinstance(value, bool) or not isinstance(value, numbers.Real):
+        return None
+    amount = float(value)
+    if not math.isfinite(amount) or amount < 0.0:
+        return None
+    return amount
+
+
+def exact_text(value: float) -> str:
+    """A number as recorded: its shortest decimal form, with no rounding."""
+    return f"{Decimal(repr(float(value))):f}"
+
+
+def _signal_refusals(
+    direction: str,
+    structure_regime: str,
+    momentum_divergence: bool,
+    divergence_direction: str,
+    *,
+    adx: Any,
+    macro_bias: Any,
+    quote_volume: Any,
+) -> List[Tuple[str, str]]:
+    """
+    Every reason the setup does not confirm `direction`, in gate order, each
+    with the label that gate gives a refused trade. signal_blockers() is the
+    reasons; generate_entry_signals() also records the first one's label.
+    """
+    if direction not in ("LONG", "SHORT"):
+        raise ValueError(f"direction must be LONG or SHORT, got {direction!r}")
+
+    refusals = [(SIGNAL_UNCONFIRMED, reason) for reason in _confirmation_blockers(
+        direction, structure_regime, momentum_divergence, divergence_direction,
+        adx=adx)]
+
+    # Gate 6.
+    if direction == "LONG":
+        if not isinstance(macro_bias, str) or macro_bias not in MACRO_READINGS:
+            refusals.append((
+                SIGNAL_UNCONFIRMED,
+                f"the daily trend was recorded as {macro_bias!r}, which is "
+                "not BULLISH, BEARISH or NEUTRAL, so it cannot be shown not "
+                "to be bearish"))
+        elif macro_bias == "BEARISH":
+            refusals.append((
+                MACRO_AGAINST,
+                "the daily trend is BEARISH, and no long is taken while the "
+                "daily trend is bearish"))
+
+    # Gate 7.
+    turnover = _measured_amount(quote_volume)
+    if turnover is None:
+        refusals.append((
+            SIGNAL_UNCONFIRMED,
+            "the decision candle's turnover in USDT has no valid reading on "
+            "this run, so the market cannot be shown to be liquid enough"))
+    elif turnover < LIQUIDITY_FLOOR_USDT:
+        refusals.append((
+            THIN_MARKET,
+            f"the decision candle's turnover was "
+            f"{compared_value_text(turnover, LIQUIDITY_FLOOR_USDT)} USDT, "
+            f"under the {LIQUIDITY_FLOOR_USDT:g} USDT the engine requires "
+            f"to treat the market as liquid enough"))
+
+    return refusals
+
+
 def signal_blockers(
     direction: str,
     structure_regime: str,
@@ -633,6 +548,8 @@ def signal_blockers(
     divergence_direction: str,
     *,
     adx: Any,
+    macro_bias: Any,
+    quote_volume: Any,
 ) -> List[str]:
     """
     Every reason the setup does NOT confirm a trade in `direction` ("LONG" or
@@ -641,10 +558,24 @@ def signal_blockers(
     `adx` is keyword-only and has no default (fix 2): a call in the shape
     before fix 2 -- the exhaustion flag third, five positional arguments --
     raises TypeError instead of binding the flag to another parameter.
+    `macro_bias` and `quote_volume` (stage 3 of the redesign, gates 6 and 7)
+    are keyword-only with no default for the same reason: a call that does
+    not give them is refused, not read as a market that passed both.
     """
-    if direction not in ("LONG", "SHORT"):
-        raise ValueError(f"direction must be LONG or SHORT, got {direction!r}")
+    return [reason for _, reason in _signal_refusals(
+        direction, structure_regime, momentum_divergence, divergence_direction,
+        adx=adx, macro_bias=macro_bias, quote_volume=quote_volume)]
 
+
+def _confirmation_blockers(
+    direction: str,
+    structure_regime: str,
+    momentum_divergence: bool,
+    divergence_direction: str,
+    *,
+    adx: Any,
+) -> List[str]:
+    """Gates 3 to 5: structure, ADX and the price/RSI disagreement."""
     wanted_structure = "BULLISH TREND" if direction == "LONG" else "BEARISH TREND"
     opposing = "BEARISH" if direction == "LONG" else "BULLISH"
     blockers: List[str] = []
@@ -664,7 +595,7 @@ def signal_blockers(
 
     # B4's LABELS, 14 October 2026: these sentences said "momentum
     # divergence", which reads as highs against highs. What
-    # indicators/trend_health.py compares is this candle's close and RSI
+    # indicators/trend_readings.py compares is this candle's close and RSI
     # with the close and RSI four candles back, so that is what they say.
     # The rule is unchanged (whether it should veto is Viktor's, not ruled).
     if momentum_divergence:
@@ -689,24 +620,126 @@ def generate_entry_signals(
     divergence_direction: str,
     *,
     adx: Any,
+    macro_bias: Any,
+    quote_volume: Any,
 ) -> Dict[str, Any]:
     """
     Both sides' confirmation signals and the reasons behind each.
 
     Returns long_signal / short_signal (True exactly when that side's blocker
-    list is empty) and long_signal_blockers / short_signal_blockers. Both
-    sides are recorded so the decision log shows why each was or was not
-    confirmed, not only the side that was traded.
+    list is empty), long_signal_blockers / short_signal_blockers, and, since
+    stage 3 of the redesign, long_signal_refusal / short_signal_refusal: the
+    NO-TRADE label of the first gate that side does not pass, None when it
+    passes them all. Both sides are recorded so the decision log shows why
+    each was or was not confirmed, not only the side that was traded.
     """
-    long_blockers = signal_blockers(
-        "LONG", structure_regime, momentum_divergence, divergence_direction,
-        adx=adx)
-    short_blockers = signal_blockers(
-        "SHORT", structure_regime, momentum_divergence, divergence_direction,
-        adx=adx)
+    out: Dict[str, Any] = {}
+    for key, direction in (("long", "LONG"), ("short", "SHORT")):
+        refusals = _signal_refusals(
+            direction, structure_regime, momentum_divergence,
+            divergence_direction, adx=adx, macro_bias=macro_bias,
+            quote_volume=quote_volume)
+        out[f"{key}_signal"] = not refusals
+        out[f"{key}_signal_blockers"] = [reason for _, reason in refusals]
+        out[f"{key}_signal_refusal"] = refusals[0][0] if refusals else None
+    return out
+
+
+# THE REDESIGN'S STAGE 3, 15 November 2026: gate 8, the trigger and its
+# volume (the draft's section 5).
+#
+# THE TRIGGER, Viktor's ruling of 11 November 2026: for a LONG, the decision
+# candle -- the last closed one -- closes above its open AND above the
+# previous candle's close; a SHORT is the mirror. A pullback that has not
+# turned yet is a WAIT.
+#
+# ITS VOLUME, his ruling of 31 October 2026: that candle's volume must be
+# strictly above the median of the TRIGGER_VOLUME_LOOKBACK candles before it.
+# The margin starts at zero. Twenty is a length, not a cutoff. Base-asset
+# volume, because it is compared with itself on one pair.
+#
+# NOT MEASURED IS NOT A READING (the draft's section 3.2, entry 19's lesson
+# carried forward): an absent or non-finite volume on the decision candle, or
+# fewer than twenty readable candles before it, leaves the median None and is
+# named in `not_measured`; it is never compared as though it were the median.
+# The same for a price that is not a finite number. core/engine_core.py
+# degrades the run on any name in that list.
+#
+# With no side -- a NEUTRAL direction -- there is no trigger to read, and
+# `trigger` is None with nothing named: the ladder has already returned WAIT
+# at gate 2. The two volumes are still recorded; they have no side.
+TRIGGER_VOLUME_LOOKBACK = 20
+
+
+def read_trigger(
+    side: Optional[str],
+    *,
+    open_price: Any,
+    close_price: Any,
+    previous_close: Any,
+    volume: Any,
+    previous_volumes: Any,
+) -> Dict[str, Any]:
+    """
+    Gate 8's readings on the decision candle.
+
+    `side` is "LONG", "SHORT" or None (no side). `previous_volumes` is the
+    volume of the candles before the decision candle, oldest first; the last
+    TRIGGER_VOLUME_LOOKBACK of them are read.
+
+    Returns `trigger` (True, False, or None when there is no side or a price
+    was not measured), `trigger_volume`, `trigger_volume_median` (each None
+    when not measured) and `not_measured`, the names of what could not be
+    read.
+    """
+    if side not in ("LONG", "SHORT", None):
+        raise ValueError(f"side must be LONG, SHORT or None, got {side!r}")
+
+    not_measured: List[str] = []
+
+    def price(value: Any, name: str) -> Optional[float]:
+        if (isinstance(value, bool) or not isinstance(value, numbers.Real)
+                or not math.isfinite(float(value))):
+            not_measured.append(name)
+            return None
+        return float(value)
+
+    opened = price(open_price, "the decision candle's open")
+    closed = price(close_price, "the decision candle's close")
+    before = price(previous_close, "the previous candle's close")
+
+    trigger: Optional[bool] = None
+    if side is not None and None not in (opened, closed, before):
+        if side == "LONG":
+            trigger = closed > opened and closed > before
+        else:
+            trigger = closed < opened and closed < before
+
+    trigger_volume = _measured_amount(volume)
+    if trigger_volume is None:
+        not_measured.append("the decision candle's volume")
+
+    try:
+        earlier = list(previous_volumes)
+    except TypeError:
+        earlier = []
+    window = [_measured_amount(v) for v in earlier[-TRIGGER_VOLUME_LOOKBACK:]]
+    median: Optional[float] = None
+    if len(window) == TRIGGER_VOLUME_LOOKBACK and None not in window:
+        ordered = sorted(window)
+        middle = TRIGGER_VOLUME_LOOKBACK // 2
+        if TRIGGER_VOLUME_LOOKBACK % 2:
+            median = ordered[middle]
+        else:
+            median = (ordered[middle - 1] + ordered[middle]) / 2.0
+    else:
+        not_measured.append(
+            f"the volume of the {TRIGGER_VOLUME_LOOKBACK} candles before "
+            f"the decision candle")
+
     return {
-        "long_signal": not long_blockers,
-        "short_signal": not short_blockers,
-        "long_signal_blockers": long_blockers,
-        "short_signal_blockers": short_blockers,
+        "trigger": trigger,
+        "trigger_volume": trigger_volume,
+        "trigger_volume_median": median,
+        "not_measured": not_measured,
     }

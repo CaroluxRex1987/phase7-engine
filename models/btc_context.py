@@ -11,7 +11,7 @@ from typing import Tuple
 # replaces or distorts it. This module only computes the relationship
 # metrics (correlation, beta, and a volatility-based stress classifier);
 # BTC's own bias/trend/regime reuses the exact same, already-tested
-# bias_engine.py / trend_health.py / structure.py functions engine_core.py
+# bias_engine.py / trend_readings.py / structure.py functions engine_core.py
 # already runs for AERO -- just called a second time on BTC's own data.
 #
 # N5, 9 October 2026: the BTC-Adjusted prediction itself -- DecisionModel's

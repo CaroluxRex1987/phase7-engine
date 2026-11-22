@@ -16,8 +16,11 @@ plan, because the risk check needs a stop.
 
 WHAT THESE TESTS HOLD
 1. Under a NEUTRAL bias: no STOP LOSS line, no TARGET line, no R:R anywhere,
-   and exactly one PLAN line naming the bias, its score and the threshold
-   (read from bias_engine, not written in).
+   and exactly one PLAN line naming the bias. It named the score and the
+   threshold until the redesign's stage 2, which made the side the
+   direction's; stage 5 (15 November 2026) removed the weighted sum
+   altogether, so there is no score for the line to name and none in the
+   record for these tests to set.
 2. Under a NEUTRAL bias the DECISION CLOSE line still prints the price, and
    does not call itself the plan's entry.
 3. Under a NEUTRAL bias the Exit Watch note naming Target 1 is not printed;
@@ -36,6 +39,19 @@ WHAT THESE TESTS HOLD
    and BEARISH.
 
 All fixture-free, so run_tests.py runs them too.
+
+THE REDESIGN'S STAGE 2, 14 November 2026. NEUTRAL no longer comes from the
+weighted sum (Viktor's ruling of 7 November 2026: the direction is EMA50's
+slope and the EMAs' order; NEUTRAL is the two disagreeing). So the PLAN line
+keeps the ruling's sentence and loses "(score X, inside +/-20)", which would
+now give a reason that is not the reason; point 1 above reads "naming the
+bias" and no more, and point 4 is held by the line not reading the score at
+all. Of the four tests on that parenthesis one is rewritten and three become
+one, which holds what they held that is still true: whatever the sum says,
+zero and not-computed included, the line is the same and no long is
+printed. The grid in point 7 still passes a score with every bias; nothing
+in the ladder reads it now, and it stays in the grid until stage 5 removes
+the score.
 """
 
 import copy
@@ -43,7 +59,6 @@ import itertools
 import math
 
 from core.panel_render import render_panel
-from models.bias_engine import RAW_BIAS_THRESHOLD
 from models.decision_model import DecisionModel
 from models.exit_model import TARGET1_NOTE_PREFIX
 
@@ -55,11 +70,16 @@ HVN_NOTE = ("Price is close to a high-volume node ($0.8010) -- a level where "
             "price has often reacted before.")
 
 
-def _decision(raw="NEUTRAL", score=7.25, exit_watch=None, bias=None):
+def _decision(raw="NEUTRAL", exit_watch=None, bias=None):
+    # Stage 5, 15 November 2026: this took a `score` and put it in the bias
+    # block. bias.score is gone from the record, so the parameter is gone
+    # too -- a panel test that sets a field the engine cannot write is
+    # testing a shape that does not occur.
     if bias is None:
-        bias = {"raw": raw, "detailed": raw, "score": score}
+        bias = {"raw": raw, "detailed": raw}
     return {
         "symbol": "TESTUSDT", "timeframe": "4h",
+        "macro_note": "The higher timeframe is neutral.",
         "bias": bias,
         "risk": {"atr_stop": 0.72, "targets": (0.85, 0.90, 0.95)},
         "exit": {"action": "WAIT", "current_price": 0.80},
@@ -72,8 +92,14 @@ def _lines(panel, prefix):
 
 
 def _exit_watch_section(panel):
+    # Stage 5, 15 November 2026: the end marker was "Validation Notes:",
+    # the section that printed the macro and volume notes at the foot of
+    # the panel. That section is gone -- the macro note is on the MACRO
+    # NOTE line near the top and the volume note went with
+    # volume_agreement -- so the Exit Watch block now runs up to the BTC
+    # section, which the panel prints on every run, available or not.
     start = panel.index("Exit Watch (advisory only")
-    end = panel.index("Validation Notes:")
+    end = panel.index("BTC Market Context")
     return panel[start:end]
 
 
@@ -92,26 +118,41 @@ def test_a_neutral_bias_prints_no_stop_no_targets_and_no_rr():
 
 
 def test_a_neutral_bias_prints_one_line_saying_why():
-    panel = render_panel(_decision(score=7.25))
+    panel = render_panel(_decision())
     plan = _lines(panel, "PLAN")
     assert len(plan) == 1, plan
     line = plan[0]
     assert "the bias is NEUTRAL" in line, line
-    assert "score +7.2" in line, line          # 7.25 to one decimal
-    assert f"inside ±{RAW_BIAS_THRESHOLD:.0f}" in line, line
     assert "no direction to measure a stop from" in line, line
+    # Stage 2: the weighted sum is not the reason, so it is not printed as
+    # it. Stage 5: there is no sum to print.
+    assert "score" not in line and "±" not in line, line
 
 
-def test_the_plan_line_prints_a_negative_score_with_its_sign():
-    line = _lines(render_panel(_decision(score=-17.8)), "PLAN")[0]
-    assert "score -17.8" in line, line
+def test_the_plan_line_reads_no_score_at_all():
+    """
+    Until stage 2 three tests stood here, on the score in the line: a
+    negative one printed with its sign, exactly 0 printed and no long drawn
+    (the finding's sharpest case), and a score not computed said so, not
+    "nan".
 
+    Stage 5, 15 November 2026: the sum is gone from the record, so the
+    question is no longer "which score does the line print" but "does the
+    line survive a bias block that carries no score at all, and print no
+    number". A stale bias block carrying one -- a record written before this
+    stage, or a hand-built one -- must change nothing either, which is the
+    second half.
+    """
+    want = _lines(render_panel(_decision()), "PLAN")
+    assert len(want) == 1, want
+    assert "nan" not in want[0].lower(), want
+    assert not any(ch.isdigit() for ch in want[0]), want
 
-def test_a_score_of_exactly_zero_prints_no_long():
-    """The finding's sharpest case: 0 printed a long-shaped plan."""
-    panel = render_panel(_decision(score=0.0))
-    assert _lines(panel, "STOP LOSS") == []
-    assert "score +0.0" in _lines(panel, "PLAN")[0]
+    for stale in (-17.8, 0.0, 100.0, NAN, None):
+        panel = render_panel(_decision(
+            bias={"raw": "NEUTRAL", "detailed": "NEUTRAL", "score": stale}))
+        assert _lines(panel, "PLAN") == want, (stale, _lines(panel, "PLAN"))
+        assert _lines(panel, "STOP LOSS") == [], stale
 
 
 def test_the_decision_close_is_printed_but_not_called_the_plans_entry():
@@ -135,12 +176,6 @@ def test_with_only_the_target_1_note_exit_watch_says_nothing_is_active():
     assert "No exit-watch flags are active right now." in section, section
 
 
-def test_a_neutral_score_not_computed_says_so():
-    line = _lines(render_panel(_decision(score=NAN)), "PLAN")[0]
-    assert "score not computed" in line, line
-    assert "nan" not in line.lower(), line
-
-
 def test_on_a_real_decision_object_the_real_target_1_note_is_withheld():
     """
     The golden decision object, as the engine built it, with only its bias
@@ -156,12 +191,18 @@ def test_on_a_real_decision_object_the_real_target_1_note_is_withheld():
     notes = [f for f in decision["exit_watch"] if "Target 1" in f]
     assert len(notes) == 1 and notes[0].startswith(TARGET1_NOTE_PREFIX), notes
 
-    as_built = render_panel(json.loads(json.dumps(decision)))
+    # Since the redesign's stage 3 (15 November 2026) the golden decision is
+    # a WAIT at gate 8, on which the panel withholds the note (B10). The
+    # control that the note prints at all is therefore made on the same
+    # record naming the side its plan is for.
+    trading = json.loads(json.dumps(decision))
+    assert trading["exit"]["action"] == "WAIT", trading["exit"]
+    trading["exit"]["action"] = "CONSERVATIVE LONG"
+    as_built = render_panel(trading)
     assert "Target 1" in _exit_watch_section(as_built)
     assert len(_lines(as_built, "STOP LOSS")) == 1
 
     decision["bias"]["raw"] = "NEUTRAL"
-    decision["bias"]["score"] = 12.0
     panel = render_panel(decision)
     assert _lines(panel, "STOP LOSS") == [] and _lines(panel, "TARGET") == []
     assert "Target 1" not in _exit_watch_section(panel)
@@ -174,7 +215,7 @@ def test_on_a_real_decision_object_the_real_target_1_note_is_withheld():
 
 def test_bullish_and_bearish_still_print_the_whole_plan():
     for raw in ("BULLISH", "BEARISH"):
-        panel = render_panel(_decision(raw=raw, score=55.0))
+        panel = render_panel(_decision(raw=raw))
         assert _lines(panel, "PLAN") == [], (raw, _lines(panel, "PLAN"))
         stop = _lines(panel, "STOP LOSS")
         targets = _lines(panel, "TARGET")
@@ -186,7 +227,7 @@ def test_bullish_and_bearish_still_print_the_whole_plan():
         # B10, 15 October 2026: the note waits for a trade, and this fixture's
         # action is WAIT, so the note is checked on the side's own trade; the
         # plan lines above still print on the WAIT, as finding 5 left them.
-        traded = _decision(raw=raw, score=55.0)
+        traded = _decision(raw=raw)
         traded["exit"]["action"] = "LONG" if raw == "BULLISH" else "SHORT"
         assert "Target 1 ($0.8500)" in _exit_watch_section(render_panel(traded)), raw
 
@@ -222,11 +263,22 @@ def test_rendering_leaves_the_plan_in_the_decision_object():
 # ============================================================
 
 def _grid_actions(raw):
-    scores = (-RAW_BIAS_THRESHOLD, -19.9, -5.0, 0.0, 5.0, 19.9, RAW_BIAS_THRESHOLD)
-    if raw == "BULLISH":
-        scores = (21.0, 55.0, 100.0)
-    elif raw == "BEARISH":
-        scores = (-21.0, -55.0, -100.0)
+    # THE REDESIGN'S STAGE 5, 15 November 2026. Three of the grid's nine
+    # dimensions are gone with the fields they set:
+    #
+    #   scores      seven values around +/-RAW_BIAS_THRESHOLD, read from
+    #               bias_engine so the grid could not drift from the
+    #               threshold. The sum and the threshold are gone, and
+    #               bias.raw alone says what the direction is.
+    #   health      six trend-health values. Trend health is gone.
+    #   validation  STRONG / NEUTRAL / WEAK. The validation state is gone.
+    #
+    # None of the three could change an action by the time this stage
+    # landed: stage 2 took the direction off the score, stage 4 took the
+    # tiers off trend health, and H1's branch -- the one reader of the
+    # validation state -- went with the ladder in stage 4. So the grid is a
+    # fifth of the size and covers the same inputs the ladder reads.
+    #
     # Both plan shapes, so that _refuse_incoherent_plan can never hide a side
     # the ladder chose behind NO-TRADE (PLAN CONTRADICTS ACTION).
     plans = (
@@ -240,26 +292,26 @@ def _grid_actions(raw):
     # ("BULLISH", "BEARISH", "NEUTRAL"), passed as macro_bias. evaluate() no
     # longer takes it, so the dimension is gone and the grid is a third the
     # size; no remaining input is affected.
-    for ((stop, targets), score, health, entry_score, status, risk_valid, regime,
-         validation, confirmed) in itertools.product(
+    for ((stop, targets), entry_score, status, risk_valid, regime,
+         confirmed) in itertools.product(
             plans,
-            scores,
-            (NAN, 0.0, 49.0, 50.0, 75.0, 100.0),
             (0.0, 69.0, 70.0, 100.0),
             ("ACTIVE ENTRY ZONE", "AWAY FROM ZONE"),
             (True, False),
             ("NORMAL RISK", "HIGH VOLATILITY RISK"),
-            ("STRONG", "NEUTRAL", "WEAK"),
             (True, False)):
         blockers = [] if confirmed else ["test blocker"]
         result = model.evaluate(
-            bias={"raw": raw, "score": score},
-            trend={"trend_health": health, "trend_direction_sign": 1},
+            bias={"raw": raw},
             entry={"score": entry_score, "entry_status": status,
                    "long_signal": confirmed, "long_signal_blockers": blockers,
-                   "short_signal": confirmed, "short_signal_blockers": list(blockers)},
+                   "short_signal": confirmed, "short_signal_blockers": list(blockers),
+                   # The redesign's stage 3, 15 November 2026: a trigger that
+                   # holds, so gate 8 is not what keeps a side out below.
+                   "trigger": True, "trigger_volume": 2.0,
+                   "trigger_volume_median": 1.0},
             risk={"risk_valid": risk_valid, "risk_reason": "test",
-                  "risk_regime": regime, "validation_state": validation,
+                  "risk_regime": regime,
                   "atr_stop": stop, "targets": targets},
         )
         actions.add(result["final_action"])
@@ -275,7 +327,7 @@ def test_a_neutral_bias_never_reaches_long_or_short():
     ladder's two answers that choose no side.
     """
     actions, calls = _grid_actions("NEUTRAL")
-    assert calls == 2 * 7 * 6 * 4 * 2 * 2 * 2 * 3 * 2, calls
+    assert calls == 2 * 4 * 2 * 2 * 2 * 2, calls
     assert actions == {"WAIT", "NO-TRADE (RISK TOO HIGH)"}, sorted(actions)
 
 

@@ -1,474 +1,51 @@
 import numpy as np
 
 # ============================================================
-# DYNAMIC BIAS ENGINE (Roadmap Layer 2: multi-factor weighted blend)
+# THE WEIGHTED SUM -- REMOVED at the redesign's stage 5, 15 November 2026
 # ============================================================
 #
-# Previously bias_score was built from only two real inputs (trend health
-# + continuation/reversal from B1). The roadmap specifies six weighted
-# factors -- structure regime, volume sentiment, and SuperTrend direction
-# were never wired in at all, even though engine_core.py already has all
-# of them available at the point it calls this function. Each factor is
-# scored on a consistent -100..+100 scale and combined as a straight
-# weighted sum (weights below sum to 1.00), so the -100..100 bias_score
-# contract everything downstream relies on (DecisionModel, entry_model,
-# bias_label -- BiasStateMachine until finding 18) is unchanged.
+# calculate_dynamic_bias stood here, with the six weights it blended
 #
-# ITEM 11 RE-AUDIT (Finding 4), dependency graph, made explicit rather than
-# left to be reconstructed. Six factors are combined below, and each is
-# meant to be genuinely independent of the other five:
+#     WEIGHT_TREND_HEALTH         = 0.30
+#     WEIGHT_STRUCTURE_REGIME     = 0.20
+#     WEIGHT_VOLUME_SENTIMENT     = 0.15
+#     WEIGHT_SUPERTREND_DIRECTION = 0.15
+#     WEIGHT_MACRO_BIAS           = 0.10
+#     WEIGHT_REVERSAL_CONTINUATION= 0.10
 #
-#   trend health (0.30)        <- indicators/trend_health.py's slope/ADX/RSI
-#                                  blend, unsigned magnitude
-#   structure regime (0.20)    <- structure.py's _detect_regime(): the gap
-#                                  between mean(close[-5:]) and
-#                                  mean(close[-15:]), with a dead band
-#                                  (no hysteresis -- round 8, F9(1)).
-#                                  Raw input: close. NOT the swing-based
-#                                  label -- see the correction below.
-#   volume sentiment (0.15)    <- structure.py's _volume_sentiment_simple():
-#                                  volume against the close over five to
-#                                  ten candles (its labels are the keys of
-#                                  _VOLUME_SENTIMENT_SCORES below).
-#                                  Raw inputs: close, volume.
-#   supertrend direction (0.15)<- indicators.py's SuperTrend column, sign only.
-#                                  Raw inputs: high, low, close (ATR-banded).
-#   macro bias (0.10)          <- engine_core.py: close > EMA_50 on the higher
-#                                  timeframe. Raw input: macro-timeframe close.
-#   reversal/continuation(0.10)<- trend_health.py's continuation_strength
-#                                  (RSI-momentum + acceleration only -- see
-#                                  trend_health.py's "ITEM 11 RE-AUDIT" comment
-#                                  for the trend-health-derived term removed
-#                                  there, and its "INDEPENDENCE REVIEW, 19
-#                                  September 2026" comment for why ADX was
-#                                  removed from this factor too: trend health
-#                                  (below) already reads the same raw ADX
-#                                  value on its own curve, so a second,
-#                                  differently-scaled read of it here was the
-#                                  same raw input reaching bias_score twice)
+# RAW_BIAS_THRESHOLD (20.0), the _VOLUME_SENTIMENT_SCORES table, the
+# CHOCH-against-trend x0.5 discount, the clip to +/-100 and the
+# `components` out-parameter that recorded each factor's input, signed
+# value, weight and contribution as lineage.bias_components.
 #
-# This is where the auditor's finding 4 example lived: reversal_continuation_
-# score used to be built in part from trend_health's own value, so trend
-# health reached bias_score through two of the six weights, not one. That is
-# fixed at the source (trend_health.py), not here, because continuation_
-# strength has exactly one consumer -- this function -- so the source is
-# where the independence actually needs to be true.
+# It returned (raw_bias, bias_score). Stage 2 of the redesign took the
+# direction off it -- bias.raw, bias.detailed and the plan's side come from
+# direction_from_emas below (Viktor's ruling of 7 November 2026) -- and
+# kept the call for its SCORE alone, because confidence was that score's
+# magnitude (models/decision_model.py, _compute_confidence) and confidence
+# left in this stage. Stage 5 removes confidence, so the score has no
+# reader and the function, its constants and its breakdown go with it:
+# bias.score, lineage.bias_components and the seven
+# provenance.module_constants entries leave the record, which moves
+# run_hash and the archive's file name.
 #
-# A second, narrower instance of the same principle was found and fixed the
-# same way on 19 September 2026: trend health and reversal/continuation both
-# read raw ADX, on two different curves rather than one reused value -- see
-# trend_health.py's "INDEPENDENCE REVIEW" comment. Weights themselves
-# (WEIGHT_TREND_HEALTH and siblings, below) were explicitly out of scope for
-# that pass and remain unreviewed hand-picked judgment calls -- see
-# docs/PHASE7_DECISIONS.md.
+# WHAT LEAVES WITH IT, AND WHY THAT IS THE POINT. The blend's own
+# independence review (19 September 2026) had recorded that four of the six
+# factors -- trend health 0.30, structure regime 0.20, SuperTrend direction
+# 0.15 and macro bias 0.10, three quarters of the blend -- were four
+# transforms of one measurement, the recent direction of close, and that
+# bias_score presented their agreement as four independent confirmations.
+# It was recorded and deliberately not fixed, because reweighting is a
+# trading judgment this project could not evaluate. The redesign answers it
+# by removing the blend rather than reweighting it: one rule reads the
+# direction (EMA50's slope and the EMAs' order), and every other factor
+# that survives the redesign is a GATE with a yes or no, not a weight in a
+# sum. Nothing now blends two readings into one number.
 #
-# WHERE THESE FACTORS REACH AN OUTPUT, 20 September 2026. Recorded because
-# the question "is volume counted three times?" has been asked twice and
-# answered by re-deriving it from the code both times. Each path below lands
-# in a DIFFERENT output; none of them adds the same number twice to one
-# score, and the path into confidence that once did was removed by the Item
-# 11 re-audit (see models/decision_model.py's _compute_confidence).
-#
-#   volume reaches:  bias_score            <- volume sentiment, weight 0.15
-#                                             (this file)
-#                    validation_score      <- core/engine_core.py's
-#                                             volume_agreement(), +15 when it
-#                                             supports the bias, -25 against
-#                    entry quality         <- models/entry_model.py's VWMA
-#                                             distance, 20 of 102 points
-#
-#   macro bias       bias_score            <- macro bias, weight 0.10 (this
-#   reaches:                                  file), signed
-#                    validation_score      <- core/engine_core.py's
-#                                             macro_agreement(), +10 agreeing,
-#                                             -20 disagreeing
-#                    entry quality         <- models/entry_model.py's macro
-#                                             confluence multiplier,
-#                                             CONFLUENCE_BOOST_MULT /
-#                                             CONFLUENCE_PENALTY_MULT
-#
-# What this record does NOT settle: whether three separate penalties for one
-# disagreement is the right total weight. That is a trading judgment and is
-# Viktor's, unmade as of this commit.
-#
-# INDEPENDENCE REVIEW, SECOND PASS, 19 September 2026. The first pass found
-# one shared raw indicator (ADX) between two factors and fixed it. This pass
-# traced the four factors the first pass never reached, and found something
-# larger than a duplicate input.
-#
-# TWO ERRORS IN THIS FILE'S OWN RECORD, corrected in the graph above.
-#   1. "structure.py's swing-based regime label" was simply wrong.
-#      structure_regime comes from _detect_regime(), a 5-bar vs 15-bar
-#      close-mean gap with a dead band. swing_struct is computed but reaches
-#      nothing except the panel -- _detect_swing_structure's own docstring
-#      says so.
-#   2. Because of (1), docs/PHASE7_NEXT.md recorded structure_regime, at
-#      2fee78f, as "checked (built from swing highs/lows, confirmed to
-#      share nothing with ADX/RSI)". Literally true and
-#      beside the point: the check was run against a mechanism this factor
-#      does not use, so the question that mattered was never asked.
-#
-# THE FINDING. Four of the six factors -- trend health (0.30), structure
-# regime (0.20), SuperTrend direction (0.15) and macro bias (0.10), 0.75 of
-# the blend between them -- are four transforms of one measurement: the recent
-# direction of close. An EMA slope, a short-versus-long mean gap, an
-# ATR-banded flip, and price against its 50-EMA one timeframe up. Different
-# windows and different arithmetic, so this is not the ADX defect (one reading
-# on two curves) and they will not always agree. But all four are monotonic in
-# the same underlying quantity and enter the blend with the same sign
-# convention, so in a sustained trend they agree by construction, and
-# bias_score presents that agreement as four independent confirmations.
-#
-# Only two factors carry a measurement that is not price direction: volume
-# sentiment (0.15), which reads volume, and continuation's acceleration term,
-# which reads the change in slope and can oppose the slope itself.
-#
-# NOT FIXED HERE, AND NOT AN OVERSIGHT. Acting on this means reweighting or
-# dropping factors, which is a trading judgment about what corroboration
-# between correlated trend reads is worth. This project cannot evaluate that
-# yet: the golden baseline proves a change is attributable, never that it is
-# correct, and backtesting sits behind the release gate. Same reasoning that
-# declined to wire trend_failure at sequence item 9c. Recorded for Viktor's
-# decision, with the record corrected so the next pass starts from what the
-# code does rather than from what this comment used to claim.
-#
-# ALSO RECORDED, ALSO NOT FIXED: RSI reaches bias_score through two factors,
-# trend_health's rsi_strength and continuation's momentum_component.
-# trend_health.py's 19 September comment exempts this on the grounds that the
-# two ask different questions, symmetric versus directional. Measured across
-# RSI 0-100 in 0.5 steps, that exemption holds in downtrends (Pearson r =
-# 0.37) and largely fails in uptrends (r = 0.83), where both peak in the
-# 50-65 band and both bottom at the extremes. The exemption is narrower than
-# it was written to be. The duplicated path is worth at most 1.5 points of
-# bias_score (momentum_component's 15 at weight 0.10), against the 2.5 the
-# ADX fix removed.
-#
-# What this function does NOT try to do: re-derive or cross-check any factor
-# against another. structure_regime, macro_bias and volume_sentiment are also
-# read downstream by models/decision_model.py's confidence calculation and by
-# engine_core.py's validation score -- Item 11's other broken path, fixed
-# there by removing the second and third readings rather than by disagreeing
-# with this one. bias_score is the one place these six factors are weighed;
-# every other consumer reports what bias_score already concluded rather than
-# re-weighing the same inputs.
+# docs/build/indicator_overlap.py, whose variants zeroed these weights one
+# at a time to measure that overlap, goes in this stage for the same
+# reason: with no weights there is nothing for it to zero.
 
-WEIGHT_TREND_HEALTH = 0.30
-WEIGHT_STRUCTURE_REGIME = 0.20
-WEIGHT_VOLUME_SENTIMENT = 0.15
-WEIGHT_SUPERTREND_DIRECTION = 0.15
-WEIGHT_MACRO_BIAS = 0.10
-WEIGHT_REVERSAL_CONTINUATION = 0.10
-
-# raw_bias is now derived directly from the composite bias_score itself
-# (previously raw_bias and bias_score came from partially different
-# logic/inputs, which was architecturally inconsistent with a "multi-factor
-# blend" -- now both come from the same one computation).
-RAW_BIAS_THRESHOLD = 20.0
-
-# Volume sentiment strings (see structure.py's _volume_sentiment_simple)
-# mapped to a signed -100..100 scale.
-_VOLUME_SENTIMENT_SCORES = {
-    "STRONG BULLISH ACCUMULATION": 100.0,
-    "BULLISH VOLUME SUPPORT": 50.0,
-    "STRONG BEARISH DISTRIBUTION": -100.0,
-    "BEARISH VOLUME PRESSURE": -50.0,
-    # Fading volume and volume exhaustion are warning states, not
-    # directional votes -- scored neutral here. Each costs validation_score
-    # 25 points instead (core/engine_core.py, volume_agreement). B4's labels,
-    # 14 October 2026: FADING VOLUME was "VOLUME DIVERGENCE", renamed with
-    # structure.py's label, same score; and this comment said they reduce
-    # confidence through trend_exhaustion, which is trend_health.py's flag
-    # and has nothing to do with volume.
-    "FADING VOLUME": 0.0,
-    "VOLUME EXHAUSTION": 0.0,
-    "NEUTRAL VOLUME": 0.0,
-}
-
-
-def calculate_dynamic_bias(
-    trend_sequence,
-    trend_health,
-    trend_exhaustion,
-    reversal_direction,
-    reversal_strength,
-    continuation_strength,
-    trend_direction_sign,
-    structure_regime="NEUTRAL STRUCTURE",
-    volume_sentiment="NEUTRAL VOLUME",
-    supertrend_direction=0.0,
-    macro_bias="NEUTRAL",
-    components=None,
-):
-    """
-    Returns:
-        raw_bias (str)
-        bias_score (float, -100..100)
-
-    AUDIT FINDING 7 (Item 6, Traceability): `components`, when a dict is
-    passed, is filled with each factor's input, score, weight and
-    contribution, plus the discount and the clip. It is an out-parameter
-    rather than a third return value for one reason and it is not style:
-    the alternative was a second function that recomputes the breakdown,
-    and a second implementation of a number is exactly the shape this
-    engine keeps finding defects in -- two places computing one thing,
-    drifting apart quietly. What is recorded here is the arithmetic that
-    actually ran, not a reconstruction of it, so it cannot disagree with
-    the score it explains.
-
-    Passing nothing changes nothing. Every existing caller is unaffected
-    and the function still returns exactly two values.
-
-    SEQUENCE ITEM 6: this function used to take `df` as its first parameter.
-
-    It never read a value out of it. Every factor in the score below comes from
-    the scalar arguments — trend health, structure regime, volume sentiment,
-    SuperTrend direction, macro bias. The frame's entire role was this, at the
-    top of the body:
-
-        critical_cols = ["close", "EMA_20", "EMA_50", "RSI"]
-        for col in critical_cols:
-            if col in df.columns and df[col].isna().any():
-                if col == "close":
-                    df[col] = df[col].ffill().bfill()
-                else:
-                    df[col] = df[col].fillna(df["close"])
-
-    A write-only parameter: it filled NaNs in four columns of the caller's
-    frame, three of which this function does not read, and then computed the
-    bias from arguments that have nothing to do with any of them. Whatever it
-    repaired, it repaired for somebody else, silently, as a side effect of
-    being asked an unrelated question. That is the T2-1 violation the Step 5
-    plan names by this function's name.
-
-    Because it was write-only, the fix is deletion rather than "operate on a
-    copy" — copying would have preserved a computation whose only output was
-    the mutation, turning it into a genuine no-op.
-
-    NOT FIXED HERE, AND DELIBERATELY: the fallback above is also a fabrication
-    path, and the RSI branch is the worst kind. RSI is a 0-100 oscillator and
-    `df["close"]` is a price, so a missing RSI was replaced by whatever the
-    asset happened to cost — about 0.80 for AERO, which reads as maximally
-    oversold, and five figures for BTC, which is off the scale entirely. It
-    could not fire on clean data (add_technical_indicators cleans RSI with a
-    fallback of 50.0 before this is reached), so it is latent rather than live.
-    Recorded as a rider on sequence item 9, where the fabricated fallbacks are
-    given honest semantics. Item 6's job is to stop the writes reaching a frame
-    this function does not own; making the fallbacks honest is item 9's.
-    """
-
-    # Comprehensive input validation and NaN handling
-    def safe_float(value, default=0.0):
-        """Safely convert value to float, handling None and NaN."""
-        if value is None:
-            return default
-        try:
-            float_val = float(value)
-            return float_val if np.isfinite(float_val) else default
-        except (ValueError, TypeError):
-            return default
-
-    trend_health = safe_float(trend_health, 0.0)
-    trend_exhaustion = bool(trend_exhaustion)
-    reversal_strength = safe_float(reversal_strength, 0.0)
-    continuation_strength = safe_float(continuation_strength, 0.0)
-    supertrend_direction = safe_float(supertrend_direction, 0.0)
-    reversal_direction = reversal_direction if reversal_direction in ("BULLISH", "BEARISH") else "NONE"
-    structure_regime = str(structure_regime) if structure_regime else "NEUTRAL STRUCTURE"
-    volume_sentiment = str(volume_sentiment) if volume_sentiment else "NEUTRAL VOLUME"
-    macro_bias = str(macro_bias).upper() if macro_bias else "NEUTRAL"
-    trend_sequence = str(trend_sequence) if trend_sequence else "NONE"
-
-    # SEQUENCE ITEM 6: the caller-frame cleaning block was here. See the
-    # docstring above for what it did and why deleting it was the fix.
-
-    # 4 SEPTEMBER 2026: this line read
-    #
-    #     trend_direction = 1 if continuation_strength > 0 else (
-    #         -1 if continuation_strength < 0 else 0)
-    #
-    # inferring the trend's DIRECTION from the sign of a MAGNITUDE. Those are
-    # different quantities. continuation_strength floors at zero by design --
-    # a trend that is not continuing scores zero continuation, which is
-    # correct, and factor 6 below reflects it. But the inferred direction went
-    # to zero with it, and the next line multiplies trend_health by that.
-    # A 30% weight disappeared, silently, while the panel still printed a
-    # direction from the very same slope test.
-    #
-    # Measured on 9,800 bars across fifteen pairs: 0.71% of bars, median
-    # effect 21.3 points where 20 decides direction, and 52 of 70 firings past
-    # that threshold. It concentrated on the daily timeframe (1.20% against
-    # 0.22% on 4h) and on downtrends, better than two to one.
-    #
-    # The direction now arrives from indicators/trend_health.py, which computes
-    # it from the slope and always did. NO DEFAULT: this parameter is required.
-    # A default would be the same shape as the copy_df parameter sequence item 6
-    # removed -- a safe setting that every caller declines to take, restoring
-    # the defect in silence.
-    #
-    # Across those same 9,800 bars the two sources never disagreed in sign, so
-    # this changes nothing except where the floor had been deleting a factor.
-    trend_direction = int(trend_direction_sign)
-    if trend_direction not in (-1, 0, 1):
-        raise ValueError(
-            f"trend_direction_sign must be -1, 0 or 1, got {trend_direction_sign!r}. "
-            f"It signs a 30% weight; a wrong value here is a wrong bias score."
-        )
-
-    # ============================================================
-    # FACTOR 1: TREND HEALTH (30%)
-    # ============================================================
-    signed_trend_health = trend_direction * np.clip(trend_health, 0, 100)
-
-    # ============================================================
-    # FACTOR 2: STRUCTURE REGIME (20%)
-    # ============================================================
-    if structure_regime == "BULLISH TREND":
-        structure_score = 100.0
-    elif structure_regime == "BEARISH TREND":
-        structure_score = -100.0
-    else:
-        structure_score = 0.0
-
-    # ============================================================
-    # FACTOR 3: VOLUME SENTIMENT (15%)
-    # ============================================================
-    volume_score = _VOLUME_SENTIMENT_SCORES.get(volume_sentiment.upper(), 0.0)
-
-    # ============================================================
-    # FACTOR 4: SUPERTREND DIRECTION (15%)
-    # ============================================================
-    if supertrend_direction > 0:
-        supertrend_score = 100.0
-    elif supertrend_direction < 0:
-        supertrend_score = -100.0
-    else:
-        supertrend_score = 0.0
-
-    # ============================================================
-    # FACTOR 5: MACRO BIAS (10%)
-    # ============================================================
-    if macro_bias == "BULLISH":
-        macro_score = 100.0
-    elif macro_bias == "BEARISH":
-        macro_score = -100.0
-    else:
-        macro_score = 0.0
-
-    # ============================================================
-    # FACTOR 6: REVERSAL / CONTINUATION (10%, combined single factor)
-    # continuation_strength is the base signal; a reversal signal that
-    # actively OPPOSES the current trend direction proportionally
-    # discounts it (never fully zeroes it -- floored at 20% of its
-    # original value), rather than being a separate 7th factor.
-    # ============================================================
-    reversal_signed_direction = 1 if reversal_direction == "BULLISH" else (-1 if reversal_direction == "BEARISH" else 0)
-    if trend_direction != 0 and reversal_signed_direction != 0 and reversal_signed_direction != trend_direction:
-        discount = max(0.2, 1.0 - (np.clip(reversal_strength, 0, 100) / 100.0))
-        reversal_continuation_score = continuation_strength * discount
-    else:
-        reversal_continuation_score = continuation_strength
-
-    # ============================================================
-    # WEIGHTED BLEND
-    # ============================================================
-    bias_score = (
-        signed_trend_health * WEIGHT_TREND_HEALTH +
-        structure_score * WEIGHT_STRUCTURE_REGIME +
-        volume_score * WEIGHT_VOLUME_SENTIMENT +
-        supertrend_score * WEIGHT_SUPERTREND_DIRECTION +
-        macro_score * WEIGHT_MACRO_BIAS +
-        reversal_continuation_score * WEIGHT_REVERSAL_CONTINUATION
-    )
-
-    # AUDIT FINDING 7: the six factors as they were actually weighed.
-    # Recorded here rather than after the clip below, because these are
-    # the inputs to the blend -- what the clip and the discount then do
-    # to their sum is recorded separately, so a reader can see both the
-    # parts and what happened to the whole.
-    if components is not None:
-        components["factors"] = {
-            "trend_health": {
-                "input": float(trend_health), "signed": float(signed_trend_health),
-                "weight": WEIGHT_TREND_HEALTH,
-                "contribution": float(signed_trend_health * WEIGHT_TREND_HEALTH)},
-            "structure_regime": {
-                "input": structure_regime, "signed": float(structure_score),
-                "weight": WEIGHT_STRUCTURE_REGIME,
-                "contribution": float(structure_score * WEIGHT_STRUCTURE_REGIME)},
-            "volume_sentiment": {
-                "input": volume_sentiment, "signed": float(volume_score),
-                "weight": WEIGHT_VOLUME_SENTIMENT,
-                "contribution": float(volume_score * WEIGHT_VOLUME_SENTIMENT)},
-            "supertrend_direction": {
-                "input": float(supertrend_direction), "signed": float(supertrend_score),
-                "weight": WEIGHT_SUPERTREND_DIRECTION,
-                "contribution": float(supertrend_score * WEIGHT_SUPERTREND_DIRECTION)},
-            "macro_bias": {
-                "input": macro_bias, "signed": float(macro_score),
-                "weight": WEIGHT_MACRO_BIAS,
-                "contribution": float(macro_score * WEIGHT_MACRO_BIAS)},
-            "reversal_continuation": {
-                "input": float(continuation_strength),
-                "signed": float(reversal_continuation_score),
-                "weight": WEIGHT_REVERSAL_CONTINUATION,
-                "contribution": float(
-                    reversal_continuation_score * WEIGHT_REVERSAL_CONTINUATION)},
-        }
-        components["weighted_sum"] = float(bias_score)
-        components["trend_direction"] = int(trend_direction)
-        components["reversal_direction"] = reversal_direction
-        components["reversal_strength"] = float(reversal_strength)
-
-    # B2 FIX: trend_sequence was accepted as a parameter here but never
-    # actually used anywhere in this function -- structure.py's
-    # _detect_sequence() was a stub that always returned "NONE", so there
-    # was nothing real to use yet. Now that B2 has built real BOS/CHOCH
-    # detection, a CHOCH ("change of character") AGAINST the current trend
-    # direction is a genuine structural warning sign -- price just broke
-    # the last confirmed swing extreme against the established sequence,
-    # which is the same kind of warning trend_failure already represents.
-    # Rather than adding a 7th weighted factor (which would mean
-    # re-deriving and re-testing all six existing weights), it's folded
-    # into the same discount as trend_failure below.
-    choch_against_trend = (
-        (trend_direction > 0 and "CHOCH BEARISH" in trend_sequence) or
-        (trend_direction < 0 and "CHOCH BULLISH" in trend_sequence)
-    )
-
-    # A CHOCH against the current direction is "the structure just
-    # contradicted this bias", so it discounts the WHOLE blend rather than
-    # getting its own weight slot among the six factors.
-    #
-    # SEQUENCE ITEM 9c: this condition was `trend_failure or
-    # choch_against_trend`, and the comment described them as two signals
-    # sharing one discount. There was only ever one. trend_failure could not
-    # become True — see the note in trend_health.py — so every discount this
-    # line has ever applied came from the CHOCH.
-    if choch_against_trend:
-        bias_score *= 0.5
-
-    if components is not None:
-        components["choch_against_trend"] = bool(choch_against_trend)
-        components["trend_sequence"] = trend_sequence
-        components["after_discount"] = float(bias_score)
-
-    bias_score = float(np.clip(bias_score, -100, 100))
-
-    if components is not None:
-        components["clipped"] = bool(components["after_discount"] != bias_score)
-        components["bias_score"] = float(bias_score)
-        components["raw_bias_threshold"] = RAW_BIAS_THRESHOLD
-
-    # raw_bias now comes directly from the same composite score, instead
-    # of a separate trend_health-only gate -- one computation drives both.
-    if bias_score > RAW_BIAS_THRESHOLD:
-        raw_bias = "BULLISH"
-    elif bias_score < -RAW_BIAS_THRESHOLD:
-        raw_bias = "BEARISH"
-    else:
-        raw_bias = "NEUTRAL"
-
-    return raw_bias, bias_score
 
 
 # ============================================================
@@ -528,77 +105,131 @@ def calculate_dynamic_regime(df):
 
 
 # ============================================================
-# BIAS LABEL (was BiasStateMachine until finding 18)
+# DIRECTION (the redesign's stage 2, 14 November 2026)
 # ============================================================
 #
-# FINDING 18, 27 September 2026 -- Viktor's ruling, by agreeing to Claude's
-# suggestion (docs/PHASE7_DECISIONS.md, "Ruling, 27 September 2026 -- the
-# bias label is a function of the score (finding 18)").
+# Viktor's ruling of 7 November 2026 (docs/PHASE7_DECISIONS.md, "Ruling,
+# 7 November 2026 -- the redesign's direction is EMA50's slope and the EMAs'
+# order ..."), built as stage 2 of the redesign's six (DECISIONS, "Decision,
+# 14 November 2026 -- the redesign's code is cut into six stages ..."):
 #
-# This was a class, BiasStateMachine, with a `state` attribute and a
-# transition() method, and the record called what it produced a "persistence
-# requirement". It had none. transition() never read its previous state:
-# every branch assigned self.state from the current raw_bias and bias_score
-# alone. And engine_core built a fresh instance per process, which on this
-# engine is one run, so it started at NEUTRAL every time in any case. What it
-# returned was a label for how far the score leans, nothing more. On Viktor's
-# decision log (42 records, 6-27 September) every recorded bias.detailed is
-# exactly what the current score gives.
+#   BULLISH   EMA50_Slope > 0 and EMA_20 > EMA_50
+#   BEARISH   EMA50_Slope < 0 and EMA_20 < EMA_50
+#   NEUTRAL   anything else: the two disagree, the slope is exactly zero or
+#             the averages are equal. A lean, and no side.
 #
-# The ruling keeps the behaviour and makes the code say what it does: the
-# same labels, word for word, from a plain function with no state. Nothing
-# that decides reads the label -- decision_model chooses on raw_bias and
-# acts only at |bias_score| >= MIN_ACTION_BIAS (30). The label is read by the
-# panel (BIAS, BTC BIAS), by the wording of the BTC sentence in
-# decision_model, and by exit_model's "Bias state changed" flag, which
-# compares against the label persisted by the previous run -- the one piece
-# of cross-run memory here, and it lives in engine_core's state file, not in
-# this function.
+# EMA20_Slope is not read. No threshold: the agreement of the two is the
+# floor that MIN_ACTION_BIAS (30, models/decision_model.py) was until this
+# stage, so the rule adds no number to the fingerprint.
 #
-# A side that must hold for N closed candles before a trade is allowed was
-# not chosen; it is on the list for after the audit (PHASE7_NEXT.md). If it
-# is ever built, it should be computed from the closed candles in the run's
-# own input, which the input hash pins, not from a state file, which would
-# be an input the record cannot reproduce.
+# WHAT THIS REPLACES, AND WHAT IT DOES NOT YET. Until this stage bias.raw
+# was the weighted sum above against RAW_BIAS_THRESHOLD, the plan's side was
+# the sum's sign, and bias.detailed was bias_label(raw, score): the same
+# label with CONFIRMED past +/-30 (BiasStateMachine until finding 18,
+# 27 September 2026). All three come from this function: detailed is the
+# raw label, and bias_label is gone.
 #
-# The two thresholds:
-#   RAW_BIAS_THRESHOLD (20)  read, not written in. It was a literal 20 here,
-#                            the same value, so no label changes; a change to
-#                            the constant now moves the NEUTRAL band with the
-#                            raw bias it describes.
-#   30                       left as a literal, deliberately. Naming it would
-#                            put it in FINGERPRINTED_MODULES
-#                            (tests/test_fingerprint_names_every_constant.py),
-#                            which moves run_hash and the golden snapshot for
-#                            a number that decides nothing; code_hash covers
-#                            it. It is the value of MIN_ACTION_BIAS in
-#                            decision_model, which cannot be imported here
-#                            (decision_model imports this module). One edge,
-#                            recorded: the label needs > 30 and the ladder acts
-#                            at >= 30, so at exactly 30.0 a run can take a side
-#                            while the panel prints BULLISH or BEARISH, not
-#                            CONFIRMED.
+# STAGE 5, 15 November 2026: calculate_dynamic_bias is now gone too, with
+# its six weights and RAW_BIAS_THRESHOLD -- see the record above. Stage 2
+# kept it for its score because confidence read that score; confidence
+# leaves here, so nothing reads it and this function is the only source of
+# a direction in the engine.
+#
+# The same rule is in docs/build/measure_draft_gaps.py, draft_direction,
+# which counted it on the reading of 11 November before any of this was
+# built; tests/test_direction_is_the_slow_trends_side.py holds the two to
+# one answer over a grid.
 
-def bias_label(raw_bias, bias_score):
+def _finite_or_none(value):
     """
-    The panel's label for how far bias_score leans. No state: the same
-    raw_bias and bias_score always give the same label.
-
-    NEUTRAL                inside +/-RAW_BIAS_THRESHOLD (and at exactly +/-20,
-                           where raw_bias is NEUTRAL)
-    BULLISH / BEARISH      past +/-20, up to and including +/-30
-    ... CONFIRMED          past +/-30
-
-    Inputs the engine never produces -- a raw_bias that disagrees with the
-    score, a raw_bias outside the three -- give exactly what
-    BiasStateMachine.transition() gave them (tests/test_bias_label.py).
+    A finite float, or None for anything that is not one. True, False and
+    text are not numbers here, though float() would take them.
     """
-    bias_score = bias_score if bias_score is not None else 0.0
+    if value is None or isinstance(value, (bool, str, bytes)):
+        return None
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return None
+    return number if np.isfinite(number) else None
 
-    if raw_bias == "BULLISH" and bias_score > 30:
-        return "BULLISH CONFIRMED"
-    if raw_bias == "BEARISH" and bias_score < -30:
-        return "BEARISH CONFIRMED"
-    if abs(bias_score) < RAW_BIAS_THRESHOLD:
-        return "NEUTRAL"
-    return raw_bias
+
+def direction_from_emas(ema50_slope, ema_20, ema_50, components=None):
+    """
+    The direction, from the decision candle's EMA50_Slope, EMA_20 and EMA_50.
+
+    Returns "BULLISH", "BEARISH" or "NEUTRAL", or None when one of the three
+    is not a finite number. None is "not measured", which is not NEUTRAL:
+    the caller records it as a degradation and does not read it as the
+    averages disagreeing.
+
+    `components`, when a dict is passed, is filled with what was compared,
+    as calculate_dynamic_bias fills its own (audit finding 7: the record is
+    the comparison that ran, not a second computation of it):
+
+        ema50_slope      "RISING", "FALLING" or "FLAT"; None if not measured
+        ema20_vs_ema50   "ABOVE", "BELOW" or "EQUAL"; None if not measured
+        result           what is returned
+
+    Words and not true-or-false, because a slope that is not rising is
+    either falling or flat, and only one of those can be BEARISH. The four
+    numbers compared are in lineage.indicators_at_decision_bar and are not
+    copied.
+    """
+    slope = _finite_or_none(ema50_slope)
+    fast = _finite_or_none(ema_20)
+    slow = _finite_or_none(ema_50)
+
+    if slope is None:
+        slope_word = None
+    elif slope > 0:
+        slope_word = "RISING"
+    elif slope < 0:
+        slope_word = "FALLING"
+    else:
+        slope_word = "FLAT"
+
+    if fast is None or slow is None:
+        order_word = None
+    elif fast > slow:
+        order_word = "ABOVE"
+    elif fast < slow:
+        order_word = "BELOW"
+    else:
+        order_word = "EQUAL"
+
+    if slope_word is None or order_word is None:
+        result = None
+    elif slope_word == "RISING" and order_word == "ABOVE":
+        result = "BULLISH"
+    elif slope_word == "FALLING" and order_word == "BELOW":
+        result = "BEARISH"
+    else:
+        result = "NEUTRAL"
+
+    if components is not None:
+        components["ema50_slope"] = slope_word
+        components["ema20_vs_ema50"] = order_word
+        components["result"] = result
+
+    return result
+
+
+def plan_side(direction):
+    """
+    The side the risk plan is drawn on: LONG under BULLISH, SHORT under
+    BEARISH, and LONG under anything else.
+
+    The last is a stand-in, not a side. A NEUTRAL run takes no trade and
+    the panel prints no plan for it, but the engine still computes one,
+    because the risk check needs a stop (Viktor's ruling of 27 September
+    2026, finding 5, point 2), and a stop needs a side to be drawn on. The
+    check reads only the stop's distance from price, which is the same on
+    either side. Until this stage the stand-in was the sign of the weighted
+    sum, with zero drawn as a long; the sum no longer says anything about
+    direction, so the stand-in is fixed. Claude's choice at stage 2, Viktor's
+    to reverse.
+    """
+    if direction == "BEARISH":
+        return "SHORT"
+    return "LONG"

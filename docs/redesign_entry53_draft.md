@@ -1,7 +1,14 @@
 # The redesign (entry 53) — design draft
 
-*Draft v14, 12 November 2026, in the session that opened at 07:32 at `dac70c1`. Version
-14 states the design as ruled: Viktor approved it as a whole on 12 November, as
+*Draft v15, 17 November 2026, in the session that opened at 20:30 on 16 November at
+`f6fff24a`, on the branch `redesign`. Version 15 is stage 6 of the build, the
+reconciliation (DECISIONS, "Decision, 17 November 2026 — stage 6 of the redesign's
+build: the reconciliation …"): it adds §18, what stages 1 to 5 built against §13 and
+§14, and a line to §8 for the held-back defects' replacements, ruled on 17 November. It
+changes no rule of the design and leaves §13 and §14 as they were written. It reads the
+engine and the tests at `f6fff24a`, `696af24` and `e69d5bb`. Version 14, 12 November
+2026, was written in the session that opened at 07:32 at `dac70c1`. Version 14 states
+the design as ruled: Viktor approved it as a whole on 12 November, as
 drafted in version 13
 (DECISIONS, "Ruling, 12 November 2026 — the redesign's design is approved as a whole, as drafted in version 13"),
 and brings §0, §9 and §12 to it. It changes no rule of the design and reads no code;
@@ -692,6 +699,13 @@ still authorizes no trade.
   and H5 together (agreed on 11 November; it amends point 6 of the decision of
   25 October, which said "when the redesign's design is fixed, before its code is
   built"). Versions 0 to 8 said H1's was searched for once the design is fixed.
+- **Version 15 — proposed and ruled, 17 November** (DECISIONS, "Ruling, 17 November 2026
+  — the held-back defects' replacements are H6, H7 and H8; a held-back defect that can
+  move a reading is still owed"): H6, `_safe_float` in `models/decision_model.py`, which
+  nothing calls; H7, `render_panel`'s `trend` local, which nothing reads; H8,
+  `DecisionModel`'s docstring, which gives `evaluate()` a `trend` input it does not
+  take. Each was made by stage 5's removals. None can move a computed number as H5
+  could, and one that can is owed.
 
 **H5's fix (version 9, Claude's, his to reverse).** *Read* at `9cc48d7`,
 `indicators/volume_profile.py`, `compute_volume_profile`: the bins are fifty equal
@@ -2017,3 +2031,255 @@ Both were his (§0). What he had to rule them on:
    the median on four pairs. The 5% in the rule is a choice, not a reason, and the
    count used `volume × close`, the stand-in, since the fetcher drops `quote_volume`
    today (§5). It blocked one record in the window.
+
+## 18. Reconciliation — what was built, against §13 and §14 (version 15)
+
+Stage 6 of the build (DECISIONS, "Decision, 17 November 2026 — stage 6 of the redesign's
+build: the reconciliation …"). §13 and §14 are left as they were written; this section
+says what happened to each prediction. Measured in the Linux sandbox on an autocrlf
+clone of `f6fff24a`, the branch `redesign` after stage 5, under Python 3.12.3. The
+golden snapshot is compared with `e69d5bb`'s, the commit §13 was written against; the
+tests with `696af24`'s, the branch's parent, so that only the five stages' own changes
+are counted. No test §14 names changed between `e69d5bb` and `696af24`.
+
+### 18.1 §13 — the golden snapshot
+
+`tests/fixtures/golden_decision.json`: 227 leaves at `e69d5bb`, 165 at `f6fff24a`. **88
+removed, 26 added, 14 moved.** The second pinned decision's snapshot (§10.1),
+`golden_trade_decision.json`, has the same 165 leaves.
+
+- **Removed, 88, against §13.2's 85.** Every one of its 81 and of the 4 that were
+  Viktor's left. The other 3: `AGGRESSIVE_ENTRY_SCORE_MIN` and
+  `DEGRADED_CONFIDENCE_CEILING`, which §13.2 has renamed — a `module_constants` leaf is
+  its name, so the first is a removal and an addition, and the second took no new name,
+  the cap having gone (the build's stage 5, reading 1; §7) — and
+  `risk.trade_quality_proposed`, which §13.2 has moving to 0.0 and stage 5 removed as
+  `entry.score` under a second name.
+- **Moved, 14, against §13.2's 15.** Thirteen of its fifteen: `bias.detailed`,
+  `btc_context.detailed`, `entry.score`, `exit.action`, `explanation.reasons`,
+  `explanation.summary`, `lineage.inputs.struct.columns`,
+  `lineage.inputs.struct.sha256`, `provenance.input_hashes.struct`, and `run_hash` and
+  the archive path twice each. Of the other two, `risk.trade_quality_proposed` left, and
+  `btc_context.raw` did not move: the golden run's BTC series is the clean fixture
+  reversed, and on it the rule gives BEARISH (stage 2). The fourteenth is
+  `entry.entry_status`, APPROACHING ZONE to ABOVE THE BAND, counted in §13.2 as
+  unchanged; versions 4 and 6 said it would move and left the counts as version 1 made
+  them.
+- **Added, 26.** As §13.3 has them, twenty: `entry.distance_atr`, `distance_pts`,
+  `hvn_distance_atr`, `hvn_pts`, `trigger`, `trigger_volume`, `trigger_volume_median`,
+  `quote_volume`, `liquidity_floor` and `close_inside_band`; `lineage.direction.result`;
+  `lineage.risk_inputs.side`; `lineage.indicators_at_decision_bar.quote_volume`; and
+  seven constants — `DISTANCE_MAX_POINTS`, `DISTANCE_ZERO_ATR`, `HVN_MAX_POINTS`,
+  `HVN_ZERO_ATR`, `CONSERVATIVE_ENTRY_QUALITY_MIN`, `LIQUIDITY_FLOOR_USDT` and
+  `TRIGGER_VOLUME_LOOKBACK`. Not in §13.3, six: `entry.long_signal_refusal` and
+  `entry.short_signal_refusal`, the label of a refused side (stage 3); `macro_note`, the
+  home the note §4 keeps on the panel needed in the record (stage 5);
+  `UPPER_TIER_ENTRY_QUALITY_MIN`, the 70; and `lineage.direction.ema20_vs_ema50` and
+  `ema50_slope`, a word each, where §13.3 has three true-or-false fields, one of them
+  for a slope the ruled rule does not read (stage 2).
+- **§13.3's open question** — whether `models.bias_engine` keeps an empty entry in
+  `module_constants` — was answered by stage 5: it leaves `FINGERPRINTED_MODULES`
+  altogether.
+- **§13.1, the pinned run through the gates, is right in every verdict:** BULLISH at
+  gate 2; gates 3 to 7 pass, gate 7 on a `quote_volume` of 67,901.65 against F's 10,000;
+  gate 8 a WAIT, the trigger false, on a trigger volume of 84,693.7281 against a median
+  of 179,247.8923; entry quality 0. `distance_atr` is 3.20703073 and `hvn_distance_atr`
+  15.12021411, where §13.3 has 3.20703059 and 15.12021342, computed from values the
+  snapshot had already rounded (stage 4).
+
+No difference here is new at stage 6: each was found and recorded by the stage that met
+it.
+
+### 18.2 §14 — the 467 verdicts
+
+Each verdict was read out of §14 by a script, and the count it parsed is the count §14
+declares for every one of the 68 files. A test is *gone* if no function of that name is
+in its file at `f6fff24a`, *changed* if the function's own source differs from
+`696af24`'s with whitespace set aside, and *identical* otherwise. That is a measure of
+the text: a changed comment inside a test counts as changed, and a test whose helper
+moved and whose own lines did not counts as identical.
+
+| predicted | gone | changed | identical |
+|---|---|---|---|
+| G, goes — 95 | 94 | 0 | 1 |
+| R, rewritten — 124 | 20 | 57 | 47 |
+| X, reversed — 2 | 2 | 0 | 0 |
+| H, holds — 118 | 4 | 12 | 102 |
+| h, holds, its helper moves — 128 | 0 | 5 | 123 |
+
+**376 of 467 matched; 91 did not.** A verdict matched if a G is gone, an R or an X
+changed, an H or an h is identical. The 91, by file, each as verdict → outcome:
+
+
+- `test_an_absent_value_is_not_a_reading.py` — R → identical:
+  `test_every_default_in_the_panel_is_listed_with_its_reason`,
+  `test_every_default_in_the_router_is_listed_with_its_reason`,
+  `test_negative_control_present_readings_still_print`,
+  `test_engine_core_reads_the_computed_values_directly`; R → gone:
+  `test_an_absent_entry_number_is_recorded_as_nan_not_zero`.
+- `test_b10_outputs_agree_with_finding_4_and_the_action.py` — H → changed:
+  `test_every_action_the_decision_model_writes_is_a_side_wait_or_a_no_trade`,
+  `test_built_from_the_golden_decision_the_order_carries_its_band_and_close`; R → gone:
+  `test_on_the_golden_decision_the_note_prints_on_its_trade_and_not_on_a_wait`.
+- `test_b4_labels_say_what_is_measured.py` — h → changed:
+  `test_the_blockers_say_what_is_compared`.
+- `test_band_distance_is_from_the_midpoint.py` — R → identical:
+  `test_outside_the_band_the_number_is_the_midpoint_distance`,
+  `test_the_recorded_number_is_unchanged`.
+- `test_bias_label.py` — H → gone: `test_bias_engine_has_no_state_machine_class`.
+- `test_btc_degradation_stays_informational.py` — R → identical:
+  `test_the_btc_only_failure_is_still_visible_in_the_record`.
+- `test_btc_is_reference_only.py` — R → identical:
+  `test_the_btc_block_carries_only_what_engine_core_measured`; H → changed:
+  `test_the_record_names_neither_constant`.
+- `test_code_fingerprint.py` — R → gone:
+  `test_module_snapshot_reaches_the_aggressive_entry_score_min`; R → identical:
+  `test_the_entry_scoring_constants_are_fingerprinted`.
+- `test_decision_bar_integrity.py` — R → gone:
+  `test_a_missing_hvn_no_longer_scores_full_marks`; R → identical:
+  `test_the_panel_never_prints_a_non_finite_number`.
+- `test_degraded_state.py` — R → gone:
+  `test_confidence_and_trade_quality_are_capped_when_degraded`; H → changed:
+  `test_the_dead_trend_failure_gate_stays_removed`.
+- `test_direction_source.py` — R → identical:
+  `test_the_live_run_of_2_september_no_longer_returns_a_long`,
+  `test_a_bullish_macro_cannot_open_a_direction_against_a_bearish_bias`,
+  `test_a_bearish_macro_cannot_open_a_direction_against_a_bullish_bias`,
+  `test_an_entry_zone_signal_cannot_open_a_direction_on_its_own`,
+  `test_the_stated_reason_never_calls_a_bearish_bias_bullish`,
+  `test_a_genuine_bullish_run_still_reaches_a_long`,
+  `test_a_genuine_bearish_run_still_reaches_a_short`.
+- `test_entry_zone_is_measured.py` — R → identical:
+  `test_only_one_bound_is_still_no_zone`,
+  `test_bounds_given_the_wrong_way_round_are_still_swapped`; R → gone:
+  `test_a_real_zone_still_scores_exactly_as_before`.
+- `test_fingerprint_names_every_constant.py` — R → gone:
+  `test_the_two_found_on_21_september_that_remain_are_recorded_with_their_values`.
+- `test_frame_ownership.py` — R → gone: `test_calculate_dynamic_bias_takes_no_frame`.
+- `test_golden_path.py` — R → identical: `test_decision_object_matches_snapshot`,
+  `test_the_macro_series_is_actually_read`.
+- `test_indicator_overlap_tool.py` — H → gone:
+  `test_impact_counts_changes_trades_and_flips`,
+  `test_a_no_trade_label_naming_a_side_is_not_a_trade`,
+  `test_no_candle_after_the_bar_is_read`; R → gone:
+  `test_the_baseline_reproduces_the_golden_decision`.
+- `test_lineage.py` — R → gone: `test_the_run_hash_moves_when_a_bias_weight_moves`.
+- `test_macro_agreement.py` — R → gone: `test_agreement_scores_and_says_so`,
+  `test_disagreement_scores_and_says_so`.
+- `test_macro_counts_once.py` — X → gone:
+  `test_a_conservative_long_does_not_depend_on_macro`; R → identical:
+  `test_a_conservative_short_does_not_depend_on_macro`; R → gone:
+  `test_entry_short_is_named_and_trend_is_not_blamed`.
+- `test_minimum_bias_strength.py` — R → gone:
+  `test_a_weak_lean_does_not_authorise_a_direction`,
+  `test_a_conviction_past_the_threshold_still_acts`, `test_a_flat_trend_says_flat`.
+- `test_neutral_bias_prints_no_plan.py` — H → changed:
+  `test_on_a_real_decision_object_the_real_target_1_note_is_withheld`; h → changed:
+  `test_bullish_and_bearish_still_print_the_whole_plan`.
+- `test_no_dead_columns.py` — R → identical: `test_consumed_columns_are_still_produced`.
+- `test_no_fabricated_fallbacks.py` — G → identical:
+  `test_engine_core_does_not_substitute_a_midpoint_trend_health`.
+- `test_no_risk_free_conviction.py` — R → identical:
+  `test_high_conviction_in_a_normal_risk_regime_is_still_aggressive`,
+  `test_high_conviction_in_a_low_risk_regime_is_still_aggressive`,
+  `test_the_audits_concrete_scenario_no_longer_returns_aggressive`,
+  `test_high_conviction_in_an_extreme_risk_regime_is_not_aggressive`,
+  `test_the_short_side_is_gated_the_same_way`,
+  `test_the_capped_reasoning_names_the_risk_regime_not_a_position_size`,
+  `test_conviction_alone_cannot_select_aggressive_across_every_regime`.
+- `test_no_trend_no_trade.py` — H → changed:
+  `test_a_call_in_the_shape_before_fix_2_is_refused`; R → identical:
+  `test_an_unreadable_adx_on_a_degraded_run_takes_the_signal_label`.
+- `test_one_name_one_meaning.py` — R → identical:
+  `test_a_name_that_says_vwma_reads_the_engines_vwma`; R → gone:
+  `test_the_check_sees_the_vwma_that_is_there`; h → changed:
+  `test_no_line_is_headed_momentum`.
+- `test_plan_direction_and_side.py` — H → changed:
+  `test_detailed_bias_is_no_longer_accepted`; R → gone:
+  `test_the_plan_direction_is_the_sign_of_bias_score`,
+  `test_a_nan_bias_score_is_refused_rather_than_read_as_short`.
+- `test_regime_from_volatility_alone.py` — H → changed:
+  `test_the_regime_names_the_volatility_the_panel_prints`.
+- `test_risk_verdict_is_read_not_assumed.py` — R → identical:
+  `test_an_empty_risk_block_is_refused_rather_than_read_as_a_pass`,
+  `test_a_partial_risk_block_without_the_verdict_is_refused`,
+  `test_a_verdict_present_as_none_is_refused`,
+  `test_a_truthy_non_boolean_verdict_is_refused_not_believed`,
+  `test_negative_control_a_real_failed_check_still_says_so`,
+  `test_the_two_no_trade_states_are_not_the_same_string`; h → changed:
+  `test_negative_control_a_stubbed_well_formed_run_still_reaches_a_decision`,
+  `test_the_recorded_verdict_is_the_one_that_was_read_not_an_invented_pass`.
+- `test_round8_f9_claims_match_the_code.py` — R → gone:
+  `test_the_trend_line_prints_unknown_for_a_missing_label`.
+- `test_router_btc_seam.py` — H → changed:
+  `test_a_failed_assembly_still_carries_the_runs_lineage`.
+- `test_signal_confirms.py` — R → identical:
+  `test_a_clean_bullish_setup_confirms_the_long_and_not_the_short`,
+  `test_each_side_signal_is_exactly_an_empty_blocker_list`,
+  `test_a_confirmed_long_is_still_taken`, `test_a_confirmed_short_is_still_taken`,
+  `test_a_counter_divergence_refuses_an_upper_tier_trade_instead_of_demoting_it`,
+  `test_a_divergence_pointing_with_the_trade_no_longer_demotes_it`,
+  `test_risk_refusal_with_a_confirmed_signal_adds_nothing`; H → changed:
+  `test_the_ladder_no_longer_reads_divergence_at_all`; X → gone:
+  `test_an_opposing_macro_does_not_block_a_confirmed_trade`.
+- `test_stop_ignores_conviction.py` — H → changed:
+  `test_trend_health_is_no_longer_accepted`.
+- `test_stop_is_atr_only.py` — H → changed:
+  `test_on_the_engine_path_the_stop_is_the_atr_stop_not_the_hvn`.
+- `test_summary_names_the_action_reason.py` — R → identical:
+  `test_a_degraded_run_that_changes_the_action_is_summarised_by_that_change`,
+  `test_an_incoherent_plan_refusal_is_summarised_by_the_refusal`.
+
+### 18.3 What §14 set aside and the build moved
+
+§14 names 467 of the 874 tests at `e69d5bb` and expects the other 407 to hold. Twelve
+did not, 9 gone and 3 changed:
+
+
+- `test_b10_outputs_agree_with_finding_4_and_the_action.py` — changed:
+  `test_no_action_that_names_no_side_prints_the_target_1_note`.
+- `test_b9_btc_supertrend_is_read_directly.py` — gone:
+  `test_a_failed_btc_supertrend_leaves_the_btc_section_unavailable`,
+  `test_the_panel_says_btc_is_unavailable_and_prints_no_btc_bias`.
+- `test_closed_candles.py` — changed:
+  `test_the_forming_candle_is_dropped_and_its_close_is_not_the_decision_close`.
+- `test_indicator_overlap_tool.py` (deleted with its tool) — gone:
+  `test_kappa_of_identical_series_is_one`,
+  `test_kappa_of_independent_series_is_zero_though_they_agree_68_percent`,
+  `test_kappa_counts_flat_as_a_state_of_its_own`,
+  `test_kappa_drops_pairs_with_a_missing_reading`,
+  `test_the_log_comparison_reads_only_live_undegraded_records_at_this_code`,
+  `test_the_tool_refuses_a_timeframe_other_than_4h`,
+  `test_macro_reads_the_daily_candle_that_closes_with_the_bar`.
+- `test_pinned_source.py` — changed:
+  `test_pinned_source_serves_all_three_series_without_network`.
+
+A thirteenth, `test_the_golden_decision_gives_the_drafts_own_numbers` in
+`test_measure_draft_gaps.py`, changed and was written after §14. Seven of §14's 68 files
+were deleted whole: `test_engine_core_confidence_score_not_duplicated.py`,
+`test_entry_score_reconciles.py`, `test_indicator_overlap_tool.py`,
+`test_trend_direction_source.py`, `test_trend_score_has_a_denominator.py`,
+`test_validation_score_has_a_denominator.py` and `test_volume_agreement.py`. Seven test
+files are new with the build: `test_compared_value_text.py`,
+`test_direction_is_the_slow_trends_side.py`, `test_flat_candle_goes_to_its_bin.py`,
+`test_gates_6_to_8.py`, `test_quote_volume_reaches_the_frame.py`,
+`test_second_pinned_decision.py` and `test_tier_lines.py`. The suite's test functions:
+874 at `e69d5bb`, 940 at `696af24`, 962 at `f6fff24a`.
+
+### 18.4 What the two say together
+
+§13 could be checked by a diff and was right about everything but its own arithmetic.
+§14, by its own caveat "not read line by line", was wrong about one verdict in five, and
+in one direction: it predicted more rewriting than the build needed (47 of its 124 R
+needed no edit) and missed little (12 of 407). What it missed was caught by the suite at
+the stage that caused it, which is what the rule of the cut — every stage leaves the
+three suites green — is for.
+
+### 18.5 Two columns §2 leaves in the record, and the module's name
+
+§2 leaves `EMA20_Slope` and `VWMA` in `lineage.indicators_at_decision_bar`. After stage
+5 nothing reads either (Item 16), and `indicators/trend_health.py` computes no trend
+health (round 8's F8). Both are stage 7's, before the merge (DECISIONS, "Ruling, 17
+November 2026 — the redesign's build is seven stages …"). Read in the code at
+`f6fff24a`, removing the two columns takes 2 leaves from `indicators_at_decision_bar`,
+19 to 17, and moves `code_hash`; it moves neither the struct input hash, which is of the frame before any derived column is added, nor `run_hash`, `VWMA_LENGTH` staying read by the volume-spike guard.

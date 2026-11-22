@@ -97,23 +97,28 @@ except ImportError:                      # Python < 3.8
 class BiasBlock(TypedDict):
     raw: str
     detailed: str
-    score: float
+    # Stage 5 of the redesign, 15 November 2026: `score` was declared here,
+    # the weighted sum. It left with the sum (models/bias_engine.py), whose
+    # one remaining reader was the confidence score.
     regime: str
     volatility: str
 
 
 class TrendBlock(TypedDict):
-    # `health` and `momentum` were declared here as duplicates of the two
-    # fields below and removed at sequence item 13.
-    trend_health: float
-    exhaustion: bool
-    momentum_mode: str
+    # `health` and `momentum` were declared here as duplicates of
+    # trend_health and momentum_mode and removed at sequence item 13.
+    #
+    # Stage 5 of the redesign, 15 November 2026: four more left this block
+    # with the readings that produced them (indicators/trend_health.py) --
+    # trend_health (float), exhaustion (bool), momentum_mode (str) and
+    # trend_direction (str). The two divergence fields are what remains, and
+    # the block is kept rather than folded away because they are a trend
+    # reading and the confirmation gate reads them.
     momentum_divergence: bool
     # Work order F, 21 September 2026: which way a divergence points --
     # "BULLISH", "BEARISH" or "NONE". The confirmation gate reads it; the
     # record carries it so a blocked trade can be checked against it.
     divergence_direction: str
-    trend_direction: str
 
 
 class StructureBlock(TypedDict):
@@ -135,29 +140,62 @@ class EntryBlock(TypedDict):
     short_signal: bool
     long_signal_blockers: List[str]
     short_signal_blockers: List[str]
-    score: float
+    # THE REDESIGN'S STAGE 3, 15 November 2026 (gates 6 to 8). The blocker
+    # lists above now carry gate 6's reason (no LONG under a bearish daily
+    # trend) and gate 7's (the liquidity floor) beside gates 3 to 5's.
+    # `*_signal_refusal` is the NO-TRADE label of the first gate that side
+    # does not pass -- SIGNAL UNCONFIRMED, MACRO AGAINST or THIN MARKET --
+    # and None when it passes them all. `quote_volume` is the decision
+    # candle's turnover in USDT and `liquidity_floor` the line it is set
+    # against. `trigger` is gate 8's price test for the direction's side;
+    # `trigger_volume` and `trigger_volume_median` are the decision candle's
+    # volume and the median of the twenty before it. Each of the last five
+    # is None when it was not measured, and `trigger` also when the
+    # direction is NEUTRAL and there is no side to read it for.
+    long_signal_refusal: Any      # str, or None when no gate refuses the side
+    short_signal_refusal: Any     # the same
+    quote_volume: Any             # float, or None when not measured
+    liquidity_floor: float
+    trigger: Any                  # bool, or None: not measured, or no side
+    trigger_volume: Any           # float, or None when not measured
+    trigger_volume_median: Any    # float, or None when not measured
+    # THE REDESIGN'S STAGE 4, 15 November 2026: entry quality is D + H.
+    # `score` is D + H out of 100, and each of the four numbers below is
+    # the part or the distance it was computed from; `close_inside_band` is
+    # the close's position between EMA_20 and EMA_50 with the ends included,
+    # and it is what the AGGRESSIVE tier reads (Viktor's ruling of
+    # 7 November 2026). Each is None when it was not measured, and when the
+    # score is None entry quality was not computed at all: the run is
+    # degraded with the missing input named, and gate 9 reads it as a WAIT.
+    # `score` was `float` until this stage, when nothing could stop the
+    # engine computing one.
+    #
+    # `entry_status` now carries the close's POSITION -- INSIDE THE BAND,
+    # ABOVE THE BAND, BELOW THE BAND, with ZONE NOT AVAILABLE and NO DATA
+    # unchanged. ACTIVE ENTRY ZONE, NEAR ZONE, APPROACHING ZONE, AWAY FROM
+    # ZONE and ZONE HAS NO WIDTH go with the band widths of 1, 2 and 3.5
+    # that set them. The field is no longer read by anything that decides.
+    score: Any                    # float 0-100, or None when not measured
+    distance_atr: Any             # float, or None when not measured
+    distance_pts: Any             # float 0-80, or None when not measured
+    hvn_distance_atr: Any         # float, or None when not measured
+    hvn_pts: Any                  # float 0-20, or None when not measured
+    close_inside_band: Any        # bool, or None when the band is absent
     # From the band's midpoint, as a percentage of the close (round 8, F5).
+    # NaN, not None, when the band could not be located: the spelling this
+    # field has had since round 6's F3, unchanged by this stage.
     distance_from_zone: float
     entry_status: str
-    ema_pos_pts: float
-    atr_dist_pts: float
-    vwma_pts: float
-    rsi_pts: float
-    struct_pts: float
-    # 5 September 2026: how the five sub-scores above become `score`. They sum
-    # to base_score (out of component_max_points, which is 102 and not 100),
-    # that is multiplied by combined_multiplier to give scaled_score, and the
-    # result is clipped to score_ceiling. Without these the panel printed five
-    # numbers and a total they did not add up to.
-    base_score: float
-    component_max_points: float
-    macro_multiplier: float
-    trend_multiplier: float
-    structure_multiplier: float
-    combined_multiplier: float
-    scaled_score: float
-    score_ceiling: float
-    score_clipped: bool
+
+    # 5 SEPTEMBER 2026's reconciliation stood here: ema_pos_pts,
+    # atr_dist_pts, vwma_pts, rsi_pts, struct_pts, base_score,
+    # component_max_points, macro_multiplier, trend_multiplier,
+    # structure_multiplier, combined_multiplier, scaled_score, score_ceiling
+    # and score_clipped -- how the five sub-scores became `score`. Declared
+    # because the panel printed five numbers and a total they did not add up
+    # to. The five parts and the three multipliers leave with the redesign's
+    # stage 4 (the draft's sections 3.2 and 3.3, the second by Viktor's
+    # ruling of 7 November 2026), and D + H is its own reconciliation.
 
 
 class RiskBlock(TypedDict):
@@ -180,17 +218,27 @@ class RiskBlock(TypedDict):
     # for a volatility state that function does not know.
     risk_regime: str
     # `risk_score` and `signal_strength` both held bias_score and were removed
-    # at sequence item 13. bias.score is that number's one home.
-    confidence_score: float
-    trade_quality_proposed: float
-    validation_state: str
-    validation_score: float
-    validation_note: str
+    # at sequence item 13.
     # The five position-sizing fields were declared here and removed at
     # sequence item 13 — see module docstring.
-    ev_r: float
-    assumed_win_rate: float
-    avg_reward_r: float
+    #
+    # STAGE 5 OF THE REDESIGN, 15 November 2026. Eight more left this block,
+    # which now carries the plan and the two verdicts about it and nothing
+    # else:
+    #
+    #     confidence_score       (float)  abs(bias.score)
+    #     trade_quality_proposed (Any)    entry.score under a second name
+    #     validation_state       (str)    the 70 / 45 bands
+    #     validation_score       (float)  50 +/- two deltas
+    #     validation_note        (str)    the macro and volume notes joined
+    #     ev_r                   (float)  a rescaling of confidence
+    #     assumed_win_rate       (float)  confidence, as a percent
+    #     avg_reward_r           (float)  AVG_REWARD_R, 2.0
+    #
+    # The records are in models/decision_model.py (the first and the last
+    # three), core/engine_core.py (the three validation fields, of which the
+    # macro note survives as the top-level `macro_note`) and, for the second,
+    # round 8's F8: one name for one meaning.
 
 
 class ExitBlock(TypedDict):
@@ -230,7 +278,8 @@ class BtcContextBlock(_BtcContextRequired, total=False):
     detailed: str
     regime: str
     volatility: str
-    trend_health: float
+    # Stage 5 of the redesign, 15 November 2026: `trend_health` (float) was
+    # declared here, BTC's own score, and left with the score itself.
     correlation: float
     correlation_label: str
     beta: float
@@ -241,7 +290,7 @@ class BtcContextBlock(_BtcContextRequired, total=False):
     # confidence, removed by Viktor's ruling of 5 October (point 7: Bitcoin is
     # reference only). The block now carries only what engine_core measured.
     # RULING, 12 September 2026 (Viktor). BTC's own indicator failures
-    # (compute_trend_health's degraded_inputs) are recorded here for the
+    # (compute_trend_readings's degraded_inputs) are recorded here for the
     # decision log, and deliberately go no further: never appended to the
     # top-level `degradation` block, never read by panel_render.py. See
     # engine_core.py's comment at the btc_context assembly for why.
@@ -353,6 +402,19 @@ class LineageBlock(TypedDict):
     sign of bias_score picks: price, atr, volatility_state and bias_score,
     all four recorded here.
 
+    THE REDESIGN'S STAGE 2, 14 November 2026. `direction` is new: what the
+    direction compared -- EMA50's slope and the order of EMA_20 and EMA_50,
+    each as a word, and the result (models/bias_engine.py,
+    direction_from_emas). The numbers themselves are in
+    indicators_at_decision_bar. `risk_inputs` records `side` where it recorded
+    bias_score: the side is passed to the stop now, not read off a sign.
+    STAGE 5, 15 November 2026: `bias_components` was declared below, the
+    weighted sum's breakdown -- each of the six factors' input, signed value,
+    weight and contribution, the CHOCH discount, the clip and the threshold,
+    thirty-four leaves in all. It explained bias.score, which confidence
+    read; both are gone, so the chain above runs from the candles through the
+    indicators to `direction` and the gates, with no weighted number in it.
+
     A note on what `archive.path` means when it is None. It means nothing was
     written for this run -- not that the path is unknown. The alternative, a
     record naming the file that WOULD have been used, is the exact defect
@@ -363,7 +425,7 @@ class LineageBlock(TypedDict):
     run_hash: str
     inputs: Dict[str, Any]
     indicators_at_decision_bar: Dict[str, Any]
-    bias_components: Dict[str, Any]
+    direction: Dict[str, Any]
     risk_inputs: Dict[str, Any]
     archive: Dict[str, Any]
 
@@ -372,6 +434,11 @@ class DecisionObject(TypedDict):
     symbol: str
     timeframe: str
     macro_bias: str
+    # Stage 5 of the redesign, 15 November 2026: one sentence on how the
+    # higher timeframe stands relative to this bias, beside the reading it is
+    # about. It is what survives risk.validation_note, and it decides
+    # nothing: gate 6 is what acts on the macro.
+    macro_note: str
     bias: BiasBlock
     trend: TrendBlock
     structure: StructureBlock
@@ -404,6 +471,7 @@ class EngineOutput(TypedDict):
     symbol: str
     timeframe: str
     macro_bias: str
+    macro_note: str                        # stage 5 of the redesign
     bias: Dict[str, Any]
     trend: Dict[str, Any]
     structure: Dict[str, Any]

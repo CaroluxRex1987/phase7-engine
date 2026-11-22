@@ -93,7 +93,7 @@ def _build(entry=None, risk=None, exit_data=None):
         entry={**ROUTER_READS_ENTRY, **(entry if entry is not None else {})},
         risk=risk if risk is not None else {},
         exit_data=exit_data if exit_data is not None else {},
-        macro_bias="NEUTRAL", chart_path="",
+        macro_bias="NEUTRAL", macro_note="The higher timeframe is neutral.", chart_path="",
     )
 
 

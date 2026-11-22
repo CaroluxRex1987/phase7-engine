@@ -223423,3 +223423,1444 @@ Line 6271 of the version at `a3c863e`:
 ~~~~~
   work. **His, when the paper account's size is set:** F against his slice.
 ~~~~~
+
+## 14 November 2026 — the lines the rewrite of PHASE7_NEXT.md removed from its version at `696af24`
+
+*Moved here on 14 November 2026 by stage 1 of the redesign's build, the first commit
+on the branch `redesign`, under "Ruling, 4 November 2026 — HISTORY
+keeps what each rewrite of PHASE7_NEXT.md removes, not the whole file" (DECISIONS).
+Below the rule, each block is a run of lines of the file as it stood at `696af24` that
+the rewrite deleted or replaced, word for word, labelled with its line numbers in that
+version; "this session" in them is the session that opened at 01:16 on 13 November,
+not the one that writes this entry, which opened at 07:04 on 14 November, and "the
+commit that writes this line" and "this commit" name `696af24`. The
+whole version: `git show 696af24:docs/PHASE7_NEXT.md`. Checked by
+`docs/build/check_history_move.py`.*
+
+---
+
+Lines 3–5 of the version at `696af24`:
+
+~~~~~
+*13 November 2026, in the session that opened at 01:16. Rewritten by the commit that
+files Viktor's ruling of 01:15 on 13 November, the redesign's code built on a
+`redesign` branch in a second worktree, and records `a3c863e`'s landing;
+~~~~~
+
+Line 7 of the version at `696af24`:
+
+~~~~~
+`a3c863e` are in HISTORY, which points to that whole version in git.
+~~~~~
+
+Line 3983 of the version at `696af24`:
+
+~~~~~
+- **Golden snapshot:** unchanged by the commit that writes this line and by `9cc48d7`,
+~~~~~
+
+Lines 4042–4043 of the version at `696af24`:
+
+~~~~~
+- **Test suite** — **977 passed / 0 failed, no warnings line** with `pandas_ta`;
+  **801 passed / 165 skipped** without it; `run_tests.py` **909 passed / 0 failed /
+~~~~~
+
+Lines 4048–4049 of the version at `696af24`:
+
+~~~~~
+  until `713e084` (entry 50). The commit that writes this line changes no test, and the
+  three counts held: from the Linux sandbox, Python 3.12.3, pinned requirements, on an
+~~~~~
+
+Line 4480 of the version at `696af24`:
+
+~~~~~
+- **Engineering Notes:** through Entry #288 (v1.43), which covers `a60d66b`; eight
+~~~~~
+
+Line 4482 of the version at `696af24`:
+
+~~~~~
+  `a3c863e` and the commit that writes this line (below). The gap
+~~~~~
+
+Line 4489 of the version at `696af24`:
+
+~~~~~
+  **Eight commits that need an entry are behind:** `9cc48d7`, which files the ruling of
+~~~~~
+
+Lines 4497–4498 of the version at `696af24`:
+
+~~~~~
+  on 12 November and writes the draft's version 14, and the commit that writes this
+  line, which files the ruling of 01:15 on 13 November; none has one until the next regeneration. `bc250fc`, `9db4ae2`, `82b824d` and
+~~~~~
+
+Line 5468 of the version at `696af24`:
+
+~~~~~
+  defect; until that code lands it is left as it is.
+~~~~~
+
+Line 5735 of the version at `696af24`:
+
+~~~~~
+  health. Entry 58; not in the sort. Claude's suggestion, his to change: a label fix,
+~~~~~
+
+Lines 6153–6158 of the version at `696af24`:
+
+~~~~~
+- **The worktree's setup — Viktor's commands, after this commit's push.** Given with
+  this commit's delivery: `git worktree add E:\phase7_redesign -b redesign` from
+  `E:\phase7_engine`, then, in the new folder, the hooks path read, the handover
+  check, the two suites and `git push -u origin redesign`, which runs the pre-push
+  hook there. They are the Windows evidence for what the sandbox showed on Linux. The
+  first commit on the branch records how they went.
+~~~~~
+
+Line 6246 of the version at `696af24`:
+
+~~~~~
+  `quote_volume`, which the fetcher drops today. Added on 1 November: entry 58's rule,
+~~~~~
+
+## 14 November 2026 — the lines the rewrite of PHASE7_NEXT.md removed from its version at `6038283`
+
+*Moved here on 14 November 2026 by stage 2 of the redesign's build, the second commit
+on the branch `redesign`, under "Ruling, 4 November 2026 — HISTORY
+keeps what each rewrite of PHASE7_NEXT.md removes, not the whole file" (DECISIONS).
+Below the rule, each block is a run of lines of the file as it stood at `6038283` that
+the rewrite deleted or replaced, word for word, labelled with its line numbers in that
+version; "this session" in them is the session that opened at 07:04 on 14 November,
+not the one that writes this entry, which opened at 08:05 the same day, and "the
+commit that writes this line", "the commit that writes this section" and "this
+commit" name `6038283`. The
+whole version: `git show 6038283:docs/PHASE7_NEXT.md`. Checked by
+`docs/build/check_history_move.py`.*
+
+---
+
+Lines 3–6 of the version at `6038283`:
+
+~~~~~
+*14 November 2026, in the session that opened at 07:04, on the branch `redesign`.
+Rewritten by stage 1 of the redesign's build, the branch's first commit, which also
+files the cut of that build into six stages and records `696af24`'s landing and the
+worktree's setup;
+~~~~~
+
+Line 8 of the version at `6038283`:
+
+~~~~~
+`696af24` are in HISTORY, which points to that whole version in git.
+~~~~~
+
+Line 45 of the version at `6038283`:
+
+~~~~~
+1. **Inputs — landed by the commit that writes this section.** `quote_volume` is
+~~~~~
+
+Lines 50–52 of the version at `6038283`:
+
+~~~~~
+   in and nothing calls it. No decision reads any of it: the action is unchanged.
+   Its live run is recorded in its commit message.
+2. **Direction** — EMA50's slope plus the EMAs' order. **Next.**
+~~~~~
+
+Line 56 of the version at `6038283`:
+
+~~~~~
+   flags.
+~~~~~
+
+Lines 74–78 of the version at `6038283`:
+
+~~~~~
+**The draft's error found at stage 1:** §5 has the golden run's `quote_volume` come
+from `docs/build/make_pinned.py`; the golden test derives its series from
+`tests/fixtures/ohlcv_clean_4h.csv` and never reads that script's output. Stage 1
+adds the column in both places by one rule. Recorded in the DECISIONS entry; the
+draft is reconciled at stage 6.
+~~~~~
+
+Lines 80–86 of the version at `6038283`:
+
+~~~~~
+**`696af24`'s landing and the worktree's setup.** Viktor's opening message of
+14 November: both "were checked on 13 November at 02:53 and hold: do not check them
+again, record them in stage 1's commit." Recorded here on that statement; this
+session read neither again. What it did read: `origin/redesign` and `origin/master`
+were both `696af24` when it cloned, at about 07:05 on 14 November, and the two files
+it staged from `E:\phase7_redesign\docs` before any change were byte for byte the
+branch's.
+~~~~~
+
+Line 3961 of the version at `6038283`:
+
+~~~~~
+- **code_hash:** `816d4951bb0322763ec4abc4b9ed8161d5b902372823350e5272f2fb7176e380`,
+~~~~~
+
+Lines 4036–4038 of the version at `6038283`:
+
+~~~~~
+- **Golden snapshot:** **re-baselined by the commit that writes this line, stage 1 of
+  the redesign's build, with `PHASE7_UPDATE_SNAPSHOT=1`: 7 leaves move and 1 is new,
+  as predicted before the run.** Moved: `lineage.inputs.struct.columns` (gains
+~~~~~
+
+Lines 4106–4107 of the version at `6038283`:
+
+~~~~~
+- **Test suite** — **1009 passed / 0 failed, no warnings line** with `pandas_ta`;
+  **833 passed / 165 skipped** without it; `run_tests.py` **941 passed / 0 failed /
+~~~~~
+
+Lines 4112–4114 of the version at `6038283`:
+
+~~~~~
+  until `713e084` (entry 50). The commit that writes this line, stage 1 of the
+  redesign's build, adds 32 tests in three new files, none taking a fixture, so each
+  count rises by 32 and the errors stay 31; it changes five existing test files
+~~~~~
+
+Line 4553 of the version at `6038283`:
+
+~~~~~
+- **Engineering Notes:** through Entry #288 (v1.43), which covers `a60d66b`; nine
+~~~~~
+
+Lines 4555–4556 of the version at `6038283`:
+
+~~~~~
+  `a3c863e`, `696af24` and the commit that writes this line, the first to change
+  code among them (below). The gap
+~~~~~
+
+Line 4563 of the version at `6038283`:
+
+~~~~~
+  **Nine commits that need an entry are behind:** `9cc48d7`, which files the ruling of
+~~~~~
+
+Lines 4572–4573 of the version at `6038283`:
+
+~~~~~
+  of 01:15 on 13 November, and the commit that writes this
+  line, stage 1 of the redesign's build; none has one until the next regeneration. `bc250fc`, `9db4ae2`, `82b824d` and
+~~~~~
+
+Lines 6234–6235 of the version at `6038283`:
+
+~~~~~
+- **Claude's, next: stage 2 of the redesign's build, direction** (THE REDESIGN'S
+  BUILD, above).
+~~~~~
+
+## 15 November 2026 — the lines the rewrite of PHASE7_NEXT.md removed from its version at `c012e5b`
+
+*Moved here on 15 November 2026 by stage 3 of the redesign's build, the third commit
+on the branch `redesign`, under "Ruling, 4 November 2026 — HISTORY
+keeps what each rewrite of PHASE7_NEXT.md removes, not the whole file" (DECISIONS).
+Below the rule, each block is a run of lines of the file as it stood at `c012e5b` that
+the rewrite deleted or replaced, word for word, labelled with its line numbers in that
+version; "this session" in them is the session that opened at 08:05 on 14 November,
+not the one that writes this entry, which opened at 07:17 on 15 November, and "the
+commit that writes this line", "the commit that writes this section" and "this
+commit" name `c012e5b`. The
+whole version: `git show c012e5b:docs/PHASE7_NEXT.md`. Checked by
+`docs/build/check_history_move.py`.*
+
+---
+
+Lines 3–5 of the version at `c012e5b`:
+
+~~~~~
+*14 November 2026, in the session that opened at 08:05, on the branch `redesign`.
+Rewritten by stage 2 of the redesign's build, the branch's second commit, which also
+files the readings made building it and records `6038283`'s landing;
+~~~~~
+
+Line 7 of the version at `c012e5b`:
+
+~~~~~
+`6038283` are in HISTORY, which points to that whole version in git.
+~~~~~
+
+Line 50 of the version at `c012e5b`:
+
+~~~~~
+2. **Direction — landed by the commit that writes this section** (DECISIONS,
+~~~~~
+
+Line 59 of the version at `c012e5b`:
+
+~~~~~
+3. **Gates 6 to 8** — macro on LONG, the liquidity floor, the trigger and its volume.
+~~~~~
+
+Line 61 of the version at `c012e5b`:
+
+~~~~~
+4. **Entry quality** D + H, the tiers 70 and 50, gate 9, the second pinned decision.
+~~~~~
+
+Lines 67–69 of the version at `c012e5b`:
+
+~~~~~
+**The branch's `code_hash`:** `43d15cbb…` since stage 2, `a3d499df…` at stage 1,
+`816d4951…` on `master`, which the scheduled task runs. Computed in the Linux
+sandbox on both trees at each stage; stage 1's is also on its live record.
+~~~~~
+
+Lines 93–102 of the version at `c012e5b`:
+
+~~~~~
+- An absent `quote_volume` means nothing yet. The draft's §5 makes it a missing input
+  (the run degraded, gate 7 recording "not measured"); that arrives with gate 7, in
+  stage 3. `tests/test_quote_volume_reaches_the_frame.py::test_a_frame_without_quote_volume_is_still_a_frame_until_stage_3`
+  holds today's behaviour and is moved then.
+- No sentence prints through the helper yet.
+  `tests/test_compared_value_text.py::test_no_engine_module_calls_the_helper_yet`
+  holds that and is removed by the stage that first uses it.
+- F, 10,000 USDT, is not a constant yet, so no test sets the fixture against it. By
+  computation at stage 1 (Linux sandbox), the fixture's smallest `quote_volume` is
+  10,650.0211 and the decision candle's 67,901.6508, the draft's figures.
+~~~~~
+
+Lines 126–128 of the version at `c012e5b`:
+
+~~~~~
+  `btc_context.detailed` moves to BEARISH. **Before stage 3, every figure the draft
+  gives for the golden run is to be recomputed from the golden test's own three
+  series, not taken from §13.**
+~~~~~
+
+Lines 135–148 of the version at `c012e5b`:
+
+~~~~~
+**`6038283`'s landing.** Viktor's opening message of 14 November: stage 1 landed as
+`6038283` (tree `f3bec8f9…`), pushed at about 08:04, and its landing "was checked at
+08:05 against GitHub and the 22 files on disk and holds, except the worktree's index,
+COMMIT_EDITMSG and refs under `E:\phase7_engine\.git`, which were not read: check
+those". Read by this session at 08:06 to 08:07, off his disk and from GitHub, and
+they hold: the worktree's index is the commit's tree, entry for entry (307);
+`COMMIT_EDITMSG` is the commit's message byte for byte, with no CR; the loose commit
+object hashes to its name and is GitHub's; `refs\heads\redesign` and
+`refs\remotes\origin\redesign` are `6038283`, written at 08:04:31 and 08:04:46, their
+reflogs ending in the commit and "update by push"; the commit's tree is the one its
+`Verified-Tree:` line names; GitHub's `redesign` was `6038283` at 08:06:58; and
+`master` has not moved, `696af24` on his disk (written 13 November, 02:44) and on
+GitHub. The 22 files and the earlier read of GitHub are recorded on his statement;
+this session read neither again.
+~~~~~
+
+Lines 4023–4025 of the version at `c012e5b`:
+
+~~~~~
+- **code_hash:** **on this branch `43d15cbb…` since stage 2 of the redesign's build
+  and `a3d499df…` at stage 1** (THE REDESIGN'S BUILD, above; stage 1 moved it and
+  left this line saying `816d4951…`, found at stage 2). What follows is the record
+~~~~~
+
+Lines 4102–4105 of the version at `c012e5b`:
+
+~~~~~
+- **Golden snapshot:** **re-baselined by the commit that writes this line, stage 2 of
+  the redesign's build, with `PHASE7_UPDATE_SNAPSHOT=1`: 6 leaves move, 4 are new and
+  2 are removed, 230 leaves from 228; `exit.action` is still CONSERVATIVE LONG, and
+  `explanation` does not move.** Moved: `bias.detailed` (BULLISH CONFIRMED → BULLISH),
+~~~~~
+
+Lines 4186–4187 of the version at `c012e5b`:
+
+~~~~~
+- **Test suite** — **1018 passed / 0 failed, no warnings line** with `pandas_ta`;
+  **833 passed / 174 skipped** without it; `run_tests.py` **950 passed / 0 failed /
+~~~~~
+
+Lines 4192–4193 of the version at `c012e5b`:
+
+~~~~~
+  until `713e084` (entry 50). The commit that writes this line, stage 2 of the
+  redesign's build, takes the suite from 1009 to 1018, from 833 / 165 to 833 / 174,
+~~~~~
+
+Line 4643 of the version at `c012e5b`:
+
+~~~~~
+- **Engineering Notes:** through Entry #288 (v1.43), which covers `a60d66b`; ten
+~~~~~
+
+Lines 4645–4646 of the version at `c012e5b`:
+
+~~~~~
+  `a3c863e`, `696af24`, `6038283`, the first to change code among them, and the
+  commit that writes this line (below). The gap
+~~~~~
+
+Line 4653 of the version at `c012e5b`:
+
+~~~~~
+  **Ten commits that need an entry are behind:** `9cc48d7`, which files the ruling of
+~~~~~
+
+Lines 4662–4664 of the version at `c012e5b`:
+
+~~~~~
+  of 01:15 on 13 November, `6038283`, stage 1 of the redesign's build, and the
+  commit that writes this
+  line, stage 2 of it; none has one until the next regeneration. `bc250fc`, `9db4ae2`, `82b824d` and
+~~~~~
+
+Lines 6325–6330 of the version at `c012e5b`:
+
+~~~~~
+- **Claude's, next: stage 3 of the redesign's build, gates 6 to 8** (THE REDESIGN'S
+  BUILD, above), after recomputing the draft's figures for the golden run from the
+  golden test's own series.
+- **Viktor's, when he reads it: stage 2's three readings that change something he
+  ruled or would see** (THE REDESIGN'S BUILD, above). None waits for him; each is his
+  to reverse, and a reversal is cheapest before stage 3.
+~~~~~
+
+## 15 November 2026 — the lines the rewrite of PHASE7_NEXT.md removed from its version at `5e7e429`
+
+*Moved here on 15 November 2026 by stage 4 of the redesign's build, the fourth commit
+on the branch `redesign`, under "Ruling, 4 November 2026 — HISTORY
+keeps what each rewrite of PHASE7_NEXT.md removes, not the whole file" (DECISIONS).
+Below the rule, each block is a run of lines of the file as it stood at `5e7e429` that
+the rewrite deleted or replaced, word for word, labelled with its line numbers in that
+version; "this session" in them is the session that opened at 07:17 on 15 November,
+not the one that writes this entry, which opened at 11:28 on 15 November, and "the
+commit that writes this line", "the commit that writes this section" and "this
+commit" name `5e7e429`. The
+whole version: `git show 5e7e429:docs/PHASE7_NEXT.md`. Checked by
+`docs/build/check_history_move.py`.*
+
+---
+Lines 3–5 of the version at `5e7e429`:
+
+~~~~~
+*15 November 2026, in the session that opened at 07:17, on the branch `redesign`.
+Rewritten by stage 3 of the redesign's build, the branch's third commit, which also
+files the readings made building it and records `c012e5b`'s landing;
+~~~~~
+
+Line 7 of the version at `5e7e429`:
+
+~~~~~
+`c012e5b` are in HISTORY, which points to that whole version in git.
+~~~~~
+
+Line 59 of the version at `5e7e429`:
+
+~~~~~
+3. **Gates 6 to 8 — landed by the commit that writes this section** (DECISIONS,
+~~~~~
+
+Lines 63–76 of the version at `5e7e429`:
+
+~~~~~
+   `quote_volume` at least `LIQUIDITY_FLOOR_USDT`, 10,000 (gate 7), are blockers on
+   the confirmation signal's list, each with a label of its own, NO-TRADE (MACRO
+   AGAINST) and NO-TRADE (THIN MARKET); the label a refused side takes is the first
+   gate's, in order, that it does not pass, recorded as `entry.long_signal_refusal`
+   and `entry.short_signal_refusal`. Gate 8 follows the signal: the decision candle
+   closes beyond its open and the previous close, on a volume strictly above the
+   median of the `TRIGGER_VOLUME_LOOKBACK`, 20, candles before it, or the action is
+   WAIT; `entry.trigger`, `.trigger_volume`, `.trigger_volume_median`,
+   `.quote_volume` and `.liquidity_floor` record what was read. A frame without
+   `quote_volume` is now a degraded run. The panel prints TURNOVER, TRIGGER and
+   TRIGGER VOLUME under STATUS. **The golden decision is a WAIT at gate 8.** Its
+   live run is recorded in its commit message.
+4. **Entry quality** D + H, the tiers 70 and 50, gate 9, the second pinned decision.
+   **Next.**
+~~~~~
+
+Line 78 of the version at `5e7e429`:
+
+~~~~~
+   flags, **and the weighted sum** (below).
+~~~~~
+
+Lines 82–85 of the version at `5e7e429`:
+
+~~~~~
+**The branch's `code_hash`:** `b8afef79…` since stage 3, `43d15cbb…` at stage 2,
+`a3d499df…` at stage 1, `816d4951…` on `master`, which the scheduled task runs.
+Computed in the Linux sandbox on both trees at each stage; stage 1's and stage 2's
+are also on their live records.
+~~~~~
+
+Lines 89–98 of the version at `5e7e429`:
+
+~~~~~
+- **The ladder's tiers are still trend health's.** Gate 8 runs on a trade the old
+  ladder chose, and a refusal by gate 6 or 7 still reads "This would have been
+  CONSERVATIVE LONG", a tier stage 4 redefines. `explanation.reasons` therefore
+  moves again in stages 4 and 5; gate 8's sentence, the summary it gives and the
+  golden action do not.
+- **Entry 58's helper has an edge, found and not fixed:** a value equal to a line
+  that needs more than two decimals prints above it (100.123456 against itself
+  prints "100.13"). No constant line in the engine has decimals. Gate 8's median is
+  a line the data gives; there the equal case is printed exactly, and a test holds
+  it. For stage 4, which prints entry quality against 70 and 50 through the helper.
+~~~~~
+
+Line 100 of the version at `5e7e429`:
+
+~~~~~
+  constant in six files; stage 4 does the same for entry quality's inputs.
+~~~~~
+
+Lines 167–168 of the version at `5e7e429`:
+
+~~~~~
+  series, not taken from §13;** done before stage 3 (below), and owed before
+  stage 4 for §13.1's gate 9 (`d` 3.2070 ATR, `h` 15.1202 ATR, entry quality 0).
+~~~~~
+
+Lines 180–188 of the version at `5e7e429`:
+
+~~~~~
+**`c012e5b`'s landing.** Viktor's opening message of 15 November, sent at 07:17:
+stage 2 landed as `c012e5b` (tree `92e611f1…`), pushed on 15 November at 06:21:05,
+and its landing "was checked at 06:21:48 against GitHub and the disk and holds: tip,
+parent 6038283, tree against Verified-Tree, message, COMMIT_EDITMSG, index (308
+entries), the 31 files, the root clean, master still 696af24". Recorded on his
+statement. Of it this session read from GitHub, by its clone of 07:17: `redesign`'s
+tip is `c012e5b`, its parent `6038283`, its tree
+`92e611f15fe7304574762b9b353a8af4d29136a5`, the one its `Verified-Tree:` line names,
+and `master` is `696af24`. His disk was not read again for it.
+~~~~~
+
+Lines 4243–4244 of the version at `5e7e429`:
+
+~~~~~
+- **Test suite** — **1058 passed / 0 failed, no warnings line** with `pandas_ta`;
+  **869 passed / 178 skipped** without it; `run_tests.py` **990 passed / 0 failed /
+~~~~~
+
+Lines 4249–4258 of the version at `5e7e429`:
+
+~~~~~
+  until `713e084` (entry 50). The commit that writes this line, stage 3 of the
+  redesign's build, takes the suite from 1018 to 1058, from 833 / 174 to 869 / 178,
+  and from 950 / 0 / 31 to 990 / 0 / 31: 40 tests in one new file,
+  `tests/test_gates_6_to_8.py`, none taking a fixture, so the errors stay 31; four
+  of them run the engine and skip without `pandas_ta`. No test is removed: five
+  are renamed, the draft's two X, turned round; the one stage 1 left to be moved;
+  the one that held "no module calls the helper yet", which now holds which three
+  do; and the golden note test, whose copy is turned the other way. Thirteen existing test files change and one is new. From
+  the Linux sandbox, Python 3.12.3, pinned requirements, on the patch applied to an
+  autocrlf clone of `c012e5b` at `redesign`. `c012e5b`, stage 2 of the
+~~~~~
+
+Line 6381 of the version at `5e7e429`:
+
+~~~~~
+  from the version at `a3c863e` are in HISTORY's new entry, checked by
+~~~~~
+
+Lines 6391–6397 of the version at `5e7e429`:
+
+~~~~~
+- **Claude's, next: stage 4 of the redesign's build, entry quality D + H, the tiers
+  70 and 50, gate 9 and the second pinned decision** (THE REDESIGN'S BUILD, above),
+  after recomputing the draft's figures for the golden run's gate 9 from the golden
+  test's own series.
+- **Viktor's, when he reads it: stage 2's three readings and stage 3's four that
+  change something he ruled or would see** (THE REDESIGN'S BUILD, above). None waits
+  for him; each is his to reverse, and a reversal is cheapest before stage 4.
+~~~~~
+
+## 15 November 2026 — the lines the rewrite of PHASE7_NEXT.md removed from its version at `ebd98e50`
+
+*Moved here on 15 November 2026 by stage 5 of the redesign's build, the fifth commit
+on the branch `redesign`, under "Ruling, 4 November 2026 — HISTORY
+keeps what each rewrite of PHASE7_NEXT.md removes, not the whole file" (DECISIONS).
+Below the rule, each block is a run of lines of the file as it stood at `ebd98e50`
+that the rewrite deleted or replaced, word for word, labelled with its line numbers
+in that version; "this session" in them is the session that opened at 11:28 on
+15 November, not the one that writes this entry, which opened at 20:34 on
+15 November, and "the commit that writes this line", "the commit that writes this
+section" and "this commit" name `ebd98e50`. The
+whole version: `git show ebd98e5:docs/PHASE7_NEXT.md`. Checked by
+`docs/build/check_history_move.py`.*
+
+---
+Lines 3–5 of the version at `ebd98e5`:
+
+~~~~~
+*15 November 2026, in the session that opened at 11:28, on the branch `redesign`.
+Rewritten by stage 4 of the redesign's build, the branch's fourth commit, which also
+files the readings made building it and records `5e7e429`'s landing;
+~~~~~
+
+Line 7 of the version at `ebd98e5`:
+
+~~~~~
+`5e7e429` are in HISTORY, which points to that whole version in git.
+~~~~~
+
+Lines 74–75 of the version at `ebd98e5`:
+
+~~~~~
+4. **Entry quality, the tiers and gate 9 — landed by the commit that writes this
+   section** (DECISIONS, "Decision, 15 November 2026 — stage 4 of the redesign's
+~~~~~
+
+Lines 93–94 of the version at `ebd98e5`:
+
+~~~~~
+5. **Removals** — trend health, confidence and EV, validation, the exit watch's two
+   flags, **and the weighted sum** (below). **Next.**
+~~~~~
+
+Line 96 of the version at `ebd98e5`:
+
+~~~~~
+   and H5 proposed.
+~~~~~
+
+Lines 98–101 of the version at `ebd98e5`:
+
+~~~~~
+**The branch's `code_hash`:** `322cdf66…` since stage 4, `b8afef79…` at stage 3,
+`43d15cbb…` at stage 2, `a3d499df…` at stage 1, `816d4951…` on `master`, which the
+scheduled task runs. Computed in the Linux sandbox on both trees at each stage;
+stage 1's, stage 2's and stage 3's are also on their live records.
+~~~~~
+
+Lines 103–104 of the version at `ebd98e5`:
+
+~~~~~
+**Left for a later stage on purpose, by stage 4** (the entry's readings 3, 5
+and 10, and what it weakens):
+~~~~~
+
+Lines 106–110 of the version at `ebd98e5`:
+
+~~~~~
+- **Trend health, confidence, EV and validation are still computed, recorded and
+  printed, and nothing in the decision reads any of them.** Four numbers on the
+  panel that no gate consults. They leave in stage 5. `validation_score`,
+  `validation_state` and `validation_note` are among them: H1's branch, which
+  read two of them, is gone with the ladder, but the fields stay.
+~~~~~
+
+Lines 115–118 of the version at `ebd98e5`:
+
+~~~~~
+- **`docs/build/indicator_overlap.py` lost its three entry-quality variants**
+  with the record fields they read, and its row carries D, H and their
+  distances. The tool still follows the engine's path, so it goes or is rebuilt
+  with the weighted sum in stage 5.
+~~~~~
+
+Lines 239–253 of the version at `ebd98e5`:
+
+~~~~~
+**`5e7e429`'s landing.** Viktor's opening message of 15 November, sent at 11:28:
+stage 3 landed as `5e7e429` (tree `3d173f87…`), pushed on 15 November at
+08:56:33, and its landing "was checked at 11:24 against GitHub and the disk and
+holds: tip, parent `c012e5b`, tree against Verified-Tree, message, COMMIT_EDITMSG
+less its CRs, index (309 entries), the 28 files, the root clean, master still
+`696af24`". New at that check, on his statement: a `git gc` ran during the
+commit, so no loose objects are left on his disk and the commit object was read
+out of the single pack, where it hashes to its name and equals GitHub's — a
+landing check reads the pack now. Also on his statement: **stage 3 was built by a
+Claude Fable 5.2 session and its landing checked by a Claude Opus 5 one, the
+model having changed mid-session.** Recorded on his statement. Of it this session
+read from GitHub, by its clone of 11:28: `redesign`'s tip is `5e7e429`, its
+parent `c012e5b`, its tree `3d173f87c4cead90cac89390b53e6b99569b3f0f`, the one
+its `Verified-Tree:` line names, and `master` is `696af24`. His disk was not read
+again for it.
+~~~~~
+
+Lines 4209–4212 of the version at `ebd98e5`:
+
+~~~~~
+- **Golden snapshot:** **re-baselined by the commit that writes this line, stage 3 of
+  the redesign's build, with `PHASE7_UPDATE_SNAPSHOT=1`: 7 leaves move and 9 are new,
+  239 leaves from 230; `exit.action` moves from CONSERVATIVE LONG to WAIT, at gate
+  8.** Moved: `exit.action`; `explanation.summary` ("WAIT — No earlier gate refused
+~~~~~
+
+Lines 4308–4309 of the version at `ebd98e5`:
+
+~~~~~
+- **Test suite** — **1061 passed / 0 failed, no warnings line** with `pandas_ta`;
+  **873 passed / 177 skipped** without it; `run_tests.py` **992 passed / 0 failed /
+~~~~~
+
+Lines 4314–4315 of the version at `ebd98e5`:
+
+~~~~~
+  until `713e084` (entry 50). The commit that writes this line, stage 4 of the
+  redesign's build, takes the suite from 1058 to 1061, from 869 / 178 to 873 / 177,
+~~~~~
+
+Line 6458 of the version at `ebd98e5`:
+
+~~~~~
+  from the version at `5e7e429` are in HISTORY's new entry, checked by
+~~~~~
+
+Lines 6468–6479 of the version at `ebd98e5`:
+
+~~~~~
+- **Claude's, next: stage 5 of the redesign's build, the removals** — trend health,
+  confidence and EV, validation, the exit watch's two flags, and the weighted sum
+  (THE REDESIGN'S BUILD, above), after recomputing the draft's figures for the
+  golden run from the golden test's own series, as each stage has. Four numbers
+  the panel prints that no gate now reads leave there, and
+  `docs/build/indicator_overlap.py` goes or is rebuilt with the sum.
+- **Viktor's, when he reads it: stage 2's three readings, stage 3's four and stage
+  4's five that change something he ruled or would see** (THE REDESIGN'S BUILD,
+  above). None waits for him; each is his to reverse, and a reversal is cheapest
+  before the merge, and cheaper still before stage 5 for anything stage 5 builds
+  on — gate 9's place last in the ladder above all, since stage 5 removes the
+  sentences around it.
+~~~~~
+
+## 17 November 2026 — the lines the rewrite of PHASE7_NEXT.md removed from its version at `f6fff24a`
+
+*Moved here on 17 November 2026 by stage 6 of the redesign's build, the sixth commit on
+the branch `redesign`, under "Ruling, 4 November 2026 — HISTORY keeps what each rewrite
+of PHASE7_NEXT.md removes, not the whole file" (DECISIONS). Below the rule, each block
+is a run of lines of the file as it stood at `f6fff24a` that the rewrite deleted or
+replaced, word for word, labelled with its line numbers in that version; "this session"
+in them is the session that opened at 20:34 on 15 November, not the one that writes this
+entry, which opened at 20:30 on 16 November, and "the commit that writes this line",
+"the commit that writes this section" and "this commit" name `f6fff24a`. The whole
+version: `git show f6fff24:docs/PHASE7_NEXT.md`. Checked by
+`docs/build/check_history_move.py`.*
+
+---
+Lines 3–7 of the version at `f6fff24`:
+
+~~~~~
+*15 November 2026, in the session that opened at 20:34, on the branch `redesign`.
+Rewritten by stage 5 of the redesign's build, the branch's fifth commit, which also
+files the readings made building it and records `ebd98e50`'s landing;
+the lines it removed from the version at
+`ebd98e50` are in HISTORY, which points to that whole version in git.
+~~~~~
+
+Lines 37–39 of the version at `f6fff24`:
+
+~~~~~
+**Six stages on `redesign`, then the merge** (DECISIONS, "Decision, 14 November 2026 —
+the redesign's code is cut into six stages; what stage 1 is"; Claude's, Viktor's to
+reverse). Every stage leaves the engine running and the three suites green, with a
+~~~~~
+
+Line 92 of the version at `f6fff24`:
+
+~~~~~
+5. **The removals — landed by the commit that writes this section** (DECISIONS,
+~~~~~
+
+Lines 122–123 of the version at `f6fff24`:
+
+~~~~~
+6. **Reconciliation** against the draft's sections 13 and 14; replacements for H1, H2
+   and H5 proposed. **Next.**
+~~~~~
+
+Line 132 of the version at `f6fff24`:
+
+~~~~~
+deleting `docs/build/indicator_overlap.py` and six test files moves nothing.
+~~~~~
+
+Lines 137–151 of the version at `f6fff24`:
+
+~~~~~
+- **Two indicator columns are now produced every run and read by nothing:**
+  `EMA20_Slope`, which trend health read twice, and `VWMA`, which entry quality
+  scored a distance from until stage 4. Both are still computed and still in
+  `lineage.indicators_at_decision_bar`, which is where the draft's section 2
+  leaves them. **That is an Item 16 breach — no unconsumed complexity — and it
+  is recorded rather than fixed here:** removing a column moves the struct input
+  hash, `run_hash` and the nineteen `indicators_at_decision_bar` leaves this
+  stage's plan says do not move, so it belongs to stage 6, and it is **Viktor's
+  to know about** (Open items). `tests/test_no_dead_columns.py` says which
+  columns anything reads.
+- **`indicators/trend_health.py` and `compute_trend_health` keep their names**
+  and compute no trend health. That is round 8's F8, one name for one meaning, in
+  the place the project has recorded it before. A rename touches every caller,
+  the tests that import it and the change list, and a rename is not a removal, so
+  it is stage 6's, recorded in the module itself.
+~~~~~
+
+Lines 157–159 of the version at `f6fff24`:
+
+~~~~~
+  and entry quality to about ±2 to ±4 points. H5's fix removes the known defect
+  that puts volume in the wrong bin and is proposed in stage 6, with H1's and
+  H2's.
+~~~~~
+
+Line 210 of the version at `f6fff24`:
+
+~~~~~
+- H5's replacement as a held-back defect: stage 6, with H1's and H2's.
+~~~~~
+
+Line 292 of the version at `f6fff24`:
+
+~~~~~
+**The draft's errors found so far; the draft is not edited until stage 6:**
+~~~~~
+
+Lines 346–355 of the version at `f6fff24`:
+
+~~~~~
+**`ebd98e50`'s landing.** Viktor's opening message of 15 November, sent at 20:34:
+stage 4 landed as `ebd98e50` (tree `b7e6d9a6…`), pushed on 15 November at
+20:27:15, and its landing "was checked at 20:30 against GitHub and the disk and
+holds: tip, parent `5e7e429`, tree against Verified-Tree, message, COMMIT_EDITMSG
+less its CRs, index (312 entries), the 40 files, the deleted file gone, the root
+clean, master still `696af24`". New at that check, on his statement: **the commit
+object is loose again, not packed**, and hashes to its name with no CR, so no
+`git gc` has run since stage 3's — a landing check reads whichever of the two the
+disk has. Also on his statement: **stage 4 was built and its landing checked by
+one Claude Opus 5 session.**
+~~~~~
+
+Lines 357–371 of the version at `f6fff24`:
+
+~~~~~
+**And, on his statement, the one deviation of that landing, which is why every
+command in a delivery now names its folder.** Five `git add` steps of stage 4's
+list were pasted into a fresh console sitting in `E:\phase7_engine` and ran
+there. They staged nothing — those files are unchanged on `master`, so git left
+the index alone — and the sixth stopped with `fatal: pathspec
+'core/threshold_text.py' did not match any files`, that file existing only on the
+branch. **Had every path existed on `master` the list would have run to the
+commit**, where only the commit-msg hook would have caught it. A `cd` as step 1
+is only as good as the console it is pasted into. The patch-delivery skill's
+sections 7 and 11 were updated for it — `git -C E:\phase7_redesign …` and
+absolute paths for `del`, with no `cd` step at all — and **this session checked
+that the update was saved**: the skill is marked current as of `ebd98e50` and
+both sections carry the new form. It is the structural fix in the shape he
+prefers: the safe action is the only available one, rather than a step to
+remember.
+~~~~~
+
+Lines 373–377 of the version at `f6fff24`:
+
+~~~~~
+Of stage 4 this session read from GitHub, by its clone of 20:35: `redesign`'s tip
+is `ebd98e50`, its parent `5e7e429`, its tree
+`b7e6d9a6f1ce1038bf08f2b91f5f95f0db01388a`, the one its `Verified-Tree:` line
+names, and `master` is `696af24919ba73eb676a996c58365abf94635bad`. His disk was
+not read again for it.
+~~~~~
+
+Line 4333 of the version at `f6fff24`:
+
+~~~~~
+- **Golden snapshot:** **re-baselined by the commit that writes this line, stage 5
+~~~~~
+
+Line 4469 of the version at `f6fff24`:
+
+~~~~~
+  until `713e084` (entry 50). **The commit that writes this line, stage 5 of the
+~~~~~
+
+Lines 4966–4969 of the version at `f6fff24`:
+
+~~~~~
+- **Engineering Notes:** through Entry #288 (v1.43), which covers `a60d66b`; eleven
+  commits behind, `9cc48d7`, `a9b83a9`, `66b5c50`, `b26e5c7`, `6df23f4`, `dac70c1`,
+  `a3c863e`, `696af24`, `6038283`, the first to change code among them, `c012e5b`
+  and the commit that writes this line (below). The gap
+~~~~~
+
+Line 4976 of the version at `f6fff24`:
+
+~~~~~
+  **Eleven commits that need an entry are behind:** `9cc48d7`, which files the ruling of
+~~~~~
+
+Lines 4986–4987 of the version at `f6fff24`:
+
+~~~~~
+  stage 2 of it, and the commit that writes this
+  line, stage 3; none has one until the next regeneration. `bc250fc`, `9db4ae2`, `82b824d` and
+~~~~~
+
+Line 5568 of the version at `f6fff24`:
+
+~~~~~
+  the audit.
+~~~~~
+
+Line 5769 of the version at `f6fff24`:
+
+~~~~~
+  Amazon's audit as H2** (the same ruling): left as it is until after the audit.
+~~~~~
+
+Lines 5959–5960 of the version at `f6fff24`:
+
+~~~~~
+  whose 4.2 test fails on the code before it). Its replacement as a held-back defect
+  is proposed at stage 6.
+~~~~~
+
+Line 6638 of the version at `f6fff24`:
+
+~~~~~
+  from the version at `ebd98e50` are in HISTORY's new entry, checked by
+~~~~~
+
+Lines 6640–6650 of the version at `f6fff24`:
+
+~~~~~
+- **Four operator-facing strings in `indicators/indicators.py` named calculations
+  that no longer run**, found by scanning every string literal in the engine for
+  the names this stage removes rather than by a failing test. The ADX failure note
+  claimed trend health lost "up to 40 of its 100 points"; the RSI note claimed
+  entry quality scored RSI extension "at its neutral 10 of 15", **which has been
+  false since stage 4 made entry quality D + H** and which no test caught; the EMA
+  note named trend health's slope component; and the volume-spike note named VWMA,
+  the bias score and a capped confidence. All four are rewritten to name what each
+  input now decides. The ADX one is the third correction of that single string —
+  round 5 reported its "25" on 12 September, F9(4) fixed it to 40 on 12 October,
+  and the number itself is what went stale both times.
+~~~~~
+
+Lines 6659–6665 of the version at `f6fff24`:
+
+~~~~~
+- **Claude's, next: stage 6 of the redesign's build, the reconciliation** — the
+  draft's sections 13 and 14 against what was built, and the replacements for the
+  held-back defects H1, H2 and H5 proposed, which was agreed on 11 November for
+  when the redesign's code exists (THE REDESIGN'S BUILD, above). It carries three
+  things this stage left: the two unconsumed indicator columns below,
+  `indicators/trend_health.py`'s name, and §14 reconciled as a list rather than
+  file by file. After it, the merge, as a session of its own.
+~~~~~
+
+Lines 6674–6680 of the version at `f6fff24`:
+
+~~~~~
+- **Viktor's to know, found by stage 5, not fixed: two indicator columns are now
+  computed every run and read by nothing** — `EMA20_Slope` and `VWMA`. That is an
+  Item 16 breach (no unconsumed complexity), and removing a column moves the
+  struct input hash, `run_hash` and the nineteen
+  `lineage.indicators_at_decision_bar` leaves, which this stage's plan says do not
+  move; so it is stage 6's, with his eye on it first. Nothing decides worse for
+  it: the cost is a column computed and recorded that no gate reads.
+~~~~~
+
+## 21 November 2026 — the lines the rewrite of PHASE7_NEXT.md removed from its version at `4d2a036a`
+
+*Moved here on 21 November 2026 by stage 7 of the redesign's build, the seventh commit on
+the branch `redesign`, under "Ruling, 4 November 2026 — HISTORY keeps what each rewrite
+of PHASE7_NEXT.md removes, not the whole file" (DECISIONS). Below the rule, each block
+is a run of lines of the file as it stood at `4d2a036a` that the rewrite deleted or
+replaced, word for word, labelled with its line numbers in that version; "this session"
+in them is the session that opened at 20:30 on 16 November, not the one that writes this
+entry, which opened at 15:40 on 21 November, and "the commit that writes this line",
+"the commit that writes this section" and "this commit" name `4d2a036a`. The whole
+version: `git show 4d2a036:docs/PHASE7_NEXT.md`. Checked by
+`docs/build/check_history_move.py`.*
+
+---
+Lines 3–8 of the version at `4d2a036`:
+
+~~~~~
+*17 November 2026, in the session that opened at 20:30 on 16 November, on the branch
+`redesign`. Rewritten by stage 6 of the redesign's build, the branch's sixth commit,
+which changes no code: it files the reconciliation, two rulings of 17 November and a
+delivery procedure, writes the redesign draft's version 15 and records `f6fff24a`'s
+landing; the lines it removed from the version at `f6fff24a` are in HISTORY, which
+points to that whole version in git.
+~~~~~
+
+Lines 134–137 of the version at `4d2a036`:
+
+~~~~~
+7. **The two unread columns and the module's name.** `EMA20_Slope` and `VWMA` stop being
+   computed, and `indicators/trend_health.py` and `compute_trend_health` become
+   `indicators/trend_readings.py` and `compute_trend_readings`. **Next, and the last
+   before the merge.**
+~~~~~
+
+Line 139 of the version at `4d2a036`:
+
+~~~~~
+**The branch's `code_hash`:** `85c4c826…` since stage 5, `322cdf66…` at stage 4,
+~~~~~
+
+Line 148 of the version at `4d2a036`:
+
+~~~~~
+tree after it, computed on both in the Linux sandbox under Python 3.12.3.
+~~~~~
+
+Lines 168–169 of the version at `4d2a036`:
+
+~~~~~
+  a held-back defect that can move a reading**, which H5 could and none of the four can
+  (Open items).
+~~~~~
+
+Lines 186–202 of the version at `4d2a036`:
+
+~~~~~
+
+- **Two indicator columns are produced every run and read by nothing:** `EMA20_Slope`,
+  which trend health read twice, and `VWMA`, which entry quality scored a distance from
+  until stage 4. Both are still computed and still in
+  `lineage.indicators_at_decision_bar`, which is where the draft's section 2 leaves
+  them. **That is an Item 16 breach — no unconsumed complexity — recorded by stage 5 and
+  fixed by stage 7**, by Viktor's ruling of 17 November. What removing them moves is
+  corrected above. `tests/test_no_dead_columns.py` says which columns anything reads.
+- **`indicators/trend_health.py` and `compute_trend_health` keep their names** and
+  compute no trend health. That is round 8's F8, one name for one meaning, in the place
+  the project has recorded it before, and it is recorded in the module itself. **Stage 7
+  renames them** `indicators/trend_readings.py` and `compute_trend_readings` — Claude's
+  choice of name, Viktor's to reverse; the engine's own failure string for the call
+  already reads "Trend readings failed". The rename reaches `core/engine_core.py`,
+  `models/signal_router.py`, `core/decision_contract.py`, `tests/conftest.py`, eight
+  test files and the change list; it moves `code_hash`, which hashes each file's path,
+  and neither `run_hash` nor a golden leaf.
+~~~~~
+
+Lines 410–416 of the version at `4d2a036`:
+
+~~~~~
+**`f6fff24a`'s landing.** Viktor's opening message of 16 November, sent at 20:30: stage
+5 landed as `f6fff24a` (tree `9b615c6b…`), pushed on 16 November at 20:00:19, and its
+landing was "checked that evening and holds: tip, parent ebd98e50, tree against
+Verified-Tree, message against the delivered file less its 457 CRs, COMMIT_EDITMSG at
+27035 bytes, index 305 entries, the 55 files (48 modified, 7 deleted), the seven deleted
+paths gone, root clean, master still 696af24, and the commit object loose, hashing to
+its name with no CR."
+~~~~~
+
+Lines 418–428 of the version at `4d2a036`:
+
+~~~~~
+**And, on his statement, what stage 5's delivery changed, which is why each check step
+now carries its own folder.** The pytest and `run_tests.py` steps had to change form: "a
+bare python names no folder, and a path handed as an argument does not fail from the
+wrong console, it answers wrongly (3 failed / 997 passed, and 928 / 0 / 34, moving the
+watched error count). Each check step now carries its own os.chdir." The patch-delivery
+skill's sections 7 and 11 were updated for it, and **this session checked that the
+update was saved**: the skill is marked current as of `f6fff24a`, section 7 carries the
+three one-line forms and section 11 carries them for the worktree. That rule, and stage
+4's before it that every git command names its folder, were in no entry of DECISIONS;
+both are filed by this commit (DECISIONS, "Decision, 16 November 2026 — every command of
+a delivery names its folder, and each check step carries its own …").
+~~~~~
+
+Lines 430–438 of the version at `4d2a036`:
+
+~~~~~
+Of stage 5 this session read from GitHub, by its clone of about 20:31 on 16 November:
+`redesign`'s tip is `f6fff24af0cfa5f1e3c1127d1641caa5671d0839`, its parent `ebd98e50`,
+its tree `9b615c6b0ee02063974ae13af796fea9d4741028`, the one its `Verified-Tree:` line
+names, and `master` is `696af24`. Off his disk, on 17 November, it staged the four files
+this commit changes — this file, DECISIONS, HISTORY and the redesign draft — and each is
+byte for byte the tip's in an autocrlf checkout. The staging gave this file's
+modification time as 18:33:04 on 16 November and HISTORY's as 09:08:44 the same day,
+though one commit changed both; read, not explained, and it bears on nothing the landing
+holds.
+~~~~~
+
+Lines 4524–4525 of the version at `4d2a036`:
+
+~~~~~
+- **Test suite** — **1000 passed / 0 failed, no warnings line** with `pandas_ta`;
+  **830 passed / 166 skipped** without it; `run_tests.py` **931 passed / 0 failed /
+~~~~~
+
+Line 4530 of the version at `4d2a036`:
+
+~~~~~
+  until `713e084` (entry 50). Stage 6 moves none of the three. **`f6fff24a`, stage 5 of the
+~~~~~
+
+Line 5027 of the version at `4d2a036`:
+
+~~~~~
+- **Engineering Notes:** through Entry #288 (v1.43), which covers `a60d66b`; **fourteen
+~~~~~
+
+Line 5031 of the version at `4d2a036`:
+
+~~~~~
+  `ebd98e50`, `f6fff24a` and the commit that writes this line, stage 6 (below). This
+~~~~~
+
+Line 5040 of the version at `4d2a036`:
+
+~~~~~
+  **Fourteen commits that need an entry are behind:** `9cc48d7`, which files the ruling of
+~~~~~
+
+Lines 5050–5051 of the version at `4d2a036`:
+
+~~~~~
+  stage 2 of it, `5e7e429`, stage 3, `ebd98e50`, stage 4, `f6fff24a`, stage 5, and the
+  commit that writes this line, stage 6; none has one until the next regeneration.
+~~~~~
+
+Lines 6717–6742 of the version at `4d2a036`:
+
+~~~~~
+- **`a3c863e`'s landing**, checked on 12 November by two sessions, nothing differing
+  (Viktor's message; not read by this session), and recorded by the commit that
+  writes this line, made for its own reason (DECISIONS, the correction of
+  4 November). Its push, and what this session read of it, is in "Where things stand".
+- **Viktor's ruling of 01:15 on 13 November**, by agreeing to Claude's suggestion "B":
+  the redesign's code is built on a `redesign` branch in a second worktree and
+  reaches `master` in one merge; filed by the commit that writes this line
+  (DECISIONS, "Ruling, 13 November 2026 — the redesign's code is built on a `redesign` branch in a second worktree and reaches `master` in one merge").
+- **The four checks he asked for before filing**, and the procedure, Claude's, his to
+  reverse: in the same entry ("What was checked", "The procedure"). In short: the
+  handover check and both hooks run in a worktree unchanged; the scheduled task runs
+  `E:\phase7_engine\main.py` and so stays on `master`'s version; the merge's message
+  names the branch tip's tree; and no docs commit is made on `master` during the
+  build, so none has to reach the branch. Linux sandbox evidence but for what was
+  read off his disk.
+- **The patch-delivery skill**: an update is proposed in this session, a new
+  section 11 for the build on the branch and the marker line moved to `a3c863e`,
+  with the commit that writes this line named as the one that files the ruling
+  section 11 carries.
+- **Found, and not fixed:** three passages of "Where things stand" (which commits
+  changed no test, the `code_hash` computations and the golden snapshot) list
+  commits up to `9cc48d7` and then "the commit that writes this line", so they pass
+  over `a9b83a9`, `66b5c50`, `b26e5c7`, `6df23f4`, `dac70c1`
+  and `a3c863e`, each docs only; one dates "the commit that writes this line" to
+  11 November. Left as found: bringing them current is a read of six commits, a
+  piece of its own (Open items).
+~~~~~
+
+Line 6744 of the version at `4d2a036`:
+
+~~~~~
+  from the version at `f6fff24a` are in HISTORY's new entry, checked by
+~~~~~
+
+Lines 6746–6767 of the version at `4d2a036`:
+
+~~~~~
+- **Stage 6 of the redesign's build, the reconciliation** (THE REDESIGN'S BUILD, above;
+  DECISIONS, "Decision, 17 November 2026 — stage 6 …"; the redesign draft's version 15,
+  §18). No code, no test, no tool.
+- **Two rulings of Viktor's, 17 November, at 07:14:** the build is seven stages, and the
+  held-back defects' replacements are H6, H7 and H8 (THE REDESIGN'S BUILD, above). The
+  second leaves an item owed (Open items).
+- **The delivery procedure of 15 and 16 November, filed:** every command names its
+  folder and each check step carries its own (DECISIONS, "Decision, 16 November 2026 —
+  every command of a delivery names its folder …"). It had been in the patch-delivery
+  skill and in no entry.
+- **Found, and on the list, not fixed:** `models/entry_model.py`'s unused numpy import
+  (entry 65) and `structure/structure.py`'s unreferenced `StructureAnalysisResult`
+  (entry 66).
+- **Claude's errors in this session**, each in stage 6's entry: two counts given to
+  Viktor from the wrong window (15 and ten, where the build's own are 12 and 7);
+  `VWMA_LENGTH`'s remaining reader named as two things where it is one; and the
+  sandbox's first runs made under Python 3.13, found by `code_hash` not being the
+  branch's, and made again under 3.12.3.
+- **By which model, on Viktor's `/model` at 07:14 on 17 November:** the measurements,
+  the search and both suggestions were made by Claude Opus 5; this commit's files and
+  message were written, and the measurements re-run under Python 3.12, by Claude Fable
+  5.2, in the same session.
+~~~~~
+
+Lines 6776–6797 of the version at `4d2a036`:
+
+~~~~~
+- **Claude's, next: stage 7 of the redesign's build, the last before the merge** —
+  `EMA20_Slope` and `VWMA` stop being computed, and `indicators/trend_health.py` and
+  `compute_trend_health` are renamed `indicators/trend_readings.py` and
+  `compute_trend_readings` (THE REDESIGN'S BUILD, above; Viktor's ruling of 17
+  November). Predicted from a read of the code, to be measured: two leaves leave
+  `indicators_at_decision_bar` on each golden run, `code_hash` moves, and the struct
+  input hash, `run_hash`, every other golden leaf and both actions do not; a frame whose
+  VWMA cannot be computed stops being a degraded run on that account. It edits neither
+  `models/decision_model.py` nor `core/panel_render.py`, where H6 to H8 are; if it must,
+  they are re-checked in the same commit. After it, the merge, as a session of its own.
+- **Claude's, owed since 17 November — a held-back defect that can move a reading**
+  (DECISIONS, "Ruling, 17 November 2026 — the held-back defects' replacements are H6, H7
+  and H8 …"). H5 could move the HVN by a bin; H3, H6, H7 and H8 cannot move a number,
+  and H6 and H7 fall to one sweep. Claude searches again once stage 7's code exists, in
+  the tree as it will merge; a find is proposed to Viktor, who rules which of the four
+  it displaces, and no find is put to him as it stands.
+- **Claude's, due and not done — the Engineering Notes.** Not rebuilt since before stage
+  1: fourteen commits behind with this one ("Where things stand"). By the rule of 15
+  September it is batched to a session's close or to several commits landed, and both
+  have come. Not done in this session, which closes on stage 6's landing; it is the next
+  session's first piece after that landing's check, or stage 7's close, whichever Viktor
+  prefers.
+~~~~~
+
+Lines 6806–6813 of the version at `4d2a036`:
+
+~~~~~
+- **Viktor's to know, found by stage 5 and stage 7's by his ruling: two indicator
+  columns are computed every run and read by nothing** — `EMA20_Slope` and `VWMA`, an
+  Item 16 breach (no unconsumed complexity). Stage 5 recorded that removing a column
+  moves the struct input hash, `run_hash` and the nineteen
+  `lineage.indicators_at_decision_bar` leaves; read in the code at stage 6, it moves two
+  of those leaves and `code_hash` and neither hash (THE REDESIGN'S BUILD, above).
+  Nothing decides worse for it meanwhile: the cost is a column computed and recorded
+  that no gate reads.
+~~~~~
+
+## 22 November 2026 — the lines the rewrite of PHASE7_NEXT.md removed from its version at `4200f3b`
+
+*Moved here on 22 November 2026 by the branch `redesign`'s last commit, which writes
+PHASE7_NEXT.md as it is to read on `master`, under "Ruling, 4 November 2026 — HISTORY
+keeps what each rewrite of PHASE7_NEXT.md removes, not the whole file" (DECISIONS).
+Below the rule, each block is a run of lines of the file as it stood at `4200f3b` that
+the rewrite deleted or replaced, word for word, labelled with its line numbers in that
+version; "this session" in them is the session that opened at 15:40 on 21 November, not
+the one that writes this entry, which opened at 23:51 that day, and "the commit that
+writes this line", "the commit that writes this section" and "this commit" name
+`4200f3b`. The whole version: `git show 4200f3b:docs/PHASE7_NEXT.md`. Checked by
+`docs/build/check_history_move.py`.*
+
+---
+Lines 3–12 of the version at `4200f3b`:
+
+~~~~~
+*21 November 2026, in the session that opened at 15:40 that day, on the branch
+`redesign`. Rewritten by stage 7 of the redesign's build, the branch's seventh commit and
+the last before the merge: `EMA20_Slope` and `VWMA` are no longer computed,
+`indicators/trend_health.py` is `indicators/trend_readings.py`, README's four stale
+passages and its test counts are rewritten, and `4d2a036a`'s landing is recorded; the
+lines it removed from
+the version at `4d2a036a` are in HISTORY, which points to that whole version in git.
+**The Engineering Notes are fifteen commits behind with this one and are not rebuilt
+here:** Claude's reading, Viktor's to reverse, is that they are rebuilt once, after the
+merge, rather than now and again after it ("Where things stand", Engineering Notes).
+~~~~~
+
+Lines 27–40 of the version at `4200f3b`:
+
+~~~~~
+## WHICH COPY OF THIS FILE — read this before anything else
+
+**The commit that writes this section is `master`'s last before the redesign's merge**
+(DECISIONS, "Ruling, 13 November 2026 — the redesign's code is built on a `redesign` branch in a second worktree and reaches `master` in one merge").
+Every later commit, the ones that file rulings and rewrite this file among them, goes
+to the branch `redesign`, checked out in a second worktree, `E:\phase7_redesign`. So:
+**if `E:\phase7_redesign` exists, the current version of this file is
+`E:\phase7_redesign\docs\PHASE7_NEXT.md`**, and the copy in `E:\phase7_engine`, like
+`master` on GitHub, is as old as its date above. The same holds for
+PHASE7_DECISIONS.md, PHASE7_HISTORY.md and every other file. Nothing is applied,
+committed or checked out in `E:\phase7_engine` until the merge; the scheduled task
+goes on running from it. The merge's last step removes this section.
+
+## THE REDESIGN'S BUILD — where it stands
+~~~~~
+
+Line 128 of the version at `4200f3b`:
+
+~~~~~
+6. **Reconciliation — landed by the commit that writes this section; no code**
+~~~~~
+
+Lines 138–139 of the version at `4200f3b`:
+
+~~~~~
+7. **The two unread columns and the module's name — landed by the commit that writes
+   this section** (DECISIONS, "Decision, 21 November 2026 — stage 7 of the redesign's
+~~~~~
+
+Lines 146–147 of the version at `4200f3b`:
+
+~~~~~
+   else. Its live run is recorded in its commit message. **Next: the merge, as a session
+   of its own** (the patch-delivery skill's section 11).
+~~~~~
+
+Line 152 of the version at `4200f3b`:
+
+~~~~~
+`816d4951…` on `master`, which the scheduled task runs. Computed in the Linux
+~~~~~
+
+Line 187 of the version at `4200f3b`:
+
+~~~~~
+  (Open items): not in the list, not fixed, and not in this commit's code.
+~~~~~
+
+Lines 445–452 of the version at `4200f3b`:
+
+~~~~~
+**`4d2a036a`'s landing.** Viktor's opening message of 21 November, sent at 15:40: stage
+6 landed as `4d2a036a` (tree `d11f04b5…`), parent `f6fff24a`, committed on 17 November
+at 12:16:17 and pushed at 12:16:32, and its landing was checked at 12:17 and holds: "tip,
+parent, tree against Verified-Tree, the four docs files byte for byte an autocrlf
+checkout of the tip, index 305 entries matching that tree, COMMIT_EDITMSG 17833 bytes
+with no CR, the loose commit object hashing to its own name with no CR, both refs and
+their reflogs, root clean, master still 696af24…, and check_history_move on the fetched
+tip giving its recorded 101 lines in 24 runs." `code_hash` is still `85c4c826…`.
+~~~~~
+
+Lines 454–459 of the version at `4200f3b`:
+
+~~~~~
+Of stage 6 this session read from GitHub, by its clone of 15:42 on 21 November:
+`redesign`'s tip is `4d2a036a3a10afdec05944cec188f30c16b13b60`, its parent `f6fff24a`,
+its tree `d11f04b59a42ee1abe8bf0a37c05d1f67a52dbad`, and `master` is `696af24`. Off his
+disk it staged this file and DECISIONS before building, and each is byte for byte the
+tip's in an autocrlf checkout; the staging gave both modification times as 07:51:49 on
+17 November.
+~~~~~
+
+Lines 461–466 of the version at `4200f3b`:
+
+~~~~~
+**The gap stage 6's message recorded in the patch-delivery skill** — section 7 listed
+three check steps, so stage 6's live run went out as a path handed to `python` as an
+argument — is closed by an update proposed in this session: the live run has its own
+`os.chdir` one-liner, and the marker moves to `4d2a036a`. Whether it was saved is
+Viktor's card to answer; this commit does not depend on it, its live run being given in
+that form.
+~~~~~
+
+Lines 3633–3637 of the version at `4200f3b`:
+
+~~~~~
+- **Tip:** the commit that writes this line (a commit cannot name its own hash) —
+  Viktor's ruling of 01:15 on 13 November filed, the redesign's code built on a
+  `redesign` branch in a second worktree, with the procedure, and `a3c863e`'s landing
+  recorded: docs only, no engine code; `master`'s last commit before the redesign's
+  merge. Before it: `a3c863e`
+~~~~~
+
+Lines 4336–4346 of the version at `4200f3b`:
+
+~~~~~
+- **Before this commit**, every file its patch changes was staged off Viktor's disk and
+  matched an autocrlf checkout of `9cc48d7`, GitHub's tip, cloned at 08:56 on
+  11 November, byte for byte, before the patch was built; it adds no file. (This file
+  at `706e858` and at `4ab59d7` still gave `bc250fc`'s sentence here, against
+  `a0ca299`; corrected on 7 November.)
+- **code_hash:** **on this branch
+  `b8afef792ccc606d6bf49e2b086ad06d4abb7100b12566f7c051fd74bf0c3707` since stage 3
+  of the redesign's build, `43d15cbb…` at stage 2 and `a3d499df…` at stage 1** (THE
+  REDESIGN'S BUILD, above; stage 1 moved it and left this line saying `816d4951…`,
+  found at stage 2). What follows is the record
+  of `master`'s, which the scheduled task runs:
+~~~~~
+
+Line 4422 of the version at `4200f3b`:
+
+~~~~~
+- **Golden snapshot:** untouched by stage 6, which changes no code. **Re-baselined by `f6fff24a`, stage 5
+~~~~~
+
+Line 5059 of the version at `4200f3b`:
+
+~~~~~
+- **Engineering Notes:** through Entry #288 (v1.43), which covers `a60d66b`; **fifteen
+~~~~~
+
+Lines 5063–5066 of the version at `4200f3b`:
+
+~~~~~
+  `ebd98e50`, `f6fff24a`, `4d2a036a`, stage 6, and the commit that writes this line,
+  stage 7. **Not rebuilt before the merge, by Claude's reading, Viktor's to reverse:**
+  rebuilt now, they would be rebuilt again after the merge, which is one more commit
+  to enter; rebuilt once after it, they cover the whole build at once. This
+~~~~~
+
+Lines 5114–5115 of the version at `4200f3b`:
+
+~~~~~
+  Viktor before his commit, and nothing else in it. Its test counts are current (977,
+  801 / 165 and 909 passed, 0 failed), last changed by `340ee8d`, which changed only
+~~~~~
+
+Line 6754 of the version at `4200f3b`:
+
+~~~~~
+- **`4d2a036a`'s landing**, checked by Viktor on 17 November at 12:17 and holding (his
+~~~~~
+
+Lines 6757–6781 of the version at `4200f3b`:
+
+~~~~~
+- **The patch-delivery skill**: an update is proposed in this session — the marker
+  moved to `4d2a036a`, the live run given its own `os.chdir` one-liner in section 7
+  and pointed to from sections 6 and 11, and section 0 told to read `code_hash` on the
+  unchanged tree before trusting a count under the sandbox's Python. The first card's
+  marker line was wrong: it named stage 6's three entries of 17 November as the ones
+  that file the folder rule, which is filed by the entry of 16 November that stage 6's
+  commit added; a corrected card followed it.
+- **Stage 7 of the redesign's build** (THE REDESIGN'S BUILD, above; DECISIONS, "Decision,
+  21 November 2026 — stage 7 …"): the two unread columns, the module's name, and
+  README's four passages and its test counts.
+- **Found, and not fixed:** `config.VWMA_LENGTH`'s name (THE REDESIGN'S BUILD, above);
+  and the find put to Viktor for the held-back list (Open items).
+- **Found and fixed with the stage:**
+  `tests/test_send_round8_fix_verification.py` compared git's engine files at HEAD with
+  the working tree's, so it failed between the apply and the commit of any patch that
+  renames or deletes an engine file — on Viktor's machine it would have failed stage 7's
+  pytest step; and `tests/test_one_name_one_meaning.py`'s anchor check read the source
+  text, so a dead "VWMA" anchor passed while "VWMA_LENGTH" stood in the text. Both in
+  stage 7's entry.
+- **Corrected from stage 6:** its "By which model" line said its commit message was
+  written by Claude Fable 5.2; the model changed back to Claude Opus 5 at 07:14, before
+  the message was written, as stage 6's own message records.
+- **This file's rewrite**, by the commit that writes this line. The lines it removed
+  from the version at `4d2a036a` are in HISTORY's new entry, checked by
+  `docs/build/check_history_move.py` (the commit message has the result).
+~~~~~
+
+Lines 6791–6794 of the version at `4200f3b`:
+
+~~~~~
+- **Claude's, next: the merge, as a session of its own**, once this commit's landing is
+  checked (the patch-delivery skill's section 11, "The merge"). Its first step is the
+  branch's last commit, which writes this file as it is to read on `master` and removes
+  its first section.
+~~~~~
+
+Line 6808 of the version at `4200f3b`:
+
+~~~~~
+  position first. Before the merge if it is to be filed with the branch.
+~~~~~
+
+Lines 6810–6811 of the version at `4200f3b`:
+
+~~~~~
+  merge.** Fifteen commits behind with this one ("Where things stand"). Batched past the
+  merge so that they are rebuilt once, over the whole build; the gap is stated in the
+~~~~~
+
+Lines 6815–6816 of the version at `4200f3b`:
+
+~~~~~
+  REDESIGN'S BUILD, above). None waits for him; each is his to reverse, and a
+  reversal is cheapest before the merge. **Stage 5's first is the one to read
+~~~~~
+
+Lines 6827–6828 of the version at `4200f3b`:
+
+~~~~~
+  at `9cc48d7` (Resolved this session). To bring current on the branch, with a
+  commit made for another reason.
+~~~~~

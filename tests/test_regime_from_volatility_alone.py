@@ -194,10 +194,12 @@ def test_the_regime_names_the_volatility_the_panel_prints():
         ratio = i * 0.0005
         frame = pd.DataFrame({"close": [price], "ATR": [price * ratio]})
         _, vol = calculate_dynamic_regime(frame)
-        for score in (50.0, -50.0):
+        # Stage 2 of the redesign, 14 November 2026: bias scores of 50 and
+        # -50 stood here, read for their signs; the side is passed.
+        for side in ("LONG", "SHORT"):
             stop, _, _, _ = model.calculate_stop_targets(
                 current_price=price, atr_val=price * ratio,
-                bias_score=score, volatility_state=vol)
+                side=side, volatility_state=vol)
             ok, reason, regime = model.validate_risk_parameters(
                 current_price=price, atr_stop=stop, volatility_state=vol)
             if "too tight" in reason:

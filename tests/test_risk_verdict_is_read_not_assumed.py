@@ -76,17 +76,30 @@ def _risk(**overrides):
 
 
 def _final_action(risk):
+    """
+    Stage 4 of the redesign, 15 November 2026. Two changes here, neither of
+    which touches what this file holds -- that an unassessed risk block is
+    not a passed one.
+
+    `trend` is no longer a parameter: the tier comes from entry quality, at
+    gate 9, after this function, so nothing in it reads the trend block.
+    HIGH_CONVICTION_TREND_HEALTH is kept as a module constant and passed
+    nowhere, because the conviction this file sets up is now entry
+    quality's alone.
+
+    And the action a passing risk block reaches here is the bare side. The
+    tier -- AGGRESSIVE LONG on this setup, before -- is gate 9's, which
+    this function does not run. Every assertion below is about which of
+    LONG, WAIT and the two NO-TRADE states comes back, and the risk gate
+    decides that before any tier exists.
+    """
     reasons = []
     action = DecisionModel()._determine_final_action(
         bias={"raw": "BULLISH", "score": HIGH_CONVICTION_BIAS_SCORE},
-        trend={
-            "trend_health": HIGH_CONVICTION_TREND_HEALTH,
-            "trend_direction_sign": 1,
-            "momentum_divergence": False,
-        },
         entry={
             "score": HIGH_CONVICTION_ENTRY_SCORE,
-            "entry_status": "ACTIVE ENTRY ZONE",
+            "close_inside_band": True,
+            "entry_status": "INSIDE THE BAND",
             "long_signal": False,
             "short_signal": False,
         },
@@ -136,7 +149,7 @@ def test_negative_control_an_assessed_pass_still_authorizes():
     broken. This is the test that says the gate still opens when it should.
     """
     action, reasons = _final_action(_risk())
-    assert action == "AGGRESSIVE LONG", (
+    assert action == "LONG", (
         f"a fully assessed, passing risk block on a high-conviction setup "
         f"should still authorize; got {action!r}.\nReasons: {reasons}"
     )
@@ -353,6 +366,11 @@ def test_negative_control_a_stubbed_well_formed_run_still_reaches_a_decision(mon
         "lineage": {},
         "exit_watch": [],
         "macro_bias": "NEUTRAL",
+        # Stage 5 of the redesign, 15 November 2026: the router reads
+        # macro_note directly too, like the ten sections and unlike
+        # macro_bias beside it -- engine_core writes it on every result that
+        # is not an error, so a well-formed stub carries it.
+        "macro_note": "The higher timeframe is neutral.",
         "btc_context": {"available": False},
     })
     result = _route(monkeypatch, output)
@@ -379,6 +397,7 @@ def test_the_recorded_verdict_is_the_one_that_was_read_not_an_invented_pass(monk
         exit_data={"current_price": 1.0},
         degradation=[], provenance={}, lineage_record={}, exit_watch=[],
         btc_context={"available": False}, macro_bias="NEUTRAL",
+        macro_note="The higher timeframe is neutral.",
         chart_path=None,
     )
     assert decision["risk"]["risk_valid"] is None, (

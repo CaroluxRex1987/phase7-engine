@@ -90,7 +90,13 @@ def _make_pinned(dest):
         out = [rows[0]]
         for r in rows[1:]:
             prices = [round(3.0 * float(x) ** 0.5, 8) for x in r[1:5]]
-            out.append([r[0], *prices, r[5]])
+            row = [r[0], *prices, r[5]]
+            # Stage 1 of the redesign: the 4h file carries quote_volume,
+            # volume x close. TESTUSDT's is made from its own close, by
+            # docs/build/make_pinned.py's rule, not copied from AEROUSDT's.
+            if len(rows[0]) > 6:
+                row.append(repr(round(float(r[5]) * prices[3], 4)))
+            out.append(row)
         with open(os.path.join(dest, f"TESTUSDT_{tf}.csv"), "w", newline="") as fh:
             csv.writer(fh, lineterminator="\n").writerows(out)
     return dest

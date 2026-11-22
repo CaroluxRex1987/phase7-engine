@@ -7,7 +7,9 @@ SWEEP ITEM 11 (8 September 2026, c3b0d43, GLM F-6) fixed "BTC-side trend
 degradations were computed and discarded" by appending them, as `f"BTC {d}"`,
 into the SAME `degradation` list `DecisionModel.evaluate()` reads to cap
 `confidence_score` at `DEGRADED_CONFIDENCE_CEILING` (50.0) and gate
-`trading_authorized`. Requested-run 4 (GPT-6 Astra's round-5 report) found
+`trading_authorized`. (Confidence and the cap left the engine at the
+redesign's stage 5, 15 November 2026; `degradation` still gates
+`trading_authorized`, which is the half of the ruling that always mattered.) Requested-run 4 (GPT-6 Astra's round-5 report) found
 this empirically on 12 September: mocking BTC's own `ta.adx` call to fail --
 AERO's own indicators, structure and trend left completely real -- dropped
 AERO's `confidence_score` from 78.70 to exactly 50.0 and flipped
@@ -64,7 +66,15 @@ def _write_pinned_set(directory):
     import pandas as pd
 
     base = pd.read_csv(fixture("ohlcv_clean_4h.csv"))
-    base.to_csv(os.path.join(directory, f"{SYMBOL}_{TIMEFRAME}.csv"), index=False)
+    # The redesign's stage 3, 15 November 2026: gate 7 reads quote_volume on
+    # the series under analysis, and a frame without it degrades the run.
+    # These tests compare a run with a BTC-only failure against a control
+    # that must NOT be degraded, so the series carries the column, by the
+    # golden test's rule (volume x close, four decimals).
+    struct = base.copy()
+    struct["quote_volume"] = [round(float(v) * float(c), 4)
+                              for v, c in zip(base["volume"], base["close"])]
+    struct.to_csv(os.path.join(directory, f"{SYMBOL}_{TIMEFRAME}.csv"), index=False)
 
     groups = base.index // 6
     daily = base.groupby(groups).agg(
@@ -103,7 +113,7 @@ def _run():
 
 def _fail_only_the_btc_call(real_fn):
     """
-    engine_core.py calls compute_trend_health twice per run: once for AERO's
+    engine_core.py calls compute_trend_readings twice per run: once for AERO's
     own df_struct, once for BTC's df_btc_struct. This returns the real value
     for the first call and a degraded value for the second (BTC's) -- so
     AERO's own trend_health is completely real and only BTC's is missing
@@ -126,24 +136,33 @@ def test_a_btc_only_indicator_failure_does_not_move_aeros_confidence_or_gate(mon
     if not _engine_available():
         pytest.skip("pandas_ta not installed")
 
-    import indicators.trend_health as th
+    import indicators.trend_readings as th
 
     control = _run()
     assert "error" not in control, control.get("error")
 
-    real_compute_trend_health = th.compute_trend_health
+    real_compute_trend_readings = th.compute_trend_readings
     monkeypatch.setattr(
-        "core.engine_core.compute_trend_health",
-        _fail_only_the_btc_call(real_compute_trend_health),
+        "core.engine_core.compute_trend_readings",
+        _fail_only_the_btc_call(real_compute_trend_readings),
     )
     degraded_run = _run()
     assert "error" not in degraded_run, degraded_run.get("error")
 
-    assert degraded_run["risk"]["confidence_score"] == control["risk"]["confidence_score"], (
-        "a BTC-only indicator failure changed AERO's own confidence_score. "
-        "BTC context is informational and must never gate it -- Viktor's ruling, "
-        "12 September 2026."
-    )
+    # THE REDESIGN'S STAGE 5, 15 November 2026: this compared AERO's own
+    # risk.confidence_score across the two runs, which was the number
+    # SWEEP ITEM 11 had let a BTC-only ADX failure drop from 78.70 to exactly
+    # 50.0 -- the case that found the defect. Confidence is gone, so what the
+    # ruling protects is asserted on the blocks that are left and on all of
+    # them at once: a BTC-only failure must change nothing about AERO's own
+    # analysis.
+    for block in ("bias", "trend", "entry", "risk"):
+        assert degraded_run[block] == control[block], (
+            f"a BTC-only indicator failure changed AERO's own {block} block. "
+            f"BTC context is informational and must never gate it -- "
+            f"Viktor's ruling, 12 September 2026.\n"
+            f"{degraded_run[block]!r}\nvs control\n{control[block]!r}"
+        )
     assert degraded_run["exit"]["action"] == control["exit"]["action"], (
         "a BTC-only indicator failure changed AERO's own action."
     )
@@ -165,12 +184,12 @@ def test_the_btc_only_failure_is_still_visible_in_the_record(monkeypatch):
     if not _engine_available():
         pytest.skip("pandas_ta not installed")
 
-    import indicators.trend_health as th
+    import indicators.trend_readings as th
 
-    real_compute_trend_health = th.compute_trend_health
+    real_compute_trend_readings = th.compute_trend_readings
     monkeypatch.setattr(
-        "core.engine_core.compute_trend_health",
-        _fail_only_the_btc_call(real_compute_trend_health),
+        "core.engine_core.compute_trend_readings",
+        _fail_only_the_btc_call(real_compute_trend_readings),
     )
     degraded_run = _run()
     assert "error" not in degraded_run, degraded_run.get("error")

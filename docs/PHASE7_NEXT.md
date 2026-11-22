@@ -1,10 +1,19 @@
 # Next step — read this first
 
-*13 November 2026, in the session that opened at 01:16. Rewritten by the commit that
-files Viktor's ruling of 01:15 on 13 November, the redesign's code built on a
-`redesign` branch in a second worktree, and records `a3c863e`'s landing;
-the lines it removed from the version at
-`a3c863e` are in HISTORY, which points to that whole version in git.
+*22 November 2026, in the merge session that opened at 23:51 on 21 November. Written by
+the branch `redesign`'s last commit, which writes this file as it is to be read on
+`master` and reaches `master` by the merge that follows it. The redesign's build is
+done: seven stages on `redesign`, `6038283` to `4200f3b` (THE REDESIGN'S BUILD, below).
+This commit changes no `.py` file. It files Viktor's rulings of 23:48 on 21 November and
+00:02 on 22 November (DECISIONS, and THE REDESIGN'S BUILD), records `4200f3b`'s landing,
+and removes this file's first section, "WHICH COPY OF THIS FILE", which only the build
+needed; the lines it removed from the version at `4200f3b` are in HISTORY, which points
+to that whole version in git. **Next: the merge, then the BLESS commit, both inside one
+four-hour window of the forward measurement** (the ruling of 00:02). **The Engineering
+Notes are sixteen commits behind with this one and are not rebuilt here:** Claude's
+reading, Viktor's to reverse, is that they are rebuilt once, after the merge and the
+BLESS commit, rather than now and again after them ("Where things stand", Engineering
+Notes).
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
 rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
@@ -19,18 +28,466 @@ edited to follow a move").*
 *Each code commit updates this file's own lines for its own landing, in the same
 commit, so the file does not fall behind the tip.*
 
-## WHICH COPY OF THIS FILE — read this before anything else
+## THE REDESIGN'S BUILD — done; the merge and the BLESS commit next
 
-**The commit that writes this section is `master`'s last before the redesign's merge**
-(DECISIONS, "Ruling, 13 November 2026 — the redesign's code is built on a `redesign` branch in a second worktree and reaches `master` in one merge").
-Every later commit, the ones that file rulings and rewrite this file among them, goes
-to the branch `redesign`, checked out in a second worktree, `E:\phase7_redesign`. So:
-**if `E:\phase7_redesign` exists, the current version of this file is
-`E:\phase7_redesign\docs\PHASE7_NEXT.md`**, and the copy in `E:\phase7_engine`, like
-`master` on GitHub, is as old as its date above. The same holds for
-PHASE7_DECISIONS.md, PHASE7_HISTORY.md and every other file. Nothing is applied,
-committed or checked out in `E:\phase7_engine` until the merge; the scheduled task
-goes on running from it. The merge's last step removes this section.
+**Seven stages on `redesign`, then the merge** (DECISIONS, "Decision, 14 November 2026 —
+the redesign's code is cut into six stages; what stage 1 is", Claude's, amended by
+"Ruling, 17 November 2026 — the redesign's build is seven stages …", Viktor's). Every
+stage leaves the engine running and the three suites green, with a
+live run from `E:\phase7_redesign` before its commit; each golden leaf moves once, to
+its final value, but for `run_hash` and the archive path, which are digests and move
+with what they hash.
+
+1. **Inputs — landed, `6038283`.** `quote_volume` is
+   kept by the fetch, checked by validation when a frame carries it, and so is in the
+   input hash, the archive and the record's decision-bar row; the committed pinned
+   set's `AEROUSDT_4h.csv` and the golden test's own set carry it as volume × close.
+   H5's flat-candle fix is in. Entry 58's print helper, `core/threshold_text.py`, is
+   in and nothing calls it. No decision reads any of it.
+2. **Direction — landed, `c012e5b`** (DECISIONS,
+   "Decision, 14 November 2026 — stage 2 of the redesign's build: what it is, six
+   readings made building it, and three more errors in the draft"). `bias.raw` is
+   EMA50's slope and the order of `EMA_20` and `EMA_50` (`models/bias_engine.py`,
+   `direction_from_emas`), for the asset and for BTC; `bias.detailed` is the same
+   word and `bias_label` is gone; the risk plan takes a side, not a score; the floor
+   is the NEUTRAL direction, with its own sentence, and `MIN_ACTION_BIAS` is gone;
+   the state file's key is `raw_bias`; the record gains `lineage.direction` and
+   `lineage.risk_inputs.side`. Its live run is recorded in its commit message.
+3. **Gates 6 to 8 — landed, `5e7e429`** (DECISIONS,
+   "Decision, 15 November 2026 — stage 3 of the redesign's build: gates 6 to 8,
+   eight readings made building them, and what the draft got right and wrong").
+   No LONG while the daily trend is BEARISH (gate 6) and the decision candle's
+   `quote_volume` at least `LIQUIDITY_FLOOR_USDT`, 10,000 (gate 7), are blockers
+   on the confirmation signal's list, each with a label of its own, NO-TRADE
+   (MACRO AGAINST) and NO-TRADE (THIN MARKET); the label a refused side takes is
+   the first gate's, in order, that it does not pass, recorded as
+   `entry.long_signal_refusal` and `entry.short_signal_refusal`. Gate 8 follows
+   the signal: the decision candle closes beyond its open and the previous
+   close, on a volume strictly above the median of the
+   `TRIGGER_VOLUME_LOOKBACK`, 20, candles before it, or the action is WAIT. A
+   frame without `quote_volume` is a degraded run. The panel prints TURNOVER,
+   TRIGGER and TRIGGER VOLUME under STATUS. **The golden decision is a WAIT at
+   gate 8.** Its live run is recorded in its commit message.
+4. **Entry quality, the tiers and gate 9 — landed, `ebd98e50`** (DECISIONS, "Decision, 15 November 2026 — stage 4 of the redesign's
+   build: entry quality D + H, the tiers, gate 9 and the second pinned decision
+   …"). Entry quality is **D + H**: `80 × max(0, 1 − d / 3)` for the close's
+   distance from the EMA band's midpoint in ATRs, plus `20 × max(0, 1 − h / 2)`
+   for its distance from the HVN, with no multiplier and no clip. A part whose
+   input is missing is NOT MEASURED — the score is None, the run is degraded with
+   the input named, and gate 9 answers WAIT — never a neutral value. STATUS is
+   the close's position against the band (INSIDE / ABOVE / BELOW THE BAND),
+   printed from `entry.close_inside_band`, which is what AGGRESSIVE reads.
+   **Gate 9 is the ladder's last gate**, after gate 8, and the only place a tier
+   is chosen: at or above 70 an upper tier, AGGRESSIVE with the close inside the
+   band and a NORMAL or LOW regime; at or above 50 CONSERVATIVE; under 50 a WAIT.
+   `_determine_final_action` answers gates 0 to 2 and returns the bare side, so
+   no sentence before gate 9 names a tier. H1's branch is gone. The second
+   pinned decision is committed: `tests/fixtures/ohlcv_trade_4h.csv`, seed 32,
+   with a snapshot of its own that pins a LONG. **The golden decision is
+   unchanged — still a WAIT at gate 8.** Its live run is recorded in its commit
+   message.
+5. **The removals — landed, `f6fff24a`** (DECISIONS,
+   "Decision, 15 November 2026 — stage 5 of the redesign's build: the removals —
+   trend health, confidence and EV, validation, the exit watch's two flags and
+   the weighted sum …"). Five groups go, and with them **sixty-six leaves of the
+   record**: the weighted sum (`calculate_dynamic_bias`, its six `WEIGHT_*`,
+   `RAW_BIAS_THRESHOLD`, `bias.score`, `lineage.bias_components`'s thirty-four
+   and seven `module_constants`); confidence and EV (`_compute_confidence`,
+   `_compute_ev`, `AVG_REWARD_R`, `EV_BREAKEVEN_BAND_R`, `risk.confidence_score`,
+   `risk.ev_r`, `risk.assumed_win_rate`, `risk.avg_reward_r`); trade quality
+   (`_compute_trade_quality` and `risk.trade_quality_proposed`, which was
+   `entry.score` under a second name); validation (`volume_agreement` whole,
+   `macro_agreement` reduced to its note, `risk.validation_score`,
+   `risk.validation_state`, `risk.validation_note`); trend health
+   (`indicators/trend_health.py` keeps ADX, the divergence and its degraded
+   inputs and loses the score, the exhaustion flag, the continuation and
+   reversal readings, `momentum_mode` and `trend_direction` —
+   `trend.trend_health`, `trend.exhaustion`, `trend.momentum_mode`,
+   `trend.trend_direction` and `btc_context.trend_health`); and the exit watch's
+   exhaustion and reversal flags. **One leaf is added, `macro_note`**, a
+   top-level sentence beside `macro_bias`: the macro note the draft's section 4
+   keeps on the panel needed a home in the record to reach it.
+   `explanation.reasons` moves again — three sentences go — and the panel loses
+   its TREND, VALIDATION, CONFIDENCE and TRADE QUALITY lines and its Validation
+   Notes section, gaining MACRO NOTE under MACRO TREND. **The degraded run's cap
+   goes with what it capped**, and `DEGRADED_CONFIDENCE_CEILING` with it.
+   `docs/build/indicator_overlap.py` is **deleted**: every variant it compared
+   zeroed one of the weights. **Both golden decisions are unchanged** — the
+   clean fixture's WAIT at gate 8 and the trade fixture's LONG, with
+   `exit.action` and `explanation.summary` not moving on either. Its live run is
+   recorded in its commit message.
+6. **Reconciliation — landed, `4d2a036a`; no code**
+   (DECISIONS, "Decision, 17 November 2026 — stage 6 of the redesign's build: the
+   reconciliation …"). The draft's §13 and §14 against what stages 1 to 5 built, written
+   into the draft's version 15 as §18, with §13 and §14 left as they were. **§13:** the
+   golden snapshot went from 227 leaves at `e69d5bb` to 165 — 88 removed, 26 added, 14
+   moved, against a predicted 85, 15 and 2 renamed — and every difference is one an
+   earlier stage had already recorded. **§14:** 376 of its 467 verdicts matched what
+   happened and 91 did not, 47 of those being tests it had rewritten that needed no
+   edit; of the 407 tests it set aside, 12 moved. The held-back defects' replacements
+   were ruled (below). Its live run is recorded in its commit message.
+7. **The two unread columns and the module's name — landed, `4200f3b`**
+   (DECISIONS, "Decision, 21 November 2026 — stage 7 of the redesign's
+   build …"). `EMA20_Slope` and `VWMA` are no longer computed (Item 16), and
+   `indicators/trend_health.py` and `compute_trend_health` are
+   `indicators/trend_readings.py` and `compute_trend_readings` (round 8's F8); README's
+   four stale passages and its test counts are rewritten. **Both golden decisions are
+   unchanged**, each
+   losing two leaves of `lineage.indicators_at_decision_bar`, 19 to 17, and nothing
+   else. Its live run is recorded in its commit message. **Then the branch's last
+   commit, the one that writes this file, and the merge** (below; the patch-delivery
+   skill's section 11).
+
+**The branch's `code_hash`:** `c4e45d7a…` since stage 7, `85c4c826…` at stages 5 and 6,
+`322cdf66…` at stage 4,
+`b8afef79…` at stage 3, `43d15cbb…` at stage 2, `a3d499df…` at stage 1,
+`816d4951…` on `master` until the merge, which brings `c4e45d7a…` to it; the branch's
+last commit changes no `.py` file and moves nothing (`c4e45d7a…` on the tree before it
+and on the tree after it, computed on both in the Linux sandbox under Python 3.12.3).
+Computed in the Linux
+sandbox on both trees at each stage; stage 1's to stage 4's are also on their live
+records. Stage 5 moved the fingerprint of exactly the ten engine modules it
+edited and of no other file, which was checked file by file rather than inferred
+from the top-level hash; `docs/` and `tests/` are excluded by directory, so
+deleting `docs/build/indicator_overlap.py` and six test files moves nothing. **Stage 6
+changes no engine file and moves no hash:** `85c4c826…` on the tree before it and on the
+tree after it, computed on both in the Linux sandbox under Python 3.12.3. **Stage 7 moves
+the fingerprint of exactly five paths:** `core/engine_core.py`,
+`indicators/indicators.py`, `data/validation.py` (its all-zero-volume message is a
+string literal) and the rename, `indicators/trend_health.py` out and
+`indicators/trend_readings.py` in; the six engine files it changes in comments or
+docstrings only move nothing. Checked file by file in the Linux sandbox under Python
+3.12.3, with `85c4c826…` read on the unchanged tree first.
+
+**Ruled on 17 November, at stage 6** — both Viktor's, each by agreeing to Claude's
+suggestion and not by writing his position first:
+
+- **The build is seven stages** (DECISIONS, "Ruling, 17 November 2026 — the redesign's
+  build is seven stages …"). Stage 6 changes no code; stage 7 makes the two code changes
+  stage 5 left, on the branch, before the merge. Claude's reasons: both changes move
+  `code_hash`, and by his ruling of 08:55 on 11 November the task counts a version from
+  its first run, so landed after the merge they would discard the merged version's first
+  counts; and the reconciliation should not share a commit with test movement of its
+  own. **His "Agree." at 07:14 followed two suggestions; Claude read it as covering both
+  and said so before building.** His to correct.
+- **The held-back defects' replacements are H6, H7 and H8** (DECISIONS, "Ruling, 17
+  November 2026 — the held-back defects' replacements are H6, H7 and H8 …"), so Amazon's
+  audit is scored on H3 and these: `_safe_float` in `models/decision_model.py`, which
+  nothing calls since stage 5; `render_panel`'s `trend` local in `core/panel_render.py`,
+  which nothing reads since stage 5; and `DecisionModel`'s docstring, which gives
+  `evaluate()` a `trend` input it no longer takes. Each is on the list ("Found after 22
+  September", its last entries) and left as it is until after the audit. **Owed with it:
+  a held-back defect that can move a reading**, which H5 could and none of the four can.
+  **Searched again by stage 7, in the tree as it will merge, and one is put to Viktor**
+  (Open items): not in the list and not fixed. **At 00:02 on 22 November he gave no
+  position on it**, so it is not filed with the branch and reaches `master` as his
+  (DECISIONS, the ruling of 00:02, its last paragraph).
+
+**Ruled on 21 and 22 November, in the merge session** — both Viktor's, each by agreeing
+to Claude's suggestion and not by writing his position first:
+
+- **BLESSUSDT** (DECISIONS, "Ruling, 21 November 2026 — BLESSUSDT is run by command
+  until the merge …", made at 23:48 on 21 November in the session before this one). He
+  runs BLESSUSDT by command, `'BLESSUSDT'` after `'main.py'` in the live-run one-liner's
+  `sys.argv`; one small commit after the merge makes it `config.SYMBOL`'s default and
+  makes the panel's price decimals follow the price (BLESS is about $0.0138; the panel
+  prints four decimals), measuring `code_hash`, the golden runs and any test expecting
+  AEROUSDT, and re-checking H6, H7 and H8, `core/panel_render.py` being H7's file; the
+  forward measurement's ten pairs stay as they are.
+- **One window for the merge and the BLESS commit** (DECISIONS, "Ruling, 22 November
+  2026 — the merge and the BLESS commit land inside one four-hour window …", 00:02). The
+  BLESS commit moves `code_hash` (`core/config.py` and `core/panel_render.py` are
+  fingerprinted), and the task counts a version from its first run, so both are pushed
+  between two of the task's runs; if that cannot be done, the session stops before the
+  merge, never between them. The task's last run read off his disk started at 22:05 on
+  21 November; the next is expected at 02:05 if its cadence holds.
+
+**Stage 6's three corrections to what stage 5 recorded about the two columns** (the next
+heading's first bullet, as stage 5 wrote it, said removing a column "moves the struct
+input hash, `run_hash` and the nineteen `indicators_at_decision_bar` leaves"). Read in
+the code at `f6fff24a`, not run: the struct input hash is of the frame copied before any
+derived column exists (`core/engine_core.py`, line 581), so it does not move; `run_hash`
+does not move, `VWMA_LENGTH` staying in the fingerprinted configuration because the
+volume-spike guard still reads it; and two leaves leave `indicators_at_decision_bar`, 19
+to 17, the other seventeen keeping their values. The removal costs two golden leaves and
+`code_hash`. **One consequence no record had named:** `VWMA` is in the sweep that drops
+an unusable column and degrades the run, so a frame whose VWMA cannot be computed is a
+degraded run today and will not be, on that account, once the column is gone. Stage 7
+predicts and measures all of it.
+
+**Measured by stage 7, and held** (Linux sandbox, Python 3.12.3): two leaves leave
+`indicators_at_decision_bar` on each golden run, `EMA20_Slope` and `VWMA`, and no leaf is
+added or moves, so neither input hash, nor `run_hash`, nor either action moves; and the
+behaviour change holds, for the macro frame as well as the 4h frame, which stage 6 did
+not name. With the last twenty candles' volume zeroed on the pinned series, the run was
+degraded ("VWMA" and "macro VWMA" named), not authorized, and a WAIT before stage 7, and
+is clean and a WAIT at gate 8 after it. The stage's entry has the scope as measured.
+
+**Closed by stage 7, from stage 5's list:**
+
+- **The two indicator columns read by nothing, `EMA20_Slope` and `VWMA`, are no longer
+  computed** and are gone from `lineage.indicators_at_decision_bar` (Item 16, by
+  Viktor's ruling of 17 November). `tests/test_no_dead_columns.py` holds them among the
+  deleted columns.
+- **`indicators/trend_health.py` and `compute_trend_health` are
+  `indicators/trend_readings.py` and `compute_trend_readings`** (round 8's F8) —
+  Claude's choice of name, Viktor's to reverse. The module's header names its old name,
+  so the dated comments elsewhere that cite `indicators/trend_health.py` resolve; the
+  present-tense ones were changed. Every value it returns is the same.
+
+**Found by stage 7, and not fixed:**
+
+- **`config.VWMA_LENGTH` names a window that measures no VWMA.** It is read only as the
+  volume-spike guard's window now. Renaming it moves `run_hash` and the record's config
+  block, it being in `FINGERPRINTED_CONFIG`, which the ruling of 17 November did not
+  give stage 7; recorded in `indicators/indicators.py` beside the guard. Can move no
+  number.
+- **README's test counts were stage 4's** (1061, 873 / 177, 992): stages 2 to 4 brought
+  them current and stage 5 did not, and stage 6's handover check, which found the four
+  passages, did not name them. Brought current by stage 7 — a fifth passage, Claude's
+  addition, Viktor's to remove. README's "Two Criticals open" row is left as it is: it
+  states the audit's and the gate's position in his voice, which the merge does not
+  change until Amazon's audit.
+
+**Left for a later stage on purpose, by stage 5** (the entry's readings, and
+what it weakens):
+- **Entry 58's helper still has its edge, found by stage 3 and not fixed:** a
+  value equal to a line that needs more than two decimals prints above it. It
+  cannot fire at gate 9's two lines, 70 and 50, which have no decimals, and a
+  test holds that. No constant line in the engine has decimals.
+- **The HVN is a bin's midpoint,** so `h` is known only to half a bin either way
+  and entry quality to about ±2 to ±4 points. H5's fix, in since stage 1, removes the
+  known defect that puts volume in the wrong bin; its replacement as a held-back defect
+  was ruled at stage 6, with H1's and H2's (above).
+
+**Closed by stage 5, from stage 4's list:**
+
+- **The four numbers the panel printed that no gate read are gone** — trend
+  health, confidence, EV and validation, with `validation_score`,
+  `validation_state` and `validation_note`. The panel now prints no score the
+  decision does not use.
+- **`docs/build/indicator_overlap.py` is deleted rather than rebuilt.** Every
+  variant it compared zeroed one of the six weights, so with the sum gone it has
+  a baseline and nothing to compare it with; its headline figure, that removing
+  the four disputed bias factors cut trade actions by 35.5%, is a measurement of
+  a design that no longer exists. Whether the overlap question is worth asking
+  again of the redesign's own path is new work, after the merge, and is named as
+  such rather than smuggled in as a rebuild. `tests/test_indicator_overlap_tool.py`
+  goes with it.
+
+**Left for a later stage on purpose, by stage 3** (the entry's readings 1, 6 and 8):
+
+- **The ladder's tiers were trend health's.** Closed by stage 4: they are entry
+  quality's, at gate 9, and `explanation.reasons` moved there as this entry said
+  it would. Gate 8's sentence, the summary it gives and the golden action did
+  not move, which is what its reading 1 ruled of them.
+- **Entry 58's helper has an edge, found and not fixed:** carried above, by
+  stage 4, which prints entry quality against 70 and 50 through the helper.
+- Hand-built test records that reach a trade carry a trigger that holds, by a
+  constant in six files; stage 4 did the same for entry quality's inputs, by
+  giving each such record a quality and a `close_inside_band`.
+
+**Left for a later stage on purpose, by stage 2** (the entry's reading 1):
+
+- **The weighted sum is still computed, and decides nothing.**
+  `calculate_dynamic_bias`, its six weights, `RAW_BIAS_THRESHOLD`, `bias.score` and
+  `lineage.bias_components` stay until stage 5, because confidence is the score's
+  size and confidence leaves there; removed now, `risk.confidence_score` and its
+  sentences would move twice. The label the sum returns is discarded, and it is no
+  longer computed for BTC. **Until stage 5 a run on this branch can print a trade
+  above a low confidence**, and its `bias.score` explains no direction.
+- `docs/build/indicator_overlap.py` follows the engine's path, so its variants of the
+  sum's weights now move the score and no action; it goes, or is rebuilt, with the
+  sum in stage 5.
+- Six test files still build decisions by hand with the label `BULLISH CONFIRMED` or
+  `BEARISH CONFIRMED`, which the engine no longer writes
+  (`test_an_absent_value_is_not_a_reading.py`, `test_btc_correlation_alignment.py`,
+  `test_btc_is_reference_only.py`, `test_direction_source.py`,
+  `test_each_reading_is_printed_once.py`, `test_router_btc_seam.py`). Each passes:
+  the panel and the ladder print or ignore the word. The draft's section 14 has each
+  rewritten or held in a later stage.
+
+**Left for a later stage on purpose, by stage 1:**
+
+- H5's replacement as a held-back defect: ruled at stage 6, with H1's and H2's — H6, H7
+  and H8 (above).
+- Stage 1's other three are closed by stage 3: an absent `quote_volume` is a
+  missing input, and the test that held the old behaviour is moved
+  (`tests/test_gates_6_to_8.py::test_on_the_engine_path_a_frame_without_quote_volume_degrades_the_run`);
+  three engine modules print through the helper, and the test that held "none
+  yet" now holds that list; and F is a constant, with a test that the golden
+  series' smallest `quote_volume`, 10,650.0211, is at or over it.
+
+**Stage 5's readings that are Viktor's to reverse** (all are; these five change
+what a run prints or does beyond the rulings' own words, and the first changes
+what one of his own rulings does):
+
+- **The degraded run's cap is gone, and so is the clause it served.** The ruling
+  of 29 August 2026 says "confidence and trade quality must be reduced
+  accordingly"; both quantities leave the record here, so there is nothing left
+  to reduce. Capping the one surviving score, entry quality, was **refused**: it
+  is printed beside the D, the H and the two ATR distances it is computed from,
+  so a capped value would contradict its own arithmetic on the same screen. The
+  ruling's load-bearing sentence — a degraded result does not by itself
+  authorize trading — is unchanged and is enforced by the NO-TRADE conversion
+  and `degradation.trading_authorized`, which is stronger than any ceiling.
+  **What it weakens: a degraded run's entry quality is now reported uncapped**,
+  beside a refusal and a named missing input.
+- **`risk.trade_quality_proposed` leaves the record**, which the draft's §13.2
+  has moving rather than removed. It was `entry.score` under a second name, and
+  the only thing distinguishing them was the cap above.
+- **The macro note is recorded as a new top-level leaf, `macro_note`.** The
+  draft's §4 keeps the note "on the panel as information beside gate 6" while
+  `validation_note` leaves the decision; a sentence cannot reach the panel
+  without travelling in the decision object, so it needed a home, and `risk` —
+  where `validation_note` was — is the wrong block for a macro reading. §13.3
+  does not list it. The router reads it directly rather than with a fallback: a
+  note has no equivalent of the word UNKNOWN.
+- **`models.bias_engine` leaves `FINGERPRINTED_MODULES` entirely** rather than
+  staying as an empty entry, which is the open question §13.3 recorded. An empty
+  dict beside the others would read as "this module has fingerprinted constants
+  and none could be resolved".
+- **The panel loses four score lines and a section, and gains one line.** TREND,
+  VALIDATION, CONFIDENCE (decision) and TRADE QUALITY / Proposed Entry go with
+  their readings, and the Validation Notes section at the foot of the panel goes
+  with the volume note; MACRO NOTE prints under MACRO TREND. ENTRY QUALITY, with
+  D, H and their two ATR distances, is the only score the panel prints.
+
+**Stage 4's readings that are Viktor's to reverse** (all ten are; these five
+change what a run prints or does beyond the rulings' own words):
+
+- **Gate 9 is a gate of its own and runs last**, after gate 8, so a low quality
+  beside an earlier failure is that gate's refusal and not gate 9's; and the
+  tier is derived only once every earlier gate has passed.
+- **No sentence written before gate 9 names a tier.** The refusals of gates 3 to
+  7 read "No earlier gate refused the long, but …", as gate 8's does.
+- **H1's branch is removed here rather than in stage 5**, with the ladder it
+  belongs to; its three fields stay in the record until stage 5.
+- **An entry quality that was not measured is None, in one spelling**, in the
+  entry block, in `risk.trade_quality_proposed` and in the contract — not NaN
+  and not zero, because zero is a real reading.
+- **The summary of a plain LONG or SHORT names gate 9's sentence**, not gate
+  2's. Found by running the second pinned decision before this commit.
+
+**Stage 3's readings that are Viktor's to reverse** (all eight are; these four
+change what a run prints or does beyond the rulings' own words):
+
+- **A gate that could not be measured blocks, under the label SIGNAL UNCONFIRMED**
+  for gates 6 and 7, and as a WAIT with its own sentence for gate 8; the run is
+  degraded as well. It is never called MACRO AGAINST or THIN MARKET.
+- **Under NEUTRAL no trigger is read:** `entry.trigger` is null and the panel says
+  there is no side to read it for.
+- **Two record fields and three panel lines the draft does not have:** the two
+  `*_signal_refusal` labels, and TURNOVER, TRIGGER and TRIGGER VOLUME.
+- **Gate 8's sentence prints the volume and its median and no price.**
+
+**Stage 2's readings that are Viktor's to reverse** (all six are; these three change
+something he ruled or would see):
+
+- **B9's read is removed** (his ruling of 15 October). BTC's label no longer reads
+  BTC's SuperTrend, so a failed one no longer takes the BTC section; a BTC direction
+  that could not be measured does.
+- **Under NEUTRAL the plan is drawn as a long's**, a fixed stand-in where the sum's
+  sign was. The risk check reads only the stop's distance; the panel prints no plan.
+- **The PLAN line under NEUTRAL** keeps the wording he ruled on 27 September and
+  loses "(score X, inside ±20)".
+
+**The draft's errors, as each stage found them; reconciled at stage 6 in the draft's
+version 15, §18, which leaves §13 and §14 as they were written:**
+
+- *Stage 1.* §5 has the golden run's `quote_volume` come from
+  `docs/build/make_pinned.py`; the golden test derives its series from
+  `tests/fixtures/ohlcv_clean_4h.csv` and never reads that script's output. Stage 1
+  added the column in both places by one rule.
+- *Stage 2, the same error again.* §2 and §13.2 have `btc_context.raw` flip from
+  BEARISH to BULLISH on the golden run, computed from the committed
+  `BTCUSDT_4h.csv`. The golden run's BTC series is the clean fixture reversed, and on
+  it the rule gives BEARISH: `btc_context.raw` does not move, and
+  `btc_context.detailed` moves to BEARISH. **Before each stage, every figure the
+  draft gives for the golden run is recomputed from the golden test's own three
+  series, not taken from §13;** done before stage 3 and before stage 4 (below),
+  and owed before stage 5.
+- *Stage 2.* §13.3's `lineage.direction` has a field for EMA20's slope, which the
+  ruled rule does not read, and true-or-false fields that cannot tell falling from
+  flat; three words are recorded instead.
+- *Stage 2.* §14 misses `tests/test_b9_btc_supertrend_is_read_directly.py` and
+  misclassifies four tests and one helper in four files; listed in the entry.
+- *Stage 3.* §13.1's figures for gates 6 to 8 were recomputed from the golden
+  test's own series before building and are right: the golden 4h series is the
+  committed pinned one. §14 misclassifies or misses six tests and one set-up, and
+  lists one as rewritten that holds; listed in stage 3's entry. §13.3 has no field
+  for the label of a refused side.
+- *Stage 5.* Every figure the draft gives for **both** golden runs was
+  recomputed from the golden test's own three series, through the production
+  path, before any code: on the clean run and the trade run, `bias.score`
+  77.09945428836092 / 62.65215203528861 (which is `risk.confidence_score` and
+  `risk.assumed_win_rate` exactly), `risk.ev_r` 1.3129836286508274 /
+  0.8795645610586583, `trend.trend_health` 95.3475842150379 /
+  83.84050678429537, `btc_context.trend_health` 96.99999999980207 /
+  78.64771826245423, `validation_score` 35.0 on both and WEAK on both,
+  `risk.trade_quality_proposed` 0.0 / 79.82563808648668, and ADX
+  31.956320179198244 / 21.592822502305648, which does not move. **§13.2 is
+  right about what leaves and wrong about two things:** it has
+  `risk.trade_quality_proposed` MOVING to 0.0 rather than leaving the record
+  (a reading, above), and its 81-removed / 15-moved counts are version 1's.
+  Measured on the re-baselined snapshots: **222 leaves before and 165 after on
+  both runs — 58 removed, 1 added, 5 moved.** The five are
+  `explanation.reasons` and the four digest leaves, which are `run_hash` and
+  the archive path twice each. §13.3 does not list `macro_note`. §14 is not
+  compared here as a list: this stage's verdicts were taken from the code
+  file by file, because §14 has misclassified tests at each of the last three
+  stages, and what it cost each time is in those entries.
+- *Stage 4.* §13.3's `distance_atr` 3.20703059 and `hvn_distance_atr`
+  15.12021342 were computed from the golden snapshot's own
+  `indicators_at_decision_bar`, which `_strip` has already rounded to eight
+  decimals, and then rounded again. The engine computes both from the
+  full-precision values: 3.20703073 and 15.12021411. §13.1's four-decimal
+  figures and entry quality 0 are right. **The fourth figure the draft gives of
+  the golden run that is not the golden run's.** §14 misclassifies four tests
+  and misses one scanner, listed in stage 4's entry; its own caveat that the
+  tests "were not read line by line" cost one restore, also listed there.
+- *Stage 6.* §13 and §14 compared whole, the snapshot with `e69d5bb`'s and the tests
+  with `696af24`'s (Linux sandbox, Python 3.12.3). **§13.2:** 88 removed against its 85,
+  every leaf it predicted removed having left, the other three being the two it called
+  renamed and `risk.trade_quality_proposed`; 14 moved against its 15, thirteen of its
+  own and `entry.entry_status`; 26 added, twenty as §13.3 has them and six it does not
+  have. **§13.1** is right in every verdict. No difference is new at stage 6. **§14:**
+  376 of 467 verdicts matched and 91 did not — 47 rewritten that needed no edit, 20
+  rewritten that were removed, 17 held that were edited, 4 held that were removed, both
+  of its reversals removed instead, and one that was to go still there; and 12 of the
+  407 tests it set aside moved, 9 gone and 3 changed. The lists are the draft's §18.2
+  and §18.3.
+
+**`4200f3b`'s landing.** Viktor's opening message of the merge session, sent at 23:51
+on 21 November: stage 7 landed as `4200f3b522b7d2ec001338c27078d8606e1eba4e` (tree
+`1ed16774…`), parent `4d2a036a`, committed at 23:44:43 and pushed by 23:45:12, and its
+landing was checked at 23:45 and holds: "tree against Verified-Tree, message the
+delivered one less CRs, all 29 changed files byte for byte an autocrlf checkout of the
+tip, trend_health.py gone, root clean, master still 696af24…, and check_history_move on
+the tip giving its recorded 145 lines in 20 runs." `code_hash` is `c4e45d7a…`. His live
+run of 23:36:48, from the worktree: a WAIT at gate 8, not degraded, 17 indicators at the
+decision bar.
+
+Of stage 7 this session read from GitHub, by its clone of 23:58 on 21 November:
+`redesign`'s tip is `4200f3b522b7d2ec001338c27078d8606e1eba4e`, its parent `4d2a036a`,
+its tree `1ed167744d4cc76f00f4373054ee44015d032c5e`, and `master` is
+`696af24919ba73eb676a996c58365abf94635bad`. On that tip, under Python 3.12.3,
+`code_hash` read `c4e45d7a…` and the three suites gave the baselines under "Test suite".
+Off his disk it staged this file, DECISIONS and HISTORY before building, and each is byte
+for byte the tip's in an autocrlf checkout.
+
+**The patch-delivery skill's update proposed at stage 7 was saved:** the skill this
+session loaded is current with DECISIONS as of `4d2a036a` and gives the live run its own
+`os.chdir` one-liner. Its section 11 describes the build; once the merge has landed and
+the worktree is removed it no longer applies, and the next update of the skill says so.
+
+**The branch's last commit and the merge.** This commit, the branch's eighth, changes
+three files under `docs/`: DECISIONS gains the two entries above, this file is written as
+it is to read on `master`, and HISTORY gains its entry. The merge, in `E:\phase7_engine`,
+is `git merge --no-ff --no-commit redesign`, committed with a message whose
+`Verified-Tree:` line names this commit's tree, which the merged tree equals while
+`master` has not moved since `696af24` (the patch-delivery skill's section 11). From it
+the scheduled task runs the redesign.
 
 ## PACE FIRST — read this before the rest of this file
 
@@ -3197,11 +3654,17 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
 
 ## Where things stand, right now
 
-- **Tip:** the commit that writes this line (a commit cannot name its own hash) —
-  Viktor's ruling of 01:15 on 13 November filed, the redesign's code built on a
-  `redesign` branch in a second worktree, with the procedure, and `a3c863e`'s landing
-  recorded: docs only, no engine code; `master`'s last commit before the redesign's
-  merge. Before it: `a3c863e`
+- **Tip:** the commit that writes this line (a commit cannot name its own hash) — the
+  branch `redesign`'s last, docs only, which reaches `master` by the merge that follows
+  it (THE REDESIGN'S BUILD, above). Before it on the branch: `4200f3b`, stage 7;
+  `4d2a036a`, stage 6; `f6fff24a`, stage 5; `ebd98e50`, stage 4; `5e7e429`, stage 3;
+  `c012e5b`, stage 2; `6038283`, stage 1 — each in THE REDESIGN'S BUILD and in its own
+  commit message. Before them, on `master`: `696af24` (13 November: Viktor's ruling of
+  01:15 on 13 November filed, the redesign's code built on a `redesign` branch in a
+  second worktree, with the procedure, and `a3c863e`'s landing recorded: docs only, no
+  engine code; `master`'s last commit before the merge). This bullet named `696af24` as
+  the commit that writes it from stage 1 to stage 7, which did not bring it current;
+  corrected by the branch's last commit. Before `696af24`: `a3c863e`
   (the session of 12 November, from 07:32: Viktor's ruling of 07:33 on 12 November
   filed, the redesign's design approved as a whole, the redesign draft's version 14,
   and `dac70c1`'s landing recorded: docs only, no engine code), `dac70c1`
@@ -3600,6 +4063,11 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
   to `E:\phase7_engine`". Run the engine and every command from `E:\phase7_engine` (in
   cmd, changing drive needs `cd /d`). A dated record that names the D: paths means the
   same folders before the move; dated records are not edited.
+- **The pushes of the redesign's build**: the latest, `4200f3b`'s, by 23:45:12 on
+  21 November, its landing checked at 23:45 and holding (THE REDESIGN'S BUILD, above);
+  stages 1 to 6's are recorded there and in HISTORY. `696af24`'s push and the worktree's
+  setup after it were checked on 13 November at 02:53 and held (Open items). What
+  follows is `master`'s record as it stood at `696af24`, and stops at `a3c863e`'s push.
 - **The push of `a3c863e`** happened, on 12 November, after its commit at 07:56:07
   (the push's own time was not read by this session), and its landing was checked on
   12 November by two sessions, nothing differing (Viktor's message opening this
@@ -3900,12 +4368,18 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
   The same holds for the push of the
   commit that writes this line unless it deviates. Earlier pushes and deviations are
   recorded in this file's previous versions, in HISTORY.
-- **Before this commit**, every file its patch changes was staged off Viktor's disk and
-  matched an autocrlf checkout of `9cc48d7`, GitHub's tip, cloned at 08:56 on
-  11 November, byte for byte, before the patch was built; it adds no file. (This file
-  at `706e858` and at `4ab59d7` still gave `bc250fc`'s sentence here, against
-  `a0ca299`; corrected on 7 November.)
-- **code_hash:** `816d4951bb0322763ec4abc4b9ed8161d5b902372823350e5272f2fb7176e380`,
+- **Before this commit**, every file its patch changes — this file, DECISIONS and
+  HISTORY — was staged off Viktor's disk, from `E:\phase7_redesign`, and matched an
+  autocrlf checkout of `4200f3b`, GitHub's `redesign`, cloned at 23:58 on 21 November,
+  byte for byte, before the patch was built; it adds no file. (This bullet named
+  `9cc48d7` from `a9b83a9` to stage 7; corrected by the branch's last commit.)
+- **code_hash:** **`c4e45d7a783248901ee60e0eb5f26047406eccd6c2fa9b387ea9bd008ee1a41e`
+  on the branch since stage 7, unchanged by the branch's last commit, and on `master`
+  from the merge**; each stage's value is in THE REDESIGN'S BUILD, above. This bullet
+  named stage 3's `b8afef79…` from stage 3 to stage 7, which did not bring it current;
+  corrected by the branch's last commit. What follows is the record of `master`'s
+  before the merge, which the scheduled task ran until it:
+  `816d4951bb0322763ec4abc4b9ed8161d5b902372823350e5272f2fb7176e380`,
   set by `0491b84` from `bc1b9c2c…` — `main.py` alone — and confirmed on Windows: its
   eleven hand-run records and the ten of each of the first two scheduled runs carry it.
   Unchanged by `a235783`, `8d5d64a`, `a48d9e5`, `fbd7877`, `8311167`, `d2dddf7`,
@@ -3980,7 +4454,81 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
   output, a CPython implementation detail (`core/code_fingerprint.py`, "WHAT IT DOES NOT
   SURVIVE"). **Every `code_hash` claim about this project is computed under Python 3.12**
   (Viktor runs 3.12.10).
-- **Golden snapshot:** unchanged by the commit that writes this line and by `9cc48d7`,
+- **Golden snapshot:** **two leaves removed from each snapshot by `4200f3b`, stage 7** —
+  `lineage.indicators_at_decision_bar`'s `EMA20_Slope` and `VWMA`, 19 to 17 — and
+  nothing else (THE REDESIGN'S BUILD, stage 7); untouched by the branch's last commit
+  and by stage 6, which change no code. **Re-baselined by `f6fff24a`, stage 5
+  of the redesign's build, with `PHASE7_UPDATE_SNAPSHOT=1` — both snapshots, the
+  clean fixture's and the trade fixture's, and identically: 58 leaves removed, 1
+  added and 5 moved on each, 165 leaves from 222. `exit.action` and
+  `explanation.summary` do NOT move on either**, so the clean run is still a WAIT
+  at gate 8 and the trade run still a LONG, and `entry.score` is still 0.0 and
+  79.82563809. Removed: `bias.score`, `btc_context.trend_health`,
+  `lineage.bias_components`'s thirty-four, seven
+  `provenance.module_constants.models.bias_engine` entries and three
+  `models.decision_model` ones (`DEGRADED_CONFIDENCE_CEILING`, `AVG_REWARD_R`,
+  `EV_BREAKEVEN_BAND_R`), `risk`'s eight (`confidence_score`,
+  `trade_quality_proposed`, `validation_state`, `validation_score`,
+  `validation_note`, `ev_r`, `assumed_win_rate`, `avg_reward_r`) and `trend`'s
+  four (`trend_health`, `exhaustion`, `momentum_mode`, `trend_direction`). Added:
+  `macro_note` ("The higher timeframe agrees with this bias." on both). Moved:
+  `explanation.reasons` (three sentences gone — confidence's, entry quality's
+  restatement and EV's — leaving 3 on the clean run and 4 on the trade one);
+  `lineage.run_hash` and `provenance.run_hash` (`c2cded78…` → `fd8eddb2…` on the
+  clean run, `3e00088e…` → `023552b7…` on the trade one), `lineage.archive.path`
+  and `provenance.archive_path` (the same sixteen digits each). Predicted before
+  the run, leaf by leaf, and every line held; nothing else moved. The updater
+  writes LF, so CRLF and the absent final newline were restored by hand before
+  diffing. `provenance.module_constants` has no `models.bias_engine` key at all,
+  rather than an empty one. Linux sandbox; the Windows run is his pytest step.
+  **This bullet named stage 3 until this commit, and stage 4 re-baselined both
+  snapshots without bringing it current** — found rewriting it, recorded rather
+  than quietly fixed, and the stage-4 account below is written in now. **Before
+  this, re-baselined by `ebd98e50`, stage 4: on the clean snapshot 28 leaves
+  removed, 11 added and 8 moved, 222 leaves from 239; `exit.action` and
+  `explanation.summary` did not move, which is what stage 3's reading 1 ruled of
+  them. `tests/fixtures/golden_trade_decision.json` is new with it, the second
+  pinned decision's own snapshot, pinning a LONG at entry quality
+  79.82563809.** **Before that, re-baselined by `5e7e429`, stage 3: 7 leaves moved
+  and 9 were new, 239 leaves from 230; `exit.action` moved from CONSERVATIVE LONG
+  to WAIT, at gate 8.** Moved: `exit.action`; `explanation.summary` ("WAIT — No earlier gate refused
+  the long, but there is no resumption candle yet: …"); `explanation.reasons` (gate
+  8's sentence added third, and the EV sentence gaining its "(this is hypothetical,
+  since no trade is actually being suggested right now)"); `lineage.run_hash` and
+  `provenance.run_hash` (`3d2e7758…` → `de8256d4…`), `lineage.archive.path` and
+  `provenance.archive_path` (the same sixteen digits). New: `entry.quote_volume`
+  (67901.6508), `.liquidity_floor` (10000.0), `.trigger` (false), `.trigger_volume`
+  (84693.7281), `.trigger_volume_median` (179247.8923), `.long_signal_refusal`
+  (null), `.short_signal_refusal` (NO-TRADE (SIGNAL UNCONFIRMED)), and the module
+  constants `models.entry_model.LIQUIDITY_FLOOR_USDT` and
+  `.TRIGGER_VOLUME_LOOKBACK`. Predicted before the run, leaf by leaf, and every
+  line held; nothing else moved. `explanation.reasons` moves again in stages 4 and
+  5 (THE REDESIGN'S BUILD, above). Linux sandbox; the Windows run is his pytest
+  step. **Before it, re-baselined by `c012e5b`, stage 2, 6 leaves moved, 4 new and
+  2 removed, 230 leaves from 228; `exit.action` was still CONSERVATIVE LONG, and
+  `explanation` did not move.** Moved: `bias.detailed` (BULLISH CONFIRMED → BULLISH),
+  `btc_context.detailed` (BEARISH CONFIRMED → BEARISH), `lineage.run_hash` and
+  `provenance.run_hash` (`5eb672e1…` → `3d2e7758…`), `lineage.archive.path` and
+  `provenance.archive_path` (the same sixteen digits). New:
+  `lineage.direction.ema50_slope` (RISING), `.ema20_vs_ema50` (ABOVE) and `.result`
+  (BULLISH), and `lineage.risk_inputs.side` (LONG). Removed:
+  `lineage.risk_inputs.bias_score` and
+  `provenance.module_constants.models.decision_model.MIN_ACTION_BIAS`. **One line of
+  the prediction made before the run did not hold:** it had `btc_context.raw` move
+  to BULLISH and `btc_context.detailed` with it, from the draft's §13.2; the raw
+  label did not move and the detailed one moved to BEARISH. The work stopped there
+  until the cause was read: the draft's error, not the code's (THE REDESIGN'S BUILD,
+  above). Every other line held. Linux sandbox; the Windows run is his pytest step.
+  **Before it, re-baselined by `6038283`, stage 1, 7 leaves moved and 1 new.** Moved: `lineage.inputs.struct.columns` (gains
+  `quote_volume`), `lineage.inputs.struct.sha256` and `provenance.input_hashes.struct`
+  (`208ab83f…` → `1c7082f0…`), `lineage.run_hash` and `provenance.run_hash`
+  (`40dcdc72…` → `5eb672e1…`), `lineage.archive.path` and `provenance.archive_path`
+  (the same sixteen digits). New: `lineage.indicators_at_decision_bar.quote_volume`,
+  67901.6508. 228 leaves, from 227; no decision field moves, and `exit.action` is
+  still CONSERVATIVE LONG. These are the draft's §13 moves for the column, all of
+  them, and its new field. Linux sandbox; the Windows run is his pytest step. What
+  follows is the record up to `696af24`, whose `run_hash` was `40dcdc72…`.
+  Unchanged by `696af24` and by `9cc48d7`,
   each of which changes docs and no code or test, by `4cdad4e`, which changed
   the Notes' build script and documents and no code or test, by `6bb82cc`, `e4363d5`
   and `a60d66b`, which changed docs and no code or test, by
@@ -4039,14 +4587,83 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
   `22a9a35`, 4 leaves (the confirmation reason, `volume_sentiment` twice and
   `validation_note`'s volume half: VOLUME DIVERGENCE → FADING VOLUME); before that at
   `6469a67`, 8 leaves.
-- **Test suite** — **977 passed / 0 failed, no warnings line** with `pandas_ta`;
-  **801 passed / 165 skipped** without it; `run_tests.py` **909 passed / 0 failed /
+- **Test suite** — **999 passed / 0 failed, no warnings line** with `pandas_ta`;
+  **830 passed / 165 skipped** without it; `run_tests.py` **930 passed / 0 failed /
   31 errors**, all 31 fixture-collection `TypeError`s: the 32 of `e88e0dd` less
   `test_no_module_defaults_a_missing_risk_verdict_to_a_pass`. This is meant to be the
   one place the watched error count is written as a number (DECISIONS, "Ruling,
   15 October 2026 — Part 4's three test shapes", point 5); `README.md` wrote it too
-  until `713e084` (entry 50). The commit that writes this line changes no test, and the
-  three counts held: from the Linux sandbox, Python 3.12.3, pinned requirements, on an
+  until `713e084` (entry 50). **Stage 7 takes one test out of each, and the error count
+  does not move:** `tests/test_decision_bar_integrity.py`'s three VWMA tests become two
+  (DECISIONS, stage 7's entry), each skipped without `pandas_ta` and run by
+  `run_tests.py`; two tests are renamed, which moves no count. Stage 6 moved none of
+  the three. **`f6fff24a`, stage 5 of the
+  redesign's build, takes the suite from 1061 to 1000, from 873 / 177 to 830 / 166,
+  and from 992 / 0 / 31 to 931 / 0 / 31 — the first stage of the redesign to remove
+  more tests than it adds, which is what a stage of removals should do.** Minus 61
+  in all: **39 with six files deleted whole** —
+  `tests/test_volume_agreement.py` (8), `test_trend_direction_source.py` (7),
+  `test_engine_core_confidence_score_not_duplicated.py` (3),
+  `test_trend_score_has_a_denominator.py` (4),
+  `test_validation_score_has_a_denominator.py` (4) and
+  `test_indicator_overlap_tool.py` (13), which goes with the tool — and **22 net
+  from six surviving files**: `test_no_circular_reasoning.py` 14 → 1 (Item 11's
+  thirteen instances go with the paths they guarded; one, on structure's regime,
+  survives), `test_summary_names_the_action_reason.py` 10 → 5 (the EV sentence's
+  five), `test_round8_f9_claims_match_the_code.py` 10 → 7,
+  `test_b4_labels_say_what_is_measured.py` 8 → 7,
+  `test_one_name_one_meaning.py` 6 → 5, and
+  `test_panel_prints_only_what_was_computed.py` 9 → **10**, the one test this
+  stage adds: that the four score lines and the Validation Notes section stay
+  removed even on a stale decision object carrying their readings. No new test
+  takes a fixture, so the errors stay 31. **The per-file collected count was
+  compared against the base tree before delivery**, as it was at stage 4 where it
+  caught a real mistake; this time only those twelve files changed count and no
+  unrelated test was lost. Forty-four files change, six are deleted and
+  `docs/build/indicator_overlap.py` with them; no file is new. From the Linux
+  sandbox, Python 3.12.3, pinned requirements, on the patch applied to an autocrlf
+  clone of `ebd98e50` at `redesign`. `ebd98e50`, stage 4 of the
+  redesign's build, took the suite from 1058 to 1061, from 869 / 178 to 873 / 177,
+  and from 990 / 0 / 31 to 992 / 0 / 31: 19 tests in two new files,
+  `tests/test_tier_lines.py` (14) and `tests/test_second_pinned_decision.py` (5),
+  and 2 in `tests/test_golden_path.py`, against 12 removed with
+  `tests/test_entry_score_reconciles.py`, which goes whole, and 6 removed from five
+  files — the RSI part's, the two not-measured constants', the ladder's
+  trend-strength sentence, F9's trend multiplier and two of ruling 1's three
+  sentence tests. None of the new tests takes a fixture, so the errors stay 31;
+  three of them run the engine and skip without `pandas_ta`. Nine tests are
+  renamed where what they hold survived the change and their name did not.
+  **The per-file collected count was compared against the base tree before
+  delivery, and caught a real mistake:** removing one test of
+  `test_panel_prints_only_what_was_computed.py` by its following definition took
+  four unrelated tests with it, all of which passed where they were, so no failing
+  test could have shown it. Restored word for word. Twenty existing test files
+  change, two are new and one is deleted. From the Linux sandbox, Python 3.12.3,
+  pinned requirements, on the patch applied to an autocrlf clone of `5e7e429` at
+  `redesign`. `5e7e429`, stage 3 of the redesign's build, took the suite from 1018
+  to 1058, from 833 / 174 to 869 / 178, and from 950 / 0 / 31 to 990 / 0 / 31: 40
+  tests in one new file, `tests/test_gates_6_to_8.py`, none taking a fixture; four
+  of them run the engine and skip without `pandas_ta`. `c012e5b`, stage 2 of the
+  redesign's build, took the suite from 1009 to 1018, from 833 / 165 to 833 / 174,
+  and from 941 / 0 / 31 to 950 / 0 / 31: 12 tests in one new file,
+  `tests/test_direction_is_the_slow_trends_side.py`, 5 more in three files
+  (`test_plan_direction_and_side.py` 2, `test_b9_btc_supertrend_is_read_directly.py`
+  2, `test_golden_path.py` 1) and 8 fewer in three (`test_bias_label.py` 4,
+  `test_minimum_bias_strength.py` 2, `test_neutral_bias_prints_no_plan.py` 2), none
+  taking a fixture, so the errors stay 31. Without `pandas_ta` as many pass as
+  before and nine more skip. Fifteen existing test files change and one is new. From the Linux
+  sandbox, Python 3.12.3, pinned requirements, on the patch applied to an autocrlf
+  clone of `6038283` at `redesign`. `6038283`, stage 1 of the
+  redesign's build, added 32 tests in three new files, none taking a fixture, so each
+  count rose by 32 and the errors stayed 31; it changed five existing test files
+  (three assertions on the frame's columns, two set-ups that write pinned files) and
+  `tests/conftest.py`'s list of modules, and removes no test. From the Linux sandbox, Python 3.12.3,
+  pinned requirements, on the patch applied to an autocrlf clone of `696af24`
+  checked out at `redesign`; before the change that clone gave 977, 801 / 165 and
+  909 / 0 / 31. Of the 32, on the code before it: 13 fail by assertion, the 9 of
+  `test_compared_value_text.py` cannot be collected (the module is new, which proves
+  only that), and 10 pass. `696af24` changed no test, and the three counts held: from
+  the Linux sandbox, Python 3.12.3, pinned requirements, on an
   autocrlf clone of `a3c863e`, in a second worktree of that clone, and on the patch
   applied to another clone. `a3c863e` changed
   no test, and the three counts held: from the Linux sandbox, on the patch applied to
@@ -4477,16 +5094,25 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
   then run on Windows at 09:06 on 12 October: both matched (792; 721 / 0 / 32). One test,
   `test_the_commit_messages_up_to_the_tag_are_round_7s_to_the_byte`, runs `git log` up
   to the tag `round7-sent-2026-09-30`: it needs the tag, which a full clone has.
-- **Engineering Notes:** through Entry #288 (v1.43), which covers `a60d66b`; eight
-  commits behind, `9cc48d7`, `a9b83a9`, `66b5c50`, `b26e5c7`, `6df23f4`, `dac70c1`,
-  `a3c863e` and the commit that writes this line (below). The gap
+- **Engineering Notes:** through Entry #288 (v1.43), which covers `a60d66b`; **sixteen
+  commits behind, and not rebuilt since before stage 1 of the redesign's build**:
+  `9cc48d7`, `a9b83a9`, `66b5c50`, `b26e5c7`, `6df23f4`, `dac70c1`, `a3c863e`,
+  `696af24`, `6038283`, the first to change code among them, `c012e5b`, `5e7e429`,
+  `ebd98e50`, `f6fff24a`, `4d2a036a`, stage 6, `4200f3b`, stage 7, and the commit that
+  writes this line, the branch's last. **Not rebuilt before the merge, by Claude's
+  reading, Viktor's to reverse:** rebuilt now, they would be rebuilt again after the
+  merge and the BLESS commit, which are two more commits to enter; rebuilt once after
+  them, they cover the whole build at once. This
+  gap statement is what the rule of 15 September requires when the batch is not run. This
+  line and the count below stood at eleven through stages 4 and 5, which did not bring
+  them current; corrected on 17 November, on Viktor's opening message. The gap
   left by v1.36 was closed in four regenerations: v1.37 at `f8805a6` covered `e7a94d1`
   to `eb86846`, v1.38 at `0a518fd` `c2b07fb` to `67f6ec1`, v1.39 at `a0ca299` `0491b84`
   to `b8f88d8`, and v1.40 at `bc250fc` `a1c4218` to `0a518fd`. v1.41, at `9db4ae2`,
   covered the seven commits `706e858` to `82ea40e`, v1.42, at `82b824d`, the two
   commits `7dac328` and `340ee8d`, and v1.43, at `4cdad4e`,
   covers the three commits `6bb82cc`, `e4363d5` and `a60d66b`, one entry each.
-  **Eight commits that need an entry are behind:** `9cc48d7`, which files the ruling of
+  **Fifteen commits that need an entry are behind:** `9cc48d7`, which files the ruling of
   11 November and the reading, `a9b83a9`, which files the rulings of 08:55 on
   11 November and writes the draft's version 9, `66b5c50`, which files the ruling of
   09:41 on 11 November and writes the draft's version 10, `b26e5c7`, which files the
@@ -4494,8 +5120,12 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
   files the ruling of 10:34 on 11 November and writes the draft's version 12,
   `dac70c1`, which files the ruling of 11:00 on 11 November and writes the draft's
   version 13, `a3c863e`, which files the ruling of 07:33
-  on 12 November and writes the draft's version 14, and the commit that writes this
-  line, which files the ruling of 01:15 on 13 November; none has one until the next regeneration. `bc250fc`, `9db4ae2`, `82b824d` and
+  on 12 November and writes the draft's version 14, `696af24`, which files the ruling
+  of 01:15 on 13 November, `6038283`, stage 1 of the redesign's build, `c012e5b`,
+  stage 2 of it, `5e7e429`, stage 3, `ebd98e50`, stage 4, `f6fff24a`, stage 5,
+  `4d2a036a`, stage 6, and the commit that writes this line, stage 7; none has one until
+  the next regeneration.
+  `bc250fc`, `9db4ae2`, `82b824d` and
   `4cdad4e` are regenerations and have none (a commit that
   regenerates the Notes cannot cover itself, Entry #144). Every later commit adds one
   until the next regeneration. Batched, by the 15 September rule. v1.43 records the
@@ -4520,8 +5150,10 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
   Document's at `6e1baba`.
 - **README.md:** **`706e858` changed its "Independent audit" and "Engine code"
   rows**, for the ruling of 7 November on F2, in wording Claude wrote and put to
-  Viktor before his commit, and nothing else in it. Its test counts are current (977,
-  801 / 165 and 909 passed, 0 failed), last changed by `340ee8d`, which changed only
+  Viktor before his commit, and nothing else in it. **Its test counts are current (999,
+  830 / 165 and 930 passed, 0 failed), last changed by `4200f3b`, stage 7, with four
+  stale passages** (THE REDESIGN'S BUILD, stage 7; stages 2 to 4 changed the counts too,
+  and stage 5 did not); before the build they were last changed by `340ee8d`, which changed only
   the numbers, for its two new tests (`82b824d`, `6bb82cc`, `e4363d5`, `a60d66b` and the commit that writes this
   line do not change `README.md`), and before it by `4ab59d7`, which changed only the numbers, for its 24 new tests (`94b7e96`,
   `a11ffc4`, `542085f`, `b874ec1`, `82ea40e`, `9db4ae2` and `7dac328` do not change
@@ -5076,7 +5708,9 @@ the work before the audit, entry 1 apart.
   this list by the 22 September ruling, not separately ruled. The Part 7 document's
   S4; round 8 found it (F10). **Held back for Amazon's audit as H1** (DECISIONS,
   "Ruling, 18 October 2026 — the four held-back defects …"): left as it is until after
-  the audit.
+  the audit. **Gone with the redesign:** stage 4 removed the branch with the ladder it
+  belonged to. Replaced as a held-back defect on 17 November (H6 to H8, this list's last
+  entries).
 - **A floor on T1: at least 3% after fees.** Point 2 of "Ruling, 28 September 2026 —
   what "finished" means, and how the engine is judged": the engine should issue no LONG
   whose T1 nets under 3% after fees. Today T1 equals the stop distance, anywhere from
@@ -5277,7 +5911,9 @@ the work before the audit, entry 1 apart.
   bool and then unused, so the bias score does not see it, and a caller would think it
   does. Found by Claude scoping fix 2 on the night of 5 to 6 October. It changes no
   trade; on this list by the 22 September ruling, not separately ruled. **Held back for
-  Amazon's audit as H2** (the same ruling): left as it is until after the audit.
+  Amazon's audit as H2** (the same ruling): left as it is until after the audit. **Gone
+  with the redesign:** stage 5 removed `calculate_dynamic_bias` with the weighted sum.
+  Replaced as a held-back defect on 17 November (H6 to H8, this list's last entries).
 - **Two counts in `models/risk_model.py`'s docstrings are wrong** (read at `1b25f36`,
   from the parse tree): `read_risk_verdict` says `validate_risk_parameters` has six
   return paths, and it has seven; `validate_risk_parameters` says "the three
@@ -5465,7 +6101,12 @@ the work before the audit, entry 1 apart.
   after the audit. **Since the reading of 14 November, not minor** (computation 5), so
   by the decision of 25 October it is fixed in the redesign, with its code (the
   draft's §8, version 9, has the fix and its tests), and replaced as a held-back
-  defect; until that code lands it is left as it is.
+  defect. **Fixed by stage 1 of the redesign's build, 14 November:** a flat candle
+  goes to the bin that holds its price (`tests/test_flat_candle_goes_to_its_bin.py`,
+  whose 4.2 test fails on the code before it). Replaced as a held-back defect on 17
+  November, with H1 and H2, by H6 to H8 (this list's last entries); what H5 tested, a
+  calculation at its edge, none of them does, and a defect that does is still owed (Open
+  items).
 - **`_compute_trade_quality` takes `trend` and `final_action` and reads neither**
   (`models/decision_model.py:872`, found by the same search). Its only use of `trend`
   went at sequence item 11, as the comment inside it says; `final_action` is never
@@ -5732,7 +6373,10 @@ the work before the audit, entry 1 apart.
   All three of the day's AEROUSDT hand runs, at 15:54, 15:55 and 16:09, read the same
   candle and printed the same sentence. Not fixed now: the fix moves `code_hash`, which
   no commit may move before the reading of 14 November, and entry 53 removes trend
-  health. Entry 58; not in the sort. Claude's suggestion, his to change: a label fix,
+  health. **Since stage 1 of the redesign's build, 14 November, the rule's helper
+  exists** (`core/threshold_text.py`, `compared_value_text`) **and no sentence prints
+  through it yet**: the sentences above still round as described, until stages 3 to 5
+  rewrite or remove them. Entry 58; not in the sort. Claude's suggestion, his to change: a label fix,
   Claude's, XS, within entry 53, whose design carries the rule that no reasoning
   sentence rounds a compared value across its threshold.
 - **The suite's guard on the real log directory cannot tell the scheduled task's write
@@ -5824,6 +6468,41 @@ the work before the audit, entry 1 apart.
   change: a code fix, so it moves `code_hash` and waits until after the reading of
   14 November; its shape (degrade the run, or leave the column out as a failed
   indicator) is settled with that patch. Its severity is not ruled.
+- **`_safe_float` is defined and nothing calls it** (found 16 November by a search of
+  the engine's parse tree at `f6fff24a`, made for the held-back defects' replacements).
+  `models/decision_model.py`, line 20: six call sites at `e69d5bb`, the last of them
+  removed by stage 5 with confidence, EV, trade quality and the weighted sum. No other
+  line of the engine and no test names it. Cleanup only; `code_hash` moves when it goes.
+  Entry 62; not in the sort. **Held back for Amazon's audit as H6** (DECISIONS, "Ruling,
+  17 November 2026 — the held-back defects' replacements are H6, H7 and H8 …"): left as
+  it is until after the audit.
+- **`render_panel` binds the decision's `trend` block and never reads it** (found by the
+  same search). `core/panel_render.py`, line 141, among the lines that take each section
+  of the decision object with a safe default; stage 5 removed the TREND line, the only
+  reader. The shape sequence item 13 fixed in this function once. Cleanup only; changes
+  nothing printed. Entry 63; not in the sort. **Held back for Amazon's audit as H7**
+  (the same ruling): left as it is until after the audit.
+- **`DecisionModel`'s docstring gives `evaluate()` a `trend` input it does not take**
+  (found by the same search, reading the docstrings that name something stage 5
+  removed). `models/decision_model.py`, line 82: "{bias, trend, entry, risk}", where
+  `evaluate()` takes `bias`, `entry` and `risk`; the sentence's own parenthesis records
+  the same change for `structure` and `macro_bias`. A wrong sentence; changes no code.
+  Entry 64; not in the sort. **Held back for Amazon's audit as H8** (the same ruling):
+  left as it is until after the audit.
+- **`models/entry_model.py` imports numpy and never uses it** (line 5, found by the same
+  search): nothing in the module reads `np` since stage 4 made entry quality D + H.
+  Cleanup only; `code_hash` moves. Proposed as a held-back defect and not chosen, its
+  kind being on this list already (`data/validation.py`'s `math`). Entry 65; not in the
+  sort.
+- **`StructureAnalysisResult` is declared and nothing refers to it** (found 17 November,
+  running the same search again for names nothing refers to anywhere — the engine, the
+  tests and `docs/build`). `structure/structure.py`, line 8: a `TypedDict` its comment
+  calls the formal return contract; `analyze()` is annotated `Dict[str, Any]`, and no
+  function, test or tool names the class. There since before `e69d5bb`, and not found on
+  18 October, whose search did not look for unreferenced classes. So the contract it
+  states is checked against nothing. Cleanup, or annotate `analyze()` with it; either
+  moves `code_hash`. Found after the ruling of 17 November and not held back; Viktor's
+  to put in H6's or H7's place if he prefers it. Entry 66; not in the sort.
 
 ## Work order — Claude's, under Viktor's delegation
 
@@ -6113,35 +6792,22 @@ Each code commit is its own commit and updates this file for its own landing.
 
 ## Resolved this session
 
-- **`a3c863e`'s landing**, checked on 12 November by two sessions, nothing differing
-  (Viktor's message; not read by this session), and recorded by the commit that
-  writes this line, made for its own reason (DECISIONS, the correction of
-  4 November). Its push, and what this session read of it, is in "Where things stand".
-- **Viktor's ruling of 01:15 on 13 November**, by agreeing to Claude's suggestion "B":
-  the redesign's code is built on a `redesign` branch in a second worktree and
-  reaches `master` in one merge; filed by the commit that writes this line
-  (DECISIONS, "Ruling, 13 November 2026 — the redesign's code is built on a `redesign` branch in a second worktree and reaches `master` in one merge").
-- **The four checks he asked for before filing**, and the procedure, Claude's, his to
-  reverse: in the same entry ("What was checked", "The procedure"). In short: the
-  handover check and both hooks run in a worktree unchanged; the scheduled task runs
-  `E:\phase7_engine\main.py` and so stays on `master`'s version; the merge's message
-  names the branch tip's tree; and no docs commit is made on `master` during the
-  build, so none has to reach the branch. Linux sandbox evidence but for what was
-  read off his disk.
-- **The patch-delivery skill**: an update is proposed in this session, a new
-  section 11 for the build on the branch and the marker line moved to `a3c863e`,
-  with the commit that writes this line named as the one that files the ruling
-  section 11 carries.
-- **Found, and not fixed:** three passages of "Where things stand" (which commits
-  changed no test, the `code_hash` computations and the golden snapshot) list
-  commits up to `9cc48d7` and then "the commit that writes this line", so they pass
-  over `a9b83a9`, `66b5c50`, `b26e5c7`, `6df23f4`, `dac70c1`
-  and `a3c863e`, each docs only; one dates "the commit that writes this line" to
-  11 November. Left as found: bringing them current is a read of six commits, a
-  piece of its own (Open items).
-- **This file's rewrite**, by the commit that writes this line. The lines it removed
-  from the version at `a3c863e` are in HISTORY's new entry, checked by
-  `docs/build/check_history_move.py` (the commit message has the result).
+- **`4200f3b`'s landing**, checked by Viktor on 21 November at 23:45 and holding (his
+  message), recorded by the commit that writes this line, made for its own reason
+  (DECISIONS, the correction of 4 November).
+- **Viktor's rulings of 23:48 on 21 November and 00:02 on 22 November**, filed in
+  DECISIONS by the commit that writes this line (THE REDESIGN'S BUILD, above).
+- **The patch-delivery skill's update proposed at stage 7 was saved** (THE REDESIGN'S
+  BUILD, above).
+- **This file written as it is to read on `master`**, its first section removed, by the
+  commit that writes this line. The lines it removed from the version at `4200f3b` are
+  in HISTORY's new entry, checked by `docs/build/check_history_move.py` (the commit
+  message has the result).
+- **Brought current with it, in "Where things stand":** the first lines of the Tip,
+  push, "Before this commit", code_hash, Golden snapshot, README and Engineering Notes
+  bullets, which named `696af24`, `a3c863e`, `9cc48d7`, stage 3's hash, stage 6 or
+  `340ee8d`'s counts. The rest of the file was not read end to end for this commit.
+- **By which model:** this session's work and this commit were Claude Opus 5.5's.
 
 ## Open items
 
@@ -6150,15 +6816,50 @@ Claude critiques it.
 
 - **Owed to the next commit:** nothing, unless this commit's push deviates from its
   prediction (ruling on proposal (b), 27 September).
-- **The worktree's setup — Viktor's commands, after this commit's push.** Given with
-  this commit's delivery: `git worktree add E:\phase7_redesign -b redesign` from
-  `E:\phase7_engine`, then, in the new folder, the hooks path read, the handover
-  check, the two suites and `git push -u origin redesign`, which runs the pre-push
-  hook there. They are the Windows evidence for what the sandbox showed on Linux. The
-  first commit on the branch records how they went.
+- **Claude's, next: the merge and then the BLESS commit, inside one four-hour window of
+  the forward measurement** (DECISIONS, the rulings of 23:48 on 21 November and 00:02
+  on 22 November; the patch-delivery skill's section 11, "The merge"). The branch's last
+  commit, the merge's first step, is the one that writes this line. Once the merge's
+  landing is checked, Viktor's commands remove the worktree `E:\phase7_redesign` and
+  delete the branch `redesign`; deleting `origin/redesign` is his call.
+- **Viktor's call — a held-back defect that can move a reading, found by stage 7**
+  (owed since 17 November: DECISIONS, "Ruling, 17 November 2026 — the held-back
+  defects' replacements are H6, H7 and H8 …"; the find is in stage 7's entry). The daily
+  frame runs the whole indicator pipeline and every failure on it joins the asset's
+  degradation list as "macro …", which refuses the trade, though the daily frame is read
+  for its close and `EMA_50` alone (`core/engine_core.py`, the macro block). So a daily
+  volume spike, or a daily RSI, ADX, SuperTrend or ATR that cannot be read, refuses a 4h
+  trade on an input nothing reads, and the spike's note says the volume is used in the
+  trigger, the turnover and volume sentiment, none of which reads the daily frame. It
+  moves `degradation` and `trading_authorized`, and on a trade the action, toward
+  refusal only. Reproduced in the Linux sandbox; never fired in master's 948 forward
+  records staged on 21 November. Not in the list, not fixed. **His to rule: whether it
+  goes on the held-back list and which of H3, H6, H7 and H8 it displaces** — his
+  position first. **Not filed with the branch:** at 00:02 on 22 November he gave no
+  position on it (DECISIONS, the ruling of 00:02, its last paragraph), so it reaches
+  `master` as his, and a ruling on it is filed by whichever later commit follows it.
+- **Claude's, by its reading, Viktor's to reverse — the Engineering Notes after the
+  merge and the BLESS commit.** Sixteen commits behind with this one ("Where things
+  stand"). Batched past the merge so that they are rebuilt once, over the whole build; the gap is stated in the
+  head block, which is what the rule of 15 September requires when the batch is not run.
+- **Viktor's, when he reads it: stage 2's three readings, stage 3's four, stage
+  4's five and stage 5's five that change something he ruled or would see** (THE
+  REDESIGN'S BUILD, above). None waits for him; each is his to reverse. A reversal
+  was cheapest before the merge, and none was asked for before it. **Stage 5's first is the one to read
+  first:** the cap on a degraded run's confidence and trade quality is gone,
+  because both quantities left the record, and that is the second sentence of
+  point 2 of his ruling of 29 August. The ruling's last sentence — a degraded
+  result does not by itself authorize trading — is unchanged.
+- **Viktor's, only if he prefers it:** `StructureAnalysisResult` (entry 66), found after
+  his ruling on the held-back defects, in H6's or H7's place.
+- **The worktree's setup: done.** Viktor ran it after `696af24`'s push; his message of
+  14 November has it checked on 13 November at 02:53 and holding (THE REDESIGN'S
+  BUILD, above, with what this session did and did not read).
 - **Claude's, found 13 November, not fixed:** three lists in "Where things stand" stop
-  at `9cc48d7` (Resolved this session). To bring current on the branch, with a
-  commit made for another reason.
+  at `9cc48d7` (Resolved this session). To bring current with a commit made for
+  another reason. The branch's last commit brought the first lines of the Tip, push,
+  "Before this commit" and code_hash bullets current; which three lists this item meant
+  was not re-read, so it is not closed.
 - **Viktor's call, when the paper account's size is set — F against his slice**
   (its time ruled at 10:08 on 11 November:
   (DECISIONS, "Ruling, 11 November 2026 — the redesign's trigger is the candle that closes beyond its open and the previous close …")).
@@ -6243,7 +6944,8 @@ Claude critiques it.
   scope on 31 October: the two volume gates, a liquidity floor and volume confirming
   the trigger, their design put to Viktor with the rest (DECISIONS, "Ruling,
   31 October 2026 — volume enters the redesign as two gates …"); the floor needs
-  `quote_volume`, which the fetcher drops today. Added on 1 November: entry 58's rule,
+  `quote_volume`, which the fetcher dropped until stage 1 of the build, 14 November,
+  and keeps since. Added on 1 November: entry 58's rule,
   that no reasoning sentence rounds a compared value across its threshold (Found after
   22 September, entry 58). **Design draft, version 14**, Claude's, started 1 November:
   `docs/redesign_entry53_draft.md` (version 0 filed at `e69d5bb`, version 1 at

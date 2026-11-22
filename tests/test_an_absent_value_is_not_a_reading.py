@@ -146,8 +146,12 @@ ALLOWED = {
             1, '"" means no log was written, and the panel then claims none'),
         ("render_panel", "decision.get('chart_path')", "<or>", "''"): (
             1, '"" means no chart was saved, and the panel then claims none'),
-        ("render_panel", "risk.get('validation_note')", "<or>",
-         "'No validation note was produced for this run.'"): (1, HONEST),
+        # THE REDESIGN'S STAGE 5, 15 November 2026: this was
+        # risk.get('validation_note'), the macro and volume notes joined.
+        # The validation block is gone and the macro note alone survives,
+        # as the top-level macro_note, printed on the MACRO NOTE line.
+        ("render_panel", "decision.get('macro_note')", "<or>",
+         "'No macro note was produced for this run.'"): (1, HONEST),
         # the decision and its reasons
         ("render_panel", "exit_data", "'action'", "'UNKNOWN'"): (1, UNKNOWN_LABEL),
         ("render_panel", "explanation", "'reasons'", "[]"): (
@@ -170,10 +174,11 @@ ALLOWED = {
         ("render_panel", "structure", "'regime'", "'UNKNOWN STRUCTURE'"): (1, UNKNOWN_LABEL),
         ("render_panel", "bias", "'volatility'", "'UNKNOWN'"): (1, UNKNOWN_LABEL),
         ("render_panel", "structure", "'sequence'", "'UNKNOWN'"): (1, UNKNOWN_LABEL),
-        ("render_panel", "trend", "'trend_direction'", "'UNKNOWN'"): (1, UNKNOWN_LABEL),
-        ("render_panel", "trend", "'momentum_mode'", "'UNKNOWN'"): (1, UNKNOWN_LABEL),
+        # Stage 5, 15 November 2026: three entries stood here -- the TREND
+        # line's trend_direction and momentum_mode, and the VALIDATION
+        # line's validation_state. All three lines are gone with the
+        # readings they printed.
         ("render_panel", "structure", "'volume_sentiment'", "'UNKNOWN VOLUME'"): (1, UNKNOWN_LABEL),
-        ("render_panel", "risk", "'validation_state'", "'UNKNOWN'"): (1, UNKNOWN_LABEL),
         ("render_panel", "risk", "'risk_regime'", "'UNKNOWN RISK'"): (1, UNKNOWN_LABEL),
         ("render_panel", "entry", "'entry_status'", "'UNKNOWN'"): (1, UNKNOWN_LABEL),
         ("render_panel", "struct_candle.get('open_time')", "<if-else>", "''"): (
@@ -195,18 +200,22 @@ ALLOWED = {
         ("SignalRouter._build_decision_object", "bias", "'detailed'", "'UNKNOWN'"): (1, UNKNOWN_LABEL),
         ("SignalRouter._build_decision_object", "bias", "'regime'", "'UNKNOWN STRUCTURE'"): (1, UNKNOWN_LABEL),
         ("SignalRouter._build_decision_object", "bias", "'volatility'", "'UNKNOWN'"): (1, UNKNOWN_LABEL),
-        ("SignalRouter._build_decision_object", "trend", "'momentum_mode'", "'UNKNOWN'"): (1, UNKNOWN_LABEL),
+        # Stage 5, 15 November 2026: momentum_mode and trend_direction stood
+        # beside this one and left the trend block with the readings behind
+        # them; divergence_direction is the block's one remaining default.
         ("SignalRouter._build_decision_object", "trend", "'divergence_direction'", "'UNKNOWN'"): (1, UNKNOWN_LABEL),
-        ("SignalRouter._build_decision_object", "trend", "'trend_direction'", "'UNKNOWN'"): (1, UNKNOWN_LABEL),
         ("SignalRouter._build_decision_object", "structure", "'regime'", "'UNKNOWN STRUCTURE'"): (1, UNKNOWN_LABEL),
         ("SignalRouter._build_decision_object", "structure", "'sequence'", "'UNKNOWN'"): (1, UNKNOWN_LABEL),
         ("SignalRouter._build_decision_object", "structure", "'volume_sentiment'", "'UNKNOWN VOLUME'"): (1, UNKNOWN_LABEL),
         ("SignalRouter._build_decision_object", "entry", "'entry_status'", "'UNKNOWN'"): (1, UNKNOWN_LABEL),
         ("SignalRouter._build_decision_object", "risk", "'risk_reason'", "'UNKNOWN'"): (1, UNKNOWN_LABEL),
         ("SignalRouter._build_decision_object", "risk", "'risk_regime'", "'UNKNOWN RISK'"): (1, UNKNOWN_LABEL),
-        ("SignalRouter._build_decision_object", "risk", "'validation_state'", "'UNKNOWN'"): (1, UNKNOWN_LABEL),
-        ("SignalRouter._build_decision_object", "risk", "'validation_note'",
-         "'No validation note supplied.'"): (1, HONEST),
+        # Stage 5, 15 November 2026: validation_state and validation_note
+        # stood here and left the risk block with the validation score. The
+        # router reads macro_note DIRECTLY rather than with a default, so it
+        # is not in this inventory at all -- which is the point of reading it
+        # that way: a missing one is a broken engine contract, not a reading
+        # the router can substitute a sentence for.
         ("SignalRouter._merge_btc_context", "btc_context", "'raw'", "'UNKNOWN'"): (1, UNKNOWN_LABEL),
         ("SignalRouter._merge_btc_context", "btc_context", "'detailed'", "'UNKNOWN'"): (1, UNKNOWN_LABEL),
         ("SignalRouter._merge_btc_context", "btc_context", "'regime'", "'UNKNOWN STRUCTURE'"): (1, UNKNOWN_LABEL),
@@ -296,10 +305,14 @@ EXPECTED_WHEN_ABSENT = {
     "STRUCTURE  :": "STRUCTURE  : UNKNOWN STRUCTURE",
     "SEQUENCE   :": "SEQUENCE   : UNKNOWN",
     "VOLUME     :": "VOLUME     : UNKNOWN VOLUME",
-    "VALIDATION :": "VALIDATION : UNKNOWN (Score: not computed)",
+    # Stage 5, 15 November 2026: the VALIDATION line stood here, and the
+    # TREND line left this list at stage 4 for another reason. Both are gone.
+    # The MACRO NOTE line is new, and it is the honest-sentence case rather
+    # than an UNKNOWN label: there is no word for an absent note.
     "VOLATILITY :": "VOLATILITY : UNKNOWN",
     "RISK REGIME:": "RISK REGIME: UNKNOWN RISK",
     "MACRO TREND:": "MACRO TREND: UNKNOWN",
+    "MACRO NOTE :": "MACRO NOTE : No macro note was produced for this run.",
     "STATUS        :": "STATUS        : UNKNOWN",
     "DECISION      :": "DECISION      : UNKNOWN",
     "BTC BIAS      :": "BTC BIAS      : UNKNOWN",
@@ -373,7 +386,9 @@ def _build(trend=None, entry=None, btc_context=None):
     from models.signal_router import SignalRouter
     return SignalRouter(engine_core=object())._build_decision_object(
         symbol="TESTUSDT", timeframe="4h",
-        bias={"raw": "NEUTRAL", "score": 0.0},
+        # Stage 5, 15 November 2026: "score" stood in this bias block and is
+        # not a field the engine writes now.
+        bias={"raw": "NEUTRAL"},
         trend=dict(TREND) if trend is None else trend,
         structure={},
         entry=dict(ENTRY) if entry is None else entry,
@@ -381,7 +396,7 @@ def _build(trend=None, entry=None, btc_context=None):
         exit_data={"current_price": 1.0},
         degradation=[], provenance=dict(PROVENANCE), lineage_record=dict(LINEAGE),
         exit_watch=[], btc_context=btc_context or {"available": False},
-        macro_bias="NEUTRAL", chart_path="",
+        macro_bias="NEUTRAL", macro_note="The higher timeframe is neutral.", chart_path="",
     )
 
 
@@ -389,7 +404,9 @@ def test_negative_control_a_complete_input_builds_a_decision():
     out = _build()
     assert "error" not in out, out.get("error")
     assert out["entry"]["long_signal"] is False
-    assert out["trend"]["exhaustion"] is False
+    # Stage 5, 15 November 2026: trend.exhaustion was asserted here and left
+    # the block with the flag; momentum_divergence is the bool that remains.
+    assert out["trend"]["momentum_divergence"] is False
 
 
 def test_an_absent_signal_is_refused_not_recorded_as_false():
@@ -401,31 +418,74 @@ def test_an_absent_signal_is_refused_not_recorded_as_false():
     assert out["lineage"] == LINEAGE, "the refusal lost the run's lineage"
 
 
-def test_an_absent_exhaustion_flag_is_refused_not_recorded_as_false():
+def test_an_absent_divergence_flag_is_refused_not_recorded_as_false():
+    """
+    THE REDESIGN'S STAGE 5, 15 November 2026: this deleted
+    trend_exhaustion, which the router read by subscript because a bool has
+    no UNKNOWN and compute_trend_health wrote it on every return -- so a
+    missing one is a defect and must fail here rather than be recorded as
+    "not exhausted". The flag is gone (Viktor's ruling of 9 November, the
+    exit watch's two flags), and momentum_divergence is the trend block's
+    one remaining bool, read the same way for the same reason.
+    """
     trend = dict(TREND)
-    del trend["trend_exhaustion"]
+    del trend["momentum_divergence"]
     out = _build(trend=trend)
-    assert "error" in out and "trend_exhaustion" in out["error"], out
+    assert "error" in out and "momentum_divergence" in out["error"], out
     assert out["lineage"] == LINEAGE
 
 
-def test_an_absent_entry_number_is_recorded_as_nan_not_zero():
+def test_an_absent_entry_number_is_not_recorded_as_zero():
+    """
+    THE REDESIGN'S STAGE 4, 15 November 2026. This was
+    test_an_absent_entry_number_is_recorded_as_nan_not_zero, over `score`,
+    `ema_pos_pts`, `base_score`, `macro_multiplier`, `combined_multiplier`
+    and `score_ceiling`: the router sent each through _finite_or_nan, so an
+    absent one arrived as NaN rather than as the 0.0, 1.0 and 100.0 the
+    fallback sweep of 13 October removed.
+
+    Four of the six left the record with the five parts and the three
+    multipliers. The two numbers that remain -- entry quality and its parts
+    -- are None when not measured rather than NaN, because the engine itself
+    now has a spelling for "not computed" and the router passes it through
+    (_optional_number) instead of translating it into a second spelling. So
+    the name of the test loses the "as nan", and what it holds is unchanged:
+    neither spelling is a number, and neither is zero.
+    """
     out = _build()
-    for key in ("score", "ema_pos_pts", "base_score", "macro_multiplier",
-                "combined_multiplier", "score_ceiling"):
-        assert math.isnan(out["entry"][key]), (key, out["entry"][key])
-    for key in ("ev_r", "assumed_win_rate", "avg_reward_r"):
-        assert math.isfinite(out["risk"][key]), (
-            f"{key} comes from the decision model, which always supplies it")
+    for key in ("score", "distance_atr", "distance_pts", "hvn_distance_atr",
+                "hvn_pts"):
+        assert out["entry"][key] is None, (key, out["entry"][key])
+    assert out["entry"]["close_inside_band"] is None
+    # distance_from_zone keeps the NaN spelling it has had since round 6's
+    # F3: it is a measurement the engine writes as NaN when the band was
+    # not located, not a value the engine calls None.
+    assert math.isnan(out["entry"]["distance_from_zone"])
+    # Stage 5, 15 November 2026: risk.trade_quality_proposed was asserted
+    # None here, being entry quality under a second name, and ev_r,
+    # assumed_win_rate and avg_reward_r were asserted finite because the
+    # decision model always supplied them. All four have left the record --
+    # the first as a duplicate, the other three with the EV sentence -- so
+    # what is asserted is that none of them is published at all.
+    for gone in ("trade_quality_proposed", "ev_r", "assumed_win_rate",
+                 "avg_reward_r", "confidence_score", "validation_score",
+                 "validation_state", "validation_note"):
+        assert gone not in out["risk"], gone
     assert out["entry"]["entry_status"] == "UNKNOWN"
 
 
 def test_negative_control_a_present_entry_number_survives():
-    entry = dict(ENTRY, score=42.5, macro_multiplier=1.1, score_ceiling=100.0)
+    entry = dict(ENTRY, score=42.5, distance_atr=1.5, distance_pts=40.0,
+                 hvn_distance_atr=0.5, hvn_pts=15.0, close_inside_band=True)
     out = _build(entry=entry)
     assert out["entry"]["score"] == 42.5
-    assert out["entry"]["macro_multiplier"] == 1.1
-    assert out["entry"]["score_ceiling"] == 100.0
+    assert out["entry"]["distance_atr"] == 1.5
+    assert out["entry"]["distance_pts"] == 40.0
+    assert out["entry"]["hvn_distance_atr"] == 0.5
+    assert out["entry"]["hvn_pts"] == 15.0
+    assert out["entry"]["close_inside_band"] is True
+    # Stage 5: entry.score is the one home of this number now.
+    assert "trade_quality_proposed" not in out["risk"], out["risk"]
 
 
 BTC = {"available": True, "raw": "BEARISH", "detailed": "BEARISH", "regime": "BEARISH TREND",

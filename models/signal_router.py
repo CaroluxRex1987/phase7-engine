@@ -207,6 +207,15 @@ class SignalRouter:
                     exit_watch=raw_output["exit_watch"],
                     btc_context=raw_output["btc_context"],
                     macro_bias=raw_output.get("macro_bias", "UNKNOWN"),
+                    # Stage 5, 15 November 2026: read directly, like the ten
+                    # sections above and unlike macro_bias beside it --
+                    # engine_core writes it on every result that is not an
+                    # error, so a missing one is a broken engine contract and
+                    # fails here as one. macro_bias keeps its fallback for the
+                    # reason the fallback sweep gave it; a NOTE has no
+                    # equivalent of the word UNKNOWN, and inventing a sentence
+                    # for an absent one is the fabrication that ruling removed.
+                    macro_note=raw_output["macro_note"],
                     # SEQUENCE ITEM 14: the default was a hardcoded
                     # f"Logs/Charts/chart_{symbol}_{timeframe}.png" — a fourth
                     # copy of a path config declares, in a directory whose name
@@ -266,6 +275,7 @@ class SignalRouter:
         risk: Dict[str, Any],
         exit_data: Dict[str, Any],
         macro_bias: str,
+        macro_note: str,
         chart_path: str,
         exit_watch: Optional[List[Any]] = None,
         btc_context: Optional[Dict[str, Any]] = None,
@@ -275,8 +285,9 @@ class SignalRouter:
     ) -> Dict[str, Any]:
         """
         Convert engine output into a unified trade decision object.
-        Pure assembly: all decision logic (final_action, confidence,
-        trade_quality, ev, explanation) comes from
+        Pure assembly: all decision logic (final_action, explanation --
+        confidence, trade_quality and ev until the redesign's stage 5,
+        15 November 2026) comes from
         self.decision_model.evaluate(). (btc_adjusted was on that list until
         N5, 9 October 2026.)
         """
@@ -305,14 +316,17 @@ class SignalRouter:
             # BTC-adjusted confidence, removed by Viktor's ruling of
             # 5 October (point 7: Bitcoin is reference only). btc_context
             # still feeds this function's own BTC block, below.
+            # THE REDESIGN'S STAGE 5, 15 November 2026: `trend` is no longer
+            # passed either. _compute_trade_quality was its last reader in
+            # the decision model and goes with confidence and EV, so
+            # evaluate() returns the action and the explanation and nothing
+            # else. The trend block still feeds this function's own "trend"
+            # section below, which keeps the two divergence readings.
             dm_result = self.decision_model.evaluate(
-                bias, trend, entry, risk,
+                bias, entry, risk,
                 degradation=degradation,
             )
             final_action = dm_result["final_action"]
-            confidence = dm_result["confidence"]
-            trade_quality = dm_result["trade_quality"]
-            ev = dm_result["ev"]
             explanation = dm_result["explanation"]
 
             # ROUND 6 (Meta Muse Spark 1.3), F3 -- Item 13 / Item 8, Minor.
@@ -331,37 +345,50 @@ class SignalRouter:
                 "symbol": symbol,
                 "timeframe": timeframe,
                 "macro_bias": macro_bias,
+                # Stage 5, 15 November 2026: what is left of the validation
+                # block -- one sentence on how the higher timeframe stands
+                # relative to this bias, printed under MACRO TREND. It
+                # decides nothing: gate 6 is what acts on the macro.
+                "macro_note": str(macro_note),
 
                 "bias": {
                     "raw": str(bias.get("raw", "UNKNOWN")),
                     "detailed": str(bias.get("detailed", "UNKNOWN")),
-                    "score": self._finite_or_nan(bias.get("score")),
+                    # THE REDESIGN'S STAGE 5, 15 November 2026: "score" stood
+                    # here, the weighted sum, read through _finite_or_nan.
+                    # engine_core no longer produces it, and left in place
+                    # this line wrote NaN into every record -- an absent
+                    # reading published as a measured gap, and NaN != NaN, so
+                    # two identical runs compared unequal. Caught by
+                    # test_lineage's archive rebuild and by
+                    # test_direction_is_the_slow_trends_side, not by review.
                     "regime": str(bias.get("regime", "UNKNOWN STRUCTURE")),
                     "volatility": str(bias.get("volatility", "UNKNOWN"))
                 },
 
                 "trend": {
-                    # SEQUENCE ITEM 13: "health" and "momentum" were exact
-                    # duplicates of "trend_health" and "momentum_mode",
-                    # assigned from the same source expression on the adjacent
-                    # line. core/decision_contract.py named the survivors at
-                    # item 10 and scheduled the removal here. Nothing read the
-                    # short names except decision_model.py, which preferred
-                    # them, so a change to the canonical field would have gone
-                    # unnoticed there.
-                    "trend_health": self._finite_or_nan(trend.get("trend_health")),
-                    # 13 OCTOBER 2026, the fallback sweep: this and
-                    # momentum_divergence below defaulted to False -- no
-                    # exhaustion, no divergence -- when absent. A bool has no
-                    # UNKNOWN, and compute_trend_health writes both on all four
-                    # of its returns, so they are read directly: a missing one
-                    # is a defect, and the handler at the end of this function
-                    # records it as one, with provenance and lineage.
-                    "exhaustion": bool(trend["trend_exhaustion"]),
-                    "momentum_mode": str(trend.get("momentum_mode", "UNKNOWN")),
+                    # THE REDESIGN'S STAGE 5, 15 November 2026. Four keys
+                    # stood here and are gone with what produced them
+                    # (indicators/trend_health.py):
+                    #
+                    #     "trend_health"     the 0-100 score
+                    #     "exhaustion"       trend_exhaustion
+                    #     "momentum_mode"    the RSI-intensity label
+                    #     "trend_direction"  a second direction, from the
+                    #                        slope's sign
+                    #
+                    # The block keeps the two divergence readings, which the
+                    # confirmation gate and the exit watch both read.
+                    #
+                    # 13 OCTOBER 2026, the fallback sweep: momentum_divergence
+                    # defaulted to False -- no divergence -- when absent. A
+                    # bool has no UNKNOWN, and compute_trend_readings writes it
+                    # on every one of its returns, so it is read directly: a
+                    # missing one is a defect, and the handler at the end of
+                    # this function records it as one, with provenance and
+                    # lineage.
                     "momentum_divergence": bool(trend["momentum_divergence"]),
                     "divergence_direction": str(trend.get("divergence_direction", "UNKNOWN")),
-                    "trend_direction": str(trend.get("trend_direction", "UNKNOWN")),
                 },
 
                 "structure": {
@@ -415,37 +442,60 @@ class SignalRouter:
                     # as an empty one: an empty list would read as "confirmed".
                     "long_signal_blockers": self._blocker_list(entry.get("long_signal_blockers")),
                     "short_signal_blockers": self._blocker_list(entry.get("short_signal_blockers")),
-                    "score": self._finite_or_nan(entry.get("score")),
+                    # Stage 3 of the redesign, 15 November 2026. Each is
+                    # passed through as the engine measured it, None when it
+                    # did not: a refusal label that is None is a side no gate
+                    # refused, and the other four are None when not measured
+                    # (`trigger` also when there is no side to read it for).
+                    # None of them is given a value here.
+                    "long_signal_refusal": self._optional_label(entry.get("long_signal_refusal")),
+                    "short_signal_refusal": self._optional_label(entry.get("short_signal_refusal")),
+                    "quote_volume": self._optional_number(entry.get("quote_volume")),
+                    "liquidity_floor": self._finite_or_nan(entry.get("liquidity_floor")),
+                    "trigger": self._optional_flag(entry.get("trigger")),
+                    "trigger_volume": self._optional_number(entry.get("trigger_volume")),
+                    "trigger_volume_median": self._optional_number(entry.get("trigger_volume_median")),
+                    # THE REDESIGN'S STAGE 4, 15 November 2026. Entry
+                    # quality is D + H, and a part of it that could not be
+                    # read makes the whole quality NOT MEASURED, which the
+                    # engine spells None (models/entry_model.py). So `score`
+                    # and the four numbers below go through
+                    # _optional_number, which passes None through, and not
+                    # _finite_or_nan, which would write NaN into the record
+                    # for a value the engine already called None -- one
+                    # value under two spellings, in the two places a reader
+                    # compares (F8, one name for one meaning). `score` read
+                    #
+                    #     self._finite_or_nan(entry.get("score"))
+                    #
+                    # until this stage, when it could not be None.
+                    "score": self._optional_number(entry.get("score")),
+                    "distance_atr": self._optional_number(entry.get("distance_atr")),
+                    "distance_pts": self._optional_number(entry.get("distance_pts")),
+                    "hvn_distance_atr": self._optional_number(entry.get("hvn_distance_atr")),
+                    "hvn_pts": self._optional_number(entry.get("hvn_pts")),
+                    # The fact the AGGRESSIVE tier reads. None when the band
+                    # was not available: a close has no position against a
+                    # band nobody located, and _optional_flag never writes
+                    # False for an absence.
+                    "close_inside_band": self._optional_flag(entry.get("close_inside_band")),
                     "distance_from_zone": self._finite_or_nan(entry.get("distance_from_zone")),
                     "entry_status": str(entry.get("entry_status", "UNKNOWN")),
-                    "ema_pos_pts": self._finite_or_nan(entry.get("ema_pos_pts")),
-                    "atr_dist_pts": self._finite_or_nan(entry.get("atr_dist_pts")),
-                    "vwma_pts": self._finite_or_nan(entry.get("vwma_pts")),
-                    "rsi_pts": self._finite_or_nan(entry.get("rsi_pts")),
-                    "struct_pts": self._finite_or_nan(entry.get("struct_pts")),
 
-                    # 5 September 2026. This block rebuilds the entry section
-                    # field by field, so anything the engine adds and this
-                    # list does not name is silently dropped before the panel
-                    # or the decision log ever sees it -- which is what
-                    # happened to these nine on the first attempt at this fix:
-                    # the reconciliation lines simply did not appear, with no
-                    # error.
-                    #
-                    # They are how the five sub-scores above become `score`:
-                    # they sum to base_score (out of component_max_points,
-                    # which is 102, not 100), that is multiplied by
-                    # combined_multiplier, and the result is clipped to
-                    # score_ceiling.
-                    "base_score": self._finite_or_nan(entry.get("base_score")),
-                    "component_max_points": self._finite_or_nan(entry.get("component_max_points")),
-                    "macro_multiplier": self._finite_or_nan(entry.get("macro_multiplier")),
-                    "trend_multiplier": self._finite_or_nan(entry.get("trend_multiplier")),
-                    "structure_multiplier": self._finite_or_nan(entry.get("structure_multiplier")),
-                    "combined_multiplier": self._finite_or_nan(entry.get("combined_multiplier")),
-                    "scaled_score": self._finite_or_nan(entry.get("scaled_score")),
-                    "score_ceiling": self._finite_or_nan(entry.get("score_ceiling")),
-                    "score_clipped": bool(entry["score_clipped"]),
+                    # 5 September 2026's reconciliation block stood here --
+                    # ema_pos_pts, atr_dist_pts, vwma_pts, rsi_pts,
+                    # struct_pts, base_score, component_max_points, the
+                    # three multipliers, their product, scaled_score,
+                    # score_ceiling and score_clipped. It was added because
+                    # the panel printed five sub-scores and a total they did
+                    # not add up to; the parts and the multipliers it
+                    # explained are gone, and D + H is its own
+                    # reconciliation. The warning the block carried still
+                    # holds and is why `distance_atr` and the three beside
+                    # it are named here: this method rebuilds the entry
+                    # section field by field, so anything the engine adds
+                    # and this list does not name is silently dropped
+                    # before the panel or the decision log sees it.
                 },
 
                 "risk": {
@@ -481,31 +531,29 @@ class SignalRouter:
                     # directional conviction is no longer the only thing
                     # deciding it.
                     "risk_regime": str(risk.get("risk_regime", "UNKNOWN RISK")),
-                    # ROADMAP LAYER 1 FIX: confidence_score and the two
-                    # trade_quality_* fields are now DecisionModel's real,
-                    # multi-factor outputs (see models/decision_model.py)
-                    # instead of engine_core.py's raw trend_health
-                    # passthrough. Field names/paths kept identical so
-                    # panel_render.py needs no changes to consume them.
-                    "confidence_score": float(confidence),
-                    "trade_quality_proposed": float(trade_quality["proposed_entry"]),
-                    "validation_state": str(risk.get("validation_state", "UNKNOWN")),
-                    "validation_score": self._finite_or_nan(risk.get("validation_score")),
-                    "validation_note": str(risk.get("validation_note", "No validation note supplied.")),
-
                     # SEQUENCE ITEM 13: the five position-sizing fields were
                     # removed here under Viktor's ruling of 29 August 2026.
                     # They were fed by engine_core.py from a placeholder
                     # 10,000 balance in config.py; both the computation and
                     # the constants are gone.
-                    # 13 OCTOBER 2026, the fallback sweep: these defaulted to
-                    # 0.0, 0.0 and 2.0 -- the last a second copy of
-                    # DecisionModel.AVG_REWARD_R. _compute_ev returns all three
-                    # on its one return, so none could fire; absent, each is
-                    # now NaN, the router's own value for an absent number.
-                    "ev_r": self._finite_or_nan(ev.get("ev_r")),
-                    "assumed_win_rate": self._finite_or_nan(ev.get("assumed_win_rate")),
-                    "avg_reward_r": self._finite_or_nan(ev.get("avg_reward_r")),
+                    # THE REDESIGN'S STAGE 5, 15 November 2026. Eight more
+                    # leaves stood here and are gone:
+                    #
+                    #     "confidence_score"       abs(bias.score)
+                    #     "trade_quality_proposed" entry.score again
+                    #     "validation_state"       the 70 / 45 bands
+                    #     "validation_score"       50 +/- two deltas
+                    #     "validation_note"        the two notes joined
+                    #     "ev_r"                   a rescaling of confidence
+                    #     "assumed_win_rate"       confidence, as a percent
+                    #     "avg_reward_r"           AVG_REWARD_R, 2.0
+                    #
+                    # The first and the last three went with
+                    # DecisionModel._compute_confidence and _compute_ev; the
+                    # second is entry.score, which this object already
+                    # carries; the three validation leaves went with
+                    # core/engine_core.py's validation block, of which the
+                    # macro note survives as the top-level macro_note below.
                 },
 
                 "exit": {
@@ -605,6 +653,16 @@ class SignalRouter:
         if isinstance(value, list):
             return [str(v) for v in value]
         return ["the confirmation signal was not computed on this run"]
+
+    @staticmethod
+    def _optional_label(value: Any) -> Optional[str]:
+        """A label the producer may not have: a string, or None."""
+        return value if isinstance(value, str) else None
+
+    @staticmethod
+    def _optional_flag(value: Any) -> Optional[bool]:
+        """True or False as measured; None for anything else, never False."""
+        return value if isinstance(value, bool) else None
 
     @staticmethod
     def _finite_or_nan(value: Any) -> float:
@@ -717,7 +775,10 @@ class SignalRouter:
             "detailed": str(btc_context.get("detailed", "UNKNOWN")),
             "regime": str(btc_context.get("regime", "UNKNOWN STRUCTURE")),
             "volatility": str(btc_context.get("volatility", "UNKNOWN")),
-            "trend_health": self._finite_or_nan(btc_context.get("trend_health")),
+            # Stage 5, 15 November 2026: "trend_health" stood here, BTC's own
+            # score. It went with the score itself (the record is in
+            # indicators/trend_readings.py); this block keeps BTC's direction,
+            # regime, volatility and the correlation readings.
             # KIMI ROUND 4, FINDING 1 -- see _optional_number below. These two
             # were float(...get(key, 0.0)) and raised TypeError on the value
             # engine_core actually writes.

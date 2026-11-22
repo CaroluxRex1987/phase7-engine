@@ -172,7 +172,9 @@ def _plan(**overrides):
     kwargs = dict(
         current_price=100.0,
         atr_val=2.0,
-        bias_score=40.0,
+        # Stage 2 of the redesign, 14 November 2026: bias_score=40.0 stood
+        # here, read for its sign; the side is passed.
+        side="LONG",
         volatility_state="NORMAL",
     )
     kwargs.update(overrides)

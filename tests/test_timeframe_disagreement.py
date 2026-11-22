@@ -114,7 +114,16 @@ def _write_set(directory, rising_first):
 
     base = (_series(450, 396, 0.42, 1.00, 0.14, True) if rising_first
             else _series(450, 396, 1.00, 0.42, 0.16, False))
-    base.to_csv(os.path.join(directory, f"{SYMBOL}_{TIMEFRAME}.csv"), index=False)
+    # The redesign's stage 3, 15 November 2026: gate 7 reads quote_volume on
+    # the series under analysis, and a frame without it is a degraded run,
+    # which authorises no trade. Left that way, every "cannot produce a
+    # LONG/SHORT" test below would pass on the degradation. So the 4h series
+    # carries the column, volume x close as the golden test's does; the
+    # macro and BTC series do not, as in a live run's record.
+    struct = base.copy()
+    struct["quote_volume"] = [round(float(v) * float(c), 4)
+                              for v, c in zip(base["volume"], base["close"])]
+    struct.to_csv(os.path.join(directory, f"{SYMBOL}_{TIMEFRAME}.csv"), index=False)
 
     # Six 4h candles make one day -- a real aggregate, so the macro read is of
     # the same market rather than of a differently-shaped invention.
@@ -308,40 +317,57 @@ def test_the_engine_still_reaches_a_side_when_the_timeframes_agree():
     from models.signal_router import SignalRouter
     import numpy as np
 
-    work = tempfile.mkdtemp(prefix="phase7_agree_")
-    original_url = data_fetcher.base_url
-    original_log, original_chart = config.LOG_DIR, config.CHART_DIR
-    try:
-        pinned = os.path.join(work, "pinned")
-        os.makedirs(pinned)
-        # turn_at == rows: one phase only, so both timeframes see the same rally.
-        base = _series(450, 450, 0.42, 1.00, 0.0, True)
-        base.to_csv(os.path.join(pinned, f"{SYMBOL}_{TIMEFRAME}.csv"), index=False)
-        groups = base.index // 6
-        base.groupby(groups).agg(
-            timestamp=("timestamp", "first"), open=("open", "first"),
-            high=("high", "max"), low=("low", "min"),
-            close=("close", "last"), volume=("volume", "sum"),
-        ).reset_index(drop=True).to_csv(
-            os.path.join(pinned, f"{SYMBOL}_{MACRO_TIMEFRAME}.csv"), index=False)
-        btc = base.copy()
-        for column in ("open", "high", "low", "close"):
-            btc[column] = btc[column].to_numpy()[::-1] * 137_000.0
-        btc["volume"] = btc["volume"].to_numpy()[::-1] * 3.0
-        btc.to_csv(os.path.join(pinned, f"BTCUSDT_{TIMEFRAME}.csv"), index=False)
+    # THE REDESIGN'S STAGE 3, 15 November 2026. A side now also needs the
+    # liquidity floor (gate 7), which reads quote_volume, and a resumption
+    # candle with volume over its median (gate 8). So the rally's 4h series
+    # carries quote_volume, volume x close as the golden test's does, and it
+    # is cut at 439 candles, where the last one closes above its open and
+    # the previous close on a volume 5.6% over the median of the twenty
+    # before it (128,929 against 122,084). Until this stage the cut was at
+    # 450, a candle that also closes above both but on a volume under its
+    # median; that cut is kept below as a second run, which must WAIT at
+    # gate 8, on the volume, and nowhere else.
+    def rally(rows):
+        work = tempfile.mkdtemp(prefix="phase7_agree_")
+        original_url = data_fetcher.base_url
+        original_log, original_chart = config.LOG_DIR, config.CHART_DIR
+        try:
+            pinned = os.path.join(work, "pinned")
+            os.makedirs(pinned)
+            # turn_at == rows: one phase only, so both timeframes see the same rally.
+            base = _series(rows, rows, 0.42, 1.00, 0.0, True)
+            struct = base.copy()
+            struct["quote_volume"] = [round(float(v) * float(c), 4)
+                                      for v, c in zip(base["volume"], base["close"])]
+            struct.to_csv(os.path.join(pinned, f"{SYMBOL}_{TIMEFRAME}.csv"), index=False)
+            groups = base.index // 6
+            base.groupby(groups).agg(
+                timestamp=("timestamp", "first"), open=("open", "first"),
+                high=("high", "max"), low=("low", "min"),
+                close=("close", "last"), volume=("volume", "sum"),
+            ).reset_index(drop=True).to_csv(
+                os.path.join(pinned, f"{SYMBOL}_{MACRO_TIMEFRAME}.csv"), index=False)
+            btc = base.copy()
+            for column in ("open", "high", "low", "close"):
+                btc[column] = btc[column].to_numpy()[::-1] * 137_000.0
+            btc["volume"] = btc["volume"].to_numpy()[::-1] * 3.0
+            btc.to_csv(os.path.join(pinned, f"BTCUSDT_{TIMEFRAME}.csv"), index=False)
 
-        config.LOG_DIR = os.path.join(work, "logs")
-        config.CHART_DIR = os.path.join(work, "logs", "charts")
-        data_fetcher.base_url = UNREACHABLE
-        DataFetcher.set_pinned_source(pinned)
-        decision = SignalRouter().route(symbol=SYMBOL, timeframe=TIMEFRAME)
-    finally:
-        DataFetcher.clear_pinned_source()
-        data_fetcher.base_url = original_url
-        config.LOG_DIR, config.CHART_DIR = original_log, original_chart
-        shutil.rmtree(work, ignore_errors=True)
+            config.LOG_DIR = os.path.join(work, "logs")
+            config.CHART_DIR = os.path.join(work, "logs", "charts")
+            data_fetcher.base_url = UNREACHABLE
+            DataFetcher.set_pinned_source(pinned)
+            return SignalRouter().route(symbol=SYMBOL, timeframe=TIMEFRAME)
+        finally:
+            DataFetcher.clear_pinned_source()
+            data_fetcher.base_url = original_url
+            config.LOG_DIR, config.CHART_DIR = original_log, original_chart
+            shutil.rmtree(work, ignore_errors=True)
+
+    decision = rally(439)
 
     assert not decision.get("error"), decision.get("error")
+    assert decision["degradation"]["degraded"] is False, decision["degradation"]
     assert decision["bias"]["raw"] == "BULLISH", (
         "an uninterrupted rally did not produce a bullish bias. If the engine "
         "cannot be bullish about this, the tests above prove nothing."
@@ -363,8 +389,56 @@ def test_the_engine_still_reaches_a_side_when_the_timeframes_agree():
     # an exact string tolerates AGGRESSIVE LONG / LONG / CONSERVATIVE LONG,
     # whichever the risk regime picks, while still failing outright on WAIT
     # or any NO-TRADE variant.
-    assert "LONG" in decision["exit"]["action"], (
-        f"bias and macro agree BULLISH, but exit.action came back "
-        f"{decision['exit']['action']!r} -- not a LONG decision of any kind. "
-        "An uninterrupted rally with agreeing timeframes must reach a side."
-    )
+    #
+    # THE REDESIGN'S STAGE 4, 15 November 2026: a side also needs entry
+    # quality at or over the CONSERVATIVE line (gate 9). On an uninterrupted
+    # rally the close runs AWAY from the band, so D is small and this cut
+    # scores under the line: gate 9 waits, and the control's claim -- that
+    # the engine must be willing to be bullish about this -- can no longer
+    # be read off exit.action alone. What it can be read off is how far the
+    # run got: every gate up to and including 8 passed, which is what the
+    # assertions below check one by one, and the one that stopped it is
+    # gate 9, on a quality the rally's own geometry explains.
+    entry = decision["entry"]
+    assert entry["long_signal"] is True, entry["long_signal_blockers"]
+    assert entry["long_signal_refusal"] is None
+    assert entry["trigger"] is True, entry
+    assert entry["trigger_volume"] > entry["trigger_volume_median"], entry
+    assert entry["quote_volume"] > entry["liquidity_floor"], entry
+    assert decision["risk"]["risk_valid"] is True
+
+    from models.decision_model import DecisionModel
+    quality = entry["score"]
+    assert quality is not None, entry
+    if quality >= DecisionModel.CONSERVATIVE_ENTRY_QUALITY_MIN:
+        assert "LONG" in decision["exit"]["action"], (
+            f"bias and macro agree BULLISH, entry quality is {quality} and "
+            f"every gate passed, but exit.action came back "
+            f"{decision['exit']['action']!r} -- not a LONG decision of any "
+            f"kind.")
+    else:
+        assert decision["exit"]["action"] == "WAIT", decision["exit"]
+        assert "not at a pullback to the average" in \
+            decision["explanation"]["summary"], decision["explanation"]
+        assert entry["close_inside_band"] is False, (
+            "the close is inside the band and entry quality is still under "
+            "the line -- the explanation above for why this rally waits does "
+            "not hold, and this control needs re-reading rather than this "
+            "branch")
+
+    # The same rally cut on a candle with no volume behind it: every gate
+    # before the trigger passes, the candle closes beyond its open and the
+    # previous close, and gate 8's volume alone makes it a WAIT.
+    waiting = rally(450)
+    assert not waiting.get("error"), waiting.get("error")
+    assert waiting["degradation"]["degraded"] is False, waiting["degradation"]
+    assert waiting["bias"]["raw"] == "BULLISH" and waiting["macro_bias"] == "BULLISH"
+    assert waiting["entry"]["long_signal"] is True, waiting["entry"]
+    assert waiting["entry"]["trigger"] is True, waiting["entry"]
+    assert (waiting["entry"]["trigger_volume"]
+            < waiting["entry"]["trigger_volume_median"]), waiting["entry"]
+    assert waiting["exit"]["action"] == "WAIT", waiting["exit"]["action"]
+    summary = waiting["explanation"]["summary"]
+    assert "no resumption candle yet" in summary, waiting["explanation"]
+    assert "is not above the median of the 20 candles before it" in summary, summary
+    assert "did not close" not in summary, summary

@@ -228,8 +228,9 @@ def unusable_reason(series, name: str = "the series"):
     (3) is the new one. It reads the last row rather than scanning, because
     that is the row every consumer of this frame reads: engine_core.py takes
     .iloc[-1] of ATR, ST_Direction, EMA_20, EMA_50, HVN and LVN; entry_model
-    takes .iloc[-1] of ATR, VWMA, RSI and HVN; bias_engine takes .iloc[-1] of
-    ATR and close.
+    takes .iloc[-1] of ATR and HVN (VWMA and RSI too until the redesign's
+    stage 4, and VWMA is not computed since stage 7); bias_engine takes
+    .iloc[-1] of ATR and close.
     """
     if series is None:
         return f"{name} was not returned by the calculation"
@@ -419,9 +420,19 @@ def add_technical_indicators(df: pd.DataFrame, inplace: bool = False):
                     raise ValueError(unusable)
                 df[name] = fallback_ema
             except Exception as e:
+                # THE REDESIGN'S STAGE 5, 15 November 2026: this read
+                # "trend health loses its slope component and entry quality
+                # cannot score EMA zone position". Trend health is gone;
+                # what these two columns now decide is the DIRECTION itself
+                # (models/bias_engine.py, direction_from_emas, which reads
+                # EMA50_Slope and the order of the two averages) and D, the
+                # first of entry quality's two parts, which measures the
+                # close's distance from the band's midpoint in ATRs.
                 failed(name, e,
-                       "trend health loses its slope component and entry "
-                       f"quality cannot score EMA zone position (primary: {primary})")
+                       "the direction cannot be read, since it is EMA50's "
+                       "slope and the order of EMA_20 and EMA_50, and entry "
+                       "quality cannot score the close's distance from the "
+                       f"band's midpoint (primary: {primary})")
 
     # SEQUENCE ITEM 9a: both paths used to end in fallback_value=50.0.
     #
@@ -507,10 +518,28 @@ def add_technical_indicators(df: pd.DataFrame, inplace: bool = False):
             # the calculation, which is the same Item 8 defect as the "Lookback
             # 8" line the audit flagged. entry_model now leaves the component
             # at its neutral default and this says so.
+            # THE REDESIGN'S STAGE 5, 15 November 2026. This read "entry
+            # quality scores RSI extension at its neutral 10 of 15 rather
+            # than from a reading, and trend health loses its momentum
+            # component". BOTH HALVES WERE STALE, and the first became stale
+            # one stage earlier than the second: entry quality has been D + H
+            # since stage 4 (15 November 2026) and has no RSI part at all, so
+            # this string has been a user-facing claim about a component that
+            # does not exist since that commit -- the same Item 8 defect F9(4)
+            # fixed here on 12 October and the re-audit fixed before that, for
+            # the third time on this one line. Found by scanning every
+            # operator-facing string in the engine for the names this stage
+            # removes, not by a failing test.
+            #
+            # What RSI decides now: nothing scores it, and its one remaining
+            # reader is the momentum divergence (indicators/trend_readings.py),
+            # which the confirmation gate consults as gate 5 and the exit
+            # watch prints as a flag.
             failed("RSI", fallback,
-                   "entry quality scores RSI extension at its neutral 10 of 15 "
-                   "rather than from a reading, and trend health loses its "
-                   f"momentum component (primary: {primary})")
+                   "the momentum divergence cannot be read, so the "
+                   "confirmation gate's divergence check does not run and the "
+                   "exit watch raises no divergence flag (primary: "
+                   f"{primary})")
 
     # SEQUENCE ITEM 5a: Bollinger Bands removed. BB_lower, BB_middle and
     # BB_upper were written on both the success and fallback paths and read
@@ -571,10 +600,15 @@ def add_technical_indicators(df: pd.DataFrame, inplace: bool = False):
         # since fix 2 (1b25f36) the confirmation gate refuses both sides when
         # ADX has no valid reading. Round 5 reported the "25" on 12 September;
         # it was not fixed then.
+        # THE REDESIGN'S STAGE 5, 15 November 2026: the first half named
+        # trend health's adx_strength, min(ADX * 1.2, 40). Trend health is
+        # gone and ADX reaches no score at all now -- the gate is its one
+        # reader, which is the half that always mattered and the half F9(4)
+        # added. Third correction of this one string; each time the prose
+        # outlived the calculation it described.
         failed("ADX", e,
-               "trend health loses its ADX component (up to 40 of its 100 "
-               "points), and the confirmation gate refuses both sides, since "
-               "no trade is taken without an ADX reading")
+               "the confirmation gate refuses both sides, since no trade is "
+               "taken without an ADX reading")
 
     # SuperTrend with error handling
     # A9 FIX: This is now the single, canonical SuperTrend implementation for the
@@ -704,76 +738,20 @@ def add_technical_indicators(df: pd.DataFrame, inplace: bool = False):
     # config.KAMA_LENGTH was left unused by 5a and is removed from config.py at
     # sequence item 14.
 
-    # VWMA with optimized calculation (avoid intermediate Series creation)
-    try:
-        volume_col = df["volume"]
-        # Use rolling operations directly without creating intermediate cleaned series
-        volume_sum = volume_col.rolling(window=config.VWMA_LENGTH).sum()
-        price_volume_sum = (close_prices * volume_col).rolling(
-            window=config.VWMA_LENGTH).sum()
-
-        # Vectorized calculation with safe division
-        #
-        # ITEM 3 RE-AUDIT (Finding 1), the fallback the auditor actually
-        # quoted. This line still read `close_prices` here until now: every
-        # rolling window whose volume summed to zero or non-finite (an
-        # all-zero stretch, or one that landed just past a spike the sum
-        # picked up and then dropped) got VWMA = close, a zero-distance read
-        # worth a perfect 20 of 20 entry-quality points for a window with no
-        # usable volume measurement. That is the identical fabrication the
-        # comment below already named for the except branch and sequence item
-        # 15 already removed from the trailing fillna — this is the one
-        # instance neither pass reached, because it lives in the success path,
-        # not a repair of it.
-        #
-        # NaN now, matching the "no value has no value" rule two lines below.
-        valid_mask = (volume_sum > 0) & np.isfinite(volume_sum) & np.isfinite(price_volume_sum)
-        df["VWMA"] = np.where(valid_mask, price_volume_sum / volume_sum, np.nan)
-
-        # SEQUENCE ITEM 15: this line was
-        #
-        #     df["VWMA"] = df["VWMA"].ffill().bfill().fillna(close_prices)
-        #
-        # and the `.fillna(close_prices)` is the identical fabrication item 9a
-        # removed from the except branch eight lines below — where the comment
-        # already explains why substituting close for VWMA "invented the most
-        # favourable number available", a zero VWMA distance and a perfect 20
-        # of 20 entry-quality points. Item 9a fixed the branch that raises and
-        # left the one that quietly succeeds.
-        #
-        # Forward fill only, and no substitution. A VWMA that has no value has
-        # no value. This carries a genuinely all-invalid window forward from
-        # the last window that did have usable volume -- and entry_model.py's
-        # own consumption of a still-NaN VWMA (the leading edge, before any
-        # window has ever been valid) is fixed separately; see
-        # models/entry_model.py.
-        #
-        # F3 FIX, 12 September 2026, GPT-6 Astra round 5: this used to fill
-        # every gap with no trailing-edge exception -- the same defect item
-        # 15 and the Finding-3 re-audit already fixed for every OTHER
-        # indicator in this file (see clean_series and the OHLCV loop above).
-        # A decision bar with no usable volume window came back holding the
-        # PREVIOUS bar's VWMA, indistinguishable from a real measurement, and
-        # np.isfinite (both here and in entry_model.py) could never catch it.
-        # Interior gaps still fill forward; nothing follows the trailing edge.
-        last_valid = df["VWMA"].last_valid_index()
-        if df["VWMA"].isna().any():
-            df["VWMA"] = df["VWMA"].ffill()
-        if last_valid is not None:
-            trailing = df.index > last_valid
-            if trailing.any():
-                df.loc[trailing, "VWMA"] = np.nan
-    except Exception as e:
-        # SEQUENCE ITEM 9a: was df["VWMA"] = close_prices.
-        #
-        # entry_model scores how far price sits from VWMA, worth 20 of the 100
-        # entry-quality points. Substituting close for VWMA makes that distance
-        # exactly zero — a perfect score, awarded because the calculation
-        # failed. The fabrication did not merely invent a number, it invented
-        # the most favourable one available.
-        failed("VWMA", e,
-               "entry quality loses its VWMA distance component (20 of 100 "
-               "points)")
+    # THE REDESIGN'S STAGE 7, 21 November 2026: VWMA IS NO LONGER COMPUTED.
+    # Its one reader was entry quality's VWMA distance, and that part left
+    # entry quality at stage 4, when it became D + H (Viktor's ruling of
+    # 7 November; the draft's section 3.2). From then until this stage the
+    # column was computed every run, recorded in
+    # lineage.indicators_at_decision_bar and read by nothing -- an Item 16
+    # breach (no unconsumed complexity), recorded by stage 5 and removed here
+    # by Viktor's ruling of 17 November 2026 (DECISIONS, "Ruling, 17 November
+    # 2026 -- the redesign's build is seven stages ..."). The block's history
+    # -- item 3's re-audit, sequence items 9a and 15, and round 5's F3, each a
+    # fabrication or a trailing-edge fill removed from it in turn -- is in the
+    # dated record and in git at the commit before this one. The volume-spike
+    # guard below still uses config.VWMA_LENGTH as its window, and so does
+    # nothing else.
 
     # ============================================================
     # ITEM 3 RE-AUDIT (Finding 1): ISOLATED VOLUME SPIKE, DEGRADED NOT REJECTED
@@ -797,7 +775,13 @@ def add_technical_indicators(df: pd.DataFrame, inplace: bool = False):
     # Checked against a rolling median of the same window structure.py and
     # this function's own VWMA already use (config.VWMA_LENGTH, 20 candles),
     # because a threshold measured against a window nobody else reads would be
-    # answering a different question than the one those calculations ask. The
+    # answering a different question than the one those calculations ask.
+    # THE REDESIGN'S STAGE 7, 21 November 2026: this function computes no VWMA
+    # now, so this guard is config.VWMA_LENGTH's only reader, and the name
+    # says VWMA for a window that measures none. Not renamed here: the name is
+    # in core/decision_log.py's FINGERPRINTED_CONFIG, so renaming it moves
+    # run_hash and the record's config block, which Viktor's ruling of
+    # 17 November did not give this stage. Recorded in PHASE7_NEXT.md. The
     # median rather than the mean, because one extreme value cannot drag its
     # own baseline away from itself the way a mean would. 10x is deliberately
     # loose — a busy market can easily run 2-3x an ordinary bar; the audit's
@@ -820,12 +804,26 @@ def add_technical_indicators(df: pd.DataFrame, inplace: bool = False):
                         reason=(f"a candle in the last {window} carries volume "
                                 f"{worst:.0f}, {worst / baseline_median:.1f}x "
                                 f"the window's median ({baseline_median:.0f})"),
+                        # THE REDESIGN'S STAGE 5, 15 November 2026: this
+                        # named VWMA, volume sentiment and the bias score,
+                        # and said confidence was capped. The bias score and
+                        # confidence are gone, and nothing reads VWMA at all
+                        # since stage 4 took the VWMA part out of entry
+                        # quality. What volume decides now is the two gates
+                        # of 31 October: the turnover gate 7 compares with
+                        # the liquidity floor, and the trigger's volume
+                        # against the median of the twenty candles before it
+                        # (gate 8). A degraded run authorises no trade at
+                        # all, which is a stronger statement than a capped
+                        # number and is what the ruling of 29 August now
+                        # rests on here.
                         consequence=("an isolated extreme volume reading is "
-                                      "used as-is in VWMA, volume sentiment and "
-                                      "the bias score -- not fabricated away -- "
-                                      "but this run is degraded so confidence "
-                                      "is capped rather than taken at face "
-                                      "value"),
+                                      "used as-is in the trigger's volume and "
+                                      "its median, in the turnover the "
+                                      "liquidity floor compares, and in volume "
+                                      "sentiment -- not fabricated away -- but "
+                                      "this run is degraded, so no trade is "
+                                      "authorised on it"),
                     ))
 
     # ============================================================
@@ -835,14 +833,16 @@ def add_technical_indicators(df: pd.DataFrame, inplace: bool = False):
     # Batch calculate slopes to reduce function call overhead
     #
     # SEQUENCE ITEM 5a: was four columns; VWMA_Slope and KAMA_Slope were
-    # produced here and read nowhere, and KAMA itself is now gone. The two
-    # that remain are genuinely consumed — trend_health.py reads EMA20_Slope
-    # at three places and EMA50_Slope at one, so this loop stays.
+    # produced here and read nowhere, and KAMA itself is now gone.
     #
-    # VWMA is NOT removed: entry_model consumes it for distance scoring. Only
-    # its slope was dead.
-    slope_columns = ["EMA_20", "EMA_50"]
-    slope_names = ["EMA20_Slope", "EMA50_Slope"]
+    # THE REDESIGN'S STAGE 7, 21 November 2026: EMA20_Slope goes too. Its
+    # readers were trend health's score and acceleration, both removed at
+    # stage 5, and Viktor's ruling of 7 November gave the direction EMA50's
+    # slope and the EMAs' order, with EMA20's slope not read. One slope is
+    # left, and it has one reader: models/bias_engine.py's
+    # direction_from_emas, at the decision bar, for the asset and for BTC.
+    slope_columns = ["EMA_50"]
+    slope_names = ["EMA50_Slope"]
 
     for col, slope_name in zip(slope_columns, slope_names):
         if col in df.columns:
@@ -852,8 +852,9 @@ def add_technical_indicators(df: pd.DataFrame, inplace: bool = False):
             slope = ((series - prev_values) / prev_values * 100).replace([np.inf, -np.inf], 0.0)
             # SEQUENCE ITEM 15: was slope.ffill().bfill().fillna(0.0). Zero
             # is not a neutral filler for a slope — it is the specific claim
-            # that the moving average is flat, and trend_health reads these at
-            # four places to decide whether a trend is strengthening.
+            # that the moving average is flat, and the direction reads EMA50's
+            # sign (stage 7: this said trend_health read these at four places,
+            # which stopped being true at stage 5).
             df[slope_name] = slope.ffill()
 
     # ============================================================
@@ -892,8 +893,19 @@ def add_technical_indicators(df: pd.DataFrame, inplace: bool = False):
     # source above, so the miss now survives to reach this sweep, and VWMA
     # gets the same failed()/degraded-inputs treatment every other critical
     # indicator gets.
+    #
+    # THE REDESIGN'S STAGE 7, 21 November 2026: VWMA leaves this list with the
+    # column. A frame whose VWMA could not be read at the decision bar was a
+    # degraded run on that account until this stage, for the 4h frame and the
+    # macro frame alike; it is not now, because nothing reads VWMA. What such
+    # a frame's volume still decides is gate 8, which reads the decision
+    # candle's volume against the median of the twenty before it: on the
+    # pinned series with the last twenty candles' volume zeroed, the run was
+    # degraded (VWMA and macro VWMA named) and a WAIT before this stage, and
+    # is a clean run and a WAIT at gate 8 after it (Linux sandbox; held by
+    # tests/test_decision_bar_integrity.py).
     critical_indicators = ["EMA_20", "EMA_50", "RSI", "ATR", "ADX",
-                           "SuperTrend", "ST_Direction", "VWMA"]
+                           "SuperTrend", "ST_Direction"]
     for indicator in critical_indicators:
         if indicator not in df.columns:
             continue

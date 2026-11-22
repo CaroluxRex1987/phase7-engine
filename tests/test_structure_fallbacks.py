@@ -186,13 +186,19 @@ def test_a_missing_volume_node_scores_no_structure_points():
     df["HVN"] = float("nan")              # the same node, not located
     absent = calculate_entry_quality(df, zone_lower=99.0, zone_upper=98.0)
 
-    assert located["struct_pts"] == 12.0, (
-        "a node at the price no longer scores 12/12 -- this test's premise "
-        "has moved and the assertion below no longer means what it says"
+    # Stage 4, 15 November 2026: the structure part is H, 20 points, and it
+    # is measured in ATRs rather than as a percentage of the close. A node
+    # AT the price is h = 0, so H is full -- the premise is unchanged. What
+    # changed is the absent case: it is not scored low, it is NOT MEASURED,
+    # and entry quality is not computed at all.
+    assert located["hvn_pts"] == 20.0, (
+        "a node at the price no longer scores full marks -- this test's "
+        "premise has moved and the assertion below no longer means what it "
+        "says"
     )
-    assert absent["struct_pts"] != 12.0, (
-        "a volume node that was never located still scores the full 12 of 12. "
-        "This is Finding 3's arithmetic, reached through the producer instead "
+    assert absent["hvn_pts"] is None, (
+        "a volume node that was never located still scores points. This is "
+        "Finding 3's arithmetic, reached through the producer instead "
         "of the consumer."
     )
 
