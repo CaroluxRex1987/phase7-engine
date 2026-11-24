@@ -18,6 +18,10 @@ This document does not declare the project portfolio-ready, does not
 declare the release gate open, and does not tag a commit. Those are Viktor's
 own calls, recorded as his in docs/PHASE7_DECISIONS.md ("Declared --
 15 September 2026"), and this script does not make them on his behalf.
+
+Revised 22 November 2026, after the redesign was merged (7034af1): the
+engine it describes is the redesigned one. The text as declared on
+15 September 2026 is at the tag portfolio-v1 (99e022e).
 """
 
 from reportlab.lib.pagesizes import LETTER
@@ -123,7 +127,8 @@ story = []
 story.append(P("Phase-7 Structural Quant Engine", "ReportSubtitle"))
 story.append(P("Portfolio Document", "ReportTitle"))
 story.append(P("Prepared by Viktor Ljungberg, September 2026, with AI assistance from "
-               "Claude (Anthropic).", "MetaLine"))
+               "Claude (Anthropic). Revised November 2026, after the engine's redesign.",
+               "MetaLine"))
 story.append(P("Technical portfolio project for a 2026-2028 career transition into AI "
                "implementation, digitalisation and IT project coordination.", "MetaLine"))
 story.append(Spacer(1, 12))
@@ -136,9 +141,11 @@ story.extend(box([
       "“portfolio-ready”: the fourteen sections the career plan specifies, covering the "
       "engine end to end. Item 5, the separate AI-attribution accounting of what was designed, "
       "decided, tested and ruled on by Viktor versus what Claude produced, is assembled "
-      "separately and is not part of this document. This document does not itself declare the "
-      "release gate open, the remaining findings closed, or the project portfolio-ready -- those "
-      "are Viktor's own calls, left open in the project's own record as of this writing.", "Body"),
+      "separately and is not part of this document. Viktor declared the project portfolio-ready "
+      "on 15 September 2026, and the text current then is kept unchanged at the tag "
+      "portfolio-v1. This revision describes the engine after its redesign of November 2026. It "
+      "makes no declaration of its own: the release gate and whether the engine is finished are "
+      "Viktor's calls, and their state here is the one the project's own record gives.", "Body"),
 ]))
 
 story.append(PageBreak())
@@ -229,17 +236,19 @@ story.append(P(
     "and validates them in the same call -- data/validation.py's <b>validate_ohlcv()</b> rejects "
     "missing candles, duplicates, impossible prices, bad timestamp ordering, and stale data "
     "before anything downstream ever sees the frame. indicators/indicators.py computes the "
-    "technical indicators, structure/structure.py finds swing structure and volume nodes, "
-    "indicators/trend_health.py scores trend health, and models/bias_engine.py turns all of "
-    "that into the one directional read (<b>raw_bias</b>) that the rest of the run treats as "
-    "authoritative -- a same-shaped computation runs a second time for BTC, so "
-    "models/btc_context.py can score how correlated and stressed the wider market is without "
-    "that correlation ever being allowed to cast a second, overriding vote on direction. "
-    "models/entry_model.py scores entry quality, models/risk_model.py computes the stop and "
-    "three targets, and models/decision_model.py assembles the final action, reading "
-    "bias_engine's output as the sole source of direction rather than re-deriving it. "
-    "core/panel_render.py renders the result for a human to read, and core/decision_log.py "
-    "writes it to a permanent record.", "Body"))
+    "technical indicators, indicators/trend_readings.py reads the ADX and the price/RSI "
+    "disagreement the confirmation gates compare, and structure/structure.py finds swing "
+    "structure, the structure regime and the high-volume node. models/bias_engine.py reads the "
+    "one direction the rest of the run treats as authoritative (<b>raw_bias</b>) from two facts "
+    "about the decision candle: whether EMA50 is rising or falling, and whether EMA20 is above "
+    "or below it. The daily frame is read for one fact, whether its close is above or below its "
+    "own EMA50. A same-shaped computation runs for BTC so that models/btc_context.py can report "
+    "how correlated and stressed the wider market is -- printed on the panel as reference, and "
+    "read by nothing that decides. models/entry_model.py runs the confirmation gates, the "
+    "trigger and entry quality, models/risk_model.py computes the stop, three targets and the "
+    "risk verdict, and models/decision_model.py runs the gates in order and names the final "
+    "action. core/panel_render.py renders the result for a human to read, and "
+    "core/decision_log.py writes it to a permanent record.", "Body"))
 story.append(P(
     "Three modules exist specifically to make a run checkable after the fact rather than only "
     "readable at the time: core/lineage.py hashes every input frame and the run itself, "
@@ -253,11 +262,11 @@ story.append(P(
     "guards rather than one, so that Tier 1 Item 18 (no trade-execution credentials) does not "
     "depend on nobody making a mistake in one place.", "Body"))
 story.append(P(
-    "The project has 213 commits and a 51-file test suite, organized the same way the engine "
-    "itself is: one test module per production concern, plus a set of pinned fixtures "
-    "(tests/fixtures/) that let the whole pipeline be re-run against a known input and checked "
-    "against a known-good output -- the golden path referenced throughout the engineering log.",
-    "Body"))
+    "As of November 2026 the project has more than 400 commits and a 96-file test suite, "
+    "organized the same way the engine itself is: one test module per production concern, plus "
+    "pinned fixtures (tests/fixtures/) that let the whole pipeline be re-run against a known "
+    "input and checked against a known-good output -- the golden path referenced throughout the "
+    "engineering log.", "Body"))
 
 # ============================================================
 # 4. DATA SOURCES
@@ -275,11 +284,13 @@ story.append(P(
     "nothing in the fetch path is even capable of authenticating.", "Body"))
 story.append(P(
     "A single run pulls three OHLCV series from that one source: the base symbol on its "
-    "execution timeframe (AEROUSDT on 4h by default -- both are configuration, not hardcoded, "
-    "so the engine runs unchanged against any pair MEXC lists), the same symbol on a macro "
-    "higher timeframe (1d) for multi-timeframe confluence, and BTCUSDT on the base timeframe, "
-    "used only to score how correlated and stressed the wider market is, never to vote on "
-    "direction itself. Every one of the three is checked by the same validator "
+    "execution timeframe (BLESSUSDT on 4h by default since 22 November 2026, AEROUSDT before "
+    "it -- the pair is configuration, not hardcoded, so the engine runs unchanged against any "
+    "pair MEXC lists, while a guard refuses any timeframe but 4h for now), the same symbol on "
+    "the daily timeframe, read only for whether its close is above or below its EMA50, and "
+    "BTCUSDT on the base timeframe, used only to report how correlated and stressed the wider "
+    "market is, never to vote on direction itself. Each candle's turnover in USDT is kept, "
+    "because the liquidity gate reads it. Every one of the three is checked by the same validator "
     "(data/validation.py) the moment it is fetched -- missing candles, duplicates, impossible "
     "prices, out-of-order timestamps, and stale data are all rejected before anything downstream "
     "can treat them as real, and each fetch returns its own independent copy of the frame rather "
@@ -313,8 +324,8 @@ story.append(P(
 story.append(P("Entry points (outside the module count)", "H2"))
 story.extend(table([
     ["File", "Responsibility"],
-    ["main.py", "Loads configuration, constructs SignalRouter, runs one symbol/timeframe, "
-                "returns a process exit code."],
+    ["main.py", "Loads configuration, constructs SignalRouter, runs the default pair or each "
+                "pair named on the command line, and returns a process exit code."],
     ["live_trading.py", "The engine's only market-facing code. Simulates placing an order "
                         "from a real decision, for observation only -- never sends one."],
     ["test_live.py", "A three-line manual script: runs the live simulator once and prints "
@@ -334,6 +345,9 @@ story.extend(table([
                        "built from."],
     ["panel_render.py", "Renders a finished decision object as the colored terminal panel a "
                         "person actually reads."],
+    ["threshold_text.py", "compared_value_text() -- prints a value compared against a "
+                          "threshold so that rounding can never carry it across the line: a "
+                          "value just under a floor never prints as the floor."],
     ["decision_contract.py", "Defines the required shape of a decision object and is checked "
                              "against every run's output before it can reach the panel or the "
                              "log."],
@@ -349,9 +363,9 @@ story.extend(table([
 story.append(P("data/ -- acquisition and integrity", "H2"))
 story.extend(table([
     ["File", "Responsibility"],
-    ["data_fetcher.py", "Fetches OHLCV from MEXC or a pinned CSV directory; validates every "
-                        "fetch before returning it; hands back an independent copy each "
-                        "call."],
+    ["data_fetcher.py", "Fetches OHLCV from MEXC or a pinned CSV directory, keeping each "
+                        "candle's turnover in USDT; validates every fetch before returning "
+                        "it; hands back an independent copy each call."],
     ["validation.py", "validate_ohlcv() -- the actual integrity checks: missing/duplicate "
                       "candles, impossible prices, timestamp ordering, staleness."],
 ], col_widths=[1.6 * inch, 4.9 * inch]))
@@ -359,52 +373,49 @@ story.extend(table([
 story.append(P("indicators/ and structure/ -- feature computation", "H2"))
 story.extend(table([
     ["File", "Responsibility"],
-    ["indicators.py", "Computes the technical indicators (EMA, RSI, ADX, ATR, VWMA, "
-                      "Supertrend) and handles a failed indicator by dropping its column and "
-                      "reporting the loss, rather than substituting a confident-looking "
-                      "constant."],
-    ["trend_health.py", "Scores overall trend health from the indicator set -- one of the "
-                        "inputs bias_engine combines into direction."],
-    ["volume_profile.py", "Computes the volume profile (high/low-volume nodes) used by "
-                          "structure and by exit-watch proximity checks."],
-    ["structure.py", "StructureEngine -- locates swing highs/lows and the structural "
-                     "sequence (the shape of price action, independent of any single "
-                     "indicator)."],
+    ["indicators.py", "Computes the technical indicators (EMA 20 and 50 and EMA50's slope, "
+                      "RSI, ADX, ATR, SuperTrend) and handles a failed indicator by dropping "
+                      "its column and reporting the loss, rather than substituting a "
+                      "confident-looking constant."],
+    ["trend_readings.py", "compute_trend_readings() -- reads the ADX the confirmation gate "
+                          "compares and the price/RSI disagreement it and the exit watch read, "
+                          "naming any input that was missing. It replaced trend_health.py at "
+                          "the redesign; trend health no longer decides anything."],
+    ["volume_profile.py", "Computes the volume profile (high/low-volume nodes); the "
+                          "high-volume node is the H in entry quality."],
+    ["structure.py", "StructureEngine -- locates swing highs/lows, the structural sequence "
+                     "and the structure regime the first confirmation gate compares (the "
+                     "shape of price action, independent of any single indicator)."],
 ], col_widths=[1.6 * inch, 4.9 * inch]))
 
 story.append(P("models/ -- direction, entry, risk, and the final decision", "H2"))
 story.extend(table([
     ["File", "Responsibility"],
-    ["bias_engine.py", "calculate_dynamic_bias() -- the sole source of trade direction "
-                       "(raw_bias), and calculate_dynamic_regime() for the market "
+    ["bias_engine.py", "direction_from_emas() -- the sole source of trade direction "
+                       "(raw_bias): BULLISH when EMA50 is rising and EMA20 is above it, "
+                       "BEARISH when EMA50 is falling and EMA20 is below it, NEUTRAL "
+                       "otherwise; and calculate_dynamic_regime() for the market "
                        "regime/volatility mode."],
-    ["btc_context.py", "Scores BTC correlation and market stress as context only -- "
-                       "structurally unable to cast a second vote on direction."],
-    ["entry_model.py", "Generates entry signals and scores entry quality from bias, trend, "
-                       "and structure."],
+    ["btc_context.py", "Measures BTC correlation, beta and market stress for the panel, as "
+                       "reference only -- nothing that decides reads it."],
+    ["entry_model.py", "The confirmation gates (structure, ADX, the price/RSI disagreement, "
+                       "the daily trend for a long, the liquidity floor), the trigger candle "
+                       "and its volume, and entry quality, D + H from 0 to 100."],
     ["risk_model.py", "RiskModel.calculate_stop_targets() -- the stop and three price "
-                      "targets; read_risk_verdict() reads (never assumes) whether a "
-                      "simulated order passed risk."],
+                      "targets, on the side it is given; the risk regime; "
+                      "read_risk_verdict() reads (never assumes) whether the plan passed "
+                      "risk."],
     ["exit_model.py", "build_exit_watch() -- plain-language advisory flags shown on the "
                       "panel. The actual exit decision is assembled by signal_router.py from "
                       "DecisionModel's output, not computed here -- an earlier, larger "
                       "version of this file was removed when its own outputs were found to "
                       "reach nothing downstream (see Major Problems, 9)."],
-    ["decision_model.py", "DecisionModel._determine_final_action() -- combines bias, trend, "
-                          "entry, and risk into the one final action (LONG / SHORT / "
-                          "NO-TRADE and why), reading direction from bias_engine rather than "
-                          "re-deriving it."],
+    ["decision_model.py", "DecisionModel.evaluate() -- runs the gates in their fixed order "
+                          "and names the one final action and the reason for it, reading "
+                          "direction from bias_engine rather than re-deriving it."],
     ["signal_router.py", "SignalRouter -- the top-level orchestrator main.py actually calls. "
                          "Validates the engine's raw output against the decision contract, "
                          "then routes it to the panel and the log."],
-], col_widths=[1.6 * inch, 4.9 * inch]))
-
-story.append(P("utils/", "H2"))
-story.extend(table([
-    ["File", "Responsibility"],
-    ["plotting.py", "plot_engine_chart() -- renders the price chart with entry, stop, and "
-                    "target levels overlaid."],
-    ["decision_log_backup.py", "Takes a dated, committed snapshot of the live decision log."],
 ], col_widths=[1.6 * inch, 4.9 * inch]))
 
 story.append(PageBreak())
@@ -414,23 +425,45 @@ story.append(PageBreak())
 # ============================================================
 story.append(section(6, "Decision Logic"))
 story.append(P(
-    "The final action is decided in models/decision_model.py, in a fixed order where an "
-    "earlier gate can end the run before a later one is even evaluated. Risk is checked first, "
-    "and its verdict is read rather than assumed: read_risk_verdict() returns True, False, or "
-    "None, and None (no verdict recorded) produces <b>NO-TRADE (RISK NOT ASSESSED)</b> -- never "
-    "a default pass. A recorded failure produces <b>NO-TRADE (RISK TOO HIGH)</b>. Only a "
-    "recorded pass lets the run reach the directional logic at all.", "Body"))
+    "The final action is decided in models/decision_model.py by a ladder of gates run in a fixed "
+    "order. The first gate that fails names the action, and no later gate is consulted to "
+    "overrule it. This ladder is the redesign of October and November 2026 (Results, 11). It "
+    "replaced one that combined the indicators into a weighted bias score and graded trades by "
+    "a trend-health score; that version is the one kept at the tag portfolio-v1.", "Body"))
+story.extend(table([
+    ["Gate", "What it requires", "If it fails"],
+    ["0. Inputs", "The engine's inputs arrived well formed.", "WAIT"],
+    ["1. Risk", "A recorded risk verdict, read rather than assumed, and a pass. A stop more "
+                "than 8% from the decision close, or a market in extreme volatility, is "
+                "EXTREME RISK and fails.",
+                "NO-TRADE (RISK NOT ASSESSED) with no verdict; NO-TRADE (RISK TOO HIGH) on a "
+                "failure"],
+    ["2. Direction", "BULLISH or BEARISH from bias_engine: EMA50 rising with EMA20 above it, "
+                     "or falling with EMA20 below it.", "WAIT"],
+    ["3-5. Confirmation", "The structure regime agrees with the side; ADX at least 20; no "
+                          "price/RSI disagreement over four candles pointing against the "
+                          "trade.", "NO-TRADE (SIGNAL UNCONFIRMED)"],
+    ["6. Daily trend", "No long while the daily close is below its EMA50.",
+                       "NO-TRADE (MACRO AGAINST)"],
+    ["7. Liquidity", "The decision candle's turnover is at least 10,000 USDT.",
+                     "NO-TRADE (THIN MARKET)"],
+    ["8. Trigger", "The decision candle closes beyond its open and the previous close in the "
+                   "trade's direction, on volume above the median of the 20 candles before "
+                   "it.", "WAIT"],
+    ["9. Entry quality", "At least 70 of 100 for LONG/SHORT -- AGGRESSIVE LONG/SHORT when "
+                         "the close is inside the EMA band and the risk regime is NORMAL or "
+                         "LOW; at least 50 for CONSERVATIVE LONG/SHORT.",
+                         "WAIT -- not a pullback"],
+], col_widths=[1.25 * inch, 3.55 * inch, 1.7 * inch]))
 story.append(P(
-    "Direction comes from exactly one place: bias_engine's raw_bias. A ruling from 5 September "
-    "2026 -- “a lean is not a case” -- adds a strength floor on top of the direction "
-    "itself: a BULLISH or BEARISH lean below MIN_ACTION_BIAS (30 of 100) returns WAIT rather "
-    "than acting on a weak signal. Above that floor, the action graduates through four levels "
-    "depending on trend health and entry quality against fixed thresholds "
-    "(AGGRESSIVE_TREND_HEALTH_MIN = 75, AGGRESSIVE_ENTRY_SCORE_MIN = 70, "
-    "CONSERVATIVE_TREND_HEALTH_MIN = 50): AGGRESSIVE LONG/SHORT when trend, entry quality, and "
-    "momentum all agree and the risk regime allows it; plain LONG/SHORT when they agree but the "
-    "risk regime does not; CONSERVATIVE LONG/SHORT when only the macro trend agrees and entry "
-    "quality is weaker; otherwise WAIT.", "Body"))
+    "Entry quality measures how close the decision close is to a pullback, in units of ATR: D, "
+    "up to 80 points, falls to nothing as the close moves three ATRs from the middle of the "
+    "band between EMA20 and EMA50, and H, up to 20 points, falls to nothing two ATRs from the "
+    "high-volume node. A part that cannot be measured is not scored as zero: entry quality is "
+    "then not computed, and the run waits with a sentence saying why. Direction comes from one "
+    "place only, and every other indicator is a gate that can refuse a trade but never choose "
+    "its side. On spot, which is the only way Viktor trades, a SHORT means selling to USDT and "
+    "waiting, not opening a short position (his ruling of 28 September 2026).", "Body"))
 story.extend(box([
     P("<b>The plan-contradiction guard.</b>", "H2"),
     P("On 2 September 2026 the engine printed CONSERVATIVE LONG with a stop above price and "
@@ -445,17 +478,14 @@ story.extend(box([
       "Body"),
 ], border_color=MAROON))
 story.append(P(
-    "Confidence is computed after the action, as a real multi-factor score (bias strength, "
-    "trend health, entry quality, and agreement across them) rather than -- as an earlier "
-    "version of the engine did -- simply renaming trend_health to confidence_score and "
-    "reporting it as if it were independent evidence. When a run is degraded (an indicator "
-    "failed, or data was rejected and something had to be inferred), a separate rule -- "
-    "“degrade, don't halt,” ruled 29 August 2026 -- lets the run continue with what it "
-    "could compute, but caps confidence at a fixed ceiling and records that the action would "
-    "have been different at full confidence; a degraded result never authorizes a trade at full "
-    "conviction. A BTC-adjusted confidence figure is computed separately again, from the same "
-    "base confidence and the correlation/stress context, and never feeds back into the action "
-    "itself -- macro context is read, not voted with.", "Body"))
+    "When a run is degraded (an indicator failed, or data was rejected), a rule ruled on "
+    "29 August 2026 -- “degrade, don't halt” -- lets the run continue with what it could "
+    "compute, records every failure in the decision, and refuses the trade: any action naming a "
+    "side becomes <b>NO-TRADE (DEGRADED INPUT)</b>. Until the redesign the engine also computed a "
+    "confidence score, a trade quality and an illustrative expected value after the action, and "
+    "capped the first two on a degraded run. Nothing that decided read them, and the redesign "
+    "removed all three. A BTC-adjusted confidence went earlier, when Viktor ruled on 5 October "
+    "2026 that Bitcoin is reference only.", "Body"))
 
 # ============================================================
 # 7. TESTING METHODOLOGY
@@ -473,7 +503,10 @@ story.append(P(
     "The suite's spine is the golden path: tests/fixtures/ pins a synthetic OHLCV dataset "
     "(TESTUSDT, generated deterministically from a fixed seed, regenerating byte-identical "
     "forever) and tests/fixtures/golden_decision.json pins the exact decision object the engine "
-    "must still produce from it. test_golden_path.py runs the real entry point "
+    "must still produce from it -- since the redesign a WAIT, the ladder stopping at the "
+    "trigger. A second pinned series, added with the redesign, ends on a candle that passes "
+    "every gate, and tests/fixtures/golden_trade_decision.json pins its LONG, so a trade the "
+    "engine takes is held as exactly as one it refuses. test_golden_path.py runs the real entry point "
     "(SignalRouter.route(), not a shortcut into the engine) against that fixture and diffs the "
     "result against the snapshot -- so a change that alters what the engine decides, not merely "
     "how it is written, is caught immediately. The golden path itself was wrong on its first "
@@ -507,7 +540,8 @@ story.append(P(
 story.append(section(8, "Debugging Process"))
 story.append(P(
     "The most consistent lesson of this project is that running the code finds defects that "
-    "reading it does not. Four independent audit passes across three AI models read the source "
+    "reading it does not. By mid-September, four independent audit passes across three AI "
+    "models had read the source "
     "and produced findings; a test harness that actually executed the engine found three things "
     "none of them had -- including that, as published, the repository did not start from a "
     "fresh clone at all. That pattern repeated after remediation: the harness caught a chart "
@@ -534,7 +568,7 @@ story.append(P(
     "verdicts rather than from the code; checking each location the report quoted found three "
     "already closed by unrelated work, and the true count was different. The same habit caught "
     "this document's own predecessor problem while it was being written: README.md's status "
-    "table describes a state from well before round 5 and round 6, missing four core/ modules "
+    "table then described a state from well before round 5 and round 6, missing four core/ modules "
     "that exist now, and was not used as a source here for exactly that reason.", "Body"))
 
 # ============================================================
@@ -624,13 +658,15 @@ story.extend(table([
                                  "degradation machinery as a total failure, so no fallback path "
                                  "can bypass it."],
     ["Circular reasoning", "All duplicate countings of trend_health removed rather than "
-                           "reweighted; bias_score is now the single place all factors combine, "
-                           "and confidence is computed as a real, independent multi-factor score "
-                           "instead of a renamed copy of one input."],
+                           "reweighted (September 2026). The redesign of November 2026 went "
+                           "further and removed the weighted bias score, trend health and "
+                           "confidence altogether: direction is two facts about the EMAs, and "
+                           "every other indicator is a gate that can only refuse."],
     ["Fabricated fallbacks", "A failed indicator now drops its column and reports what was "
-                             "lost, instead of substituting a value; a degraded result is capped "
-                             "in confidence and cannot authorize a trade at full conviction "
-                             "(\"degrade, don't halt,\" ruled 29 August 2026)."],
+                             "lost, instead of substituting a value; a degraded result cannot "
+                             "authorize a trade, and since the redesign any action naming a "
+                             "side becomes NO-TRADE (DEGRADED INPUT) (\"degrade, don't halt,\" "
+                             "ruled 29 August 2026)."],
     ["False safety claims", "core/decision_log.py actually writes the record the panel claims "
                             "exists, and core/decision_contract.py checks every decision object "
                             "against a required shape before it can reach the panel or the log "
@@ -651,39 +687,59 @@ story.append(P(
 # ============================================================
 story.append(section(11, "Results"))
 story.append(P(
-    "The engine has not been shown to predict anything, and is not claimed to. One feature "
-    "(BTC-adjusted prediction) is correctness-validated -- it computes what it was designed to "
-    "compute -- but empirically unvalidated, and the Constitution requires that distinction be "
-    "stated plainly wherever the feature appears rather than implied away. What has been "
+    "The engine has not been shown to predict anything, and is not claimed to. What has been "
     "produced and checked is a pipeline that runs deterministically on a fixed input, refuses to "
     "author a plan it cannot support, and records what it did in a form that can be checked "
     "later against the exact code and data that produced it.", "Body"))
 story.append(P(
-    "The audit history, briefly: the initial ratification audit (four runs: three on a model with "
-    "no prior involvement in the build, and one blind run whose lab had worked on this codebase "
-    "through Aider, so its independence is weaker) found the engine's first Critical defects, "
-    "including fabricated fallbacks and the false trade-log claim above. A sixteen-item "
-    "remediation sequence (drawn up by GLM 5.3) was carried out to address that and later "
-    "review rounds; its final step was an independent re-audit (GPT-5.6 Luna Pro), which found "
-    "further findings -- including one Critical, on decision-bar integrity, that no prior audit "
-    "had scheduled -- worked through in batches with rulings recorded for each judgment call. A "
-    "subsequent round (GPT-6 Astra, round 5) "
-    "found three fresh Critical Tier-1 defects after that remediation -- measured volatility "
-    "never reaching the stop/target calculation, entry quality scored for the wrong trade "
-    "direction, and a stale indicator value presented as current at the decision bar -- each "
-    "fixed as a separate, individually verified patch. A fix-verification pass on 14 September "
-    "2026 (the same auditor confirming its own findings were actually fixed, per Viktor's ruling "
-    "that this does not require a fresh independent model) confirmed a further five findings "
-    "fixed, plus one bonus defect it found unprompted and confirmed real -- a harmless duplicate "
-    "decorator -- fixed the same day.", "Body"))
+    "The audit history up to the portfolio milestone, briefly: the initial ratification audit "
+    "(four runs: three on a model with no prior involvement in the build, and one blind run "
+    "whose lab had worked on this codebase through Aider, so its independence is weaker) found "
+    "the engine's first Critical defects, including fabricated fallbacks and the false "
+    "trade-log claim above. A sixteen-item remediation sequence (drawn up by GLM 5.3) was "
+    "carried out to address that and later review rounds; its final step was an independent "
+    "re-audit (GPT-5.6 Luna Pro), which found further findings -- including one Critical, on "
+    "decision-bar integrity, that no prior audit had scheduled -- worked through in batches with "
+    "rulings recorded for each judgment call. A subsequent round (GPT-6 Astra, round 5) found "
+    "three fresh Critical Tier-1 defects after that remediation -- measured volatility never "
+    "reaching the stop/target calculation, entry quality scored for the wrong trade direction, "
+    "and a stale indicator value presented as current at the decision bar -- each fixed as a "
+    "separate, individually verified patch. A fix-verification pass on 14 September 2026 (the "
+    "same auditor confirming its own findings were actually fixed, per Viktor's ruling that this "
+    "does not require a fresh independent model) confirmed a further five findings fixed, plus "
+    "one bonus defect it found unprompted and confirmed real -- a harmless duplicate decorator "
+    "-- fixed the same day. On 15 September 2026 Viktor declared the release gate open and the "
+    "project portfolio-ready, and that commit was tagged portfolio-v1.", "Body"))
 story.append(P(
-    "As of this writing, every finding raised through that round has a landed and independently "
-    "verified fix, and the test suite passes in all three configurations "
-    "(pytest with pandas_ta, pytest without it, and the dependency-free runner). Whether that "
-    "satisfies the release gate's \"every Critical fixed and re-audited\" bar, and whether the "
-    "project should be declared portfolio-ready, are calls the project's own record leaves "
-    "explicitly and repeatedly to Viktor -- this document states what has been verified and does "
-    "not make either declaration on his behalf.", "Body"))
+    "Two further independent rounds followed, each scored on whether the auditor found four "
+    "known defects held back from what it was shown. Round 7 (Laguna S 2.1, 30 September) found "
+    "none, and the round ended there. Round 8 (Xiaomi MiMo-V2.6-Pro, 4 October) found two of the "
+    "four on its second run; its findings went to triage and its ratings were not counted. The "
+    "release gate closed on 5 October until round 8's fix of the stop had landed and been "
+    "verified by the same auditor, reopened on 17 October, and closed again on 20 October, when "
+    "Viktor ruled one of round 8's findings Critical: the daily trend could move a trade's tier, "
+    "a break of the Constitution's rule against circular reasoning. A second Critical of the "
+    "same kind, the trend multiplier, was rated Critical on 25 October by that precedent.",
+    "Body"))
+story.append(P(
+    "Viktor's answer, ruled on 25 October 2026, was one redesign of how the indicators decide, "
+    "before the next audit: one source of direction, every other indicator a gate that can only "
+    "refuse, and no weighted sum. The design was drafted and revised fourteen times, ruled "
+    "point by point, and approved as a whole on 12 November. It was built in seven stages on a separate "
+    "branch from 14 to 21 November -- every stage leaving the three test configurations green "
+    "and run on live data before its commit -- and merged into the main line on 22 November "
+    "2026. Both Criticals are fixed by it in the code; they stay open on the record until the "
+    "next independent audit has re-audited them.", "Body"))
+story.append(P(
+    "Since 17 October the engine has also run forward every four hours on ten pairs, logging "
+    "only, which is the first record of how often it trades. Its reading on 11 November was not "
+    "a verdict on performance: it measured the gaps in the redesign's draft, by rules fixed on "
+    "2 November before the data was read, and two of its results counted against the draft and "
+    "changed it. The test suite passes in all three configurations (pytest with pandas_ta, "
+    "pytest without it, and the dependency-free runner). Whether the engine is finished is "
+    "decided by the paper-trading verdict, not by this document, and the release gate is "
+    "Viktor's call -- this document states what has been verified and makes neither "
+    "declaration on his behalf.", "Body"))
 
 # ============================================================
 # 12. LIMITATIONS
@@ -700,20 +756,25 @@ story.append(P(
     "Backtesting itself has not been rebuilt. It is a real, planned priority, deliberately "
     "deferred until the safety net around it -- version control, known-good checkpoints, a fixed "
     "evaluation dataset -- is actually in place rather than aspirational, because an earlier "
-    "attempt at exactly this work destroyed a previous build of the engine. A second failure "
+    "attempt at exactly this work destroyed a previous build of the engine. By Viktor's ruling of "
+    "29 September 2026 it stays closed until, among other conditions, an independent auditor "
+    "rates the Constitution's Items 2, 3, 6 and 18 Compliant and no Critical or Major finding "
+    "is open. A second failure "
     "under the current, better safety net would still be a real cost, not a risk-free one.",
     "Body"))
 story.append(P(
-    "Some audit work the project's own record has requested is not yet run: GPT-6 Astra's "
-    "report named three further, non-Critical investigation runs (BTC-only failure behaviour, "
-    "fallback equivalence, and how effective the test suite actually is at catching real "
-    "defects) that remain outstanding as of this writing. In practice, the engine has only been "
-    "run against one asset (AEROUSDT) and one BTC-correlation pair, even though symbol and "
-    "timeframe are configuration rather than hardcoded values -- the architecture's generality "
-    "has not been exercised across a range of pairs.", "Body"))
+    "The redesigned engine is new. It was merged on 22 November 2026 and has not yet been "
+    "audited independently, and its forward record starts again at zero: by Viktor's ruling, a "
+    "change to the engine is a new version and its trades are counted from nothing. Entry "
+    "quality's H rests on a volume-profile bin's midpoint, so the score is known only to about "
+    "two to four points either way. Four known minor defects are left unfixed on purpose, so "
+    "that the next audit can be scored on whether it finds them. And the engine trades trends "
+    "only: range trading at levels drawn by hand, which is how Viktor trades himself, is a "
+    "second strategy for after the audit, so the engine will not trade the way he does.",
+    "Body"))
 story.append(P(
     "Project documentation has fallen behind its own code more than once -- README.md's status "
-    "table and the Engineering Notes log have both, independently, gone stale relative to the "
+    "table, the Engineering Notes log and this document have each gone stale relative to the "
     "actual state of the engine at points in this project's history. The response each time has "
     "been a structural fix (documents that build scripts write directly into the repository "
     "rather than to a path nobody carries forward) rather than a promise to remember better, but "
@@ -772,35 +833,34 @@ story.append(P(
 # ============================================================
 story.append(section(14, "Future Development"))
 story.append(P(
-    "Two goals govern what comes next, deliberately kept apart. Goal A is this portfolio "
-    "milestone: the release gate open with every Critical fixed and re-audited, remaining "
-    "findings closed or explicitly accepted as limitations, the Engineering Notes current, this "
-    "document, the AI-attribution section, and a passing suite against a current golden "
-    "snapshot. Once all six are true, the plan is to tag that commit (portfolio-v1) as a fixed "
-    "point -- evidence of what this submission actually was, regardless of what happens next.",
-    "Body"))
+    "Two goals govern what comes next, deliberately kept apart. Goal A, this portfolio "
+    "milestone, was declared met on 15 September 2026 and tagged portfolio-v1. The tag is a "
+    "fixed point -- evidence of what that submission actually was -- and is not moved, even "
+    "though later rounds found defects in the code it marks.", "Body"))
 story.append(P(
-    "Goal B, which explicitly waits behind that tag rather than alongside it, is backtesting: a "
-    "fixed evaluation dataset, known-good checkpoints, and empirical validation of "
-    "correctness-validated-but-unvalidated features such as the BTC-adjusted prediction. "
-    "Because backtesting has already destroyed one build of this engine, the plan treats it as a "
-    "major architectural effort in its own right once it starts -- built and checkpointed "
-    "incrementally, with look-ahead bias checked more deliberately than any other invariant, "
-    "rather than one large attempt in a single pass. With the tag in place first, a failure in "
-    "that work can break things freely without damaging what was already submitted.", "Body"))
+    "Next is an independent audit by a model from a lab the project has sent nothing to: "
+    "Amazon's Nova 2 Lite, sent through OpenRouter. It audits the redesigned engine in full, is "
+    "scored on whether it finds the four known defects held back from what it is shown, and its "
+    "ratings are the ones that count toward the release gate and toward opening backtesting. "
+    "The engine is then judged by a year of paper trading against the definition of finished "
+    "Viktor ruled on 28 September 2026: one engine version and at least 100 closed trades on "
+    "data it was not tuned on, with at least 60% reaching the first target before the stop, a "
+    "positive average after fees, and a better result than random longs with the same stop and "
+    "target. Results are read at 3, 6, 9 and 12 months, and a reading changes nothing; at most "
+    "three thresholds, named before the year starts, may be tuned after it.", "Body"))
 story.append(P(
-    "Nearer term, three non-Critical investigation runs GPT-6 Astra's report requested remain "
-    "open: BTC-only failure behaviour, fallback equivalence, and how effective the test suite "
-    "actually is at catching real defects rather than merely re-confirming its own prior "
-    "assertions. A genuinely independent, clean-model audit -- one that has read neither the "
-    "Constitution nor the code -- is being deliberately saved for the point where independence "
-    "matters most: immediately before backtesting begins, rather than spent early on a codebase "
-    "still expected to change.", "Body"))
+    "Goal B, backtesting, was specified on 15 September 2026 before any of it was built, and "
+    "waits behind the conditions above. Because backtesting has already destroyed one build of "
+    "this engine, the plan treats it as a major architectural effort in its own right once it "
+    "starts -- built and checkpointed incrementally, with look-ahead bias checked more "
+    "deliberately than any other invariant, and deciding every candle through the same path the "
+    "live engine uses, rather than one large attempt in a single pass. With the tag in place "
+    "first, a failure in that work can break things freely without damaging what was already "
+    "submitted.", "Body"))
 story.append(P(
-    "Beyond the engine itself, Phase-7's role in the wider plan is to be finished, tagged, and "
-    "put down: the next steps are a practical AI course, a project management course, and "
-    "automation/IoT fundamentals, with job applications starting once this milestone -- not the "
-    "eventually-open-ended backtesting work -- has a date attached to it.", "Body"))
+    "Beyond the engine itself: since Viktor's ruling of 28 September 2026 the portfolio is "
+    "secondary to the engine's own verdict. The milestone the career plan needed has its date, "
+    "and what remains is to find out, with evidence, whether the engine works.", "Body"))
 
 doc = SimpleDocTemplate(OUTPUT_PATH, pagesize=LETTER,
     leftMargin=0.75 * inch, rightMargin=0.75 * inch,

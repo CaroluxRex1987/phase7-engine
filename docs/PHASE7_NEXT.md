@@ -1,18 +1,20 @@
 # Next step — read this first
 
-*22 November 2026, in the session that opened at 15:42. Written by the Engineering
-Notes' regeneration at v1.44, which follows `e022337`, the BLESS commit: documentation
-only (the Notes' build script and PDF, this file and HISTORY), and it moves no
-`code_hash`. The redesign is built and merged (THE REDESIGN'S BUILD, below): `master`
-runs it, BLESSUSDT is the default pair, and `code_hash` is `10402051…`. The landings of
-the merge, `7034af1`, and of `e022337` were checked at 15:39 on 22 November and hold,
-on Viktor's statement; his commands then removed the worktree `E:\phase7_redesign` and
-deleted the local branch `redesign`, which this session read off his disk.
-`origin/redesign` is still on GitHub: deleting it is his call. The Engineering Notes
-are rebuilt once over the whole build, Entries #289 to #306, and no commit that needs
-an entry is behind. The lines this commit removed from the version at `e022337` are in
+*22 November 2026, in the session that opened at 17:51. Written by the Portfolio
+Document's revision, which follows `a2fd788`, the Engineering Notes' v1.44:
+documentation only (the Portfolio Document's build script and PDF, this file and
+HISTORY), and it moves no `code_hash`. The Portfolio Document now describes the
+redesigned engine and the project as it stands in November; its September text is at
+the tag `portfolio-v1` ("Where things stand", Portfolio Document). The redesign is built
+and merged (THE REDESIGN'S BUILD, below): `master` runs it, BLESSUSDT is the default
+pair, and `code_hash` is `10402051…`. `a2fd788`'s landing was read from GitHub at 17:36
+and holds, on Viktor's statement; this session's clone read GitHub's tip as `a2fd788`.
+`origin/redesign` is still on GitHub: deleting it is his call. The Engineering Notes stop
+at Entry #306, `e022337`: `a2fd788` and this commit have no entry yet, for the next
+regeneration. The lines this commit removed from the version at `a2fd788` are in
 HISTORY, which points to that whole version in git. **Next: Viktor's call on the
-daily-frame find for the held-back list, his position first** (Open items).
+daily-frame find for the held-back list, his position first** (Open items). His
+position was asked for in this session and had not reached it when this was written.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
 rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
@@ -5201,18 +5203,29 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
   rebuilt first gave the committed v1.43 text exactly. Linux sandbox, reportlab 5.1.0.
   One page of the new entries was rendered and looked at; the others were read as
   extracted text only.
-- **Portfolio Document and AI-Attribution Statement:** both current with their scripts —
-  each rebuilt from `68c6191` in the sandbox (reportlab 5.0.1), its extracted text
-  identical to the committed PDF. Neither changes in the commit that writes this line;
-  the Attribution Statement's script last changed at `68c6191`, the Portfolio
-  Document's at `6e1baba`.
-  **Found on 22 November, not fixed: the Portfolio Document describes the engine before
-  the redesign.** Read in `docs/build/build_portfolio_document.py` at `e022337`: it has
-  `trend_health.py` scoring trend health and `bias_engine.py` turning the indicators
-  into a weighted score (lines 233 and 366), the action depending on trend health
-  (line 428), and confidence computed and capped on a degraded run (lines 448 to 455).
-  The redesign removed all of these. Rebuilding the PDF would not change that: the
-  script's text has to be rewritten. Claude's, not started (Open items).
+- **Portfolio Document and AI-Attribution Statement:** both current with their scripts.
+  The Attribution Statement's script last changed at `68c6191`, rebuilt from it in the
+  sandbox (reportlab 5.0.1) with its extracted text identical to the committed PDF; it
+  does not change in the commit that writes this line. The Portfolio Document's script
+  and PDF change in it.
+  **The Portfolio Document revised on 22 November, by the commit that writes this line,**
+  for the redesign and for the project since September: sections 3 to 6 describe the
+  redesigned engine (the gate ladder as a table in section 6), sections 11, 12 and 14
+  the project from the declaration of 15 September to the merge, and the cover says
+  the September text is kept at `portfolio-v1`. Its sections 8 to 10 and 13 stay the
+  record of September, with one sentence each in section 10 for what the redesign
+  removed. Every claim about the code was read at `a2fd788` for it; the claims about
+  the project's history were read from DECISIONS and this file, not re-derived. Its
+  script rebuilt unchanged gave the committed PDF's extracted text exactly first; the
+  revised PDF is 15 pages (14 before), two of them rendered and looked at. Linux
+  sandbox, Python 3.12, reportlab 5.1.0. **Found writing it, and corrected by it:** its
+  September text said GPT-6 Astra's three requested runs were still outstanding; they
+  ran on 12 September (HISTORY), two days before it was written.
+  **Found on 22 November, not fixed: the AI-Attribution Statement says the inline
+  comments it cites exist verbatim in the current source,** and one does not: its
+  ruling of 5 September, that trend health is an unsigned magnitude, names
+  `models/decision_model.py`, which no longer holds that sentence. The other pointers
+  of its table were not checked one by one (Open items).
 - **README.md:** **`706e858` changed its "Independent audit" and "Engine code"
   rows**, for the ruling of 7 November on F2, in wording Claude wrote and put to
   Viktor before his commit, and nothing else in it. **Its test counts are current (1004,
@@ -6857,23 +6870,14 @@ Each code commit is its own commit and updates this file for its own landing.
 
 ## Resolved this session
 
-- **The Engineering Notes regenerated at v1.44**, Entries #289 to #306, one for each
-  commit from `9cc48d7` to `e022337`, by the commit that writes this line ("Where things
-  stand", Engineering Notes). The session of 15:42 on 22 November chose it by Viktor's
-  opening message, which named it as the work.
-- **The worktree removed and the local branch deleted**, by Viktor's commands after the
-  landings of `7034af1` and `e022337` were checked at 15:39 on 22 November (his
-  statement; that check was not read by this session). Read off his disk at about 15:43:
-  `E:\` holds no `phase7_redesign`; `.git` holds no `worktrees` folder;
-  `refs\heads\redesign` and its reflog are gone; `.git\config`, written at 15:41:56,
-  has no `[branch "redesign"]` section. `refs\remotes\origin\redesign` is still there,
-  `4eb71aa`, and so is the branch on GitHub: deleting it is Viktor's call (Open items).
-  Read from GitHub by this session's clone at about 15:43: `master` `e022337`, its tree
-  `d5f376a5…` the one its `Verified-Tree:` names; `7034af1`'s tree `de1437cc…`, the
-  same as `origin/redesign`'s and the one its message names. On his disk `master` is
-  `e022337`, written at 15:38:00, and `origin/master` at 15:38:14.
-- **The patch-delivery skill's update was saved:** the skill this session loaded is
-  current with DECISIONS as of `e022337` and marks its section 11 retired by the merge.
+- **The Portfolio Document revised for the redesign**, by the commit that writes this
+  line ("Where things stand", Portfolio Document). Claude's, from Open items; scoped
+  in this session, first as sections 3 to 6 and then, on finding that the whole text
+  was September's, as the whole document. Viktor's screenshot of his usage, sent with
+  no text, was taken as the go for the larger scope.
+- **`a2fd788`'s landing:** read from GitHub at 17:36 on 22 November and holding, on
+  Viktor's statement; this session's clone, made at about 17:53, read GitHub's tip as
+  `a2fd788`.
 - **By which model:** this session's work and its commit were Claude Opus 5.5's.
 
 ## Open items
@@ -6885,10 +6889,10 @@ Claude critiques it.
   prediction (ruling on proposal (b), 27 September).
 - **Viktor's call: whether to delete `origin/redesign`** on GitHub. The local branch
   and the worktree are gone (Resolved this session); nothing reads the remote branch.
-- **Claude's, found 22 November, not started: the Portfolio Document's text describes
-  the engine before the redesign** ("Where things stand", Portfolio Document). A rewrite
-  of its script, not a rebuild. Whether the AI-Attribution Statement and the other
-  generated documents under `docs/build/` say the same was not checked.
+- **Claude's, found 22 November, not fixed: the AI-Attribution Statement's table of
+  Viktor's rulings points to source that the redesign changed** ("Where things stand",
+  Portfolio Document and AI-Attribution Statement). One pointer is known not to hold;
+  each of the others is to be read against the code before its script is changed.
 - **Viktor's call — a held-back defect that can move a reading, found by stage 7**
   (owed since 17 November: DECISIONS, "Ruling, 17 November 2026 — the held-back
   defects' replacements are H6, H7 and H8 …"; the find is in stage 7's entry). The daily

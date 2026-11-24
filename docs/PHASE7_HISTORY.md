@@ -225203,3 +225203,85 @@ Lines 6910–6912 of the version at `e022337`:
   landing check.** Eighteen commits behind with this one ("Where things stand"). Batched past the merge so that they are rebuilt once, over the whole build; the gap is stated in the
   head block, which is what the rule of 15 September requires when the batch is not run.
 ~~~~~
+
+## 22 November 2026 — the lines the rewrite of PHASE7_NEXT.md removed from its version at `a2fd788`
+
+*Moved here on 22 November 2026 by the Portfolio Document's revision, the commit after
+the Engineering Notes' regeneration `a2fd788`, under "Ruling, 4 November 2026 — HISTORY
+keeps what each rewrite of PHASE7_NEXT.md removes, not the whole file" (DECISIONS).
+Below the rule, each block is a run of lines of the file as it stood at `a2fd788` that
+the rewrite deleted or replaced, word for word, labelled with its line numbers in that
+version. "This commit", "the commit that writes this line" and "the commit that writes
+this file" in them name `a2fd788`. The whole version:
+`git show a2fd788:docs/PHASE7_NEXT.md`. Checked by `docs/build/check_history_move.py`.*
+
+---
+Lines 3–13 of the version at `a2fd788`:
+
+~~~~~
+*22 November 2026, in the session that opened at 15:42. Written by the Engineering
+Notes' regeneration at v1.44, which follows `e022337`, the BLESS commit: documentation
+only (the Notes' build script and PDF, this file and HISTORY), and it moves no
+`code_hash`. The redesign is built and merged (THE REDESIGN'S BUILD, below): `master`
+runs it, BLESSUSDT is the default pair, and `code_hash` is `10402051…`. The landings of
+the merge, `7034af1`, and of `e022337` were checked at 15:39 on 22 November and hold,
+on Viktor's statement; his commands then removed the worktree `E:\phase7_redesign` and
+deleted the local branch `redesign`, which this session read off his disk.
+`origin/redesign` is still on GitHub: deleting it is his call. The Engineering Notes
+are rebuilt once over the whole build, Entries #289 to #306, and no commit that needs
+an entry is behind. The lines this commit removed from the version at `e022337` are in
+~~~~~
+
+Line 15 of the version at `a2fd788`:
+
+~~~~~
+daily-frame find for the held-back list, his position first** (Open items).
+~~~~~
+
+Lines 5204–5215 of the version at `a2fd788`:
+
+~~~~~
+- **Portfolio Document and AI-Attribution Statement:** both current with their scripts —
+  each rebuilt from `68c6191` in the sandbox (reportlab 5.0.1), its extracted text
+  identical to the committed PDF. Neither changes in the commit that writes this line;
+  the Attribution Statement's script last changed at `68c6191`, the Portfolio
+  Document's at `6e1baba`.
+  **Found on 22 November, not fixed: the Portfolio Document describes the engine before
+  the redesign.** Read in `docs/build/build_portfolio_document.py` at `e022337`: it has
+  `trend_health.py` scoring trend health and `bias_engine.py` turning the indicators
+  into a weighted score (lines 233 and 366), the action depending on trend health
+  (line 428), and confidence computed and capped on a degraded run (lines 448 to 455).
+  The redesign removed all of these. Rebuilding the PDF would not change that: the
+  script's text has to be rewritten. Claude's, not started (Open items).
+~~~~~
+
+Lines 6860–6876 of the version at `a2fd788`:
+
+~~~~~
+- **The Engineering Notes regenerated at v1.44**, Entries #289 to #306, one for each
+  commit from `9cc48d7` to `e022337`, by the commit that writes this line ("Where things
+  stand", Engineering Notes). The session of 15:42 on 22 November chose it by Viktor's
+  opening message, which named it as the work.
+- **The worktree removed and the local branch deleted**, by Viktor's commands after the
+  landings of `7034af1` and `e022337` were checked at 15:39 on 22 November (his
+  statement; that check was not read by this session). Read off his disk at about 15:43:
+  `E:\` holds no `phase7_redesign`; `.git` holds no `worktrees` folder;
+  `refs\heads\redesign` and its reflog are gone; `.git\config`, written at 15:41:56,
+  has no `[branch "redesign"]` section. `refs\remotes\origin\redesign` is still there,
+  `4eb71aa`, and so is the branch on GitHub: deleting it is Viktor's call (Open items).
+  Read from GitHub by this session's clone at about 15:43: `master` `e022337`, its tree
+  `d5f376a5…` the one its `Verified-Tree:` names; `7034af1`'s tree `de1437cc…`, the
+  same as `origin/redesign`'s and the one its message names. On his disk `master` is
+  `e022337`, written at 15:38:00, and `origin/master` at 15:38:14.
+- **The patch-delivery skill's update was saved:** the skill this session loaded is
+  current with DECISIONS as of `e022337` and marks its section 11 retired by the merge.
+~~~~~
+
+Lines 6888–6891 of the version at `a2fd788`:
+
+~~~~~
+- **Claude's, found 22 November, not started: the Portfolio Document's text describes
+  the engine before the redesign** ("Where things stand", Portfolio Document). A rewrite
+  of its script, not a rebuild. Whether the AI-Attribution Statement and the other
+  generated documents under `docs/build/` say the same was not checked.
+~~~~~
