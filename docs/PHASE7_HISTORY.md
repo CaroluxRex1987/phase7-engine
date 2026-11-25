@@ -225285,3 +225285,77 @@ Lines 6888–6891 of the version at `a2fd788`:
   of its script, not a rebuild. Whether the AI-Attribution Statement and the other
   generated documents under `docs/build/` say the same was not checked.
 ~~~~~
+
+## 24 November 2026 — the lines the rewrite of PHASE7_NEXT.md removed from its version at `9708a35`
+
+*Moved here on 24 November 2026 by the AI-Attribution Statement's correction, the commit
+after the Portfolio Document's revision `9708a35`, under "Ruling, 4 November 2026 —
+HISTORY keeps what each rewrite of PHASE7_NEXT.md removes, not the whole file"
+(DECISIONS). Below the rule, each block is a run of lines of the file as it stood at
+`9708a35` that the rewrite deleted or replaced, word for word, labelled with its line
+numbers in that version. "This commit", "the commit that writes this line" and "the
+commit that writes this file" in them name `9708a35`. The whole version:
+`git show 9708a35:docs/PHASE7_NEXT.md`. Checked by `docs/build/check_history_move.py`.*
+
+---
+Lines 3–17 of the version at `9708a35`:
+
+~~~~~
+*22 November 2026, in the session that opened at 17:51. Written by the Portfolio
+Document's revision, which follows `a2fd788`, the Engineering Notes' v1.44:
+documentation only (the Portfolio Document's build script and PDF, this file and
+HISTORY), and it moves no `code_hash`. The Portfolio Document now describes the
+redesigned engine and the project as it stands in November; its September text is at
+the tag `portfolio-v1` ("Where things stand", Portfolio Document). The redesign is built
+and merged (THE REDESIGN'S BUILD, below): `master` runs it, BLESSUSDT is the default
+pair, and `code_hash` is `10402051…`. `a2fd788`'s landing was read from GitHub at 17:36
+and holds, on Viktor's statement; this session's clone read GitHub's tip as `a2fd788`.
+`origin/redesign` is still on GitHub: deleting it is his call. The Engineering Notes stop
+at Entry #306, `e022337`: `a2fd788` and this commit have no entry yet, for the next
+regeneration. The lines this commit removed from the version at `a2fd788` are in
+HISTORY, which points to that whole version in git. **Next: Viktor's call on the
+daily-frame find for the held-back list, his position first** (Open items). His
+position was asked for in this session and had not reached it when this was written.
+~~~~~
+
+Lines 5207–5211 of the version at `9708a35`:
+
+~~~~~
+  The Attribution Statement's script last changed at `68c6191`, rebuilt from it in the
+  sandbox (reportlab 5.0.1) with its extracted text identical to the committed PDF; it
+  does not change in the commit that writes this line. The Portfolio Document's script
+  and PDF change in it.
+  **The Portfolio Document revised on 22 November, by the commit that writes this line,**
+~~~~~
+
+Lines 5224–5228 of the version at `9708a35`:
+
+~~~~~
+  **Found on 22 November, not fixed: the AI-Attribution Statement says the inline
+  comments it cites exist verbatim in the current source,** and one does not: its
+  ruling of 5 September, that trend health is an unsigned magnitude, names
+  `models/decision_model.py`, which no longer holds that sentence. The other pointers
+  of its table were not checked one by one (Open items).
+~~~~~
+
+Lines 6873–6880 of the version at `9708a35`:
+
+~~~~~
+- **The Portfolio Document revised for the redesign**, by the commit that writes this
+  line ("Where things stand", Portfolio Document). Claude's, from Open items; scoped
+  in this session, first as sections 3 to 6 and then, on finding that the whole text
+  was September's, as the whole document. Viktor's screenshot of his usage, sent with
+  no text, was taken as the go for the larger scope.
+- **`a2fd788`'s landing:** read from GitHub at 17:36 on 22 November and holding, on
+  Viktor's statement; this session's clone, made at about 17:53, read GitHub's tip as
+  `a2fd788`.
+~~~~~
+
+Lines 6892–6895 of the version at `9708a35`:
+
+~~~~~
+- **Claude's, found 22 November, not fixed: the AI-Attribution Statement's table of
+  Viktor's rulings points to source that the redesign changed** ("Where things stand",
+  Portfolio Document and AI-Attribution Statement). One pointer is known not to hold;
+  each of the others is to be read against the code before its script is changed.
+~~~~~

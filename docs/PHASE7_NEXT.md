@@ -1,20 +1,23 @@
 # Next step — read this first
 
-*22 November 2026, in the session that opened at 17:51. Written by the Portfolio
-Document's revision, which follows `a2fd788`, the Engineering Notes' v1.44:
-documentation only (the Portfolio Document's build script and PDF, this file and
-HISTORY), and it moves no `code_hash`. The Portfolio Document now describes the
-redesigned engine and the project as it stands in November; its September text is at
-the tag `portfolio-v1` ("Where things stand", Portfolio Document). The redesign is built
-and merged (THE REDESIGN'S BUILD, below): `master` runs it, BLESSUSDT is the default
-pair, and `code_hash` is `10402051…`. `a2fd788`'s landing was read from GitHub at 17:36
-and holds, on Viktor's statement; this session's clone read GitHub's tip as `a2fd788`.
-`origin/redesign` is still on GitHub: deleting it is his call. The Engineering Notes stop
-at Entry #306, `e022337`: `a2fd788` and this commit have no entry yet, for the next
-regeneration. The lines this commit removed from the version at `a2fd788` are in
-HISTORY, which points to that whole version in git. **Next: Viktor's call on the
-daily-frame find for the held-back list, his position first** (Open items). His
-position was asked for in this session and had not reached it when this was written.
+*24 November 2026, in the session that opened at 19:52. Written by the AI-Attribution
+Statement's correction, which follows `9708a35`, the Portfolio Document's revision:
+documentation only (the Attribution Statement's build script and PDF, this file and
+HISTORY), and it moves no `code_hash`. The Statement's table of Viktor's rulings was
+read row by row at `9708a35`: four of its pointers to source changed, and its 31 August
+row, which said items 3, 11 and 14 were ruled by him personally, now records the
+delegation the other records hold ("Where things stand", Portfolio Document and
+AI-Attribution Statement). The redesign is built and merged (THE REDESIGN'S BUILD,
+below): `master` runs it, BLESSUSDT is the default pair, and `code_hash` is
+`10402051…`. `9708a35`'s landing was checked by Viktor at 19:51 on 24 November and
+holds, on his statement; this session's clone read GitHub's tip as `9708a35` at about
+19:53. `origin/redesign` is still on GitHub: deleting it is his call. The Engineering
+Notes stop at Entry #306, `e022337`: `a2fd788`, `9708a35` and this commit have no entry
+yet, for the next regeneration. The lines this commit removed from the version at
+`9708a35` are in HISTORY, which points to that whole version in git. **Next: Viktor's
+call on the daily-frame find for the held-back list, his position first** (Open items).
+His position has not reached a session yet: asked for on 22 November, and in this
+session his message of 19:52 announced it and it did not come through.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
 rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
@@ -5204,11 +5207,11 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
   One page of the new entries was rendered and looked at; the others were read as
   extracted text only.
 - **Portfolio Document and AI-Attribution Statement:** both current with their scripts.
-  The Attribution Statement's script last changed at `68c6191`, rebuilt from it in the
-  sandbox (reportlab 5.0.1) with its extracted text identical to the committed PDF; it
-  does not change in the commit that writes this line. The Portfolio Document's script
-  and PDF change in it.
-  **The Portfolio Document revised on 22 November, by the commit that writes this line,**
+  The Attribution Statement's script and PDF change in the commit that writes this line;
+  its script rebuilt unchanged first gave the committed PDF's extracted text exactly
+  (Linux sandbox, Python 3.12.3, reportlab 5.1.0). The Portfolio Document's script and
+  PDF last changed at `9708a35`.
+  **The Portfolio Document revised on 22 November, by `9708a35`,**
   for the redesign and for the project since September: sections 3 to 6 describe the
   redesigned engine (the gate ladder as a table in section 6), sections 11, 12 and 14
   the project from the declaration of 15 September to the merge, and the cover says
@@ -5221,11 +5224,25 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
   sandbox, Python 3.12, reportlab 5.1.0. **Found writing it, and corrected by it:** its
   September text said GPT-6 Astra's three requested runs were still outstanding; they
   ran on 12 September (HISTORY), two days before it was written.
-  **Found on 22 November, not fixed: the AI-Attribution Statement says the inline
-  comments it cites exist verbatim in the current source,** and one does not: its
-  ruling of 5 September, that trend health is an unsigned magnitude, names
-  `models/decision_model.py`, which no longer holds that sentence. The other pointers
-  of its table were not checked one by one (Open items).
+  **The AI-Attribution Statement corrected on 24 November, by the commit that writes
+  this line.** Its table of Viktor's rulings said the inline comments it cites exist
+  verbatim in the current source. Every row was read at `9708a35`, and four pointers to
+  source changed: the degrade ruling's cap went with confidence at `f6fff24`; the sole
+  direction source is in `_determine_final_action()`, and `models/signal_router.py`,
+  which the row also named, held no such comment at `eee218e`, when the Statement was
+  written, nor at the tip (searched for three phrasings, not read whole); the lean's
+  constant went at `c012e5b`; and the unsigned-magnitude sentence is in
+  `models/decision_model.py` at `f20a084`, removed at `ebd98e5`. The sentence now says
+  the pointers were read at `9708a35`, so it no longer goes stale with the code.
+  **Its 31 August row said items 3, 11 and 14 were ruled by Viktor personally rather
+  than delegated;** DECISIONS ("Three rulings — made, 31 August 2026"), `c4dfcc7`'s
+  message and the Engineering Notes' Entry #37 all record a delegation. Wrong since the
+  Statement was written (`eee218e`, 14 September), not a change the redesign made.
+  Reworded by Viktor's ruling of 19:57 on 24 November, by agreeing to Claude's
+  suggestion and not by writing his position first: the delegation and its scope his,
+  the three rulings Claude's. The PDF's extracted text differs from the committed one
+  only in that sentence and those five cells; still five pages, and page 3, the table,
+  was rendered and looked at.
 - **README.md:** **`706e858` changed its "Independent audit" and "Engine code"
   rows**, for the ruling of 7 November on F2, in wording Claude wrote and put to
   Viktor before his commit, and nothing else in it. **Its test counts are current (1004,
@@ -6870,14 +6887,17 @@ Each code commit is its own commit and updates this file for its own landing.
 
 ## Resolved this session
 
-- **The Portfolio Document revised for the redesign**, by the commit that writes this
-  line ("Where things stand", Portfolio Document). Claude's, from Open items; scoped
-  in this session, first as sections 3 to 6 and then, on finding that the whole text
-  was September's, as the whole document. Viktor's screenshot of his usage, sent with
-  no text, was taken as the go for the larger scope.
-- **`a2fd788`'s landing:** read from GitHub at 17:36 on 22 November and holding, on
-  Viktor's statement; this session's clone, made at about 17:53, read GitHub's tip as
-  `a2fd788`.
+- **The AI-Attribution Statement's pointers to source the redesign changed**, by the
+  commit that writes this line ("Where things stand", Portfolio Document and
+  AI-Attribution Statement). Claude's, from Open items; scoped, with a budget estimate,
+  before starting, and started on Viktor's "Go".
+- **Viktor's ruling, 19:57 on 24 November: the Statement's 31 August row records the
+  delegation** of items 3, 11 and 14, found while reading the pointers. By agreeing to
+  Claude's suggestion. Not filed in DECISIONS: it corrects a statement of fact and sets
+  no rule going forward — Claude's reading, his to correct.
+- **`9708a35`'s landing:** checked by Viktor at 19:51 on 24 November and holding, on
+  his statement; this session's clone, made at about 19:53, read GitHub's tip as
+  `9708a35`.
 - **By which model:** this session's work and its commit were Claude Opus 5.5's.
 
 ## Open items
@@ -6889,10 +6909,6 @@ Claude critiques it.
   prediction (ruling on proposal (b), 27 September).
 - **Viktor's call: whether to delete `origin/redesign`** on GitHub. The local branch
   and the worktree are gone (Resolved this session); nothing reads the remote branch.
-- **Claude's, found 22 November, not fixed: the AI-Attribution Statement's table of
-  Viktor's rulings points to source that the redesign changed** ("Where things stand",
-  Portfolio Document and AI-Attribution Statement). One pointer is known not to hold;
-  each of the others is to be read against the code before its script is changed.
 - **Viktor's call — a held-back defect that can move a reading, found by stage 7**
   (owed since 17 November: DECISIONS, "Ruling, 17 November 2026 — the held-back
   defects' replacements are H6, H7 and H8 …"; the find is in stage 7's entry). The daily

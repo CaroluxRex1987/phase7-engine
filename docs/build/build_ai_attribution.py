@@ -199,8 +199,9 @@ story.append(P("Decisions Viktor made himself", "H1"))
 story.append(P(
     "A representative set, not an exhaustive one -- the engineering log's 29 "
     "“DECISION — ADOPTED” entries carry the complete record. Each of these below "
-    "is independently checkable: the inline comments cited exist verbatim in the current "
-    "source.", "Body"))
+    "is independently checkable where its last column points. Each pointer was read against "
+    "the source at commit 9708a35 on 24 November 2026; where the redesign of November 2026 "
+    "changed what a pointer shows, the cell names the commit.", "Body"))
 story.extend(table([
     ["Date", "Ruling", "Where it is checkable"],
     ["27 Aug 2026", "Item 6 (Traceability) raised from Major to Critical, on the principle "
@@ -208,19 +209,23 @@ story.extend(table([
                     "docs/PHASE7_HISTORY.md"],
     ["29 Aug 2026", "“Degrade, don't halt” — a failed input is recorded and "
                     "confidence capped, rather than the run stopping.",
-                    "models/decision_model.py's _apply_degradation()"],
+                    "models/decision_model.py's _apply_degradation(); the cap went "
+                    "with confidence at commit f6fff24"],
     ["29 Aug 2026", "The engine must not compute monetary position sizing; a portfolio layer's "
                     "job, not the engine's.", "core/config.py, SEQUENCE ITEM 13 comment"],
-    ["31 Aug 2026", "Items 3, 11, and 14's re-audit rulings, decided personally rather than "
-                    "delegated (“decide items 3, 11, 14 myself”).",
+    ["31 Aug 2026", "Items 3, 11 and 14's re-audit rulings delegated to Claude "
+                    "(“decide items 3, 11, 14 myself”): the delegation and its "
+                    "scope his, the three rulings Claude's.",
                     "docs/PHASE7_DECISIONS.md, commit c4dfcc7"],
     ["2 Sep 2026", "Bias is the sole source of trade direction; no other signal may open or "
-                   "override it.", "models/decision_model.py, models/signal_router.py"],
+                   "override it.", "models/decision_model.py, _determine_final_action()"],
     ["5 Sep 2026", "“A lean is not a case” — a directional bias below a fixed "
                    "strength floor (MIN_ACTION_BIAS) waits rather than acting.",
-                   "models/decision_model.py"],
+                   "models/decision_model.py, the 5 September comment; the constant "
+                   "went at commit c012e5b"],
     ["5 Sep 2026", "trend_health is an unsigned magnitude and may not be read as a directional "
-                   "signal on its own.", "models/decision_model.py"],
+                   "signal on its own.", "models/decision_model.py at commit f20a084; "
+                   "removed at commit ebd98e5"],
     ["14 Sep 2026", "The setup's direction (long/short) must be stated in words on the panel, "
                     "not only inferable from the targets — specified placement (under the "
                     "DECISION line) himself.", "core/panel_render.py, commit 66f1479"],
