@@ -42,6 +42,10 @@ def asset_name(symbol: Any) -> str:
     the panel's BTC section is this function's only caller. It stays in this
     module, where the one quote-currency list has lived since 21 September.
 
+    ENTRY 40, 26 NOVEMBER 2026: core/engine_core.py's log line for a failed
+    BTC context is its second caller, so the process log names the asset as
+    the panel does for the same failure.
+
     The suffixes are tried longest first. The inline version tried "USD" before
     "BUSD", so "BUSD" could never match and ETHBUSD read as "ETHB". No pair the
     engine has been run on is affected: every recorded run is a USDT pair.

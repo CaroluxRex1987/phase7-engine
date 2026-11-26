@@ -29,6 +29,7 @@ from core import lineage
 from core import decision_log
 from core import code_fingerprint
 from models.btc_context import compute_correlation_beta, classify_correlation, classify_stress
+from models.decision_model import asset_name
 from utils.plotting import plot_engine_chart
 
 logger = logging.getLogger(__name__)
@@ -943,12 +944,13 @@ class Phase7Engine:
             # This NEVER changes BIAS, DECISION, entry, risk, or targets
             # above -- per the explicit requirement this was built to: BTC
             # context is additive, never a replacement or distortion of the
-            # AERO-only analysis. It reuses the exact same, already-tested
-            # indicators/structure/trend_health/bias_engine functions above,
-            # just run a second time on BTC's own data, plus a correlation +
-            # beta reading between AERO and BTC. Wrapped end-to-end so any
-            # failure here (bad fetch, bad data) can never break or alter
-            # the AERO panel -- it just falls back to "unavailable."
+            # traded asset's own analysis. It reuses the exact same,
+            # already-tested indicators/structure/trend_health/bias_engine
+            # functions above, just run a second time on BTC's own data, plus
+            # a correlation + beta reading between the asset and BTC. Wrapped
+            # end-to-end so any failure here (bad fetch, bad data) can never
+            # break or alter the asset's panel -- it just falls back to
+            # "unavailable."
             btc_context = {"available": False}
             try:
                 if symbol.upper() != "BTCUSDT":
@@ -1113,7 +1115,12 @@ class Phase7Engine:
                             "degraded_inputs": btc_degraded_inputs,
                         }
             except Exception as e:
-                logger.warning(f"BTC context analysis failed (AERO analysis above is unaffected): {e}")
+                # ENTRY 40, 26 November 2026: this line said "AERO analysis
+                # above is unaffected" whatever the pair. The asset's name
+                # comes from asset_name(), the function the panel's sentence
+                # for the same failure uses (core/panel_render.py's BTC
+                # section), so the process log and the panel name it alike.
+                logger.warning(f"BTC context analysis failed ({asset_name(symbol)} analysis above is unaffected): {e}")
                 btc_context = {"available": False}
 
             # 7. ENTRY MODEL & ENTRY QUALITY ENGINE

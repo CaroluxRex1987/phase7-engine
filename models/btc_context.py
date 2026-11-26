@@ -3,21 +3,29 @@ import pandas as pd
 from typing import Tuple
 
 # ============================================================
-# BTC/AERO RELATIONSHIP ENGINE (new feature, V1)
+# BTC RELATIONSHIP ENGINE -- the traded asset against BTC (new feature, V1)
 # ============================================================
 #
 # Supports the "BTC-Adjusted AERO Prediction" feature: a SEPARATE, additive
-# reading that sits alongside the original AERO-only analysis and never
+# reading that sits alongside the traded asset's own analysis and never
 # replaces or distorts it. This module only computes the relationship
 # metrics (correlation, beta, and a volatility-based stress classifier);
 # BTC's own bias/trend/regime reuses the exact same, already-tested
 # bias_engine.py / trend_readings.py / structure.py functions engine_core.py
-# already runs for AERO -- just called a second time on BTC's own data.
+# already runs for the traded asset -- just called a second time on BTC's own
+# data.
 #
 # N5, 9 October 2026: the BTC-Adjusted prediction itself -- DecisionModel's
 # BTC-adjusted confidence -- is gone (Viktor's ruling of 5 October, point 7:
 # Bitcoin is reference only). What this module measures is still printed in
 # the panel's BTC section, for reference.
+#
+# ENTRY 40, 26 November 2026 (PHASE7_NEXT.md, "Found after 22 September"):
+# this module said AERO for the traded asset, whatever the pair -- in this
+# header, in compute_correlation_beta's first parameter (aero_closes), its
+# locals and its docstring. They name the traded asset now. The feature's
+# name above is kept as it was. The docstring's quotation of the old code,
+# and the dated notes about runs on AERO, stay as they are.
 
 
 # AUDIT FINDING (a), 5 September 2026. NOT_MEASURED is what this module
@@ -46,10 +54,10 @@ NOT_MEASURED = float("nan")
 CORRELATION_WINDOW = 30
 
 
-def compute_correlation_beta(aero_closes: pd.Series, btc_closes: pd.Series, window: int = CORRELATION_WINDOW) -> Tuple[float, float, int]:
+def compute_correlation_beta(asset_closes: pd.Series, btc_closes: pd.Series, window: int = CORRELATION_WINDOW) -> Tuple[float, float, int]:
     """
-    Correlation + beta between AERO and BTC returns over the most recent
-    `window` candles that BOTH series actually have.
+    Correlation + beta between the traded asset's returns and BTC's over the
+    most recent `window` candles that BOTH series actually have.
 
     AUDIT FINDING (a): this used to do
 
@@ -68,7 +76,7 @@ def compute_correlation_beta(aero_closes: pd.Series, btc_closes: pd.Series, wind
 
     It stops being harmless the moment the two series differ by one bar --
     a new candle closing between the two API calls, an exchange gap in one
-    symbol, a stale feed. Then every AERO return is paired with a BTC return
+    symbol, a stale feed. Then each asset return is paired with a BTC return
     from a different four hours. Measured on the pinned fixtures, dropping a
     single BTC bar from inside the 30-candle window: the printed correlation
     moved by a median of 0.105 (max 0.165), beta by a median of 0.135, and
@@ -87,31 +95,32 @@ def compute_correlation_beta(aero_closes: pd.Series, btc_closes: pd.Series, wind
 
     Returns:
         correlation (float, -1..1; NaN if it could not be computed)
-        beta (float; AERO's sensitivity to BTC moves -- 1.0 means AERO
-              tends to move 1:1 with BTC; NaN if it could not be computed)
+        beta (float; the asset's sensitivity to BTC moves -- 1.0 means the
+              asset tends to move 1:1 with BTC; NaN if it could not be
+              computed)
         n (int; how many paired return observations were actually used.
            0 means nothing was measured, and is the flag callers gate on)
     """
     try:
-        if aero_closes is None or btc_closes is None:
+        if asset_closes is None or btc_closes is None:
             return NOT_MEASURED, NOT_MEASURED, 0
 
-        aero_series = pd.Series(aero_closes)
+        asset_series = pd.Series(asset_closes)
         btc_series = pd.Series(btc_closes)
 
-        if len(aero_series) < 3 or len(btc_series) < 3:
+        if len(asset_series) < 3 or len(btc_series) < 3:
             return NOT_MEASURED, NOT_MEASURED, 0
 
         # AUDIT FINDING (a). Without a shared time index there is no fact
         # about which bar of one series belongs beside which bar of the
         # other, and a correlation computed without that fact is not a
         # measurement of anything. Refused rather than approximated.
-        if not (isinstance(aero_series.index, pd.DatetimeIndex)
+        if not (isinstance(asset_series.index, pd.DatetimeIndex)
                 and isinstance(btc_series.index, pd.DatetimeIndex)):
             return NOT_MEASURED, NOT_MEASURED, 0
 
         paired = pd.concat(
-            {"aero": aero_series, "btc": btc_series}, axis=1, join="inner"
+            {"asset": asset_series, "btc": btc_series}, axis=1, join="inner"
         ).dropna()
 
         if len(paired) < 3:
@@ -119,14 +128,14 @@ def compute_correlation_beta(aero_closes: pd.Series, btc_closes: pd.Series, wind
 
         paired = paired.sort_index().tail(window + 1)
 
-        aero_returns = paired["aero"].pct_change().replace([np.inf, -np.inf], np.nan)
+        asset_returns = paired["asset"].pct_change().replace([np.inf, -np.inf], np.nan)
         btc_returns = paired["btc"].pct_change().replace([np.inf, -np.inf], np.nan)
 
-        valid = aero_returns.notna() & btc_returns.notna()
-        aero_returns = aero_returns[valid].reset_index(drop=True)
+        valid = asset_returns.notna() & btc_returns.notna()
+        asset_returns = asset_returns[valid].reset_index(drop=True)
         btc_returns = btc_returns[valid].reset_index(drop=True)
 
-        if len(aero_returns) < 3:
+        if len(asset_returns) < 3:
             return NOT_MEASURED, NOT_MEASURED, 0
 
         btc_var = btc_returns.var()
@@ -136,22 +145,22 @@ def compute_correlation_beta(aero_closes: pd.Series, btc_closes: pd.Series, wind
             # thing being refused. n is still reported, because the pairing
             # itself succeeded and the reader should see how much data this
             # verdict was reached on.
-            return NOT_MEASURED, NOT_MEASURED, int(len(aero_returns))
+            return NOT_MEASURED, NOT_MEASURED, int(len(asset_returns))
 
-        covariance = float(np.cov(aero_returns, btc_returns)[0, 1])
+        covariance = float(np.cov(asset_returns, btc_returns)[0, 1])
         beta = covariance / float(btc_var)
 
-        correlation = float(aero_returns.corr(btc_returns))
+        correlation = float(asset_returns.corr(btc_returns))
         if not np.isfinite(correlation) or not np.isfinite(beta):
             # 5 September 2026: these were two separate `= 0.0` assignments.
             # A non-finite correlation became "the two are unrelated" and a
             # non-finite beta became "AERO does not respond to BTC", both of
             # which are claims. Neither was measured.
-            return NOT_MEASURED, NOT_MEASURED, int(len(aero_returns))
+            return NOT_MEASURED, NOT_MEASURED, int(len(asset_returns))
 
         correlation = max(-1.0, min(1.0, correlation))
 
-        return correlation, beta, int(len(aero_returns))
+        return correlation, beta, int(len(asset_returns))
 
     except Exception:
         return NOT_MEASURED, NOT_MEASURED, 0

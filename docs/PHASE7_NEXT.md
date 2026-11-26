@@ -1,30 +1,27 @@
 # Next step — read this first
 
-*26 November 2026, in the session that opened at 17:06. Written by the commit that
-lands B5's guard, which follows `fef9b4a`, the filing of Viktor's ruling of 16:26 on
-25 November. The engine refuses any timeframe but 4h, compared exactly, before
-anything is fetched, read or written (`core/engine_core.py`, `DECISION_TIMEFRAME`;
-DECISIONS, "Ruling, 20 October 2026 — B5: 4h only for now, and a guard refuses any
-other timeframe", point 2; entry 22 of "Found after 22 September"). It moves
-`code_hash` to `34a008c8…` and neither golden snapshot; its live run is recorded in
-its commit message. Chosen at this session's opening by the patch-delivery skill's
-section 10: no commit owed, nothing due by its date, and of Claude's work the rulings
-in force let land now, entry 22's guard is the first in the order ruled on
-19 October, wave 2 read by entry number within the wave (Claude's reading, his to
-correct). Entry 57, which this block named as the first candidate at `fef9b4a`, is
-not in that sort; read the same way it comes after the sorted entries of wave 2. The
-redesign is built and merged (THE REDESIGN'S BUILD, below): `master` runs it and
-BLESSUSDT is the default pair. `fef9b4a`'s landing was checked by this session and
-holds; it read GitHub's tip as `fef9b4a` at 17:07. `origin/redesign` is still on
+*26 November 2026, in the session that opened at 18:52. Written by the commit that
+lands entry 40, which follows `49ca50c`, B5's guard. The engine's names and its one
+log line say the traded asset, not AERO, whatever the pair: `models/btc_context.py`'s
+`compute_correlation_beta` takes `asset_closes`, and `core/engine_core.py`'s warning
+when the BTC context fails names the asset through `asset_name()`, the function the
+panel's sentence for the same failure uses (entry 40 of "Found after 22 September").
+It moves `code_hash` to `4fa7c278…` and neither golden snapshot; its live run is
+recorded in its commit message. Chosen at this session's opening by the
+patch-delivery skill's section 10: no commit owed, nothing due by its date, and of
+Claude's work the rulings in force let land now, entry 40 is the next in the order
+ruled on 19 October, read as `49ca50c` read it (Claude's reading, his to correct).
+Found landing it, and filed rather than fixed: entry 68, a test that leaves logging
+switched off for every test after it (Found after 22 September). The redesign is built and merged (THE REDESIGN'S BUILD, below): `master` runs it and
+BLESSUSDT is the default pair. `49ca50c`'s landing was checked by this session and
+holds; it read GitHub's tip as `49ca50c` at 18:59. `origin/redesign` is still on
 GitHub: deleting it is his call. The Engineering Notes stop at Entry #306, `e022337`:
-`9708a35`, `923afaf`, `fef9b4a` and this commit have no entry yet, for the next
-regeneration; `a2fd788`, which this block listed with them at `9708a35`, `923afaf`
-and `fef9b4a`, is the regeneration and has none (Engineering Notes, under "Where
-things stand"). The lines this commit removed from the version at `fef9b4a` are in
-HISTORY, which points to that whole version in git. **Next: Claude's, chosen at the
-next session's opening by the patch-delivery skill's section 10;** by the same
-reading of the order, the next of Claude's own is entry 40 ("AERO" in names and one
-log line), then 45 and 46 together; entry 44 is gone with stage 5 (its entry).
+`9708a35`, `923afaf`, `fef9b4a`, `49ca50c` and this commit have no entry yet, for the
+next regeneration (Engineering Notes, under "Where things stand"). The lines this
+commit removed from the version at `49ca50c` are in HISTORY, which points to that
+whole version in git. **Next: Claude's, chosen at the next session's opening by the
+patch-delivery skill's section 10;** by the same reading of the order, the next of
+Claude's own are entries 45 and 46 together, both still in the code at `49ca50c`.
 Viktor's open calls are in Open items.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
@@ -3729,8 +3726,10 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
 ## Where things stand, right now
 
 - **Tip:** the commit that writes this line (a commit cannot name its own hash) —
-  B5's guard, the engine refusing any timeframe but 4h, and `fef9b4a`'s landing
-  recorded; it moves `code_hash`. Before it: `fef9b4a` (Viktor's ruling of 16:26 on
+  entry 40, the engine's names and its BTC-failure log line saying the traded asset
+  and not AERO, and `49ca50c`'s landing recorded; it moves `code_hash`. Before it:
+  `49ca50c` (B5's guard, the engine refusing any timeframe but 4h, which moved
+  `code_hash`); before that, `fef9b4a` (Viktor's ruling of 16:26 on
   25 November filed, the daily-frame find not held back: docs only), `923afaf` (the AI-Attribution
   Statement's pointers read at `9708a35`, its 31 August row recording the delegation),
   `9708a35` (the Portfolio Document revised for the redesign; the Statement's stale
@@ -4153,9 +4152,10 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
   session of 15:42, both landings checked at 15:39 and holding, on Viktor's statement;
   `a2fd788`'s at 17:29:45 on 22 November, `9708a35`'s at 19:47:45 on 24 November,
   `923afaf`'s at 01:08:47 on 25 November and `fef9b4a`'s at 16:43:10 on 26 November,
-  read by the session of 17:06 on 26 November, which checked `fef9b4a`'s landing. This
-  bullet stopped at `e022337`'s push from `a2fd788` to `fef9b4a`, which did not bring
-  it current; corrected by the commit that writes this line.
+  read by the session of 17:06 on 26 November, which checked `fef9b4a`'s landing; and
+  `49ca50c`'s at 18:42:47 on 26 November, read by the session of 18:52, which checked
+  `49ca50c`'s landing. This bullet stopped at `e022337`'s push from `a2fd788` to
+  `fef9b4a`, which did not bring it current; corrected by `49ca50c`.
   **The pushes of the redesign's build**: the branch's last, `4eb71aa`'s, by 11:17:05 on
   22 November (Resolved this session, in HISTORY's entry for this commit); before it
   `4200f3b`'s, by 23:45:12 on
@@ -4463,17 +4463,21 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
   The same holds for the push of the
   commit that writes this line unless it deviates. Earlier pushes and deviations are
   recorded in this file's previous versions, in HISTORY.
-- **Before this commit**, the six files its patch changes were staged off Viktor's
-  disk, from `E:\phase7_engine`, and matched an autocrlf checkout of `fef9b4a` byte for
+- **Before this commit**, the seven files its patch changes were staged off Viktor's
+  disk, from `E:\phase7_engine`, and matched an autocrlf checkout of `49ca50c` byte for
   byte, before the patch was built; it adds one,
-  `tests/test_engine_refuses_other_timeframes.py`. (This bullet named `e022337` from
-  `a2fd788` to `fef9b4a`, which did not bring it current; corrected by the commit that
-  writes this line. It named `9cc48d7` from `a9b83a9` to stage 7; corrected by the
+  `tests/test_the_engine_names_the_asset_it_runs.py`. (This bullet named `e022337` from
+  `a2fd788` to `fef9b4a`, which did not bring it current; corrected by `49ca50c`. It
+  named `9cc48d7` from `a9b83a9` to stage 7; corrected by the
   branch's last commit.)
-- **code_hash:** **`34a008c81c8549f67a0e916fb126a142c80f4f1381344cc46e09dffd422ea23a`
-  from the commit that writes this line, B5's guard**: `core/engine_core.py`'s file
-  fingerprint alone moves, `core/config.py`'s change being a comment, computed under
-  Python 3.12.3 in the Linux sandbox on the applied tree. Before it
+- **code_hash:** **`4fa7c2783db0c59b8593a851fe4f4489c8e5705029bb5f56d598d62bf6e99936`
+  from the commit that writes this line, entry 40**: the file fingerprints of
+  `core/engine_core.py` and `models/btc_context.py` move, `models/decision_model.py`'s
+  change being a docstring, computed under Python 3.12.3 in the Linux sandbox on the
+  applied tree. Before it
+  **`34a008c81c8549f67a0e916fb126a142c80f4f1381344cc46e09dffd422ea23a` from B5's guard,
+  `49ca50c`**: `core/engine_core.py`'s file fingerprint alone moved, `core/config.py`'s
+  change being a comment. Before that
   **`10402051f922fbeba2112f6d2d5c069a8c049febebaf23bc58476965fdc88bf1` from the BLESS
   commit, `e022337`**, unchanged by `a2fd788`, `9708a35`, `923afaf` and `fef9b4a`, which
   change no `.py` file; before that
@@ -4560,8 +4564,9 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
 - **Golden snapshot:** **`run_hash` moved in both by the BLESS commit, `e022337`**, with the
   two archive paths named after it, four lines each and nothing else: `config.SYMBOL` is
   in `FINGERPRINTED_CONFIG`. No commit since has moved either, the commit that writes
-  this line included: `core.engine_core` is not among `FINGERPRINTED_MODULES`, so
-  `run_hash` holds, and a 4h run passes B5's guard. Before `e022337`, **two leaves
+  this line included: `core.engine_core` is not among `FINGERPRINTED_MODULES`, and
+  `models.btc_context`'s entry there names `CORRELATION_WINDOW` alone, which entry 40
+  does not change, so `run_hash` holds; and a 4h run passes B5's guard (`49ca50c`). Before `e022337`, **two leaves
   removed from each snapshot by `4200f3b`, stage 7** —
   `lineage.indicators_at_decision_bar`'s `EMA20_Slope` and `VWMA`, 19 to 17 — and
   nothing else (THE REDESIGN'S BUILD, stage 7); untouched by the branch's last commit
@@ -4695,13 +4700,19 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
   `22a9a35`, 4 leaves (the confirmation reason, `volume_sentiment` twice and
   `validation_note`'s volume half: VOLUME DIVERGENCE → FADING VOLUME); before that at
   `6469a67`, 8 leaves.
-- **Test suite** — **1008 passed / 0 failed, no warnings line** with `pandas_ta`;
-  **836 passed / 168 skipped** without it; `run_tests.py` **939 passed / 0 failed /
+- **Test suite** — **1010 passed / 0 failed, no warnings line** with `pandas_ta`;
+  **837 passed / 169 skipped** without it; `run_tests.py` **941 passed / 0 failed /
   31 errors**, all 31 fixture-collection `TypeError`s: the 32 of `e88e0dd` less
   `test_no_module_defaults_a_missing_risk_verdict_to_a_pass`. This is meant to be the
   one place the watched error count is written as a number (DECISIONS, "Ruling,
   15 October 2026 — Part 4's three test shapes", point 5); `README.md` wrote it too
-  until `713e084` (entry 50). **B5's guard adds four tests to each**
+  until `713e084` (entry 50). **Entry 40 adds two tests to each**
+  (`tests/test_the_engine_names_the_asset_it_runs.py`, no fixtures: one needs
+  `pandas_ta` and skips without it, the other reads the parse tree and runs in all
+  three), **and the error count does not move**; from 1008 / 0, 836 / 168 and
+  939 / 0 / 31 at `49ca50c`, both counted in the Linux sandbox under Python 3.12.3,
+  and `README.md`'s Tests row brought to the new ones in the same commit. **B5's
+  guard, `49ca50c`, adds four tests to each**
   (`tests/test_engine_refuses_other_timeframes.py`, no fixtures: three need `pandas_ta`
   and skip without it, the fourth reads the source and runs in all three), **and the
   error count does not move**; from 1004 / 0, 835 / 165 and 935 / 0 / 31 at `fef9b4a`,
@@ -5210,10 +5221,10 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
   then run on Windows at 09:06 on 12 October: both matched (792; 721 / 0 / 32). One test,
   `test_the_commit_messages_up_to_the_tag_are_round_7s_to_the_byte`, runs `git log` up
   to the tag `round7-sent-2026-09-30`: it needs the tag, which a full clone has.
-- **Engineering Notes:** through Entry #306 (v1.44), which covers `e022337`; **four
-  commits need an entry and have none:** `9708a35`, `923afaf`, `fef9b4a` and the commit
-  that writes this line. This bullet said none was behind from `9708a35` to `fef9b4a`,
-  which did not bring it current; corrected by the commit that writes this line.
+- **Engineering Notes:** through Entry #306 (v1.44), which covers `e022337`; **five
+  commits need an entry and have none:** `9708a35`, `923afaf`, `fef9b4a`, `49ca50c` and
+  the commit that writes this line. This bullet said none was behind from `9708a35` to
+  `fef9b4a`, which did not bring it current; corrected by `49ca50c`.
   v1.44, at `a2fd788`, which is the regeneration and has none, covers
   the eighteen commits from `9cc48d7` to `e022337`, one entry each, rebuilt once over the
   redesign's whole build after the merge, as Claude's reading of the batching rule put
@@ -5990,7 +6001,7 @@ the work before the audit, entry 1 apart.
   EXTREME VOLATILITY and every trade refused. Viktor's, before any timeframe but 4h is
   used. **20 October:** ruled 4h only for now, with a guard that refuses any other
   timeframe, in wave 2 (DECISIONS, "Ruling, 20 October 2026 — B5: 4h only for now …").
-  **26 November: the guard landed**, by the commit that writes this line: the run
+  **26 November: the guard landed**, by `49ca50c`: the run
   returns an error object, "Refused: timeframe …", for anything but `"4h"` compared
   exactly, before it reads or writes anything (`core/engine_core.py`,
   `DECISION_TIMEFRAME`; `tests/test_engine_refuses_other_timeframes.py`). Its shape is
@@ -6215,7 +6226,16 @@ the work before the audit, entry 1 apart.
   `core/engine_core.py`'s warning when the BTC context fails says "AERO analysis above
   is unaffected", and `models/btc_context.py`'s `compute_correlation_beta` takes
   `aero_closes`, its docstrings saying AERO. `a530006` fixed two panel lines of this
-  kind (Review findings, 1). The process log and names only.
+  kind (Review findings, 1). The process log and names only. **26 November: landed**,
+  by the commit that writes this line: `compute_correlation_beta`'s first parameter is
+  `asset_closes`, its locals and the join's column `asset_*`, and its docstring and the
+  module's header name the traded asset; the log line reads "BTC context analysis
+  failed (<asset> analysis above is unaffected)", the asset from `asset_name()`, the
+  function the panel's sentence for the same failure uses, so the process log and the
+  panel name it alike (`tests/test_the_engine_names_the_asset_it_runs.py`). The shape is
+  Claude's under the sort of 19 October, his to reverse. Left, and why: `test_live.py`,
+  a hand-run script, names AEROUSDT as the pair it runs, which is a choice of pair;
+  and the comments dated to runs on AERO, which describe those runs.
 - **On a degraded run, TRADE QUALITY's Proposed Entry is capped and no sentence says so**
   (found reading DOGEUSDT's first live panel, 17 October; read from the code):
   `models/decision_model.py`'s `_apply_degradation` caps `proposed_entry` at
@@ -6672,6 +6692,19 @@ the work before the audit, entry 1 apart.
   main trigger is Item 3's spike guard, so it fails the held-back condition on Items 2,
   3, 6 and 18. **Fixed after the audit together with entry 61** (above), in one patch,
   its shape settled with that patch.
+- **A test leaves logging switched off for every test after it** (found 26 November,
+  landing entry 40: its log-line test passed alone and failed in the full suite, in
+  pytest and in `run_tests.py`). `docs/build/measure_draft_gaps.py`'s `main()` calls
+  `logging.disable(logging.CRITICAL)` and never lifts it, and
+  `tests/test_measure_draft_gaps.py` calls `main()` in-process
+  (`test_the_whole_reading_on_four_synthetic_candles` and
+  `test_the_script_refuses_an_empty_folder_and_an_ambiguous_hash`), so from that file
+  on no log record reaches a handler. There since `1b82ed0` (2 November). A test after
+  it that asserted a warning's absence would pass vacuously: a search of the 50 test
+  files that sort after it for `caplog`, `addHandler`, `assertLogs` and `getLogger`,
+  on 26 November at `49ca50c` with entry 40's patch applied, finds only entry 40's
+  new test, which lifts the switch for its own run and puts it back. Tooling and
+  tests only, so `code_hash` does not move. Claude's; entry 68, not in the sort.
 
 ## Work order — Claude's, under Viktor's delegation
 
@@ -7023,7 +7056,7 @@ Claude critiques it.
   the `code_hash` computations and the golden snapshot, which list commits up to
   `9cc48d7` and then "the commit that writes this line"; still not brought current, a
   read of every commit since `9cc48d7` that changed no code. The three bullets read on
-  25 November are brought current by the commit that writes this line.
+  25 November are brought current by `49ca50c`.
 - **Viktor's call, when the paper account's size is set — F against his slice**
   (its time ruled at 10:08 on 11 November:
   (DECISIONS, "Ruling, 11 November 2026 — the redesign's trigger is the candle that closes beyond its open and the previous close …")).

@@ -225578,3 +225578,136 @@ Line 6217 of the version at `fef9b4a`:
 ~~~~~
   read. Changes no number. On this list by the 22 September ruling.
 ~~~~~
+
+## 26 November 2026 — the lines the rewrite of PHASE7_NEXT.md removed from its version at `49ca50c`
+
+*Moved here on 26 November 2026 by the commit that lands entry 40 (the engine's names
+and its BTC-failure log line saying the traded asset, not AERO), the commit after
+`49ca50c`, which landed B5's guard, under "Ruling, 4 November 2026 — HISTORY keeps what
+each rewrite of PHASE7_NEXT.md removes, not the whole file" (DECISIONS). Below the
+rule, each block is a run of lines of the file as it stood at `49ca50c` that the
+rewrite deleted or replaced, word for word, labelled with its line numbers in that
+version. "This commit", "the commit that writes this line" and "the commit that writes
+this file" in them name `49ca50c`. The whole version:
+`git show 49ca50c:docs/PHASE7_NEXT.md`. Checked by `docs/build/check_history_move.py`.*
+
+---
+Lines 3–18 of the version at `49ca50c`:
+
+~~~~~
+*26 November 2026, in the session that opened at 17:06. Written by the commit that
+lands B5's guard, which follows `fef9b4a`, the filing of Viktor's ruling of 16:26 on
+25 November. The engine refuses any timeframe but 4h, compared exactly, before
+anything is fetched, read or written (`core/engine_core.py`, `DECISION_TIMEFRAME`;
+DECISIONS, "Ruling, 20 October 2026 — B5: 4h only for now, and a guard refuses any
+other timeframe", point 2; entry 22 of "Found after 22 September"). It moves
+`code_hash` to `34a008c8…` and neither golden snapshot; its live run is recorded in
+its commit message. Chosen at this session's opening by the patch-delivery skill's
+section 10: no commit owed, nothing due by its date, and of Claude's work the rulings
+in force let land now, entry 22's guard is the first in the order ruled on
+19 October, wave 2 read by entry number within the wave (Claude's reading, his to
+correct). Entry 57, which this block named as the first candidate at `fef9b4a`, is
+not in that sort; read the same way it comes after the sorted entries of wave 2. The
+redesign is built and merged (THE REDESIGN'S BUILD, below): `master` runs it and
+BLESSUSDT is the default pair. `fef9b4a`'s landing was checked by this session and
+holds; it read GitHub's tip as `fef9b4a` at 17:07. `origin/redesign` is still on
+~~~~~
+
+Lines 20–27 of the version at `49ca50c`:
+
+~~~~~
+`9708a35`, `923afaf`, `fef9b4a` and this commit have no entry yet, for the next
+regeneration; `a2fd788`, which this block listed with them at `9708a35`, `923afaf`
+and `fef9b4a`, is the regeneration and has none (Engineering Notes, under "Where
+things stand"). The lines this commit removed from the version at `fef9b4a` are in
+HISTORY, which points to that whole version in git. **Next: Claude's, chosen at the
+next session's opening by the patch-delivery skill's section 10;** by the same
+reading of the order, the next of Claude's own is entry 40 ("AERO" in names and one
+log line), then 45 and 46 together; entry 44 is gone with stage 5 (its entry).
+~~~~~
+
+Lines 3732–3733 of the version at `49ca50c`:
+
+~~~~~
+  B5's guard, the engine refusing any timeframe but 4h, and `fef9b4a`'s landing
+  recorded; it moves `code_hash`. Before it: `fef9b4a` (Viktor's ruling of 16:26 on
+~~~~~
+
+Lines 4156–4158 of the version at `49ca50c`:
+
+~~~~~
+  read by the session of 17:06 on 26 November, which checked `fef9b4a`'s landing. This
+  bullet stopped at `e022337`'s push from `a2fd788` to `fef9b4a`, which did not bring
+  it current; corrected by the commit that writes this line.
+~~~~~
+
+Lines 4466–4467 of the version at `49ca50c`:
+
+~~~~~
+- **Before this commit**, the six files its patch changes were staged off Viktor's
+  disk, from `E:\phase7_engine`, and matched an autocrlf checkout of `fef9b4a` byte for
+~~~~~
+
+Lines 4469–4471 of the version at `49ca50c`:
+
+~~~~~
+  `tests/test_engine_refuses_other_timeframes.py`. (This bullet named `e022337` from
+  `a2fd788` to `fef9b4a`, which did not bring it current; corrected by the commit that
+  writes this line. It named `9cc48d7` from `a9b83a9` to stage 7; corrected by the
+~~~~~
+
+Lines 4473–4476 of the version at `49ca50c`:
+
+~~~~~
+- **code_hash:** **`34a008c81c8549f67a0e916fb126a142c80f4f1381344cc46e09dffd422ea23a`
+  from the commit that writes this line, B5's guard**: `core/engine_core.py`'s file
+  fingerprint alone moves, `core/config.py`'s change being a comment, computed under
+  Python 3.12.3 in the Linux sandbox on the applied tree. Before it
+~~~~~
+
+Lines 4563–4564 of the version at `49ca50c`:
+
+~~~~~
+  this line included: `core.engine_core` is not among `FINGERPRINTED_MODULES`, so
+  `run_hash` holds, and a 4h run passes B5's guard. Before `e022337`, **two leaves
+~~~~~
+
+Lines 4698–4699 of the version at `49ca50c`:
+
+~~~~~
+- **Test suite** — **1008 passed / 0 failed, no warnings line** with `pandas_ta`;
+  **836 passed / 168 skipped** without it; `run_tests.py` **939 passed / 0 failed /
+~~~~~
+
+Line 4704 of the version at `49ca50c`:
+
+~~~~~
+  until `713e084` (entry 50). **B5's guard adds four tests to each**
+~~~~~
+
+Lines 5213–5216 of the version at `49ca50c`:
+
+~~~~~
+- **Engineering Notes:** through Entry #306 (v1.44), which covers `e022337`; **four
+  commits need an entry and have none:** `9708a35`, `923afaf`, `fef9b4a` and the commit
+  that writes this line. This bullet said none was behind from `9708a35` to `fef9b4a`,
+  which did not bring it current; corrected by the commit that writes this line.
+~~~~~
+
+Line 5993 of the version at `49ca50c`:
+
+~~~~~
+  **26 November: the guard landed**, by the commit that writes this line: the run
+~~~~~
+
+Line 6218 of the version at `49ca50c`:
+
+~~~~~
+  kind (Review findings, 1). The process log and names only.
+~~~~~
+
+Line 7026 of the version at `49ca50c`:
+
+~~~~~
+  25 November are brought current by the commit that writes this line.
+~~~~~
