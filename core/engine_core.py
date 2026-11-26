@@ -35,6 +35,26 @@ logger = logging.getLogger(__name__)
 
 
 # ============================================================
+# 4h ONLY -- the guard of B5, 26 November 2026
+# ============================================================
+#
+# DECISIONS, "Ruling, 20 October 2026 -- B5: 4h only for now, and a guard
+# refuses any other timeframe". The volatility bands, the stop limits, the
+# structure threshold and the VWMA and HVN bands are percentages of price
+# whatever the timeframe, set for 4h candles: on AERO's daily candles every
+# bar read EXTREME VOLATILITY. So no timeframe but this one is decided on
+# until it has thresholds of its own, ruled with evidence.
+#
+# A constant here, not a setting in config.py beside TIMEFRAME, so that
+# changing config.TIMEFRAME cannot also change what is allowed: a run on
+# another timeframe needs this line changed, which is a code change and a
+# ruling. Exact match: "4H" and " 4h" are refused too (finding 26, the bar
+# table is case-sensitive). The macro series' own timeframe
+# (config.MACRO_TIMEFRAME, "1d") is not what B5 is about and is not checked.
+DECISION_TIMEFRAME = "4h"
+
+
+# ============================================================
 # VALIDATION'S TWO PARTS -- volume_agreement REMOVED, macro_agreement
 # REDUCED TO ITS NOTE, at the redesign's stage 5, 15 November 2026
 # ============================================================
@@ -512,6 +532,24 @@ class Phase7Engine:
         """
         symbol = symbol or config.SYMBOL
         timeframe = timeframe or config.TIMEFRAME
+
+        # B5's guard (DECISION_TIMEFRAME, above). Before anything is read or
+        # written -- the Exit Watch state, the candles, the archive -- so a
+        # refused run leaves nothing behind. The error object is the shape of
+        # a failed fetch's: the router renders it and writes no record, and
+        # main.py logs it and counts the pair as failed.
+        if timeframe != DECISION_TIMEFRAME:
+            return {
+                "symbol": symbol,
+                "timeframe": timeframe,
+                "error": (
+                    f"Refused: timeframe {timeframe!r}. The engine decides on "
+                    f"{DECISION_TIMEFRAME} candles only, until another "
+                    f"timeframe has thresholds of its own (ruling of "
+                    f"20 October 2026, B5)."
+                ),
+            }
+
         macro_tf = config.MACRO_TIMEFRAME
         required_base_cols = ["open", "high", "low", "close", "volume"]
 

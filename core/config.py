@@ -17,6 +17,8 @@ engine_version = "Phase‑7 Structural Quant Engine v1.0"
 
 # Default trading symbol and timeframe
 SYMBOL = "BLESSUSDT"         # Main trading pair (AEROUSDT until 22 November 2026)
+# 4h only (ruling of 20 October 2026, B5): core/engine_core.py's
+# DECISION_TIMEFRAME refuses any other, whatever is set here.
 TIMEFRAME = "4h"            # Execution candle interval
 MACRO_TIMEFRAME = "1d"      # Macro Higher Timeframe for MTF Confluence
 

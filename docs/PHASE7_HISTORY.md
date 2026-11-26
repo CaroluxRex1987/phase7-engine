@@ -225460,3 +225460,121 @@ Line 6945 of the version at `923afaf`:
 ~~~~~
   was not re-read, so it is not closed.
 ~~~~~
+
+## 26 November 2026 — the lines the rewrite of PHASE7_NEXT.md removed from its version at `fef9b4a`
+
+*Moved here on 26 November 2026 by the commit that lands B5's guard (the engine
+refusing any timeframe but 4h), the commit after `fef9b4a`, which filed Viktor's ruling
+of 16:26 on 25 November, under "Ruling, 4 November 2026 — HISTORY keeps what each
+rewrite of PHASE7_NEXT.md removes, not the whole file" (DECISIONS). Below the rule,
+each block is a run of lines of the file as it stood at `fef9b4a` that the rewrite
+deleted or replaced, word for word, labelled with its line numbers in that version.
+"This commit", "the commit that writes this line" and "the commit that writes this
+file" in them name `fef9b4a`. The whole version:
+`git show fef9b4a:docs/PHASE7_NEXT.md`. Checked by `docs/build/check_history_move.py`.*
+
+---
+Lines 3–16 of the version at `fef9b4a`:
+
+~~~~~
+*25 November 2026, in the session that opened at 16:27. Written by the commit that
+files Viktor's ruling of 16:26 on 25 November, which follows `923afaf`, the
+AI-Attribution Statement's correction: documentation only (DECISIONS, this file and
+HISTORY), and it moves no `code_hash`. The daily-frame find stage 7 put to him does not
+join the held-back list: it touches Item 3, so it is entry 67 on the list for after the
+audit, fixed then with entry 61, and the held-back set stays H3, H6, H7 and H8, none of
+which can move a reading, with that gap recorded (DECISIONS, "Ruling, 25 November 2026 —
+the daily-frame find does not join the held-back list …"). The redesign is built and
+merged (THE REDESIGN'S BUILD, below): `master` runs it, BLESSUSDT is the default pair,
+and `code_hash` is `10402051…`. `923afaf`'s landing was checked by this session and
+holds; it read GitHub's tip as `923afaf` at 16:29. `origin/redesign` is still on GitHub:
+deleting it is his call. The Engineering Notes stop at Entry #306, `e022337`:
+`a2fd788`, `9708a35`, `923afaf` and this commit have no entry yet, for the next
+regeneration. The lines this commit removed from the version at `923afaf` are in
+~~~~~
+
+Lines 18–20 of the version at `fef9b4a`:
+
+~~~~~
+next session's opening by the patch-delivery skill's section 10;** entry 57,
+`run_tests.py`'s last-run record, is the first candidate read here, not checked against
+the order ruled on 19 October (Open items). Viktor's open calls are in Open items.
+~~~~~
+
+Lines 3724–3725 of the version at `fef9b4a`:
+
+~~~~~
+  Viktor's ruling of 16:26 on 25 November filed, the daily-frame find not held back,
+  and `923afaf`'s landing recorded: docs only. Before it: `923afaf` (the AI-Attribution
+~~~~~
+
+Lines 3730–3731 of the version at `fef9b4a`:
+
+~~~~~
+  it at `9708a35` and `923afaf`, which did not bring it current; corrected by the
+  commit that writes this line, on Viktor's ruling of 16:47 on 25 November. Before
+~~~~~
+
+Lines 4142–4144 of the version at `fef9b4a`:
+
+~~~~~
+- **The pushes on `master` since the merge**: `7034af1`'s at 14:34:26 and `e022337`'s
+  at 15:38:14 on 22 November, by `origin/master`'s reflog on his disk, read by the
+  session of 15:42; both landings checked at 15:39 and holding, on Viktor's statement.
+~~~~~
+
+Lines 4452–4458 of the version at `fef9b4a`:
+
+~~~~~
+- **Before this commit**, the four files its patch changes were staged off Viktor's
+  disk, from `E:\phase7_engine`, and matched an autocrlf checkout of `e022337` byte for
+  byte, before the patch was built; it adds no file. (This bullet named `9cc48d7` from
+  `a9b83a9` to stage 7; corrected by the branch's last commit.)
+- **code_hash:** **`10402051f922fbeba2112f6d2d5c069a8c049febebaf23bc58476965fdc88bf1`
+  from the BLESS commit, `e022337`, unchanged by the commit that writes this line, which
+  changes files under `docs/` only; before it
+~~~~~
+
+Line 4541 of the version at `fef9b4a`:
+
+~~~~~
+  in `FINGERPRINTED_CONFIG`. The commit that writes this line moves neither snapshot. Before `e022337`, **two leaves
+~~~~~
+
+Lines 4675–4676 of the version at `fef9b4a`:
+
+~~~~~
+- **Test suite** — **1004 passed / 0 failed, no warnings line** with `pandas_ta`;
+  **835 passed / 165 skipped** without it; `run_tests.py` **935 passed / 0 failed /
+~~~~~
+
+Line 4681 of the version at `fef9b4a`:
+
+~~~~~
+  until `713e084` (entry 50). **The BLESS commit adds five tests to each**
+~~~~~
+
+Lines 5184–5185 of the version at `fef9b4a`:
+
+~~~~~
+- **Engineering Notes:** through Entry #306 (v1.44), which covers `e022337`; **no commit
+  that needs an entry is behind.** v1.44, at the commit that writes this line, covers
+~~~~~
+
+Line 5198 of the version at `fef9b4a`:
+
+~~~~~
+  `bc250fc`, `9db4ae2`, `82b824d`, `4cdad4e` and the commit that writes this line are
+~~~~~
+
+Line 5961 of the version at `fef9b4a`:
+
+~~~~~
+  The thresholds for each timeframe wait without a date.
+~~~~~
+
+Line 6217 of the version at `fef9b4a`:
+
+~~~~~
+  read. Changes no number. On this list by the 22 September ruling.
+~~~~~
