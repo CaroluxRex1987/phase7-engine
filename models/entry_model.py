@@ -2,7 +2,6 @@ import math
 import numbers
 from decimal import Decimal, ROUND_FLOOR
 
-import numpy as np
 from typing import Dict, Any, List, Optional, Tuple
 
 from core.threshold_text import compared_value_text

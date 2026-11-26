@@ -225711,3 +225711,177 @@ Line 7026 of the version at `49ca50c`:
 ~~~~~
   25 November are brought current by the commit that writes this line.
 ~~~~~
+
+## 26 November 2026 — the lines the rewrite of PHASE7_NEXT.md removed from its version at `5acbf80`
+
+*Moved here on 26 November 2026 by the commit that lands entries 45, 46 and 65 (three
+pieces of code nothing read, removed), the commit after `5acbf80`, which landed entry
+40, under "Ruling, 4 November 2026 — HISTORY keeps what each rewrite of PHASE7_NEXT.md
+removes, not the whole file" (DECISIONS). Below the rule, each block is a run of lines
+of the file as it stood at `5acbf80` that the rewrite deleted or replaced, word for
+word, labelled with its line numbers in that version. "This commit", "the commit that
+writes this line" and "the commit that writes this file" in them name `5acbf80`,
+except in two runs that earlier commits wrote and `49ca50c` and `5acbf80` left as they
+were: in lines 5262–5263, the Portfolio Document bullet, "the commit that writes this
+line" names `923afaf`; in lines 6997–7019, the section "Resolved this session", it
+and "this commit" name `fef9b4a`. The whole version: `git show 5acbf80:docs/PHASE7_NEXT.md`. Checked by
+`docs/build/check_history_move.py`.*
+
+---
+Lines 3–10 of the version at `5acbf80`:
+
+~~~~~
+*26 November 2026, in the session that opened at 18:52. Written by the commit that
+lands entry 40, which follows `49ca50c`, B5's guard. The engine's names and its one
+log line say the traded asset, not AERO, whatever the pair: `models/btc_context.py`'s
+`compute_correlation_beta` takes `asset_closes`, and `core/engine_core.py`'s warning
+when the BTC context fails names the asset through `asset_name()`, the function the
+panel's sentence for the same failure uses (entry 40 of "Found after 22 September").
+It moves `code_hash` to `4fa7c278…` and neither golden snapshot; its live run is
+recorded in its commit message. Chosen at this session's opening by the
+~~~~~
+
+Lines 12–25 of the version at `5acbf80`:
+
+~~~~~
+Claude's work the rulings in force let land now, entry 40 is the next in the order
+ruled on 19 October, read as `49ca50c` read it (Claude's reading, his to correct).
+Found landing it, and filed rather than fixed: entry 68, a test that leaves logging
+switched off for every test after it (Found after 22 September). The redesign is built and merged (THE REDESIGN'S BUILD, below): `master` runs it and
+BLESSUSDT is the default pair. `49ca50c`'s landing was checked by this session and
+holds; it read GitHub's tip as `49ca50c` at 18:59. `origin/redesign` is still on
+GitHub: deleting it is his call. The Engineering Notes stop at Entry #306, `e022337`:
+`9708a35`, `923afaf`, `fef9b4a`, `49ca50c` and this commit have no entry yet, for the
+next regeneration (Engineering Notes, under "Where things stand"). The lines this
+commit removed from the version at `49ca50c` are in HISTORY, which points to that
+whole version in git. **Next: Claude's, chosen at the next session's opening by the
+patch-delivery skill's section 10;** by the same reading of the order, the next of
+Claude's own are entries 45 and 46 together, both still in the code at `49ca50c`.
+Viktor's open calls are in Open items.
+~~~~~
+
+Lines 3729–3731 of the version at `5acbf80`:
+
+~~~~~
+  entry 40, the engine's names and its BTC-failure log line saying the traded asset
+  and not AERO, and `49ca50c`'s landing recorded; it moves `code_hash`. Before it:
+  `49ca50c` (B5's guard, the engine refusing any timeframe but 4h, which moved
+~~~~~
+
+Line 4155 of the version at `5acbf80`:
+
+~~~~~
+  read by the session of 17:06 on 26 November, which checked `fef9b4a`'s landing; and
+~~~~~
+
+Line 4157 of the version at `5acbf80`:
+
+~~~~~
+  `49ca50c`'s landing. This bullet stopped at `e022337`'s push from `a2fd788` to
+~~~~~
+
+Lines 4466–4469 of the version at `5acbf80`:
+
+~~~~~
+- **Before this commit**, the seven files its patch changes were staged off Viktor's
+  disk, from `E:\phase7_engine`, and matched an autocrlf checkout of `49ca50c` byte for
+  byte, before the patch was built; it adds one,
+  `tests/test_the_engine_names_the_asset_it_runs.py`. (This bullet named `e022337` from
+~~~~~
+
+Lines 4473–4477 of the version at `5acbf80`:
+
+~~~~~
+- **code_hash:** **`4fa7c2783db0c59b8593a851fe4f4489c8e5705029bb5f56d598d62bf6e99936`
+  from the commit that writes this line, entry 40**: the file fingerprints of
+  `core/engine_core.py` and `models/btc_context.py` move, `models/decision_model.py`'s
+  change being a docstring, computed under Python 3.12.3 in the Linux sandbox on the
+  applied tree. Before it
+~~~~~
+
+Lines 4567–4569 of the version at `5acbf80`:
+
+~~~~~
+  this line included: `core.engine_core` is not among `FINGERPRINTED_MODULES`, and
+  `models.btc_context`'s entry there names `CORRELATION_WINDOW` alone, which entry 40
+  does not change, so `run_hash` holds; and a 4h run passes B5's guard (`49ca50c`). Before `e022337`, **two leaves
+~~~~~
+
+Line 4709 of the version at `5acbf80`:
+
+~~~~~
+  until `713e084` (entry 50). **Entry 40 adds two tests to each**
+~~~~~
+
+Lines 5224–5226 of the version at `5acbf80`:
+
+~~~~~
+- **Engineering Notes:** through Entry #306 (v1.44), which covers `e022337`; **five
+  commits need an entry and have none:** `9708a35`, `923afaf`, `fef9b4a`, `49ca50c` and
+  the commit that writes this line. This bullet said none was behind from `9708a35` to
+~~~~~
+
+Lines 5262–5263 of the version at `5acbf80`:
+
+~~~~~
+  The Attribution Statement's script and PDF change in the commit that writes this line;
+  its script rebuilt unchanged first gave the committed PDF's extracted text exactly
+~~~~~
+
+Line 6230 of the version at `5acbf80`:
+
+~~~~~
+  by the commit that writes this line: `compute_correlation_beta`'s first parameter is
+~~~~~
+
+Line 6283 of the version at `5acbf80`:
+
+~~~~~
+  same search). Cleanup only. On this list by the 22 September ruling.
+~~~~~
+
+Line 6290 of the version at `5acbf80`:
+
+~~~~~
+  after the audit, sorted …").
+~~~~~
+
+Line 6655 of the version at `5acbf80`:
+
+~~~~~
+  (the same ruling): left as it is until after the audit.
+~~~~~
+
+Line 6667 of the version at `5acbf80`:
+
+~~~~~
+  sort.
+~~~~~
+
+Lines 6997–7019 of the version at `5acbf80`:
+
+~~~~~
+- **Viktor's ruling of 16:26 on 25 November: the daily-frame find does not join the
+  held-back list**, filed by the commit that writes this line (DECISIONS, "Ruling,
+  25 November 2026 — the daily-frame find does not join the held-back list …"). By
+  agreeing to Claude's suggestion, not by writing his position first. The suggestion
+  had checked its ground against DECISIONS only, so before filing Claude re-read the
+  macro block in `core/engine_core.py` and the spike guard in `indicators/indicators.py`
+  at `923afaf`: it holds against the code. Entry 67 is on the list ("Found after 22
+  September") and entry 61 says the two are fixed together. Closes the Open item owed
+  since 17 November.
+- **Viktor's ruling of 16:47 on 25 November: the Tip bullet of "Where things stand" is
+  brought current** by the commit that writes this line, outside the scope he had named
+  for it. By agreeing to Claude's suggestion ("Go", answering it; Claude's reading, his
+  to correct). Not filed in DECISIONS: it corrects a statement of fact and sets no rule.
+- **`923afaf`'s landing:** checked by this session against his disk and GitHub, and
+  holding. Its tree, read from GitHub, is `5e1a7ec…`, the one its `Verified-Tree:` line
+  names. On his disk: its four files byte for byte an autocrlf checkout of the tip,
+  applied at 00:56:53 on 25 November; pytest's `nodeids` written at 01:02:42 and
+  `lastfailed` `{}`; the index the tip's tree; the commit object and `COMMIT_EDITMSG`
+  the commit's, with no CR; `master` at 01:08:33 and `origin/master` at 01:08:47, by
+  push; no delivery file in the root. `check_history_move.py --base 923afaf~1` on the tip
+  gives its message's line. GitHub's tip read as `923afaf` at 16:29, with no
+  credentials. The three files this commit's patch changes were staged off his disk
+  and matched that checkout byte for byte before the patch was built.
+~~~~~

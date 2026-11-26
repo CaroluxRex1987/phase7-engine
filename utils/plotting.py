@@ -228,7 +228,7 @@ def plot_engine_chart(df, entry_data, risk_data, save_path="chart_output.png"):
         else:
             logger.warning("ATR stop value invalid, skipping ATR stop plot")
 
-        for i, (target, label, color) in enumerate([(t1, "T1", "green"), (t2, "T2", "lime"), (t3, "T3", "darkgreen")]):
+        for target, label, color in [(t1, "T1", "green"), (t2, "T2", "lime"), (t3, "T3", "darkgreen")]:
             if target is not None and np.isfinite(target):
                 try:
                     ax.axhline(target, color=color, linestyle="--", linewidth=1.2, label=label)

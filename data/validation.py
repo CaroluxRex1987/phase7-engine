@@ -118,8 +118,6 @@ reports its own message. Duplicating it here would mean two thresholds to keep
 in agreement.
 """
 
-import math
-
 import numpy as np
 import pandas as pd
 
