@@ -225359,3 +225359,104 @@ Lines 6892–6895 of the version at `9708a35`:
   Portfolio Document and AI-Attribution Statement). One pointer is known not to hold;
   each of the others is to be read against the code before its script is changed.
 ~~~~~
+
+## 25 November 2026 — the lines the rewrite of PHASE7_NEXT.md removed from its version at `923afaf`
+
+*Moved here on 25 November 2026 by the commit filing Viktor's ruling of 16:26 on
+25 November (the daily-frame find and the held-back list), the commit after the
+AI-Attribution Statement's correction `923afaf`, under "Ruling, 4 November 2026 —
+HISTORY keeps what each rewrite of PHASE7_NEXT.md removes, not the whole file"
+(DECISIONS). Below the rule, each block is a run of lines of the file as it stood at
+`923afaf` that the rewrite deleted or replaced, word for word, labelled with its line
+numbers in that version. "This commit", "the commit that writes this line" and "the
+commit that writes this file" in them name `923afaf`. The whole version:
+`git show 923afaf:docs/PHASE7_NEXT.md`. Checked by `docs/build/check_history_move.py`.*
+
+---
+Lines 3–20 of the version at `923afaf`:
+
+~~~~~
+*24 November 2026, in the session that opened at 19:52. Written by the AI-Attribution
+Statement's correction, which follows `9708a35`, the Portfolio Document's revision:
+documentation only (the Attribution Statement's build script and PDF, this file and
+HISTORY), and it moves no `code_hash`. The Statement's table of Viktor's rulings was
+read row by row at `9708a35`: four of its pointers to source changed, and its 31 August
+row, which said items 3, 11 and 14 were ruled by him personally, now records the
+delegation the other records hold ("Where things stand", Portfolio Document and
+AI-Attribution Statement). The redesign is built and merged (THE REDESIGN'S BUILD,
+below): `master` runs it, BLESSUSDT is the default pair, and `code_hash` is
+`10402051…`. `9708a35`'s landing was checked by Viktor at 19:51 on 24 November and
+holds, on his statement; this session's clone read GitHub's tip as `9708a35` at about
+19:53. `origin/redesign` is still on GitHub: deleting it is his call. The Engineering
+Notes stop at Entry #306, `e022337`: `a2fd788`, `9708a35` and this commit have no entry
+yet, for the next regeneration. The lines this commit removed from the version at
+`9708a35` are in HISTORY, which points to that whole version in git. **Next: Viktor's
+call on the daily-frame find for the held-back list, his position first** (Open items).
+His position has not reached a session yet: asked for on 22 November, and in this
+session his message of 19:52 announced it and it did not come through.
+~~~~~
+
+Lines 186–189 of the version at `923afaf`:
+
+~~~~~
+  **Searched again by stage 7, in the tree as it will merge, and one is put to Viktor**
+  (Open items): not in the list and not fixed. **At 00:02 on 22 November he gave no
+  position on it**, so it is not filed with the branch and reaches `master` as his
+  (DECISIONS, the ruling of 00:02, its last paragraph).
+~~~~~
+
+Lines 3722–3723 of the version at `923afaf`:
+
+~~~~~
+- **Tip:** the commit that writes this line (a commit cannot name its own hash) — the
+  Engineering Notes regenerated at v1.44, Entries #289 to #306, docs only. Before it:
+~~~~~
+
+Line 6565 of the version at `923afaf`:
+
+~~~~~
+  indicator) is settled with that patch. Its severity is not ruled.
+~~~~~
+
+Lines 6890–6900 of the version at `923afaf`:
+
+~~~~~
+- **The AI-Attribution Statement's pointers to source the redesign changed**, by the
+  commit that writes this line ("Where things stand", Portfolio Document and
+  AI-Attribution Statement). Claude's, from Open items; scoped, with a budget estimate,
+  before starting, and started on Viktor's "Go".
+- **Viktor's ruling, 19:57 on 24 November: the Statement's 31 August row records the
+  delegation** of items 3, 11 and 14, found while reading the pointers. By agreeing to
+  Claude's suggestion. Not filed in DECISIONS: it corrects a statement of fact and sets
+  no rule going forward — Claude's reading, his to correct.
+- **`9708a35`'s landing:** checked by Viktor at 19:51 on 24 November and holding, on
+  his statement; this session's clone, made at about 19:53, read GitHub's tip as
+  `9708a35`.
+~~~~~
+
+Lines 6912–6927 of the version at `923afaf`:
+
+~~~~~
+- **Viktor's call — a held-back defect that can move a reading, found by stage 7**
+  (owed since 17 November: DECISIONS, "Ruling, 17 November 2026 — the held-back
+  defects' replacements are H6, H7 and H8 …"; the find is in stage 7's entry). The daily
+  frame runs the whole indicator pipeline and every failure on it joins the asset's
+  degradation list as "macro …", which refuses the trade, though the daily frame is read
+  for its close and `EMA_50` alone (`core/engine_core.py`, the macro block). So a daily
+  volume spike, or a daily RSI, ADX, SuperTrend or ATR that cannot be read, refuses a 4h
+  trade on an input nothing reads, and the spike's note says the volume is used in the
+  trigger, the turnover and volume sentiment, none of which reads the daily frame. It
+  moves `degradation` and `trading_authorized`, and on a trade the action, toward
+  refusal only. Reproduced in the Linux sandbox; never fired in master's 948 forward
+  records staged on 21 November. Not in the list, not fixed. **His to rule: whether it
+  goes on the held-back list and which of H3, H6, H7 and H8 it displaces** — his
+  position first. **Not filed with the branch:** at 00:02 on 22 November he gave no
+  position on it (DECISIONS, the ruling of 00:02, its last paragraph), so it reaches
+  `master` as his, and a ruling on it is filed by whichever later commit follows it.
+~~~~~
+
+Line 6945 of the version at `923afaf`:
+
+~~~~~
+  was not re-read, so it is not closed.
+~~~~~

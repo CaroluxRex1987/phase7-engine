@@ -1,23 +1,23 @@
 # Next step — read this first
 
-*24 November 2026, in the session that opened at 19:52. Written by the AI-Attribution
-Statement's correction, which follows `9708a35`, the Portfolio Document's revision:
-documentation only (the Attribution Statement's build script and PDF, this file and
-HISTORY), and it moves no `code_hash`. The Statement's table of Viktor's rulings was
-read row by row at `9708a35`: four of its pointers to source changed, and its 31 August
-row, which said items 3, 11 and 14 were ruled by him personally, now records the
-delegation the other records hold ("Where things stand", Portfolio Document and
-AI-Attribution Statement). The redesign is built and merged (THE REDESIGN'S BUILD,
-below): `master` runs it, BLESSUSDT is the default pair, and `code_hash` is
-`10402051…`. `9708a35`'s landing was checked by Viktor at 19:51 on 24 November and
-holds, on his statement; this session's clone read GitHub's tip as `9708a35` at about
-19:53. `origin/redesign` is still on GitHub: deleting it is his call. The Engineering
-Notes stop at Entry #306, `e022337`: `a2fd788`, `9708a35` and this commit have no entry
-yet, for the next regeneration. The lines this commit removed from the version at
-`9708a35` are in HISTORY, which points to that whole version in git. **Next: Viktor's
-call on the daily-frame find for the held-back list, his position first** (Open items).
-His position has not reached a session yet: asked for on 22 November, and in this
-session his message of 19:52 announced it and it did not come through.
+*25 November 2026, in the session that opened at 16:27. Written by the commit that
+files Viktor's ruling of 16:26 on 25 November, which follows `923afaf`, the
+AI-Attribution Statement's correction: documentation only (DECISIONS, this file and
+HISTORY), and it moves no `code_hash`. The daily-frame find stage 7 put to him does not
+join the held-back list: it touches Item 3, so it is entry 67 on the list for after the
+audit, fixed then with entry 61, and the held-back set stays H3, H6, H7 and H8, none of
+which can move a reading, with that gap recorded (DECISIONS, "Ruling, 25 November 2026 —
+the daily-frame find does not join the held-back list …"). The redesign is built and
+merged (THE REDESIGN'S BUILD, below): `master` runs it, BLESSUSDT is the default pair,
+and `code_hash` is `10402051…`. `923afaf`'s landing was checked by this session and
+holds; it read GitHub's tip as `923afaf` at 16:29. `origin/redesign` is still on GitHub:
+deleting it is his call. The Engineering Notes stop at Entry #306, `e022337`:
+`a2fd788`, `9708a35`, `923afaf` and this commit have no entry yet, for the next
+regeneration. The lines this commit removed from the version at `923afaf` are in
+HISTORY, which points to that whole version in git. **Next: Claude's, chosen at the
+next session's opening by the patch-delivery skill's section 10;** entry 57,
+`run_tests.py`'s last-run record, is the first candidate read here, not checked against
+the order ruled on 19 October (Open items). Viktor's open calls are in Open items.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
 rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
@@ -183,10 +183,11 @@ suggestion and not by writing his position first:
   `evaluate()` a `trend` input it no longer takes. Each is on the list ("Found after 22
   September", its last entries) and left as it is until after the audit. **Owed with it:
   a held-back defect that can move a reading**, which H5 could and none of the four can.
-  **Searched again by stage 7, in the tree as it will merge, and one is put to Viktor**
-  (Open items): not in the list and not fixed. **At 00:02 on 22 November he gave no
-  position on it**, so it is not filed with the branch and reaches `master` as his
-  (DECISIONS, the ruling of 00:02, its last paragraph).
+  **Searched again by stage 7, in the tree as it will merge, and one was put to
+  Viktor; ruled at 16:26 on 25 November not to join the list** (DECISIONS, "Ruling,
+  25 November 2026 — the daily-frame find does not join the held-back list …"): it
+  touches Item 3, so it is entry 67 on the list, fixed after the audit with entry 61,
+  and the set stays H3, H6, H7 and H8, with the gap recorded.
 
 **Ruled on 21 and 22 November, in the merge session** — both Viktor's, each by agreeing
 to Claude's suggestion and not by writing his position first:
@@ -3719,8 +3720,16 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
 
 ## Where things stand, right now
 
-- **Tip:** the commit that writes this line (a commit cannot name its own hash) — the
-  Engineering Notes regenerated at v1.44, Entries #289 to #306, docs only. Before it:
+- **Tip:** the commit that writes this line (a commit cannot name its own hash) —
+  Viktor's ruling of 16:26 on 25 November filed, the daily-frame find not held back,
+  and `923afaf`'s landing recorded: docs only. Before it: `923afaf` (the AI-Attribution
+  Statement's pointers read at `9708a35`, its 31 August row recording the delegation),
+  `9708a35` (the Portfolio Document revised for the redesign; the Statement's stale
+  pointer found) and `a2fd788` (the Engineering Notes regenerated at v1.44, Entries
+  #289 to #306), each docs only. This bullet named `a2fd788` as the commit that writes
+  it at `9708a35` and `923afaf`, which did not bring it current; corrected by the
+  commit that writes this line, on Viktor's ruling of 16:47 on 25 November. Before
+  `a2fd788`:
   `e022337`, the BLESS commit, BLESSUSDT the default and the panel's price decimals
   following the price (THE REDESIGN'S BUILD, above). Before that: `7034af1`, the redesign's merge, whose second
   parent is `4eb71aa`, the branch `redesign`'s last, docs only. Before that on the branch: `4200f3b`, stage 7;
@@ -6562,7 +6571,10 @@ the work before the audit, entry 1 apart.
   proposed. Changes no engine code. Entry 61; not in the sort. Claude's reading, his to
   change: a code fix, so it moves `code_hash` and waits until after the reading of
   14 November; its shape (degrade the run, or leave the column out as a failed
-  indicator) is settled with that patch. Its severity is not ruled.
+  indicator) is settled with that patch. Its severity is not ruled. **Fixed after the
+  audit together with entry 67** (DECISIONS, "Ruling, 25 November 2026 — the
+  daily-frame find does not join the held-back list …"): both reach the decision
+  through the macro block's indicator pass, and one patch settles both.
 - **`_safe_float` is defined and nothing calls it** (found 16 November by a search of
   the engine's parse tree at `f6fff24a`, made for the held-back defects' replacements).
   `models/decision_model.py`, line 20: six call sites at `e69d5bb`, the last of them
@@ -6598,6 +6610,24 @@ the work before the audit, entry 1 apart.
   states is checked against nothing. Cleanup, or annotate `analyze()` with it; either
   moves `code_hash`. Found after the ruling of 17 November and not held back; Viktor's
   to put in H6's or H7's place if he prefers it. Entry 66; not in the sort.
+- **The daily frame's indicator failures degrade the run, though only its close and
+  `EMA_50` are read** (found 21 November by stage 7's search for a held-back defect
+  that can move a reading; DECISIONS, stage 7's entry, its last paragraph).
+  `core/engine_core.py`'s macro block runs `add_technical_indicators` on the daily
+  candles and appends every failure to the degradation list as "macro …", then reads
+  the last close and `EMA_50` alone (read at `923afaf`). So a daily volume spike, or a
+  daily RSI, ADX, SuperTrend, ST_Direction or ATR that cannot be read at its last row,
+  refuses a 4h trade on an input no gate reads, and the spike's note says the volume is
+  used in the trigger, the turnover and volume sentiment, none of which reads the daily
+  frame. It moves `degradation.degraded`, `degradation.missing_inputs` and
+  `degradation.trading_authorized`, and on a run that would trade the action, always
+  toward refusal. Reproduced in the Linux sandbox on stage 7's tree; never fired in
+  `master`'s 948 forward records staged on 21 November. A code fix, so it moves
+  `code_hash`. Entry 67; not in the sort. **Not held back** (DECISIONS, "Ruling,
+  25 November 2026 — the daily-frame find does not join the held-back list …"): its
+  main trigger is Item 3's spike guard, so it fails the held-back condition on Items 2,
+  3, 6 and 18. **Fixed after the audit together with entry 61** (above), in one patch,
+  its shape settled with that patch.
 
 ## Work order — Claude's, under Viktor's delegation
 
@@ -6887,17 +6917,29 @@ Each code commit is its own commit and updates this file for its own landing.
 
 ## Resolved this session
 
-- **The AI-Attribution Statement's pointers to source the redesign changed**, by the
-  commit that writes this line ("Where things stand", Portfolio Document and
-  AI-Attribution Statement). Claude's, from Open items; scoped, with a budget estimate,
-  before starting, and started on Viktor's "Go".
-- **Viktor's ruling, 19:57 on 24 November: the Statement's 31 August row records the
-  delegation** of items 3, 11 and 14, found while reading the pointers. By agreeing to
-  Claude's suggestion. Not filed in DECISIONS: it corrects a statement of fact and sets
-  no rule going forward — Claude's reading, his to correct.
-- **`9708a35`'s landing:** checked by Viktor at 19:51 on 24 November and holding, on
-  his statement; this session's clone, made at about 19:53, read GitHub's tip as
-  `9708a35`.
+- **Viktor's ruling of 16:26 on 25 November: the daily-frame find does not join the
+  held-back list**, filed by the commit that writes this line (DECISIONS, "Ruling,
+  25 November 2026 — the daily-frame find does not join the held-back list …"). By
+  agreeing to Claude's suggestion, not by writing his position first. The suggestion
+  had checked its ground against DECISIONS only, so before filing Claude re-read the
+  macro block in `core/engine_core.py` and the spike guard in `indicators/indicators.py`
+  at `923afaf`: it holds against the code. Entry 67 is on the list ("Found after 22
+  September") and entry 61 says the two are fixed together. Closes the Open item owed
+  since 17 November.
+- **Viktor's ruling of 16:47 on 25 November: the Tip bullet of "Where things stand" is
+  brought current** by the commit that writes this line, outside the scope he had named
+  for it. By agreeing to Claude's suggestion ("Go", answering it; Claude's reading, his
+  to correct). Not filed in DECISIONS: it corrects a statement of fact and sets no rule.
+- **`923afaf`'s landing:** checked by this session against his disk and GitHub, and
+  holding. Its tree, read from GitHub, is `5e1a7ec…`, the one its `Verified-Tree:` line
+  names. On his disk: its four files byte for byte an autocrlf checkout of the tip,
+  applied at 00:56:53 on 25 November; pytest's `nodeids` written at 01:02:42 and
+  `lastfailed` `{}`; the index the tip's tree; the commit object and `COMMIT_EDITMSG`
+  the commit's, with no CR; `master` at 01:08:33 and `origin/master` at 01:08:47, by
+  push; no delivery file in the root. `check_history_move.py --base 923afaf~1` on the tip
+  gives its message's line. GitHub's tip read as `923afaf` at 16:29, with no
+  credentials. The three files this commit's patch changes were staged off his disk
+  and matched that checkout byte for byte before the patch was built.
 - **By which model:** this session's work and its commit were Claude Opus 5.5's.
 
 ## Open items
@@ -6909,22 +6951,6 @@ Claude critiques it.
   prediction (ruling on proposal (b), 27 September).
 - **Viktor's call: whether to delete `origin/redesign`** on GitHub. The local branch
   and the worktree are gone (Resolved this session); nothing reads the remote branch.
-- **Viktor's call — a held-back defect that can move a reading, found by stage 7**
-  (owed since 17 November: DECISIONS, "Ruling, 17 November 2026 — the held-back
-  defects' replacements are H6, H7 and H8 …"; the find is in stage 7's entry). The daily
-  frame runs the whole indicator pipeline and every failure on it joins the asset's
-  degradation list as "macro …", which refuses the trade, though the daily frame is read
-  for its close and `EMA_50` alone (`core/engine_core.py`, the macro block). So a daily
-  volume spike, or a daily RSI, ADX, SuperTrend or ATR that cannot be read, refuses a 4h
-  trade on an input nothing reads, and the spike's note says the volume is used in the
-  trigger, the turnover and volume sentiment, none of which reads the daily frame. It
-  moves `degradation` and `trading_authorized`, and on a trade the action, toward
-  refusal only. Reproduced in the Linux sandbox; never fired in master's 948 forward
-  records staged on 21 November. Not in the list, not fixed. **His to rule: whether it
-  goes on the held-back list and which of H3, H6, H7 and H8 it displaces** — his
-  position first. **Not filed with the branch:** at 00:02 on 22 November he gave no
-  position on it (DECISIONS, the ruling of 00:02, its last paragraph), so it reaches
-  `master` as his, and a ruling on it is filed by whichever later commit follows it.
 - **Viktor's, when he reads it: stage 2's three readings, stage 3's four, stage
   4's five and stage 5's five that change something he ruled or would see** (THE
   REDESIGN'S BUILD, above). None waits for him; each is his to reverse. A reversal
@@ -6942,7 +6968,12 @@ Claude critiques it.
   at `9cc48d7` (Resolved this session). To bring current with a commit made for
   another reason. The branch's last commit brought the first lines of the Tip, push,
   "Before this commit" and code_hash bullets current; which three lists this item meant
-  was not re-read, so it is not closed.
+  was not re-read, so it is not closed. **Read on 25 November:** the Tip bullet is
+  brought current by the commit that files the daily-frame ruling; three other bullets
+  of "Where things stand" stop at earlier commits — "The pushes on `master` since the
+  merge" at `e022337`'s push, "Before this commit" at `e022337`, and "Engineering
+  Notes", which says no commit needing an entry is behind while the head block names
+  four. Not brought current; whether these are the item's three was not checked.
 - **Viktor's call, when the paper account's size is set — F against his slice**
   (its time ruled at 10:08 on 11 November:
   (DECISIONS, "Ruling, 11 November 2026 — the redesign's trigger is the candle that closes beyond its open and the previous close …")).

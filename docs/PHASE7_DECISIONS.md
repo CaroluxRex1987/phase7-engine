@@ -9690,6 +9690,69 @@ are the same, because the default changes no pair the task runs. Whether the one
 read with the BLESS version's is a question for the reading that uses them. It is not
 decided here.
 
+## Ruling, 25 November 2026 — the daily-frame find does not join the held-back list; it is fixed after the audit with entry 61, and the held-back set stays H3, H6, H7 and H8
+
+*New in this file on 25 November 2026. Viktor's, at 16:26 on 25 November, by agreeing to
+Claude's suggestion, not by writing his position first. The suggestion and his answer
+were made in an earlier session; the session that files the ruling, which opened at
+16:27 on 25 November at `923afaf`, has them from his opening message and did not read
+that session. It settles what "Ruling, 17 November 2026 — the held-back defects'
+replacements are H6, H7 and H8 …" left owed, and the question stage 7's entry put to him
+(its last paragraph). Neither entry is edited (the ruling of 20 September).*
+
+**How it was made.** Stage 7's search found one candidate for "a held-back defect that
+can move a reading" and put it to Viktor on 21 November, his position first. At 00:02 on
+22 November he gave none, and it reached `master` as his open item ("Ruling, 22 November
+2026 — the merge and the BLESS commit land inside one four-hour window …", its last
+paragraph). At 16:26 on 25 November he agreed to Claude's suggestion that it not join
+the list. The suggestion checked its ground against this file, not against
+`core/engine_core.py`; the session that files the ruling re-read the code first (below).
+
+**What was ruled.**
+
+1. **The daily-frame find does not join the held-back list.** Every held-back defect
+   must touch none of Items 2, 3, 6 and 18 ("Ruling, 17 October 2026 — Amazon's audit
+   …", point 1, applied by "Ruling, 18 October 2026 — the four held-back defects …").
+   This one fails that condition. Its main trigger is the daily volume spike's
+   degradation, and the spike guard is Item 3's mechanism ("Three rulings — made,
+   31 August 2026", point 1). An auditor who finds it could rate Item 3 differently,
+   and Item 3's rating is one of the four that open backtesting.
+2. **It goes on the list for after the audit, as entry 67, and is fixed then together
+   with entry 61**, the short-frame EMA, which reaches the decision through the same
+   macro block. Both are about what the daily frame's indicator pass records and
+   reads; one patch settles both, its shape decided with that patch.
+3. **The held-back set stays H3, H6, H7 and H8.** None of them can move a computed
+   reading, and no held-back defect that can is chosen. The gap the ruling of
+   17 November named is recorded, not closed: the audit does not test whether an
+   auditor checks a calculation at its edges. **No third search** for one is made, the
+   ruling of 17 November's search being the first and stage 7's the second.
+
+**The code, re-read before filing.** At `923afaf`, `core/engine_core.py`'s macro block
+(lines 599 to 615) runs `add_technical_indicators` on the daily candles, appends every
+failure to the run's degradation list as "macro …", and then reads the frame's last close
+and last `EMA_50` and nothing else. The spike guard sits inside
+`add_technical_indicators` (`indicators/indicators.py`, the block tagged ITEM 3
+RE-AUDIT, from line 757), so a daily spike reaches the list as "macro volume". Read in
+the Linux sandbox, in an autocrlf clone of `923afaf`; nothing was run. The ruling's
+ground holds against the code, not only against this file.
+
+**What it weakens.**
+
+- **Amazon's score measures less than a full set would.** It tests whether an auditor
+  follows what the code does (H3), sweeps for unread names (H6, H7) and reads the prose
+  against the code (H8). A reader of the score should take it as that and no more.
+- **The defect stays in the engine through the audit and the forward measurement.** A
+  daily volume spike, or a daily indicator that cannot be read at its last row, refuses
+  a 4h trade on an input no gate reads, always toward refusal. In the 948 records of
+  `master`'s forward measurement staged on 21 November it never fired (stage 7's
+  entry). If an auditor finds it, it is a finding like any other, ruled when the report
+  comes back.
+
+**Who does what.** Claude carries entry 67 on PHASE7_NEXT.md's list ("Found after
+22 September") and records on entry 61 that the two are fixed together. Nothing in the
+engine changes now. Before the send, H3, H6, H7 and H8 are re-checked at the tag, as the
+ruling of 17 November says.
+
 ## Working practice
 
 - **Deliver as a `.patch`, never a zip.** `git apply --check <file>.patch` first, then
