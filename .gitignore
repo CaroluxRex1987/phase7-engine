@@ -105,3 +105,12 @@ docs/audit_package/round*/*
 # sequence is followed or whether its reset steps are remembered.
 *.patch
 *_commit_message.txt
+
+# ============================
+# TEST RUNNER RECORD
+# ============================
+# run_tests.py's last-run record (entry 57, 27 November 2026): its finish
+# time and counts, rewritten by every run, read by a landing check as pytest's
+# .pytest_cache is. Named here, not left to the *.json rule above, so what is
+# hidden stays legible.
+.run_tests_cache/

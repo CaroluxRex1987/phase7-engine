@@ -226047,3 +226047,157 @@ Lines 7041–7055 of the version at `1d57c00`:
   writes this line" for `923afaf`. Both corrected on 26 November; the lines removed are
   in HISTORY's entry for this commit.
 ~~~~~
+
+## 27 November 2026 — the lines the rewrite of PHASE7_NEXT.md removed from its version at `df011da`
+
+*Moved here on 27 November 2026 by the commit that lands entry 57 (`run_tests.py`'s
+last-run record), the commit after `df011da`, which landed entries 68 and 70, under
+"Ruling, 4 November 2026 — HISTORY keeps what each rewrite of PHASE7_NEXT.md removes,
+not the whole file" (DECISIONS). Below the rule, each block is a run of lines of the
+file as it stood at `df011da` that the rewrite deleted or replaced, word for word,
+labelled with its line numbers in that version. "This commit" and "the commit that
+writes this line" in them name `df011da`. The whole version:
+`git show df011da:docs/PHASE7_NEXT.md`. Checked by
+`python docs/build/check_history_move.py`.*
+
+---
+
+Lines 3–28 of the version at `df011da`:
+
+~~~~~
+*27 November 2026, in the session that opened at 23:47 on 26 November. Written by
+the commit that lands entries 68 and 70, which follows `1d57c00`, entries 45, 46 and
+65. `docs/build/measure_draft_gaps.py`'s `main()` now puts back the logging level it
+found on every way out, so the suite no longer runs with logging switched off from
+`tests/test_measure_draft_gaps.py` on (entry 68, with a new test and one assertion
+more), and a comment in `indicators/indicators.py` cites the NaN check by its function,
+`validate_ohlcv`, not by a line it left long ago (entry 70; "Found after
+22 September"). It moves neither `code_hash` nor either golden snapshot, adds one test
+to each suite, and is not on the decision path, so it has no live run. Chosen at this
+session's opening by the patch-delivery skill's section 10: no commit owed, nothing due
+by its date, and of Claude's work the rulings in force let land now, 68 and 70 were the
+next, taken by the sort's waves as `1d57c00` placed them (Claude's reading, his to
+correct). Found landing them, and corrected: the README.md bullet under "Where things
+stand" had given README's test counts as 1004, 835 / 165 and 935 since `49ca50c`. The
+redesign is built and merged (THE REDESIGN'S BUILD, below): `master` runs it and
+BLESSUSDT is the default pair. `1d57c00`'s landing was checked by this session and
+holds; it read GitHub's tip as `1d57c00` at 23:48 on 26 November. `origin/redesign` is
+still on GitHub: deleting it is his call. The Engineering Notes stop at Entry #306,
+`e022337`: `9708a35`, `923afaf`, `fef9b4a`, `49ca50c`, `5acbf80`, `1d57c00` and this
+commit have no entry yet, for the next regeneration (Engineering Notes, under "Where
+things stand"). The lines this commit removed from the version at `1d57c00` are in
+HISTORY, which points to that whole version in git. **Next: Claude's, chosen at the
+next session's opening by the patch-delivery skill's section 10;** by the same reading,
+the next of Claude's own is entry 57, `run_tests.py`'s last-run record (wave 2), as
+`49ca50c` placed it; entry 69 waits for after the audit, with H7. Viktor's open calls
+are in Open items.
+~~~~~
+
+Lines 3732–3734 of the version at `df011da`:
+
+~~~~~
+  entries 68 and 70, `measure_draft_gaps.py`'s `main()` putting logging back and a
+  comment citing the NaN check by its function, and `1d57c00`'s landing recorded; it
+  does not move `code_hash`. Before it: `1d57c00` (entries 45, 46 and 65, three pieces
+~~~~~
+
+Lines 4164–4165 of the version at `df011da`:
+
+~~~~~
+  of 20:40, which checked `5acbf80`'s landing; and `1d57c00`'s at 22:11:01 on
+  26 November, read by the session of 23:47, which checked `1d57c00`'s landing. This bullet stopped at `e022337`'s push from `a2fd788` to
+~~~~~
+
+Lines 4480–4482 of the version at `df011da`:
+
+~~~~~
+- **code_hash:** **`041a3d1a9c023dc230b26c9164bcfe97ee1380fae25a0a8f0c9d1634e77e2d6e`
+  from entries 45, 46 and 65, `1d57c00`, unchanged by the commit that writes this
+  line**, entries 68 and 70: `code_fingerprint` reads neither `docs/` nor `tests/`, and
+~~~~~
+
+Line 4582 of the version at `df011da`:
+
+~~~~~
+  this line included, whose one change in a module the engine imports is a comment in
+~~~~~
+
+Lines 4721–4722 of the version at `df011da`:
+
+~~~~~
+- **Test suite** — **1011 passed / 0 failed, no warnings line** with `pandas_ta`;
+  **838 passed / 169 skipped** without it; `run_tests.py` **942 passed / 0 failed /
+~~~~~
+
+Lines 4727–4731 of the version at `df011da`:
+
+~~~~~
+  until `713e084` (entry 50). **The commit that writes this line adds one test to
+  each** (`tests/test_measure_draft_gaps.py`, no fixtures, needing no `pandas_ta`),
+  **and the error count does not move**; from 1010 / 0, 837 / 169 and 941 / 0 / 31 at
+  `1d57c00`, counted in the Linux sandbox under Python 3.12.3 on the applied tree, and
+  `README.md`'s Tests row brought to the new ones in the same commit. **Entries 45, 46
+~~~~~
+
+Line 5248 of the version at `df011da`:
+
+~~~~~
+- **Engineering Notes:** through Entry #306 (v1.44), which covers `e022337`; **seven
+~~~~~
+
+Line 5250 of the version at `df011da`:
+
+~~~~~
+  `5acbf80`, `1d57c00` and the commit that writes this line. This bullet said none was behind from `9708a35` to
+~~~~~
+
+Lines 5325–5327 of the version at `df011da`:
+
+~~~~~
+  Viktor before his commit, and nothing else in it. **Its test counts are current (1011,
+  838 / 169 and 942 passed, 0 failed), last changed by the commit that writes this
+  line, which changed only the numbers, for its one new test; before it by `5acbf80`
+~~~~~
+
+Lines 5331–5332 of the version at `df011da`:
+
+~~~~~
+  from `a2fd788` to `1d57c00`, which did not bring it current; corrected by the commit
+  that writes this line); **before the BLESS commit by `4200f3b`, stage 7, with four stale passages** (THE REDESIGN'S BUILD, stage 7; stages 2 to 4 changed the counts too,
+~~~~~
+
+Lines 7070–7085 of the version at `df011da`:
+
+~~~~~
+- **`1d57c00`'s landing:** checked by this session against his disk and GitHub, and
+  holding. Its tree, read from GitHub, is `2f28735b…`, the one its `Verified-Tree:`
+  line names. On his disk: its six files byte for byte an autocrlf checkout of the
+  tip, applied at 21:45:23 on 26 November; pytest's `nodeids` written at 21:49:12, and
+  `lastfailed` `{}`; the index the tip's tree; the commit object and `COMMIT_EDITMSG`
+  the commit's, with no CR; `master` at 22:10:46 and `origin/master` at 22:11:01, by
+  push; no delivery file in the root. `check_history_move.py --base 1d57c00~1` on the
+  tip gives its message's line. GitHub's tip read as `1d57c00` at 23:48 on
+  26 November, with no credentials. The eight files this commit's patch changes were
+  staged off his disk and matched that checkout byte for byte before the patch was
+  built.
+- **The README.md bullet under "Where things stand"** gave README's test counts as
+  1004, 835 / 165 and 935 from `49ca50c`, whose new tests changed them, and named the
+  BLESS commit "the commit that writes this line" from `a2fd788`. Found by this
+  commit, which changes those counts again, and corrected; the lines removed are in
+  HISTORY's entry for this commit.
+~~~~~
+
+Line 7094 of the version at `df011da`:
+
+~~~~~
+  prediction (ruling on proposal (b), 27 September).
+~~~~~
+
+Lines 7167–7170 of the version at `df011da`:
+
+~~~~~
+- **Entry 57 — `run_tests.py`'s last-run record, after the reading of 14 November**
+  (wave 2: it moves `code_hash`). Ruled on 27 October; Claude's to build. The reading
+  was taken on 11 November, so nothing ruled holds it back now (Viktor's ruling of
+  08:55 on 11 November; Ruled — in force).
+~~~~~

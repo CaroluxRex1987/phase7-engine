@@ -35,6 +35,8 @@ Usage:
     python run_tests.py -q           # one line per file
     python run_tests.py --show-output    # don't suppress test stdout
 
+Every run that tests anything leaves .run_tests_cache/last_run.json (below).
+
 OUTPUT CAPTURE, added 30 August 2026
 ------------------------------------
 Each test's stdout is captured and discarded if the test passes. A failing or
@@ -54,6 +56,18 @@ cycle.
 Suppressing passing output is the right default; --show-output restores the old
 behaviour when a passing test's output is genuinely what you need to look at.
 
+THE LAST-RUN RECORD, added 27 November 2026 (entry 57)
+-------------------------------------------------------
+At the end of a run this script writes its finish time, its passed, failed
+and errors counts and the filters it was given to
+.run_tests_cache/last_run.json, an ignored file, so that a landing check can
+read that the run happened after an apply and what it counted, as it reads
+pytest's .pytest_cache/v/cache/nodeids. Until then its count rested on
+Viktor's silence alone (Viktor's ruling of 27 October 2026). A run whose
+filter matches no file tests nothing and writes no record. A record that
+cannot be written prints one line and leaves the exit code as it was: the
+record is evidence about a run, never a reason for the run to fail.
+
 KNOWN LIMIT: logging output is not captured. The logging handlers bind to the
 real sys.stderr when they are created, before any redirect is installed, so
 `logger.info(...)` lines still appear inline. There are only a handful of them
@@ -61,14 +75,20 @@ per run, and they are usually the ones worth seeing.
 """
 
 import contextlib
+import datetime
 import importlib.util
 import io
+import json
 import os
 import sys
 import traceback
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 TESTS = os.path.join(ROOT, "tests")
+
+# Entry 57: where the last-run record goes. Read at the moment of writing,
+# not bound at import, so a test can point it at a temporary directory.
+LAST_RUN = os.path.join(ROOT, ".run_tests_cache", "last_run.json")
 
 # How many trailing lines of a failing test's output to show. The interesting
 # part of an engine panel is the decision at the bottom, so the tail is the
@@ -134,6 +154,26 @@ def _print_captured(output, indent="      "):
         lines = lines[-TAIL_LINES:]
     for line in lines:
         print(f"{indent}{GREY}|{RESET} {line}")
+
+
+def _write_last_run(passed, failed, errors, filters):
+    """Write the last-run record (entry 57). Never raises on a write error."""
+    record = {
+        "finished": datetime.datetime.now().astimezone().isoformat(timespec="seconds"),
+        "passed": passed,
+        "failed": failed,
+        "errors": errors,
+        "filters": list(filters),
+    }
+    path = LAST_RUN
+    tmp = path + ".tmp"
+    try:
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(tmp, "w", encoding="utf-8", newline="\n") as f:
+            f.write(json.dumps(record, sort_keys=True) + "\n")
+        os.replace(tmp, path)
+    except OSError as e:
+        print(f"{YELLOW}could not write the last-run record {path}: {e}{RESET}")
 
 
 def main(argv):
@@ -233,6 +273,8 @@ def main(argv):
         print(f"\n{BOLD}Errors{RESET}")
         for rel, msg, _ in errors:
             print(f"  {YELLOW}{rel}{RESET}  {msg}")
+
+    _write_last_run(passed, len(failed), len(errors), filters)
 
     return 1 if (failed or errors) else 0
 

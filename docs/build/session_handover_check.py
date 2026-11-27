@@ -110,9 +110,14 @@ def check_working_tree(root: Path) -> list[str]:
 # derived noise is what keeps a real surprise from being buried in routine
 # clutter -- the same reasoning that filters __pycache__ below, not a
 # loosening of the original lesson.
+#
+# .run_tests_cache was added 27 November 2026 (entry 57): run_tests.py's
+# last-run record, rewritten by every run of it as .pytest_cache is by every
+# pytest run. Unfiltered, every push after a run_tests.py run would stop.
 _ROUTINE_IGNORED_MARKERS = (
     "__pycache__",
     ".pytest_cache",
+    ".run_tests_cache",
     ".mypy_cache",
     ".DS_Store",
     "Thumbs.db",
