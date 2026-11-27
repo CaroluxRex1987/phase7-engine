@@ -1,30 +1,32 @@
 # Next step — read this first
 
-*27 November 2026, in the session that opened at 16:50. Written by the commit that
-lands entry 57, which follows `df011da`, entries 68 and 70. `run_tests.py` now writes
-a last-run record at the end of every run — its finish time with its UTC offset, its
-passed, failed and errors counts and the filters it was given — to
-`.run_tests_cache/last_run.json`, an ignored file, so a landing check reads that it ran
-as it reads pytest's cache (entry 57, ruled by Viktor on 27 October; "Found after
-22 September"). The handover check files the folder as routine; without that, every push
-after a `run_tests.py` run would have stopped (found building it). It moves `code_hash`,
-`run_tests.py`'s fingerprint alone, and neither golden snapshot; it adds six tests to
-each suite and is not on the decision path, so it has no live run. Chosen at this
-session's opening by the patch-delivery skill's section 10: no commit owed but the find
-below, which this commit records, nothing due by its date, and entry 57 the next of
-Claude's own, as `df011da` placed it (Claude's reading, his to correct). `df011da`'s
-landing was checked by this session and holds; it read GitHub's tip as `df011da` at
-16:52 on 27 November. **Found at that landing, cause not established:** every reflog in
-`.git\logs` was rewritten in the commit's second and now starts on 29 October (Open
-items). The redesign is built and merged (THE REDESIGN'S BUILD, below): `master` runs it
-and BLESSUSDT is the default pair. `origin/redesign` is still on GitHub: deleting it is
-his call. The Engineering Notes stop at Entry #306, `e022337`: eight commits since have
-no entry yet, for the next regeneration (Engineering Notes, under "Where things stand").
-The lines this commit removed from the version at `df011da` are in HISTORY, which points
-to that whole version in git. **Next: Claude's, chosen at the next session's opening by
-the patch-delivery skill's section 10;** which of Claude's own comes after entry 57 was
-not read by this session; entry 69 waits for after the audit, with H7. Viktor's open
-calls are in Open items.
+*27 November 2026, in the session that opened at 18:36. Written by the commit that
+regenerates the Engineering Notes at v1.45, Entries #307 to #314, one for each of the
+eight commits from `9708a35` to `008f27b`, which this commit follows. Documentation
+only: it moves neither `code_hash` nor either golden snapshot, changes no test, and is
+not on the decision path, so it has no live run. Chosen at this session's opening by
+the patch-delivery skill's section 10: no commit owed, nothing due by its date, and no
+work of Claude's own that the rulings in force let land now is left — every entry of
+Claude's in the sort of 19 October has landed (`1d57c00`'s message), and the rest of
+Claude's wait for after the audit or are held back (read from this file, and for entry
+58 from the code at `008f27b`). The Notes stood eight behind, which the batching rule
+of 15 September counts as several (Claude's reading, his to correct). **Found
+regenerating them:** the Portfolio Document has said since `9708a35` that a guard
+refuses any timeframe but 4h, and the guard landed two days later, at `49ca50c` (Where
+things stand, the Portfolio Document). `008f27b`'s landing was checked by the session
+that delivered it and holds (his message of 18:36); this session's clone read
+GitHub's tip as `008f27b` at about 18:37, and this session read off his disk the record
+`run_tests.py` wrote and the reflogs, which `008f27b`'s commit did not rewrite (Open
+items, the reflog find). The redesign is built and merged (THE REDESIGN'S BUILD,
+below): `master` runs it and BLESSUSDT is the default pair. `origin/redesign` is still
+on GitHub: deleting it is his call. The lines this commit removed from the version at
+`008f27b` are in HISTORY, which points to that whole version in git. **Next: chosen at
+the next session's opening by the patch-delivery skill's section 10.** By this
+session's reading nothing of Claude's own is left to land before the audit, so unless
+something is owed or a new find comes first, it is an item of Viktor's: the first
+still open of wave 2's entries marked Viktor (shape) in the sort, whose shape Claude
+proposes for him to rule (Claude's reading, not checked entry by entry, his to
+correct). Viktor's open calls are in Open items.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
 rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
@@ -3728,8 +3730,10 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
 ## Where things stand, right now
 
 - **Tip:** the commit that writes this line (a commit cannot name its own hash) —
-  entry 57, `run_tests.py`'s last-run record, and `df011da`'s landing recorded, with the
-  reflog find made at it; it moves `code_hash`. Before it: `df011da` (entries 68 and
+  the Engineering Notes regenerated at v1.45, Entries #307 to #314, and `008f27b`'s
+  landing recorded: docs only. Before it: `008f27b` (entry 57, `run_tests.py`'s
+  last-run record, and `df011da`'s landing recorded, with the reflog find made at it,
+  which moved `code_hash`); before that, `df011da` (entries 68 and
   70, `measure_draft_gaps.py`'s `main()` putting logging back and a comment citing the
   NaN check by its function, which did not move `code_hash`); before that, `1d57c00` (entries 45, 46 and 65, three pieces
   of code nothing read removed, which moved `code_hash`); before that, `5acbf80` (entry 40, the engine's
@@ -4162,9 +4166,11 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
   `49ca50c`'s at 18:42:47 on 26 November, read by the session of 18:52, which checked
   `49ca50c`'s landing; `5acbf80`'s at 20:32:03 on 26 November, read by the session
   of 20:40, which checked `5acbf80`'s landing; `1d57c00`'s at 22:11:01 on
-  26 November, read by the session of 23:47, which checked `1d57c00`'s landing; and
+  26 November, read by the session of 23:47, which checked `1d57c00`'s landing;
   `df011da`'s at 16:32:26 on 27 November, read by the session of 16:50, which checked
-  `df011da`'s landing. That reflog now starts on 29 October (Open items, the reflog
+  `df011da`'s landing; and `008f27b`'s at 18:34:35 on 27 November, read by the same
+  session, which checked `008f27b`'s landing, and by the session of 18:36. That reflog
+  now starts on 29 October (Open items, the reflog
   find); every push this bullet names is after that. This bullet stopped at `e022337`'s push from `a2fd788` to
   `fef9b4a`, which did not bring it current; corrected by `49ca50c`.
   **The pushes of the redesign's build**: the branch's last, `4eb71aa`'s, by 11:17:05 on
@@ -4474,14 +4480,18 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
   The same holds for the push of the
   commit that writes this line unless it deviates. Earlier pushes and deviations are
   recorded in this file's previous versions, in HISTORY.
-- **Before this commit**, the eight files its patch changes were staged off Viktor's
-  disk, from `E:\phase7_engine`, and matched an autocrlf checkout of `1d57c00` byte for
-  byte, before the patch was built; it adds none. (This bullet named `e022337` from
+- **Before this commit**, the four files its patch changes were staged off Viktor's
+  disk, from `E:\phase7_engine`, and matched an autocrlf checkout of `008f27b` byte for
+  byte, before the patch was built; it adds none. (This bullet named `1d57c00` at
+  `008f27b`, which did not bring it current; corrected by the commit that writes this
+  line. It named `e022337` from
   `a2fd788` to `fef9b4a`, which did not bring it current; corrected by `49ca50c`. It
   named `9cc48d7` from `a9b83a9` to stage 7; corrected by the
   branch's last commit.)
 - **code_hash:** **`5201eac640c8f8afcc029ba168b1951a1a5665ff768f6d61430e8670a80a1c8b`
-  from entry 57, the commit that writes this line**: `run_tests.py`'s file fingerprint
+  from entry 57, `008f27b`, unchanged by the commit that writes this line**, docs
+  only, computed under Python 3.12.3 in the Linux sandbox on `008f27b`'s tree and on
+  the applied tree. At `008f27b`, `run_tests.py`'s file fingerprint
   moves, `191735be…` to `172e2063…`, and no other, computed under Python 3.12.3 in the
   Linux sandbox on both trees (`run_tests.py` is inside the walk on purpose; tests/
   and docs/ are not, so the new test and `session_handover_check.py` move nothing). Before it
@@ -4585,8 +4595,8 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
   (Viktor runs 3.12.10).
 - **Golden snapshot:** **`run_hash` moved in both by the BLESS commit, `e022337`**, with the
   two archive paths named after it, four lines each and nothing else: `config.SYMBOL` is
-  in `FINGERPRINTED_CONFIG`. No commit since has moved either, the commit that writes
-  this line included, which changes no module the engine imports (`run_tests.py`,
+  in `FINGERPRINTED_CONFIG`. No commit since has moved either: the commit that writes
+  this line is docs only, and `008f27b` changes no module the engine imports (`run_tests.py`,
   `.gitignore`, `docs/build/session_handover_check.py` and a new test); at `df011da`, the
   one change in a module the engine imports is a comment in
   `indicators/indicators.py`; at `1d57c00`, `models.entry_model`'s entry in
@@ -4733,13 +4743,14 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
   `test_no_module_defaults_a_missing_risk_verdict_to_a_pass`. This is meant to be the
   one place the watched error count is written as a number (DECISIONS, "Ruling,
   15 October 2026 — Part 4's three test shapes", point 5); `README.md` wrote it too
-  until `713e084` (entry 50). **The commit that writes this line adds six tests to
-  each** (`tests/test_run_tests_leaves_a_record.py`, no fixtures, needing no
+  until `713e084` (entry 50). **The commit that writes this line changes no test.
+  Entry 57, `008f27b`, adds six tests to each** (`tests/test_run_tests_leaves_a_record.py`, no fixtures, needing no
   `pandas_ta`; one needs git), **and the error count does not move**; from 1011 / 0,
   838 / 169 and 942 / 0 / 31 at `df011da`, counted in the Linux sandbox under Python
   3.12.3 on the applied tree, and `README.md`'s Tests row brought to the new ones in
-  the same commit. **From this commit on, `run_tests.py` writes its counts to
-  `.run_tests_cache/last_run.json` on his disk** (entry 57). **Entries 68 and 70,
+  the same commit. **From `008f27b` on, `run_tests.py` writes its counts to
+  `.run_tests_cache/last_run.json` on his disk** (entry 57); first read at its landing:
+  948 / 0 / 31, `filters` `[]`, finished 18:05:52 on 27 November. **Entries 68 and 70,
   `df011da`, add one test to each** (`tests/test_measure_draft_gaps.py`), from 1010 / 0,
   837 / 169 and 941 / 0 / 31 at `1d57c00`, the error count unchanged. **Entries 45, 46
   and 65, `1d57c00`, add no test and move no count.** **Entry 40, `5acbf80`, adds two
@@ -5258,9 +5269,27 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
   then run on Windows at 09:06 on 12 October: both matched (792; 721 / 0 / 32). One test,
   `test_the_commit_messages_up_to_the_tag_are_round_7s_to_the_byte`, runs `git log` up
   to the tag `round7-sent-2026-09-30`: it needs the tag, which a full clone has.
-- **Engineering Notes:** through Entry #306 (v1.44), which covers `e022337`; **eight
-  commits need an entry and have none:** `9708a35`, `923afaf`, `fef9b4a`, `49ca50c`,
-  `5acbf80`, `1d57c00`, `df011da` and the commit that writes this line. This bullet said none was behind from `9708a35` to
+- **Engineering Notes:** through Entry #314 (v1.45), which covers `008f27b`; **no
+  commit is behind.** v1.45 is the commit that writes this line, which as the
+  regeneration has no entry (a commit that regenerates the Notes cannot cover itself,
+  Entry #144); every later commit adds one until the next regeneration. It covers the
+  eight commits from `9708a35` to `008f27b`, one entry each, each written from its
+  commit's own message, read whole in the session of 18:36 on 27 November; the
+  DECISIONS entry `fef9b4a` files was read by its heading and in part, not whole. None
+  is re-checked against the code or the running engine, except #307's sentence on the
+  4h guard, read in the Portfolio Document's script at `9708a35` (the Portfolio
+  Document, below); no live record was re-read, except `run_tests.py`'s record and the
+  reflogs #314 names, read off his disk that session. `code_hash` was recomputed under
+  Python 3.12.3 on `a2fd788` and the eight trees, and every value matched its commit's
+  message: `10402051…` through `fef9b4a`, `34a008c8…` at `49ca50c`, `4fa7c278…` at
+  `5acbf80`, `041a3d1a…` at `1d57c00` (unchanged at `df011da`) and `5201eac6…` at
+  `008f27b`, four moves; neither golden fixture changed in the range, read from git
+  log of the fixtures. The PDF's extracted text differs from v1.44's only by the eight
+  entries and the v1.45 row, footers and page numbers aside (223 pages to 231; pages 1
+  to 203 identical); v1.44's script rebuilt unchanged first gave the committed v1.44
+  text exactly. Linux sandbox, Python 3.12.3, reportlab 5.1.2. Pages 204 and 231 were
+  rendered and looked at; the others were read as extracted text only. This bullet
+  said none was behind from `9708a35` to
   `fef9b4a`, which did not bring it current; corrected by `49ca50c`.
   v1.44, at `a2fd788`, which is the regeneration and has none, covers
   the eighteen commits from `9cc48d7` to `e022337`, one entry each, rebuilt once over the
@@ -5300,8 +5329,12 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
   said they "change in the commit that writes this line" from `fef9b4a` to `5acbf80`;
   corrected on 26 November); its script rebuilt unchanged first gave the committed PDF's extracted text exactly
   (Linux sandbox, Python 3.12.3, reportlab 5.1.0). The Portfolio Document's script and
-  PDF last changed at `9708a35`.
-  **The Portfolio Document revised on 22 November, by `9708a35`,**
+  PDF last changed at `9708a35`. Both scripts, rebuilt unchanged at `008f27b` (Linux
+  sandbox, Python 3.12.3, reportlab 5.1.2), give the committed PDFs' extracted text
+  exactly (the session of 18:36 on 27 November).
+  **The Portfolio Document revised by `9708a35`, committed at 19:47 on 24 November**
+  (this bullet said "revised on 22 November", the day the gap was found, from
+  `9708a35` to `008f27b`; corrected by the commit that writes this line),
   for the redesign and for the project since September: sections 3 to 6 describe the
   redesigned engine (the gate ladder as a table in section 6), sections 11, 12 and 14
   the project from the declaration of 15 September to the merge, and the cover says
@@ -5314,8 +5347,20 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
   sandbox, Python 3.12, reportlab 5.1.0. **Found writing it, and corrected by it:** its
   September text said GPT-6 Astra's three requested runs were still outstanding; they
   ran on 12 September (HISTORY), two days before it was written.
-  **The AI-Attribution Statement corrected on 24 November, by the commit that writes
-  this line.** Its table of Viktor's rulings said the inline comments it cites exist
+  **Found on 27 November, regenerating the Engineering Notes, not fixed:** its section
+  4 says "a guard refuses any timeframe but 4h for now" (its script at `9708a35`,
+  read). No such guard existed until `49ca50c`, two days later: `49ca50c`'s message
+  reads the code at `fef9b4a` and finds none. So that sentence was not read from the
+  code at `a2fd788`, as `9708a35`'s message says every claim about the code was; it
+  describes the guard the ruling of 20 October planned as if it were there. True since
+  `49ca50c`, so the document is not wrong at the tip and there is nothing to change.
+  The document's other claims were not re-checked. The shape is the one corrected on
+  22 November (DECISIONS, "Correction, 22 November 2026 — the merge's commit message
+  says the run of 14:05 ran `master`'s version …"): a thing stated as done before it
+  was.
+  **The AI-Attribution Statement corrected on 24 November, by `923afaf`** (this
+  bullet said "by the commit that writes this line" from `923afaf` to `008f27b`;
+  corrected by the commit that writes this line). Its table of Viktor's rulings said the inline comments it cites exist
   verbatim in the current source. Every row was read at `9708a35`, and four pointers to
   source changed: the degrade ruling's cap went with confidence at `f6fff24`; the sole
   direction source is in `_determine_final_action()`, and `models/signal_router.py`,
@@ -5336,8 +5381,9 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
 - **README.md:** **`706e858` changed its "Independent audit" and "Engine code"
   rows**, for the ruling of 7 November on F2, in wording Claude wrote and put to
   Viktor before his commit, and nothing else in it. **Its test counts are current (1017,
-  844 / 169 and 948 passed, 0 failed), last changed by the commit that writes this
-  line, which changed only the numbers, for its six new tests; before it by `df011da`,
+  844 / 169 and 948 passed, 0 failed), last changed by `008f27b`, which changed only the numbers, for its six new tests
+  (the commit that writes this line does not change `README.md`); before it by
+  `df011da`,
   for its one; before that by `5acbf80`
   and `49ca50c`, each changing only the numbers, for their new tests, and by the BLESS
   commit, `e022337`** (this bullet gave the counts as 1004, 835 / 165 and 935 from
@@ -6567,7 +6613,7 @@ the work before the audit, entry 1 apart.
   **27 October: until it lands**, whether `run_tests.py` ran is one of a landing
   check's standing gaps, named once in DECISIONS and not reported at each landing
   ("Ruling, 27 October 2026 — a landing check does not report its standing gaps").
-  **Landed by the commit that writes this line**: at the end of each run that tests
+  **27 November: landed**, by `008f27b`: at the end of each run that tests
   anything, `.run_tests_cache/last_run.json` holds `finished` (local time with its UTC
   offset), `passed`, `failed`, `errors` and `filters`; a filter matching no file writes
   none, and a record that cannot be written prints one line and leaves the exit code
@@ -6575,6 +6621,9 @@ the work before the audit, entry 1 apart.
   hook's handover check stops on any ignored file it does not know, so the folder is
   named in its routine list in the same commit. With it, whether `run_tests.py` ran
   leaves the standing gaps: a landing check reads the record as it reads pytest's cache.
+  **First read at `008f27b`'s landing**, off his disk: 948 / 0 / 31, `filters` `[]`,
+  finished 18:05:52 on 27 November, the file written at 18:05:52; read again, unchanged,
+  by the session of 18:36.
 - **A reasoning sentence rounds a compared value across its threshold** (found
   1 November, by Viktor on his hand run of 16:09 on AEROUSDT; read at `248037d`).
   Decision Reasoning printed "Bias is bearish, trend strength 75/100 (down), below the
@@ -6604,6 +6653,14 @@ the work before the audit, entry 1 apart.
   rewrite or remove them. Entry 58; not in the sort. Claude's suggestion, his to change: a label fix,
   Claude's, XS, within entry 53, whose design carries the rule that no reasoning
   sentence rounds a compared value across its threshold.
+  **27 November: closed by the redesign**, read from the code at `008f27b` (Linux
+  sandbox): trend health's sentence went with trend health (stage 5), the lean
+  sentence's bias strength with `MIN_ACTION_BIAS` (stage 2), and gate 9's sentences
+  print entry quality against 70 and 50 through `compared_value_text`, as the
+  turnover's and the trigger volume's sentences print theirs; ADX's blocker rounds
+  down (`_adx_text`). This entry still said the sentences round as described after the
+  stages had removed or rewritten them; corrected by the commit that writes this line.
+  The helper's edge stays as THE REDESIGN'S BUILD records it.
 - **The suite's guard on the real log directory cannot tell the scheduled task's write
   from a test's** (found 2 November, landing `1b82ed0`; read at `1b82ed0`).
   `tests/conftest.py` records every file under each `logs`-named directory in the
@@ -6765,7 +6822,7 @@ the work before the audit, entry 1 apart.
   on 26 November at `49ca50c` with entry 40's patch applied, finds only entry 40's
   new test, which lifts the switch for its own run and puts it back. Tooling and
   tests only, so `code_hash` does not move. Claude's; entry 68, not in the sort.
-  **27 November: landed**, by the commit that writes this line, with 70, taken by the
+  **27 November: landed**, by `df011da`, with 70, taken by the
   sort's waves as wave 1's kind (Claude's reading, as `49ca50c` placed it): `main()`
   saves the level it finds and puts it back in a `finally`, so its refusals put it back
   too. The new `test_main_puts_logging_back_as_it_found_it_when_it_refuses`, and one
@@ -6794,8 +6851,8 @@ the work before the audit, entry 1 apart.
   higher once entry 45's import is gone. The sentence itself holds. A comment, so a
   fix leaves `code_hash` where it is (`core/code_fingerprint.py` hashes the parse tree,
   which holds no comments; checked in the Linux sandbox by changing the citation on a
-  copy). Claude's; entry 70, not in the sort. **27 November: landed**, by the commit
-  that writes this line, with 68: the comment reads "(validate_ohlcv)" where it read
+  copy). Claude's; entry 70, not in the sort. **27 November: landed**, by
+  `df011da`, with 68: the comment reads "(validate_ohlcv)" where it read
   "(validation.py:147)", naming the function, which does not drift as a line number
   does; the file's fingerprint is `203414b4…` before and after (Linux sandbox, Python
   3.12.3).
@@ -7089,20 +7146,32 @@ Each code commit is its own commit and updates this file for its own landing.
 ## Resolved this session
 
 - **Nothing was ruled this session.**
-- **`df011da`'s landing:** checked by this session against his disk and GitHub, and
-  holding. Its tree, read from GitHub, is `bac77ee3…`, the one its `Verified-Tree:`
-  line names. On his disk: its eight files byte for byte an autocrlf checkout of the
-  tip, applied at 16:14:41 on 27 November; pytest's `nodeids` written at 16:18:31,
-  holding the new test, and `lastfailed` `{}`; the index the tip's tree; the commit
-  object hashing to its name and byte for byte GitHub's, with no CR; `COMMIT_EDITMSG`
-  the message; `master` at 16:32:11 and `origin/master` at 16:32:26, by push; no
-  delivery file in the root. GitHub's tip read as `df011da` at 16:52 on 27 November,
-  with no credentials. **Found at that landing:** the reflog rewrite (Open items).
-  The seven files this commit's patch changes that existed were staged off his disk and
-  matched that checkout byte for byte before the patch was built.
-- **Found building entry 57, and fixed in it:** the record's folder is an ignored file
-  the handover check did not know, so the pre-push hook would have stopped every push
-  after a `run_tests.py` run. `.run_tests_cache` is in its routine list.
+- **`008f27b`'s landing:** checked by the session that delivered it, and holding
+  (Viktor's message of 18:36 on 27 November): its files, the index, the commit object,
+  `COMMIT_EDITMSG`, the refs and the push; `.run_tests_cache\last_run.json` 948 / 0 /
+  31, `filters` `[]`, finished 18:05:52. This session's clone read GitHub's tip as
+  `008f27b` at about 18:37; off his disk it read the record, unchanged, the reflogs
+  (Open items, the reflog find), and no delivery file in the root. The four files this
+  commit's patch changes were staged off his disk and matched an autocrlf checkout of
+  `008f27b` byte for byte before the patch was built.
+- **The Engineering Notes regenerated at v1.45**, Entries #307 to #314 (Where things
+  stand).
+- **Found regenerating them, not fixed:** the Portfolio Document's sentence on the 4h
+  guard, written two days before the guard existed; true since `49ca50c` (Where things
+  stand, the Portfolio Document).
+- **Found choosing the work, and corrected:** entry 58 still said its sentences round
+  as described, though the redesign's stages removed or rewrote every one (its entry);
+  and the open item on the list of settings that may be tuned after the paper-trading
+  year still said the ADX floor and the stop's 1.2 were proposed, each his yes or no.
+  He ruled yes to both at 11:00 on 11 November (DECISIONS, "Ruling, 11 November 2026 —
+  the ADX floor of 20 and the stop's 1.2 may be on the tunable list"), and the design
+  was fixed on 12 November, so the list is named: the ADX floor, the stop's ATR
+  multiple and F, as the redesign draft's §9 (version 14) records. The item is removed
+  from Open items. Whether the list must also be written somewhere the audit's package
+  carries was not checked.
+- **Left by `008f27b`, and corrected:** entries 68 and 70 said they landed "by the
+  commit that writes this line", and "Before this commit" named `1d57c00`; the first
+  two name `df011da` now, and the bullet this commit's base.
 - **By which model:** this session's work and its commit were Claude Opus 5.5's.
 
 ## Open items
@@ -7111,8 +7180,7 @@ Items marked **Viktor's call** are his to decide; he writes his position first a
 Claude critiques it.
 
 - **Owed to the next commit:** nothing, unless this commit's push deviates from its
-  prediction (ruling on proposal (b), 27 September). The reflog find made at
-  `df011da`'s landing is recorded by this commit (Open items, below).
+  prediction (ruling on proposal (b), 27 September).
 - **Viktor's call: whether to delete `origin/redesign`** on GitHub. The local branch
   and the worktree are gone (Resolved this session); nothing reads the remote branch.
 - **Viktor's, when he reads it: stage 2's three readings, stage 3's four, stage
@@ -7157,15 +7225,6 @@ Claude critiques it.
   LINKUSDT's. The slice's size in USDT is not on record; the 1,000 is from his
   message. Not ruled: whether F is tied to the slice, and at what share of a candle.
   F stands at 10,000 USDT meanwhile.
-- **Claude's, when the redesign's design is fixed, before Amazon's audit — the list of
-  settings that may be tuned after the paper-trading year** (DECISIONS, "Decision,
-  30 October 2026 — what may be tuned after the paper-trading year …", points 1 to 3):
-  at most three thresholds, named with the design; any value on it written into one of
-  Viktor's rulings goes to him for a yes or no. The two volume gates' cutoffs are
-  candidates (DECISIONS, "Ruling, 31 October 2026 — volume enters the redesign as two
-  gates …", point 4). **One place is taken since 11 November:** F, 10,000 USDT, ruled
-  as a starting value on the list. Proposed for the other two (the draft's §9): the
-  ADX floor and the stop's 1.2, each his yes or no.
 - **Wave 1 — what is left.** Its test gaps have landed: entry 48 at `ed005a0`, 36 at
   `e88e0dd`, 37 at `d508b29`, 49, found landing 37, at `ad34c02`, and 51, found
   landing 49, at `b387c03`; entry 54, found landing 51, audit tooling, at `9862568`;
@@ -7207,7 +7266,15 @@ Claude critiques it.
   reflogs and then repacks, and no pack was written. Not read: 2.55's manual and git's
   code. No object was lost: the commits and trees are GitHub's. What it costs: a reflog
   entry before 29 October can no longer be read off his disk. Not fixed; nothing waits
-  on it.
+  on it. **Read at `008f27b`'s landing** by the session that delivered it (Viktor's
+  message), and again off his disk by the session of 18:36: `008f27b`'s commit, at
+  18:34:18, did not rewrite them. `master`'s and HEAD's each gained one line and
+  `origin/master`'s one, by the push at 18:34:35, and all three still start at
+  `3dbd8dc`'s entry, unbroken (57, 58 and 57 lines); `origin/HEAD`'s and
+  `origin/redesign`'s are as written at 16:32:11.590 and .592. No `gc.log` or
+  `gc.pid` in `.git`. So whatever rewrote them at `df011da`'s commit did not run at
+  `008f27b`'s; with no entry older than 30 days left, an expiry of such entries would
+  have had nothing to remove (reasoned, not run).
 - **The engine's indicators — the document of 24 October** (outside the repository,
   "Where the project is"). Version 2's section 6 questions were ruled on 25 October
   (Ruled — in force); the redesign is entry 53, the next item. **The tooling landed**

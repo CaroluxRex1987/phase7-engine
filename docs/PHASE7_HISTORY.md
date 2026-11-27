@@ -226201,3 +226201,196 @@ Lines 7167–7170 of the version at `df011da`:
   was taken on 11 November, so nothing ruled holds it back now (Viktor's ruling of
   08:55 on 11 November; Ruled — in force).
 ~~~~~
+
+## 27 November 2026 — the lines the rewrite of PHASE7_NEXT.md removed from its version at `008f27b`
+
+*Moved here on 27 November 2026 by the commit that regenerates the Engineering Notes at
+v1.45 (Entries #307 to #314), the commit after `008f27b`, which landed entry 57, under
+"Ruling, 4 November 2026 — HISTORY keeps what each rewrite of PHASE7_NEXT.md removes,
+not the whole file" (DECISIONS). Below the rule, each block is a run of lines of the
+file as it stood at `008f27b` that the rewrite deleted or replaced, word for word,
+labelled with its line numbers in that version. "This commit" and "the commit that
+writes this line" in them name `008f27b`, except in Lines 5317–5318, where "the
+commit that writes this line" names `923afaf`, and Lines 6768 and 6797–6798, where it
+names `df011da`. The whole version: `git show 008f27b:docs/PHASE7_NEXT.md`. Checked by
+`python docs/build/check_history_move.py`.*
+
+---
+
+Lines 3–27 of the version at `008f27b`:
+
+~~~~~
+*27 November 2026, in the session that opened at 16:50. Written by the commit that
+lands entry 57, which follows `df011da`, entries 68 and 70. `run_tests.py` now writes
+a last-run record at the end of every run — its finish time with its UTC offset, its
+passed, failed and errors counts and the filters it was given — to
+`.run_tests_cache/last_run.json`, an ignored file, so a landing check reads that it ran
+as it reads pytest's cache (entry 57, ruled by Viktor on 27 October; "Found after
+22 September"). The handover check files the folder as routine; without that, every push
+after a `run_tests.py` run would have stopped (found building it). It moves `code_hash`,
+`run_tests.py`'s fingerprint alone, and neither golden snapshot; it adds six tests to
+each suite and is not on the decision path, so it has no live run. Chosen at this
+session's opening by the patch-delivery skill's section 10: no commit owed but the find
+below, which this commit records, nothing due by its date, and entry 57 the next of
+Claude's own, as `df011da` placed it (Claude's reading, his to correct). `df011da`'s
+landing was checked by this session and holds; it read GitHub's tip as `df011da` at
+16:52 on 27 November. **Found at that landing, cause not established:** every reflog in
+`.git\logs` was rewritten in the commit's second and now starts on 29 October (Open
+items). The redesign is built and merged (THE REDESIGN'S BUILD, below): `master` runs it
+and BLESSUSDT is the default pair. `origin/redesign` is still on GitHub: deleting it is
+his call. The Engineering Notes stop at Entry #306, `e022337`: eight commits since have
+no entry yet, for the next regeneration (Engineering Notes, under "Where things stand").
+The lines this commit removed from the version at `df011da` are in HISTORY, which points
+to that whole version in git. **Next: Claude's, chosen at the next session's opening by
+the patch-delivery skill's section 10;** which of Claude's own comes after entry 57 was
+not read by this session; entry 69 waits for after the audit, with H7. Viktor's open
+calls are in Open items.
+~~~~~
+
+Lines 3731–3732 of the version at `008f27b`:
+
+~~~~~
+  entry 57, `run_tests.py`'s last-run record, and `df011da`'s landing recorded, with the
+  reflog find made at it; it moves `code_hash`. Before it: `df011da` (entries 68 and
+~~~~~
+
+Line 4165 of the version at `008f27b`:
+
+~~~~~
+  26 November, read by the session of 23:47, which checked `1d57c00`'s landing; and
+~~~~~
+
+Line 4167 of the version at `008f27b`:
+
+~~~~~
+  `df011da`'s landing. That reflog now starts on 29 October (Open items, the reflog
+~~~~~
+
+Lines 4477–4479 of the version at `008f27b`:
+
+~~~~~
+- **Before this commit**, the eight files its patch changes were staged off Viktor's
+  disk, from `E:\phase7_engine`, and matched an autocrlf checkout of `1d57c00` byte for
+  byte, before the patch was built; it adds none. (This bullet named `e022337` from
+~~~~~
+
+Line 4484 of the version at `008f27b`:
+
+~~~~~
+  from entry 57, the commit that writes this line**: `run_tests.py`'s file fingerprint
+~~~~~
+
+Lines 4588–4589 of the version at `008f27b`:
+
+~~~~~
+  in `FINGERPRINTED_CONFIG`. No commit since has moved either, the commit that writes
+  this line included, which changes no module the engine imports (`run_tests.py`,
+~~~~~
+
+Lines 4736–4737 of the version at `008f27b`:
+
+~~~~~
+  until `713e084` (entry 50). **The commit that writes this line adds six tests to
+  each** (`tests/test_run_tests_leaves_a_record.py`, no fixtures, needing no
+~~~~~
+
+Lines 4741–4742 of the version at `008f27b`:
+
+~~~~~
+  the same commit. **From this commit on, `run_tests.py` writes its counts to
+  `.run_tests_cache/last_run.json` on his disk** (entry 57). **Entries 68 and 70,
+~~~~~
+
+Lines 5261–5263 of the version at `008f27b`:
+
+~~~~~
+- **Engineering Notes:** through Entry #306 (v1.44), which covers `e022337`; **eight
+  commits need an entry and have none:** `9708a35`, `923afaf`, `fef9b4a`, `49ca50c`,
+  `5acbf80`, `1d57c00`, `df011da` and the commit that writes this line. This bullet said none was behind from `9708a35` to
+~~~~~
+
+Lines 5303–5304 of the version at `008f27b`:
+
+~~~~~
+  PDF last changed at `9708a35`.
+  **The Portfolio Document revised on 22 November, by `9708a35`,**
+~~~~~
+
+Lines 5317–5318 of the version at `008f27b`:
+
+~~~~~
+  **The AI-Attribution Statement corrected on 24 November, by the commit that writes
+  this line.** Its table of Viktor's rulings said the inline comments it cites exist
+~~~~~
+
+Lines 5339–5340 of the version at `008f27b`:
+
+~~~~~
+  844 / 169 and 948 passed, 0 failed), last changed by the commit that writes this
+  line, which changed only the numbers, for its six new tests; before it by `df011da`,
+~~~~~
+
+Line 6570 of the version at `008f27b`:
+
+~~~~~
+  **Landed by the commit that writes this line**: at the end of each run that tests
+~~~~~
+
+Line 6768 of the version at `008f27b`:
+
+~~~~~
+  **27 November: landed**, by the commit that writes this line, with 70, taken by the
+~~~~~
+
+Lines 6797–6798 of the version at `008f27b`:
+
+~~~~~
+  copy). Claude's; entry 70, not in the sort. **27 November: landed**, by the commit
+  that writes this line, with 68: the comment reads "(validate_ohlcv)" where it read
+~~~~~
+
+Lines 7092–7105 of the version at `008f27b`:
+
+~~~~~
+- **`df011da`'s landing:** checked by this session against his disk and GitHub, and
+  holding. Its tree, read from GitHub, is `bac77ee3…`, the one its `Verified-Tree:`
+  line names. On his disk: its eight files byte for byte an autocrlf checkout of the
+  tip, applied at 16:14:41 on 27 November; pytest's `nodeids` written at 16:18:31,
+  holding the new test, and `lastfailed` `{}`; the index the tip's tree; the commit
+  object hashing to its name and byte for byte GitHub's, with no CR; `COMMIT_EDITMSG`
+  the message; `master` at 16:32:11 and `origin/master` at 16:32:26, by push; no
+  delivery file in the root. GitHub's tip read as `df011da` at 16:52 on 27 November,
+  with no credentials. **Found at that landing:** the reflog rewrite (Open items).
+  The seven files this commit's patch changes that existed were staged off his disk and
+  matched that checkout byte for byte before the patch was built.
+- **Found building entry 57, and fixed in it:** the record's folder is an ignored file
+  the handover check did not know, so the pre-push hook would have stopped every push
+  after a `run_tests.py` run. `.run_tests_cache` is in its routine list.
+~~~~~
+
+Lines 7114–7115 of the version at `008f27b`:
+
+~~~~~
+  prediction (ruling on proposal (b), 27 September). The reflog find made at
+  `df011da`'s landing is recorded by this commit (Open items, below).
+~~~~~
+
+Lines 7160–7168 of the version at `008f27b`:
+
+~~~~~
+- **Claude's, when the redesign's design is fixed, before Amazon's audit — the list of
+  settings that may be tuned after the paper-trading year** (DECISIONS, "Decision,
+  30 October 2026 — what may be tuned after the paper-trading year …", points 1 to 3):
+  at most three thresholds, named with the design; any value on it written into one of
+  Viktor's rulings goes to him for a yes or no. The two volume gates' cutoffs are
+  candidates (DECISIONS, "Ruling, 31 October 2026 — volume enters the redesign as two
+  gates …", point 4). **One place is taken since 11 November:** F, 10,000 USDT, ruled
+  as a starting value on the list. Proposed for the other two (the draft's §9): the
+  ADX floor and the stop's 1.2, each his yes or no.
+~~~~~
+
+Line 7210 of the version at `008f27b`:
+
+~~~~~
+  on it.
+~~~~~
