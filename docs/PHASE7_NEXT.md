@@ -1,31 +1,31 @@
 # Next step — read this first
 
-*26 November 2026, in the session that opened at 20:40. Written by the commit that
-lands entries 45, 46 and 65, which follows `5acbf80`, entry 40. Three pieces of code
-nothing read are gone: `data/validation.py`'s `import math`, `models/entry_model.py`'s
-`import numpy as np`, and the index `plot_engine_chart`'s target loop in
-`utils/plotting.py` bound and never read (entries 45, 46 and 65 of "Found after
-22 September"); each file's parse tree is the old one less exactly that. It moves
-`code_hash` to `041a3d1a…` and neither golden snapshot, adds no test, and its live run
-is recorded in its commit message. Chosen at this session's opening by the
-patch-delivery skill's section 10: no commit owed, nothing due by its date, and of
-Claude's work the rulings in force let land now, 45 and 46 are the next in the order
-ruled on 19 October, read as `49ca50c` read it; 65, of 45's kind and not in the sort,
-joins them as Claude's under the delegation of the order of work (Claude's reading and
-call, his to correct). Found landing them, and filed rather than fixed: entries 69 and
-70 (Found after 22 September). The redesign is built and merged (THE REDESIGN'S BUILD,
-below): `master` runs it and BLESSUSDT is the default pair. `5acbf80`'s landing was
-checked by this session and holds; it read GitHub's tip as `5acbf80` at 20:41.
-`origin/redesign` is still on GitHub: deleting it is his call. The Engineering Notes
-stop at Entry #306, `e022337`: `9708a35`, `923afaf`, `fef9b4a`, `49ca50c`, `5acbf80`
-and this commit have no entry yet, for the next regeneration (Engineering Notes, under
-"Where things stand"). The lines this commit removed from the version at `5acbf80` are
-in HISTORY, which points to that whole version in git. **Next: Claude's, chosen at the
-next session's opening by the patch-delivery skill's section 10;** with this commit no
-entry of Claude's in the sort of 19 October is left open before the audit, so by the
-same reading the next of Claude's own are the entries not in the sort, taken by the
-sort's waves: 68 and 70 (tooling and a comment, wave 1's kind, moving no `code_hash`),
-then 57 (wave 2), as `49ca50c` placed it. Viktor's open calls are in Open items.
+*27 November 2026, in the session that opened at 23:47 on 26 November. Written by
+the commit that lands entries 68 and 70, which follows `1d57c00`, entries 45, 46 and
+65. `docs/build/measure_draft_gaps.py`'s `main()` now puts back the logging level it
+found on every way out, so the suite no longer runs with logging switched off from
+`tests/test_measure_draft_gaps.py` on (entry 68, with a new test and one assertion
+more), and a comment in `indicators/indicators.py` cites the NaN check by its function,
+`validate_ohlcv`, not by a line it left long ago (entry 70; "Found after
+22 September"). It moves neither `code_hash` nor either golden snapshot, adds one test
+to each suite, and is not on the decision path, so it has no live run. Chosen at this
+session's opening by the patch-delivery skill's section 10: no commit owed, nothing due
+by its date, and of Claude's work the rulings in force let land now, 68 and 70 were the
+next, taken by the sort's waves as `1d57c00` placed them (Claude's reading, his to
+correct). Found landing them, and corrected: the README.md bullet under "Where things
+stand" had given README's test counts as 1004, 835 / 165 and 935 since `49ca50c`. The
+redesign is built and merged (THE REDESIGN'S BUILD, below): `master` runs it and
+BLESSUSDT is the default pair. `1d57c00`'s landing was checked by this session and
+holds; it read GitHub's tip as `1d57c00` at 23:48 on 26 November. `origin/redesign` is
+still on GitHub: deleting it is his call. The Engineering Notes stop at Entry #306,
+`e022337`: `9708a35`, `923afaf`, `fef9b4a`, `49ca50c`, `5acbf80`, `1d57c00` and this
+commit have no entry yet, for the next regeneration (Engineering Notes, under "Where
+things stand"). The lines this commit removed from the version at `1d57c00` are in
+HISTORY, which points to that whole version in git. **Next: Claude's, chosen at the
+next session's opening by the patch-delivery skill's section 10;** by the same reading,
+the next of Claude's own is entry 57, `run_tests.py`'s last-run record (wave 2), as
+`49ca50c` placed it; entry 69 waits for after the audit, with H7. Viktor's open calls
+are in Open items.
 This file is the project's current-state entry point: it states only what is true right
 now and what to do next, and is rewritten each session, not appended to. Standing
 rules, ratified specifications and rulings in force live in docs/PHASE7_DECISIONS.md.
@@ -3729,8 +3729,10 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
 ## Where things stand, right now
 
 - **Tip:** the commit that writes this line (a commit cannot name its own hash) —
-  entries 45, 46 and 65, three pieces of code nothing read removed, and `5acbf80`'s
-  landing recorded; it moves `code_hash`. Before it: `5acbf80` (entry 40, the engine's
+  entries 68 and 70, `measure_draft_gaps.py`'s `main()` putting logging back and a
+  comment citing the NaN check by its function, and `1d57c00`'s landing recorded; it
+  does not move `code_hash`. Before it: `1d57c00` (entries 45, 46 and 65, three pieces
+  of code nothing read removed, which moved `code_hash`); before that, `5acbf80` (entry 40, the engine's
   names and its BTC-failure log line saying the traded asset and not AERO, which moved
   `code_hash`); before that, `49ca50c` (B5's guard, the engine refusing any timeframe but 4h, which moved
   `code_hash`); before that, `fef9b4a` (Viktor's ruling of 16:26 on
@@ -4158,8 +4160,9 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
   `923afaf`'s at 01:08:47 on 25 November and `fef9b4a`'s at 16:43:10 on 26 November,
   read by the session of 17:06 on 26 November, which checked `fef9b4a`'s landing;
   `49ca50c`'s at 18:42:47 on 26 November, read by the session of 18:52, which checked
-  `49ca50c`'s landing; and `5acbf80`'s at 20:32:03 on 26 November, read by the session
-  of 20:40, which checked `5acbf80`'s landing. This bullet stopped at `e022337`'s push from `a2fd788` to
+  `49ca50c`'s landing; `5acbf80`'s at 20:32:03 on 26 November, read by the session
+  of 20:40, which checked `5acbf80`'s landing; and `1d57c00`'s at 22:11:01 on
+  26 November, read by the session of 23:47, which checked `1d57c00`'s landing. This bullet stopped at `e022337`'s push from `a2fd788` to
   `fef9b4a`, which did not bring it current; corrected by `49ca50c`.
   **The pushes of the redesign's build**: the branch's last, `4eb71aa`'s, by 11:17:05 on
   22 November (Resolved this session, in HISTORY's entry for this commit); before it
@@ -4468,14 +4471,18 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
   The same holds for the push of the
   commit that writes this line unless it deviates. Earlier pushes and deviations are
   recorded in this file's previous versions, in HISTORY.
-- **Before this commit**, the six files its patch changes were staged off Viktor's
-  disk, from `E:\phase7_engine`, and matched an autocrlf checkout of `5acbf80` byte for
+- **Before this commit**, the eight files its patch changes were staged off Viktor's
+  disk, from `E:\phase7_engine`, and matched an autocrlf checkout of `1d57c00` byte for
   byte, before the patch was built; it adds none. (This bullet named `e022337` from
   `a2fd788` to `fef9b4a`, which did not bring it current; corrected by `49ca50c`. It
   named `9cc48d7` from `a9b83a9` to stage 7; corrected by the
   branch's last commit.)
 - **code_hash:** **`041a3d1a9c023dc230b26c9164bcfe97ee1380fae25a0a8f0c9d1634e77e2d6e`
-  from the commit that writes this line, entries 45, 46 and 65**: the file
+  from entries 45, 46 and 65, `1d57c00`, unchanged by the commit that writes this
+  line**, entries 68 and 70: `code_fingerprint` reads neither `docs/` nor `tests/`, and
+  `indicators/indicators.py`'s change is a comment, its file fingerprint `203414b4…`
+  before and after, computed under Python 3.12.3 in the Linux sandbox on the applied
+  tree. At `1d57c00` the file
   fingerprints of `data/validation.py`, `models/entry_model.py` and `utils/plotting.py`
   move and no other, computed under Python 3.12.3 in the Linux sandbox on the applied
   tree. Before it
@@ -4572,9 +4579,10 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
 - **Golden snapshot:** **`run_hash` moved in both by the BLESS commit, `e022337`**, with the
   two archive paths named after it, four lines each and nothing else: `config.SYMBOL` is
   in `FINGERPRINTED_CONFIG`. No commit since has moved either, the commit that writes
-  this line included: its `models.entry_model` entry in `FINGERPRINTED_MODULES` names
-  seven constants, none of which it changes, and `data.validation` and `utils.plotting`
-  are not among them; at `5acbf80`, `core.engine_core` is not among them, and
+  this line included, whose one change in a module the engine imports is a comment in
+  `indicators/indicators.py`; at `1d57c00`, `models.entry_model`'s entry in
+  `FINGERPRINTED_MODULES` names seven constants, none of which that commit changes, and
+  `data.validation` and `utils.plotting` are not among them; at `5acbf80`, `core.engine_core` is not among them, and
   `models.btc_context`'s entry names `CORRELATION_WINDOW` alone, which entry 40 does not
   change, so `run_hash` holds; and a 4h run passes B5's guard (`49ca50c`). Before `e022337`, **two leaves
   removed from each snapshot by `4200f3b`, stage 7** —
@@ -4710,15 +4718,18 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
   `22a9a35`, 4 leaves (the confirmation reason, `volume_sentiment` twice and
   `validation_note`'s volume half: VOLUME DIVERGENCE → FADING VOLUME); before that at
   `6469a67`, 8 leaves.
-- **Test suite** — **1010 passed / 0 failed, no warnings line** with `pandas_ta`;
-  **837 passed / 169 skipped** without it; `run_tests.py` **941 passed / 0 failed /
+- **Test suite** — **1011 passed / 0 failed, no warnings line** with `pandas_ta`;
+  **838 passed / 169 skipped** without it; `run_tests.py` **942 passed / 0 failed /
   31 errors**, all 31 fixture-collection `TypeError`s: the 32 of `e88e0dd` less
   `test_no_module_defaults_a_missing_risk_verdict_to_a_pass`. This is meant to be the
   one place the watched error count is written as a number (DECISIONS, "Ruling,
   15 October 2026 — Part 4's three test shapes", point 5); `README.md` wrote it too
-  until `713e084` (entry 50). **The commit that writes this line adds no test and
-  moves no count**, counted in the Linux sandbox under Python 3.12.3 on the applied
-  tree, so `README.md`'s Tests row stays as it is. **Entry 40, `5acbf80`, adds two
+  until `713e084` (entry 50). **The commit that writes this line adds one test to
+  each** (`tests/test_measure_draft_gaps.py`, no fixtures, needing no `pandas_ta`),
+  **and the error count does not move**; from 1010 / 0, 837 / 169 and 941 / 0 / 31 at
+  `1d57c00`, counted in the Linux sandbox under Python 3.12.3 on the applied tree, and
+  `README.md`'s Tests row brought to the new ones in the same commit. **Entries 45, 46
+  and 65, `1d57c00`, add no test and move no count.** **Entry 40, `5acbf80`, adds two
   tests to each**
   (`tests/test_the_engine_names_the_asset_it_runs.py`, no fixtures: one needs
   `pandas_ta` and skips without it, the other reads the parse tree and runs in all
@@ -5234,9 +5245,9 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
   then run on Windows at 09:06 on 12 October: both matched (792; 721 / 0 / 32). One test,
   `test_the_commit_messages_up_to_the_tag_are_round_7s_to_the_byte`, runs `git log` up
   to the tag `round7-sent-2026-09-30`: it needs the tag, which a full clone has.
-- **Engineering Notes:** through Entry #306 (v1.44), which covers `e022337`; **six
+- **Engineering Notes:** through Entry #306 (v1.44), which covers `e022337`; **seven
   commits need an entry and have none:** `9708a35`, `923afaf`, `fef9b4a`, `49ca50c`,
-  `5acbf80` and the commit that writes this line. This bullet said none was behind from `9708a35` to
+  `5acbf80`, `1d57c00` and the commit that writes this line. This bullet said none was behind from `9708a35` to
   `fef9b4a`, which did not bring it current; corrected by `49ca50c`.
   v1.44, at `a2fd788`, which is the regeneration and has none, covers
   the eighteen commits from `9cc48d7` to `e022337`, one entry each, rebuilt once over the
@@ -5311,9 +5322,14 @@ only: no engine code, no test, no tooling; it moves no `code_hash`.
   was rendered and looked at.
 - **README.md:** **`706e858` changed its "Independent audit" and "Engine code"
   rows**, for the ruling of 7 November on F2, in wording Claude wrote and put to
-  Viktor before his commit, and nothing else in it. **Its test counts are current (1004,
-  835 / 165 and 935 passed, 0 failed), last changed by the BLESS commit, the commit
-  that writes this line; before it by `4200f3b`, stage 7, with four stale passages** (THE REDESIGN'S BUILD, stage 7; stages 2 to 4 changed the counts too,
+  Viktor before his commit, and nothing else in it. **Its test counts are current (1011,
+  838 / 169 and 942 passed, 0 failed), last changed by the commit that writes this
+  line, which changed only the numbers, for its one new test; before it by `5acbf80`
+  and `49ca50c`, each changing only the numbers, for their new tests, and by the BLESS
+  commit, `e022337`** (this bullet gave the counts as 1004, 835 / 165 and 935 from
+  `49ca50c` to `1d57c00`, and the BLESS commit as "the commit that writes this line"
+  from `a2fd788` to `1d57c00`, which did not bring it current; corrected by the commit
+  that writes this line); **before the BLESS commit by `4200f3b`, stage 7, with four stale passages** (THE REDESIGN'S BUILD, stage 7; stages 2 to 4 changed the counts too,
   and stage 5 did not); before the build they were last changed by `340ee8d`, which changed only
   the numbers, for its two new tests (`82b824d`, `6bb82cc`, `e4363d5`, `a60d66b` and the commit that writes this
   line do not change `README.md`), and before it by `4ab59d7`, which changed only the numbers, for its 24 new tests (`94b7e96`,
@@ -6295,7 +6311,7 @@ the work before the audit, entry 1 apart.
   to `fef9b4a`.
 - **`data/validation.py` imports `math` and never uses it** (line 121, found by the
   same search). Cleanup only. On this list by the 22 September ruling. **26 November:
-  landed**, by the commit that writes this line, with 46 and 65: the import and the
+  landed**, by `1d57c00`, with 46 and 65: the import and the
   blank line under it are gone, and the module's parse tree is the old one less that
   import (read in the Linux sandbox).
 - **`plot_engine_chart` binds a loop variable it never reads** (`utils/plotting.py`,
@@ -6304,8 +6320,7 @@ the work before the audit, entry 1 apart.
   `code_hash` moves, since the file is fingerprinted. The ruling of 18 October named it
   among the search's results and did not put it on the list; added on 19 October by the
   22 September ruling, with 45 (DECISIONS, "Ruling, 19 October 2026 — the list for
-  after the audit, sorted …"). **26 November: landed**, by the commit that writes this
-  line, with 45 and 65: `for target, label, color in [(t1, …), (t2, …), (t3, …)]`, the
+  after the audit, sorted …"). **26 November: landed**, by `1d57c00`, with 45 and 65: `for target, label, color in [(t1, …), (t2, …), (t3, …)]`, the
   list no longer passed through `enumerate`; the loop's body and the rest of the
   module's parse tree are unchanged (read in the Linux sandbox).
 - **BTC structure's degradations are neither recorded nor logged** (found 20 October,
@@ -6685,7 +6700,7 @@ the work before the audit, entry 1 apart.
   search): nothing in the module reads `np` since stage 4 made entry quality D + H.
   Cleanup only; `code_hash` moves. Proposed as a held-back defect and not chosen, its
   kind being on this list already (`data/validation.py`'s `math`). Entry 65; not in the
-  sort. **26 November: landed**, by the commit that writes this line, with 45 and 46,
+  sort. **26 November: landed**, by `1d57c00`, with 45 and 46,
   placed with them as Claude's under the delegation of the order of work (his to
   reverse): the import is gone and the module's parse tree is the old one less it.
 - **`StructureAnalysisResult` is declared and nothing refers to it** (found 17 November,
@@ -6728,6 +6743,16 @@ the work before the audit, entry 1 apart.
   on 26 November at `49ca50c` with entry 40's patch applied, finds only entry 40's
   new test, which lifts the switch for its own run and puts it back. Tooling and
   tests only, so `code_hash` does not move. Claude's; entry 68, not in the sort.
+  **27 November: landed**, by the commit that writes this line, with 70, taken by the
+  sort's waves as wave 1's kind (Claude's reading, as `49ca50c` placed it): `main()`
+  saves the level it finds and puts it back in a `finally`, so its refusals put it back
+  too. The new `test_main_puts_logging_back_as_it_found_it_when_it_refuses`, and one
+  assertion more in `test_the_whole_reading_on_four_synthetic_candles`, fail against
+  the old script (two behavioural assertions, `50 == 0`); the new test fails against a
+  restore on the return path alone, and against one that puts back NOTSET whatever it
+  found (Linux sandbox). Entry 40's test keeps its own lift, its comment brought to the
+  fix; with the fix and that lift taken out on a copy it passes after this file, and
+  without the fix it fails, as on 26 November.
 - **An f-string with nothing to fill in** (found 26 November, landing entries 45, 46
   and 65, by pyflakes run in the Linux sandbox over the files `code_hash` reads;
   pyflakes is not one of the project's requirements). `core/panel_render.py`, line 538
@@ -6747,7 +6772,11 @@ the work before the audit, entry 1 apart.
   higher once entry 45's import is gone. The sentence itself holds. A comment, so a
   fix leaves `code_hash` where it is (`core/code_fingerprint.py` hashes the parse tree,
   which holds no comments; checked in the Linux sandbox by changing the citation on a
-  copy). Claude's; entry 70, not in the sort.
+  copy). Claude's; entry 70, not in the sort. **27 November: landed**, by the commit
+  that writes this line, with 68: the comment reads "(validate_ohlcv)" where it read
+  "(validation.py:147)", naming the function, which does not drift as a line number
+  does; the file's fingerprint is `203414b4…` before and after (Linux sandbox, Python
+  3.12.3).
 
 ## Work order — Claude's, under Viktor's delegation
 
@@ -7038,21 +7067,22 @@ Each code commit is its own commit and updates this file for its own landing.
 ## Resolved this session
 
 - **Nothing was ruled this session.**
-- **`5acbf80`'s landing:** checked by this session against his disk and GitHub, and
-  holding. Its tree, read from GitHub, is `e302aded…`, the one its `Verified-Tree:`
-  line names. On his disk: its eight files byte for byte an autocrlf checkout of the
-  tip, applied at 19:46:55 on 26 November; pytest's `nodeids` written at 19:50:36,
-  holding the two new tests' ids, and `lastfailed` `{}`; the index the tip's tree; the
-  commit object and `COMMIT_EDITMSG` the commit's, with no CR; `master` at 20:31:46 and
-  `origin/master` at 20:32:03, by push; no delivery file in the root.
-  `check_history_move.py --base 5acbf80~1` on the tip gives its message's line.
-  GitHub's tip read as `5acbf80` at 20:41, with no credentials. The six files this
-  commit's patch changes were staged off his disk and matched that checkout byte for
-  byte before the patch was built.
-- **This section stayed at `fef9b4a`'s session** through `49ca50c` and `5acbf80`,
-  which did not rewrite it; so did the Portfolio Document bullet's "the commit that
-  writes this line" for `923afaf`. Both corrected on 26 November; the lines removed are
-  in HISTORY's entry for this commit.
+- **`1d57c00`'s landing:** checked by this session against his disk and GitHub, and
+  holding. Its tree, read from GitHub, is `2f28735b…`, the one its `Verified-Tree:`
+  line names. On his disk: its six files byte for byte an autocrlf checkout of the
+  tip, applied at 21:45:23 on 26 November; pytest's `nodeids` written at 21:49:12, and
+  `lastfailed` `{}`; the index the tip's tree; the commit object and `COMMIT_EDITMSG`
+  the commit's, with no CR; `master` at 22:10:46 and `origin/master` at 22:11:01, by
+  push; no delivery file in the root. `check_history_move.py --base 1d57c00~1` on the
+  tip gives its message's line. GitHub's tip read as `1d57c00` at 23:48 on
+  26 November, with no credentials. The eight files this commit's patch changes were
+  staged off his disk and matched that checkout byte for byte before the patch was
+  built.
+- **The README.md bullet under "Where things stand"** gave README's test counts as
+  1004, 835 / 165 and 935 from `49ca50c`, whose new tests changed them, and named the
+  BLESS commit "the commit that writes this line" from `a2fd788`. Found by this
+  commit, which changes those counts again, and corrected; the lines removed are in
+  HISTORY's entry for this commit.
 - **By which model:** this session's work and its commit were Claude Opus 5.5's.
 
 ## Open items

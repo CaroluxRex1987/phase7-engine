@@ -831,25 +831,33 @@ def main(argv=None):
     parser.add_argument("--floor", type=float, help="F for gate 7; by default the value point 3 proposes")
     parser.add_argument("--json", help="also write the results here")
     args = parser.parse_args(argv)
+    # The engine's own log lines are switched off while the records are read
+    # and measured, and put back as they were found on every way out, the
+    # refusals included. Entry 68 (found 26 November 2026): they were never
+    # put back, so a test calling main() in-process left logging off for
+    # every test after it.
+    found = logging.root.manager.disable
     logging.disable(logging.CRITICAL)
-
-    logs = read_logs(args.log_dir)
-    if not logs:
-        raise SystemExit(f"no decision logs in {args.log_dir}")
-    code_hash = resolve_code_hash(logs, args.code_hash)
-    if code_hash is None:
-        raise SystemExit(f"no record at a code_hash starting {args.code_hash!r}")
-    first = parse_time(args.first_open)
-    last = parse_time(args.last_open) if args.last_open else None
-    population = select_population(logs, code_hash, first, last)
-    res = measure(population, args.root or REPO, args.floor)
-    res["code_hash"] = code_hash
-    print(f"code_hash {code_hash}")
-    print(report(population, res))
-    if args.json:
-        with open(args.json, "w", encoding="utf-8") as f:
-            json.dump(res, f, indent=1, default=str)
-    return 0
+    try:
+        logs = read_logs(args.log_dir)
+        if not logs:
+            raise SystemExit(f"no decision logs in {args.log_dir}")
+        code_hash = resolve_code_hash(logs, args.code_hash)
+        if code_hash is None:
+            raise SystemExit(f"no record at a code_hash starting {args.code_hash!r}")
+        first = parse_time(args.first_open)
+        last = parse_time(args.last_open) if args.last_open else None
+        population = select_population(logs, code_hash, first, last)
+        res = measure(population, args.root or REPO, args.floor)
+        res["code_hash"] = code_hash
+        print(f"code_hash {code_hash}")
+        print(report(population, res))
+        if args.json:
+            with open(args.json, "w", encoding="utf-8") as f:
+                json.dump(res, f, indent=1, default=str)
+        return 0
+    finally:
+        logging.disable(found)
 
 
 if __name__ == "__main__":

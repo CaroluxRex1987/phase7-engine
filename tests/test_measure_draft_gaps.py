@@ -5,7 +5,8 @@ Written 2 November 2026 with the script, from DECISIONS, "Decision, 2 November
 2026 -- how the reading of 14 November measures the redesign draft's gaps ...";
 computation 7's two tests added 7 November 2026, from "Amendment, 7 November
 2026 -- the reading of 14 November counts the CHOCHs against the side
-(computation 7)".
+(computation 7)"; the test that main() puts logging back added for entry 68
+(found 26 November 2026).
 Synthetic records only: every record and archive below is built here, in a
 temporary folder, or is the golden decision of the pinned synthetic candles. No
 test reads the live logs.
@@ -21,6 +22,7 @@ import copy
 import datetime as dt
 import importlib.util
 import json
+import logging
 import os
 import shutil
 import sys
@@ -519,8 +521,11 @@ def test_the_whole_reading_on_four_synthetic_candles():
         logs = os.path.join(tmp, "logs")
         _write_logs(logs, records)
         out = os.path.join(tmp, "reading.json")
+        found = logging.root.manager.disable
         assert tool.main([logs, "--root", tmp, "--code-hash", "816d4951", "--floor", "1",
                           "--first-open", "2026-10-17T08:00:00+00:00", "--json", out]) == 0
+        # Entry 68: main() puts logging back as it found it on its return.
+        assert logging.root.manager.disable == found
         with open(out, encoding="utf-8") as f:
             res = json.load(f)
     finally:
@@ -549,6 +554,30 @@ def test_the_script_refuses_an_empty_folder_and_an_ambiguous_hash():
         with pytest.raises(SystemExit):
             tool.main([tmp])
     finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
+def test_main_puts_logging_back_as_it_found_it_when_it_refuses():
+    """
+    Entry 68 (found 26 November 2026): main() switched logging off for the
+    whole process and never put it back, so from this file on no log record
+    reached a handler, in pytest and in run_tests.py, and a later test that
+    asserted a warning's absence would have passed vacuously. main() now puts
+    back the level it found, on a refusal as on its return (the return is
+    checked in the whole reading's test above). Two levels, so that a fix
+    that put back NOTSET whatever it found would fail too.
+    """
+    tool = _tool()
+    found = logging.root.manager.disable
+    tmp = tempfile.mkdtemp(prefix="phase7_gaps_")
+    try:
+        for level in (logging.NOTSET, logging.INFO):
+            logging.disable(level)
+            with pytest.raises(SystemExit):
+                tool.main([tmp])
+            assert logging.root.manager.disable == level
+    finally:
+        logging.disable(found)
         shutil.rmtree(tmp, ignore_errors=True)
 
 

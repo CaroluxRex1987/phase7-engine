@@ -344,7 +344,7 @@ def add_technical_indicators(df: pd.DataFrame, inplace: bool = False):
     # invents a bar out of the one after it. Forward only now.
     #
     # Worth knowing that this loop is close to unreachable for the NaN case:
-    # data/validation.py rejects any NaN in an OHLCV column (validation.py:147)
+    # data/validation.py rejects any NaN in an OHLCV column (validate_ohlcv)
     # and runs in data_fetcher before the frame gets here. It is kept as a
     # guard for callers that did not come through the fetcher, not deleted,
     # because the cost is one pass and the failure it guards against is a

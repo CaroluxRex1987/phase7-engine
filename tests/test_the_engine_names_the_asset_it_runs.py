@@ -127,14 +127,15 @@ def test_a_failed_btc_context_logs_the_asset_the_run_was_made_on():
         shutil.copyfile(os.path.join(PINNED_DIR, source),
                         os.path.join(pinned, target))
 
-    # Entry 68 (PHASE7_NEXT.md, "Found after 22 September"): an earlier test
-    # file, tests/test_measure_draft_gaps.py, runs docs/build/
-    # measure_draft_gaps.py's main() in-process, and main() switches logging
-    # off for the whole process with logging.disable(CRITICAL), never lifted.
-    # This test passed alone and failed in the full suite on 26 November,
-    # its line dropped before any handler saw it. Lifted for this run and
-    # put back as it was found, so the test's answer does not depend on
-    # which files ran before it.
+    # Entry 68: an earlier test file, tests/test_measure_draft_gaps.py, runs
+    # docs/build/measure_draft_gaps.py's main() in-process, and main() used
+    # to switch logging off for the whole process with
+    # logging.disable(CRITICAL), never lifted. This test passed alone and
+    # failed in the full suite on 26 November, its line dropped before any
+    # handler saw it. main() now puts logging back (entry 68's fix, tested in
+    # tests/test_measure_draft_gaps.py); the switch is still lifted here for
+    # this run and put back as it was found, so the test's answer does not
+    # depend on which files ran before it.
     switched_off = logging.root.manager.disable
     capture = _Capture()
     saved = (ec.compute_correlation_beta, data_fetcher.base_url,

@@ -225885,3 +225885,165 @@ Lines 6997–7019 of the version at `5acbf80`:
   credentials. The three files this commit's patch changes were staged off his disk
   and matched that checkout byte for byte before the patch was built.
 ~~~~~
+
+## 27 November 2026 — the lines the rewrite of PHASE7_NEXT.md removed from its version at `1d57c00`
+
+*Moved here on 27 November 2026 by the commit that lands entries 68 and 70
+(`measure_draft_gaps.py`'s `main()` putting logging back, and a comment citing the NaN
+check by its function), the commit after `1d57c00`, which landed entries 45, 46 and 65,
+under "Ruling, 4 November 2026 — HISTORY keeps what each rewrite of PHASE7_NEXT.md
+removes, not the whole file" (DECISIONS). Below the rule, each block is a run of lines
+of the file as it stood at `1d57c00` that the rewrite deleted or replaced, word for
+word, labelled with its line numbers in that version. "This commit" and "the commit
+that writes this line" in them name `1d57c00`, except in lines 5314–5316, the README.md
+bullet, where "the commit that writes this line" names `e022337`, which wrote it, and
+which `a2fd788` to `1d57c00` left as it was. The whole version: `git show 1d57c00:docs/PHASE7_NEXT.md`. Checked by
+`docs/build/check_history_move.py`.*
+
+---
+
+Lines 3–28 of the version at `1d57c00`:
+
+~~~~~
+*26 November 2026, in the session that opened at 20:40. Written by the commit that
+lands entries 45, 46 and 65, which follows `5acbf80`, entry 40. Three pieces of code
+nothing read are gone: `data/validation.py`'s `import math`, `models/entry_model.py`'s
+`import numpy as np`, and the index `plot_engine_chart`'s target loop in
+`utils/plotting.py` bound and never read (entries 45, 46 and 65 of "Found after
+22 September"); each file's parse tree is the old one less exactly that. It moves
+`code_hash` to `041a3d1a…` and neither golden snapshot, adds no test, and its live run
+is recorded in its commit message. Chosen at this session's opening by the
+patch-delivery skill's section 10: no commit owed, nothing due by its date, and of
+Claude's work the rulings in force let land now, 45 and 46 are the next in the order
+ruled on 19 October, read as `49ca50c` read it; 65, of 45's kind and not in the sort,
+joins them as Claude's under the delegation of the order of work (Claude's reading and
+call, his to correct). Found landing them, and filed rather than fixed: entries 69 and
+70 (Found after 22 September). The redesign is built and merged (THE REDESIGN'S BUILD,
+below): `master` runs it and BLESSUSDT is the default pair. `5acbf80`'s landing was
+checked by this session and holds; it read GitHub's tip as `5acbf80` at 20:41.
+`origin/redesign` is still on GitHub: deleting it is his call. The Engineering Notes
+stop at Entry #306, `e022337`: `9708a35`, `923afaf`, `fef9b4a`, `49ca50c`, `5acbf80`
+and this commit have no entry yet, for the next regeneration (Engineering Notes, under
+"Where things stand"). The lines this commit removed from the version at `5acbf80` are
+in HISTORY, which points to that whole version in git. **Next: Claude's, chosen at the
+next session's opening by the patch-delivery skill's section 10;** with this commit no
+entry of Claude's in the sort of 19 October is left open before the audit, so by the
+same reading the next of Claude's own are the entries not in the sort, taken by the
+sort's waves: 68 and 70 (tooling and a comment, wave 1's kind, moving no `code_hash`),
+then 57 (wave 2), as `49ca50c` placed it. Viktor's open calls are in Open items.
+~~~~~
+
+Lines 3732–3733 of the version at `1d57c00`:
+
+~~~~~
+  entries 45, 46 and 65, three pieces of code nothing read removed, and `5acbf80`'s
+  landing recorded; it moves `code_hash`. Before it: `5acbf80` (entry 40, the engine's
+~~~~~
+
+Lines 4161–4162 of the version at `1d57c00`:
+
+~~~~~
+  `49ca50c`'s landing; and `5acbf80`'s at 20:32:03 on 26 November, read by the session
+  of 20:40, which checked `5acbf80`'s landing. This bullet stopped at `e022337`'s push from `a2fd788` to
+~~~~~
+
+Lines 4471–4472 of the version at `1d57c00`:
+
+~~~~~
+- **Before this commit**, the six files its patch changes were staged off Viktor's
+  disk, from `E:\phase7_engine`, and matched an autocrlf checkout of `5acbf80` byte for
+~~~~~
+
+Line 4478 of the version at `1d57c00`:
+
+~~~~~
+  from the commit that writes this line, entries 45, 46 and 65**: the file
+~~~~~
+
+Lines 4575–4577 of the version at `1d57c00`:
+
+~~~~~
+  this line included: its `models.entry_model` entry in `FINGERPRINTED_MODULES` names
+  seven constants, none of which it changes, and `data.validation` and `utils.plotting`
+  are not among them; at `5acbf80`, `core.engine_core` is not among them, and
+~~~~~
+
+Lines 4713–4714 of the version at `1d57c00`:
+
+~~~~~
+- **Test suite** — **1010 passed / 0 failed, no warnings line** with `pandas_ta`;
+  **837 passed / 169 skipped** without it; `run_tests.py` **941 passed / 0 failed /
+~~~~~
+
+Lines 4719–4721 of the version at `1d57c00`:
+
+~~~~~
+  until `713e084` (entry 50). **The commit that writes this line adds no test and
+  moves no count**, counted in the Linux sandbox under Python 3.12.3 on the applied
+  tree, so `README.md`'s Tests row stays as it is. **Entry 40, `5acbf80`, adds two
+~~~~~
+
+Line 5237 of the version at `1d57c00`:
+
+~~~~~
+- **Engineering Notes:** through Entry #306 (v1.44), which covers `e022337`; **six
+~~~~~
+
+Line 5239 of the version at `1d57c00`:
+
+~~~~~
+  `5acbf80` and the commit that writes this line. This bullet said none was behind from `9708a35` to
+~~~~~
+
+Lines 5314–5316 of the version at `1d57c00`:
+
+~~~~~
+  Viktor before his commit, and nothing else in it. **Its test counts are current (1004,
+  835 / 165 and 935 passed, 0 failed), last changed by the BLESS commit, the commit
+  that writes this line; before it by `4200f3b`, stage 7, with four stale passages** (THE REDESIGN'S BUILD, stage 7; stages 2 to 4 changed the counts too,
+~~~~~
+
+Line 6298 of the version at `1d57c00`:
+
+~~~~~
+  landed**, by the commit that writes this line, with 46 and 65: the import and the
+~~~~~
+
+Lines 6307–6308 of the version at `1d57c00`:
+
+~~~~~
+  after the audit, sorted …"). **26 November: landed**, by the commit that writes this
+  line, with 45 and 65: `for target, label, color in [(t1, …), (t2, …), (t3, …)]`, the
+~~~~~
+
+Line 6688 of the version at `1d57c00`:
+
+~~~~~
+  sort. **26 November: landed**, by the commit that writes this line, with 45 and 46,
+~~~~~
+
+Line 6750 of the version at `1d57c00`:
+
+~~~~~
+  copy). Claude's; entry 70, not in the sort.
+~~~~~
+
+Lines 7041–7055 of the version at `1d57c00`:
+
+~~~~~
+- **`5acbf80`'s landing:** checked by this session against his disk and GitHub, and
+  holding. Its tree, read from GitHub, is `e302aded…`, the one its `Verified-Tree:`
+  line names. On his disk: its eight files byte for byte an autocrlf checkout of the
+  tip, applied at 19:46:55 on 26 November; pytest's `nodeids` written at 19:50:36,
+  holding the two new tests' ids, and `lastfailed` `{}`; the index the tip's tree; the
+  commit object and `COMMIT_EDITMSG` the commit's, with no CR; `master` at 20:31:46 and
+  `origin/master` at 20:32:03, by push; no delivery file in the root.
+  `check_history_move.py --base 5acbf80~1` on the tip gives its message's line.
+  GitHub's tip read as `5acbf80` at 20:41, with no credentials. The six files this
+  commit's patch changes were staged off his disk and matched that checkout byte for
+  byte before the patch was built.
+- **This section stayed at `fef9b4a`'s session** through `49ca50c` and `5acbf80`,
+  which did not rewrite it; so did the Portfolio Document bullet's "the commit that
+  writes this line" for `923afaf`. Both corrected on 26 November; the lines removed are
+  in HISTORY's entry for this commit.
+~~~~~
